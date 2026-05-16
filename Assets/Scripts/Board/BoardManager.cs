@@ -18,10 +18,15 @@ public class BoardManager : MonoBehaviour
     private Tile[,] tiles; // 모든 타일을 좌표 기준으로 저장하는 2차원 배열
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
         tiles = new Tile[width, height];// 타일 2차원 배열 생성
         GenerateBoard(); // 보드 생성
+    }
+
+    void Start()
+    {
+
     }
 
     // Update is called once per frame
@@ -84,9 +89,17 @@ public class BoardManager : MonoBehaviour
 
     public Tile GetTile(int x, int y) // 특정 좌표의 타일을 반환
     {
+        //타일 배열이 아직 생성되지 않았을 경우 방어
+        if (tiles == null)
+        {
+            Debug.Log("Tiles 배열이 아직 생성되지 않았습니다.");
+            return null;
+        }
+
         // 범위 검사
         if (x < 0 || x >= width || y < 0 || y >= height)
         {
+            Debug.Log($"좌표 ({x}, {y})는 보드 범위를 벗어났습니다.");
             return null;
         }
 
