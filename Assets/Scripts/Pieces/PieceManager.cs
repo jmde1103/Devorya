@@ -22,8 +22,10 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private Sprite enemyPawnSprite;
 
     // 중립 장애물 스프라이트
-
     [SerializeField] private Sprite obstacleSprite;
+
+    //보드 좌표별 기물 저장 배열
+    private Piece[,] pieces;
 
     // 기물이 타일 위에 자연스럽게 올라오도록 Y 위치 보정
     [Header("Position Setting")]
@@ -32,6 +34,7 @@ public class PieceManager : MonoBehaviour
     // 게임 시작 시 한 번 실행
     private void Start()
     {
+        pieces = new Piece[boardManager.Width, boardManager.Height];
         // 테스트용 초기 기물 배치
         SpawnTestPieces();
     }
@@ -100,6 +103,9 @@ public class PieceManager : MonoBehaviour
         // 기물의 아이소메트리 정렬 순서 설정
         SetPieceSortingOrder(pieceObject, x, y);
 
+        //생성된 기물의 좌표 배열저장
+        pieces[x, y] = piece;
+
         // 생성한 Piece 반환
         return piece;
     }
@@ -126,6 +132,19 @@ public class PieceManager : MonoBehaviour
         }
 
     }
+
+    public Piece GetPieceAt(int x, int y) //여기에서 부터하면됨 *******************************************************************************
+    {
+        //좌표가 보드 밖이면 Null 반환
+        if (x < 0 ) 
+        {
+        
+        }
+
+
+        return pieces[x, y];
+    }
+
 
     //기물 종류와 팀에 맞는 스프라이트를 반환
     private Sprite GetPieceSprite(PieceType pieceType, PieceTeam team)

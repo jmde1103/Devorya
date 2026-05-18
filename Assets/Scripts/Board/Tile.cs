@@ -13,10 +13,16 @@ public class Tile : MonoBehaviour
     public bool IsWalkable { get; private set; } = true;// 이 타일 위에 기물이 올라갈 수 있는지 여부
     public bool HasObstacle { get; private set; } = false;// 이 타일 위에 장애물이 있는지 여부
 
+
+    private Color originalColor; // 원래 타일 색상 적용
+    [SerializeField]
+    private Color highlightColor = Color.yellow; // 이동 가능 타일 표시 색
+
     private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
+        originalColor = spriteRenderer.color; // 원래 색 저장
         spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer 컴포넌트 저장
         TileEffects = new List<TileEffectType>(); // 타일 효과 리스트 초기화
     }
@@ -65,6 +71,16 @@ public class Tile : MonoBehaviour
     public bool HasTileEffect(TileEffectType effectType) // 특정 효과를 가지고 있는지 확인
     {
         return TileEffects.Contains(effectType);
+    }
+
+    public void ShowHighlightColor() // 이동 가능 타일 표시
+    {
+        spriteRenderer.color = highlightColor;
+    }
+
+    public void HideHighlightColor()  // 타일 표시 원상 복구
+    {
+        spriteRenderer.color = originalColor;
     }
 
     public Vector2Int GetGridPosition()  // 현재 좌표 반환

@@ -58,4 +58,13 @@ public class Piece : MonoBehaviour
     {
         return new Vector2Int(X, Y);
     }
+
+    public void OnMouseDown() //마우스로 기물 클릭 했을 때 정보 자동 호출
+    {
+        if (BattleManager.Instance != null) 
+        {
+            //BattleManager.Instance.SelectPiece(this);
+        }
+        Debug.Log($"기물이 선택됨 : {Team} / {PieceType} / 좌표 ({X}, {Y})");
+    }
 }
