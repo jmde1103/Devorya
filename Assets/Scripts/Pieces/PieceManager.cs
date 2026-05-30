@@ -136,13 +136,10 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
-        // 타일의 월드 좌표 가져오기
-        Vector3 spawnPosition = boardManager.GridToWorld(x, y);
+        // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일 위치 기준으로 기물 생성 위치 계산
+        Vector3 spawnPosition = GetPieceWorldPosition(targetTile);
 
-        // 기물이 타일 위에 보이도록 Y 위치 보정
-        spawnPosition.y += pieceYOffset;
-
-        // 공통 프리팹 생성
+        // <변경부분> 현재 타일의 실제 월드 위치에 기물 생성
         GameObject pieceObject = Instantiate(piecePrefab, spawnPosition, Quaternion.identity, pieceParent);
 
         // 생성된 기물 이름 설정
@@ -480,35 +477,62 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
-        // 기존 좌표의 배열 비우기
+        // 기존 좌표의 기물 정보를 비워 이동 전 상태를 정리
         pieces[piece.X, piece.Y] = null;
 
-        // 이동할 타일 가져오기
+        // 이동할 좌표의 타일 정보를 가져와 실제 이동 위치 계산에 사용
         Tile targetTile = boardManager.GetTile(targetX, targetY);
 
-        // 타일이 없으면 종료
+        // 이동할 타일이 없으면 이동 처리 중단
         if (targetTile == null)
         {
             return;
         }
 
-        // 월드 좌표 계산
-        Vector3 targetPosition = boardManager.GridToWorld(targetX, targetY);
+        // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일 위치 기준으로 이동 위치 계산
+        Vector3 targetPosition = GetPieceWorldPosition(targetTile);
 
-        // 기물이 타일 위에 자연스럽게 올라오도록 Y 위치 보정
-        targetPosition.y += pieceYOffset;
-
-        // 실제 오브젝트 위치 이동
+        // <변경부분> 확대와 이동이 적용된 보드 위에서 기물이 정확한 타일 위치로 이동
         piece.transform.position = targetPosition;
 
-        // Piece 내부 좌표 갱신
+        // 기물의 논리 좌표와 현재 타일 정보를 갱신
         piece.SetPosition(targetX, targetY, targetTile);
 
-        // 새 좌표에 기물 저장
+        // 이동한 좌표에 기물 정보를 다시 저장
         pieces[targetX, targetY] = piece;
 
-        // 이동 후 정렬 순서 갱신
+        // 이동한 좌표 기준으로 기물 표시 순서를 갱신
         SetPieceSortingOrder(piece.gameObject, targetX, targetY);
+    }
+
+    // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일의 실제 월드 위치를 기준으로 기물 위치 계산
+    private Vector3 GetPieceWorldPosition(Tile targetTile)
+    {
+        // 타일이 없으면 기본 위치 반환
+        if (targetTile == null)
+        {
+            return Vector3.zero;
+        }
+
+        // 현재 화면 확대와 이동이 반영된 타일의 실제 위치 가져오기
+        Vector3 worldPosition = targetTile.transform.position;
+
+        // 기물이 타일 위에 자연스럽게 올라오도록 Y 위치 보정
+        worldPosition.y += pieceYOffset * targetTile.transform.lossyScale.y;
+
+        return worldPosition;
+    }
+
+    // 보드 좌표를 PieceParent 기준 로컬 좌표로 변환
+    private Vector3 GetPieceLocalPosition(int x, int y)
+    {
+        // 보드 좌표를 아이소메트릭 기준 위치로 변환
+        Vector3 localPosition = boardManager.GridToWorld(x, y);
+
+        // 기물이 타일 위에 자연스럽게 올라오도록 Y 위치 보정
+        localPosition.y += pieceYOffset;
+
+        return localPosition;
     }
 
     // 기물을 보드에서 제거하는 함수
