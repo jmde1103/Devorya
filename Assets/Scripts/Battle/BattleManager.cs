@@ -11,7 +11,6 @@ public class BattleManager : MonoBehaviour
     // 보드 매니저 참조
     [Header("Manager")]
     [SerializeField] private BoardManager boardManager;
-
     // 기물 매니저 참조
     [SerializeField] private PieceManager pieceManager;
 
@@ -23,6 +22,8 @@ public class BattleManager : MonoBehaviour
     private BattleResult battleResult = BattleResult.None;
 
 
+    // <변경부분> 기물 타입 아이콘 표시 상태
+    private bool isTypeIconVisible = false;
     // 흡수 모드가 켜져 있는지 여부
     private bool isAbsorbMode = false;
     // 전투가 끝났는지 여부
@@ -40,6 +41,8 @@ public class BattleManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private Button absorbButton;
     [SerializeField] private Button surrenderButton;
+    // <변경부분> 기물 타입 아이콘 표시 버튼
+    [SerializeField] private Button typeIconButton;
 
     // 흡수 버튼 텍스트
     [SerializeField] private TMP_Text absorbButtonText;
@@ -67,6 +70,12 @@ public class BattleManager : MonoBehaviour
 
         // 흡수 버튼 텍스트 초기화
         UpdateAbsorbButtonText();
+
+        // <변경부분> 기물 타입 아이콘 버튼 연결
+        if (typeIconButton != null)
+        {
+            typeIconButton.onClick.AddListener(ToggleTypeIcons);
+        }
     }
 
     private void Update()
@@ -124,6 +133,8 @@ public class BattleManager : MonoBehaviour
         if (piece == null)
         {
             selectedPiece = null;
+            // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
+            SetAllTypeIconsVisible(false);
             return;
         }
 
@@ -131,6 +142,8 @@ public class BattleManager : MonoBehaviour
         if (piece.CanMove == false)
         {
             selectedPiece = null;
+            // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
+            SetAllTypeIconsVisible(false);
             return;
         }
 
@@ -152,6 +165,9 @@ public class BattleManager : MonoBehaviour
 
         // 선택 기물 저장
         selectedPiece = piece;
+
+        // <변경부분> 선택한 기물의 타입 아이콘만 표시
+        ShowOnlySelectedPieceTypeIcon(selectedPiece);
 
         // 이동 가능 타일 표시
         ShowMovableTiles(selectedPiece);
@@ -183,6 +199,9 @@ public class BattleManager : MonoBehaviour
 
         // 해당 타일에 있는 기물 확인
         Piece targetPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
+
+        // <변경부분> 기물이 이동/공격하면 모든 타입 아이콘 비활성화
+        SetAllTypeIconsVisible(false);
 
         // 타겟 기물이 있으면 공격 처리
         if (targetPiece != null)
@@ -613,6 +632,55 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    // <변경부분> 모든 기물 타입 아이콘 표시 상태 전환
+    public void ToggleTypeIcons()
+    {
+        // 타입 아이콘 표시 상태 반전
+        isTypeIconVisible = !isTypeIconVisible;
+
+        // 모든 기물의 타입 아이콘 표시 상태 적용
+        SetAllTypeIconsVisible(isTypeIconVisible);
+    }
+
+    // <변경부분> 보드 위 모든 기물의 타입 아이콘 표시 상태 설정
+    private void SetAllTypeIconsVisible(bool isVisible)
+    {
+        // 보드 전체 X 좌표 검사
+        for (int x = 0; x < boardManager.Width; x++)
+        {
+            // 보드 전체 Y 좌표 검사
+            for (int y = 0; y < boardManager.Height; y++)
+            {
+                // 현재 좌표의 기물 가져오기
+                Piece piece = pieceManager.GetPieceAt(x, y);
+
+                // 기물이 없으면 다음 칸 검사
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                // 해당 기물의 타입 아이콘 표시 상태 적용
+                piece.SetTypeIconVisible(isVisible);
+            }
+        }
+    }
+
+    // <변경부분> 선택한 기물만 타입 아이콘 표시
+    private void ShowOnlySelectedPieceTypeIcon(Piece piece)
+    {
+        // 모든 기물 타입 아이콘 끄기
+        SetAllTypeIconsVisible(false);
+
+        // 선택한 기물이 없으면 종료
+        if (piece == null)
+        {
+            return;
+        }
+
+        // 선택한 기물의 타입 아이콘만 켜기
+        piece.SetTypeIconVisible(true);
+    }
 
     public void EndTurn() // 현재 턴을 종료하고 상대 턴으로 넘기는 함수
     {

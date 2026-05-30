@@ -38,6 +38,31 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private Sprite absorbedJelluBishopBackSprite;
     [SerializeField] private Sprite absorbedJelluKingBackSprite;
 
+    // Player아이콘 위치
+    [Header("Player Type Icon Positions")]
+    [SerializeField] private Vector3 playerPawnTypeIconPosition;
+    [SerializeField] private Vector3 playerRookTypeIconPosition;
+    [SerializeField] private Vector3 playerKnightTypeIconPosition;
+    [SerializeField] private Vector3 playerBishopTypeIconPosition;
+    [SerializeField] private Vector3 playerKingTypeIconPosition;
+
+    // Enemy 타입 아이콘 위치
+    [Header("Enemy Type Icon Positions")]
+    [SerializeField] private Vector3 enemyPawnTypeIconPosition;
+    [SerializeField] private Vector3 enemyRookTypeIconPosition;
+    [SerializeField] private Vector3 enemyKnightTypeIconPosition;
+    [SerializeField] private Vector3 enemyBishopTypeIconPosition;
+    [SerializeField] private Vector3 enemyKingTypeIconPosition;
+
+
+    // 흡수된 Jellu 타입 아이콘 위치
+    [Header("Absorbed Jellu Type Icon Positions")]
+    [SerializeField] private Vector3 absorbedJelluPawnTypeIconPosition;
+    [SerializeField] private Vector3 absorbedJelluRookTypeIconPosition;
+    [SerializeField] private Vector3 absorbedJelluKnightTypeIconPosition;
+    [SerializeField] private Vector3 absorbedJelluBishopTypeIconPosition;
+    [SerializeField] private Vector3 absorbedJelluKingTypeIconPosition;
+
     //중립 기물 스프라이트
     [Header("Neutral Piece Sprites")]
     [SerializeField] private Sprite obstacleSprite;
@@ -133,11 +158,14 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
+        // 기물 데이터 초기화
+        piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill);
+
         // 팀과 기물 종류에 맞는 스프라이트 적용
         ApplyPieceSprite(pieceObject, pieceType, team);
 
-        // 기물 데이터 초기화
-        piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill);
+        // <변경부분> 생성된 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
+        ApplyCurrentTypeIconPosition(piece);
 
         // 기물의 아이소메트리 정렬 순서 설정
         SetPieceSortingOrder(pieceObject, x, y);
@@ -207,6 +235,9 @@ public class PieceManager : MonoBehaviour
         {
             spriteRenderer.sprite = newSprite;
         }
+
+        // <변경부분> 흡수 후 현재 외형 상태에 맞는 타입 아이콘 위치 적용
+        ApplyCurrentTypeIconPosition(absorber);
     }
 
     // 흡수 후 플레이어 진영에서 사용할 Jellu 뒷면 스프라이트 반환
@@ -259,6 +290,128 @@ public class PieceManager : MonoBehaviour
         {
             spriteRenderer.sprite = spriteToApply;
         }
+    }
+
+    // <변경부분> 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
+    private void ApplyCurrentTypeIconPosition(Piece piece)
+    {
+        // 기물이 없으면 종료
+        if (piece == null)
+        {
+            return;
+        }
+
+        // 현재 기물 상태에 맞는 타입 아이콘 위치 가져오기
+        Vector3 iconPosition = GetTypeIconPosition(piece);
+
+        // 기물에 타입 아이콘 위치 적용
+        piece.SetTypeIconLocalPosition(iconPosition);
+    }
+
+    // <변경부분> 현재 기물 상태에 맞는 타입 아이콘 위치 반환
+    private Vector3 GetTypeIconPosition(Piece piece)
+    {
+        // 기물이 없으면 기본 위치 반환
+        if (piece == null)
+        {
+            return Vector3.zero;
+        }
+
+        // 흡수된 Jellu 외형이면 흡수된 Jellu 아이콘 위치 사용
+        if (piece.IsAbsorbedJelluVisual)
+        {
+            return GetAbsorbedJelluTypeIconPosition(piece.PieceType);
+        }
+
+        // Player 기물이면 Player 아이콘 위치 사용
+        if (piece.Team == PieceTeam.Player)
+        {
+            return GetPlayerTypeIconPosition(piece.PieceType);
+        }
+
+        // Enemy 기물이면 Enemy 아이콘 위치 사용
+        if (piece.Team == PieceTeam.Enemy)
+        {
+            return GetEnemyTypeIconPosition(piece.PieceType);
+        }
+
+        // 그 외 기물은 기본 위치 사용
+        return Vector3.zero;
+    }
+
+    // <변경부분> Player 기물 타입에 맞는 아이콘 위치 반환
+    private Vector3 GetPlayerTypeIconPosition(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Pawn:
+                return playerPawnTypeIconPosition;
+
+            case PieceType.Rook:
+                return playerRookTypeIconPosition;
+
+            case PieceType.Knight:
+                return playerKnightTypeIconPosition;
+
+            case PieceType.Bishop:
+                return playerBishopTypeIconPosition;
+
+            case PieceType.King:
+                return playerKingTypeIconPosition;
+        }
+
+        // 타입이 맞지 않으면 기본 위치 반환
+        return Vector3.zero;
+    }
+
+    // <변경부분> Enemy 기물 타입에 맞는 아이콘 위치 반환
+    private Vector3 GetEnemyTypeIconPosition(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Pawn:
+                return enemyPawnTypeIconPosition;
+
+            case PieceType.Rook:
+                return enemyRookTypeIconPosition;
+
+            case PieceType.Knight:
+                return enemyKnightTypeIconPosition;
+
+            case PieceType.Bishop:
+                return enemyBishopTypeIconPosition;
+
+            case PieceType.King:
+                return enemyKingTypeIconPosition;
+        }
+
+        // 타입이 맞지 않으면 기본 위치 반환
+        return Vector3.zero;
+    }
+
+    // <변경부분> 흡수된 Jellu 기물 타입에 맞는 아이콘 위치 반환
+    private Vector3 GetAbsorbedJelluTypeIconPosition(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Pawn:
+                return absorbedJelluPawnTypeIconPosition;
+
+            case PieceType.Rook:
+                return absorbedJelluRookTypeIconPosition;
+
+            case PieceType.Knight:
+                return absorbedJelluKnightTypeIconPosition;
+
+            case PieceType.Bishop:
+                return absorbedJelluBishopTypeIconPosition;
+
+            case PieceType.King:
+                return absorbedJelluKingTypeIconPosition;
+        }
+
+        // 타입이 맞지 않으면 기본 위치 반환
+        return Vector3.zero;
     }
 
     public Piece GetPieceAt(int x, int y)
@@ -504,6 +657,9 @@ public class PieceManager : MonoBehaviour
 
         // <변경부분> 복사된 외형 상태 반영
         ApplyCurrentVisual(clonedPiece);
+
+        // <변경부분> 복제된 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
+        ApplyCurrentTypeIconPosition(clonedPiece);
 
         return clonedPiece;
     }

@@ -18,6 +18,26 @@ public class Piece : MonoBehaviour
     // 현재 턴에 고유 스킬 사용 여부
     [SerializeField] private bool hasUsedUniqueSkillThisTurn = false;
 
+    [Header("Type Icon")]
+    // 기물 타입 아이콘 전체 오브젝트
+    [SerializeField] private GameObject typeIconRoot;
+    // 기물 타입 아이콘 이미지
+    [SerializeField] private SpriteRenderer typeIconRenderer;
+    // Pawn 아이콘
+    [SerializeField] private Sprite pawnIconSprite;
+    // Rook 아이콘
+    [SerializeField] private Sprite rookIconSprite;
+    // Bishop 아이콘
+    [SerializeField] private Sprite bishopIconSprite;
+    // Knight 아이콘
+    [SerializeField] private Sprite knightIconSprite;
+    // King 아이콘
+    [SerializeField] private Sprite kingIconSprite;
+    // Queen 아이콘
+    [SerializeField] private Sprite QueenIconSprite;
+    // Special 아이콘
+    [SerializeField] private Sprite specialIconSprite;
+
     public bool CanMove { get; private set; } // 기물의 소속 진영
     public int X { get; private set; } // 현재 보드 X 좌표
     public int Y { get; private set; } // 현재 보드 Y 좌표
@@ -25,12 +45,20 @@ public class Piece : MonoBehaviour
 
     private SpriteRenderer spriteRenderer; // SpriteRenderer 캐싱
 
+
+
+
     public bool IsAbsorbedJelluVisual { get; private set; } // 이 기물이 흡수된 Jellu 뒷면 외형을 사용하는지 여부
 
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer를 한 번만 찾아 저장
+        // <변경부분> 기물 생성 직후 타입 아이콘 비활성화
+        if (typeIconRoot != null)
+        {
+            typeIconRoot.SetActive(false);
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -193,6 +221,82 @@ public class Piece : MonoBehaviour
     public void SetAbsorbedJelluVisual(bool value)  // <변경부분> 흡수 외형 상태를 설정하는 함수
     {
         IsAbsorbedJelluVisual = value;
+    }
+
+    // <변경부분> 기물 타입 아이콘 표시 여부 설정
+    public void SetTypeIconVisible(bool isVisible)
+    {
+        // 타입 아이콘 오브젝트가 없으면 종료
+        if (typeIconRoot == null)
+        {
+            return;
+        }
+
+        // 타입 아이콘 표시 상태 변경
+        typeIconRoot.SetActive(isVisible);
+
+        // 타입 아이콘을 켤 때 현재 기물 타입에 맞는 이미지 적용
+        if (isVisible)
+        {
+            UpdateTypeIconSprite();
+        }
+    }
+
+    // <변경부분> 타입 아이콘 위치 설정
+    public void SetTypeIconLocalPosition(Vector3 localPosition)
+    {
+        // 타입 아이콘 오브젝트가 없으면 종료
+        if (typeIconRoot == null)
+        {
+            return;
+        }
+
+        // 타입 아이콘 위치 적용
+        typeIconRoot.transform.localPosition = localPosition;
+    }
+
+    // <변경부분> 현재 기물 타입에 맞는 아이콘 스프라이트 적용
+    private void UpdateTypeIconSprite()
+    {
+        // 타입 아이콘 이미지가 없으면 종료
+        if (typeIconRenderer == null)
+        {
+            return;
+        }
+
+        // 현재 기물 타입에 맞는 아이콘 선택
+        switch (PieceType)
+        {
+            case PieceType.Pawn:
+                // Pawn 아이콘 적용
+                typeIconRenderer.sprite = pawnIconSprite;
+                break;
+
+            case PieceType.Rook:
+                // Rook 아이콘 적용
+                typeIconRenderer.sprite = rookIconSprite;
+                break;
+
+            case PieceType.Bishop:
+                // Bishop 아이콘 적용
+                typeIconRenderer.sprite = bishopIconSprite;
+                break;
+
+            case PieceType.Knight:
+                // Knight 아이콘 적용
+                typeIconRenderer.sprite = knightIconSprite;
+                break;
+
+            case PieceType.King:
+                // King 아이콘 적용
+                typeIconRenderer.sprite = kingIconSprite;
+                break;
+
+            case PieceType.Special:
+                // Special 아이콘 적용
+                typeIconRenderer.sprite = specialIconSprite;
+                break;
+        }
     }
 
 
