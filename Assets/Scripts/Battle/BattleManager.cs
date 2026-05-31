@@ -105,16 +105,17 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // 흡수 버튼 텍스트를 현재 상태에 맞게 갱신하는 함수
+    // 흡수 버튼에 현재 흡수 모드 상태를 표시
     private void UpdateAbsorbButtonText()
     {
-        // 버튼 텍스트가 없으면 종료
+        // 흡수 버튼 텍스트가 연결되지 않았으면 갱신 중단
         if (absorbButtonText == null)
         {
+            Debug.LogWarning("Absorb Button Text가 연결되지 않았습니다.");
             return;
         }
 
-        // 흡수 모드 상태에 따라 버튼 텍스트 변경
+        // 현재 흡수 모드 상태에 따라 버튼 텍스트 변경
         absorbButtonText.text = isAbsorbMode ? "흡수 ON" : "흡수 OFF";
     }
 
@@ -216,6 +217,7 @@ public class BattleManager : MonoBehaviour
             // 단, 상대 King은 흡수 대상에서 제외
             if (isAbsorbMode &&
                 selectedPiece.Team == PieceTeam.Player &&
+                selectedPiece.PieceType != PieceType.King &&
                 targetPiece.Team == PieceTeam.Enemy &&
                 targetPiece.PieceType != PieceType.King)
             {
@@ -267,7 +269,6 @@ public class BattleManager : MonoBehaviour
         Debug.Log("기권: 일반 전투 패배 / 보상 없음 / 받은 피해와 사망 상태 유지");
     }
 
-    // 흡수 모드를 켜고 끄는 함수
     public void ToggleAbsorbMode()
     {
         // 플레이어 턴이 아니면 사용 불가
@@ -277,14 +278,29 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 선택된 기물이 없으면 흡수 모드 진입 불가
+        if (selectedPiece == null)
+        {
+            Debug.Log("흡수할 기물을 먼저 선택해야 합니다.");
+            return;
+        }
+
+        // <변경부분> 플레이어 킹은 흡수 시 기물 정체성이 사라지므로 흡수 모드 진입 차단
+        if (selectedPiece.Team == PieceTeam.Player &&
+            selectedPiece.PieceType == PieceType.King)
+        {
+            isAbsorbMode = false;
+            UpdateAbsorbButtonText();
+
+            Debug.Log("Player King은 흡수를 사용할 수 없습니다.");
+            return;
+        }
+
         // 흡수 모드 상태 반전
         isAbsorbMode = !isAbsorbMode;
 
-        // 버튼 텍스트 갱신
+        // 흡수 버튼 텍스트 갱신
         UpdateAbsorbButtonText();
-
-        // 상태 로그 출력
-        Debug.Log(isAbsorbMode ? "흡수 모드 ON" : "흡수 모드 OFF");
     }
 
     // 현재 선택된 기물의 고유 스킬을 사용하는 함수
