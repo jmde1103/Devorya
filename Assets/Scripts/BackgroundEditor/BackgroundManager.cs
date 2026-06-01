@@ -32,12 +32,12 @@ public class BackgroundManager : MonoBehaviour
     [SerializeField] private bool useDarkBackground = true;
     [SerializeField] private Color darkBackgroundColor = new Color(0.65f, 0.65f, 0.65f, 1f);
 
-    [Header("배경 타일 페인트 테스트")]
-    // <변경부분> 테스트로 변경할 배경 타일 타입
-    [SerializeField] private BackgroundTileType paintTileType = BackgroundTileType.Water;
-    // <변경부분> 테스트로 변경할 배경 타일 X 좌표
+    [Header("배경 타일 페인트 설정")]
+    // <변경부분> 씬뷰 페인트에 사용할 배경 타일 타입
+    [SerializeField] private BackgroundTileType paintTileType = BackgroundTileType.Forest;
+    // <변경부분> 좌표 입력 방식으로 변경할 배경 타일 X 좌표
     [SerializeField] private int paintX = 0;
-    // <변경부분> 테스트로 변경할 배경 타일 Y 좌표
+    // <변경부분> 좌표 입력 방식으로 변경할 배경 타일 Y 좌표
     [SerializeField] private int paintY = 0;
 
     [Header("배경 타일 브러시 설정")]
@@ -257,6 +257,14 @@ public class BackgroundManager : MonoBehaviour
     // <변경부분> 지정한 좌표의 배경 타일을 선택한 타입으로 교체
     public void PaintBackgroundTile(BackgroundTileType tileType, int x, int y)
     {
+
+        // <변경부분> 선택한 타입에 사용할 스프라이트가 없으면 페인트 중단
+        if (!HasTileSprites(tileType))
+        {
+            Debug.LogWarning($"{tileType} 타입에 연결된 배경 타일 스프라이트가 없습니다.");
+            return;
+        }
+
         // <변경부분> 에디터 스크립트 리로드 후에도 씬에 남은 배경 타일을 다시 배열에 연결
         if (backgroundTiles == null)
         {
@@ -288,8 +296,28 @@ public class BackgroundManager : MonoBehaviour
         SpawnBackgroundTile(tileType, x, y);
     }
 
-    // <변경부분> 인스펙터에 입력한 좌표와 타입으로 배경 타일 교체 테스트
-    public void PaintTestTile()
+    // <변경부분> 선택한 배경 타일 타입에 스프라이트가 등록되어 있는지 확인
+    public bool HasTileSprites(BackgroundTileType tileType)
+    {
+        // 에디터에서 변경한 스프라이트 목록을 최신 상태로 갱신
+        BuildTileSpriteDictionary();
+
+        if (tileSpriteDictionary == null)
+        {
+            return false;
+        }
+
+        if (!tileSpriteDictionary.ContainsKey(tileType))
+        {
+            return false;
+        }
+
+        return tileSpriteDictionary[tileType] != null &&
+               tileSpriteDictionary[tileType].Count > 0;
+    }
+
+    // <변경부분> 인스펙터에 입력한 좌표와 타입으로 배경 타일 교체
+    public void PaintSelectedTileByInput()
     {
         PaintBackgroundTile(paintTileType, paintX, paintY);
     }
@@ -435,12 +463,18 @@ public class BackgroundManagerEditor : Editor
 
         if (GUILayout.Button("Generate Grass Background"))
         {
-            manager.GenerateBackground(BackgroundTileType.Grass);
+            manager.GenerateBackground(BackgroundTileType.All);
         }
 
         if (GUILayout.Button("Clear Background"))
         {
             manager.ClearBackground();
+        }
+
+        // <변경부분> 입력한 좌표의 배경 타일을 현재 선택한 타입으로 교체
+        if (GUILayout.Button("Paint Selected Tile By Input"))
+        {
+            manager.PaintSelectedTileByInput();
         }
 
         GUILayout.Space(10);

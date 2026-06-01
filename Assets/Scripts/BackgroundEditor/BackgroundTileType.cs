@@ -2,12 +2,13 @@ using UnityEngine;
 
 public enum BackgroundTileType
 {
-    Grass,
+    All,
     Forest,
     Water,
     Stone,
     Road,
     Swamp,
     Snow,
-    Lava
+    Lava,
+    Metal
 }
