@@ -158,6 +158,19 @@ public class PieceManager : MonoBehaviour
         // 기물 데이터 초기화
         piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill);
 
+        // <변경부분> 테스트용: 적 기물은 King을 제외하고 확률적으로 찬스어택 일반 스킬을 보유
+        if (team == PieceTeam.Enemy && pieceType != PieceType.King)
+        {
+            // 테스트 단계에서는 50% 확률로 찬스어택을 부여
+            if (Random.Range(0, 100) < 50)
+            {
+                // 테스트용으로 LV1 찬스어택 부여
+                piece.SetTestGeneralSkill(GeneralSkillType.ChanceAttack, 1);
+
+                Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / ChanceAttack LV.1");
+            }
+        }
+
         // 팀과 기물 종류에 맞는 스프라이트 적용
         ApplyPieceSprite(pieceObject, pieceType, team);
 
@@ -214,6 +227,9 @@ public class PieceManager : MonoBehaviour
 
         // 대상 기물 데이터를 흡수자에게 복사
         absorber.AbsorbFrom(targetPiece);
+
+        // <변경부분> 대상이 가진 일반 스킬을 흡수자 일반 스킬 슬롯에 저장하거나 성장시킴
+        absorber.AbsorbGeneralSkillsFrom(targetPiece);
 
         // 흡수자의 SpriteRenderer 가져오기
         SpriteRenderer spriteRenderer = absorber.GetComponent<SpriteRenderer>();

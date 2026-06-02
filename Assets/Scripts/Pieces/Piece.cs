@@ -1,9 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
+
 
 public class Piece : MonoBehaviour
 {
     public PieceType PieceType { get; private set; } // 현재 기물의 종류
     public PieceTeam Team { get; private set; } // 기물의 소속 진영
+
+    // <변경부분> 이 기물이 보유한 일반 스킬 목록
+    [SerializeField] private List<GeneralSkillData> generalSkills = new List<GeneralSkillData>();
+
+    // <변경부분> 일반 스킬 최대 레벨
+    private const int MaxGeneralSkillLevel = 3;
 
     // 현재 기물이 보유한 고유 스킬
     public UniqueSkillType UniqueSkill { get; private set; }
@@ -297,6 +305,105 @@ public class Piece : MonoBehaviour
                 typeIconRenderer.sprite = specialIconSprite;
                 break;
         }
+    }
+
+    // <변경부분> 일반 스킬을 추가하거나 같은 스킬이 있으면 레벨업하는 함수
+    public void AddOrLevelUpGeneralSkill(GeneralSkillType skillType)
+    {
+        // 일반 스킬 없음은 저장하지 않음
+        if (skillType == GeneralSkillType.None)
+        {
+            return;
+        }
+
+        // 이미 같은 일반 스킬을 가지고 있는지 검사
+        foreach (GeneralSkillData skillData in generalSkills)
+        {
+            if (skillData.skillType == skillType)
+            {
+                // 같은 스킬이 있으면 최대 레벨 안에서 레벨업
+                skillData.level = Mathf.Min(skillData.level + 1, MaxGeneralSkillLevel);
+
+                Debug.Log($"일반 스킬 레벨업: {skillType} / LV.{skillData.level}");
+                return;
+            }
+        }
+
+        // 같은 스킬이 없으면 LV1로 새로 추가
+        generalSkills.Add(new GeneralSkillData(skillType, 1));
+
+        Debug.Log($"일반 스킬 획득: {skillType} / LV.1");
+    }
+
+    // <변경부분> 특정 일반 스킬을 가지고 있는지 확인하는 함수
+    public bool HasGeneralSkill(GeneralSkillType skillType)
+    {
+        foreach (GeneralSkillData skillData in generalSkills)
+        {
+            if (skillData.skillType == skillType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // <변경부분> 특정 일반 스킬의 레벨을 반환하는 함수
+    public int GetGeneralSkillLevel(GeneralSkillType skillType)
+    {
+        foreach (GeneralSkillData skillData in generalSkills)
+        {
+            if (skillData.skillType == skillType)
+            {
+                return skillData.level;
+            }
+        }
+
+        return 0;
+    }
+
+    // <변경부분> 다른 기물이 가진 일반 스킬을 흡수해서 획득하거나 성장시키는 함수
+    public void AbsorbGeneralSkillsFrom(Piece targetPiece)
+    {
+        // 흡수 대상이 없으면 종료
+        if (targetPiece == null)
+        {
+            return;
+        }
+
+        // 대상이 가진 일반 스킬 목록을 하나씩 검사
+        foreach (GeneralSkillData targetSkill in targetPiece.generalSkills)
+        {
+            // 대상의 일반 스킬을 현재 기물에게 획득 또는 레벨업 처리
+            AddOrLevelUpGeneralSkill(targetSkill.skillType);
+        }
+    }
+
+    // <변경부분> 테스트용으로 일반 스킬을 강제로 부여하는 함수
+    public void SetTestGeneralSkill(GeneralSkillType skillType, int level)
+    {
+        // 일반 스킬 없음은 저장하지 않음
+        if (skillType == GeneralSkillType.None)
+        {
+            return;
+        }
+
+        // 레벨을 1~3 사이로 제한
+        int clampedLevel = Mathf.Clamp(level, 1, MaxGeneralSkillLevel);
+
+        // 이미 같은 스킬이 있으면 레벨만 갱신
+        foreach (GeneralSkillData skillData in generalSkills)
+        {
+            if (skillData.skillType == skillType)
+            {
+                skillData.level = clampedLevel;
+                return;
+            }
+        }
+
+        // 같은 스킬이 없으면 새로 추가
+        generalSkills.Add(new GeneralSkillData(skillType, clampedLevel));
     }
 
 

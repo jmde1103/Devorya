@@ -1,19 +1,49 @@
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class Decoration : MonoBehaviour
 {
-    // 장식물이 어떤 종류인지 저장
-    public DecorationType DecorationType { get; private set; }
+    [Header("장식물 데이터")]
+    // <변경부분> Play 후에도 유지되도록 장식물 타입을 직렬화해서 저장
+    [SerializeField] private DecorationType decorationType;
 
-    // 장식물이 배치된 배경 타일 좌표를 저장
-    public int X { get; private set; }
-    public int Y { get; private set; }
+    // <변경부분> Play 후에도 유지되도록 장식물 X 좌표를 직렬화해서 저장
+    [SerializeField] private int x;
+
+    // <변경부분> Play 후에도 유지되도록 장식물 Y 좌표를 직렬화해서 저장
+    [SerializeField] private int y;
+
+    // 장식물이 어떤 종류인지 확인
+    public DecorationType DecorationType => decorationType;
+
+    // 장식물의 배경 타일 X 좌표 확인
+    public int X => x;
+
+    // 장식물의 배경 타일 Y 좌표 확인
+    public int Y => y;
 
     // 장식물의 타입과 배치 좌표를 초기화
-    public void Initialize(DecorationType decorationType, int x, int y)
+    public void Initialize(DecorationType newDecorationType, int newX, int newY)
     {
-        DecorationType = decorationType;
-        X = x;
-        Y = y;
+        decorationType = newDecorationType;
+        x = newX;
+        y = newY;
+
+        MarkDirtyInEditor();
+    }
+
+    // <변경부분> 에디터에서 변경된 장식물 데이터가 씬에 저장되도록 표시
+    private void MarkDirtyInEditor()
+    {
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            EditorUtility.SetDirty(this);
+            EditorUtility.SetDirty(gameObject);
+        }
+#endif
     }
 }

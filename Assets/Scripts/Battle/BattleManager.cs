@@ -31,11 +31,17 @@ public class BattleManager : MonoBehaviour
     // 현재 턴에 고유 스킬을 이미 사용했는지 여부
     private bool hasUsedUniqueSkillThisTurn = false;
 
+    // <변경부분> 찬스어택 발동으로 추가 행동 중인 기물
+    private Piece chanceAttackBonusPiece = null;
+
     // 현재 하이라이트된 타일 목록
     private readonly List<Tile> highlightedTiles = new List<Tile>();
 
     // 현재 선택된 기물이 실제로 이동/공격할 수 있는 타일 목록
     private readonly List<Tile> selectableTiles = new List<Tile>();
+
+    // <변경부분> 찬스어택이 연속으로 발동된 횟수
+    private int chanceAttackContinuousCount = 0;
 
     // UI 버튼들
     [Header("UI")]
@@ -139,6 +145,13 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 찬스어택 추가 행동 중에는 발동한 기물만 다시 선택 가능
+        if (chanceAttackBonusPiece != null && piece != chanceAttackBonusPiece)
+        {
+            Debug.Log("찬스어택 추가 행동 중에는 발동한 기물만 움직일 수 있습니다.");
+            return;
+        }
+
         // 이동할 수 없는 기물은 선택 불가
         if (piece.CanMove == false)
         {
@@ -201,8 +214,18 @@ public class BattleManager : MonoBehaviour
         // 해당 타일에 있는 기물 확인
         Piece targetPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
 
+        // <변경부분> 이번 행동을 실행하는 기물을 미리 저장
+        Piece actingPiece = selectedPiece;
+
+        // <변경부분> 흡수/레벨업이 적용되기 전 찬스어택 레벨을 저장
+        int chanceAttackLevelBeforeAction = actingPiece.GetGeneralSkillLevel(GeneralSkillType.ChanceAttack);
+
+        // <변경부분> 이번 행동으로 적 기물을 처치했는지 확인하기 위한 값
+        bool killedEnemyPiece = false;
+
         // <변경부분> 기물이 이동/공격하면 모든 타입 아이콘 비활성화
         SetAllTypeIconsVisible(false);
+
 
         // 타겟 기물이 있으면 공격 처리
         if (targetPiece != null)
@@ -224,6 +247,9 @@ public class BattleManager : MonoBehaviour
                 PieceType absorbedType = targetPiece.PieceType;
 
                 pieceManager.AbsorbPiece(selectedPiece, targetPiece);
+                // <변경부분> 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
+                killedEnemyPiece = true;
+
                 pieceManager.RemovePiece(targetPiece);
 
                 isAbsorbMode = false;
@@ -233,7 +259,9 @@ public class BattleManager : MonoBehaviour
             }
             else
             {
-                // King은 여기로 들어와서 흡수 없이 제거됨
+                // <변경부분> 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
+                killedEnemyPiece = true;
+
                 pieceManager.RemovePiece(targetPiece);
             }
         }
@@ -249,6 +277,35 @@ public class BattleManager : MonoBehaviour
         {
             return;
         }
+
+        // <변경부분> 적 기물을 처치했을 때, 행동 시작 전 레벨 기준으로 찬스어택 발동 여부 확인
+        if (killedEnemyPiece && TryActivateChanceAttack(actingPiece, chanceAttackLevelBeforeAction))
+        {
+            // <변경부분> 찬스어택 연속 발동 횟수 증가
+            chanceAttackContinuousCount++;
+
+            // 찬스어택 발동 기물을 추가 행동 기물로 저장
+            chanceAttackBonusPiece = actingPiece;
+
+            // 선택 기물을 유지해서 바로 이동 가능 타일을 다시 표시
+            selectedPiece = actingPiece;
+
+            // 기존 하이라이트 제거
+            ClearHighlights();
+
+            // 찬스어택 발동 기물만 타입 아이콘 표시
+            ShowOnlySelectedPieceTypeIcon(selectedPiece);
+
+            // 추가 이동 가능한 타일 표시
+            ShowMovableTiles(selectedPiece);
+
+            Debug.Log("찬스어택 발동: 턴 종료 없이 한 번 더 이동할 수 있습니다.");
+            return;
+        }
+
+        // <변경부분> 찬스어택이 실패하거나 발동 조건이 아니면 연속 발동 상태 초기화
+        chanceAttackBonusPiece = null;
+        chanceAttackContinuousCount = 0;
 
         // 이동 후 턴 종료
         EndTurn();
@@ -698,6 +755,61 @@ public class BattleManager : MonoBehaviour
         piece.SetTypeIconVisible(true);
     }
 
+    // <변경부분> 찬스어택 발동 여부를 행동 시작 전 레벨 기준으로 판정하는 함수
+    private bool TryActivateChanceAttack(Piece piece, int skillLevelBeforeAction)
+    {
+        // 판정할 기물이 없으면 실패
+        if (piece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 행동 시작 전에 찬스어택이 없었다면 이번 처치에서는 발동 불가
+        if (skillLevelBeforeAction <= 0)
+        {
+            Debug.Log("찬스어택 판정 실패: 이번 행동 시작 시점에는 찬스어택이 없었습니다.");
+            return false;
+        }
+
+        // 행동 시작 전 레벨 기준으로 기본 발동 확률 계산
+        int baseChancePercent = GetChanceAttackPercent(skillLevelBeforeAction);
+
+        // <변경부분> 연속 발동 횟수에 따라 확률을 1/3씩 감소
+        float penaltyMultiplier = Mathf.Pow(1f / 3f, chanceAttackContinuousCount);
+
+        // <변경부분> 최종 발동 확률 계산
+        float finalChancePercent = baseChancePercent * penaltyMultiplier;
+
+        // 0~100 사이 랜덤값 생성
+        float randomValue = Random.Range(0f, 100f);
+
+        // 최종 확률 안에 들어오면 발동 성공
+        bool isActivated = randomValue < finalChancePercent;
+
+        Debug.Log($"찬스어택 판정: 행동전 LV.{skillLevelBeforeAction} / 기본확률 {baseChancePercent}% / 연속횟수 {chanceAttackContinuousCount} / 최종확률 {finalChancePercent:F1}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+
+        return isActivated;
+    }
+
+    // <변경부분> 찬스어택 레벨에 따른 발동 확률을 반환하는 함수
+    private int GetChanceAttackPercent(int skillLevel)
+    {
+        switch (skillLevel)
+        {
+            case 1:
+                return 30;
+
+            case 2:
+                return 50;
+
+            case 3:
+                return 80;
+
+            default:
+                return 0;
+        }
+    }
+
     public void EndTurn() // 현재 턴을 종료하고 상대 턴으로 넘기는 함수
     {
         //전투가 끝났으면 턴 넘기기 불가
@@ -705,8 +817,18 @@ public class BattleManager : MonoBehaviour
         {
             return;
         }
+
         // 선택된 기물 해제
         selectedPiece = null;
+
+        // <변경부분> 턴이 끝나면 찬스어택 추가 행동 상태 초기화
+        chanceAttackBonusPiece = null;
+
+        // <변경부분> 턴이 끝나면 찬스어택 연속 발동 횟수 초기화
+        chanceAttackContinuousCount = 0;
+
+        // <변경부분> 턴이 끝나면 찬스어택 추가 행동 상태 해제
+        chanceAttackBonusPiece = null;
 
         // 하이라이트 제거
         ClearHighlights();
