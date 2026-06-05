@@ -16,10 +16,13 @@ public class BattleManager : MonoBehaviour
 
     // 현재 선택된 기물
     private Piece selectedPiece;
-    //현재 전투 턴
-    private BattleTurn currentTurn = BattleTurn.Player;
+    // 현재 전투 턴 주체
+    [SerializeField] private BattleTurn currentTurn = BattleTurn.Player;
     //현재 전투 결과 상태
     private BattleResult battleResult = BattleResult.None;
+
+    // <변경부분> 현재 전투 턴 번호
+    [SerializeField] private int turnCount = 1;
 
 
     // <변경부분> 기물 타입 아이콘 표시 상태
@@ -50,6 +53,8 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 기물 타입 아이콘 표시 버튼
     [SerializeField] private Button typeIconButton;
 
+    [SerializeField] private TurnInfoUIController turnInfoUIController;
+
 
     // 오브젝트 생성 시 한 번 실행
     private void Awake()
@@ -60,6 +65,13 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+        // <변경부분> 게임 시작 시 스테이지명과 턴 정보 표시
+        if (turnInfoUIController != null)
+        {
+            turnInfoUIController.SetStageName("젤루의 숲 입구 #1");
+            turnInfoUIController.RefreshTurnInfo(turnCount, currentTurn);
+        }
+
         // 기권 버튼 연결
         if (surrenderButton != null)
         {
@@ -278,6 +290,13 @@ public class BattleManager : MonoBehaviour
                 PieceType absorbedType = targetPiece.PieceType;
 
                 pieceManager.AbsorbPiece(selectedPiece, targetPiece);
+
+                // <변경부분> 흡수로 기물 외형/타입/스킬 정보가 바뀌었으므로 스테이터스 UI 갱신
+                if (battleUIController != null)
+                {
+                    battleUIController.RefreshSelectedPieceButtons(selectedPiece);
+                }
+
                 // <변경부분> 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
                 killedEnemyPiece = true;
 
@@ -840,54 +859,46 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    public void EndTurn() // 현재 턴을 종료하고 상대 턴으로 넘기는 함수
+    private void EndTurn()
     {
-        //전투가 끝났으면 턴 넘기기 불가
-        if (isBattleEnded)
-        {
-            return;
-        }
+        // <변경부분> 턴 종료 시 이동/공격 가능 타일 하이라이트 제거
+        ClearHighlights();
 
         // 선택된 기물 해제
         selectedPiece = null;
 
-        // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+        // 흡수 모드 해제
+        isAbsorbMode = false;
+
+        // 모든 타입 아이콘 비활성화
+        SetAllTypeIconsVisible(false);
+
+        // 턴 종료 시 액션 버튼 숨김
         if (battleUIController != null)
         {
             battleUIController.HideActionButtons();
         }
 
-        // <변경부분> 턴이 끝나면 찬스어택 추가 행동 상태 초기화
-        chanceAttackBonusPiece = null;
-
-        // <변경부분> 턴이 끝나면 찬스어택 연속 발동 횟수 초기화
-        chanceAttackContinuousCount = 0;
-
-        // <변경부분> 턴이 끝나면 찬스어택 추가 행동 상태 해제
-        chanceAttackBonusPiece = null;
-
-        // 하이라이트 제거
-        ClearHighlights();
-
-        // 턴 종료 시 흡수 모드 해제
-        isAbsorbMode = false;
-
-        // 현재 턴이 플레이어면 적 턴으로 변경
+        // 현재 턴이 플레이어 턴이면 AI 턴으로 변경
         if (currentTurn == BattleTurn.Player)
         {
             currentTurn = BattleTurn.Enemy;
-            Debug.Log("적 턴 시작");
         }
-        // 현재 턴이 적이면 플레이어 턴으로 변경
         else
         {
             currentTurn = BattleTurn.Player;
-            Debug.Log("플레이어 턴 시작");
+            turnCount++;
         }
-        // 턴 시작 시 고유 스킬 사용 여부 초기화 및 쿨타임 감소
-        UpdateAllUniqueSkillTurnState();
+
+        // 턴 변경 후 UI 갱신
+        if (turnInfoUIController != null)
+        {
+            turnInfoUIController.RefreshTurnInfo(turnCount, currentTurn);
+        }
+
+        Debug.Log($"턴 변경: Turn {turnCount} / {currentTurn}");
     }
- 
+
     //  턴 시작 시 모든 기물의 고유 스킬 상태 갱신
     private void UpdateAllUniqueSkillTurnState()
     {

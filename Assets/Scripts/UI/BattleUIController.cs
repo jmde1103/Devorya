@@ -11,6 +11,9 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Button absorbButton;
     [SerializeField] private Button uniqueSkillButton;
 
+    [Header("Piece Status UI")]
+    [SerializeField] private PieceStatusUIController pieceStatusUIController;
+
     [Header("Absorb Icon")]
     [SerializeField] private Image absorbIconImage;
     [SerializeField] private Sprite absorbOffSprite;
@@ -64,9 +67,16 @@ public class BattleUIController : MonoBehaviour
         battleManager.UseSelectedPieceSkill();
     }
 
-    // <변경부분> 선택된 기물 상태에 따라 버튼 표시 갱신
+    // 선택된 기물 상태에 따라 버튼 표시 갱신
     public void RefreshSelectedPieceButtons(Piece selectedPiece)
     {
+
+        // <변경부분> 선택한 기물 정보를 스테이터스 UI에 표시
+        if (pieceStatusUIController != null)
+        {
+            pieceStatusUIController.Refresh(selectedPiece);
+        }
+
         // 선택된 기물이 없으면 버튼 숨김
         if (selectedPiece == null)
         {
@@ -166,5 +176,12 @@ public class BattleUIController : MonoBehaviour
             uniqueSkillIconImage.sprite = null;
             uniqueSkillIconImage.enabled = false;
         }
+
+        // <변경부분> 선택 기물 정보 UI 비우기
+        if (pieceStatusUIController != null)
+        {
+            pieceStatusUIController.Clear();
+        }
+
     }
 }

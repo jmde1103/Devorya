@@ -250,6 +250,22 @@ public class Piece : MonoBehaviour
         }
     }
 
+    // <변경부분> 현재 기물 타입 아이콘 스프라이트를 최신 상태로 갱신한 뒤 반환하는 함수
+    public Sprite GetCurrentTypeIconSprite()
+    {
+        // 타입 아이콘 렌더러가 없으면 null 반환
+        if (typeIconRenderer == null)
+        {
+            return null;
+        }
+
+        // <변경부분> 스테이터스 UI에서 사용할 때도 현재 PieceType 기준으로 아이콘을 최신화
+        UpdateTypeIconSprite();
+
+        // 현재 기물이 실제로 사용 중인 타입 아이콘 스프라이트 반환
+        return typeIconRenderer.sprite;
+    }
+
     // <변경부분> 타입 아이콘 위치 설정
     public void SetTypeIconLocalPosition(Vector3 localPosition)
     {
@@ -300,10 +316,16 @@ public class Piece : MonoBehaviour
                 typeIconRenderer.sprite = kingIconSprite;
                 break;
 
+            case PieceType.Queen:
+                // <변경부분> Queen 아이콘 적용
+                typeIconRenderer.sprite = QueenIconSprite;
+                break;
+
             case PieceType.Special:
                 // Special 아이콘 적용
                 typeIconRenderer.sprite = specialIconSprite;
                 break;
+
         }
     }
 
@@ -361,6 +383,12 @@ public class Piece : MonoBehaviour
         }
 
         return 0;
+    }
+
+    //현재 기물이 보유한 일반 스킬 목록을 반환하는 함수
+    public List<GeneralSkillData> GetGeneralSkills()
+    {
+        return generalSkills;
     }
 
     // <변경부분> 다른 기물이 가진 일반 스킬을 흡수해서 획득하거나 성장시키는 함수
