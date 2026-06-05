@@ -214,6 +214,12 @@ public class Piece : MonoBehaviour
         // 대상의 고유 스킬 복사
         UniqueSkill = targetPiece.UniqueSkill;
 
+        // <변경부분> 흡수로 새로 얻은 고유스킬은 이번 턴에는 바로 사용할 수 없도록 처리
+        hasUsedUniqueSkillThisTurn = true;
+
+        // <변경부분> 흡수 직후 쿨타임은 1턴으로 설정해서 다음 턴부터 사용 가능하게 함
+        uniqueSkillCooldown = 1;
+
         // Jellu를 흡수한 상태로 표시
         IsAbsorbedJelluVisual = true;
 

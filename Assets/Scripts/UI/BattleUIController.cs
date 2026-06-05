@@ -12,7 +12,11 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Button uniqueSkillButton;
 
     [Header("Piece Status UI")]
-    [SerializeField] private PieceStatusUIController pieceStatusUIController;
+    // <변경부분> 플레이어 선택 기물 정보를 표시하는 스테이터스 UI
+    [SerializeField] private PieceStatusUIController playerStatusUIController;
+
+    // <변경부분> 상대 선택 기물 정보를 표시하는 스테이터스 UI
+    [SerializeField] private PieceStatusUIController enemyStatusUIController;
 
     [Header("Absorb Icon")]
     [SerializeField] private Image absorbIconImage;

@@ -16,6 +16,9 @@ public class BattleManager : MonoBehaviour
 
     // 현재 선택된 기물
     private Piece selectedPiece;
+    // <변경부분> 공격 전에 한 번 확인한 상대 기물
+    private Piece pendingAttackTargetPiece = null;
+
     // 현재 전투 턴 주체
     [SerializeField] private BattleTurn currentTurn = BattleTurn.Player;
     //현재 전투 결과 상태
@@ -118,7 +121,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    
+
 
     // 기물을 선택하는 함수
     public void SelectPiece(Piece piece)
@@ -128,6 +131,7 @@ public class BattleManager : MonoBehaviour
         {
             return;
         }
+
         // 이전 하이라이트 제거
         ClearHighlights();
 
@@ -136,25 +140,18 @@ public class BattleManager : MonoBehaviour
         {
             selectedPiece = null;
 
-            // 선택한 기물이 없으면 종료
-            if (piece == null)
-            {
-                selectedPiece = null;
-
-                // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
-                SetAllTypeIconsVisible(false);
-
-                // <변경부분> 선택된 기물이 없으므로 흡수/고유스킬 버튼 숨김
-                if (battleUIController != null)
-                {
-                    battleUIController.HideActionButtons();
-                }
-
-                return;
-            }
+            // <변경부분> 선택 해제 시 공격 확인 대상 초기화
+            pendingAttackTargetPiece = null;
 
             // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
             SetAllTypeIconsVisible(false);
+
+            // <변경부분> 선택된 기물이 없으므로 흡수/고유스킬 버튼 숨김
+            if (battleUIController != null)
+            {
+                battleUIController.HideActionButtons();
+            }
+
             return;
         }
 
@@ -214,6 +211,8 @@ public class BattleManager : MonoBehaviour
 
         // 선택 기물 저장
         selectedPiece = piece;
+        // <변경부분> 새 기물을 선택했으므로 이전 공격 확인 대상 초기화
+        pendingAttackTargetPiece = null;
 
         // <변경부분> 선택한 기물에 맞게 흡수/고유스킬 버튼 표시 갱신
         if (battleUIController != null)
@@ -864,6 +863,9 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 턴 종료 시 이동/공격 가능 타일 하이라이트 제거
         ClearHighlights();
 
+        // <변경부분> 턴 종료 시 공격 확인 대상 초기화
+    pendingAttackTargetPiece = null;
+
         // 선택된 기물 해제
         selectedPiece = null;
 
@@ -889,6 +891,9 @@ public class BattleManager : MonoBehaviour
             currentTurn = BattleTurn.Player;
             turnCount++;
         }
+
+        // <변경부분> 턴이 바뀐 뒤 고유 스킬 사용 상태와 쿨타임 갱신
+        UpdateAllUniqueSkillTurnState();
 
         // 턴 변경 후 UI 갱신
         if (turnInfoUIController != null)
@@ -920,11 +925,11 @@ public class BattleManager : MonoBehaviour
                     continue;
                 }
 
-                // 현재 턴 고유 스킬 사용 여부 초기화
-                piece.ResetUniqueSkillTurnUsage();
-
                 // 고유 스킬 쿨타임 1 감소
                 piece.ReduceUniqueSkillCooldown();
+
+                // 현재 턴 고유 스킬 사용 여부 초기화
+                piece.ResetUniqueSkillTurnUsage();
             }
         }
     }
