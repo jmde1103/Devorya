@@ -43,15 +43,13 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 찬스어택이 연속으로 발동된 횟수
     private int chanceAttackContinuousCount = 0;
 
-    // UI 버튼들
     [Header("UI")]
-    [SerializeField] private Button absorbButton;
+    [SerializeField] private BattleUIController battleUIController;
     [SerializeField] private Button surrenderButton;
+
     // <변경부분> 기물 타입 아이콘 표시 버튼
     [SerializeField] private Button typeIconButton;
 
-    // 흡수 버튼 텍스트
-    [SerializeField] private TMP_Text absorbButtonText;
 
     // 오브젝트 생성 시 한 번 실행
     private void Awake()
@@ -62,25 +60,22 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        // 흡수 버튼 연결
-        if (absorbButton != null)
-        {
-            absorbButton.onClick.AddListener(ToggleAbsorbMode);
-        }
-
         // 기권 버튼 연결
         if (surrenderButton != null)
         {
             surrenderButton.onClick.AddListener(Surrender);
         }
 
-        // 흡수 버튼 텍스트 초기화
-        UpdateAbsorbButtonText();
-
-        // <변경부분> 기물 타입 아이콘 버튼 연결
+        // 기물 타입 아이콘 버튼 연결
         if (typeIconButton != null)
         {
             typeIconButton.onClick.AddListener(ToggleTypeIcons);
+        }
+
+        // <변경부분> 게임 시작 시 액션 버튼 숨김
+        if (battleUIController != null)
+        {
+            battleUIController.HideActionButtons();
         }
     }
 
@@ -111,19 +106,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // 흡수 버튼에 현재 흡수 모드 상태를 표시
-    private void UpdateAbsorbButtonText()
-    {
-        // 흡수 버튼 텍스트가 연결되지 않았으면 갱신 중단
-        if (absorbButtonText == null)
-        {
-            Debug.LogWarning("Absorb Button Text가 연결되지 않았습니다.");
-            return;
-        }
-
-        // 현재 흡수 모드 상태에 따라 버튼 텍스트 변경
-        absorbButtonText.text = isAbsorbMode ? "흡수 ON" : "흡수 OFF";
-    }
+    
 
     // 기물을 선택하는 함수
     public void SelectPiece(Piece piece)
@@ -140,6 +123,24 @@ public class BattleManager : MonoBehaviour
         if (piece == null)
         {
             selectedPiece = null;
+
+            // 선택한 기물이 없으면 종료
+            if (piece == null)
+            {
+                selectedPiece = null;
+
+                // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
+                SetAllTypeIconsVisible(false);
+
+                // <변경부분> 선택된 기물이 없으므로 흡수/고유스킬 버튼 숨김
+                if (battleUIController != null)
+                {
+                    battleUIController.HideActionButtons();
+                }
+
+                return;
+            }
+
             // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
             SetAllTypeIconsVisible(false);
             return;
@@ -156,6 +157,13 @@ public class BattleManager : MonoBehaviour
         if (piece.CanMove == false)
         {
             selectedPiece = null;
+
+            // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+            if (battleUIController != null)
+            {
+                battleUIController.HideActionButtons();
+            }
+
             // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
             SetAllTypeIconsVisible(false);
             return;
@@ -165,7 +173,15 @@ public class BattleManager : MonoBehaviour
         if (currentTurn == BattleTurn.Player && piece.Team != PieceTeam.Player)
         {
             Debug.Log("현재는 플레이어 턴입니다.");
+            
             selectedPiece = null;
+            // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+            if (battleUIController != null)
+            {
+                battleUIController.HideActionButtons();
+            }
+
+
             return;
         }
 
@@ -173,15 +189,30 @@ public class BattleManager : MonoBehaviour
         if (currentTurn == BattleTurn.Enemy && piece.Team != PieceTeam.Enemy)
         {
             Debug.Log("현재는 적 턴입니다.");
+            
             selectedPiece = null;
+
+            // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+            if (battleUIController != null)
+            {
+                battleUIController.HideActionButtons();
+            }
             return;
         }
 
         // 선택 기물 저장
         selectedPiece = piece;
 
-        // <변경부분> 선택한 기물의 타입 아이콘만 표시
+        // <변경부분> 선택한 기물에 맞게 흡수/고유스킬 버튼 표시 갱신
+        if (battleUIController != null)
+        {
+            battleUIController.RefreshSelectedPieceButtons(selectedPiece);
+        }
+
+        // 선택한 기물의 타입 아이콘만 표시
         ShowOnlySelectedPieceTypeIcon(selectedPiece);
+
+
 
         // 이동 가능 타일 표시
         ShowMovableTiles(selectedPiece);
@@ -253,7 +284,6 @@ public class BattleManager : MonoBehaviour
                 pieceManager.RemovePiece(targetPiece);
 
                 isAbsorbMode = false;
-                UpdateAbsorbButtonText();
 
                 Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
             }
@@ -328,27 +358,22 @@ public class BattleManager : MonoBehaviour
 
     public void ToggleAbsorbMode()
     {
-        // 플레이어 턴이 아니면 사용 불가
         if (currentTurn != BattleTurn.Player)
         {
             Debug.Log("흡수는 플레이어 턴에만 사용할 수 있습니다.");
             return;
         }
 
-        // <변경부분> 선택된 기물이 없으면 흡수 모드 진입 불가
         if (selectedPiece == null)
         {
             Debug.Log("흡수할 기물을 먼저 선택해야 합니다.");
             return;
         }
 
-        // <변경부분> 플레이어 킹은 흡수 시 기물 정체성이 사라지므로 흡수 모드 진입 차단
         if (selectedPiece.Team == PieceTeam.Player &&
             selectedPiece.PieceType == PieceType.King)
         {
             isAbsorbMode = false;
-            UpdateAbsorbButtonText();
-
             Debug.Log("Player King은 흡수를 사용할 수 없습니다.");
             return;
         }
@@ -356,8 +381,13 @@ public class BattleManager : MonoBehaviour
         // 흡수 모드 상태 반전
         isAbsorbMode = !isAbsorbMode;
 
-        // 흡수 버튼 텍스트 갱신
-        UpdateAbsorbButtonText();
+        // <변경부분> 흡수 모드 상태에 따라 UI 아이콘 변경
+        if (battleUIController != null)
+        {
+            battleUIController.SetAbsorbModeIcon(isAbsorbMode);
+        }
+
+        Debug.Log(isAbsorbMode ? "흡수 모드 ON" : "흡수 모드 OFF");
     }
 
     // 현재 선택된 기물의 고유 스킬을 사용하는 함수
@@ -821,6 +851,12 @@ public class BattleManager : MonoBehaviour
         // 선택된 기물 해제
         selectedPiece = null;
 
+        // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+        if (battleUIController != null)
+        {
+            battleUIController.HideActionButtons();
+        }
+
         // <변경부분> 턴이 끝나면 찬스어택 추가 행동 상태 초기화
         chanceAttackBonusPiece = null;
 
@@ -835,9 +871,6 @@ public class BattleManager : MonoBehaviour
 
         // 턴 종료 시 흡수 모드 해제
         isAbsorbMode = false;
-
-        // 버튼 텍스트 갱신
-        UpdateAbsorbButtonText();
 
         // 현재 턴이 플레이어면 적 턴으로 변경
         if (currentTurn == BattleTurn.Player)
@@ -991,6 +1024,12 @@ public class BattleManager : MonoBehaviour
 
         // 선택 해제
         selectedPiece = null;
+
+        // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+        if (battleUIController != null)
+        {
+            battleUIController.HideActionButtons();
+        }
 
         // 하이라이트 제거
         ClearHighlights();
