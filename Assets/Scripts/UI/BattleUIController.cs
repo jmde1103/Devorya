@@ -14,7 +14,6 @@ public class BattleUIController : MonoBehaviour
     [Header("Piece Status UI")]
     // <변경부분> 플레이어 선택 기물 정보를 표시하는 스테이터스 UI
     [SerializeField] private PieceStatusUIController playerStatusUIController;
-
     // <변경부분> 상대 선택 기물 정보를 표시하는 스테이터스 UI
     [SerializeField] private PieceStatusUIController enemyStatusUIController;
 
