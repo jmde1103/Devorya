@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6469059003001286801}
   - component: {fileID: 7671137728747154121}
   - component: {fileID: 8909022500806026355}
-  - component: {fileID: 2887686570647359074}
   m_Layer: 0
   m_Name: PiecePrefab
   m_TagString: Untagged
@@ -106,6 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc58b1a9167e76049b345bb13481335e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Piece
+  generalSkills: []
   uniqueSkillCooldown: 0
   uniqueSkillMaxCooldown: 1
   hasUsedUniqueSkillThisTurn: 0
@@ -118,52 +118,6 @@ MonoBehaviour:
   kingIconSprite: {fileID: 21300000, guid: d84b6fda47a92dd43a85b4a2f846aad2, type: 3}
   QueenIconSprite: {fileID: 21300000, guid: 3fcbb1055f2c5d0418ffb0355e03930b, type: 3}
   specialIconSprite: {fileID: 0}
---- !u!61 &2887686570647359074
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 539922216578284472, guid: 6dcf609e3a7b7464ca54fb608a22fe8c, type: 3}
-  m_PrefabInstance: {fileID: 8080352501660417359}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4794599025964605050}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.002984345, y: -0.12549685}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.58}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.528484, y: 0.43895575}
-  m_EdgeRadius: 0
 --- !u!1 &7023221375921924997
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,7 +385,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: PiecePrefab
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 0}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -106,14 +106,17 @@ public class Tile : MonoBehaviour
         return new Vector2Int(X, Y);
     }
 
-
-    // <변경부분> 타일을 마우스로 클릭했을 때 Unity가 자동 호출하는 함수
     private void OnMouseDown()
     {
-        // BattleManager가 있으면 클릭한 타일 전달
-        if (BattleManager.Instance != null)
+        // BattleManager가 없으면 종료
+        if (BattleManager.Instance == null)
         {
-            BattleManager.Instance.SelectTile(this);
+            return;
         }
+
+        // <변경부분> 타일 클릭을 BattleManager에 전달
+        // 타일 위에 기물이 있으면 기물 선택/정보 표시/공격 확인 처리
+        // 타일 위에 기물이 없으면 이동 처리
+        BattleManager.Instance.SelectTile(this);
     }
 }

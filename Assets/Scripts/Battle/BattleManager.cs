@@ -181,15 +181,22 @@ public class BattleManager : MonoBehaviour
         // 현재 플레이어 턴인데 플레이어 기물이 아니면 선택 불가
         if (currentTurn == BattleTurn.Player && piece.Team != PieceTeam.Player)
         {
-            Debug.Log("현재는 플레이어 턴입니다.");
-            
-            selectedPiece = null;
-            // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+            Debug.Log("상대 기물 정보를 확인합니다.");
+
+            // <변경부분> 플레이어 턴에 상대 기물을 클릭하면 오른쪽 상단 스테이터스 UI에 표시
             if (battleUIController != null)
             {
-                battleUIController.HideActionButtons();
+                battleUIController.RefreshEnemyStatus(piece);
             }
 
+            // <변경부분> 상대 기물은 플레이어 선택 기물로 저장하지 않음
+            selectedPiece = null;
+
+            // <변경부분> 상대 기물 클릭 시 플레이어 타입 아이콘만 비활성화
+            SetAllTypeIconsVisible(false);
+
+            // 중요: 여기서는 HideActionButtons() 호출 금지
+            // HideActionButtons()를 호출하면 EnemyStatusPanel까지 같이 꺼짐
 
             return;
         }
@@ -211,8 +218,12 @@ public class BattleManager : MonoBehaviour
 
         // 선택 기물 저장
         selectedPiece = piece;
-        // <변경부분> 새 기물을 선택했으므로 이전 공격 확인 대상 초기화
-        pendingAttackTargetPiece = null;
+
+        // <변경부분> 플레이어 기물을 새로 선택하면 상대 스테이터스 UI 숨김
+        if (battleUIController != null)
+        {
+            battleUIController.ClearEnemyStatus();
+        }
 
         // <변경부분> 선택한 기물에 맞게 흡수/고유스킬 버튼 표시 갱신
         if (battleUIController != null)
@@ -220,10 +231,11 @@ public class BattleManager : MonoBehaviour
             battleUIController.RefreshSelectedPieceButtons(selectedPiece);
         }
 
+        // <변경부분> 새 기물을 선택했으므로 이전 공격 확인 대상 초기화
+        pendingAttackTargetPiece = null;
+
         // 선택한 기물의 타입 아이콘만 표시
         ShowOnlySelectedPieceTypeIcon(selectedPiece);
-
-
 
         // 이동 가능 타일 표시
         ShowMovableTiles(selectedPiece);
@@ -240,6 +252,60 @@ public class BattleManager : MonoBehaviour
         {
             return;
         }
+
+        // <변경부분> 클릭한 타일 위에 있는 기물 확인
+        Piece clickedPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
+
+        // <변경부분> 선택된 플레이어 기물이 없고, 타일 위에 기물이 있다면 기물 선택/정보 표시로 처리
+        if (selectedPiece == null && clickedPiece != null)
+        {
+            SelectPiece(clickedPiece);
+            return;
+        }
+
+        // <변경부분> 이미 선택된 기물이 있는 상태에서 같은 팀 기물을 클릭하면 새 기물 선택으로 처리
+        if (selectedPiece != null &&
+            clickedPiece != null &&
+            clickedPiece.Team == selectedPiece.Team)
+        {
+            SelectPiece(clickedPiece);
+            return;
+        }
+
+        // <변경부분> 선택된 플레이어 기물이 있고, 타일 위에 상대/중립 기물이 있다면 공격 확인 대상으로 처리
+        if (selectedPiece != null &&
+            clickedPiece != null &&
+            clickedPiece.Team != selectedPiece.Team)
+        {
+            // 처음 클릭한 상대 기물이거나 이전 확인 대상과 다르면 정보만 표시
+            if (pendingAttackTargetPiece != clickedPiece)
+            {
+                // <변경부분> 이전에 확인하던 상대 기물 아이콘만 끔
+                if (pendingAttackTargetPiece != null)
+                {
+                    pendingAttackTargetPiece.SetTypeIconVisible(false);
+                }
+
+                // <변경부분> 새로 확인한 상대 기물을 저장
+                pendingAttackTargetPiece = clickedPiece;
+
+                // <변경부분> 클릭한 상대 기물의 타입 아이콘 표시
+                // 플레이어 선택 기물의 타입 아이콘은 유지
+                clickedPiece.SetTypeIconVisible(true);
+
+                // 상대 스테이터스 UI 표시
+                if (battleUIController != null)
+                {
+                    battleUIController.RefreshEnemyStatus(clickedPiece);
+                }
+
+                Debug.Log("상대 기물 정보 확인: 같은 기물을 한 번 더 클릭하면 공격합니다.");
+                return;
+            }
+
+            // 같은 상대 기물을 두 번째 클릭했으므로 아래 기존 공격 로직으로 진행
+        }
+
 
         // 선택된 기물이 없으면 종료
         if (selectedPiece == null)
@@ -316,6 +382,9 @@ public class BattleManager : MonoBehaviour
 
         // 선택한 기물을 해당 타일로 이동
         pieceManager.MovePiece(selectedPiece, tile.X, tile.Y);
+
+        // <변경부분> 이동/공격이 실행되었으므로 공격 확인 대상 초기화
+        pendingAttackTargetPiece = null;
 
         // 이동/공격 후 승패 조건 확인
         CheckBattleEnd();

@@ -20,11 +20,7 @@ public class PieceStatusUIController : MonoBehaviour
 
     private void Start()
     {
-        // <변경부분> 게임 시작 시 스테이터스 창 숨김
-        if (statusRoot != null)
-        {
-            statusRoot.SetActive(false);
-        }
+  
     }
 
     // <변경부분> 선택한 기물 정보를 필드 기물에서 직접 받아 UI에 표시하는 함수
@@ -61,19 +57,18 @@ public class PieceStatusUIController : MonoBehaviour
             return;
         }
 
-        // 선택한 필드 기물의 SpriteRenderer를 가져옴
-        SpriteRenderer selectedSpriteRenderer = selectedPiece.GetComponent<SpriteRenderer>();
+        // <변경부분> 필드 이미지가 아니라 PieceManager가 넣어준 스테이터스 UI용 이미지를 가져옴
+        Sprite statusSprite = selectedPiece.GetStatusUISprite();
 
-        // SpriteRenderer가 없거나 스프라이트가 없으면 이미지 숨김
-        if (selectedSpriteRenderer == null || selectedSpriteRenderer.sprite == null)
+        if (statusSprite == null)
         {
             pieceImage.sprite = null;
             pieceImage.enabled = false;
             return;
         }
 
-        // 현재 필드 위에서 실제로 보이는 기물 스프라이트를 UI에 그대로 표시
-        pieceImage.sprite = selectedSpriteRenderer.sprite;
+        // <변경부분> 필드 스프라이트가 아니라 UI용 앞면 스프라이트를 표시
+        pieceImage.sprite = statusSprite;
         pieceImage.enabled = true;
         pieceImage.preserveAspect = true;
     }

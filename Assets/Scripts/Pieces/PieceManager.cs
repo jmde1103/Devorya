@@ -63,6 +63,20 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private Vector3 absorbedJelluBishopTypeIconPosition;
     [SerializeField] private Vector3 absorbedJelluKingTypeIconPosition;
 
+    [Header("Player Status UI Sprites")]
+    [SerializeField] private Sprite playerPawnStatusSprite;
+    [SerializeField] private Sprite playerRookStatusSprite;
+    [SerializeField] private Sprite playerKnightStatusSprite;
+    [SerializeField] private Sprite playerBishopStatusSprite;
+    [SerializeField] private Sprite playerKingStatusSprite;
+
+    [Header("Absorbed Jellu Status UI Sprites")]
+    [SerializeField] private Sprite absorbedJelluPawnStatusSprite;
+    [SerializeField] private Sprite absorbedJelluRookStatusSprite;
+    [SerializeField] private Sprite absorbedJelluKnightStatusSprite;
+    [SerializeField] private Sprite absorbedJelluBishopStatusSprite;
+    [SerializeField] private Sprite absorbedJelluKingStatusSprite;
+
     //중립 기물 스프라이트
     [Header("Neutral Piece Sprites")]
     [SerializeField] private Sprite obstacleSprite;
@@ -174,6 +188,9 @@ public class PieceManager : MonoBehaviour
         // 팀과 기물 종류에 맞는 스프라이트 적용
         ApplyPieceSprite(pieceObject, pieceType, team);
 
+        // <변경부분> 생성된 기물의 스테이터스 UI용 스프라이트 적용
+        ApplyStatusUISprite(piece);
+
         // <변경부분> 생성된 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
         ApplyCurrentTypeIconPosition(piece);
 
@@ -248,6 +265,9 @@ public class PieceManager : MonoBehaviour
         {
             spriteRenderer.sprite = newSprite;
         }
+
+        // <변경부분> 흡수 후 스테이터스 UI에는 흡수한 Jellu의 앞면 이미지를 표시
+        ApplyStatusUISprite(absorber);
 
         // <변경부분> 흡수 후 현재 외형 상태에 맞는 타입 아이콘 위치 적용
         ApplyCurrentTypeIconPosition(absorber);
@@ -482,6 +502,61 @@ public class PieceManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    // <변경부분> 현재 기물 상태에 맞는 스테이터스 UI용 스프라이트를 적용하는 함수
+    private void ApplyStatusUISprite(Piece piece)
+    {
+        // 기물이 없으면 종료
+        if (piece == null)
+        {
+            return;
+        }
+
+        // 현재 기물 상태에 맞는 스테이터스 UI용 스프라이트 결정
+        Sprite statusSprite = GetStatusUISprite(piece);
+
+        // 결정된 스테이터스 UI용 스프라이트를 Piece에 저장
+        piece.SetStatusUISprite(statusSprite);
+    }
+
+    // <변경부분> 현재 기물 상태에 맞는 스테이터스 UI용 스프라이트를 반환하는 함수
+    private Sprite GetStatusUISprite(Piece piece)
+    {
+        // 기물이 없으면 null 반환
+        if (piece == null)
+        {
+            return null;
+        }
+
+        // 흡수된 Jellu 외형이면 흡수한 Jellu의 앞면 UI 스프라이트 사용
+        if (piece.IsAbsorbedJelluVisual)
+        {
+            switch (piece.PieceType)
+            {
+                case PieceType.Pawn: return absorbedJelluPawnStatusSprite;
+                case PieceType.Rook: return absorbedJelluRookStatusSprite;
+                case PieceType.Knight: return absorbedJelluKnightStatusSprite;
+                case PieceType.Bishop: return absorbedJelluBishopStatusSprite;
+                case PieceType.King: return absorbedJelluKingStatusSprite;
+            }
+        }
+
+        // 플레이어 기물이면 Devorya 앞면 UI 스프라이트 사용
+        if (piece.Team == PieceTeam.Player)
+        {
+            switch (piece.PieceType)
+            {
+                case PieceType.Pawn: return playerPawnStatusSprite;
+                case PieceType.Rook: return playerRookStatusSprite;
+                case PieceType.Knight: return playerKnightStatusSprite;
+                case PieceType.Bishop: return playerBishopStatusSprite;
+                case PieceType.King: return playerKingStatusSprite;
+            }
+        }
+
+        // 적 기물은 기존 Enemy 스프라이트를 스테이터스 UI에도 사용
+        return GetPieceSprite(piece.PieceType, piece.Team);
     }
 
     // 기물을 특정 좌표로 이동시키는 함수

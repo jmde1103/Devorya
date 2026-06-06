@@ -82094,16 +82094,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18a7290df02f2442a68e841563c23c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceStatusUIController
-  pieceImage: {fileID: 155726075}
-  pieceTypeIconImage: {fileID: 251540507}
+  pieceImage: {fileID: 1361242746}
+  pieceTypeIconImage: {fileID: 7113310}
   generalSkillTexts:
-  - {fileID: 409455363}
-  - {fileID: 42790918}
-  - {fileID: 1412869966}
-  - {fileID: 481401821}
-  - {fileID: 320940560}
-  - {fileID: 1248035321}
-  statusRoot: {fileID: 1454506790}
+  - {fileID: 553017228}
+  - {fileID: 1718199403}
+  - {fileID: 1219910778}
+  - {fileID: 455570341}
+  - {fileID: 262745602}
+  - {fileID: 120924313}
+  statusRoot: {fileID: 1136322009}
 --- !u!1 &911706533
 GameObject:
   m_ObjectHideFlags: 0
@@ -92384,7 +92384,8 @@ MonoBehaviour:
   battleManager: {fileID: 52600099}
   absorbButton: {fileID: 670389590}
   uniqueSkillButton: {fileID: 1275822946}
-  pieceStatusUIController: {fileID: 759794504}
+  playerStatusUIController: {fileID: 759794504}
+  enemyStatusUIController: {fileID: 909651714}
   absorbIconImage: {fileID: 322392658}
   absorbOffSprite: {fileID: 21300000, guid: 58e3c0f96fba7ad4db8217e7b85e1927, type: 3}
   absorbOnSprite: {fileID: 21300000, guid: 63c2a9c25f26b344ba5fe4a86045c4d9, type: 3}
@@ -101834,6 +101835,7 @@ GameObject:
   - component: {fileID: 1136322010}
   - component: {fileID: 1136322012}
   - component: {fileID: 1136322011}
+  - component: {fileID: 1136322013}
   m_Layer: 5
   m_Name: EnemyStatusPanel
   m_TagString: Untagged
@@ -101907,6 +101909,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1136322009}
   m_CullTransparentMesh: 1
+--- !u!114 &1136322013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136322009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18a7290df02f2442a68e841563c23c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceStatusUIController
+  pieceImage: {fileID: 0}
+  pieceTypeIconImage: {fileID: 0}
+  generalSkillTexts: []
+  statusRoot: {fileID: 0}
 --- !u!1 &1136337740
 GameObject:
   m_ObjectHideFlags: 0
@@ -103146,6 +103164,16 @@ MonoBehaviour:
   absorbedJelluKnightTypeIconPosition: {x: 0.32, y: 0.4, z: 0}
   absorbedJelluBishopTypeIconPosition: {x: 0.35, y: 0.16, z: 0}
   absorbedJelluKingTypeIconPosition: {x: 0.32, y: 0.32, z: 0}
+  playerPawnStatusSprite: {fileID: 21300000, guid: d5f31ef29fc69ea4786a01fe38d54d36, type: 3}
+  playerRookStatusSprite: {fileID: 21300000, guid: 2c9190e5399fe804e9cc83870f8db6ff, type: 3}
+  playerKnightStatusSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
+  playerBishopStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
+  playerKingStatusSprite: {fileID: 21300000, guid: a3676b634bc0aa646b3bbf43dd54ffdd, type: 3}
+  absorbedJelluPawnStatusSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
+  absorbedJelluRookStatusSprite: {fileID: 21300000, guid: 6edba64561d5bf149a33e55fb0c5b028, type: 3}
+  absorbedJelluKnightStatusSprite: {fileID: 21300000, guid: 9bf4251361e76374b97e4a58eae6379c, type: 3}
+  absorbedJelluBishopStatusSprite: {fileID: 21300000, guid: 3572dc753ec9b2f419490ef49db2f378, type: 3}
+  absorbedJelluKingStatusSprite: {fileID: 21300000, guid: b8202c0c5def56c49a3211f3710ba995, type: 3}
   obstacleSprite: {fileID: 21300000, guid: f2ab36f48476f774099c2bdd8e0e79d5, type: 3}
   pieceYOffset: 0.25
 --- !u!4 &1157817763
@@ -130843,7 +130871,7 @@ GameObject:
   - component: {fileID: 1454506793}
   - component: {fileID: 1454506792}
   m_Layer: 5
-  m_Name: PieceStatusPanel
+  m_Name: PlayerStatusPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -189111,37 +189139,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &2090371997
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2090371998}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2090371998
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2090371997}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.03799, y: 2.33114, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2091940006
 GameObject:
   m_ObjectHideFlags: 0
@@ -194399,4 +194396,3 @@ SceneRoots:
   - {fileID: 1531519885}
   - {fileID: 714921435}
   - {fileID: 1560279917}
-  - {fileID: 2090371998}

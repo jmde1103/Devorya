@@ -45,6 +45,9 @@ public class Piece : MonoBehaviour
     [SerializeField] private Sprite QueenIconSprite;
     // Special 아이콘
     [SerializeField] private Sprite specialIconSprite;
+    
+    // <변경부분> 스테이터스 UI에 표시할 현재 기물 이미지
+    private Sprite statusUISprite;
 
     public bool CanMove { get; private set; } // 기물의 소속 진영
     public int X { get; private set; } // 현재 보드 X 좌표
@@ -52,8 +55,6 @@ public class Piece : MonoBehaviour
     public Tile CurrentTile { get; private set; } // 현재 기물이 위치한 타일
 
     private SpriteRenderer spriteRenderer; // SpriteRenderer 캐싱
-
-
 
 
     public bool IsAbsorbedJelluVisual { get; private set; } // 이 기물이 흡수된 Jellu 뒷면 외형을 사용하는지 여부
@@ -237,6 +238,18 @@ public class Piece : MonoBehaviour
         IsAbsorbedJelluVisual = value;
     }
 
+    // <변경부분> PieceManager가 정한 스테이터스 UI용 스프라이트를 저장하는 함수
+    public void SetStatusUISprite(Sprite sprite)
+    {
+        statusUISprite = sprite;
+    }
+
+    // <변경부분> 스테이터스 UI에 표시할 현재 기물 이미지를 반환하는 함수
+    public Sprite GetStatusUISprite()
+    {
+        return statusUISprite;
+    }
+
     // <변경부분> 기물 타입 아이콘 표시 여부 설정
     public void SetTypeIconVisible(bool isVisible)
     {
@@ -335,34 +348,6 @@ public class Piece : MonoBehaviour
         }
     }
 
-    // <변경부분> 일반 스킬을 추가하거나 같은 스킬이 있으면 레벨업하는 함수
-    public void AddOrLevelUpGeneralSkill(GeneralSkillType skillType)
-    {
-        // 일반 스킬 없음은 저장하지 않음
-        if (skillType == GeneralSkillType.None)
-        {
-            return;
-        }
-
-        // 이미 같은 일반 스킬을 가지고 있는지 검사
-        foreach (GeneralSkillData skillData in generalSkills)
-        {
-            if (skillData.skillType == skillType)
-            {
-                // 같은 스킬이 있으면 최대 레벨 안에서 레벨업
-                skillData.level = Mathf.Min(skillData.level + 1, MaxGeneralSkillLevel);
-
-                Debug.Log($"일반 스킬 레벨업: {skillType} / LV.{skillData.level}");
-                return;
-            }
-        }
-
-        // 같은 스킬이 없으면 LV1로 새로 추가
-        generalSkills.Add(new GeneralSkillData(skillType, 1));
-
-        Debug.Log($"일반 스킬 획득: {skillType} / LV.1");
-    }
-
     // <변경부분> 특정 일반 스킬을 가지고 있는지 확인하는 함수
     public bool HasGeneralSkill(GeneralSkillType skillType)
     {
@@ -441,8 +426,36 @@ public class Piece : MonoBehaviour
     }
 
 
+    // <변경부분> 일반 스킬을 추가하거나 같은 스킬이 있으면 레벨업하는 함수
+    public void AddOrLevelUpGeneralSkill(GeneralSkillType skillType)
+    {
+        // 일반 스킬 없음은 저장하지 않음
+        if (skillType == GeneralSkillType.None)
+        {
+            return;
+        }
+
+        // 이미 같은 일반 스킬을 가지고 있는지 검사
+        foreach (GeneralSkillData skillData in generalSkills)
+        {
+            if (skillData.skillType == skillType)
+            {
+                // 같은 스킬이 있으면 최대 레벨 안에서 레벨업
+                skillData.level = Mathf.Min(skillData.level + 1, MaxGeneralSkillLevel);
+
+                Debug.Log($"일반 스킬 레벨업: {skillType} / LV.{skillData.level}");
+                return;
+            }
+        }
+
+        // 같은 스킬이 없으면 LV1로 새로 추가
+        generalSkills.Add(new GeneralSkillData(skillType, 1));
+
+        Debug.Log($"일반 스킬 획득: {skillType} / LV.1");
+    }
+
     // 마우스로 이 기물을 클릭했을 때 Unity가 자동 호출하는 함수
-    private void OnMouseDown()
+    /*private void OnMouseDown()
     {
         // BattleManager가 없으면 종료
         if (BattleManager.Instance == null)
@@ -450,22 +463,10 @@ public class Piece : MonoBehaviour
             return;
         }
 
-        // 클릭한 기물이 현재 턴에 조작 가능한 기물이라면
-        if (BattleManager.Instance.IsCurrentTurnPiece(this))
-        {
-            // 기존 선택을 취소하고 이 기물을 새로 선택
-            BattleManager.Instance.SelectPiece(this);
-            return;
-        }
-
-        // 이미 선택된 기물이 있고, 상대/중립 기물을 클릭한 경우
-        if (BattleManager.Instance.HasSelectedPiece())
-        {
-            // 이 기물이 올라가 있는 타일을 선택한 것처럼 처리
-            BattleManager.Instance.SelectTile(CurrentTile);
-            return;
-        }
-
-        // 아무것도 선택되지 않았고 현재 턴 기물도 아니면 아무 처리하지 않음
-    }
+        // <변경부분> 클릭한 기물 판단은 BattleManager에서 처리하도록 전달
+        // 플레이어 기물 클릭: 플레이어 선택 UI 표시
+        // 상대 기물 클릭: 상대 스테이터스 UI 표시
+        // 선택된 플레이어 기물이 있는 상태에서 상대 기물 클릭: 공격 확인/실행 처리
+        BattleManager.Instance.SelectPiece(this);
+    }*/
 }

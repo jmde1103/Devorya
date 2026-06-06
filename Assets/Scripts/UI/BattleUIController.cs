@@ -73,11 +73,10 @@ public class BattleUIController : MonoBehaviour
     // 선택된 기물 상태에 따라 버튼 표시 갱신
     public void RefreshSelectedPieceButtons(Piece selectedPiece)
     {
-
-        // <변경부분> 선택한 기물 정보를 스테이터스 UI에 표시
-        if (pieceStatusUIController != null)
+        // <변경부분> 선택한 플레이어 기물 정보를 왼쪽 하단 스테이터스 UI에 표시
+        if (playerStatusUIController != null)
         {
-            pieceStatusUIController.Refresh(selectedPiece);
+            playerStatusUIController.Refresh(selectedPiece);
         }
 
         // 선택된 기물이 없으면 버튼 숨김
@@ -101,6 +100,31 @@ public class BattleUIController : MonoBehaviour
         if (hasUniqueSkill)
         {
             SetUniqueSkillIcon(selectedPiece.UniqueSkill);
+        }
+    }
+
+    // <변경부분> 상대 기물 정보를 오른쪽 상단 스테이터스 UI에 표시하는 함수
+    public void RefreshEnemyStatus(Piece enemyPiece)
+    {
+        // <변경부분> 상대 스테이터스 갱신 호출 확인
+        Debug.Log("상대 스테이터스 갱신 호출: " + enemyPiece.PieceType);
+
+        if (enemyStatusUIController != null)
+        {
+            enemyStatusUIController.Refresh(enemyPiece);
+        }
+        else
+        {
+            Debug.LogWarning("Enemy Status UI Controller가 연결되지 않았습니다.");
+        }
+    }
+
+    // <변경부분> 상대 기물 스테이터스 UI를 숨기는 함수
+    public void ClearEnemyStatus()
+    {
+        if (enemyStatusUIController != null)
+        {
+            enemyStatusUIController.Clear();
         }
     }
 
@@ -180,11 +204,16 @@ public class BattleUIController : MonoBehaviour
             uniqueSkillIconImage.enabled = false;
         }
 
-        // <변경부분> 선택 기물 정보 UI 비우기
-        if (pieceStatusUIController != null)
+        // <변경부분> 플레이어 스테이터스 UI 숨김
+        if (playerStatusUIController != null)
         {
-            pieceStatusUIController.Clear();
+            playerStatusUIController.Clear();
         }
 
+        // <변경부분> 상대 스테이터스 UI 숨김
+        if (enemyStatusUIController != null)
+        {
+            enemyStatusUIController.Clear();
+        }
     }
 }
