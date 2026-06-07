@@ -110,7 +110,7 @@ public class PixelCameraController : MonoBehaviour
         // PC 우클릭 드래그 이동
         HandlePCDrag();
 
-        // 모바일 한 손가락 드래그 이동
+        // <변경부분> 모바일 두 손가락 드래그 이동
         HandleMobileDrag();
 
         // 현재 줌 배율에 맞게 카메라 이동 범위 제한
@@ -236,7 +236,7 @@ public class PixelCameraController : MonoBehaviour
         );
     }
 
-    // 모바일 한 손가락 드래그 이동
+    // <변경부분> 모바일 두 손가락 드래그 이동
     private void HandleMobileDrag()
     {
         // 최소 줌 상태에서는 카메라 이동 불가
@@ -245,23 +245,35 @@ public class PixelCameraController : MonoBehaviour
             return;
         }
 
-        // 한 손가락 터치가 아니면 종료
-        if (Input.touchCount != 1)
+        // <변경부분> 두 손가락 터치가 아니면 카메라 이동을 하지 않음
+        // 한 손가락 터치는 기물/타일 선택 전용으로 사용
+        if (Input.touchCount != 2)
         {
             return;
         }
 
         // 첫 번째 터치 정보
-        Touch touch = Input.GetTouch(0);
+        Touch touch0 = Input.GetTouch(0);
 
-        // 터치 이동 중이 아니면 종료
-        if (touch.phase != TouchPhase.Moved)
+        // 두 번째 터치 정보
+        Touch touch1 = Input.GetTouch(1);
+
+        // <변경부분> 두 손가락 중 하나라도 움직이지 않았다면 이동 처리하지 않음
+        if (touch0.phase != TouchPhase.Moved && touch1.phase != TouchPhase.Moved)
         {
             return;
         }
 
-        // 터치 이동량
-        Vector2 delta = touch.deltaPosition;
+        // <변경부분> 현재 프레임의 두 손가락 중심점 계산
+        Vector2 currentCenter = (touch0.position + touch1.position) * 0.5f;
+
+        // <변경부분> 이전 프레임의 두 손가락 중심점 계산
+        Vector2 previousCenter =
+            ((touch0.position - touch0.deltaPosition) +
+             (touch1.position - touch1.deltaPosition)) * 0.5f;
+
+        // <변경부분> 두 손가락 중심점이 이동한 만큼 카메라 이동
+        Vector2 delta = currentCenter - previousCenter;
 
         // 확대 상태일수록 이동량을 줄여 조작감 유지
         float zoomAdjustedSpeed = touchDragSpeed / currentWorldScale;

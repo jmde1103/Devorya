@@ -742,6 +742,36 @@ public class PieceManager : MonoBehaviour
 
     //Skill
 
+    // <변경부분> 선택한 기물을 젤루 폰 정보로 변경하는 함수
+    public void ChangePieceToJelluPawn(Piece piece)
+    {
+        // 변경할 기물이 없으면 종료
+        if (piece == null)
+        {
+            return;
+        }
+
+        // <변경부분> 기물 데이터를 젤루 폰 기준으로 변경
+        // 타입은 Pawn, 고유스킬은 JelluMultiply, 외형은 흡수된 젤루 외형으로 처리
+        piece.ChangePieceData(
+            PieceType.Pawn,
+            UniqueSkillType.JelluMultiply,
+            true
+        );
+
+        // <변경부분> 변경된 젤루 폰 정보에 맞게 필드 외형 갱신
+        ApplyCurrentVisual(piece);
+
+        // <변경부분> 변경된 젤루 폰 정보에 맞게 스테이터스 UI 이미지 갱신
+        ApplyStatusUISprite(piece);
+
+        // <변경부분> 변경된 젤루 폰 정보에 맞게 타입 아이콘 위치 갱신
+        ApplyCurrentTypeIconPosition(piece);
+
+        // 현재 좌표 기준으로 기물 표시 순서 갱신
+        SetPieceSortingOrder(piece.gameObject, piece.X, piece.Y);
+    }
+
     // 기준 기물과 동일한 정보를 가진 기물을 새 좌표에 복제 생성하는 함수
     public Piece ClonePieceTo(Piece sourcePiece, int targetX, int targetY)
     {
@@ -772,6 +802,9 @@ public class PieceManager : MonoBehaviour
 
         // <변경부분> 복사된 외형 상태 반영
         ApplyCurrentVisual(clonedPiece);
+
+        // <변경부분> 복제된 기물의 스테이터스 UI 이미지도 현재 외형 상태에 맞게 다시 적용
+        ApplyStatusUISprite(clonedPiece);
 
         // <변경부분> 복제된 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
         ApplyCurrentTypeIconPosition(clonedPiece);

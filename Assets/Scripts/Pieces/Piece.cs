@@ -199,6 +199,25 @@ public class Piece : MonoBehaviour
         PieceType = newPieceType;
     }
 
+    // <변경부분> 기물 타입, 고유 스킬, 젤루 외형 상태를 한 번에 변경하는 함수
+    public void ChangePieceData(PieceType newPieceType, UniqueSkillType newUniqueSkill, bool isAbsorbedJelluVisual)
+    {
+        // 아이템 효과로 변경될 새 기물 타입 저장
+        PieceType = newPieceType;
+
+        // 아이템 효과로 변경될 새 고유 스킬 저장
+        UniqueSkill = newUniqueSkill;
+
+        // 젤루 외형 사용 여부 저장
+        IsAbsorbedJelluVisual = isAbsorbedJelluVisual;
+
+        // 아이템으로 얻은 고유 스킬은 현재 턴에 바로 사용할 수 있게 초기화
+        uniqueSkillCooldown = 0;
+
+        // 현재 턴 고유 스킬 사용 상태 초기화
+        hasUsedUniqueSkillThisTurn = false;
+    }
+
     // <변경부분> 다른 기물의 핵심 데이터를 흡수해서 현재 기물에 적용하는 함수
     public void AbsorbFrom(Piece targetPiece)
     {
