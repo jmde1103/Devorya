@@ -49,6 +49,19 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 찬스어택이 연속으로 발동된 횟수
     private int chanceAttackContinuousCount = 0;
 
+    // <변경부분> 전투 아이템 슬롯 최대 개수
+    private const int MaxItemSlotCount = 4;
+
+    // <변경부분> 현재 전투에서 보유 중인 소모성 아이템 슬롯
+    private BattleItemData[] itemSlots = new BattleItemData[MaxItemSlotCount];
+
+    [Header("Test Item")]
+    // <변경부분> 테스트용으로 전투 시작 시 지급할 아이템 데이터
+    [SerializeField] private BattleItemData testStartItemData = new BattleItemData();
+
+    // <변경부분> 게임 시작 시 테스트 아이템을 지급할지 여부
+    [SerializeField] private bool addTestStartItem = true;
+
     [Header("UI")]
     [SerializeField] private BattleUIController battleUIController;
     [SerializeField] private Button surrenderButton;
@@ -91,6 +104,17 @@ public class BattleManager : MonoBehaviour
         if (battleUIController != null)
         {
             battleUIController.HideActionButtons();
+        }
+
+        // <변경부분> 게임 시작 시 아이템 슬롯 UI 초기화
+        RefreshItemSlotUI();
+
+        // <변경부분> 테스트용 아이템이 설정되어 있으면 전투 시작 시 1개 지급
+        if (addTestStartItem &&
+            testStartItemData != null &&
+            testStartItemData.itemType != BattleItemType.None)
+        {
+            AddBattleItem(testStartItemData);
         }
     }
 
@@ -546,6 +570,205 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하는 함수
+    public void AddBattleItem(BattleItemData itemData)
+    {
+        // 추가할 아이템 데이터가 없으면 종료
+        if (itemData == null || itemData.itemType == BattleItemType.None)
+        {
+            Debug.LogWarning("추가할 아이템 데이터가 없습니다.");
+            return;
+        }
+
+        // 왼쪽 슬롯부터 빈칸을 찾음
+        for (int i = 0; i < itemSlots.Length; i++)
+        {
+            if (itemSlots[i] != null && itemSlots[i].itemType != BattleItemType.None)
+            {
+                continue;
+            }
+
+            itemSlots[i] = itemData;
+
+            // 아이템 획득 후 슬롯 UI 갱신
+            RefreshItemSlotUI();
+
+            Debug.Log($"아이템 획득: {itemData.itemName} / 슬롯 {i}");
+            return;
+        }
+
+        Debug.Log("아이템 슬롯이 가득 찼습니다.");
+    }
+
+    // <변경부분> 테스트 버튼에서 호출하는 테스트 아이템 추가 함수
+    public void AddTestItemForDebug()
+    {
+        // 테스트 아이템 데이터가 없으면 추가 불가
+        if (testStartItemData == null || testStartItemData.itemType == BattleItemType.None)
+        {
+            Debug.LogWarning("테스트 아이템 데이터가 설정되지 않았습니다.");
+            return;
+        }
+
+        // 테스트 아이템을 현재 아이템 슬롯에 추가
+        AddBattleItem(testStartItemData);
+    }
+
+    // <변경부분> 특정 슬롯의 아이템을 사용하는 함수
+    public void UseItemAtSlot(int slotIndex)
+    {
+        // 전투가 끝났으면 아이템 사용 불가
+        if (isBattleEnded)
+        {
+            return;
+        }
+
+        // 아이템은 플레이어 턴에만 사용 가능
+        if (currentTurn != BattleTurn.Player)
+        {
+            Debug.Log("아이템은 플레이어 턴에만 사용할 수 있습니다.");
+            return;
+        }
+
+        // 슬롯 번호가 잘못되었으면 종료
+        if (slotIndex < 0 || slotIndex >= itemSlots.Length)
+        {
+            Debug.LogWarning($"잘못된 아이템 슬롯 번호입니다: {slotIndex}");
+            return;
+        }
+
+        // 해당 슬롯에 아이템이 없으면 종료
+        BattleItemData itemData = itemSlots[slotIndex];
+
+        if (itemData == null || itemData.itemType == BattleItemType.None)
+        {
+            Debug.Log("해당 슬롯에 사용할 아이템이 없습니다.");
+            return;
+        }
+
+        // 아이템 효과 실행
+        bool itemUsed = ApplyItemEffect(itemData);
+
+        // 효과가 실패했으면 아이템을 소모하지 않음
+        if (itemUsed == false)
+        {
+            return;
+        }
+
+        // 사용한 아이템 제거
+        itemSlots[slotIndex] = null;
+
+        // 빈칸이 생기면 왼쪽부터 다시 정렬
+        CompressItemSlots();
+
+        // 아이템 사용 후 UI 갱신
+        RefreshItemSlotUI();
+
+        Debug.Log($"아이템 사용 완료: {itemData.itemName}");
+    }
+
+    // <변경부분> 아이템 종류에 따라 실제 효과를 실행하는 함수
+    private bool ApplyItemEffect(BattleItemData itemData)
+    {
+        // 아이템 데이터가 없으면 실패
+        if (itemData == null)
+        {
+            return false;
+        }
+
+        switch (itemData.itemType)
+        {
+            case BattleItemType.ChangeSelectedPieceToJelluPawn:
+                return UseChangeSelectedPieceToJelluPawnItem();
+
+            default:
+                Debug.LogWarning($"아직 구현되지 않은 아이템 효과입니다: {itemData.itemType}");
+                return false;
+        }
+    }
+
+    // <변경부분> 선택한 플레이어 기물을 젤루 폰으로 변경하는 아이템 효과
+    private bool UseChangeSelectedPieceToJelluPawnItem()
+    {
+        // 선택된 기물이 없으면 실패
+        if (selectedPiece == null)
+        {
+            Debug.Log("젤루 폰으로 변경할 플레이어 기물을 먼저 선택해야 합니다.");
+            return false;
+        }
+
+        // 플레이어 기물만 아이템 대상으로 허용
+        if (selectedPiece.Team != PieceTeam.Player)
+        {
+            Debug.Log("플레이어 기물에만 아이템을 사용할 수 있습니다.");
+            return false;
+        }
+
+        // Player King은 현재 승패 조건과 충돌할 수 있으므로 변경 불가
+        if (selectedPiece.PieceType == PieceType.King)
+        {
+            Debug.Log("Player King은 젤루 폰으로 변경할 수 없습니다.");
+            return false;
+        }
+
+        // 선택 기물을 젤루 폰 정보로 변경
+        pieceManager.ChangePieceToJelluPawn(selectedPiece);
+
+        // 아이템 사용 후 흡수 모드 해제
+        isAbsorbMode = false;
+
+        // 아이템 사용 후 공격 확인 대상 초기화
+        pendingAttackTargetPiece = null;
+
+        // 변경된 기물 기준으로 이동 가능 타일을 다시 표시
+        ClearHighlights();
+        ShowOnlySelectedPieceTypeIcon(selectedPiece);
+        ShowMovableTiles(selectedPiece);
+
+        // 변경된 기물 정보에 맞게 버튼과 스테이터스 UI 갱신
+        if (battleUIController != null)
+        {
+            battleUIController.SetAbsorbModeIcon(false);
+            battleUIController.RefreshSelectedPieceButtons(selectedPiece);
+        }
+
+        Debug.Log("아이템 효과 성공: 선택한 기물을 젤루 폰으로 변경했습니다.");
+
+        return true;
+    }
+
+    // <변경부분> 아이템 사용 후 빈 슬롯을 제거하고 왼쪽부터 다시 채우는 함수
+    private void CompressItemSlots()
+    {
+        BattleItemData[] compressedSlots = new BattleItemData[MaxItemSlotCount];
+        int targetIndex = 0;
+
+        for (int i = 0; i < itemSlots.Length; i++)
+        {
+            if (itemSlots[i] == null || itemSlots[i].itemType == BattleItemType.None)
+            {
+                continue;
+            }
+
+            compressedSlots[targetIndex] = itemSlots[i];
+            targetIndex++;
+        }
+
+        itemSlots = compressedSlots;
+    }
+
+    // <변경부분> 현재 아이템 슬롯 정보를 UI에 반영하는 함수
+    private void RefreshItemSlotUI()
+    {
+        if (battleUIController == null)
+        {
+            return;
+        }
+
+        battleUIController.RefreshItemSlots(itemSlots);
+    }
+
+
     // <변경부분> Jellu 폰 고유 스킬: 성공 여부를 bool로 반환
     private bool UseJelluMultiply(Piece piece)
     {
@@ -925,6 +1148,20 @@ public class BattleManager : MonoBehaviour
             default:
                 return 0;
         }
+    }
+
+    // <변경부분> 테스트용 버튼에서 턴을 강제로 넘기는 함수
+    public void DebugForceEndTurn()
+    {
+        // 전투가 이미 끝났으면 턴 변경 불가
+        if (isBattleEnded)
+        {
+            Debug.Log("전투가 종료되어 턴을 넘길 수 없습니다.");
+            return;
+        }
+
+        // 현재 턴을 강제로 종료
+        EndTurn();
     }
 
     private void EndTurn()

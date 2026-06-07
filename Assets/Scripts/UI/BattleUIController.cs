@@ -11,6 +11,11 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Button absorbButton;
     [SerializeField] private Button uniqueSkillButton;
 
+    // <변경부분> 테스트용 아이템 추가 버튼
+    [SerializeField] private Button debugAddItemButton;
+    // <변경부분> 테스트용 강제 턴 넘기기 버튼
+    [SerializeField] private Button debugForceEndTurnButton;
+
     [Header("Piece Status UI")]
     // <변경부분> 플레이어 선택 기물 정보를 표시하는 스테이터스 UI
     [SerializeField] private PieceStatusUIController playerStatusUIController;
@@ -28,6 +33,10 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 고유 스킬 종류별 아이콘 목록
     [SerializeField] private UniqueSkillIconData[] uniqueSkillIcons;
 
+    // <변경부분> 전투 중 사용하는 아이템 슬롯 UI 목록
+    [Header("Item Slots")]
+    [SerializeField] private BattleItemSlotUI[] itemSlotUIs;
+
     private void Start()
     {
         // 흡수 버튼 클릭 이벤트 연결
@@ -41,6 +50,21 @@ public class BattleUIController : MonoBehaviour
         {
             uniqueSkillButton.onClick.AddListener(OnClickUniqueSkillButton);
         }
+
+        // <변경부분> 테스트용 아이템 추가 버튼 클릭 이벤트 연결
+        if (debugAddItemButton != null)
+        {
+            debugAddItemButton.onClick.AddListener(OnClickDebugAddItemButton);
+        }
+
+        // <변경부분> 테스트용 강제 턴 넘기기 버튼 클릭 이벤트 연결
+        if (debugForceEndTurnButton != null)
+        {
+            debugForceEndTurnButton.onClick.AddListener(OnClickDebugForceEndTurnButton);
+        }
+
+        // <변경부분> 아이템 슬롯 버튼 클릭 이벤트 연결
+        InitializeItemSlots();
 
         // 게임 시작 시 액션 버튼 숨김
         HideActionButtons();
@@ -68,6 +92,65 @@ public class BattleUIController : MonoBehaviour
         }
 
         battleManager.UseSelectedPieceSkill();
+    }
+
+    // <변경부분> 아이템 슬롯 UI를 초기화하는 함수
+    private void InitializeItemSlots()
+    {
+        // 아이템 슬롯 배열이 없으면 종료
+        if (itemSlotUIs == null)
+        {
+            return;
+        }
+
+        // 각 슬롯에 자신의 번호와 상위 UI를 알려줌
+        for (int i = 0; i < itemSlotUIs.Length; i++)
+        {
+            if (itemSlotUIs[i] == null)
+            {
+                continue;
+            }
+
+            itemSlotUIs[i].Initialize(this, i);
+        }
+    }
+
+    // <변경부분> 아이템 슬롯 클릭 시 BattleManager에 아이템 사용 요청
+    public void OnClickItemSlot(int slotIndex)
+    {
+        if (battleManager == null)
+        {
+            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            return;
+        }
+
+        battleManager.UseItemAtSlot(slotIndex);
+    }
+
+    // <변경부분> 아이템 슬롯 UI 전체를 현재 아이템 목록에 맞게 갱신
+    public void RefreshItemSlots(BattleItemData[] itemSlots)
+    {
+        if (itemSlotUIs == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < itemSlotUIs.Length; i++)
+        {
+            if (itemSlotUIs[i] == null)
+            {
+                continue;
+            }
+
+            BattleItemData itemData = null;
+
+            if (itemSlots != null && i < itemSlots.Length)
+            {
+                itemData = itemSlots[i];
+            }
+
+            itemSlotUIs[i].Refresh(itemData);
+        }
     }
 
     // 선택된 기물 상태에 따라 버튼 표시 갱신
@@ -215,5 +298,29 @@ public class BattleUIController : MonoBehaviour
         {
             enemyStatusUIController.Clear();
         }
+    }
+
+    // <변경부분> 테스트용 아이템 추가 버튼 클릭 시 BattleManager에 아이템 추가 요청
+    private void OnClickDebugAddItemButton()
+    {
+        if (battleManager == null)
+        {
+            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            return;
+        }
+
+        battleManager.AddTestItemForDebug();
+    }
+
+    // <변경부분> 테스트용 강제 턴 넘기기 버튼 클릭 시 BattleManager에 턴 종료 요청
+    private void OnClickDebugForceEndTurnButton()
+    {
+        if (battleManager == null)
+        {
+            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            return;
+        }
+
+        battleManager.DebugForceEndTurn();
     }
 }
