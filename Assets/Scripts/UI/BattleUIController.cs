@@ -15,6 +15,9 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Button debugAddItemButton;
     // <변경부분> 테스트용 강제 턴 넘기기 버튼
     [SerializeField] private Button debugForceEndTurnButton;
+    // <변경부분> 테스트용 유물 추가 버튼
+    [SerializeField] private Button debugAddRelicButton;
+
 
     [Header("Piece Status UI")]
     // <변경부분> 플레이어 선택 기물 정보를 표시하는 스테이터스 UI
@@ -36,6 +39,10 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 전투 중 사용하는 아이템 슬롯 UI 목록
     [Header("Item Slots")]
     [SerializeField] private BattleItemSlotUI[] itemSlotUIs;
+
+    [Header("Relic Slots")]
+    // <변경부분> 전투 중 보유한 유물을 표시하는 유물 슬롯 UI 목록
+    [SerializeField] private BattleRelicSlotUI[] relicSlotUIs;
 
     private void Start()
     {
@@ -61,6 +68,12 @@ public class BattleUIController : MonoBehaviour
         if (debugForceEndTurnButton != null)
         {
             debugForceEndTurnButton.onClick.AddListener(OnClickDebugForceEndTurnButton);
+        }
+
+        // <변경부분> 테스트용 유물 추가 버튼 클릭 이벤트 연결
+        if (debugAddRelicButton != null)
+        {
+            debugAddRelicButton.onClick.AddListener(OnClickDebugAddRelicButton);
         }
 
         // <변경부분> 아이템 슬롯 버튼 클릭 이벤트 연결
@@ -152,6 +165,36 @@ public class BattleUIController : MonoBehaviour
             itemSlotUIs[i].Refresh(itemData);
         }
     }
+
+    // <변경부분> 현재 유물 슬롯 정보를 UI에 반영하는 함수
+    public void RefreshRelicSlots(BattleRelicData[] relicSlots)
+    {
+        // 유물 슬롯 UI 배열이 없으면 갱신할 대상이 없음
+        if (relicSlotUIs == null)
+        {
+            return;
+        }
+
+        // 슬롯 UI 개수만큼 유물 아이콘 표시 상태를 갱신
+        for (int i = 0; i < relicSlotUIs.Length; i++)
+        {
+            if (relicSlotUIs[i] == null)
+            {
+                continue;
+            }
+
+            BattleRelicData relicData = null;
+
+            // 실제 유물 배열에 해당 슬롯 데이터가 있으면 가져옴
+            if (relicSlots != null && i < relicSlots.Length)
+            {
+                relicData = relicSlots[i];
+            }
+
+            relicSlotUIs[i].Refresh(relicData);
+        }
+    }
+
 
     // 선택된 기물 상태에 따라 버튼 표시 갱신
     public void RefreshSelectedPieceButtons(Piece selectedPiece)
@@ -322,5 +365,17 @@ public class BattleUIController : MonoBehaviour
         }
 
         battleManager.DebugForceEndTurn();
+    }
+
+    // <변경부분> 테스트용 유물 추가 버튼 클릭 시 BattleManager에 유물 추가 요청
+    private void OnClickDebugAddRelicButton()
+    {
+        if (battleManager == null)
+        {
+            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            return;
+        }
+
+        battleManager.AddTestRelicForDebug();
     }
 }

@@ -163,6 +163,16 @@ public class Piece : MonoBehaviour
         hasUsedUniqueSkillThisTurn = false;
     }
 
+    // <변경부분> 흡수 후 유물 효과로 추가 행동을 얻었을 때 고유스킬을 바로 사용할 수 있게 여는 함수
+    public void EnableUniqueSkillAfterAbsorbChanceAttack()
+    {
+        // 흡수 직후 막아둔 이번 턴 고유스킬 사용 상태를 해제
+        hasUsedUniqueSkillThisTurn = false;
+
+        // 흡수 직후 적용된 고유스킬 쿨타임을 제거
+        uniqueSkillCooldown = 0;
+    }
+
     // 고유스킬 사용 후 쿨타임 적용
     public void StartUniqueSkillCooldown()
     {

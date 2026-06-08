@@ -88,7 +88,12 @@ public class PieceManager : MonoBehaviour
     [Header("Position Setting")]
     [SerializeField] private float pieceYOffset = 0.25f;
 
+    [Header("Piece Limit")]
+    // <변경부분> 플레이어 진영이 보유할 수 있는 최대 기물 수
+    [SerializeField] private int maxPlayerPieceCount = 10;
 
+    // <변경부분> 적 진영이 보유할 수 있는 최대 기물 수
+    [SerializeField] private int maxEnemyPieceCount = 10;
 
     // 게임 시작 시 한 번 실행
     private void Start()
@@ -176,7 +181,7 @@ public class PieceManager : MonoBehaviour
         if (team == PieceTeam.Enemy && pieceType != PieceType.King)
         {
             // 테스트 단계에서는 50% 확률로 찬스어택을 부여
-            if (Random.Range(0, 100) < 50)
+            if (Random.Range(0, 100) < 80)
             {
                 // 테스트용으로 LV1 찬스어택 부여
                 piece.SetTestGeneralSkill(GeneralSkillType.ChanceAttack, 1);
@@ -722,6 +727,54 @@ public class PieceManager : MonoBehaviour
         return false;
     }
 
+    // <변경부분> 특정 진영의 현재 기물 수를 계산하는 함수
+    public int GetPieceCount(PieceTeam team)
+    {
+        int count = 0;
+
+        // 보드 전체를 돌면서 해당 진영 기물 수를 계산
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece piece = pieces[x, y];
+
+                if (piece != null && piece.Team == team)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    // <변경부분> 특정 진영의 최대 기물 수를 반환하는 함수
+    private int GetMaxPieceCount(PieceTeam team)
+    {
+        if (team == PieceTeam.Player)
+        {
+            return maxPlayerPieceCount;
+        }
+
+        if (team == PieceTeam.Enemy)
+        {
+            return maxEnemyPieceCount;
+        }
+
+        // 중립 기물은 현재 복제 제한 대상이 아니므로 제한 없음 처리
+        return int.MaxValue;
+    }
+
+    // <변경부분> 특정 진영이 새 기물을 추가로 생성할 수 있는지 검사하는 함수
+    public bool CanCreatePieceForTeam(PieceTeam team)
+    {
+        int currentCount = GetPieceCount(team);
+        int maxCount = GetMaxPieceCount(team);
+
+        return currentCount < maxCount;
+    }
+
 
     // 기물의 화면 정렬 순서를 설정하는 함수
     private void SetPieceSortingOrder(GameObject pieceObject, int x, int y)
@@ -778,6 +831,13 @@ public class PieceManager : MonoBehaviour
         // 원본 기물이 없으면 종료
         if (sourcePiece == null)
         {
+            return null;
+        }
+
+        // <변경부분> 원본 기물의 소속 진영이 최대 기물 수에 도달했다면 복제 불가
+        if (CanCreatePieceForTeam(sourcePiece.Team) == false)
+        {
+            Debug.Log($"복제 실패: {sourcePiece.Team} 진영의 최대 기물 수에 도달했습니다. 현재 {GetPieceCount(sourcePiece.Team)} / 최대 {GetMaxPieceCount(sourcePiece.Team)}");
             return null;
         }
 
