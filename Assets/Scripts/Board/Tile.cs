@@ -13,12 +13,36 @@ public class Tile : MonoBehaviour
     public bool IsWalkable { get; private set; } = true;// 이 타일 위에 기물이 올라갈 수 있는지 여부
     public bool HasObstacle { get; private set; } = false;// 이 타일 위에 장애물이 있는지 여부
 
+
+    private Color originalColor; // 원래 타일 색상 적용
+    [SerializeField]
+    private Color highlightColor = Color.yellowNice; // 이동 가능 타일 표시 색
+
     private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer 컴포넌트 저장
-        TileEffects = new List<TileEffectType>(); // 타일 효과 리스트 초기화
+        // SpriteRenderer를 먼저 자기 오브젝트에서 찾음
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // 자기 오브젝트에 없으면 자식 오브젝트에서 찾음
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+
+        // 그래도 없으면 오류 출력 후 종료
+        if (spriteRenderer == null)
+        {
+            Debug.LogError($"{gameObject.name}에 SpriteRenderer가 없습니다.");
+            return;
+        }
+
+        // 타일 효과 리스트 초기화
+        TileEffects = new List<TileEffectType>();
+
+        // 원래 색 저장
+        originalColor = spriteRenderer.color;
     }
     void Start()
     {
@@ -67,8 +91,32 @@ public class Tile : MonoBehaviour
         return TileEffects.Contains(effectType);
     }
 
+    public void ShowHighlight() // 이동 가능 타일 표시
+    {
+        spriteRenderer.color = highlightColor;
+    }
+
+    public void HideHighlight()  // 타일 표시 원상 복구
+    {
+        spriteRenderer.color = originalColor;
+    }
+
     public Vector2Int GetGridPosition()  // 현재 좌표 반환
     {
         return new Vector2Int(X, Y);
+    }
+
+    private void OnMouseDown()
+    {
+        // BattleManager가 없으면 종료
+        if (BattleManager.Instance == null)
+        {
+            return;
+        }
+
+        // <변경부분> 타일 클릭을 BattleManager에 전달
+        // 타일 위에 기물이 있으면 기물 선택/정보 표시/공격 확인 처리
+        // 타일 위에 기물이 없으면 이동 처리
+        BattleManager.Instance.SelectTile(this);
     }
 }
