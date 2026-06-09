@@ -8,11 +8,28 @@ public class BattleManager : MonoBehaviour
     //다른 스크립트에서 BattleManager에 접근하기 위한 임시 싱글톤
     public static BattleManager Instance { get; private set; }
 
-    // 보드 매니저 참조
     [Header("Manager")]
     [SerializeField] private BoardManager boardManager;
     // 기물 매니저 참조
     [SerializeField] private PieceManager pieceManager;
+
+    // <변경부분> 일반스킬과 스킬 발동 판정을 관리하는 매니저
+    [SerializeField] private BattleSkillManager battleSkillManager;
+
+    // <변경부분> 전투 아이템 슬롯과 아이템 사용 흐름을 관리하는 매니저
+    [SerializeField] private BattleItemManager battleItemManager;
+
+    // <변경부분> 전투 유물 슬롯과 중복 획득 방지를 관리하는 매니저
+    [SerializeField] private BattleRelicManager battleRelicManager;
+
+    // <변경부분> 전투 아이템의 실제 효과 실행을 담당하는 핸들러
+    [SerializeField] private BattleItemEffectHandler battleItemEffectHandler;
+
+    // <변경부분> 전투 유물의 실제 효과 발동 조건을 판정하는 핸들러
+    [SerializeField] private BattleRelicEffectHandler battleRelicEffectHandler;
+
+    // <변경부분> 전투 중 이동/공격 가능 여부를 판정하는 클래스
+    [SerializeField] private BattleMoveValidator battleMoveValidator;
 
     // 현재 선택된 기물
     private Piece selectedPiece;
@@ -52,31 +69,14 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 흡수 유물 찬스어택이 이번 플레이어 턴에 이미 발동했는지 확인
     private bool hasUsedAbsorbChanceAttackRelicThisTurn = false;
 
-    // <변경부분> 전투 아이템 슬롯 최대 개수
-    private const int MaxItemSlotCount = 4;
+    // <변경부분> KingQueenMove 사용에 필요한 사망 스택 수
+    private const int KingQueenMoveRequiredDeathStack = 3;
 
-    // <변경부분> 현재 전투에서 보유 중인 소모성 아이템 슬롯
-    private BattleItemData[] itemSlots = new BattleItemData[MaxItemSlotCount];
+    // <변경부분> 플레이어 진영 기물이 잡힌 누적 수
+    private int playerDeathStackForKingQueenMove = 0;
 
-    [Header("Test Item")]
-    // <변경부분> 테스트용으로 전투 시작 시 지급할 아이템 데이터
-    [SerializeField] private BattleItemData testStartItemData = new BattleItemData();
-
-    // <변경부분> 게임 시작 시 테스트 아이템을 지급할지 여부
-    [SerializeField] private bool addTestStartItem = true;
-
-    // <변경부분> 전투 유물 슬롯 최대 개수
-    private const int MaxRelicSlotCount = 10;
-
-    // <변경부분> 현재 전투에서 보유 중인 유물 슬롯
-    private BattleRelicData[] relicSlots = new BattleRelicData[MaxRelicSlotCount];
-
-    [Header("Test Relic")]
-    // <변경부분> 테스트용으로 전투 시작 시 지급하거나 버튼으로 추가할 유물 데이터
-    [SerializeField] private BattleRelicData testRelicData = new BattleRelicData();
-
-    // <변경부분> 게임 시작 시 테스트 유물을 지급할지 여부
-    [SerializeField] private bool addTestStartRelic = false;
+    // <변경부분> 적 진영 기물이 잡힌 누적 수
+    private int enemyDeathStackForKingQueenMove = 0;
 
     [Header("UI")]
     [SerializeField] private BattleUIController battleUIController;
@@ -122,26 +122,34 @@ public class BattleManager : MonoBehaviour
             battleUIController.HideActionButtons();
         }
 
-        // <변경부분> 게임 시작 시 아이템 슬롯 UI 초기화
-        RefreshItemSlotUI();
-
-        // <변경부분> 테스트용 아이템이 설정되어 있으면 전투 시작 시 1개 지급
-        if (addTestStartItem &&
-            testStartItemData != null &&
-            testStartItemData.itemType != BattleItemType.None)
+        // <변경부분> 게임 시작 시 아이템 매니저 초기화
+        if (battleItemManager != null)
         {
-            AddBattleItem(testStartItemData);
+            battleItemManager.Initialize(this, battleUIController);
         }
 
-        // <변경부분> 게임 시작 시 유물 슬롯 UI 초기화
-        RefreshRelicSlotUI();
-
-        // <변경부분> 테스트용 유물이 설정되어 있으면 전투 시작 시 1개 지급
-        if (addTestStartRelic &&
-            testRelicData != null &&
-            testRelicData.relicType != BattleRelicType.None)
+        // <변경부분> 게임 시작 시 유물 매니저 초기화
+        if (battleRelicManager != null)
         {
-            AddBattleRelic(testRelicData);
+            battleRelicManager.Initialize(battleUIController);
+        }
+
+        // <변경부분> 게임 시작 시 이동 판정기 초기화
+        if (battleMoveValidator != null)
+        {
+            battleMoveValidator.Initialize(boardManager, pieceManager);
+        }
+
+        // < 변경부분 > 게임 시작 시 스킬 매니저 초기화
+        if (battleSkillManager != null)
+        {
+            battleSkillManager.Initialize(boardManager, pieceManager);
+        }
+
+        // <변경부분> 게임 시작 시 아이템 효과 핸들러 초기화
+        if (battleItemEffectHandler != null)
+        {
+            battleItemEffectHandler.Initialize(pieceManager);
         }
     }
 
@@ -422,7 +430,13 @@ public class BattleManager : MonoBehaviour
                 // <변경부분> 플레이어 흡수 성공 행동이므로 유물 효과 판정 대상으로 저장
                 absorbedEnemyPiece = true;
 
+                // <변경부분> 제거될 기물의 소속을 먼저 저장
+                PieceTeam deadPieceTeam = targetPiece.Team;
+
                 pieceManager.RemovePiece(targetPiece);
+
+                // <변경부분> 해당 진영 기물이 잡힌 스택 증가
+                AddDeathStackForKingQueenMove(deadPieceTeam);
 
                 isAbsorbMode = false;
 
@@ -433,7 +447,13 @@ public class BattleManager : MonoBehaviour
                 // <변경부분> 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
                 killedEnemyPiece = true;
 
+                // <변경부분> 제거될 기물의 소속을 먼저 저장
+                PieceTeam deadPieceTeam = targetPiece.Team;
+
                 pieceManager.RemovePiece(targetPiece);
+
+                // <변경부분> 해당 진영 기물이 잡힌 스택 증가
+                AddDeathStackForKingQueenMove(deadPieceTeam);
             }
         }
 
@@ -469,12 +489,16 @@ public class BattleManager : MonoBehaviour
         }
 
         // <변경부분> 적 기물을 처치했을 때, 행동 시작 전 레벨 기준으로 찬스어택 발동 여부 확인
-        if (killedEnemyPiece && TryActivateChanceAttack(actingPiece, chanceAttackLevelBeforeAction))
+        if (killedEnemyPiece &&
+            battleSkillManager != null &&
+            battleMoveValidator != null &&
+            battleMoveValidator.HasAnySelectableTile(actingPiece) &&
+            battleSkillManager.TryActivateChanceAttack(actingPiece, chanceAttackLevelBeforeAction, chanceAttackContinuousCount))
         {
             // <변경부분> 일반 찬스어택 연속 발동 횟수 증가
             chanceAttackContinuousCount++;
 
-            // <변경부분> 일반 찬스어택과 동일하게 추가 행동 상태를 부여
+            // <변경부분> 일반 찬스어택으로 추가 행동 상태를 부여
             ActivateChanceAttackBonus(actingPiece);
 
             Debug.Log("찬스어택 발동: 턴 종료 없이 한 번 더 이동할 수 있습니다.");
@@ -576,180 +600,137 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> KingQueenMove는 자기 진영 기물이 3개 잡힐 때마다 1회 사용 가능
+        if (selectedPiece.UniqueSkill == UniqueSkillType.KingQueenMove &&
+            HasEnoughKingQueenMoveDeathStack(selectedPiece.Team) == false)
+        {
+            Debug.Log("KingQueenMove 사용 실패: 자기 진영 기물이 3개 잡혀야 사용할 수 있습니다.");
+            return;
+        }
+
         // <변경부분> 실제 스킬 성공 여부 저장
         bool skillUsed = false;
 
-        // 선택된 기물의 고유 스킬 종류에 따라 실행
-        switch (selectedPiece.UniqueSkill)
+        // <변경부분> 실제 고유스킬 효과 실행은 BattleSkillManager에 요청
+        if (battleSkillManager != null)
         {
-            case UniqueSkillType.JelluMultiply:
-                // 젤루 증식 스킬 실행
-                skillUsed = UseJelluMultiply(selectedPiece);
-                break;
-
-            default:
-                // 실행 가능한 고유 스킬이 없으면 실패 처리
-                Debug.Log("사용할 수 있는 고유 스킬이 없습니다.");
-                break;
+            skillUsed = battleSkillManager.TryUseUniqueSkill(selectedPiece);
+        }
+        else
+        {
+            Debug.LogWarning("BattleSkillManager가 연결되지 않아 고유스킬을 사용할 수 없습니다.");
         }
 
         // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
         if (skillUsed)
         {
+            // <변경부분> KingQueenMove가 성공했다면 자기 진영 사망 스택 3개 소모
+            if (selectedPiece.UniqueSkill == UniqueSkillType.KingQueenMove)
+            {
+                ConsumeKingQueenMoveDeathStack(selectedPiece.Team);
+            }
+
             // 이번 턴 전체 고유 스킬 사용 완료 처리
             hasUsedUniqueSkillThisTurn = true;
 
             // 선택된 기물에 고유 스킬 쿨타임 적용
             selectedPiece.MarkUniqueSkillUsed();
 
+            // <변경부분> 고유스킬로 이동 방식이 바뀔 수 있으므로 이동 가능 타일을 다시 갱신
+            ClearHighlights();
+            ShowOnlySelectedPieceTypeIcon(selectedPiece);
+            ShowMovableTiles(selectedPiece);
+
+            // <변경부분> 고유스킬 사용 후 버튼과 스테이터스 UI를 현재 기물 정보 기준으로 다시 갱신
+            if (battleUIController != null)
+            {
+                battleUIController.RefreshSelectedPieceButtons(selectedPiece);
+            }
+
             // 고유 스킬 사용 완료 로그
             Debug.Log("고유 스킬 사용 완료: 이번 턴 고유 스킬 사용권 소모 / 선택 기물 쿨타임 적용");
         }
     }
 
-    // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하는 함수
+    // <변경부분> 외부에서 전투 아이템을 추가할 때 BattleItemManager에 전달하는 함수
     public void AddBattleItem(BattleItemData itemData)
     {
-        // 추가할 아이템 데이터가 없으면 종료
-        if (itemData == null || itemData.itemType == BattleItemType.None)
+        // 전투 아이템 매니저가 연결되지 않았으면 아이템 추가 불가
+        if (battleItemManager == null)
         {
-            Debug.LogWarning("추가할 아이템 데이터가 없습니다.");
+            Debug.LogWarning("BattleItemManager가 연결되지 않았습니다.");
             return;
         }
 
-        // 왼쪽 슬롯부터 빈칸을 찾음
-        for (int i = 0; i < itemSlots.Length; i++)
-        {
-            if (itemSlots[i] != null && itemSlots[i].itemType != BattleItemType.None)
-            {
-                continue;
-            }
-
-            itemSlots[i] = itemData;
-
-            // 아이템 획득 후 슬롯 UI 갱신
-            RefreshItemSlotUI();
-
-            Debug.Log($"아이템 획득: {itemData.itemName} / 슬롯 {i}");
-            return;
-        }
-
-        Debug.Log("아이템 슬롯이 가득 찼습니다.");
+        // 실제 아이템 슬롯 추가는 BattleItemManager가 처리
+        battleItemManager.AddBattleItem(itemData);
     }
 
     // <변경부분> 테스트 버튼에서 호출하는 테스트 아이템 추가 함수
     public void AddTestItemForDebug()
     {
-        // 테스트 아이템 데이터가 없으면 추가 불가
-        if (testStartItemData == null || testStartItemData.itemType == BattleItemType.None)
+        // 전투 아이템 매니저가 연결되지 않았으면 테스트 아이템 추가 불가
+        if (battleItemManager == null)
         {
-            Debug.LogWarning("테스트 아이템 데이터가 설정되지 않았습니다.");
+            Debug.LogWarning("BattleItemManager가 연결되지 않았습니다.");
             return;
         }
 
-        // 테스트 아이템을 현재 아이템 슬롯에 추가
-        AddBattleItem(testStartItemData);
+        // 테스트 아이템 추가는 BattleItemManager가 처리
+        battleItemManager.AddTestItemForDebug();
     }
 
-    // <변경부분> 특정 슬롯의 아이템을 사용하는 함수
+    // <변경부분> 아이템 슬롯 클릭 시 BattleItemManager에 아이템 사용 요청
     public void UseItemAtSlot(int slotIndex)
+    {
+        // 전투 아이템 매니저가 연결되지 않았으면 아이템 사용 불가
+        if (battleItemManager == null)
+        {
+            Debug.LogWarning("BattleItemManager가 연결되지 않았습니다.");
+            return;
+        }
+
+        // 실제 아이템 슬롯 검사와 소모 처리는 BattleItemManager가 처리
+        battleItemManager.UseItemAtSlot(slotIndex);
+    }
+
+    // <변경부분> BattleItemManager가 아이템 사용 가능 상태인지 확인할 때 호출하는 함수
+    public bool CanUseBattleItem()
     {
         // 전투가 끝났으면 아이템 사용 불가
         if (isBattleEnded)
         {
-            return;
+            return false;
         }
 
         // 아이템은 플레이어 턴에만 사용 가능
         if (currentTurn != BattleTurn.Player)
         {
             Debug.Log("아이템은 플레이어 턴에만 사용할 수 있습니다.");
-            return;
+            return false;
         }
 
-        // 슬롯 번호가 잘못되었으면 종료
-        if (slotIndex < 0 || slotIndex >= itemSlots.Length)
+        return true;
+    }
+
+    // <변경부분> BattleItemManager가 실제 아이템 효과 실행을 요청할 때 호출하는 함수
+    public bool TryApplyBattleItemEffect(BattleItemData itemData)
+    {
+        // 아이템 효과 핸들러가 없으면 효과 실행 실패
+        if (battleItemEffectHandler == null)
         {
-            Debug.LogWarning($"잘못된 아이템 슬롯 번호입니다: {slotIndex}");
-            return;
+            Debug.LogWarning("BattleItemEffectHandler가 연결되지 않았습니다.");
+            return false;
         }
 
-        // 해당 슬롯에 아이템이 없으면 종료
-        BattleItemData itemData = itemSlots[slotIndex];
+        // <변경부분> 실제 아이템 효과 실행은 BattleItemEffectHandler에 요청
+        bool itemUsed = battleItemEffectHandler.TryApplyItemEffect(itemData, selectedPiece);
 
-        if (itemData == null || itemData.itemType == BattleItemType.None)
-        {
-            Debug.Log("해당 슬롯에 사용할 아이템이 없습니다.");
-            return;
-        }
-
-        // 아이템 효과 실행
-        bool itemUsed = ApplyItemEffect(itemData);
-
-        // 효과가 실패했으면 아이템을 소모하지 않음
+        // 효과가 실패했으면 후처리하지 않음
         if (itemUsed == false)
         {
-            return;
-        }
-
-        // 사용한 아이템 제거
-        itemSlots[slotIndex] = null;
-
-        // 빈칸이 생기면 왼쪽부터 다시 정렬
-        CompressItemSlots();
-
-        // 아이템 사용 후 UI 갱신
-        RefreshItemSlotUI();
-
-        Debug.Log($"아이템 사용 완료: {itemData.itemName}");
-    }
-
-    // <변경부분> 아이템 종류에 따라 실제 효과를 실행하는 함수
-    private bool ApplyItemEffect(BattleItemData itemData)
-    {
-        // 아이템 데이터가 없으면 실패
-        if (itemData == null)
-        {
             return false;
         }
-
-        switch (itemData.itemType)
-        {
-            case BattleItemType.ChangeSelectedPieceToJelluPawn:
-                return UseChangeSelectedPieceToJelluPawnItem();
-
-            default:
-                Debug.LogWarning($"아직 구현되지 않은 아이템 효과입니다: {itemData.itemType}");
-                return false;
-        }
-    }
-
-    // <변경부분> 선택한 플레이어 기물을 젤루 폰으로 변경하는 아이템 효과
-    private bool UseChangeSelectedPieceToJelluPawnItem()
-    {
-        // 선택된 기물이 없으면 실패
-        if (selectedPiece == null)
-        {
-            Debug.Log("젤루 폰으로 변경할 플레이어 기물을 먼저 선택해야 합니다.");
-            return false;
-        }
-
-        // 플레이어 기물만 아이템 대상으로 허용
-        if (selectedPiece.Team != PieceTeam.Player)
-        {
-            Debug.Log("플레이어 기물에만 아이템을 사용할 수 있습니다.");
-            return false;
-        }
-
-        // Player King은 현재 승패 조건과 충돌할 수 있으므로 변경 불가
-        if (selectedPiece.PieceType == PieceType.King)
-        {
-            Debug.Log("Player King은 젤루 폰으로 변경할 수 없습니다.");
-            return false;
-        }
-
-        // 선택 기물을 젤루 폰 정보로 변경
-        pieceManager.ChangePieceToJelluPawn(selectedPiece);
 
         // 아이템 사용 후 흡수 모드 해제
         isAbsorbMode = false;
@@ -769,183 +750,48 @@ public class BattleManager : MonoBehaviour
             battleUIController.RefreshSelectedPieceButtons(selectedPiece);
         }
 
-        Debug.Log("아이템 효과 성공: 선택한 기물을 젤루 폰으로 변경했습니다.");
-
         return true;
     }
 
-    // <변경부분> 아이템 사용 후 빈 슬롯을 제거하고 왼쪽부터 다시 채우는 함수
-    private void CompressItemSlots()
-    {
-        BattleItemData[] compressedSlots = new BattleItemData[MaxItemSlotCount];
-        int targetIndex = 0;
-
-        for (int i = 0; i < itemSlots.Length; i++)
-        {
-            if (itemSlots[i] == null || itemSlots[i].itemType == BattleItemType.None)
-            {
-                continue;
-            }
-
-            compressedSlots[targetIndex] = itemSlots[i];
-            targetIndex++;
-        }
-
-        itemSlots = compressedSlots;
-    }
-
-    // <변경부분> 현재 아이템 슬롯 정보를 UI에 반영하는 함수
-    private void RefreshItemSlotUI()
-    {
-        if (battleUIController == null)
-        {
-            return;
-        }
-
-        battleUIController.RefreshItemSlots(itemSlots);
-    }
-
-    // <변경부분> 전투 유물을 왼쪽 빈 슬롯부터 추가하는 함수
+    // <변경부분> 외부에서 전투 유물을 추가할 때 BattleRelicManager에 전달하는 함수
     public bool AddBattleRelic(BattleRelicData relicData)
     {
-        // 추가할 유물 데이터가 없으면 실패
-        if (relicData == null || relicData.relicType == BattleRelicType.None)
+        // 전투 유물 매니저가 연결되지 않았으면 유물 추가 실패
+        if (battleRelicManager == null)
         {
-            Debug.LogWarning("추가할 유물 데이터가 없습니다.");
+            Debug.LogWarning("BattleRelicManager가 연결되지 않았습니다.");
             return false;
         }
 
-        // <변경부분> 같은 유물은 중복 획득할 수 없음
-        if (HasRelic(relicData.relicType))
-        {
-            Debug.Log($"유물 획득 실패: 이미 보유 중인 유물입니다. / {relicData.relicName}");
-            return false;
-        }
-
-        // 왼쪽 슬롯부터 빈칸을 찾음
-        for (int i = 0; i < relicSlots.Length; i++)
-        {
-            if (relicSlots[i] != null && relicSlots[i].relicType != BattleRelicType.None)
-            {
-                continue;
-            }
-
-            relicSlots[i] = relicData;
-
-            // 유물 획득 후 슬롯 UI 갱신
-            RefreshRelicSlotUI();
-
-            Debug.Log($"유물 획득: {relicData.relicName} / 슬롯 {i}");
-            return true;
-        }
-
-        Debug.Log("유물 슬롯이 가득 찼습니다.");
-        return false;
+        // 실제 유물 슬롯 추가와 중복 검사는 BattleRelicManager가 처리
+        return battleRelicManager.AddBattleRelic(relicData);
     }
 
     // <변경부분> 특정 유물을 현재 보유 중인지 확인하는 함수
     public bool HasRelic(BattleRelicType relicType)
     {
-        // None은 실제 유물이 아니므로 보유 판정하지 않음
-        if (relicType == BattleRelicType.None)
+        // 전투 유물 매니저가 연결되지 않았으면 유물 미보유로 처리
+        if (battleRelicManager == null)
         {
             return false;
         }
 
-        // 현재 유물 슬롯 전체를 검사
-        for (int i = 0; i < relicSlots.Length; i++)
-        {
-            if (relicSlots[i] == null)
-            {
-                continue;
-            }
-
-            if (relicSlots[i].relicType == relicType)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        // 실제 유물 보유 여부 검사는 BattleRelicManager가 처리
+        return battleRelicManager.HasRelic(relicType);
     }
 
     // <변경부분> 테스트 버튼에서 호출하는 테스트 유물 추가 함수
     public void AddTestRelicForDebug()
     {
-        // 테스트 유물 데이터가 없으면 추가 불가
-        if (testRelicData == null || testRelicData.relicType == BattleRelicType.None)
+        // 전투 유물 매니저가 연결되지 않았으면 테스트 유물 추가 불가
+        if (battleRelicManager == null)
         {
-            Debug.LogWarning("테스트 유물 데이터가 설정되지 않았습니다.");
+            Debug.LogWarning("BattleRelicManager가 연결되지 않았습니다.");
             return;
         }
 
-        // 테스트 유물을 현재 유물 슬롯에 추가
-        AddBattleRelic(testRelicData);
-    }
-
-    // <변경부분> 현재 유물 슬롯 정보를 UI에 반영하는 함수
-    private void RefreshRelicSlotUI()
-    {
-        if (battleUIController == null)
-        {
-            return;
-        }
-
-        battleUIController.RefreshRelicSlots(relicSlots);
-    }
-
-
-    // <변경부분> Jellu 폰 고유 스킬: 성공 여부를 bool로 반환
-    private bool UseJelluMultiply(Piece piece)
-    {
-        List<Vector2Int> emptyPositions = new List<Vector2Int>();
-
-        for (int offsetY = -1; offsetY <= 1; offsetY++)
-        {
-            for (int offsetX = -1; offsetX <= 1; offsetX++)
-            {
-                if (offsetX == 0 && offsetY == 0)
-                {
-                    continue;
-                }
-
-                int targetX = piece.X + offsetX;
-                int targetY = piece.Y + offsetY;
-
-                if (IsInsideBoard(targetX, targetY) == false)
-                {
-                    continue;
-                }
-
-                if (pieceManager.IsEmpty(targetX, targetY))
-                {
-                    emptyPositions.Add(new Vector2Int(targetX, targetY));
-                }
-            }
-        }
-
-        if (emptyPositions.Count == 0)
-        {
-            Debug.Log("증식 실패: 인접한 빈칸이 없습니다.");
-            return false; // <변경부분> 실패했으므로 쿨타임 없음
-        }
-
-        int randomIndex = Random.Range(0, emptyPositions.Count);
-        Vector2Int selectedPosition = emptyPositions[randomIndex];
-
-        Piece clonedPiece = pieceManager.ClonePieceTo(
-            piece,
-            selectedPosition.x,
-            selectedPosition.y
-        );
-
-        if (clonedPiece != null)
-        {
-            Debug.Log($"증식 성공: ({selectedPosition.x}, {selectedPosition.y})에 {piece.Team} {piece.PieceType} 생성");
-            return true; // <변경부분> 성공했으므로 쿨타임 적용
-        }
-
-        return false; // <변경부분> 생성 실패 시 쿨타임 없음
+        // 테스트 유물 추가는 BattleRelicManager가 처리
+        battleRelicManager.AddTestRelicForDebug();
     }
 
     // 선택한 기물의 종류에 따라 이동 가능한 타일을 표시하는 함수
@@ -957,32 +803,32 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        //기물 종류별 이동 규칙 분기
-        switch (piece.PieceType)
+        // <변경부분> 실제 기물 타입이 아니라 현재 이동 판정 타입 기준으로 이동 하이라이트 표시
+        switch (piece.GetCurrentMoveType())
         {
             case PieceType.Pawn:
-                // 폰 이동/공격 표시
                 ShowPawnMovableTiles(piece);
                 break;
 
             case PieceType.Rook:
-                // 룩 이동/공격 표시
                 ShowRookMovableTiles(piece);
                 break;
 
             case PieceType.Bishop:
-                // 비숍 이동/공격 표시
                 ShowBishopMovableTiles(piece);
                 break;
 
             case PieceType.Knight:
-                // 나이트 이동/공격 표시
                 ShowKnightMovableTiles(piece);
                 break;
 
             case PieceType.King:
-                // 킹 이동/공격 표시
                 ShowKingMovableTiles(piece);
+                break;
+
+            // <변경부분> Queen은 Rook + Bishop 이동 방식을 모두 사용
+            case PieceType.Queen:
+                ShowQueenMovableTiles(piece);
                 break;
         }
     }
@@ -1016,6 +862,16 @@ public class BattleManager : MonoBehaviour
 
         // 왼쪽 아래 대각선
         CheckLineMovement(piece, -1, -1);
+    }
+
+    // <변경부분> Queen처럼 직선 + 대각선 방향으로 이동/공격 가능한 타일 표시
+    private void ShowQueenMovableTiles(Piece piece)
+    {
+        // Queen은 Rook 이동 방식 사용
+        ShowRookMovableTiles(piece);
+
+        // Queen은 Bishop 이동 방식 사용
+        ShowBishopMovableTiles(piece);
     }
 
     // 한 방향으로 계속 검사하며 이동/공격 가능한 타일을 찾는 함수
@@ -1256,284 +1112,89 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 흡수 성공 시 유물 효과로 찬스어택을 확정 발동할 수 있는지 검사하는 함수
     private bool TryActivateAbsorbChanceAttackRelic(Piece piece)
     {
-        // 검사할 기물이 없으면 발동 불가
-        if (piece == null)
+        // 유물 효과 핸들러가 없으면 유물 효과 발동 불가
+        if (battleRelicEffectHandler == null)
         {
+            Debug.LogWarning("BattleRelicEffectHandler가 연결되지 않았습니다.");
             return false;
         }
 
-        // 현재 플레이어 턴이 아니면 발동 불가
-        if (currentTurn != BattleTurn.Player)
-        {
-            return false;
-        }
+        // <변경부분> 유물 효과 발동에 필요한 현재 전투 상태를 계산
+        bool hasRelic = HasRelic(BattleRelicType.AbsorbChanceAttackOncePerTurn);
+        bool hasAnySelectableTile = battleMoveValidator != null && battleMoveValidator.HasAnySelectableTile(piece);
 
-        // 해당 유물을 보유하고 있지 않으면 발동 불가
-        if (HasRelic(BattleRelicType.AbsorbChanceAttackOncePerTurn) == false)
-        {
-            return false;
-        }
-
-        // 이번 플레이어 턴에 이미 발동했다면 발동 불가
-        if (hasUsedAbsorbChanceAttackRelicThisTurn)
-        {
-            Debug.Log("유물 효과 발동 실패: 이번 턴에 이미 흡수 찬스어택 유물이 발동했습니다.");
-            return false;
-        }
-
-        // 추가 행동 가능한 이동/공격 타일이 없으면 발동하지 않음
-        if (HasAnySelectableTile(piece) == false)
-        {
-            Debug.Log("유물 효과 발동 실패: 추가 행동 가능한 이동/공격 타일이 없습니다.");
-            return false;
-        }
-
-        return true;
+        // <변경부분> 실제 유물 효과 발동 조건 판정은 BattleRelicEffectHandler에 요청
+        return battleRelicEffectHandler.CanActivateAbsorbChanceAttackRelic(
+            piece,
+            currentTurn,
+            hasRelic,
+            hasUsedAbsorbChanceAttackRelicThisTurn,
+            hasAnySelectableTile
+        );
     }
 
-    // <변경부분> 찬스어택 발동 여부를 행동 시작 전 레벨 기준으로 판정하는 함수
-    private bool TryActivateChanceAttack(Piece piece, int skillLevelBeforeAction)
+    // <변경부분> 기물이 잡혔을 때 해당 진영의 KingQueenMove 사망 스택을 증가시키는 함수
+    private void AddDeathStackForKingQueenMove(PieceTeam deadPieceTeam)
     {
-        // 판정할 기물이 없으면 실패
-        if (piece == null)
+        if (deadPieceTeam == PieceTeam.Player)
         {
-            return false;
+            playerDeathStackForKingQueenMove++;
+            Debug.Log($"Player KingQueenMove 사망 스택 증가: {playerDeathStackForKingQueenMove}");
+            return;
         }
 
-        // <변경부분> 행동 시작 전에 찬스어택이 없었다면 이번 처치에서는 발동 불가
-        if (skillLevelBeforeAction <= 0)
+        if (deadPieceTeam == PieceTeam.Enemy)
         {
-            Debug.Log("찬스어택 판정 실패: 이번 행동 시작 시점에는 찬스어택이 없었습니다.");
-            return false;
-        }
-
-        // <변경부분> 찬스어택으로 추가 행동을 받아도 이동/공격할 수 있는 칸이 없으면 발동하지 않음
-        if (HasAnySelectableTile(piece) == false)
-        {
-            Debug.Log("찬스어택 판정 실패: 추가 행동 가능한 이동/공격 타일이 없습니다.");
-            return false;
-        }
-
-        // 행동 시작 전 레벨 기준으로 기본 발동 확률 계산
-        int baseChancePercent = GetChanceAttackPercent(skillLevelBeforeAction);
-
-        // <변경부분> 연속 발동 횟수에 따라 확률을 1/3씩 감소
-        float penaltyMultiplier = Mathf.Pow(1f / 3f, chanceAttackContinuousCount);
-
-        // <변경부분> 최종 발동 확률 계산
-        float finalChancePercent = baseChancePercent * penaltyMultiplier;
-
-        // 0~100 사이 랜덤값 생성
-        float randomValue = Random.Range(0f, 100f);
-
-        // 최종 확률 안에 들어오면 발동 성공
-        bool isActivated = randomValue < finalChancePercent;
-
-        Debug.Log($"찬스어택 판정: 행동전 LV.{skillLevelBeforeAction} / 기본확률 {baseChancePercent}% / 연속횟수 {chanceAttackContinuousCount} / 최종확률 {finalChancePercent:F1}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
-
-        return isActivated;
-    }
-
-    // <변경부분> 찬스어택 레벨에 따른 발동 확률을 반환하는 함수
-    private int GetChanceAttackPercent(int skillLevel)
-    {
-        switch (skillLevel)
-        {
-            case 1:
-                return 30;
-
-            case 2:
-                return 50;
-
-            case 3:
-                return 80;
-
-            default:
-                return 0;
+            enemyDeathStackForKingQueenMove++;
+            Debug.Log($"Enemy KingQueenMove 사망 스택 증가: {enemyDeathStackForKingQueenMove}");
+            return;
         }
     }
 
-    // <변경부분> 현재 위치에서 해당 기물이 이동 또는 공격 가능한 타일이 하나라도 있는지 검사하는 함수
-    private bool HasAnySelectableTile(Piece piece)
+    // <변경부분> KingQueenMove를 사용할 만큼 자기 진영 사망 스택이 충분한지 확인하는 함수
+    private bool HasEnoughKingQueenMoveDeathStack(PieceTeam team)
     {
-        // 검사할 기물이 없으면 추가 행동 불가
-        if (piece == null)
+        if (team == PieceTeam.Player)
         {
-            return false;
+            return playerDeathStackForKingQueenMove >= KingQueenMoveRequiredDeathStack;
         }
 
-        // 기물 타입별 이동/공격 가능 여부를 실제 하이라이트 없이 검사
-        switch (piece.PieceType)
+        if (team == PieceTeam.Enemy)
         {
-            case PieceType.Pawn:
-                return HasAnyPawnSelectableTile(piece);
-
-            case PieceType.Rook:
-                return HasAnyLineSelectableTile(piece, 1, 0) ||
-                       HasAnyLineSelectableTile(piece, -1, 0) ||
-                       HasAnyLineSelectableTile(piece, 0, 1) ||
-                       HasAnyLineSelectableTile(piece, 0, -1);
-
-            case PieceType.Bishop:
-                return HasAnyLineSelectableTile(piece, 1, 1) ||
-                       HasAnyLineSelectableTile(piece, -1, 1) ||
-                       HasAnyLineSelectableTile(piece, 1, -1) ||
-                       HasAnyLineSelectableTile(piece, -1, -1);
-
-            case PieceType.Knight:
-                return HasAnyKnightSelectableTile(piece);
-
-            case PieceType.King:
-                return HasAnyKingSelectableTile(piece);
-
-            default:
-                return false;
-        }
-    }
-
-    // <변경부분> Pawn이 현재 위치에서 이동 또는 공격 가능한 타일이 있는지 검사하는 함수
-    private bool HasAnyPawnSelectableTile(Piece piece)
-    {
-        // 플레이어는 위쪽, 적은 아래쪽으로 전진
-        int direction = piece.Team == PieceTeam.Player ? 1 : -1;
-
-        // 전진 이동 가능 여부 검사
-        int forwardX = piece.X;
-        int forwardY = piece.Y + direction;
-
-        if (IsInsideBoard(forwardX, forwardY) && pieceManager.IsEmpty(forwardX, forwardY))
-        {
-            return true;
-        }
-
-        // 왼쪽 대각선 공격 가능 여부 검사
-        if (CanAttackTile(piece, piece.X - 1, piece.Y + direction))
-        {
-            return true;
-        }
-
-        // 오른쪽 대각선 공격 가능 여부 검사
-        if (CanAttackTile(piece, piece.X + 1, piece.Y + direction))
-        {
-            return true;
+            return enemyDeathStackForKingQueenMove >= KingQueenMoveRequiredDeathStack;
         }
 
         return false;
     }
 
-    // <변경부분> Rook/Bishop처럼 한 방향으로 계속 이동하는 기물의 이동 또는 공격 가능 여부를 검사하는 함수
-    private bool HasAnyLineSelectableTile(Piece piece, int dirX, int dirY)
+    // <변경부분> KingQueenMove 사용 후 자기 진영 사망 스택을 소모하는 함수
+    private void ConsumeKingQueenMoveDeathStack(PieceTeam team)
     {
-        // 현재 위치에서 지정 방향으로 한 칸씩 검사
-        int checkX = piece.X + dirX;
-        int checkY = piece.Y + dirY;
-
-        while (IsInsideBoard(checkX, checkY))
+        if (team == PieceTeam.Player)
         {
-            Piece targetPiece = pieceManager.GetPieceAt(checkX, checkY);
+            playerDeathStackForKingQueenMove -= KingQueenMoveRequiredDeathStack;
 
-            // 빈칸이면 이동 가능
-            if (targetPiece == null)
+            if (playerDeathStackForKingQueenMove < 0)
             {
-                return true;
+                playerDeathStackForKingQueenMove = 0;
             }
 
-            // 적대 기물이 있으면 공격 가능
-            if (piece.IsEnemyOf(targetPiece))
+            Debug.Log($"Player KingQueenMove 사망 스택 소모 후 남은 수: {playerDeathStackForKingQueenMove}");
+            return;
+        }
+
+        if (team == PieceTeam.Enemy)
+        {
+            enemyDeathStackForKingQueenMove -= KingQueenMoveRequiredDeathStack;
+
+            if (enemyDeathStackForKingQueenMove < 0)
             {
-                return true;
+                enemyDeathStackForKingQueenMove = 0;
             }
 
-            // 같은 편 기물이 막고 있으면 이 방향은 더 이상 진행 불가
-            return false;
+            Debug.Log($"Enemy KingQueenMove 사망 스택 소모 후 남은 수: {enemyDeathStackForKingQueenMove}");
+            return;
         }
-
-        return false;
-    }
-
-    // <변경부분> Knight가 현재 위치에서 이동 또는 공격 가능한 타일이 있는지 검사하는 함수
-    private bool HasAnyKnightSelectableTile(Piece piece)
-    {
-        int[,] knightMoves =
-        {
-        { 1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
-        { -1, -2 }, { -2, -1 }, { -2, 1 }, { -1, 2 }
-    };
-
-        for (int i = 0; i < knightMoves.GetLength(0); i++)
-        {
-            int targetX = piece.X + knightMoves[i, 0];
-            int targetY = piece.Y + knightMoves[i, 1];
-
-            if (CanMoveOrAttackTile(piece, targetX, targetY))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // <변경부분> King이 현재 위치에서 이동 또는 공격 가능한 타일이 있는지 검사하는 함수
-    private bool HasAnyKingSelectableTile(Piece piece)
-    {
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                // 자기 위치는 검사하지 않음
-                if (x == 0 && y == 0)
-                {
-                    continue;
-                }
-
-                int targetX = piece.X + x;
-                int targetY = piece.Y + y;
-
-                if (CanMoveOrAttackTile(piece, targetX, targetY))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    // <변경부분> 특정 좌표가 이동 또는 공격 가능한 타일인지 검사하는 함수
-    private bool CanMoveOrAttackTile(Piece piece, int x, int y)
-    {
-        // 보드 밖이면 불가능
-        if (IsInsideBoard(x, y) == false)
-        {
-            return false;
-        }
-
-        Piece targetPiece = pieceManager.GetPieceAt(x, y);
-
-        // 빈칸이면 이동 가능
-        if (targetPiece == null)
-        {
-            return true;
-        }
-
-        // 적대 기물이 있으면 공격 가능
-        return piece.IsEnemyOf(targetPiece);
-    }
-
-    // <변경부분> 특정 좌표에 공격 가능한 기물이 있는지 검사하는 함수
-    private bool CanAttackTile(Piece piece, int x, int y)
-    {
-        // 보드 밖이면 공격 불가
-        if (IsInsideBoard(x, y) == false)
-        {
-            return false;
-        }
-
-        Piece targetPiece = pieceManager.GetPieceAt(x, y);
-
-        // 대상 기물이 있고 적대 관계면 공격 가능
-        return targetPiece != null && piece.IsEnemyOf(targetPiece);
     }
 
     // <변경부분> 테스트용 버튼에서 턴을 강제로 넘기는 함수
@@ -1571,6 +1232,14 @@ public class BattleManager : MonoBehaviour
         if (battleUIController != null)
         {
             battleUIController.HideActionButtons();
+        }
+
+        // <변경부분> 턴이 끝나는 진영의 임시 이동 타입 초기화
+        // currentTurn이 바뀌기 전에 실행해야 정확히 이번 턴 주체의 임시 이동 타입이 제거됨
+        if (pieceManager != null)
+        {
+            PieceTeam endingTeam = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
+            pieceManager.ClearTemporaryMoveTypes(endingTeam);
         }
 
         if (currentTurn == BattleTurn.Player)

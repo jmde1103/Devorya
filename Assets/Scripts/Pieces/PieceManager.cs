@@ -7,6 +7,8 @@ public class PieceManager : MonoBehaviour
     [Header("Manager")]
     [SerializeField] private BoardManager boardManager;
 
+
+
     // 생성한 기물들을 정리해서 담아둘 부모 오브젝트
     [SerializeField] private Transform pieceParent;
 
@@ -123,7 +125,7 @@ public class PieceManager : MonoBehaviour
         SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true);
         SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true);
         SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true);
-        SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true);
+        SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true, UniqueSkillType.KingQueenMove);
         SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true);
 
         // 적 폰 배치
@@ -646,7 +648,8 @@ public class PieceManager : MonoBehaviour
         // 실제 오브젝트 제거
         Destroy(piece.gameObject);
     }
-    // <변경부분> 특정 진영의 King이 살아있는지 확인하는 함수
+    // <변경부분> 특정 진영의 왕 역할 기물이 살아있는지 확인하는 함수
+    // KingToQueen처럼 King이 Queen 타입으로 변한 경우도 승패 조건상 생존으로 인정
     public bool HasKing(PieceTeam team)
     {
         // 모든 좌표 순회
@@ -663,7 +666,7 @@ public class PieceManager : MonoBehaviour
                     continue;
                 }
 
-                // 해당 진영의 King이 있으면 true
+                // <변경부분> 해당 진영의 King 또는 Queen이 있으면 왕 역할 기물이 살아있는 것으로 처리
                 if (piece.Team == team && piece.PieceType == PieceType.King)
                 {
                     return true;
@@ -671,7 +674,7 @@ public class PieceManager : MonoBehaviour
             }
         }
 
-        // King을 찾지 못하면 false
+        // 왕 역할 기물을 찾지 못하면 false
         return false;
     }
 
@@ -698,7 +701,7 @@ public class PieceManager : MonoBehaviour
         return false;
     }
 
-    //특정 진영에서 King을 제외한 기물이 하나라도 살아있는지 확인하는 함수
+    //특정 진영에서 왕 역할 기물을 제외한 기물이 하나라도 살아있는지 확인하는 함수
     public bool HasAnyNonKingPiece(PieceTeam team)
     {
         // 모든 좌표 순회
@@ -715,7 +718,7 @@ public class PieceManager : MonoBehaviour
                     continue;
                 }
 
-                // 해당 진영이고 King이 아닌 기물이 있으면 true
+                // <변경부분> King 또는 Queen은 왕 역할 기물로 보고 제외
                 if (piece.Team == team && piece.PieceType != PieceType.King)
                 {
                     return true;
@@ -723,8 +726,34 @@ public class PieceManager : MonoBehaviour
             }
         }
 
-        // King을 제외한 기물이 하나도 없으면 false
+        // 왕 역할 기물을 제외한 기물이 하나도 없으면 false
         return false;
+    }
+
+    // <변경부분> 특정 진영 기물들의 임시 이동 타입을 초기화하는 함수
+    public void ClearTemporaryMoveTypes(PieceTeam team)
+    {
+        // 모든 좌표 순회
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                // 현재 좌표의 기물 확인
+                Piece piece = pieces[x, y];
+
+                // 기물이 없으면 다음 칸으로
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                // 해당 진영 기물의 임시 이동 타입 제거
+                if (piece.Team == team)
+                {
+                    piece.ClearTemporaryMoveType();
+                }
+            }
+        }
     }
 
     // <변경부분> 특정 진영의 현재 기물 수를 계산하는 함수

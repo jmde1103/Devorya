@@ -16,6 +16,10 @@ public class Piece : MonoBehaviour
     // 현재 기물이 보유한 고유 스킬
     public UniqueSkillType UniqueSkill { get; private set; }
 
+    // <변경부분> 이동/공격 판정에만 사용할 임시 기물 타입
+    // 실제 PieceType은 바꾸지 않고, 이번 턴 동안만 Queen처럼 이동하는 효과 등에 사용
+    private PieceType? temporaryMoveType = null;
+
     // 고유스킬 현재 쿨타임
     // 0이면 사용 가능, 1 이상이면 사용 불가
     [SerializeField] private int uniqueSkillCooldown = 0;
@@ -207,6 +211,26 @@ public class Piece : MonoBehaviour
     {
         // 새로운 기물 타입 저장
         PieceType = newPieceType;
+    }
+
+    // <변경부분> 현재 이동/공격 판정에 사용할 타입을 반환하는 함수
+    // 임시 이동 타입이 있으면 그것을 사용하고, 없으면 실제 PieceType을 사용
+    public PieceType GetCurrentMoveType()
+    {
+        return temporaryMoveType.HasValue ? temporaryMoveType.Value : PieceType;
+    }
+
+    // <변경부분> 이동/공격 판정용 임시 타입을 적용하는 함수
+    // 실제 PieceType은 변경하지 않음
+    public void SetTemporaryMoveType(PieceType moveType)
+    {
+        temporaryMoveType = moveType;
+    }
+
+    // <변경부분> 이동/공격 판정용 임시 타입을 제거하는 함수
+    public void ClearTemporaryMoveType()
+    {
+        temporaryMoveType = null;
     }
 
     // <변경부분> 기물 타입, 고유 스킬, 젤루 외형 상태를 한 번에 변경하는 함수

@@ -1981,6 +1981,50 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &19103681
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 19103683}
+  - component: {fileID: 19103682}
+  m_Layer: 0
+  m_Name: BattleSkillManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &19103682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 19103681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d633dab8fd6c1bb4fb6aac82204d6369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleSkillManager
+--- !u!4 &19103683
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 19103681}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00023, y: 2.08279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &19962176
 GameObject:
   m_ObjectHideFlags: 0
@@ -4962,20 +5006,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
+  battleSkillManager: {fileID: 19103682}
+  battleItemManager: {fileID: 500334404}
+  battleRelicManager: {fileID: 524975403}
+  battleItemEffectHandler: {fileID: 178608792}
+  battleRelicEffectHandler: {fileID: 212060306}
+  battleMoveValidator: {fileID: 0}
   currentTurn: 0
   turnCount: 1
-  testStartItemData:
-    itemType: 1
-    itemName: "\uC824\uB8E8 \uD3F0 \uBCC0\uD615"
-    iconSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
-  addTestStartItem: 1
-  testRelicData:
-    relicType: 1
-    relicName: "\uD761\uC218\uC758 \uC5EC\uC6B4"
-    iconSprite: {fileID: 21300000, guid: e894b6325dc7c154c90f485ee2c2fc29, type: 3}
-    description: "\uAE30\uBB3C \uD761\uC218\uB97C \uC131\uACF5\uD55C \uACBD\uC6B0
-      \uD134\uB2F9 1\uBC88 \uD55C\uBC88\uB354 \uD589\uB3D9\uD560 \uC218 \uC788\uB2E4."
-  addTestStartRelic: 0
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -15985,6 +16023,50 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &178608791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 178608793}
+  - component: {fileID: 178608792}
+  m_Layer: 0
+  m_Name: BattleItemEffectHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &178608792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178608791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b60d523ef92c48438c7f6bc48dab584, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleItemEffectHandler
+--- !u!4 &178608793
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178608791}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00023, y: 2.08279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &179527722
 GameObject:
   m_ObjectHideFlags: 0
@@ -18981,6 +19063,50 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &212060305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 212060307}
+  - component: {fileID: 212060306}
+  m_Layer: 0
+  m_Name: BattleRelicEffectHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &212060306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 212060305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2c1eef65a110134990b33aa557d1d93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicEffectHandler
+--- !u!4 &212060307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 212060305}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00023, y: 2.08279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &213923745
 GameObject:
   m_ObjectHideFlags: 0
@@ -48066,6 +48192,55 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &500334403
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 500334405}
+  - component: {fileID: 500334404}
+  m_Layer: 0
+  m_Name: BattleItemManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &500334404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500334403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f6c2ca85e3aff45a020c3c9d86fe35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleItemManager
+  testStartItemData:
+    itemType: 1
+    itemName: "\uC824\uB8E8 \uD3F0 \uBCC0\uACBD"
+    iconSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
+  addTestStartItem: 1
+--- !u!4 &500334405
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500334403}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00023, y: 2.08279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &501201475
 GameObject:
   m_ObjectHideFlags: 0
@@ -49885,6 +50060,57 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &524975402
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 524975404}
+  - component: {fileID: 524975403}
+  m_Layer: 0
+  m_Name: BattleRelicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &524975403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 524975402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c105adfd934924abb22337aa4305a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicManager
+  testRelicData:
+    relicType: 1
+    relicName: "\uD761\uC218\uC758 \uC5EC\uC6B4"
+    iconSprite: {fileID: 21300000, guid: e894b6325dc7c154c90f485ee2c2fc29, type: 3}
+    description: "1\uD134\uC5D0 \uD55C\uBC88 \uD761\uC218 \uD6C4 \uD55C\uBC88 \uB354
+      \uC6C0\uC9C1\uC778\uB2E4."
+  addTestStartRelic: 0
+--- !u!4 &524975404
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 524975402}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00023, y: 2.08279, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &525333971
 GameObject:
   m_ObjectHideFlags: 0
@@ -197066,3 +197292,8 @@ SceneRoots:
   - {fileID: 1531519885}
   - {fileID: 714921435}
   - {fileID: 1560279917}
+  - {fileID: 500334405}
+  - {fileID: 524975404}
+  - {fileID: 19103683}
+  - {fileID: 178608793}
+  - {fileID: 212060307}
