@@ -1,9 +1,10 @@
 using UnityEngine;
 
-// <변경부분> 전투 중 보유하면 지속 효과를 제공하는 유물 하나의 기본 데이터
-[System.Serializable]
-public class BattleRelicData
+// <변경부분> 전투 중 보유하면 지속 효과를 제공하는 유물 하나의 기본 데이터를 관리하는 ScriptableObject
+[CreateAssetMenu(fileName = "BattleRelicData", menuName = "Devorya/Battle/Relic Data")]
+public class BattleRelicData : ScriptableObject
 {
+    [Header("Basic")]
     // 유물 종류
     public BattleRelicType relicType = BattleRelicType.None;
 

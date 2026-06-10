@@ -16,8 +16,8 @@ public class BattleItemManager : MonoBehaviour
     private BattleUIController battleUIController;
 
     [Header("Test Item")]
-    // 테스트용으로 전투 시작 시 지급하거나 버튼으로 추가할 아이템 데이터
-    [SerializeField] private BattleItemData testStartItemData = new BattleItemData();
+    // <변경부분> 테스트용으로 전투 시작 시 지급하거나 버튼으로 추가할 아이템 데이터 에셋
+    [SerializeField] private BattleItemData testStartItemData;
 
     // 게임 시작 시 테스트 아이템을 지급할지 여부
     [SerializeField] private bool addTestStartItem = true;

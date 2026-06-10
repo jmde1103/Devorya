@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c4ab6d1ac7681442ad9c33702053035, type: 3}
+  m_Name: BattleRelic_AbsorbChanceAttackOncePerTurn
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicData
+  relicType: 1
+  relicName: "\uD761\uC218\uC758 \uC5EC\uC6B4"
+  iconSprite: {fileID: 21300000, guid: e894b6325dc7c154c90f485ee2c2fc29, type: 3}
+  description: "\uD50C\uB808\uC774\uC5B4\uAC00 \uD761\uC218\uC5D0 \uC131\uACF5\uD558\uBA74
+    \uD134\uB2F9 1\uBC88 \uCD94\uAC00 \uD589\uB3D9\uC744 \uD655\uC815 \uBC1C\uB3D9\uD569\uB2C8\uB2E4."

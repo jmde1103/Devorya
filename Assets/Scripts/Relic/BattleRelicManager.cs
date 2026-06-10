@@ -13,8 +13,8 @@ public class BattleRelicManager : MonoBehaviour
     private BattleUIController battleUIController;
 
     [Header("Test Relic")]
-    // 테스트용으로 전투 시작 시 지급하거나 버튼으로 추가할 유물 데이터
-    [SerializeField] private BattleRelicData testRelicData = new BattleRelicData();
+    // <변경부분> 테스트용으로 전투 시작 시 지급하거나 버튼으로 추가할 유물 데이터 에셋
+    [SerializeField] private BattleRelicData testRelicData;
 
     // 게임 시작 시 테스트 유물을 지급할지 여부
     [SerializeField] private bool addTestStartRelic = false;
