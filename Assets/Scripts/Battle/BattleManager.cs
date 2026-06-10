@@ -16,11 +16,15 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 일반스킬과 스킬 발동 판정을 관리하는 매니저
     [SerializeField] private BattleSkillManager battleSkillManager;
 
+    // <변경부분> 고유스킬 기본 데이터를 관리하는 데이터베이스
+    [SerializeField] private UniqueSkillDatabase uniqueSkillDatabase;
+
     // <변경부분> 전투 아이템 슬롯과 아이템 사용 흐름을 관리하는 매니저
     [SerializeField] private BattleItemManager battleItemManager;
 
     // <변경부분> 전투 유물 슬롯과 중복 획득 방지를 관리하는 매니저
     [SerializeField] private BattleRelicManager battleRelicManager;
+
 
     // <변경부분> 전투 아이템의 실제 효과 실행을 담당하는 핸들러
     [SerializeField] private BattleItemEffectHandler battleItemEffectHandler;
@@ -54,6 +58,12 @@ public class BattleManager : MonoBehaviour
     // 현재 턴에 고유 스킬을 이미 사용했는지 여부
     private bool hasUsedUniqueSkillThisTurn = false;
 
+    // <변경부분> 플레이어 진영 기물이 잡힌 누적 수
+    private int playerDeathStackForUniqueSkill = 0;
+
+    // <변경부분> 적 진영 기물이 잡힌 누적 수
+    private int enemyDeathStackForUniqueSkill = 0;
+
     // <변경부분> 찬스어택 발동으로 추가 행동 중인 기물
     private Piece chanceAttackBonusPiece = null;
 
@@ -68,15 +78,6 @@ public class BattleManager : MonoBehaviour
 
     // <변경부분> 흡수 유물 찬스어택이 이번 플레이어 턴에 이미 발동했는지 확인
     private bool hasUsedAbsorbChanceAttackRelicThisTurn = false;
-
-    // <변경부분> KingQueenMove 사용에 필요한 사망 스택 수
-    private const int KingQueenMoveRequiredDeathStack = 3;
-
-    // <변경부분> 플레이어 진영 기물이 잡힌 누적 수
-    private int playerDeathStackForKingQueenMove = 0;
-
-    // <변경부분> 적 진영 기물이 잡힌 누적 수
-    private int enemyDeathStackForKingQueenMove = 0;
 
     [Header("UI")]
     [SerializeField] private BattleUIController battleUIController;
@@ -384,8 +385,9 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 이번 행동을 실행하는 기물을 미리 저장
         Piece actingPiece = selectedPiece;
 
-        // <변경부분> 흡수/레벨업이 적용되기 전 찬스어택 레벨을 저장
-        int chanceAttackLevelBeforeAction = actingPiece.GetGeneralSkillLevel(GeneralSkillType.ChanceAttack);
+        // <변경부분> 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보를 복사해서 저장
+        // 이번 행동에서 발동 판정은 행동 시작 전 레벨 기준으로 처리
+        OwnedGeneralSkillData chanceAttackDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.ChanceAttack);
 
         // <변경부분> 이번 행동으로 적 기물을 처치했는지 확인하기 위한 값
         bool killedEnemyPiece = false;
@@ -431,12 +433,12 @@ public class BattleManager : MonoBehaviour
                 absorbedEnemyPiece = true;
 
                 // <변경부분> 제거될 기물의 소속을 먼저 저장
-                PieceTeam deadPieceTeam = targetPiece.Team;
+                PieceTeam absorbedDeadPieceTeam = targetPiece.Team;
 
                 pieceManager.RemovePiece(targetPiece);
 
                 // <변경부분> 해당 진영 기물이 잡힌 스택 증가
-                AddDeathStackForKingQueenMove(deadPieceTeam);
+                AddDeathStackForUniqueSkill(absorbedDeadPieceTeam);
 
                 isAbsorbMode = false;
 
@@ -448,12 +450,12 @@ public class BattleManager : MonoBehaviour
                 killedEnemyPiece = true;
 
                 // <변경부분> 제거될 기물의 소속을 먼저 저장
-                PieceTeam deadPieceTeam = targetPiece.Team;
+                PieceTeam attackedDeadPieceTeam = targetPiece.Team;
 
                 pieceManager.RemovePiece(targetPiece);
 
                 // <변경부분> 해당 진영 기물이 잡힌 스택 증가
-                AddDeathStackForKingQueenMove(deadPieceTeam);
+                AddDeathStackForUniqueSkill(attackedDeadPieceTeam);
             }
         }
 
@@ -490,18 +492,18 @@ public class BattleManager : MonoBehaviour
 
         // <변경부분> 적 기물을 처치했을 때, 행동 시작 전 레벨 기준으로 찬스어택 발동 여부 확인
         if (killedEnemyPiece &&
-            battleSkillManager != null &&
-            battleMoveValidator != null &&
-            battleMoveValidator.HasAnySelectableTile(actingPiece) &&
-            battleSkillManager.TryActivateChanceAttack(actingPiece, chanceAttackLevelBeforeAction, chanceAttackContinuousCount))
+        battleSkillManager != null &&
+        battleMoveValidator != null &&
+        battleMoveValidator.HasAnySelectableTile(actingPiece) &&
+        battleSkillManager.TryActivateChanceAttack(actingPiece, chanceAttackDataBeforeAction, chanceAttackContinuousCount))
         {
-            // <변경부분> 일반 찬스어택 연속 발동 횟수 증가
+            // <변경부분> 일반 ChanceAttack 연속 발동 횟수 증가
             chanceAttackContinuousCount++;
 
-            // <변경부분> 일반 찬스어택으로 추가 행동 상태를 부여
+            // <변경부분> 일반 ChanceAttack으로 추가 행동 상태를 부여
             ActivateChanceAttackBonus(actingPiece);
 
-            Debug.Log("찬스어택 발동: 턴 종료 없이 한 번 더 이동할 수 있습니다.");
+            Debug.Log("ChanceAttack 발동: 턴 종료 없이 한 번 더 이동할 수 있습니다.");
             return;
         }
 
@@ -585,8 +587,17 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 이번 턴에 이미 고유 스킬을 사용했으면 모든 기물 고유 스킬 사용 불가
-        if (hasUsedUniqueSkillThisTurn)
+        // <변경부분> 선택된 고유스킬의 기본 데이터 가져오기
+        UniqueSkillData skillData = GetUniqueSkillData(selectedPiece.UniqueSkill);
+
+        // <변경부분> 고유스킬 데이터가 없으면 스킬 사용 불가
+        if (skillData == null)
+        {
+            return;
+        }
+
+        // <변경부분> 데이터에서 한 턴 1회 제한이 켜져 있고, 이미 이번 턴에 고유스킬을 사용했다면 사용 불가
+        if (skillData.oncePerTurn && hasUsedUniqueSkillThisTurn)
         {
             Debug.Log("이번 턴에는 이미 고유 스킬을 사용했습니다.");
             return;
@@ -600,43 +611,45 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> KingQueenMove는 자기 진영 기물이 3개 잡힐 때마다 1회 사용 가능
-        if (selectedPiece.UniqueSkill == UniqueSkillType.KingQueenMove &&
-            HasEnoughKingQueenMoveDeathStack(selectedPiece.Team) == false)
+        // <변경부분> 데이터에 설정된 사망 스택 조건 확인
+        if (HasEnoughDeathStackForUniqueSkill(selectedPiece.Team, skillData.requiredDeathStack) == false)
         {
-            Debug.Log("KingQueenMove 사용 실패: 자기 진영 기물이 3개 잡혀야 사용할 수 있습니다.");
+            Debug.Log($"고유스킬 사용 실패: 사망 스택이 부족합니다. 필요 스택 {skillData.requiredDeathStack}");
             return;
         }
 
         // <변경부분> 실제 스킬 성공 여부 저장
         bool skillUsed = false;
 
-        // <변경부분> 실제 고유스킬 효과 실행은 BattleSkillManager에 요청
-        if (battleSkillManager != null)
-        {
-            skillUsed = battleSkillManager.TryUseUniqueSkill(selectedPiece);
-        }
-        else
+        // <변경부분> 고유스킬 실제 실행은 BattleSkillManager에 위임
+        // JelluMultiply / KingQueenMove 같은 실제 효과는 BattleSkillManager.TryUseUniqueSkill()에서 처리
+        if (battleSkillManager == null)
         {
             Debug.LogWarning("BattleSkillManager가 연결되지 않아 고유스킬을 사용할 수 없습니다.");
+            return;
         }
+
+        skillUsed = battleSkillManager.TryUseUniqueSkill(selectedPiece);
 
         // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
         if (skillUsed)
         {
-            // <변경부분> KingQueenMove가 성공했다면 자기 진영 사망 스택 3개 소모
-            if (selectedPiece.UniqueSkill == UniqueSkillType.KingQueenMove)
+            // <변경부분> 데이터 설정에 따라 한 턴 1회 사용권 소모
+            if (skillData.oncePerTurn)
             {
-                ConsumeKingQueenMoveDeathStack(selectedPiece.Team);
+                hasUsedUniqueSkillThisTurn = true;
             }
 
-            // 이번 턴 전체 고유 스킬 사용 완료 처리
-            hasUsedUniqueSkillThisTurn = true;
+            // <변경부분> 데이터 설정에 따라 사망 스택 소모
+            if (skillData.consumeDeathStackOnUse)
+            {
+                ConsumeDeathStackForUniqueSkill(selectedPiece.Team, skillData.requiredDeathStack);
+            }
 
-            // 선택된 기물에 고유 스킬 쿨타임 적용
-            selectedPiece.MarkUniqueSkillUsed();
+            // <변경부분> 선택된 기물에 고유스킬 데이터 기준 쿨타임 적용
+            selectedPiece.MarkUniqueSkillUsed(skillData.cooldownTurn);
 
-            // <변경부분> 고유스킬로 이동 방식이 바뀔 수 있으므로 이동 가능 타일을 다시 갱신
+            // <변경부분> 고유스킬 사용 후 이동 가능 타일을 현재 기물 정보 기준으로 다시 갱신
             ClearHighlights();
             ShowOnlySelectedPieceTypeIcon(selectedPiece);
             ShowMovableTiles(selectedPiece);
@@ -647,10 +660,107 @@ public class BattleManager : MonoBehaviour
                 battleUIController.RefreshSelectedPieceButtons(selectedPiece);
             }
 
-            // 고유 스킬 사용 완료 로그
-            Debug.Log("고유 스킬 사용 완료: 이번 턴 고유 스킬 사용권 소모 / 선택 기물 쿨타임 적용");
+            Debug.Log($"고유 스킬 사용 완료: {selectedPiece.UniqueSkill} / 쿨타임 {skillData.cooldownTurn}");
         }
     }
+
+    // <변경부분> 특정 고유스킬 타입에 맞는 기본 데이터를 가져오는 함수
+    private UniqueSkillData GetUniqueSkillData(UniqueSkillType skillType)
+    {
+        // 데이터베이스가 연결되지 않았으면 데이터 없음 처리
+        if (uniqueSkillDatabase == null)
+        {
+            Debug.LogWarning("UniqueSkillDatabase가 연결되지 않았습니다.");
+            return null;
+        }
+
+        // 데이터베이스에서 해당 고유스킬 데이터 검색
+        UniqueSkillData skillData = uniqueSkillDatabase.GetData(skillType);
+
+        if (skillData == null)
+        {
+            Debug.LogWarning($"고유스킬 데이터를 찾지 못했습니다: {skillType}");
+        }
+
+        return skillData;
+    }
+
+    // <변경부분> 기물이 잡혔을 때 해당 진영의 고유스킬용 사망 스택을 증가시키는 함수
+    private void AddDeathStackForUniqueSkill(PieceTeam deadPieceTeam)
+    {
+        if (deadPieceTeam == PieceTeam.Player)
+        {
+            playerDeathStackForUniqueSkill++;
+            Debug.Log($"Player 고유스킬 사망 스택 증가: {playerDeathStackForUniqueSkill}");
+            return;
+        }
+
+        if (deadPieceTeam == PieceTeam.Enemy)
+        {
+            enemyDeathStackForUniqueSkill++;
+            Debug.Log($"Enemy 고유스킬 사망 스택 증가: {enemyDeathStackForUniqueSkill}");
+            return;
+        }
+    }
+
+    // <변경부분> 특정 진영이 고유스킬 사용에 필요한 사망 스택을 충분히 가지고 있는지 확인하는 함수
+    private bool HasEnoughDeathStackForUniqueSkill(PieceTeam team, int requiredDeathStack)
+    {
+        // 요구 스택이 0 이하라면 조건 없이 사용 가능
+        if (requiredDeathStack <= 0)
+        {
+            return true;
+        }
+
+        if (team == PieceTeam.Player)
+        {
+            return playerDeathStackForUniqueSkill >= requiredDeathStack;
+        }
+
+        if (team == PieceTeam.Enemy)
+        {
+            return enemyDeathStackForUniqueSkill >= requiredDeathStack;
+        }
+
+        return false;
+    }
+
+    // <변경부분> 고유스킬 사용 후 필요한 사망 스택을 소모하는 함수
+    private void ConsumeDeathStackForUniqueSkill(PieceTeam team, int consumeCount)
+    {
+        // 소모할 스택이 없으면 처리하지 않음
+        if (consumeCount <= 0)
+        {
+            return;
+        }
+
+        if (team == PieceTeam.Player)
+        {
+            playerDeathStackForUniqueSkill -= consumeCount;
+
+            if (playerDeathStackForUniqueSkill < 0)
+            {
+                playerDeathStackForUniqueSkill = 0;
+            }
+
+            Debug.Log($"Player 고유스킬 사망 스택 소모 후 남은 수: {playerDeathStackForUniqueSkill}");
+            return;
+        }
+
+        if (team == PieceTeam.Enemy)
+        {
+            enemyDeathStackForUniqueSkill -= consumeCount;
+
+            if (enemyDeathStackForUniqueSkill < 0)
+            {
+                enemyDeathStackForUniqueSkill = 0;
+            }
+
+            Debug.Log($"Enemy 고유스킬 사망 스택 소모 후 남은 수: {enemyDeathStackForUniqueSkill}");
+            return;
+        }
+    }
+
 
     // <변경부분> 외부에서 전투 아이템을 추가할 때 BattleItemManager에 전달하는 함수
     public void AddBattleItem(BattleItemData itemData)
@@ -1133,70 +1243,6 @@ public class BattleManager : MonoBehaviour
         );
     }
 
-    // <변경부분> 기물이 잡혔을 때 해당 진영의 KingQueenMove 사망 스택을 증가시키는 함수
-    private void AddDeathStackForKingQueenMove(PieceTeam deadPieceTeam)
-    {
-        if (deadPieceTeam == PieceTeam.Player)
-        {
-            playerDeathStackForKingQueenMove++;
-            Debug.Log($"Player KingQueenMove 사망 스택 증가: {playerDeathStackForKingQueenMove}");
-            return;
-        }
-
-        if (deadPieceTeam == PieceTeam.Enemy)
-        {
-            enemyDeathStackForKingQueenMove++;
-            Debug.Log($"Enemy KingQueenMove 사망 스택 증가: {enemyDeathStackForKingQueenMove}");
-            return;
-        }
-    }
-
-    // <변경부분> KingQueenMove를 사용할 만큼 자기 진영 사망 스택이 충분한지 확인하는 함수
-    private bool HasEnoughKingQueenMoveDeathStack(PieceTeam team)
-    {
-        if (team == PieceTeam.Player)
-        {
-            return playerDeathStackForKingQueenMove >= KingQueenMoveRequiredDeathStack;
-        }
-
-        if (team == PieceTeam.Enemy)
-        {
-            return enemyDeathStackForKingQueenMove >= KingQueenMoveRequiredDeathStack;
-        }
-
-        return false;
-    }
-
-    // <변경부분> KingQueenMove 사용 후 자기 진영 사망 스택을 소모하는 함수
-    private void ConsumeKingQueenMoveDeathStack(PieceTeam team)
-    {
-        if (team == PieceTeam.Player)
-        {
-            playerDeathStackForKingQueenMove -= KingQueenMoveRequiredDeathStack;
-
-            if (playerDeathStackForKingQueenMove < 0)
-            {
-                playerDeathStackForKingQueenMove = 0;
-            }
-
-            Debug.Log($"Player KingQueenMove 사망 스택 소모 후 남은 수: {playerDeathStackForKingQueenMove}");
-            return;
-        }
-
-        if (team == PieceTeam.Enemy)
-        {
-            enemyDeathStackForKingQueenMove -= KingQueenMoveRequiredDeathStack;
-
-            if (enemyDeathStackForKingQueenMove < 0)
-            {
-                enemyDeathStackForKingQueenMove = 0;
-            }
-
-            Debug.Log($"Enemy KingQueenMove 사망 스택 소모 후 남은 수: {enemyDeathStackForKingQueenMove}");
-            return;
-        }
-    }
-
     // <변경부분> 테스트용 버튼에서 턴을 강제로 넘기는 함수
     public void DebugForceEndTurn()
     {
@@ -1270,11 +1316,14 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"턴 변경: Turn {turnCount} / {currentTurn}");
     }
 
-    //  턴 시작 시 모든 기물의 고유 스킬 상태 갱신
+    // <변경부분> 턴 시작 시 현재 턴 진영 기물의 고유 스킬 상태만 갱신
     private void UpdateAllUniqueSkillTurnState()
     {
         // 새 턴이 시작되면 턴 전체 고유 스킬 사용권 초기화
         hasUsedUniqueSkillThisTurn = false;
+
+        // <변경부분> 현재 턴 주체 진영 계산
+        PieceTeam currentTurnTeam = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
 
         // 보드 전체 X 좌표 검사
         for (int x = 0; x < boardManager.Width; x++)
@@ -1291,10 +1340,16 @@ public class BattleManager : MonoBehaviour
                     continue;
                 }
 
-                // 고유 스킬 쿨타임 1 감소
+                // <변경부분> 현재 턴 진영의 기물만 갱신
+                if (piece.Team != currentTurnTeam)
+                {
+                    continue;
+                }
+
+                // <변경부분> 현재 턴 진영 기물의 고유 스킬 쿨타임만 1 감소
                 piece.ReduceUniqueSkillCooldown();
 
-                // 현재 턴 고유 스킬 사용 여부 초기화
+                // <변경부분> 현재 턴 진영 기물의 이번 턴 고유 스킬 사용 여부 초기화
                 piece.ResetUniqueSkillTurnUsage();
             }
         }

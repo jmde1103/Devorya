@@ -10,6 +10,9 @@ public class BattleSkillManager : MonoBehaviour
     // <변경부분> 기물 위치 확인과 복제 생성을 담당하는 기물 매니저
     private PieceManager pieceManager;
 
+    // <변경부분> 일반스킬 데이터베이스
+    [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
+
     // <변경부분> BattleManager에서 전투 시작 시 스킬 매니저를 초기화하는 함수
     public void Initialize(BoardManager board, PieceManager pieceManagerRef)
     {
@@ -20,8 +23,8 @@ public class BattleSkillManager : MonoBehaviour
         pieceManager = pieceManagerRef;
     }
 
-    // <변경부분> 찬스어택 발동 여부를 행동 시작 전 레벨 기준으로 판정하는 함수
-    public bool TryActivateChanceAttack(Piece piece, int skillLevelBeforeAction, int chanceAttackContinuousCount)
+    // <변경부분> ChanceAttack 발동 여부를 행동 시작 전 보유 일반스킬 정보와 GeneralSkillDatabase 기준으로 판정하는 함수
+    public bool TryActivateChanceAttack(Piece piece, OwnedGeneralSkillData chanceAttackDataBeforeAction, int chanceAttackContinuousCount)
     {
         // 판정할 기물이 없으면 실패
         if (piece == null)
@@ -29,18 +32,36 @@ public class BattleSkillManager : MonoBehaviour
             return false;
         }
 
-        // 행동 시작 전에 찬스어택이 없었다면 이번 처치에서는 발동 불가
-        if (skillLevelBeforeAction <= 0)
+        // <변경부분> 행동 시작 전에 ChanceAttack이 없었다면 이번 처치에서는 발동 불가
+        if (chanceAttackDataBeforeAction == null ||
+            chanceAttackDataBeforeAction.skillType != GeneralSkillType.ChanceAttack ||
+            chanceAttackDataBeforeAction.level <= 0)
         {
-            Debug.Log("찬스어택 판정 실패: 이번 행동 시작 시점에는 찬스어택이 없었습니다.");
+            Debug.Log("ChanceAttack 판정 실패: 이번 행동 시작 시점에는 ChanceAttack이 없었습니다.");
             return false;
         }
 
-        // 행동 시작 전 레벨 기준으로 기본 발동 확률 계산
-        int baseChancePercent = GetChanceAttackPercent(skillLevelBeforeAction);
+        // <변경부분> 일반스킬 데이터베이스가 없으면 발동 불가
+        if (generalSkillDatabase == null)
+        {
+            Debug.LogWarning("GeneralSkillDatabase가 연결되지 않아 ChanceAttack을 판정할 수 없습니다.");
+            return false;
+        }
 
-        // 연속 발동 횟수에 따라 확률을 1/3씩 감소
-        float penaltyMultiplier = Mathf.Pow(1f / 3f, chanceAttackContinuousCount);
+        // <변경부분> ChanceAttack 설정 데이터 가져오기
+        GeneralSkillData chanceAttackData = generalSkillDatabase.GetData(GeneralSkillType.ChanceAttack);
+
+        if (chanceAttackData == null)
+        {
+            Debug.LogWarning("GeneralSkillDatabase에서 ChanceAttack 데이터를 찾을 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 데이터베이스에 저장된 레벨별 확률 사용
+        int baseChancePercent = chanceAttackData.GetChanceAttackPercent(chanceAttackDataBeforeAction.level);
+
+        // <변경부분> 데이터베이스에 저장된 연속 발동 감소 배율 사용
+        float penaltyMultiplier = chanceAttackData.GetChanceAttackContinuousPenaltyMultiplier(chanceAttackContinuousCount);
 
         // 최종 발동 확률 계산
         float finalChancePercent = baseChancePercent * penaltyMultiplier;
@@ -51,7 +72,7 @@ public class BattleSkillManager : MonoBehaviour
         // 최종 확률 안에 들어오면 발동 성공
         bool isActivated = randomValue < finalChancePercent;
 
-        Debug.Log($"찬스어택 판정: 행동전 LV.{skillLevelBeforeAction} / 기본확률 {baseChancePercent}% / 연속횟수 {chanceAttackContinuousCount} / 최종확률 {finalChancePercent:F1}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+        Debug.Log($"ChanceAttack 판정: 행동전 LV.{chanceAttackDataBeforeAction.level} / 기본확률 {baseChancePercent}% / 연속횟수 {chanceAttackContinuousCount} / 감소배율 {penaltyMultiplier:F3} / 최종확률 {finalChancePercent:F1}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
 
         return isActivated;
     }
@@ -191,25 +212,5 @@ public class BattleSkillManager : MonoBehaviour
                x < boardManager.Width &&
                y >= 0 &&
                y < boardManager.Height;
-    }
-
-
-    // <변경부분> 찬스어택 레벨에 따른 발동 확률을 반환하는 함수
-    private int GetChanceAttackPercent(int skillLevel)
-    {
-        switch (skillLevel)
-        {
-            case 1:
-                return 30;
-
-            case 2:
-                return 50;
-
-            case 3:
-                return 80;
-
-            default:
-                return 0;
-        }
     }
 }

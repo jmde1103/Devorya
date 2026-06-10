@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 // <변경부분> 전투 화면의 버튼 UI를 관리하는 컨트롤러
 public class BattleUIController : MonoBehaviour
@@ -32,9 +33,13 @@ public class BattleUIController : MonoBehaviour
 
     [Header("Unique Skill Icon")]
     [SerializeField] private Image uniqueSkillIconImage;
+    // <변경부분> 고유스킬 쿨타임 숫자 뒤에 표시할 검정 배경 이미지
+    [SerializeField] private GameObject uniqueSkillCooldownImageObject;
+    // <변경부분> 고유스킬 버튼 위에 표시할 쿨타임 숫자 텍스트
+    [SerializeField] private TMP_Text uniqueSkillCooldownText;
 
-    // <변경부분> 고유 스킬 종류별 아이콘 목록
-    [SerializeField] private UniqueSkillIconData[] uniqueSkillIcons;
+    // <변경부분> 고유스킬 아이콘과 설명을 가져올 데이터베이스
+    [SerializeField] private UniqueSkillDatabase uniqueSkillDatabase;
 
     // <변경부분> 전투 중 사용하는 아이템 슬롯 UI 목록
     [Header("Item Slots")]
@@ -227,6 +232,9 @@ public class BattleUIController : MonoBehaviour
         {
             SetUniqueSkillIcon(selectedPiece.UniqueSkill);
         }
+
+        // <변경부분> 선택된 기물의 고유스킬 쿨타임 숫자 갱신
+        RefreshUniqueSkillCooldownText(selectedPiece);
     }
 
     // <변경부분> 상대 기물 정보를 오른쪽 상단 스테이터스 UI에 표시하는 함수
@@ -285,23 +293,85 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
-        // 아이콘 목록에서 현재 스킬 타입과 같은 데이터를 찾음
-        foreach (UniqueSkillIconData iconData in uniqueSkillIcons)
+        // 데이터베이스가 없으면 아이콘 숨김
+        if (uniqueSkillDatabase == null)
         {
-            if (iconData.skillType == skillType)
-            {
-                uniqueSkillIconImage.sprite = iconData.iconSprite;
-                uniqueSkillIconImage.enabled = iconData.iconSprite != null;
-                return;
-            }
+            uniqueSkillIconImage.sprite = null;
+            uniqueSkillIconImage.enabled = false;
+
+            Debug.LogWarning("BattleUIController에 UniqueSkillDatabase가 연결되지 않았습니다.");
+            return;
         }
 
-        // 해당 스킬 아이콘을 찾지 못하면 아이콘 숨김
-        uniqueSkillIconImage.sprite = null;
-        uniqueSkillIconImage.enabled = false;
+        // 고유스킬 데이터 검색
+        UniqueSkillData skillData = uniqueSkillDatabase.GetData(skillType);
 
-        Debug.LogWarning($"고유 스킬 아이콘을 찾지 못했습니다: {skillType}");
+        // 데이터가 없거나 아이콘이 없으면 아이콘 숨김
+        if (skillData == null || skillData.iconSprite == null)
+        {
+            uniqueSkillIconImage.sprite = null;
+            uniqueSkillIconImage.enabled = false;
+
+            Debug.LogWarning($"고유 스킬 아이콘을 찾지 못했습니다: {skillType}");
+            return;
+        }
+
+        // 데이터에 등록된 아이콘 적용
+        uniqueSkillIconImage.sprite = skillData.iconSprite;
+        uniqueSkillIconImage.enabled = true;
     }
+
+    // <변경부분> 선택된 기물의 고유스킬 쿨타임 숫자와 배경 이미지를 갱신하는 함수
+    private void RefreshUniqueSkillCooldownText(Piece selectedPiece)
+    {
+        // 선택 기물이 없거나 고유스킬이 없으면 쿨타임 UI 숨김
+        if (selectedPiece == null || selectedPiece.UniqueSkill == UniqueSkillType.None)
+        {
+            HideUniqueSkillCooldownUI();
+            return;
+        }
+
+        // 선택 기물의 현재 고유스킬 쿨타임 가져오기
+        int cooldown = selectedPiece.GetUniqueSkillCooldown();
+
+        // 쿨타임이 없으면 쿨타임 UI 숨김
+        if (cooldown <= 0)
+        {
+            HideUniqueSkillCooldownUI();
+            return;
+        }
+
+        // <변경부분> 쿨타임이 남아 있으면 검정 배경 Image 활성화
+        if (uniqueSkillCooldownImageObject != null)
+        {
+            uniqueSkillCooldownImageObject.SetActive(true);
+        }
+
+        // <변경부분> 쿨타임 숫자 표시
+        if (uniqueSkillCooldownText != null)
+        {
+            uniqueSkillCooldownText.text = cooldown.ToString();
+            uniqueSkillCooldownText.gameObject.SetActive(true);
+        }
+    }
+
+    // <변경부분> 고유스킬 쿨타임 배경 이미지와 숫자를 숨기는 함수
+    private void HideUniqueSkillCooldownUI()
+    {
+        // 쿨타임 배경 Image 오브젝트 숨김
+        if (uniqueSkillCooldownImageObject != null)
+        {
+            uniqueSkillCooldownImageObject.SetActive(false);
+        }
+
+        // 쿨타임 숫자 텍스트 숨김
+        if (uniqueSkillCooldownText != null)
+        {
+            uniqueSkillCooldownText.text = "";
+            uniqueSkillCooldownText.gameObject.SetActive(false);
+        }
+    }
+
 
     // <변경부분> 고유 스킬 버튼 표시/숨김
     public void SetUniqueSkillButtonVisible(bool isVisible)
@@ -329,6 +399,9 @@ public class BattleUIController : MonoBehaviour
             uniqueSkillIconImage.sprite = null;
             uniqueSkillIconImage.enabled = false;
         }
+
+        // <변경부분> 고유스킬 쿨타임 배경 이미지와 숫자 숨김
+        HideUniqueSkillCooldownUI();
 
         // <변경부분> 플레이어 스테이터스 UI 숨김
         if (playerStatusUIController != null)

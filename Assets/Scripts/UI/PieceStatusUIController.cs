@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Audio.ProcessorInstance;
 
 // <변경부분> 선택한 필드 기물의 현재 정보를 그대로 UI에 표시하는 컨트롤러
 public class PieceStatusUIController : MonoBehaviour
@@ -14,6 +15,12 @@ public class PieceStatusUIController : MonoBehaviour
 
     [Header("General Skill Slots")]
     [SerializeField] private TMP_Text[] generalSkillTexts;
+
+    // <변경부분> 일반스킬 슬롯에 표시할 아이콘 이미지 배열
+    [SerializeField] private Image[] generalSkillIconImages;
+
+    // <변경부분> 일반스킬 아이콘/이름/설명을 찾기 위한 데이터베이스
+    [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
 
     [Header("Root")]
     [SerializeField] private GameObject statusRoot;
@@ -45,7 +52,7 @@ public class PieceStatusUIController : MonoBehaviour
         // 선택한 필드 기물의 현재 타입 아이콘 스프라이트를 그대로 표시
         SetPieceTypeIconFromSelectedPiece(selectedPiece);
 
-        // 선택한 기물이 가진 일반스킬 목록 표시
+        // <변경부분> 기물이 보유한 일반스킬 목록을 UI 슬롯에 표시
         SetGeneralSkillSlots(selectedPiece.GetGeneralSkills());
     }
 
@@ -98,22 +105,11 @@ public class PieceStatusUIController : MonoBehaviour
         pieceTypeIconImage.preserveAspect = true;
     }
 
-    // <변경부분> 일반스킬 슬롯에 스킬명과 레벨을 표시하는 함수
-    private void SetGeneralSkillSlots(List<GeneralSkillData> generalSkills)
+    // <변경부분> 일반스킬 슬롯에 아이콘과 레벨을 표시하는 함수
+    private void SetGeneralSkillSlots(List<OwnedGeneralSkillData> generalSkills)
     {
-        if (generalSkillTexts == null)
-        {
-            return;
-        }
-
-        // 모든 슬롯을 먼저 비움
-        for (int i = 0; i < generalSkillTexts.Length; i++)
-        {
-            if (generalSkillTexts[i] != null)
-            {
-                generalSkillTexts[i].text = "";
-            }
-        }
+        // 모든 일반스킬 슬롯을 먼저 빈 상태로 초기화
+        ClearGeneralSkillSlots();
 
         // 일반스킬이 없으면 종료
         if (generalSkills == null)
@@ -121,34 +117,84 @@ public class PieceStatusUIController : MonoBehaviour
             return;
         }
 
-        // 최대 6칸까지만 표시
-        int displayCount = Mathf.Min(generalSkills.Count, generalSkillTexts.Length, 6);
+        int textSlotCount = generalSkillTexts != null ? generalSkillTexts.Length : 0;
+        int iconSlotCount = generalSkillIconImages != null ? generalSkillIconImages.Length : 0;
+        int maxSlotCount = Mathf.Max(textSlotCount, iconSlotCount);
+
+        int displayCount = Mathf.Min(generalSkills.Count, maxSlotCount, 6);
 
         for (int i = 0; i < displayCount; i++)
         {
-            GeneralSkillData skillData = generalSkills[i];
+            OwnedGeneralSkillData ownedSkillData = generalSkills[i];
 
-            if (generalSkillTexts[i] == null)
+            if (ownedSkillData == null || ownedSkillData.skillType == GeneralSkillType.None)
             {
                 continue;
             }
 
-            // 현재는 테스트용 텍스트 표시
-            generalSkillTexts[i].text = GetGeneralSkillShortName(skillData.skillType) + "\nLv" + skillData.level;
+            // <변경부분> Database에서 일반스킬 표시 데이터 가져오기
+            GeneralSkillData skillData = GetGeneralSkillData(ownedSkillData.skillType);
+
+            // <변경부분> 아이콘 이미지 표시
+            if (generalSkillIconImages != null &&
+                i < generalSkillIconImages.Length &&
+                generalSkillIconImages[i] != null)
+            {
+                Sprite skillIconSprite = skillData != null ? skillData.iconSprite : null;
+
+                generalSkillIconImages[i].sprite = skillIconSprite;
+                generalSkillIconImages[i].enabled = skillIconSprite != null;
+                generalSkillIconImages[i].preserveAspect = true;
+            }
+
+            // <변경부분> 레벨 텍스트 표시
+            if (generalSkillTexts != null &&
+                i < generalSkillTexts.Length &&
+                generalSkillTexts[i] != null)
+            {
+                generalSkillTexts[i].text = "Lv" + ownedSkillData.level;
+            }
         }
     }
 
-    // <변경부분> 일반스킬 종류를 UI용 짧은 이름으로 변환하는 함수
-    private string GetGeneralSkillShortName(GeneralSkillType skillType)
+    // <변경부분> 일반스킬 슬롯 아이콘과 텍스트를 모두 비우는 함수
+    private void ClearGeneralSkillSlots()
     {
-        switch (skillType)
+        // 일반스킬 레벨 텍스트 초기화
+        if (generalSkillTexts != null)
         {
-            case GeneralSkillType.ChanceAttack:
-                return "Ch";
-
-            default:
-                return "";
+            for (int i = 0; i < generalSkillTexts.Length; i++)
+            {
+                if (generalSkillTexts[i] != null)
+                {
+                    generalSkillTexts[i].text = "";
+                }
+            }
         }
+
+        // 일반스킬 아이콘 초기화
+        if (generalSkillIconImages != null)
+        {
+            for (int i = 0; i < generalSkillIconImages.Length; i++)
+            {
+                if (generalSkillIconImages[i] != null)
+                {
+                    generalSkillIconImages[i].sprite = null;
+                    generalSkillIconImages[i].enabled = false;
+                }
+            }
+        }
+    }
+
+    // <변경부분> 일반스킬 타입에 맞는 GeneralSkillData를 Database에서 찾는 함수
+    private GeneralSkillData GetGeneralSkillData(GeneralSkillType skillType)
+    {
+        if (generalSkillDatabase == null)
+        {
+            return null;
+        }
+
+        return generalSkillDatabase.GetData(skillType);
     }
 
     // <변경부분> 선택 기물이 없을 때 UI를 비우는 함수
@@ -172,15 +218,7 @@ public class PieceStatusUIController : MonoBehaviour
             pieceTypeIconImage.enabled = false;
         }
 
-        if (generalSkillTexts != null)
-        {
-            for (int i = 0; i < generalSkillTexts.Length; i++)
-            {
-                if (generalSkillTexts[i] != null)
-                {
-                    generalSkillTexts[i].text = "";
-                }
-            }
-        }
+        // <변경부분> 일반스킬 슬롯 아이콘과 텍스트 초기화
+        ClearGeneralSkillSlots();
     }
 }
