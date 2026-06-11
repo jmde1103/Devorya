@@ -18,7 +18,7 @@ MonoBehaviour:
   description: "\uC120\uD0DD\uD55C \uC790\uC2E0\uC758 \uAE30\uBB3C\uC744 \uC824\uB8E8
     \uD3F0\uC73C\uB85C \uBCC0\uD615\uD55C\uB2E4."
   changeTargetPieceType: 0
-  changeTargetUniqueSkill: 1
+  changeTargetUniqueSkill: 2
   changeTargetGeneralSkill: 0
   changeTargetGeneralSkillLevel: 1
   useAbsorbedJelluVisual: 1
