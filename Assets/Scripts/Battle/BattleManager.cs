@@ -412,15 +412,25 @@ public class BattleManager : MonoBehaviour
             // 단, 상대 King은 흡수 대상에서 제외
             if (isAbsorbMode &&
                 selectedPiece.Team == PieceTeam.Player &&
-                selectedPiece.PieceType != PieceType.King &&
                 targetPiece.Team == PieceTeam.Enemy &&
                 targetPiece.PieceType != PieceType.King)
             {
                 PieceType absorbedType = targetPiece.PieceType;
 
-                pieceManager.AbsorbPiece(selectedPiece, targetPiece);
+                // <변경부분> Player King은 정체성/외형/고유스킬을 유지하고 일반스킬만 흡수
+                if (selectedPiece.PieceType == PieceType.King)
+                {
+                    pieceManager.AbsorbGeneralSkillsOnly(selectedPiece, targetPiece);
+                    Debug.Log($"King 흡수 성공: {absorbedType}의 일반스킬만 흡수했습니다.");
+                }
+                else
+                {
+                    // <변경부분> 일반 기물은 기존처럼 대상의 타입/고유스킬/외형/일반스킬을 흡수
+                    pieceManager.AbsorbPiece(selectedPiece, targetPiece);
+                    Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
+                }
 
-                // <변경부분> 흡수로 기물 외형/타입/스킬 정보가 바뀌었으므로 스테이터스 UI 갱신
+                // <변경부분> 흡수 결과가 UI에 반영되도록 스테이터스/버튼 갱신
                 if (battleUIController != null)
                 {
                     battleUIController.RefreshSelectedPieceButtons(selectedPiece);
@@ -441,8 +451,6 @@ public class BattleManager : MonoBehaviour
                 AddDeathStackForUniqueSkill(absorbedDeadPieceTeam);
 
                 isAbsorbMode = false;
-
-                Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
             }
             else
             {
@@ -474,19 +482,27 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 흡수 유물을 보유 중이고, 이번 행동이 흡수 성공이라면 턴당 1번 찬스어택을 확정 발동
         if (absorbedEnemyPiece && TryActivateAbsorbChanceAttackRelic(actingPiece))
         {
-            // <변경부분> 흡수 유물 찬스어택은 이번 플레이어 턴에 이미 사용한 것으로 저장
-            hasUsedAbsorbChanceAttackRelicThisTurn = true;
+            // <변경부분> 현재 발동한 유물 데이터를 가져와 데이터 설정값을 적용
+            BattleRelicData activatedRelicData = GetRelicData(BattleRelicType.AbsorbChanceAttackOncePerTurn);
 
-            // <변경부분> 흡수 후 유물 찬스어택으로 추가 행동을 얻었으므로 방금 얻은 고유스킬을 바로 사용할 수 있게 처리
-            actingPiece.EnableUniqueSkillAfterAbsorbChanceAttack();
+            // <변경부분> 데이터에서 턴당 1회 제한이 켜져 있을 때만 이번 턴 사용 처리
+            if (activatedRelicData == null || activatedRelicData.oncePerTurn)
+            {
+                hasUsedAbsorbChanceAttackRelicThisTurn = true;
+            }
 
-            // <변경부분> 유물 효과로도 일반 찬스어택과 동일하게 추가 행동 상태를 부여
+            // <변경부분> 데이터에서 허용한 경우에만 흡수 직후 고유스킬 사용 제한을 해제
+            if (activatedRelicData == null || activatedRelicData.enableUniqueSkillAfterAbsorb)
+            {
+                actingPiece.EnableUniqueSkillAfterAbsorbChanceAttack();
+            }
+
+            // <변경부분> 현재 전투 구조에서는 유물 발동 시 1회 추가 행동 상태를 부여
             ActivateChanceAttackBonus(actingPiece);
 
-            Debug.Log("유물 효과 발동: 흡수 성공으로 찬스어택이 확정 발동했습니다.");
+            Debug.Log($"유물 효과 발동: {activatedRelicData?.relicName} / 흡수 성공으로 추가 행동을 얻었습니다.");
             return;
         }
 
@@ -544,13 +560,8 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        if (selectedPiece.Team == PieceTeam.Player &&
-            selectedPiece.PieceType == PieceType.King)
-        {
-            isAbsorbMode = false;
-            Debug.Log("Player King은 흡수를 사용할 수 없습니다.");
-            return;
-        }
+        // <변경부분> Player King도 흡수 모드를 사용할 수 있음
+        // 단, 실제 흡수 처리에서는 외형/타입/고유스킬을 복사하지 않고 일반스킬만 흡수함
 
         // 흡수 모드 상태 반전
         isAbsorbMode = !isAbsorbMode;
@@ -890,6 +901,18 @@ public class BattleManager : MonoBehaviour
         return battleRelicManager.HasRelic(relicType);
     }
 
+    // <변경부분> 현재 보유 중인 유물 데이터를 BattleRelicManager에서 가져오는 함수
+    public BattleRelicData GetRelicData(BattleRelicType relicType)
+    {
+        if (battleRelicManager == null)
+        {
+            return null;
+        }
+
+        return battleRelicManager.GetRelicData(relicType);
+    }
+
+
     // <변경부분> 테스트 버튼에서 호출하는 테스트 유물 추가 함수
     public void AddTestRelicForDebug()
     {
@@ -1219,7 +1242,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 흡수 성공 시 유물 효과로 찬스어택을 확정 발동할 수 있는지 검사하는 함수
+    // <변경부분> 흡수 성공 시 유물 효과로 찬스어택을 발동할 수 있는지 검사하는 함수
     private bool TryActivateAbsorbChanceAttackRelic(Piece piece)
     {
         // 유물 효과 핸들러가 없으면 유물 효과 발동 불가
@@ -1229,15 +1252,22 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
-        // <변경부분> 유물 효과 발동에 필요한 현재 전투 상태를 계산
-        bool hasRelic = HasRelic(BattleRelicType.AbsorbChanceAttackOncePerTurn);
+        // <변경부분> 현재 보유 중인 흡수 찬스어택 유물 데이터를 가져옴
+        BattleRelicData relicData = GetRelicData(BattleRelicType.AbsorbChanceAttackOncePerTurn);
+
+        if (relicData == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 유물 데이터 기준으로 추가 행동 가능한 타일 필요 여부를 고려하기 위한 현재 상태 계산
         bool hasAnySelectableTile = battleMoveValidator != null && battleMoveValidator.HasAnySelectableTile(piece);
 
-        // <변경부분> 실제 유물 효과 발동 조건 판정은 BattleRelicEffectHandler에 요청
+        // <변경부분> 실제 유물 효과 발동 조건/확률 판정은 BattleRelicEffectHandler에 요청
         return battleRelicEffectHandler.CanActivateAbsorbChanceAttackRelic(
+            relicData,
             piece,
             currentTurn,
-            hasRelic,
             hasUsedAbsorbChanceAttackRelicThisTurn,
             hasAnySelectableTile
         );

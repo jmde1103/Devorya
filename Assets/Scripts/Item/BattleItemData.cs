@@ -17,4 +17,26 @@ public class BattleItemData : ScriptableObject
     // <변경부분> 아이템 설명
     [TextArea]
     public string description;
+
+    [Header("Change Piece Effect")]
+    // <변경부분> 아이템 사용 시 변경할 기물 타입
+    public PieceType changeTargetPieceType = PieceType.Pawn;
+
+    // <변경부분> 아이템 사용 시 부여할 고유스킬
+    public UniqueSkillType changeTargetUniqueSkill = UniqueSkillType.None;
+
+    // <변경부분> 아이템 사용 시 부여할 일반스킬
+    public GeneralSkillType changeTargetGeneralSkill = GeneralSkillType.None;
+
+    // <변경부분> 아이템 사용 시 부여할 일반스킬 레벨
+    public int changeTargetGeneralSkillLevel = 1;
+
+    // <변경부분> 아이템 사용 후 흡수된 젤루 외형으로 표시할지 여부
+    public bool useAbsorbedJelluVisual = true;
+
+    // <변경부분> King 타입 기물에게 사용을 금지할지 여부
+    public bool blockUseOnKing = true;
+
+    // <변경부분> 플레이어 기물에게만 사용 가능한지 여부
+    public bool onlyPlayerPiece = true;
 }

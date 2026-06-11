@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2307f0da5250446438daa2e3472af07f, type: 3}
-  m_Name: UniqueSkill_KingQueenMove
+  m_Name: UniqueSkill_JelluSynthesis
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
-  skillType: 3
-  skillName: "\uC655\uC758 \uAC01\uC131"
+  skillType: 4
+  skillName: "\uC824\uB8E8 \uD569\uC131"
   iconSprite: {fileID: 0}
-  description: "\uC790\uAE30 \uC9C4\uC601 \uAE30\uBB3C\uC774 3\uAC1C \uC7A1\uD790
-    \uB54C\uB9C8\uB2E4, \uC774\uBC88 \uD134 \uB3D9\uC548 Queen\uCC98\uB7FC \uC774\uB3D9/\uACF5\uACA9
-    \uD569\uB2C8\uB2E4."
+  description: "\uD0B9\uC744 \uC81C\uC678\uD55C \uC824\uB8E8\uD0DC\uADF8\uB97C \uAC16\uC740
+    \uC778\uC811\uD55C \uC544\uAD70, \uC911\uB9BD \uAE30\uBB3C 2\uAC1C\uB97C \uD569\uC131\uD574
+    \uB79C\uB364 \uC0C1\uC704 \uC824\uB8E8 \uD0DC\uADF8 \uAE30\uBB3C\uB85C \uC2B9\uAE09\uD569\uB2C8\uB2E4."
   cooldownTurn: 1
-  requiredDeathStack: 1
-  consumeDeathStackOnUse: 1
+  requiredDeathStack: 0
+  consumeDeathStackOnUse: 0
   oncePerTurn: 1

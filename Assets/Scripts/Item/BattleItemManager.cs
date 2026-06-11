@@ -15,9 +15,13 @@ public class BattleItemManager : MonoBehaviour
     // 아이템 슬롯 UI 갱신을 요청할 UI 컨트롤러
     private BattleUIController battleUIController;
 
+    [Header("Item Database")]
+    // <변경부분> BattleItemType으로 BattleItemData를 찾는 아이템 데이터베이스
+    [SerializeField] private BattleItemDatabase battleItemDatabase;
+
     [Header("Test Item")]
-    // <변경부분> 테스트용으로 전투 시작 시 지급하거나 버튼으로 추가할 아이템 데이터 에셋
-    [SerializeField] private BattleItemData testStartItemData;
+    // <변경부분> 테스트용으로 전투 시작 시 지급할 아이템 타입
+    [SerializeField] private BattleItemType testStartItemType = BattleItemType.ChangeSelectedPieceToJelluPawn;
 
     // 게임 시작 시 테스트 아이템을 지급할지 여부
     [SerializeField] private bool addTestStartItem = true;
@@ -34,13 +38,37 @@ public class BattleItemManager : MonoBehaviour
         // 게임 시작 시 아이템 슬롯 UI 초기화
         RefreshItemSlotUI();
 
-        // 테스트용 아이템이 설정되어 있으면 전투 시작 시 1개 지급
-        if (addTestStartItem &&
-            testStartItemData != null &&
-            testStartItemData.itemType != BattleItemType.None)
+        // <변경부분> 테스트용 아이템 타입이 설정되어 있으면 Database에서 찾아 전투 시작 시 1개 지급
+        if (addTestStartItem && testStartItemType != BattleItemType.None)
         {
-            AddBattleItem(testStartItemData);
+            AddBattleItemByType(testStartItemType);
         }
+    }
+
+    // <변경부분> 아이템 타입을 받아 Database에서 BattleItemData를 찾은 뒤 슬롯에 추가하는 함수
+    public void AddBattleItemByType(BattleItemType itemType)
+    {
+        if (itemType == BattleItemType.None)
+        {
+            Debug.LogWarning("추가할 아이템 타입이 None입니다.");
+            return;
+        }
+
+        if (battleItemDatabase == null)
+        {
+            Debug.LogWarning("BattleItemDatabase가 연결되지 않아 아이템을 추가할 수 없습니다.");
+            return;
+        }
+
+        BattleItemData itemData = battleItemDatabase.GetData(itemType);
+
+        if (itemData == null)
+        {
+            Debug.LogWarning($"BattleItemDatabase에서 아이템 데이터를 찾을 수 없습니다: {itemType}");
+            return;
+        }
+
+        AddBattleItem(itemData);
     }
 
     // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하는 함수
@@ -73,19 +101,19 @@ public class BattleItemManager : MonoBehaviour
         Debug.Log("아이템 슬롯이 가득 찼습니다.");
     }
 
-    // <변경부분> 테스트 버튼에서 호출하는 테스트 아이템 추가 함수
     public void AddTestItemForDebug()
     {
-        // 테스트 아이템 데이터가 없으면 추가 불가
-        if (testStartItemData == null || testStartItemData.itemType == BattleItemType.None)
+        // <변경부분> 테스트 아이템 타입이 없으면 추가 불가
+        if (testStartItemType == BattleItemType.None)
         {
-            Debug.LogWarning("테스트 아이템 데이터가 설정되지 않았습니다.");
+            Debug.LogWarning("테스트 아이템 타입이 설정되지 않았습니다.");
             return;
         }
 
-        // 테스트 아이템을 현재 아이템 슬롯에 추가
-        AddBattleItem(testStartItemData);
+        // <변경부분> 테스트 아이템 타입으로 Database에서 데이터를 찾아 슬롯에 추가
+        AddBattleItemByType(testStartItemType);
     }
+
 
     // <변경부분> 특정 슬롯의 아이템을 사용하는 함수
     public void UseItemAtSlot(int slotIndex)

@@ -10,6 +10,10 @@ public class Piece : MonoBehaviour
     // <변경부분> 이 기물이 보유한 일반스킬 목록
     [SerializeField] private List<OwnedGeneralSkillData> generalSkills = new List<OwnedGeneralSkillData>();
 
+    // <변경부분> 이 기물이 보유한 종족 태그 목록
+    // 스킬 / 아이템 / 유물 효과 조건에서 공통으로 사용
+    [SerializeField] private List<PieceSpeciesTag> speciesTags = new List<PieceSpeciesTag>();
+
     // <변경부분> 일반 스킬 최대 레벨
     private const int MaxGeneralSkillLevel = 3;
 
@@ -87,7 +91,7 @@ public class Piece : MonoBehaviour
     }
 
 
-    public void Initialize(PieceType pieceType, PieceTeam team, int x, int y, Tile currentTile, bool canMove = true, UniqueSkillType uniqueSkill = UniqueSkillType.None)
+    public void Initialize(PieceType pieceType, PieceTeam team, int x, int y, Tile currentTile, bool canMove = true, UniqueSkillType uniqueSkill = UniqueSkillType.None, params PieceSpeciesTag[] initialSpeciesTags)
     {
         PieceType = pieceType;  // 기물 종류 저장
         Team = team; // 진영 저장
@@ -96,6 +100,9 @@ public class Piece : MonoBehaviour
         CurrentTile = currentTile; // 현재 타일 저장
         CanMove = canMove; //이동 가능 여부 저장
         UniqueSkill = uniqueSkill;
+
+        // <변경부분> 생성 시 전달받은 종족 태그를 초기화
+        SetSpeciesTags(initialSpeciesTags);
     }
 
     public void SetPosition(int x, int y, Tile newTile)  // 기물의 보드 좌표와 현재 타일 정보를 갱신하는 함수
@@ -247,8 +254,68 @@ public class Piece : MonoBehaviour
         temporaryMoveType = null;
     }
 
-    // <변경부분> 기물 타입, 고유 스킬, 젤루 외형 상태를 한 번에 변경하는 함수
-    public void ChangePieceData(PieceType newPieceType, UniqueSkillType newUniqueSkill, bool isAbsorbedJelluVisual)
+    // <변경부분> 특정 종족 태그를 가지고 있는지 확인하는 함수
+    public bool HasSpeciesTag(PieceSpeciesTag speciesTag)
+    {
+        if (speciesTag == PieceSpeciesTag.None)
+        {
+            return false;
+        }
+
+        return speciesTags.Contains(speciesTag);
+    }
+
+    // <변경부분> 종족 태그를 추가하는 함수
+    public void AddSpeciesTag(PieceSpeciesTag speciesTag)
+    {
+        if (speciesTag == PieceSpeciesTag.None)
+        {
+            return;
+        }
+
+        if (speciesTags.Contains(speciesTag))
+        {
+            return;
+        }
+
+        speciesTags.Add(speciesTag);
+    }
+
+    // <변경부분> 종족 태그를 제거하는 함수
+    public void RemoveSpeciesTag(PieceSpeciesTag speciesTag)
+    {
+        if (speciesTag == PieceSpeciesTag.None)
+        {
+            return;
+        }
+
+        speciesTags.Remove(speciesTag);
+    }
+
+    // <변경부분> 종족 태그 목록을 새 값으로 교체하는 함수
+    public void SetSpeciesTags(params PieceSpeciesTag[] newSpeciesTags)
+    {
+        speciesTags.Clear();
+
+        if (newSpeciesTags == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < newSpeciesTags.Length; i++)
+        {
+            AddSpeciesTag(newSpeciesTags[i]);
+        }
+    }
+
+    // <변경부분> 현재 종족 태그 목록 복사본을 반환하는 함수
+    // 복제 / 흡수 / 데이터 이전 시 사용
+    public PieceSpeciesTag[] GetSpeciesTagsCopy()
+    {
+        return speciesTags.ToArray();
+    }
+
+    public void ChangePieceData(PieceType newPieceType, UniqueSkillType newUniqueSkill, bool isAbsorbedJelluVisual, params PieceSpeciesTag[] newSpeciesTags)
     {
         // 아이템 효과로 변경될 새 기물 타입 저장
         PieceType = newPieceType;
@@ -258,6 +325,16 @@ public class Piece : MonoBehaviour
 
         // 젤루 외형 사용 여부 저장
         IsAbsorbedJelluVisual = isAbsorbedJelluVisual;
+
+        // <변경부분> 변경된 기물 데이터에 맞춰 종족 태그 갱신
+        SetSpeciesTags(newSpeciesTags);
+
+        // <변경부분> 현재는 젤루 외형을 사용하는 기물은 젤루 태그도 가진 것으로 처리
+        // 추후 종족 데이터화 시 외형과 종족 태그를 분리할 예정
+        if (isAbsorbedJelluVisual)
+        {
+            AddSpeciesTag(PieceSpeciesTag.Jellu);
+        }
 
         // 아이템으로 얻은 고유 스킬은 현재 턴에 바로 사용할 수 있게 초기화
         uniqueSkillCooldown = 0;
@@ -291,18 +368,28 @@ public class Piece : MonoBehaviour
         // Jellu를 흡수한 상태로 표시
         IsAbsorbedJelluVisual = true;
 
+        // <변경부분> 흡수 대상의 종족 태그를 복사
+        SetSpeciesTags(targetPiece.GetSpeciesTagsCopy());
+
+        // <변경부분> 현재는 흡수 외형이 젤루 외형이므로 젤루 태그도 보장
+        // 추후 종족 데이터화 시 외형과 종족 태그를 분리할 예정
+        AddSpeciesTag(PieceSpeciesTag.Jellu);
+
         // TODO: 나중에 대상의 고유 능력 복사
         // TODO: 나중에 대상의 외형 데이터 복사
         // TODO: 나중에 같은 계열 흡수 시 스킬 강화 처리
-
-        // 주의:
-        // 일반 스킬은 그대로 복사하지 않음
-        // Team, X, Y, CurrentTile, CanMove는 복사하지 않음
     }
 
     public void SetAbsorbedJelluVisual(bool value)  // <변경부분> 흡수 외형 상태를 설정하는 함수
     {
         IsAbsorbedJelluVisual = value;
+
+        // <변경부분> 현재는 젤루 외형을 사용하는 기물은 젤루 태그도 가진 것으로 처리
+        // 추후 종족 데이터화 시 외형과 종족 태그를 분리할 예정
+        if (value)
+        {
+            AddSpeciesTag(PieceSpeciesTag.Jellu);
+        }
     }
 
     // <변경부분> PieceManager가 정한 스테이터스 UI용 스프라이트를 저장하는 함수

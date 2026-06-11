@@ -25,7 +25,8 @@ public class BattleItemEffectHandler : MonoBehaviour
         switch (itemData.itemType)
         {
             case BattleItemType.ChangeSelectedPieceToJelluPawn:
-                return UseChangePieceToJelluPawnItem(targetPiece);
+                // <변경부분> 젤루 폰 변환 효과도 BattleItemData에 저장된 값 기준으로 실행
+                return UseChangePieceItem(itemData, targetPiece);
 
             default:
                 Debug.LogWarning($"아직 구현되지 않은 아이템 효과입니다: {itemData.itemType}");
@@ -33,8 +34,8 @@ public class BattleItemEffectHandler : MonoBehaviour
         }
     }
 
-    // <변경부분> 선택한 플레이어 기물을 젤루 폰으로 변경하는 아이템 효과
-    private bool UseChangePieceToJelluPawnItem(Piece targetPiece)
+    // <변경부분> BattleItemData에 저장된 값 기준으로 선택한 기물 정보를 변경하는 아이템 효과
+    private bool UseChangePieceItem(BattleItemData itemData, Piece targetPiece)
     {
         // 기물 매니저가 없으면 효과 실행 불가
         if (pieceManager == null)
@@ -43,31 +44,53 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        // 선택된 기물이 없으면 아이템 효과 실행 실패
-        if (targetPiece == null)
+        // 아이템 데이터가 없으면 효과 실행 실패
+        if (itemData == null)
         {
-            Debug.Log("젤루 폰으로 변경할 플레이어 기물을 먼저 선택해야 합니다.");
             return false;
         }
 
-        // 플레이어 기물만 아이템 대상으로 허용
-        if (targetPiece.Team != PieceTeam.Player)
+        // 선택된 기물이 없으면 아이템 효과 실행 실패
+        if (targetPiece == null)
+        {
+            Debug.Log("아이템을 사용할 플레이어 기물을 먼저 선택해야 합니다.");
+            return false;
+        }
+
+        // <변경부분> 데이터에서 플레이어 기물 전용 여부를 확인
+        if (itemData.onlyPlayerPiece && targetPiece.Team != PieceTeam.Player)
         {
             Debug.Log("플레이어 기물에만 아이템을 사용할 수 있습니다.");
             return false;
         }
 
-        // Player King은 현재 승패 조건과 충돌할 수 있으므로 변경 불가
-        if (targetPiece.PieceType == PieceType.King)
+        // <변경부분> 데이터에서 King 사용 금지 여부를 확인
+        if (itemData.blockUseOnKing && targetPiece.PieceType == PieceType.King)
         {
-            Debug.Log("Player King은 젤루 폰으로 변경할 수 없습니다.");
+            Debug.Log("King 기물에는 이 아이템을 사용할 수 없습니다.");
             return false;
         }
 
-        // 선택 기물을 젤루 폰 정보로 변경
-        pieceManager.ChangePieceToJelluPawn(targetPiece);
+        // <변경부분> 데이터에 설정된 기물 타입/고유스킬/외형 상태로 기물 데이터 변경
+        targetPiece.ChangePieceData(
+            itemData.changeTargetPieceType,
+            itemData.changeTargetUniqueSkill,
+            itemData.useAbsorbedJelluVisual
+        );
 
-        Debug.Log("아이템 효과 성공: 선택한 기물을 젤루 폰으로 변경했습니다.");
+        // <변경부분> 데이터에 설정된 일반스킬이 있으면 지정 레벨로 부여
+        if (itemData.changeTargetGeneralSkill != GeneralSkillType.None)
+        {
+            targetPiece.SetTestGeneralSkill(
+                itemData.changeTargetGeneralSkill,
+                itemData.changeTargetGeneralSkillLevel
+            );
+        }
+
+        // <변경부분> 데이터 변경 후 필드 외형 / 스테이터스 이미지 / 타입 아이콘 위치를 즉시 갱신
+        pieceManager.RefreshPieceVisual(targetPiece);
+
+        Debug.Log($"아이템 효과 성공: {itemData.itemName} / 변경 타입 {itemData.changeTargetPieceType} / 고유스킬 {itemData.changeTargetUniqueSkill}");
 
         return true;
     }

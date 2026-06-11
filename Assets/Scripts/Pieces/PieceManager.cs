@@ -122,23 +122,28 @@ public class PieceManager : MonoBehaviour
         }
 
         // 적 진영 위쪽 배치
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true);
-        SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true);
-        SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true);
-        SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true, UniqueSkillType.KingQueenMove);
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true);
+        // <변경부분> 현재 테스트 단계에서는 적 진영을 젤루 종족 태그 보유 기물로 생성
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+
+        // <변경부분> 기존 증식 스킬은 젤루 King 테스트용으로 이동
+        SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true, UniqueSkillType.JelluMultiply, PieceSpeciesTag.Jellu);
+
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
 
         // 적 폰 배치
         for (int x = 0; x < boardManager.Width; x++)
         {
-            SpawnPiece(PieceType.Pawn, PieceTeam.Enemy, x, 4, true, UniqueSkillType.JelluMultiply);
+            // <변경부분> 젤루 Pawn의 새 고유스킬은 젤루 합성
+            SpawnPiece(PieceType.Pawn, PieceTeam.Enemy, x, 4, true, UniqueSkillType.JelluSynthesis, PieceSpeciesTag.Jellu);
         }
 
         // 중립 장애물은 지금은 기본 배치에서 제외
     }
 
     // <변경부분> 외부에서도 스킬로 기물을 생성할 수 있도록 public으로 변경
-    public Piece SpawnPiece(PieceType pieceType, PieceTeam team, int x, int y, bool canMove, UniqueSkillType uniqueSkill = UniqueSkillType.None)
+    public Piece SpawnPiece(PieceType pieceType, PieceTeam team, int x, int y, bool canMove, UniqueSkillType uniqueSkill = UniqueSkillType.None, params PieceSpeciesTag[] speciesTags)
     {
         // 공통 프리팹이 비어 있으면 오류 출력
         if (piecePrefab == null)
@@ -177,7 +182,8 @@ public class PieceManager : MonoBehaviour
         }
 
         // 기물 데이터 초기화
-        piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill);
+        // <변경부분> 생성 시 종족 태그도 함께 초기화
+        piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill, speciesTags);
 
         // <변경부분> 테스트용: 적 기물은 King을 제외하고 확률적으로 찬스어택 일반 스킬을 보유
         if (team == PieceTeam.Enemy && pieceType != PieceType.King)
@@ -278,6 +284,32 @@ public class PieceManager : MonoBehaviour
 
         // <변경부분> 흡수 후 현재 외형 상태에 맞는 타입 아이콘 위치 적용
         ApplyCurrentTypeIconPosition(absorber);
+    }
+
+    // <변경부분> King 전용 흡수 처리 함수
+    // King은 PieceType / UniqueSkill / 외형을 유지하고, 대상의 일반스킬만 획득하거나 레벨업함
+    public void AbsorbGeneralSkillsOnly(Piece absorber, Piece targetPiece)
+    {
+        // 흡수하는 기물이나 대상 기물이 없으면 종료
+        if (absorber == null || targetPiece == null)
+        {
+            return;
+        }
+
+        // <변경부분> 이 함수는 King 성장용이므로 King이 아닌 기물은 처리하지 않음
+        if (absorber.PieceType != PieceType.King)
+        {
+            Debug.LogWarning("AbsorbGeneralSkillsOnly는 King 기물에게만 사용해야 합니다.");
+            return;
+        }
+
+        // <변경부분> King은 대상의 타입/고유스킬/외형을 복사하지 않고 일반스킬만 흡수
+        absorber.AbsorbGeneralSkillsFrom(targetPiece);
+
+        // <변경부분> King의 외형과 타입 아이콘은 그대로 유지하되, 혹시 모를 UI 갱신을 위해 현재 상태 재적용
+        RefreshPieceVisual(absorber);
+
+        Debug.Log($"King 일반스킬 흡수 완료: 대상 {targetPiece.PieceType}");
     }
 
     // 흡수 후 플레이어 진영에서 사용할 Jellu 뒷면 스프라이트 반환
@@ -824,35 +856,97 @@ public class PieceManager : MonoBehaviour
 
     //Skill
 
-    // <변경부분> 선택한 기물을 젤루 폰 정보로 변경하는 함수
-    public void ChangePieceToJelluPawn(Piece piece)
+    public void RefreshPieceVisual(Piece piece)
     {
-        // 변경할 기물이 없으면 종료
+        // 갱신할 기물이 없으면 종료
         if (piece == null)
         {
             return;
         }
 
-        // <변경부분> 기물 데이터를 젤루 폰 기준으로 변경
-        // 타입은 Pawn, 고유스킬은 JelluMultiply, 외형은 흡수된 젤루 외형으로 처리
-        piece.ChangePieceData(
-            PieceType.Pawn,
-            UniqueSkillType.JelluMultiply,
-            true
-        );
-
-        // <변경부분> 변경된 젤루 폰 정보에 맞게 필드 외형 갱신
+        // <변경부분> 현재 기물 데이터에 맞는 필드 스프라이트 갱신
         ApplyCurrentVisual(piece);
 
-        // <변경부분> 변경된 젤루 폰 정보에 맞게 스테이터스 UI 이미지 갱신
+        // <변경부분> 현재 기물 데이터에 맞는 스테이터스 UI 이미지 갱신
         ApplyStatusUISprite(piece);
 
-        // <변경부분> 변경된 젤루 폰 정보에 맞게 타입 아이콘 위치 갱신
+        // <변경부분> 현재 기물 데이터에 맞는 타입 아이콘 위치 갱신
         ApplyCurrentTypeIconPosition(piece);
 
-        // 현재 좌표 기준으로 기물 표시 순서 갱신
+        // <변경부분> 현재 좌표 기준 정렬 순서 갱신
         SetPieceSortingOrder(piece.gameObject, piece.X, piece.Y);
     }
+
+    // <변경부분> 증식 스킬로 젤루 Pawn을 생성하는 함수
+    // 기존 복제 스킬과 달리 원본 타입을 복사하지 않고 항상 Pawn을 생성함
+    public Piece SpawnJelluPawn(PieceTeam team, int x, int y)
+    {
+        // <변경부분> 젤루 Pawn은 Pawn 전용 고유스킬인 JelluSynthesis를 가진 상태로 생성
+        Piece createdPiece = SpawnPiece(
+            PieceType.Pawn,
+            team,
+            x,
+            y,
+            true,
+            UniqueSkillType.JelluSynthesis,
+            PieceSpeciesTag.Jellu
+        );
+
+        // 생성 실패 시 종료
+        if (createdPiece == null)
+        {
+            return null;
+        }
+
+        // <변경부분> Player 젤루는 뒷면, Enemy 젤루는 앞면으로 표시
+        bool useBackSprite = team == PieceTeam.Player;
+
+        // <변경부분> Player가 만든 젤루 Pawn만 흡수 젤루 뒷면 외형 사용
+        createdPiece.SetAbsorbedJelluVisual(useBackSprite);
+
+        // <변경부분> 생성 직후 현재 진영/외형 상태에 맞게 스프라이트와 UI 갱신
+        RefreshPieceVisual(createdPiece);
+
+        return createdPiece;
+    }
+
+
+
+    // <변경부분> 젤루 합성으로 기물을 상위 젤루 타입으로 승급시키는 함수
+    public bool PromotePieceToJelluType(Piece piece, PieceType promotedType, UniqueSkillType promotedUniqueSkill = UniqueSkillType.None)
+    {
+        // 승급할 기물이 없으면 실패
+        if (piece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 젤루 합성 승급은 Pawn / King / Special을 제외
+        if (promotedType == PieceType.Pawn ||
+            promotedType == PieceType.King ||
+            promotedType == PieceType.Special)
+        {
+            Debug.LogWarning($"젤루 합성 승급 실패: 허용되지 않는 타입입니다. {promotedType}");
+            return false;
+        }
+
+        // <변경부분> Player 젤루는 뒷면, Enemy 젤루는 앞면으로 표시
+        // Enemy 승급 시 true를 넣으면 흡수 젤루 뒷면 스프라이트가 적용되는 버그가 생김
+        bool useBackSprite = piece.Team == PieceTeam.Player;
+
+        // <변경부분> 젤루 승급 후에는 젤루 종족 태그를 유지하되,
+        // 실제 필드 스프라이트는 진영에 따라 Player=뒷면 / Enemy=앞면으로 분기
+        piece.ChangePieceData(promotedType, promotedUniqueSkill, useBackSprite, PieceSpeciesTag.Jellu);
+
+        // <변경부분> 변경된 타입/외형/아이콘/UI를 즉시 갱신
+        RefreshPieceVisual(piece);
+
+        Debug.Log($"젤루 합성 승급 완료: {promotedType}");
+
+        return true;
+    }
+
+
 
     // 기준 기물과 동일한 정보를 가진 기물을 새 좌표에 복제 생성하는 함수
     public Piece ClonePieceTo(Piece sourcePiece, int targetX, int targetY)
@@ -876,14 +970,16 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
-        // 원본 기물의 타입, 진영, 이동 가능 여부, 고유 스킬을 그대로 복사해서 생성
+        // 원본 기물의 타입, 진영, 이동 가능 여부, 고유 스킬, 종족 태그를 그대로 복사해서 생성
+        // <변경부분> 스킬 / 아이템 / 유물 조건 판정을 위해 종족 태그도 복사
         Piece clonedPiece = SpawnPiece(
-        sourcePiece.PieceType,
-        sourcePiece.Team,
-        targetX,
-        targetY,
-        sourcePiece.CanMove,
-        sourcePiece.UniqueSkill
+            sourcePiece.PieceType,
+            sourcePiece.Team,
+            targetX,
+            targetY,
+            sourcePiece.CanMove,
+            sourcePiece.UniqueSkill,
+            sourcePiece.GetSpeciesTagsCopy()
         );
 
         // <변경부분> 흡수 외형 상태 복사

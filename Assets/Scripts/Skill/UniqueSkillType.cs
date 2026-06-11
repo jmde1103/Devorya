@@ -4,9 +4,12 @@ public enum UniqueSkillType
 {
     None,
 
-    // <변경부분> Jellu 폰 전용 고유 스킬: 인접 빈칸에 자신을 복제
+    // <변경부분> 기존 증식 효과의 이름 변경: 원본 기물과 같은 정보를 가진 기물을 복제
+    JelluClone,
+
+    // <변경부분> 새 증식 효과: 인접한 빈칸에 젤루 Pawn 생성
     JelluMultiply,
 
-    // <변경부분> King 전용 고유스킬: 이번 턴 동안 이동/공격 판정만 Queen처럼 변경
-    KingQueenMove
+    KingQueenMove,
+    JelluSynthesis
 }

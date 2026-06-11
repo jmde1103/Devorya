@@ -17,3 +17,9 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: e894b6325dc7c154c90f485ee2c2fc29, type: 3}
   description: "\uD50C\uB808\uC774\uC5B4\uAC00 \uD761\uC218\uC5D0 \uC131\uACF5\uD558\uBA74
     \uD134\uB2F9 1\uBC88 \uCD94\uAC00 \uD589\uB3D9\uC744 \uD655\uC815 \uBC1C\uB3D9\uD569\uB2C8\uB2E4."
+  onlyPlayerTurn: 1
+  oncePerTurn: 1
+  requireSelectableTile: 1
+  triggerChancePercent: 100
+  bonusActionCount: 1
+  enableUniqueSkillAfterAbsorb: 1

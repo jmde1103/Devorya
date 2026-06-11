@@ -47841,7 +47841,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3f6c2ca85e3aff45a020c3c9d86fe35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemManager
-  testStartItemData: {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}
+  battleItemDatabase: {fileID: 11400000, guid: 9ce39f5f760a04149839bff59eb28e40, type: 2}
+  testStartItemType: 1
   addTestStartItem: 1
 --- !u!4 &500334405
 Transform:
@@ -49752,7 +49753,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8c105adfd934924abb22337aa4305a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicManager
-  testRelicData: {fileID: 11400000, guid: 179ca9bcb92cb6a4aa319c47cdc5c429, type: 2}
+  battleRelicDatabase: {fileID: 11400000, guid: 41f4e21a202ef0e48ae09f9a5aab61d3, type: 2}
+  testRelicType: 1
   addTestStartRelic: 0
 --- !u!4 &524975404
 Transform:
