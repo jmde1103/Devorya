@@ -65,6 +65,11 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private Vector3 absorbedJelluBishopTypeIconPosition;
     [SerializeField] private Vector3 absorbedJelluKingTypeIconPosition;
 
+    // <변경부분> 중립 기물 타입 아이콘 위치
+    // 나중에는 PieceData에 포함시킬 예정이므로, 현재는 임시로 Special 위치만 PieceManager에서 관리
+    [Header("Neutral Type Icon Positions")]
+    [SerializeField] private Vector3 neutralSpecialTypeIconPosition;
+
     [Header("Player Status UI Sprites")]
     [SerializeField] private Sprite playerPawnStatusSprite;
     [SerializeField] private Sprite playerRookStatusSprite;
@@ -82,6 +87,10 @@ public class PieceManager : MonoBehaviour
     //중립 기물 스프라이트
     [Header("Neutral Piece Sprites")]
     [SerializeField] private Sprite obstacleSprite;
+
+    // <변경부분> 젤루 벽 전용 스프라이트
+    // Neutral + Special + Jellu 태그를 가진 벽 기물에 사용
+    [SerializeField] private Sprite jelluWallSprite;
 
     //보드 좌표별 기물 저장 배열
     private Piece[,] pieces;
@@ -123,14 +132,14 @@ public class PieceManager : MonoBehaviour
 
         // 적 진영 위쪽 배치
         // <변경부분> 현재 테스트 단계에서는 적 진영을 젤루 종족 태그 보유 기물로 생성
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.JelluWall, PieceSpeciesTag.Jellu);
         SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
         SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
 
         // <변경부분> 기존 증식 스킬은 젤루 King 테스트용으로 이동
         SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true, UniqueSkillType.JelluMultiply, PieceSpeciesTag.Jellu);
 
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true, UniqueSkillType.JelluWall, PieceSpeciesTag.Jellu);
 
         // 적 폰 배치
         for (int x = 0; x < boardManager.Width; x++)
@@ -352,6 +361,14 @@ public class PieceManager : MonoBehaviour
         {
             spriteToApply = GetAbsorbedBackSprite(piece.PieceType);
         }
+        // <변경부분> 젤루 벽 전용 외형 적용
+        // Neutral + Special + Jellu 태그 기물은 일반 obstacleSprite가 아니라 jelluWallSprite를 우선 사용
+        else if (piece.Team == PieceTeam.Neutral &&
+                 piece.PieceType == PieceType.Special &&
+                 piece.HasSpeciesTag(PieceSpeciesTag.Jellu))
+        {
+            spriteToApply = jelluWallSprite != null ? jelluWallSprite : obstacleSprite;
+        }
         else
         {
             spriteToApply = GetPieceSprite(piece.PieceType, piece.Team);
@@ -407,6 +424,13 @@ public class PieceManager : MonoBehaviour
             return GetEnemyTypeIconPosition(piece.PieceType);
         }
 
+        // <변경부분> Neutral 기물이면 Neutral 아이콘 위치 사용
+        // 현재는 젤루 벽 같은 Special 중립 기물용 임시 처리
+        if (piece.Team == PieceTeam.Neutral)
+        {
+            return GetNeutralTypeIconPosition(piece.PieceType);
+        }
+
         // 그 외 기물은 기본 위치 사용
         return Vector3.zero;
     }
@@ -460,6 +484,21 @@ public class PieceManager : MonoBehaviour
         // 타입이 맞지 않으면 기본 위치 반환
         return Vector3.zero;
     }
+
+    // <변경부분> Neutral 기물 타입에 맞는 아이콘 위치 반환
+    // 현재는 젤루 벽처럼 Neutral + Special 기물만 사용하므로 Special 위치만 임시 관리
+    private Vector3 GetNeutralTypeIconPosition(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Special:
+                return neutralSpecialTypeIconPosition;
+        }
+
+        // 아직 중립 Pawn/Rook/Knight/Bishop/King은 사용하지 않으므로 기본 위치 반환
+        return Vector3.zero;
+    }
+
 
     // <변경부분> 흡수된 Jellu 기물 타입에 맞는 아이콘 위치 반환
     private Vector3 GetAbsorbedJelluTypeIconPosition(PieceType pieceType)
@@ -592,6 +631,14 @@ public class PieceManager : MonoBehaviour
                 case PieceType.Bishop: return playerBishopStatusSprite;
                 case PieceType.King: return playerKingStatusSprite;
             }
+        }
+
+        // <변경부분> 젤루 벽은 스테이터스 UI에서도 젤루 벽 전용 스프라이트 사용
+        if (piece.Team == PieceTeam.Neutral &&
+            piece.PieceType == PieceType.Special &&
+            piece.HasSpeciesTag(PieceSpeciesTag.Jellu))
+        {
+            return jelluWallSprite != null ? jelluWallSprite : obstacleSprite;
         }
 
         // 적 기물은 기존 Enemy 스프라이트를 스테이터스 UI에도 사용
@@ -908,6 +955,37 @@ public class PieceManager : MonoBehaviour
         RefreshPieceVisual(createdPiece);
 
         return createdPiece;
+    }
+
+    // <변경부분> 젤루 벽 스킬로 중립 Special 벽을 생성하는 함수
+    public Piece SpawnJelluWall(int x, int y)
+    {
+        // <변경부분> 벽은 중립 / Special / 이동 불가 / 고유스킬 없음 / 젤루 태그 보유 상태로 생성
+        Piece createdWall = SpawnPiece(
+            PieceType.Special,
+            PieceTeam.Neutral,
+            x,
+            y,
+            false,
+            UniqueSkillType.None,
+            PieceSpeciesTag.Jellu
+        );
+
+        // 생성 실패 시 종료
+        if (createdWall == null)
+        {
+            return null;
+        }
+
+        // <변경부분> 중립 벽은 흡수 젤루 뒷면 외형을 쓰지 않고 obstacleSprite 기반 외형을 사용
+        createdWall.SetAbsorbedJelluVisual(false);
+
+        // <변경부분> 생성 직후 중립 Special 스프라이트 / Special 아이콘 / 스테이터스 UI 갱신
+        RefreshPieceVisual(createdWall);
+
+        Debug.Log($"젤루 벽 생성 완료: Neutral Special / ({x}, {y})");
+
+        return createdWall;
     }
 
 

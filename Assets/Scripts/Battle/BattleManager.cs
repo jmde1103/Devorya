@@ -408,8 +408,13 @@ public class BattleManager : MonoBehaviour
                 return;
             }
 
+            // <변경부분> 제거 전에 대상 진영을 저장
+            // 중립 기물은 처치 가능하지만, 흡수/찬스어택/흡수 유물 추가행동 대상은 아님
+            PieceTeam targetDeadPieceTeam = targetPiece.Team;
+
             // 흡수 모드이고, 플레이어 기물이 적 기물을 잡는 경우
             // 단, 상대 King은 흡수 대상에서 제외
+            // <변경부분> 중립 기물은 흡수 불가이므로 targetPiece.Team == PieceTeam.Enemy 조건 유지
             if (isAbsorbMode &&
                 selectedPiece.Team == PieceTeam.Player &&
                 targetPiece.Team == PieceTeam.Enemy &&
@@ -436,34 +441,35 @@ public class BattleManager : MonoBehaviour
                     battleUIController.RefreshSelectedPieceButtons(selectedPiece);
                 }
 
-                // <변경부분> 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
+                // <변경부분> Enemy 기물을 흡수했을 때만 찬스어택 판정 대상으로 저장
                 killedEnemyPiece = true;
 
-                // <변경부분> 플레이어 흡수 성공 행동이므로 유물 효과 판정 대상으로 저장
+                // <변경부분> Enemy 기물을 흡수했을 때만 흡수 유물 추가행동 판정 대상으로 저장
                 absorbedEnemyPiece = true;
-
-                // <변경부분> 제거될 기물의 소속을 먼저 저장
-                PieceTeam absorbedDeadPieceTeam = targetPiece.Team;
 
                 pieceManager.RemovePiece(targetPiece);
 
-                // <변경부분> 해당 진영 기물이 잡힌 스택 증가
-                AddDeathStackForUniqueSkill(absorbedDeadPieceTeam);
+                // <변경부분> Neutral은 사망 스택 대상이 아님
+                if (targetDeadPieceTeam != PieceTeam.Neutral)
+                {
+                    AddDeathStackForUniqueSkill(targetDeadPieceTeam);
+                }
 
                 isAbsorbMode = false;
             }
             else
             {
-                // <변경부분> 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
+                // <변경부분> Enemy 기물을 처치했을 때만 찬스어택 판정 대상으로 저장
+                // Neutral 벽 처치로는 ChanceAttack이 발동하지 않음
                 killedEnemyPiece = true;
-
-                // <변경부분> 제거될 기물의 소속을 먼저 저장
-                PieceTeam attackedDeadPieceTeam = targetPiece.Team;
 
                 pieceManager.RemovePiece(targetPiece);
 
-                // <변경부분> 해당 진영 기물이 잡힌 스택 증가
-                AddDeathStackForUniqueSkill(attackedDeadPieceTeam);
+                // <변경부분> Neutral 처치로는 사망 스택 증가 없음
+                if (targetDeadPieceTeam != PieceTeam.Neutral)
+                {
+                    AddDeathStackForUniqueSkill(targetDeadPieceTeam);
+                }
             }
         }
 

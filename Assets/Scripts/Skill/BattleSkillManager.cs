@@ -104,6 +104,10 @@ public class BattleSkillManager : MonoBehaviour
             case UniqueSkillType.KingQueenMove:
                 return UseKingQueenMove(piece);
 
+            // <변경부분> 젤루 벽: 진행방향 1칸 앞에 젤루 태그 중립 벽 생성
+            case UniqueSkillType.JelluWall:
+                return UseJelluWall(piece);
+
             default:
                 Debug.Log("사용할 수 있는 고유 스킬이 없습니다.");
                 return false;
@@ -414,6 +418,81 @@ private bool UseJelluSynthesis(Piece piece)
 
         return true;
     }
+
+    // <변경부분> 젤루 벽 스킬: 젤루 Rook의 진행방향 1칸 앞에 중립 Special 벽을 생성
+    private bool UseJelluWall(Piece piece)
+    {
+        // 필요한 매니저가 연결되지 않았으면 스킬 실행 불가
+        if (boardManager == null || pieceManager == null)
+        {
+            Debug.LogWarning("BattleSkillManager 초기화가 완료되지 않아 JelluWall을 사용할 수 없습니다.");
+            return false;
+        }
+
+        // 스킬을 사용할 기물이 없으면 실패
+        if (piece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 젤루 벽은 Rook 타입만 사용할 수 있음
+        if (piece.PieceType != PieceType.Rook)
+        {
+            Debug.Log("젤루 벽 실패: Rook 타입만 사용할 수 있습니다.");
+            return false;
+        }
+
+        // <변경부분> 젤루 태그를 가진 Rook만 사용할 수 있음
+        if (piece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
+        {
+            Debug.Log("젤루 벽 실패: 젤루 태그가 없는 Rook입니다.");
+            return false;
+        }
+
+        // <변경부분> 중립 기물은 스킬 사용자로 허용하지 않음
+        if (piece.Team == PieceTeam.Neutral)
+        {
+            Debug.Log("젤루 벽 실패: 중립 기물은 사용할 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 진행방향 계산
+        // Player는 위쪽으로 전진하므로 Y + 1
+        // Enemy는 아래쪽으로 전진하므로 Y - 1
+        int directionY = piece.Team == PieceTeam.Player ? 1 : -1;
+
+        int targetX = piece.X;
+        int targetY = piece.Y + directionY;
+
+        // 보드 밖이면 실패
+        if (IsInsideBoard(targetX, targetY) == false)
+        {
+            Debug.Log($"젤루 벽 실패: 생성 위치가 보드 밖입니다. ({targetX}, {targetY})");
+            return false;
+        }
+
+        // 앞칸에 이미 기물이 있으면 실패
+        if (pieceManager.IsEmpty(targetX, targetY) == false)
+        {
+            Debug.Log($"젤루 벽 실패: 앞칸에 이미 기물이 있습니다. ({targetX}, {targetY})");
+            return false;
+        }
+
+        // <변경부분> 앞칸에 젤루 태그를 가진 중립 Special 벽 생성
+        Piece wallPiece = pieceManager.SpawnJelluWall(targetX, targetY);
+
+        // 생성 실패 시 스킬 실패
+        if (wallPiece == null)
+        {
+            Debug.LogWarning("젤루 벽 실패: 벽 생성에 실패했습니다.");
+            return false;
+        }
+
+        Debug.Log($"젤루 벽 성공: ({targetX}, {targetY})에 중립 젤루 벽 생성");
+
+        return true;
+    }
+
 
     // <변경부분> 특정 좌표가 보드 안쪽인지 확인하는 함수
     private bool IsInsideBoard(int x, int y)

@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public enum UniqueSkillType
 {
     None,
@@ -11,5 +9,8 @@ public enum UniqueSkillType
     JelluMultiply,
 
     KingQueenMove,
-    JelluSynthesis
+    JelluSynthesis,
+
+    // <변경부분> 젤루 룩 고유스킬: 진행방향 1칸 앞에 젤루 태그 중립 벽 생성
+    JelluWall
 }
