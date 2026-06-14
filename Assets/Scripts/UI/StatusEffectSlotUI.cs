@@ -1,8 +1,8 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 // <변경부분> 스테이터스 창에 표시되는 상태이상 슬롯 UI
+// 텍스트 표기는 사용하지 않고, 아이콘과 애니메이션으로 상태를 표시
 public class StatusEffectSlotUI : MonoBehaviour
 {
     [Header("Root")]
@@ -11,9 +11,12 @@ public class StatusEffectSlotUI : MonoBehaviour
     [Header("Icon")]
     [SerializeField] private Image iconImage;
 
-    [Header("Texts")]
-    [SerializeField] private TMP_Text turnText;
-    [SerializeField] private TMP_Text stackText;
+    [Header("Warning Animation")]
+    // <변경부분> 남은 턴이 1턴인 상태이상일 때 깜빡임 애니메이션을 제어하는 Animator
+    [SerializeField] private Animator warningAnimator;
+
+    // <변경부분> Animator bool 파라미터 이름
+    [SerializeField] private string warningBoolParameterName = "IsWarning";
 
     // <변경부분> 상태이상 슬롯을 빈 상태로 초기화하는 함수
     public void Clear()
@@ -31,17 +34,8 @@ public class StatusEffectSlotUI : MonoBehaviour
             iconImage.enabled = false;
         }
 
-        // 남은 턴 텍스트 초기화
-        if (turnText != null)
-        {
-            turnText.text = "";
-        }
-
-        // 중첩 텍스트 초기화
-        if (stackText != null)
-        {
-            stackText.text = "";
-        }
+        // <변경부분> 경고 깜빡임 애니메이션 비활성화
+        SetWarningAnimation(false);
     }
 
     // <변경부분> 상태이상 데이터를 슬롯에 표시하는 함수
@@ -68,24 +62,24 @@ public class StatusEffectSlotUI : MonoBehaviour
             iconImage.preserveAspect = true;
         }
 
-        // 남은 턴 표시
-        if (turnText != null)
+        // <변경부분> 남은 턴이 1턴 이하인 상태이상은 깜빡임 애니메이션 활성화
+        bool shouldWarningBlink = ownedStatusEffectData.remainingTurn <= 1;
+        SetWarningAnimation(shouldWarningBlink);
+    }
+
+    // <변경부분> Animator bool 값을 통해 깜빡임 애니메이션을 켜고 끄는 함수
+    private void SetWarningAnimation(bool isWarning)
+    {
+        if (warningAnimator == null)
         {
-            turnText.text = ownedStatusEffectData.remainingTurn.ToString();
+            return;
         }
 
-        // 중첩 수 표시
-        // 현재 퇴화는 1중첩 기준이므로 2 이상일 때만 표시
-        if (stackText != null)
+        if (string.IsNullOrEmpty(warningBoolParameterName))
         {
-            if (ownedStatusEffectData.stackCount > 1)
-            {
-                stackText.text = ownedStatusEffectData.stackCount.ToString();
-            }
-            else
-            {
-                stackText.text = "";
-            }
+            return;
         }
+
+        warningAnimator.SetBool(warningBoolParameterName, isWarning);
     }
 }

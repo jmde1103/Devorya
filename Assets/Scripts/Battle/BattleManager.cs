@@ -447,10 +447,24 @@ public class BattleManager : MonoBehaviour
                 // <변경부분> Enemy 기물을 흡수했을 때만 흡수 유물 추가행동 판정 대상으로 저장
                 absorbedEnemyPiece = true;
 
-                // <변경부분> 대상 기물이 제거되기 전에 퇴화 상태이상 사망 트리거 처리
-                TryTriggerDegenerationOnDeath(targetPiece);
+                // <변경부분> 제거 전에 퇴화 발동에 필요한 정보만 미리 저장
+                // 실제 젤루 Pawn 생성은 RemovePiece 이후에 처리해야 최대 기물 수 계산에서 죽은 기물이 빠짐
+                bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
+                PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
+                PieceType degenerationDeadPieceType = targetPiece.PieceType;
+                int degenerationDeadPieceX = targetPiece.X;
+                int degenerationDeadPieceY = targetPiece.Y;
 
                 pieceManager.RemovePiece(targetPiece);
+
+                // <변경부분> 대상 기물이 제거된 뒤 퇴화 상태이상 사망 트리거 처리
+                TryTriggerDegenerationOnDeath(
+                    shouldTriggerDegeneration,
+                    degenerationDeadPieceTeam,
+                    degenerationDeadPieceType,
+                    degenerationDeadPieceX,
+                    degenerationDeadPieceY
+                );
 
                 // <변경부분> Neutral은 사망 스택 대상이 아님
                 if (targetDeadPieceTeam != PieceTeam.Neutral)
@@ -466,10 +480,24 @@ public class BattleManager : MonoBehaviour
                 // Neutral 벽 처치로는 ChanceAttack이 발동하지 않음
                 killedEnemyPiece = true;
 
-                // <변경부분> 대상 기물이 제거되기 전에 퇴화 상태이상 사망 트리거 처리
-                TryTriggerDegenerationOnDeath(targetPiece);
+                // <변경부분> 제거 전에 퇴화 발동에 필요한 정보만 미리 저장
+                // 실제 젤루 Pawn 생성은 RemovePiece 이후에 처리해야 최대 기물 수 계산에서 죽은 기물이 빠짐
+                bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
+                PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
+                PieceType degenerationDeadPieceType = targetPiece.PieceType;
+                int degenerationDeadPieceX = targetPiece.X;
+                int degenerationDeadPieceY = targetPiece.Y;
 
                 pieceManager.RemovePiece(targetPiece);
+
+                // <변경부분> 대상 기물이 제거된 뒤 퇴화 상태이상 사망 트리거 처리
+                TryTriggerDegenerationOnDeath(
+                    shouldTriggerDegeneration,
+                    degenerationDeadPieceTeam,
+                    degenerationDeadPieceType,
+                    degenerationDeadPieceX,
+                    degenerationDeadPieceY
+                );
 
                 // <변경부분> Neutral 처치로는 사망 스택 증가 없음
                 if (targetDeadPieceTeam != PieceTeam.Neutral)
@@ -1223,22 +1251,22 @@ public class BattleManager : MonoBehaviour
     }
 
     // <변경부분> 퇴화 상태의 기물이 잡혔을 때 인접 빈칸에 젤루 Pawn을 생성하는 함수
-    private void TryTriggerDegenerationOnDeath(Piece deadPiece)
+    // 제거된 Piece 참조를 직접 쓰지 않고, 제거 전에 저장한 사망 정보를 사용함
+    private void TryTriggerDegenerationOnDeath(
+        bool shouldTriggerDegeneration,
+        PieceTeam deadPieceTeam,
+        PieceType deadPieceType,
+        int deadPieceX,
+        int deadPieceY)
     {
-        // 제거될 기물이 없으면 처리 불가
-        if (deadPiece == null)
-        {
-            return;
-        }
-
-        // 퇴화 상태이상이 없으면 처리하지 않음
-        if (deadPiece.HasStatusEffect(StatusEffectType.Degeneration) == false)
+        // 퇴화 상태가 아니었다면 처리하지 않음
+        if (shouldTriggerDegeneration == false)
         {
             return;
         }
 
         // 중립 기물은 현재 퇴화 스킬 사용 대상이 아니므로 예외 처리
-        if (deadPiece.Team == PieceTeam.Neutral)
+        if (deadPieceTeam == PieceTeam.Neutral)
         {
             return;
         }
@@ -1251,13 +1279,14 @@ public class BattleManager : MonoBehaviour
             for (int offsetX = -1; offsetX <= 1; offsetX++)
             {
                 // 자기 위치는 제외
+                // 퇴화는 "인접한 빈 공간"에 생성되므로 사망한 자리에는 생성하지 않음
                 if (offsetX == 0 && offsetY == 0)
                 {
                     continue;
                 }
 
-                int targetX = deadPiece.X + offsetX;
-                int targetY = deadPiece.Y + offsetY;
+                int targetX = deadPieceX + offsetX;
+                int targetY = deadPieceY + offsetY;
 
                 // 보드 밖 좌표 제외
                 if (IsInsideBoard(targetX, targetY) == false)
@@ -1285,8 +1314,9 @@ public class BattleManager : MonoBehaviour
         Vector2Int selectedPosition = emptyPositions[randomIndex];
 
         // <변경부분> 죽은 기물과 같은 진영의 젤루 Pawn 생성
+        // 이 시점에는 죽은 기물이 이미 RemovePiece 처리되어 있으므로 최대 기물 수 계산에서 빠진 상태임
         Piece createdPiece = pieceManager.SpawnJelluPawn(
-            deadPiece.Team,
+            deadPieceTeam,
             selectedPosition.x,
             selectedPosition.y
         );
@@ -1297,7 +1327,7 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"퇴화 발동: {deadPiece.Team} {deadPiece.PieceType} 사망 → ({selectedPosition.x}, {selectedPosition.y})에 젤루 Pawn 생성");
+        Debug.Log($"퇴화 발동: {deadPieceTeam} {deadPieceType} 사망 → ({selectedPosition.x}, {selectedPosition.y})에 젤루 Pawn 생성");
     }
 
     // <변경부분> 찬스어택이 발동한 기물에게 추가 행동 상태를 부여하는 함수

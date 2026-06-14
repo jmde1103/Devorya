@@ -928,6 +928,14 @@ public class PieceManager : MonoBehaviour
     // 기존 복제 스킬과 달리 원본 타입을 복사하지 않고 항상 Pawn을 생성함
     public Piece SpawnJelluPawn(PieceTeam team, int x, int y)
     {
+        // <변경부분> Player / Enemy 진영이 최대 기물 수에 도달했다면 젤루 Pawn 생성 불가
+        // JelluMultiply, Degeneration 사망 효과 모두 이 함수를 사용하므로 여기서 공통 제한 처리
+        if (CanCreatePieceForTeam(team) == false)
+        {
+            Debug.Log($"젤루 Pawn 생성 실패: {team} 진영의 최대 기물 수에 도달했습니다. 현재 {GetPieceCount(team)} / 최대 {GetMaxPieceCount(team)}");
+            return null;
+        }
+
         // <변경부분> 젤루 Pawn은 Pawn 전용 고유스킬인 JelluSynthesis를 가진 상태로 생성
         Piece createdPiece = SpawnPiece(
             PieceType.Pawn,
