@@ -6343,6 +6343,7 @@ GameObject:
   - component: {fileID: 69731427}
   - component: {fileID: 69731426}
   - component: {fileID: 69731428}
+  - component: {fileID: 69731429}
   m_Layer: 5
   m_Name: StatusEffectSlot_6
   m_TagString: Untagged
@@ -6422,8 +6423,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 69731424}
   iconImage: {fileID: 1477297734}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 69731429}
+  warningBoolParameterName: IsWarning
+--- !u!95 &69731429
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69731424}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &69843416
 GameObject:
   m_ObjectHideFlags: 0
@@ -16837,6 +16860,7 @@ GameObject:
   - component: {fileID: 182397558}
   - component: {fileID: 182397557}
   - component: {fileID: 182397559}
+  - component: {fileID: 182397560}
   m_Layer: 5
   m_Name: StatusEffectSlot_1
   m_TagString: Untagged
@@ -16916,8 +16940,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 182397555}
   iconImage: {fileID: 1239003437}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 182397560}
+  warningBoolParameterName: IsWarning
+--- !u!95 &182397560
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182397555}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &185585113
 GameObject:
   m_ObjectHideFlags: 0
@@ -17495,6 +17541,7 @@ GameObject:
   - component: {fileID: 190832468}
   - component: {fileID: 190832467}
   - component: {fileID: 190832469}
+  - component: {fileID: 190832470}
   m_Layer: 5
   m_Name: StatusEffectSlot_3
   m_TagString: Untagged
@@ -17574,8 +17621,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 190832465}
   iconImage: {fileID: 150117606}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 190832470}
+  warningBoolParameterName: IsWarning
+--- !u!95 &190832470
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190832465}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &190857174
 GameObject:
   m_ObjectHideFlags: 0
@@ -24401,6 +24470,7 @@ GameObject:
   - component: {fileID: 244269281}
   - component: {fileID: 244269280}
   - component: {fileID: 244269282}
+  - component: {fileID: 244269283}
   m_Layer: 5
   m_Name: StatusEffectSlot_2
   m_TagString: Untagged
@@ -24480,8 +24550,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 244269278}
   iconImage: {fileID: 1524664488}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 244269283}
+  warningBoolParameterName: IsWarning
+--- !u!95 &244269283
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244269278}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &244600529
 GameObject:
   m_ObjectHideFlags: 0
@@ -26784,6 +26876,7 @@ GameObject:
   - component: {fileID: 272209944}
   - component: {fileID: 272209943}
   - component: {fileID: 272209945}
+  - component: {fileID: 272209946}
   m_Layer: 5
   m_Name: StatusEffectSlot_7
   m_TagString: Untagged
@@ -26863,8 +26956,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 272209941}
   iconImage: {fileID: 367192613}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 272209946}
+  warningBoolParameterName: IsWarning
+--- !u!95 &272209946
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 272209941}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &274352240
 GameObject:
   m_ObjectHideFlags: 0
@@ -31488,6 +31603,7 @@ GameObject:
   - component: {fileID: 323654739}
   - component: {fileID: 323654738}
   - component: {fileID: 323654740}
+  - component: {fileID: 323654741}
   m_Layer: 5
   m_Name: StatusEffectSlot_4
   m_TagString: Untagged
@@ -31567,8 +31683,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 323654736}
   iconImage: {fileID: 1468371398}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 323654741}
+  warningBoolParameterName: IsWarning
+--- !u!95 &323654741
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323654736}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &324295269
 GameObject:
   m_ObjectHideFlags: 0
@@ -47442,6 +47580,7 @@ GameObject:
   - component: {fileID: 486082639}
   - component: {fileID: 486082638}
   - component: {fileID: 486082640}
+  - component: {fileID: 486082641}
   m_Layer: 5
   m_Name: StatusEffectSlot_0
   m_TagString: Untagged
@@ -47521,8 +47660,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 486082636}
   iconImage: {fileID: 436821188}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 486082641}
+  warningBoolParameterName: IsWarning
+--- !u!95 &486082641
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486082636}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &487128873
 GameObject:
   m_ObjectHideFlags: 0
@@ -85727,6 +85888,7 @@ GameObject:
   - component: {fileID: 922785297}
   - component: {fileID: 922785296}
   - component: {fileID: 922785298}
+  - component: {fileID: 922785299}
   m_Layer: 5
   m_Name: StatusEffectSlot_2
   m_TagString: Untagged
@@ -85806,8 +85968,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 922785294}
   iconImage: {fileID: 1882158161}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 922785299}
+  warningBoolParameterName: IsWarning
+--- !u!95 &922785299
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922785294}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &923305355
 GameObject:
   m_ObjectHideFlags: 0
@@ -106215,6 +106399,7 @@ GameObject:
   - component: {fileID: 1151795476}
   - component: {fileID: 1151795475}
   - component: {fileID: 1151795477}
+  - component: {fileID: 1151795478}
   m_Layer: 5
   m_Name: StatusEffectSlot_6
   m_TagString: Untagged
@@ -106294,8 +106479,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1151795473}
   iconImage: {fileID: 8838355}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1151795478}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1151795478
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151795473}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1152437870
 GameObject:
   m_ObjectHideFlags: 0
@@ -130542,6 +130749,7 @@ GameObject:
   - component: {fileID: 1403185403}
   - component: {fileID: 1403185402}
   - component: {fileID: 1403185404}
+  - component: {fileID: 1403185405}
   m_Layer: 5
   m_Name: StatusEffectSlot_4
   m_TagString: Untagged
@@ -130621,8 +130829,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1403185400}
   iconImage: {fileID: 660587903}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1403185405}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1403185405
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1403185400}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1404121766
 GameObject:
   m_ObjectHideFlags: 0
@@ -138456,6 +138686,7 @@ GameObject:
   - component: {fileID: 1504419511}
   - component: {fileID: 1504419510}
   - component: {fileID: 1504419512}
+  - component: {fileID: 1504419513}
   m_Layer: 5
   m_Name: StatusEffectSlot_5
   m_TagString: Untagged
@@ -138535,8 +138766,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1504419508}
   iconImage: {fileID: 107675603}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1504419513}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1504419513
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1504419508}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1504579307
 GameObject:
   m_ObjectHideFlags: 0
@@ -139783,6 +140036,7 @@ GameObject:
   - component: {fileID: 1513921749}
   - component: {fileID: 1513921748}
   - component: {fileID: 1513921750}
+  - component: {fileID: 1513921751}
   m_Layer: 5
   m_Name: StatusEffectSlot_7
   m_TagString: Untagged
@@ -139862,8 +140116,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1513921746}
   iconImage: {fileID: 653242009}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1513921751}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1513921751
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1513921746}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1516420998
 GameObject:
   m_ObjectHideFlags: 0
@@ -148057,6 +148333,7 @@ GameObject:
   - component: {fileID: 1591332564}
   - component: {fileID: 1591332563}
   - component: {fileID: 1591332565}
+  - component: {fileID: 1591332566}
   m_Layer: 5
   m_Name: StatusEffectSlot_1
   m_TagString: Untagged
@@ -148136,8 +148413,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1591332561}
   iconImage: {fileID: 722024888}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1591332566}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1591332566
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591332561}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1593157992
 GameObject:
   m_ObjectHideFlags: 0
@@ -152826,6 +153125,7 @@ GameObject:
   - component: {fileID: 1636582490}
   - component: {fileID: 1636582489}
   - component: {fileID: 1636582491}
+  - component: {fileID: 1636582492}
   m_Layer: 5
   m_Name: StatusEffectSlot_5
   m_TagString: Untagged
@@ -152905,8 +153205,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1636582487}
   iconImage: {fileID: 1600690534}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1636582492}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1636582492
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636582487}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1637100758
 GameObject:
   m_ObjectHideFlags: 0
@@ -159870,6 +160192,7 @@ GameObject:
   - component: {fileID: 1717307421}
   - component: {fileID: 1717307420}
   - component: {fileID: 1717307422}
+  - component: {fileID: 1717307423}
   m_Layer: 5
   m_Name: StatusEffectSlot_0
   m_TagString: Untagged
@@ -159949,8 +160272,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1717307418}
   iconImage: {fileID: 1440695371}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 1717307423}
+  warningBoolParameterName: IsWarning
+--- !u!95 &1717307423
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1717307418}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1720523659
 GameObject:
   m_ObjectHideFlags: 0
@@ -190367,6 +190712,7 @@ GameObject:
   - component: {fileID: 2032457546}
   - component: {fileID: 2032457545}
   - component: {fileID: 2032457547}
+  - component: {fileID: 2032457548}
   m_Layer: 5
   m_Name: StatusEffectSlot_3
   m_TagString: Untagged
@@ -190446,8 +190792,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 2032457543}
   iconImage: {fileID: 173799631}
-  turnText: {fileID: 0}
-  stackText: {fileID: 0}
+  warningAnimator: {fileID: 2032457548}
+  warningBoolParameterName: IsWarning
+--- !u!95 &2032457548
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032457543}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 352a7e1a4b3ddee48967b83c2baf97be, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2036441181
 GameObject:
   m_ObjectHideFlags: 0
