@@ -1,6 +1,5 @@
-using NUnit.Framework.Interfaces;
+using System.Collections; // <변경부분> 기물 이동 연출 코루틴 사용
 using UnityEngine;
-
 public class PieceManager : MonoBehaviour
 {
     // 보드 정보를 가져오기 위한 BoardManager 참조
@@ -98,6 +97,13 @@ public class PieceManager : MonoBehaviour
     // 기물이 타일 위에 자연스럽게 올라오도록 Y 위치 보정
     [Header("Position Setting")]
     [SerializeField] private float pieceYOffset = 0.25f;
+
+    // <변경부분> 기물 이동/공격 시 시각적으로 점프 이동하는 연출 시간
+    [Header("Piece Move Animation")]
+    [SerializeField] private float moveAnimationDuration = 0.25f;
+
+    // <변경부분> 기물이 이동 중 위로 떠오르는 높이
+    [SerializeField] private float moveJumpHeight = 0.35f;
 
     [Header("Piece Limit")]
     // <변경부분> 플레이어 진영이 보유할 수 있는 최대 기물 수
@@ -646,12 +652,20 @@ public class PieceManager : MonoBehaviour
     }
 
     // 기물을 특정 좌표로 이동시키는 함수
+    // 기존 외부 호출 호환용 함수
     public void MovePiece(Piece piece, int targetX, int targetY)
+    {
+        // <변경부분> 기본 이동은 연출을 포함해서 실행
+        StartCoroutine(MovePieceRoutine(piece, targetX, targetY, true));
+    }
+
+    // <변경부분> 기물을 특정 좌표로 이동시키고, 호출한 쪽에서 연출 종료까지 기다릴 수 있는 코루틴
+    public IEnumerator MovePieceRoutine(Piece piece, int targetX, int targetY, bool playAnimation)
     {
         // 이동할 기물이 없으면 종료
         if (piece == null)
         {
-            return;
+            yield break;
         }
 
         // 기존 좌표의 기물 정보를 비워 이동 전 상태를 정리
@@ -663,14 +677,22 @@ public class PieceManager : MonoBehaviour
         // 이동할 타일이 없으면 이동 처리 중단
         if (targetTile == null)
         {
-            return;
+            yield break;
         }
 
-        // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일 위치 기준으로 이동 위치 계산
+        // 현재 WorldRoot 확대 상태가 반영된 타일 위치 기준으로 최종 이동 위치 계산
         Vector3 targetPosition = GetPieceWorldPosition(targetTile);
 
-        // <변경부분> 확대와 이동이 적용된 보드 위에서 기물이 정확한 타일 위치로 이동
-        piece.transform.position = targetPosition;
+        // <변경부분> playAnimation이 true면 목표 위치까지 점프 이동 연출을 기다림
+        if (playAnimation)
+        {
+            yield return PlayPieceJumpMoveAnimation(piece, targetPosition);
+        }
+        else
+        {
+            // <변경부분> 이미 공격 연출로 목표 위치에 도착한 경우 즉시 위치 보정만 처리
+            piece.transform.position = targetPosition;
+        }
 
         // 기물의 논리 좌표와 현재 타일 정보를 갱신
         piece.SetPosition(targetX, targetY, targetTile);
@@ -680,6 +702,77 @@ public class PieceManager : MonoBehaviour
 
         // 이동한 좌표 기준으로 기물 표시 순서를 갱신
         SetPieceSortingOrder(piece.gameObject, targetX, targetY);
+    }
+
+    // <변경부분> 기물이 시작 위치에서 목표 위치까지 살짝 떠서 이동하는 테스트용 연출
+    // 나중에 Spine의 Lift / AirMove / Land 애니메이션과 연결할 수 있는 기본 이동 레이어
+    public IEnumerator PlayPieceJumpMoveAnimation(Piece piece, Vector3 targetPosition)
+    {
+        // 이동할 기물이 없으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // 시작 위치 저장
+        Vector3 startPosition = piece.transform.position;
+
+        // 연출 시간이 0 이하이면 즉시 이동
+        if (moveAnimationDuration <= 0f)
+        {
+            piece.transform.position = targetPosition;
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < moveAnimationDuration)
+        {
+            // 기물이 연출 중 제거되었으면 중단
+            if (piece == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            // 0~1 이동 진행률
+            float normalizedTime = Mathf.Clamp01(elapsedTime / moveAnimationDuration);
+
+            // 시작 위치에서 목표 위치까지 선형 이동
+            Vector3 currentPosition = Vector3.Lerp(startPosition, targetPosition, normalizedTime);
+
+            // <변경부분> 중간 지점에서 가장 높게 떠오르는 포물선 높이 계산
+            float jumpOffset = Mathf.Sin(normalizedTime * Mathf.PI) * moveJumpHeight;
+
+            // Y축으로 점프 높이 적용
+            currentPosition.y += jumpOffset;
+
+            // 실제 시각 위치 적용
+            piece.transform.position = currentPosition;
+
+            yield return null;
+        }
+
+        // 연출 종료 후 정확한 목표 위치로 보정
+        if (piece != null)
+        {
+            piece.transform.position = targetPosition;
+        }
+    }
+
+    // <변경부분> 공격/흡수 연출용 점프 이동 함수
+    // 보드 좌표는 갱신하지 않고, 기물 Transform만 목표 월드 위치까지 이동시킴
+    public IEnumerator PlayPieceAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
+    {
+        // 이동할 기물이 없으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // 현재 위치에서 타겟 월드 위치까지 점프 이동
+        yield return PlayPieceJumpMoveAnimation(piece, targetWorldPosition);
     }
 
     // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일의 실제 월드 위치를 기준으로 기물 위치 계산

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class BattleManager : MonoBehaviour
 {
@@ -55,6 +56,10 @@ public class BattleManager : MonoBehaviour
     private bool isAbsorbMode = false;
     // 전투가 끝났는지 여부
     private bool isBattleEnded = false;
+
+    // <변경부분> 이동/공격 연출이 진행 중인지 확인하는 값
+    // 연출 중 추가 클릭으로 전투 로직이 중복 실행되는 것을 방지
+    private bool isActionAnimating = false;
     // 현재 턴에 고유 스킬을 이미 사용했는지 여부
     private bool hasUsedUniqueSkillThisTurn = false;
 
@@ -192,6 +197,12 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 이동/공격 연출 중에는 추가 선택 방지
+        if (isActionAnimating)
+        {
+            return;
+        }
+
         // 이전 하이라이트 제거
         ClearHighlights();
 
@@ -313,6 +324,12 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 이동/공격 연출 중에는 추가 입력 방지
+        if (isActionAnimating)
+        {
+            return;
+        }
+
         // <변경부분> 클릭한 타일 위에 있는 기물 확인
         Piece clickedPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
 
@@ -379,138 +396,141 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 실제 이동/공격/흡수 처리는 연출 코루틴에서 순차 처리
+        StartCoroutine(ExecuteSelectedTileActionRoutine(tile));
+    }
+
+    // <변경부분> 선택한 타일로 이동/공격/흡수를 실행하는 코루틴
+    // 공격/흡수 시 타겟 제거를 이동 연출 이후로 미룸
+    private IEnumerator ExecuteSelectedTileActionRoutine(Tile tile)
+    {
+        // 이미 연출 중이면 중복 실행 방지
+        if (isActionAnimating)
+        {
+            yield break;
+        }
+
+        isActionAnimating = true;
+
         // 해당 타일에 있는 기물 확인
         Piece targetPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
 
-        // <변경부분> 이번 행동을 실행하는 기물을 미리 저장
+        // 이번 행동을 실행하는 기물을 미리 저장
         Piece actingPiece = selectedPiece;
 
-        // <변경부분> 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보를 복사해서 저장
-        // 이번 행동에서 발동 판정은 행동 시작 전 레벨 기준으로 처리
+        if (actingPiece == null)
+        {
+            isActionAnimating = false;
+            yield break;
+        }
+
+        // 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보만을 복사해서 저장
         OwnedGeneralSkillData chanceAttackDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.ChanceAttack);
 
-        // <변경부분> 이번 행동으로 적 기물을 처치했는지 확인하기 위한 값
+        // 이번 행동으로 적대 기물을 처치했는지 확인하기 위한 값
         bool killedEnemyPiece = false;
 
-        // <변경부분> 이번 행동이 플레이어 흡수 성공 행동인지 확인하기 위한 값
+        // 이번 행동이 플레이어 흡수 성공 행동인지 확인하기 위한 값
         bool absorbedEnemyPiece = false;
 
-        // <변경부분> 기물이 이동/공격하면 모든 타입 아이콘 비활성화
+        // 기물이 이동/공격하면 모든 타입 아이콘 비활성화
         SetAllTypeIconsVisible(false);
 
-
-        // 타겟 기물이 있으면 공격 처리
+        // 타겟 기물이 있으면 공격/흡수 처리
         if (targetPiece != null)
         {
             // 적대 관계가 아니면 공격 불가
-            if (selectedPiece.IsEnemyOf(targetPiece) == false)
+            if (actingPiece.IsEnemyOf(targetPiece) == false)
             {
-                return;
+                isActionAnimating = false;
+                yield break;
             }
 
-            // <변경부분> 제거 전에 대상 진영을 저장
-            // 중립 기물은 처치 가능하지만, 흡수/찬스어택/흡수 유물 추가행동 대상은 아님
-            PieceTeam targetDeadPieceTeam = targetPiece.Team;
+            // 제거될 기물 정보 미리 저장
+            PieceTeam deadPieceTeam = targetPiece.Team;
+
+            // <변경부분> 퇴화 발동에 필요한 정보는 제거 전에 저장
+            bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
+            PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
+            PieceType degenerationDeadPieceType = targetPiece.PieceType;
+            int degenerationDeadPieceX = targetPiece.X;
+            int degenerationDeadPieceY = targetPiece.Y;
 
             // 흡수 모드이고, 플레이어 기물이 적 기물을 잡는 경우
             // 단, 상대 King은 흡수 대상에서 제외
-            // <변경부분> 중립 기물은 흡수 불가이므로 targetPiece.Team == PieceTeam.Enemy 조건 유지
-            if (isAbsorbMode &&
-                selectedPiece.Team == PieceTeam.Player &&
+            bool isAbsorbAction =
+                isAbsorbMode &&
+                actingPiece.Team == PieceTeam.Player &&
                 targetPiece.Team == PieceTeam.Enemy &&
-                targetPiece.PieceType != PieceType.King)
+                targetPiece.PieceType != PieceType.King;
+
+            // <변경부분> 먼저 공격자가 타겟 위치까지 점프 이동
+            Vector3 targetWorldPosition = targetPiece.transform.position;
+            yield return pieceManager.PlayPieceAttackMoveAnimation(actingPiece, targetWorldPosition);
+
+            if (isAbsorbAction)
             {
                 PieceType absorbedType = targetPiece.PieceType;
 
-                // <변경부분> Player King은 정체성/외형/고유스킬을 유지하고 일반스킬만 흡수
-                if (selectedPiece.PieceType == PieceType.King)
+                // Player King은 정체성/외형/고유스킬을 유지하고 일반스킬만 흡수
+                if (actingPiece.PieceType == PieceType.King)
                 {
-                    pieceManager.AbsorbGeneralSkillsOnly(selectedPiece, targetPiece);
+                    pieceManager.AbsorbGeneralSkillsOnly(actingPiece, targetPiece);
                     Debug.Log($"King 흡수 성공: {absorbedType}의 일반스킬만 흡수했습니다.");
                 }
                 else
                 {
-                    // <변경부분> 일반 기물은 기존처럼 대상의 타입/고유스킬/외형/일반스킬을 흡수
-                    pieceManager.AbsorbPiece(selectedPiece, targetPiece);
+                    // 일반 기물은 기존처럼 대상의 타입/고유스킬/외형/일반스킬을 흡수
+                    pieceManager.AbsorbPiece(actingPiece, targetPiece);
                     Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
                 }
 
-                // <변경부분> 흡수 결과가 UI에 반영되도록 스테이터스/버튼 갱신
+                // 흡수 결과가 UI에 반영되도록 스테이터스/버튼 갱신
                 if (battleUIController != null)
                 {
-                    battleUIController.RefreshSelectedPieceButtons(selectedPiece);
+                    battleUIController.RefreshSelectedPieceButtons(actingPiece);
                 }
 
-                // <변경부분> Enemy 기물을 흡수했을 때만 찬스어택 판정 대상으로 저장
+                // 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
                 killedEnemyPiece = true;
 
-                // <변경부분> Enemy 기물을 흡수했을 때만 흡수 유물 추가행동 판정 대상으로 저장
+                // 플레이어 흡수 성공 행동이므로 유물 효과 판정 대상으로 저장
                 absorbedEnemyPiece = true;
-
-                // <변경부분> 제거 전에 퇴화 발동에 필요한 정보만 미리 저장
-                // 실제 젤루 Pawn 생성은 RemovePiece 이후에 처리해야 최대 기물 수 계산에서 죽은 기물이 빠짐
-                bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
-                PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
-                PieceType degenerationDeadPieceType = targetPiece.PieceType;
-                int degenerationDeadPieceX = targetPiece.X;
-                int degenerationDeadPieceY = targetPiece.Y;
-
-                pieceManager.RemovePiece(targetPiece);
-
-                // <변경부분> 대상 기물이 제거된 뒤 퇴화 상태이상 사망 트리거 처리
-                TryTriggerDegenerationOnDeath(
-                    shouldTriggerDegeneration,
-                    degenerationDeadPieceTeam,
-                    degenerationDeadPieceType,
-                    degenerationDeadPieceX,
-                    degenerationDeadPieceY
-                );
-
-                // <변경부분> Neutral은 사망 스택 대상이 아님
-                if (targetDeadPieceTeam != PieceTeam.Neutral)
-                {
-                    AddDeathStackForUniqueSkill(targetDeadPieceTeam);
-                }
 
                 isAbsorbMode = false;
             }
             else
             {
-                // <변경부분> Enemy 기물을 처치했을 때만 찬스어택 판정 대상으로 저장
-                // Neutral 벽 처치로는 ChanceAttack이 발동하지 않음
+                // 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
+                // 중립 기물 처치도 여기서 true로 유지되어 ChanceAttack 판정 대상이 됨
                 killedEnemyPiece = true;
-
-                // <변경부분> 제거 전에 퇴화 발동에 필요한 정보만 미리 저장
-                // 실제 젤루 Pawn 생성은 RemovePiece 이후에 처리해야 최대 기물 수 계산에서 죽은 기물이 빠짐
-                bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
-                PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
-                PieceType degenerationDeadPieceType = targetPiece.PieceType;
-                int degenerationDeadPieceX = targetPiece.X;
-                int degenerationDeadPieceY = targetPiece.Y;
-
-                pieceManager.RemovePiece(targetPiece);
-
-                // <변경부분> 대상 기물이 제거된 뒤 퇴화 상태이상 사망 트리거 처리
-                TryTriggerDegenerationOnDeath(
-                    shouldTriggerDegeneration,
-                    degenerationDeadPieceTeam,
-                    degenerationDeadPieceType,
-                    degenerationDeadPieceX,
-                    degenerationDeadPieceY
-                );
-
-                // <변경부분> Neutral 처치로는 사망 스택 증가 없음
-                if (targetDeadPieceTeam != PieceTeam.Neutral)
-                {
-                    AddDeathStackForUniqueSkill(targetDeadPieceTeam);
-                }
             }
+
+            // <변경부분> 이동 연출이 끝난 뒤 타겟 제거
+            pieceManager.RemovePiece(targetPiece);
+
+            // <변경부분> 타겟 제거 후 퇴화 사망 트리거 처리
+            TryTriggerDegenerationOnDeath(
+                shouldTriggerDegeneration,
+                degenerationDeadPieceTeam,
+                degenerationDeadPieceType,
+                degenerationDeadPieceX,
+                degenerationDeadPieceY
+            );
+
+            // 해당 진영 기물이 잡힌 스택 증가
+            AddDeathStackForUniqueSkill(deadPieceTeam);
+
+            // <변경부분> 공격자는 이미 타겟 위치까지 이동했으므로 논리 좌표만 갱신
+            yield return pieceManager.MovePieceRoutine(actingPiece, tile.X, tile.Y, false);
+        }
+        else
+        {
+            // <변경부분> 빈칸 이동은 기존 점프 이동 연출을 기다림
+            yield return pieceManager.MovePieceRoutine(actingPiece, tile.X, tile.Y, true);
         }
 
-        // 선택한 기물을 해당 타일로 이동
-        pieceManager.MovePiece(selectedPiece, tile.X, tile.Y);
-
-        // <변경부분> 이동/공격이 실행되었으므로 공격 확인 대상 초기화
+        // 이동/공격이 실행되었으므로 공격 확인 대상 초기화
         pendingAttackTargetPiece = null;
 
         // 이동/공격 후 승패 조건 확인
@@ -519,53 +539,60 @@ public class BattleManager : MonoBehaviour
         // 전투가 끝났으면 턴 종료하지 않음
         if (isBattleEnded)
         {
-            return;
+            isActionAnimating = false;
+            yield break;
         }
 
         if (absorbedEnemyPiece && TryActivateAbsorbChanceAttackRelic(actingPiece))
         {
-            // <변경부분> 현재 발동한 유물 데이터를 가져와 데이터 설정값을 적용
+            // 현재 발동한 유물 데이터를 가져와 데이터 설정값을 적용
             BattleRelicData activatedRelicData = GetRelicData(BattleRelicType.AbsorbChanceAttackOncePerTurn);
 
-            // <변경부분> 데이터에서 턴당 1회 제한이 켜져 있을 때만 이번 턴 사용 처리
+            // 데이터에서 턴당 1회 제한이 켜져 있을 때만 이번 턴 사용 처리
             if (activatedRelicData == null || activatedRelicData.oncePerTurn)
             {
                 hasUsedAbsorbChanceAttackRelicThisTurn = true;
             }
 
-            // <변경부분> 데이터에서 허용한 경우에만 흡수 직후 고유스킬 사용 제한을 해제
+            // 데이터에서 허용한 경우에만 흡수 직후 고유스킬 사용 제한을 해제
             if (activatedRelicData == null || activatedRelicData.enableUniqueSkillAfterAbsorb)
             {
                 actingPiece.EnableUniqueSkillAfterAbsorbChanceAttack();
             }
 
-            // <변경부분> 현재 전투 구조에서는 유물 발동 시 1회 추가 행동 상태를 부여
+            // 현재 전투 구조에서는 유물 발동 시 1회 추가 행동 상태를 부여
             ActivateChanceAttackBonus(actingPiece);
 
             Debug.Log($"유물 효과 발동: {activatedRelicData?.relicName} / 흡수 성공으로 추가 행동을 얻었습니다.");
-            return;
+
+            isActionAnimating = false;
+            yield break;
         }
 
-        // <변경부분> 적 기물을 처치했을 때, 행동 시작 전 레벨 기준으로 찬스어택 발동 여부 확인
+        // 적대 기물을 처치했을 때, 행동 시작 전 레벨 기준으로 찬스어택 발동 여부 확인
         if (killedEnemyPiece &&
-        battleSkillManager != null &&
-        battleMoveValidator != null &&
-        battleMoveValidator.HasAnySelectableTile(actingPiece) &&
-        battleSkillManager.TryActivateChanceAttack(actingPiece, chanceAttackDataBeforeAction, chanceAttackContinuousCount))
+            battleSkillManager != null &&
+            battleMoveValidator != null &&
+            battleMoveValidator.HasAnySelectableTile(actingPiece) &&
+            battleSkillManager.TryActivateChanceAttack(actingPiece, chanceAttackDataBeforeAction, chanceAttackContinuousCount))
         {
-            // <변경부분> 일반 ChanceAttack 연속 발동 횟수 증가
+            // 일반 ChanceAttack 연속 발동 횟수 증가
             chanceAttackContinuousCount++;
 
-            // <변경부분> 일반 ChanceAttack으로 추가 행동 상태를 부여
+            // 일반 ChanceAttack으로 추가 행동 상태를 부여
             ActivateChanceAttackBonus(actingPiece);
 
             Debug.Log("ChanceAttack 발동: 턴 종료 없이 한 번 더 이동할 수 있습니다.");
-            return;
+
+            isActionAnimating = false;
+            yield break;
         }
 
-        // <변경부분> 찬스어택이 실패하거나 발동 조건이 아니면 연속 발동 상태 초기화
+        // 찬스어택이 실패하거나 발동 조건이 아니면 연속 발동 상태 초기화
         chanceAttackBonusPiece = null;
         chanceAttackContinuousCount = 0;
+
+        isActionAnimating = false;
 
         // 이동 후 턴 종료
         EndTurn();
