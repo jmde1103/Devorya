@@ -447,6 +447,9 @@ public class BattleManager : MonoBehaviour
                 // <변경부분> Enemy 기물을 흡수했을 때만 흡수 유물 추가행동 판정 대상으로 저장
                 absorbedEnemyPiece = true;
 
+                // <변경부분> 대상 기물이 제거되기 전에 퇴화 상태이상 사망 트리거 처리
+                TryTriggerDegenerationOnDeath(targetPiece);
+
                 pieceManager.RemovePiece(targetPiece);
 
                 // <변경부분> Neutral은 사망 스택 대상이 아님
@@ -462,6 +465,9 @@ public class BattleManager : MonoBehaviour
                 // <변경부분> Enemy 기물을 처치했을 때만 찬스어택 판정 대상으로 저장
                 // Neutral 벽 처치로는 ChanceAttack이 발동하지 않음
                 killedEnemyPiece = true;
+
+                // <변경부분> 대상 기물이 제거되기 전에 퇴화 상태이상 사망 트리거 처리
+                TryTriggerDegenerationOnDeath(targetPiece);
 
                 pieceManager.RemovePiece(targetPiece);
 
@@ -1216,6 +1222,84 @@ public class BattleManager : MonoBehaviour
         piece.SetTypeIconVisible(true);
     }
 
+    // <변경부분> 퇴화 상태의 기물이 잡혔을 때 인접 빈칸에 젤루 Pawn을 생성하는 함수
+    private void TryTriggerDegenerationOnDeath(Piece deadPiece)
+    {
+        // 제거될 기물이 없으면 처리 불가
+        if (deadPiece == null)
+        {
+            return;
+        }
+
+        // 퇴화 상태이상이 없으면 처리하지 않음
+        if (deadPiece.HasStatusEffect(StatusEffectType.Degeneration) == false)
+        {
+            return;
+        }
+
+        // 중립 기물은 현재 퇴화 스킬 사용 대상이 아니므로 예외 처리
+        if (deadPiece.Team == PieceTeam.Neutral)
+        {
+            return;
+        }
+
+        List<Vector2Int> emptyPositions = new List<Vector2Int>();
+
+        // 사망 위치 주변 8방향 검사
+        for (int offsetY = -1; offsetY <= 1; offsetY++)
+        {
+            for (int offsetX = -1; offsetX <= 1; offsetX++)
+            {
+                // 자기 위치는 제외
+                if (offsetX == 0 && offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX = deadPiece.X + offsetX;
+                int targetY = deadPiece.Y + offsetY;
+
+                // 보드 밖 좌표 제외
+                if (IsInsideBoard(targetX, targetY) == false)
+                {
+                    continue;
+                }
+
+                // 빈칸만 후보로 저장
+                if (pieceManager.IsEmpty(targetX, targetY))
+                {
+                    emptyPositions.Add(new Vector2Int(targetX, targetY));
+                }
+            }
+        }
+
+        // 인접한 빈칸이 없으면 생성 실패
+        if (emptyPositions.Count == 0)
+        {
+            Debug.Log("퇴화 발동 실패: 인접한 빈칸이 없습니다.");
+            return;
+        }
+
+        // 후보 빈칸 중 랜덤 선택
+        int randomIndex = Random.Range(0, emptyPositions.Count);
+        Vector2Int selectedPosition = emptyPositions[randomIndex];
+
+        // <변경부분> 죽은 기물과 같은 진영의 젤루 Pawn 생성
+        Piece createdPiece = pieceManager.SpawnJelluPawn(
+            deadPiece.Team,
+            selectedPosition.x,
+            selectedPosition.y
+        );
+
+        if (createdPiece == null)
+        {
+            Debug.LogWarning("퇴화 발동 실패: 젤루 Pawn 생성에 실패했습니다.");
+            return;
+        }
+
+        Debug.Log($"퇴화 발동: {deadPiece.Team} {deadPiece.PieceType} 사망 → ({selectedPosition.x}, {selectedPosition.y})에 젤루 Pawn 생성");
+    }
+
     // <변경부분> 찬스어택이 발동한 기물에게 추가 행동 상태를 부여하는 함수
     private void ActivateChanceAttackBonus(Piece piece)
     {
@@ -1343,6 +1427,10 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 턴이 바뀐 뒤 고유 스킬 사용 상태와 쿨타임 갱신
         UpdateAllUniqueSkillTurnState();
 
+        // <변경부분> 턴이 바뀐 뒤 현재 턴 진영의 상태이상 유지 턴 감소
+        // 퇴화 1턴 유지: 자기 턴에 사용하면 상대 턴 동안 유지되고, 자기 다음 턴 시작 시 만료
+        UpdateAllStatusEffectTurnState();
+
         // 턴 변경 후 UI 갱신
         if (turnInfoUIController != null)
         {
@@ -1387,6 +1475,41 @@ public class BattleManager : MonoBehaviour
 
                 // <변경부분> 현재 턴 진영 기물의 이번 턴 고유 스킬 사용 여부 초기화
                 piece.ResetUniqueSkillTurnUsage();
+            }
+        }
+    }
+
+    // <변경부분> 턴 시작 시 현재 턴 진영 기물의 상태이상 유지 턴을 감소시키는 함수
+    private void UpdateAllStatusEffectTurnState()
+    {
+        // 현재 턴 주체 진영 계산
+        PieceTeam currentTurnTeam = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
+
+        // 보드 전체 X 좌표 검사
+        for (int x = 0; x < boardManager.Width; x++)
+        {
+            // 보드 전체 Y 좌표 검사
+            for (int y = 0; y < boardManager.Height; y++)
+            {
+                // 현재 좌표의 기물 가져오기
+                Piece piece = pieceManager.GetPieceAt(x, y);
+
+                // 기물이 없으면 다음 칸 검사
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                // 현재 턴 진영의 기물만 상태이상 턴 감소
+                // 예: Player가 자기 턴에 퇴화를 얻으면 Enemy 턴 동안 유지되고,
+                // 다음 Player 턴 시작 시 1턴이 감소하면서 만료됨
+                if (piece.Team != currentTurnTeam)
+                {
+                    continue;
+                }
+
+                // 상태이상 턴 감소 및 만료 처리
+                piece.ReduceStatusEffectTurnAndRemoveExpired();
             }
         }
     }

@@ -13,6 +13,10 @@ public class BattleSkillManager : MonoBehaviour
     // <변경부분> 일반스킬 데이터베이스
     [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
 
+    // <변경부분> 상태이상 데이터베이스
+    // 퇴화 같은 상태이상 기본 지속 턴/중첩 정보를 가져올 때 사용
+    [SerializeField] private StatusEffectDatabase statusEffectDatabase;
+
     // <변경부분> BattleManager에서 전투 시작 시 스킬 매니저를 초기화하는 함수
     public void Initialize(BoardManager board, PieceManager pieceManagerRef)
     {
@@ -107,6 +111,10 @@ public class BattleSkillManager : MonoBehaviour
             // <변경부분> 젤루 벽: 진행방향 1칸 앞에 젤루 태그 중립 벽 생성
             case UniqueSkillType.JelluWall:
                 return UseJelluWall(piece);
+
+            // <변경부분> 퇴화: 자기 자신에게 퇴화 상태이상 부여
+            case UniqueSkillType.JelluDegeneration:
+                return UseJelluDegeneration(piece);
 
             default:
                 Debug.Log("사용할 수 있는 고유 스킬이 없습니다.");
@@ -492,6 +500,61 @@ private bool UseJelluSynthesis(Piece piece)
 
         return true;
     }
+
+    // <변경부분> 퇴화 스킬: 젤루 Knight가 자기 자신에게 퇴화 상태이상을 1개 얻음
+    private bool UseJelluDegeneration(Piece piece)
+    {
+        // 스킬을 사용할 기물이 없으면 실패
+        if (piece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 퇴화는 Knight 전용 스킬
+        if (piece.PieceType != PieceType.Knight)
+        {
+            Debug.Log("퇴화 실패: Knight 타입만 사용할 수 있습니다.");
+            return false;
+        }
+
+        // <변경부분> 젤루 태그를 가진 Knight만 사용할 수 있음
+        if (piece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
+        {
+            Debug.Log("퇴화 실패: 젤루 태그가 없는 Knight입니다.");
+            return false;
+        }
+
+        // 중립 기물은 고유스킬 사용자로 허용하지 않음
+        if (piece.Team == PieceTeam.Neutral)
+        {
+            Debug.Log("퇴화 실패: 중립 기물은 사용할 수 없습니다.");
+            return false;
+        }
+
+        // 상태이상 데이터베이스가 없으면 상태이상 부여 불가
+        if (statusEffectDatabase == null)
+        {
+            Debug.LogWarning("StatusEffectDatabase가 연결되지 않아 퇴화 상태이상을 부여할 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 퇴화 상태이상 데이터 가져오기
+        StatusEffectData degenerationData = statusEffectDatabase.GetData(StatusEffectType.Degeneration);
+
+        if (degenerationData == null)
+        {
+            Debug.LogWarning("StatusEffectDatabase에서 Degeneration 데이터를 찾을 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 자기 자신에게 퇴화 상태이상 부여
+        piece.AddStatusEffect(degenerationData);
+
+        Debug.Log($"{piece.Team} {piece.PieceType}에게 퇴화 상태이상을 부여했습니다.");
+
+        return true;
+    }
+
 
 
     // <변경부분> 특정 좌표가 보드 안쪽인지 확인하는 함수

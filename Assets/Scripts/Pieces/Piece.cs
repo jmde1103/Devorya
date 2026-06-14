@@ -14,6 +14,10 @@ public class Piece : MonoBehaviour
     // 스킬 / 아이템 / 유물 효과 조건에서 공통으로 사용
     [SerializeField] private List<PieceSpeciesTag> speciesTags = new List<PieceSpeciesTag>();
 
+    // <변경부분> 이 기물이 현재 보유 중인 상태이상 목록
+    // 퇴화, 독, 기절 같은 전투 중 임시 효과를 관리
+    [SerializeField] private List<OwnedStatusEffectData> statusEffects = new List<OwnedStatusEffectData>();
+
     // <변경부분> 일반 스킬 최대 레벨
     private const int MaxGeneralSkillLevel = 3;
 
@@ -39,6 +43,9 @@ public class Piece : MonoBehaviour
     [SerializeField] private GameObject typeIconRoot;
     // 기물 타입 아이콘 이미지
     [SerializeField] private SpriteRenderer typeIconRenderer;
+
+    // <변경부분> Player / Neutral에서 사용할 기존 회색 타입 아이콘 세트
+    [Header("Player / Neutral Type Icon Sprites")]
     // Pawn 아이콘
     [SerializeField] private Sprite pawnIconSprite;
     // Rook 아이콘
@@ -53,7 +60,18 @@ public class Piece : MonoBehaviour
     [SerializeField] private Sprite QueenIconSprite;
     // Special 아이콘
     [SerializeField] private Sprite specialIconSprite;
-    
+
+    // <변경부분> Enemy에서 사용할 블랙 타입 아이콘 세트
+    // 나중에는 PieceData에 포함시킬 예정이므로 현재는 Piece 프리팹에서 임시 관리
+    [Header("Enemy Type Icon Sprites")]
+    [SerializeField] private Sprite enemyPawnIconSprite;
+    [SerializeField] private Sprite enemyRookIconSprite;
+    [SerializeField] private Sprite enemyBishopIconSprite;
+    [SerializeField] private Sprite enemyKnightIconSprite;
+    [SerializeField] private Sprite enemyKingIconSprite;
+    [SerializeField] private Sprite enemyQueenIconSprite;
+    [SerializeField] private Sprite enemySpecialIconSprite;
+
     // <변경부분> 스테이터스 UI에 표시할 현재 기물 이미지
     private Sprite statusUISprite;
 
@@ -281,7 +299,7 @@ public class Piece : MonoBehaviour
         speciesTags.Add(speciesTag);
     }
 
-    // <변경부분> 종족 태그를 제거하는 함수
+    // <변경부분> 특정 종족 태그를 제거하는 함수
     public void RemoveSpeciesTag(PieceSpeciesTag speciesTag)
     {
         if (speciesTag == PieceSpeciesTag.None)
@@ -290,6 +308,156 @@ public class Piece : MonoBehaviour
         }
 
         speciesTags.Remove(speciesTag);
+    }
+
+    // <변경부분> 상태이상을 추가하거나 이미 있으면 지속 턴과 중첩 수를 갱신하는 함수
+    public void AddStatusEffect(StatusEffectData statusEffectData)
+    {
+        // 상태이상 데이터가 없으면 처리 불가
+        if (statusEffectData == null)
+        {
+            return;
+        }
+
+        // None 상태이상은 추가하지 않음
+        if (statusEffectData.effectType == StatusEffectType.None)
+        {
+            return;
+        }
+
+        // 최소 1턴은 유지되도록 보정
+        int durationTurn = Mathf.Max(1, statusEffectData.durationTurn);
+
+        // 최소 1중첩은 가능하도록 보정
+        int maxStack = Mathf.Max(1, statusEffectData.maxStack);
+
+        // 이미 같은 상태이상을 가지고 있는지 확인
+        OwnedStatusEffectData existingStatusEffect = null;
+
+        for (int i = 0; i < statusEffects.Count; i++)
+        {
+            if (statusEffects[i].effectType == statusEffectData.effectType)
+            {
+                existingStatusEffect = statusEffects[i];
+                break;
+            }
+        }
+
+        // 이미 있으면 지속 턴 갱신 + 중첩 증가
+        if (existingStatusEffect != null)
+        {
+            existingStatusEffect.remainingTurn = durationTurn;
+            existingStatusEffect.stackCount = Mathf.Min(existingStatusEffect.stackCount + 1, maxStack);
+
+            Debug.Log($"상태이상 갱신: {statusEffectData.effectName} / 남은 턴 {existingStatusEffect.remainingTurn} / 중첩 {existingStatusEffect.stackCount}");
+            return;
+        }
+
+        // 없으면 새 상태이상 추가
+        statusEffects.Add(new OwnedStatusEffectData(statusEffectData.effectType, durationTurn, 1));
+
+        Debug.Log($"상태이상 추가: {statusEffectData.effectName} / 남은 턴 {durationTurn}");
+    }
+
+    // <변경부분> 특정 상태이상을 가지고 있는지 확인하는 함수
+    public bool HasStatusEffect(StatusEffectType statusEffectType)
+    {
+        if (statusEffectType == StatusEffectType.None)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < statusEffects.Count; i++)
+        {
+            if (statusEffects[i].effectType == statusEffectType &&
+                statusEffects[i].remainingTurn > 0 &&
+                statusEffects[i].stackCount > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    // <변경부분> 스테이터스 UI 표시용으로 현재 보유 중인 상태이상 목록 전체의 복사본을 반환하는 함수
+    public List<OwnedStatusEffectData> GetStatusEffectsCopy()
+    {
+        // UI에서 원본 리스트를 직접 수정하지 못하도록 복사 리스트 생성
+        List<OwnedStatusEffectData> copiedStatusEffects = new List<OwnedStatusEffectData>();
+
+        // 현재 보유 중인 상태이상 목록 검사
+        for (int i = 0; i < statusEffects.Count; i++)
+        {
+            OwnedStatusEffectData statusEffect = statusEffects[i];
+
+            // 비어 있는 데이터는 제외
+            if (statusEffect == null)
+            {
+                continue;
+            }
+
+            // 만료되었거나 중첩이 없는 상태이상은 UI에 표시하지 않음
+            if (statusEffect.remainingTurn <= 0 || statusEffect.stackCount <= 0)
+            {
+                continue;
+            }
+
+            // 원본을 직접 넘기지 않고 복사본을 넘김
+            copiedStatusEffects.Add(statusEffect.Clone());
+        }
+
+        return copiedStatusEffects;
+    }
+
+    // <변경부분> 특정 상태이상의 보유 정보를 복사해서 반환하는 함수
+    public OwnedStatusEffectData GetStatusEffectDataCopy(StatusEffectType statusEffectType)
+    {
+        if (statusEffectType == StatusEffectType.None)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < statusEffects.Count; i++)
+        {
+            if (statusEffects[i].effectType == statusEffectType)
+            {
+                return statusEffects[i].Clone();
+            }
+        }
+
+        return null;
+    }
+
+    // <변경부분> 현재 기물의 상태이상 유지 턴을 1 감소시키고 만료된 상태이상을 제거
+    public void ReduceStatusEffectTurnAndRemoveExpired()
+    {
+        for (int i = statusEffects.Count - 1; i >= 0; i--)
+        {
+            OwnedStatusEffectData statusEffect = statusEffects[i];
+
+            if (statusEffect == null)
+            {
+                statusEffects.RemoveAt(i);
+                continue;
+            }
+
+            statusEffect.remainingTurn--;
+
+            if (statusEffect.remainingTurn <= 0)
+            {
+                Debug.Log($"상태이상 만료: {statusEffect.effectType}");
+                statusEffects.RemoveAt(i);
+            }
+        }
+    }
+
+    // <변경부분> 현재 종족 태그 목록 복사본을 반환하는 함수
+    // 복제 / 흡수 / 데이터 이전 시 사용
+    public PieceSpeciesTag[] GetSpeciesTagsCopy()
+    {
+        return speciesTags.ToArray();
     }
 
     // <변경부분> 종족 태그 목록을 새 값으로 교체하는 함수
@@ -306,13 +474,6 @@ public class Piece : MonoBehaviour
         {
             AddSpeciesTag(newSpeciesTags[i]);
         }
-    }
-
-    // <변경부분> 현재 종족 태그 목록 복사본을 반환하는 함수
-    // 복제 / 흡수 / 데이터 이전 시 사용
-    public PieceSpeciesTag[] GetSpeciesTagsCopy()
-    {
-        return speciesTags.ToArray();
     }
 
     public void ChangePieceData(PieceType newPieceType, UniqueSkillType newUniqueSkill, bool isAbsorbedJelluVisual, params PieceSpeciesTag[] newSpeciesTags)
@@ -452,7 +613,7 @@ public class Piece : MonoBehaviour
         typeIconRoot.transform.localPosition = localPosition;
     }
 
-    // <변경부분> 현재 기물 타입에 맞는 아이콘 스프라이트 적용
+    // <변경부분> 현재 기물 타입과 소속 진영에 맞는 아이콘 스프라이트 적용
     private void UpdateTypeIconSprite()
     {
         // 타입 아이콘 이미지가 없으면 종료
@@ -461,45 +622,88 @@ public class Piece : MonoBehaviour
             return;
         }
 
-        // 현재 기물 타입에 맞는 아이콘 선택
-        switch (PieceType)
+        // <변경부분> 현재 기물 소속과 타입에 맞는 아이콘을 가져와 적용
+        Sprite iconSprite = GetTypeIconSpriteByTeamAndType();
+
+        // 아이콘이 있으면 적용
+        if (iconSprite != null)
+        {
+            typeIconRenderer.sprite = iconSprite;
+        }
+    }
+
+    // <변경부분> Player는 회색 아이콘, Enemy는 블랙 아이콘, Neutral은 회색 아이콘을 반환
+    private Sprite GetTypeIconSpriteByTeamAndType()
+    {
+        // Enemy 기물은 블랙 타입 아이콘 세트 사용
+        if (Team == PieceTeam.Enemy)
+        {
+            return GetEnemyTypeIconSprite(PieceType);
+        }
+
+        // Player / Neutral 기물은 기존 회색 타입 아이콘 세트 사용
+        return GetDefaultTypeIconSprite(PieceType);
+    }
+
+    // <변경부분> 기존 회색 타입 아이콘 반환
+    private Sprite GetDefaultTypeIconSprite(PieceType pieceType)
+    {
+        switch (pieceType)
         {
             case PieceType.Pawn:
-                // Pawn 아이콘 적용
-                typeIconRenderer.sprite = pawnIconSprite;
-                break;
+                return pawnIconSprite;
 
             case PieceType.Rook:
-                // Rook 아이콘 적용
-                typeIconRenderer.sprite = rookIconSprite;
-                break;
+                return rookIconSprite;
 
             case PieceType.Bishop:
-                // Bishop 아이콘 적용
-                typeIconRenderer.sprite = bishopIconSprite;
-                break;
+                return bishopIconSprite;
 
             case PieceType.Knight:
-                // Knight 아이콘 적용
-                typeIconRenderer.sprite = knightIconSprite;
-                break;
+                return knightIconSprite;
 
             case PieceType.King:
-                // King 아이콘 적용
-                typeIconRenderer.sprite = kingIconSprite;
-                break;
+                return kingIconSprite;
 
             case PieceType.Queen:
-                // <변경부분> Queen 아이콘 적용
-                typeIconRenderer.sprite = QueenIconSprite;
-                break;
+                return QueenIconSprite;
 
             case PieceType.Special:
-                // Special 아이콘 적용
-                typeIconRenderer.sprite = specialIconSprite;
-                break;
-
+                return specialIconSprite;
         }
+
+        return null;
+    }
+
+    // <변경부분> Enemy 전용 블랙 타입 아이콘 반환
+    // 혹시 Inspector에 블랙 아이콘이 비어 있으면 기존 회색 아이콘으로 대체
+    private Sprite GetEnemyTypeIconSprite(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Pawn:
+                return enemyPawnIconSprite != null ? enemyPawnIconSprite : pawnIconSprite;
+
+            case PieceType.Rook:
+                return enemyRookIconSprite != null ? enemyRookIconSprite : rookIconSprite;
+
+            case PieceType.Bishop:
+                return enemyBishopIconSprite != null ? enemyBishopIconSprite : bishopIconSprite;
+
+            case PieceType.Knight:
+                return enemyKnightIconSprite != null ? enemyKnightIconSprite : knightIconSprite;
+
+            case PieceType.King:
+                return enemyKingIconSprite != null ? enemyKingIconSprite : kingIconSprite;
+
+            case PieceType.Queen:
+                return enemyQueenIconSprite != null ? enemyQueenIconSprite : QueenIconSprite;
+
+            case PieceType.Special:
+                return enemySpecialIconSprite != null ? enemySpecialIconSprite : specialIconSprite;
+        }
+
+        return null;
     }
 
     // <변경부분> 특정 일반스킬을 가지고 있는지 확인하는 함수

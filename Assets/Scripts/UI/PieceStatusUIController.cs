@@ -22,12 +22,19 @@ public class PieceStatusUIController : MonoBehaviour
     // <변경부분> 일반스킬 아이콘/이름/설명을 찾기 위한 데이터베이스
     [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
 
+    [Header("Status Effect Slots")]
+    // <변경부분> 상태이상 아이콘/이름/설명을 찾기 위한 데이터베이스
+    [SerializeField] private StatusEffectDatabase statusEffectDatabase;
+
+    // <변경부분> 스테이터스 창에 표시할 상태이상 슬롯 배열
+    [SerializeField] private StatusEffectSlotUI[] statusEffectSlots;
+
     [Header("Root")]
     [SerializeField] private GameObject statusRoot;
 
     private void Start()
     {
-  
+
     }
 
     // <변경부분> 선택한 기물 정보를 필드 기물에서 직접 받아 UI에 표시하는 함수
@@ -54,6 +61,9 @@ public class PieceStatusUIController : MonoBehaviour
 
         // <변경부분> 기물이 보유한 일반스킬 목록을 UI 슬롯에 표시
         SetGeneralSkillSlots(selectedPiece.GetGeneralSkills());
+
+        // <변경부분> 기물이 보유한 상태이상 목록을 UI 슬롯에 표시
+        SetStatusEffectSlots(selectedPiece);
     }
 
     // <변경부분> 선택한 필드 기물의 현재 SpriteRenderer 이미지를 UI에 복사하는 함수
@@ -186,6 +196,77 @@ public class PieceStatusUIController : MonoBehaviour
         }
     }
 
+    // <변경부분> 상태이상 슬롯에 아이콘/남은 턴/중첩을 표시하는 함수
+    private void SetStatusEffectSlots(Piece selectedPiece)
+    {
+        // 먼저 모든 상태이상 슬롯을 비움
+        ClearStatusEffectSlots();
+
+        // 선택 기물이 없으면 종료
+        if (selectedPiece == null)
+        {
+            return;
+        }
+
+        // 상태이상 슬롯 배열이 없으면 종료
+        if (statusEffectSlots == null || statusEffectSlots.Length == 0)
+        {
+            return;
+        }
+
+        // 상태이상 데이터베이스가 없으면 표시 데이터 검색 불가
+        if (statusEffectDatabase == null)
+        {
+            Debug.LogWarning("PieceStatusUIController에 StatusEffectDatabase가 연결되지 않았습니다.");
+            return;
+        }
+
+        // 선택 기물이 현재 보유한 상태이상 목록 가져오기
+        List<OwnedStatusEffectData> ownedStatusEffects = selectedPiece.GetStatusEffectsCopy();
+
+        if (ownedStatusEffects == null)
+        {
+            return;
+        }
+
+        int displayCount = Mathf.Min(ownedStatusEffects.Count, statusEffectSlots.Length);
+
+        for (int i = 0; i < displayCount; i++)
+        {
+            OwnedStatusEffectData ownedStatusEffect = ownedStatusEffects[i];
+
+            if (ownedStatusEffect == null || ownedStatusEffect.effectType == StatusEffectType.None)
+            {
+                continue;
+            }
+
+            // 상태이상 타입에 맞는 데이터 검색
+            StatusEffectData statusEffectData = statusEffectDatabase.GetData(ownedStatusEffect.effectType);
+
+            if (statusEffectSlots[i] != null)
+            {
+                statusEffectSlots[i].Refresh(statusEffectData, ownedStatusEffect);
+            }
+        }
+    }
+
+    // <변경부분> 상태이상 슬롯을 모두 빈 상태로 초기화하는 함수
+    private void ClearStatusEffectSlots()
+    {
+        if (statusEffectSlots == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < statusEffectSlots.Length; i++)
+        {
+            if (statusEffectSlots[i] != null)
+            {
+                statusEffectSlots[i].Clear();
+            }
+        }
+    }
+
     // <변경부분> 일반스킬 타입에 맞는 GeneralSkillData를 Database에서 찾는 함수
     private GeneralSkillData GetGeneralSkillData(GeneralSkillType skillType)
     {
@@ -220,5 +301,8 @@ public class PieceStatusUIController : MonoBehaviour
 
         // <변경부분> 일반스킬 슬롯 아이콘과 텍스트 초기화
         ClearGeneralSkillSlots();
+
+        // <변경부분> 상태이상 슬롯 초기화
+        ClearStatusEffectSlots();
     }
 }

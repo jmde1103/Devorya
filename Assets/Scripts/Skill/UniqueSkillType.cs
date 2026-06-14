@@ -12,5 +12,8 @@ public enum UniqueSkillType
     JelluSynthesis,
 
     // <변경부분> 젤루 룩 고유스킬: 진행방향 1칸 앞에 젤루 태그 중립 벽 생성
-    JelluWall
+    JelluWall,
+
+        // <변경부분> 젤루 나이트 고유스킬: 자기 자신에게 퇴화 상태이상 부여
+    JelluDegeneration
 }

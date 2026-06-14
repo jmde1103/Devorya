@@ -106,6 +106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Piece
   generalSkills: []
+  speciesTags: 
   uniqueSkillCooldown: 0
   uniqueSkillMaxCooldown: 1
   hasUsedUniqueSkillThisTurn: 0
@@ -118,6 +119,13 @@ MonoBehaviour:
   kingIconSprite: {fileID: 21300000, guid: d84b6fda47a92dd43a85b4a2f846aad2, type: 3}
   QueenIconSprite: {fileID: 21300000, guid: 3fcbb1055f2c5d0418ffb0355e03930b, type: 3}
   specialIconSprite: {fileID: 0}
+  enemyPawnIconSprite: {fileID: 21300000, guid: 2997abf6916a8f243ba3d2626460ad03, type: 3}
+  enemyRookIconSprite: {fileID: 21300000, guid: fc85af1e816053c48b4c508b4bcad358, type: 3}
+  enemyBishopIconSprite: {fileID: 21300000, guid: a942cf104fb8586489b3f9b61d30cfab, type: 3}
+  enemyKnightIconSprite: {fileID: 21300000, guid: 41b9752dbc9ef6047828b3cbabcf3556, type: 3}
+  enemyKingIconSprite: {fileID: 21300000, guid: d6f0a66a4a223724fbf8dea89d338d65, type: 3}
+  enemyQueenIconSprite: {fileID: 21300000, guid: 3ce86be5b47b40542b059080bfe5f8df, type: 3}
+  enemySpecialIconSprite: {fileID: 0}
 --- !u!1 &7023221375921924997
 GameObject:
   m_ObjectHideFlags: 0
