@@ -449,12 +449,14 @@ public class BattleManager : MonoBehaviour
             // 제거될 기물 정보 미리 저장
             PieceTeam deadPieceTeam = targetPiece.Team;
 
-            // <변경부분> 퇴화 발동에 필요한 정보는 제거 전에 저장
             bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
             PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
             PieceType degenerationDeadPieceType = targetPiece.PieceType;
             int degenerationDeadPieceX = targetPiece.X;
             int degenerationDeadPieceY = targetPiece.Y;
+
+            // <변경부분> 퇴화 생성 연출 시작 위치로 사용할 사망 기물의 월드 위치 저장
+            Vector3 degenerationSourceWorldPosition = targetPiece.transform.position;
 
             // 흡수 모드이고, 플레이어 기물이 적 기물을 잡는 경우
             // 단, 상대 King은 흡수 대상에서 제외
@@ -509,14 +511,14 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 이동 연출이 끝난 뒤 타겟 제거
             pieceManager.RemovePiece(targetPiece);
 
-            // <변경부분> 타겟 제거 후 퇴화 사망 트리거 처리
             TryTriggerDegenerationOnDeath(
-                shouldTriggerDegeneration,
-                degenerationDeadPieceTeam,
-                degenerationDeadPieceType,
-                degenerationDeadPieceX,
-                degenerationDeadPieceY
-            );
+                   shouldTriggerDegeneration,
+                   degenerationDeadPieceTeam,
+                   degenerationDeadPieceType,
+                   degenerationDeadPieceX,
+                   degenerationDeadPieceY,
+                   degenerationSourceWorldPosition
+               );
 
             // 해당 진영 기물이 잡힌 스택 증가
             AddDeathStackForUniqueSkill(deadPieceTeam);
@@ -651,6 +653,13 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 이동/공격/스킬 연출 중에는 중복 입력 방지
+        if (isActionAnimating)
+        {
+            Debug.Log("현재 액션 연출 중이라 고유스킬을 사용할 수 없습니다.");
+            return;
+        }
+
         // 선택된 기물이 없으면 스킬 사용 불가
         if (selectedPiece == null)
         {
@@ -696,18 +705,34 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 실제 스킬 성공 여부 저장
-        bool skillUsed = false;
-
         // <변경부분> 고유스킬 실제 실행은 BattleSkillManager에 위임
-        // JelluMultiply / KingQueenMove 같은 실제 효과는 BattleSkillManager.TryUseUniqueSkill()에서 처리
         if (battleSkillManager == null)
         {
             Debug.LogWarning("BattleSkillManager가 연결되지 않아 고유스킬을 사용할 수 없습니다.");
             return;
         }
 
-        skillUsed = battleSkillManager.TryUseUniqueSkill(selectedPiece);
+        // <변경부분> 합성처럼 애니메이션을 기다려야 하는 스킬을 위해 코루틴으로 실행
+        StartCoroutine(UseSelectedPieceSkillRoutine(selectedPiece, skillData));
+    }
+
+    // <변경부분> 고유스킬 실행 코루틴
+    // BattleSkillManager의 스킬 코루틴이 끝난 뒤 쿨타임/UI 갱신을 처리
+    private IEnumerator UseSelectedPieceSkillRoutine(Piece skillPiece, UniqueSkillData skillData)
+    {
+        // 실행할 기물이 없으면 종료
+        if (skillPiece == null)
+        {
+            yield break;
+        }
+
+        // 스킬 연출 중 추가 입력 방지
+        isActionAnimating = true;
+
+        bool skillUsed = false;
+
+        // <변경부분> 실제 고유스킬 실행이 끝날 때까지 대기
+        yield return battleSkillManager.TryUseUniqueSkillRoutine(skillPiece, result => skillUsed = result);
 
         // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
         if (skillUsed)
@@ -721,25 +746,28 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 데이터 설정에 따라 사망 스택 소모
             if (skillData.consumeDeathStackOnUse)
             {
-                ConsumeDeathStackForUniqueSkill(selectedPiece.Team, skillData.requiredDeathStack);
+                ConsumeDeathStackForUniqueSkill(skillPiece.Team, skillData.requiredDeathStack);
             }
 
             // <변경부분> 선택된 기물에 고유스킬 데이터 기준 쿨타임 적용
-            selectedPiece.MarkUniqueSkillUsed(skillData.cooldownTurn);
+            skillPiece.MarkUniqueSkillUsed(skillData.cooldownTurn);
 
             // <변경부분> 고유스킬 사용 후 이동 가능 타일을 현재 기물 정보 기준으로 다시 갱신
             ClearHighlights();
-            ShowOnlySelectedPieceTypeIcon(selectedPiece);
-            ShowMovableTiles(selectedPiece);
+            ShowOnlySelectedPieceTypeIcon(skillPiece);
+            ShowMovableTiles(skillPiece);
 
             // <변경부분> 고유스킬 사용 후 버튼과 스테이터스 UI를 현재 기물 정보 기준으로 다시 갱신
             if (battleUIController != null)
             {
-                battleUIController.RefreshSelectedPieceButtons(selectedPiece);
+                battleUIController.RefreshSelectedPieceButtons(skillPiece);
             }
 
-            Debug.Log($"고유 스킬 사용 완료: {selectedPiece.UniqueSkill} / 쿨타임 {skillData.cooldownTurn}");
+            Debug.Log($"고유 스킬 사용 완료: {skillPiece.UniqueSkill} / 쿨타임 {skillData.cooldownTurn}");
         }
+
+        // 스킬 연출 종료 후 다시 입력 허용
+        isActionAnimating = false;
     }
 
     // <변경부분> 특정 고유스킬 타입에 맞는 기본 데이터를 가져오는 함수
@@ -1284,7 +1312,8 @@ public class BattleManager : MonoBehaviour
         PieceTeam deadPieceTeam,
         PieceType deadPieceType,
         int deadPieceX,
-        int deadPieceY)
+        int deadPieceY,
+        Vector3 sourceWorldPosition)
     {
         // 퇴화 상태가 아니었다면 처리하지 않음
         if (shouldTriggerDegeneration == false)
@@ -1340,12 +1369,12 @@ public class BattleManager : MonoBehaviour
         int randomIndex = Random.Range(0, emptyPositions.Count);
         Vector2Int selectedPosition = emptyPositions[randomIndex];
 
-        // <변경부분> 죽은 기물과 같은 진영의 젤루 Pawn 생성
-        // 이 시점에는 죽은 기물이 이미 RemovePiece 처리되어 있으므로 최대 기물 수 계산에서 빠진 상태임
-        Piece createdPiece = pieceManager.SpawnJelluPawn(
+        // <변경부분> 퇴화로 생성된 젤루 Pawn이 죽은 기물 위치에서 생성 위치까지 포물선으로 이동하도록 생성
+        Piece createdPiece = pieceManager.SpawnJelluPawnFromWorldPosition(
             deadPieceTeam,
             selectedPosition.x,
-            selectedPosition.y
+            selectedPosition.y,
+            sourceWorldPosition
         );
 
         if (createdPiece == null)

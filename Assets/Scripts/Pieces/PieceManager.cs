@@ -105,6 +105,52 @@ public class PieceManager : MonoBehaviour
     // <변경부분> 기물이 이동 중 위로 떠오르는 높이
     [SerializeField] private float moveJumpHeight = 0.35f;
 
+    // <변경부분> 공격 연출 전용 설정
+    [Header("Piece Attack Animation")]
+
+    // <변경부분> 공격자가 상대 기물 위쪽에 도착할 높이
+    [SerializeField] private float attackRiseHeight = 0.45f;
+
+    // <변경부분> 현재 위치에서 상대 기물 위쪽까지 포물선으로 이동하는 시간
+    [SerializeField] private float attackMoveDuration = 0.18f;
+
+    // <변경부분> 상대 위로 이동하는 동안 추가로 그려지는 포물선 높이
+    [SerializeField] private float attackMoveArcHeight = 0.25f;
+
+    // <변경부분> 스킬로 생성된 기물이 시전자 위치에서 생성 위치까지 날아가는 시간
+    // <변경부분> 스킬로 생성된 기물이 시전자 위치에서 생성 위치까지 날아가는 시간
+    [Header("Skill Spawn Animation")]
+    [SerializeField] private float skillSpawnAnimationDuration = 0.22f;
+
+    // <변경부분> 스킬 생성 기물이 이동 중 그리는 포물선 높이
+    [SerializeField] private float skillSpawnArcHeight = 0.3f;
+
+    // <변경부분> 젤루 합성 재료 기물이 Pawn 위치로 모이는 시간
+    [Header("Jellu Synthesis Animation")]
+    [SerializeField] private float synthesisMaterialAnimationDuration = 0.22f;
+
+    // <변경부분> 젤루 합성 재료 기물이 이동 중 그리는 포물선 높이
+    [SerializeField] private float synthesisMaterialArcHeight = 0.3f;
+
+    // <변경부분> 상대 기물 위에 도착한 뒤 잠깐 멈춰 있는 시간
+    [SerializeField] private float attackHoverWaitDuration = 0.08f;
+
+    // <변경부분> 내려찍기 직전에 살짝 더 올라가는 높이
+    [SerializeField] private float attackExtraRiseHeight = 0.18f;
+
+    // <변경부분> 내려찍기 전 추가 상승 시간
+    [SerializeField] private float attackExtraRiseDuration = 0.08f;
+
+    // <변경부분> 위에서 아래로 내려찍는 시간
+    [SerializeField] private float attackSlamDuration = 0.08f;
+
+    // <변경부분> 공격 내려찍기 후 화면 흔들림 설정
+    [Header("Attack Impact Feedback")]
+    [SerializeField] private Transform cameraShakeTarget;
+    [SerializeField] private float cameraShakeDuration = 0.12f;
+    [SerializeField] private float cameraShakeStrength = 0.06f;
+    [SerializeField] private bool enableMobileVibration = true;
+
     [Header("Piece Limit")]
     // <변경부분> 플레이어 진영이 보유할 수 있는 최대 기물 수
     [SerializeField] private int maxPlayerPieceCount = 10;
@@ -138,7 +184,7 @@ public class PieceManager : MonoBehaviour
 
         // 적 진영 위쪽 배치
         // <변경부분> 현재 테스트 단계에서는 적 진영을 젤루 종족 태그 보유 기물로 생성
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.JelluWall, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
         SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true, UniqueSkillType.JelluDegeneration, PieceSpeciesTag.Jellu);
         SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true, UniqueSkillType.JelluWall, PieceSpeciesTag.Jellu);
 
@@ -704,6 +750,154 @@ public class PieceManager : MonoBehaviour
         SetPieceSortingOrder(piece.gameObject, targetX, targetY);
     }
 
+    // <변경부분> 특정 Transform을 시작 위치에서 목표 위치까지 선형 이동시키는 공통 함수
+    private IEnumerator MoveTransformRoutine(Transform targetTransform, Vector3 startPosition, Vector3 endPosition, float duration)
+    {
+        if (targetTransform == null)
+        {
+            yield break;
+        }
+
+        if (duration <= 0f)
+        {
+            targetTransform.position = endPosition;
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            if (targetTransform == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+
+            // <변경부분> SmoothStep으로 시작/끝이 살짝 부드럽게 끊기도록 처리
+            float easedTime = Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+            targetTransform.position = Vector3.Lerp(startPosition, endPosition, easedTime);
+
+            yield return null;
+        }
+
+        if (targetTransform != null)
+        {
+            targetTransform.position = endPosition;
+        }
+    }
+
+    // <변경부분> 특정 Transform을 시작 위치에서 목표 위치까지 포물선으로 이동시키는 함수
+    // 공격자가 상대 기물 위쪽으로 둥글게 올라가는 연출에 사용
+    private IEnumerator MoveTransformArcRoutine(Transform targetTransform, Vector3 startPosition, Vector3 endPosition, float duration, float arcHeight)
+    {
+        if (targetTransform == null)
+        {
+            yield break;
+        }
+
+        if (duration <= 0f)
+        {
+            targetTransform.position = endPosition;
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            if (targetTransform == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            // 0~1 이동 진행률
+            float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+
+            // <변경부분> 이동 진행 자체는 부드럽게 처리
+            float easedTime = Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+            // 시작 위치에서 목표 위치까지 기본 이동
+            Vector3 currentPosition = Vector3.Lerp(startPosition, endPosition, easedTime);
+
+            // <변경부분> 중간 지점에서 가장 높아지는 포물선 보정값
+            // 시작과 끝에서는 0, 중간에서는 arcHeight만큼 추가 상승
+            float arcOffset = Mathf.Sin(normalizedTime * Mathf.PI) * arcHeight;
+
+            currentPosition.y += arcOffset;
+
+            targetTransform.position = currentPosition;
+
+            yield return null;
+        }
+
+        if (targetTransform != null)
+        {
+            targetTransform.position = endPosition;
+        }
+    }
+
+    // <변경부분> 공격 내려찍기 후 화면 흔들림과 모바일 진동을 실행하는 함수
+    private void PlayAttackImpactFeedback()
+    {
+        // 화면 흔들림 실행
+        StartCoroutine(ShakeCameraRoutine());
+
+        // 모바일 빌드에서 진동 실행
+        if (enableMobileVibration)
+        {
+#if UNITY_ANDROID || UNITY_IOS
+            Handheld.Vibrate();
+#endif
+        }
+    }
+
+    // <변경부분> 카메라 또는 지정된 Transform을 짧게 흔드는 함수
+    private IEnumerator ShakeCameraRoutine()
+    {
+        Transform shakeTarget = cameraShakeTarget;
+
+        // 별도 흔들림 대상이 없으면 Main Camera 사용
+        if (shakeTarget == null && Camera.main != null)
+        {
+            shakeTarget = Camera.main.transform;
+        }
+
+        if (shakeTarget == null)
+        {
+            yield break;
+        }
+
+        Vector3 originalPosition = shakeTarget.localPosition;
+
+        if (cameraShakeDuration <= 0f || cameraShakeStrength <= 0f)
+        {
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < cameraShakeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+
+            float randomX = Random.Range(-cameraShakeStrength, cameraShakeStrength);
+            float randomY = Random.Range(-cameraShakeStrength, cameraShakeStrength);
+
+            shakeTarget.localPosition = originalPosition + new Vector3(randomX, randomY, 0f);
+
+            yield return null;
+        }
+
+        shakeTarget.localPosition = originalPosition;
+    }
+
     // <변경부분> 기물이 시작 위치에서 목표 위치까지 살짝 떠서 이동하는 테스트용 연출
     // 나중에 Spine의 Lift / AirMove / Land 애니메이션과 연결할 수 있는 기본 이동 레이어
     public IEnumerator PlayPieceJumpMoveAnimation(Piece piece, Vector3 targetPosition)
@@ -761,7 +955,8 @@ public class PieceManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 공격/흡수 연출용 점프 이동 함수
+    // <변경부분> 공격/흡수 연출용 단계형 이동 함수
+    // 현재 위치 → 상대 기물 위쪽으로 사선 상승 이동 → 잠깐 정지 → 추가 상승 → 내려찍기 → 화면 흔들림/진동
     // 보드 좌표는 갱신하지 않고, 기물 Transform만 목표 월드 위치까지 이동시킴
     public IEnumerator PlayPieceAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
     {
@@ -771,8 +966,41 @@ public class PieceManager : MonoBehaviour
             yield break;
         }
 
-        // 현재 위치에서 타겟 월드 위치까지 점프 이동
-        yield return PlayPieceJumpMoveAnimation(piece, targetWorldPosition);
+        // 공격 시작 위치 저장
+        Vector3 startPosition = piece.transform.position;
+
+        // <변경부분> 1단계: 현재 위치에서 상대 기물 위쪽까지 포물선으로 이동
+        // 직선 상승이 아니라 둥글게 휘어 올라가도록 전용 Arc 이동 함수를 사용
+        Vector3 hoverTargetPosition = targetWorldPosition + Vector3.up * attackRiseHeight;
+        yield return MoveTransformArcRoutine(piece.transform, startPosition, hoverTargetPosition, attackMoveDuration, attackMoveArcHeight);
+
+        // <변경부분> 2단계: 상대 기물 위에서 잠깐 멈춤
+        if (attackHoverWaitDuration > 0f)
+        {
+            yield return new WaitForSeconds(attackHoverWaitDuration);
+        }
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 3단계: 내려찍기 전 살짝 더 위로 상승
+        Vector3 extraRisePosition = hoverTargetPosition + Vector3.up * attackExtraRiseHeight;
+        yield return MoveTransformRoutine(piece.transform, hoverTargetPosition, extraRisePosition, attackExtraRiseDuration);
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 4단계: 상대 기물 위치로 빠르게 내려찍기
+        yield return MoveTransformRoutine(piece.transform, extraRisePosition, targetWorldPosition, attackSlamDuration);
+
+        // <변경부분> 5단계: 내려찍기 충격 피드백
+        PlayAttackImpactFeedback();
     }
 
     // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일의 실제 월드 위치를 기준으로 기물 위치 계산
@@ -1149,7 +1377,7 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
-        // 원본 기물의 타입, 진영, 이동 가능 여부, 고유 스킬, 종족 태그를 그대로 복사해서 생성
+        // 원본 기물의 타입, 진영, 이동 가능 여부, 고유스킬, 종족 태그를 그대로 복사해서 생성
         // <변경부분> 스킬 / 아이템 / 유물 조건 판정을 위해 종족 태그도 복사
         Piece clonedPiece = SpawnPiece(
             sourcePiece.PieceType,
@@ -1161,18 +1389,270 @@ public class PieceManager : MonoBehaviour
             sourcePiece.GetSpeciesTagsCopy()
         );
 
+        // 생성 실패 시 종료
+        if (clonedPiece == null)
+        {
+            return null;
+        }
+
         // <변경부분> 흡수 외형 상태 복사
         clonedPiece.SetAbsorbedJelluVisual(sourcePiece.IsAbsorbedJelluVisual);
 
-        // <변경부분> 복사된 외형 상태 반영
+        // <변경부분> 복제된 외형 상태 반영
         ApplyCurrentVisual(clonedPiece);
 
         // <변경부분> 복제된 기물의 스테이터스 UI 이미지도 현재 외형 상태에 맞게 다시 적용
         ApplyStatusUISprite(clonedPiece);
 
-        // <변경부분> 복제된 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
+        // <변경부분> 복제된 기물의 타입 아이콘 위치도 현재 외형 상태에 맞게 다시 적용
         ApplyCurrentTypeIconPosition(clonedPiece);
 
         return clonedPiece;
     }
+
+    // <변경부분> 복제 스킬 전용 생성 함수
+    // 생성된 복제 기물이 원본 기물 위치에서 생성 위치까지 포물선으로 이동
+    public Piece ClonePieceToFromSource(Piece sourcePiece, int targetX, int targetY)
+    {
+        // 기존 복제 생성 로직 재사용
+        Piece clonedPiece = ClonePieceTo(sourcePiece, targetX, targetY);
+
+        // 생성 성공 시 원본 기물 위치에서 생성 위치까지 연출
+        PlaySkillSpawnAnimationFromSource(clonedPiece, sourcePiece);
+
+        return clonedPiece;
+    }
+
+    // <변경부분> 젤루 Pawn 생성 스킬 전용 함수
+    // 증식처럼 시전자가 있는 스킬에서 사용
+    public Piece SpawnJelluPawnFromSource(Piece sourcePiece, PieceTeam team, int x, int y)
+    {
+        // 기존 젤루 Pawn 생성 로직 재사용
+        Piece createdPiece = SpawnJelluPawn(team, x, y);
+
+        // 생성 성공 시 시전자 위치에서 생성 위치까지 연출
+        PlaySkillSpawnAnimationFromSource(createdPiece, sourcePiece);
+
+        return createdPiece;
+    }
+
+    // <변경부분> 젤루 Pawn 생성 상태이상 전용 함수
+    // 퇴화처럼 생성 주체 Piece가 이미 제거될 수 있는 경우 월드 좌표 기준으로 연출
+    public Piece SpawnJelluPawnFromWorldPosition(PieceTeam team, int x, int y, Vector3 sourceWorldPosition)
+    {
+        // 기존 젤루 Pawn 생성 로직 재사용
+        Piece createdPiece = SpawnJelluPawn(team, x, y);
+
+        // 생성 성공 시 저장된 월드 위치에서 생성 위치까지 연출
+        PlaySkillSpawnAnimationFromWorldPosition(createdPiece, sourceWorldPosition);
+
+        return createdPiece;
+    }
+
+    // <변경부분> 젤루 벽 생성 스킬 전용 함수
+    // 벽이 시전자 위치에서 생성 위치까지 포물선으로 이동
+    public Piece SpawnJelluWallFromSource(Piece sourcePiece, int x, int y)
+    {
+        // 기존 젤루 벽 생성 로직 재사용
+        Piece createdWall = SpawnJelluWall(x, y);
+
+        // 생성 성공 시 시전자 위치에서 생성 위치까지 연출
+        PlaySkillSpawnAnimationFromSource(createdWall, sourcePiece);
+
+        return createdWall;
+    }
+
+    // <변경부분> 생성된 기물을 시전자 위치에서 생성 위치까지 날아가게 하는 함수
+    private void PlaySkillSpawnAnimationFromSource(Piece spawnedPiece, Piece sourcePiece)
+    {
+        // 생성된 기물이나 시전자가 없으면 연출 불가
+        if (spawnedPiece == null || sourcePiece == null)
+        {
+            return;
+        }
+
+        PlaySkillSpawnAnimationFromWorldPosition(spawnedPiece, sourcePiece.transform.position);
+    }
+
+    // <변경부분> 생성된 기물을 특정 월드 위치에서 생성 위치까지 날아가게 하는 함수
+    private void PlaySkillSpawnAnimationFromWorldPosition(Piece spawnedPiece, Vector3 sourceWorldPosition)
+    {
+        // 생성된 기물이 없으면 연출 불가
+        if (spawnedPiece == null)
+        {
+            return;
+        }
+
+        // SpawnPiece로 이미 생성 위치에 배치된 최종 위치 저장
+        Vector3 targetWorldPosition = spawnedPiece.transform.position;
+
+        // 화면상 시작 위치를 시전자/사망 기물 위치로 이동
+        spawnedPiece.transform.position = sourceWorldPosition;
+
+        // 시작 위치에서 최종 생성 위치까지 포물선 연출
+        StartCoroutine(PlaySkillSpawnAnimationRoutine(spawnedPiece, sourceWorldPosition, targetWorldPosition));
+    }
+
+    // <변경부분> 스킬 생성 기물이 시작 위치에서 목표 위치까지 포물선으로 이동하는 코루틴
+    private IEnumerator PlaySkillSpawnAnimationRoutine(Piece spawnedPiece, Vector3 startWorldPosition, Vector3 targetWorldPosition)
+    {
+        // 생성된 기물이 없으면 종료
+        if (spawnedPiece == null)
+        {
+            yield break;
+        }
+
+        // 연출 시간이 0 이하이면 즉시 최종 위치로 보정
+        if (skillSpawnAnimationDuration <= 0f)
+        {
+            spawnedPiece.transform.position = targetWorldPosition;
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < skillSpawnAnimationDuration)
+        {
+            // 연출 중 기물이 제거되면 종료
+            if (spawnedPiece == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            // 0~1 진행률 계산
+            float normalizedTime = Mathf.Clamp01(elapsedTime / skillSpawnAnimationDuration);
+
+            // 부드러운 이동 진행률
+            float easedTime = Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+            // 시작 위치에서 목표 위치까지 기본 이동
+            Vector3 currentPosition = Vector3.Lerp(startWorldPosition, targetWorldPosition, easedTime);
+
+            // 중간 지점에서 가장 높아지는 포물선 높이
+            float arcOffset = Mathf.Sin(normalizedTime * Mathf.PI) * skillSpawnArcHeight;
+
+            currentPosition.y += arcOffset;
+
+            // 실제 위치 적용
+            spawnedPiece.transform.position = currentPosition;
+
+            yield return null;
+        }
+
+        // 연출 종료 후 정확한 최종 생성 위치로 보정
+        if (spawnedPiece != null)
+        {
+            spawnedPiece.transform.position = targetWorldPosition;
+        }
+    }
+
+    // <변경부분> 젤루 합성 재료 2개가 스킬을 사용한 Pawn 위치로 동시에 포물선 이동하는 코루틴
+    public IEnumerator PlaySynthesisMaterialMoveAnimation(Piece firstMaterial, Piece secondMaterial, Piece targetPawn)
+    {
+        // 목표 Pawn이 없으면 연출할 수 없으므로 종료
+        if (targetPawn == null)
+        {
+            yield break;
+        }
+
+        // 첫 번째 재료 Transform 저장
+        Transform firstMaterialTransform = firstMaterial != null ? firstMaterial.transform : null;
+
+        // 두 번째 재료 Transform 저장
+        Transform secondMaterialTransform = secondMaterial != null ? secondMaterial.transform : null;
+
+        // 이동할 재료가 둘 다 없으면 종료
+        if (firstMaterialTransform == null && secondMaterialTransform == null)
+        {
+            yield break;
+        }
+
+        // 첫 번째 재료 시작 위치 저장
+        Vector3 firstStartPosition = firstMaterialTransform != null ? firstMaterialTransform.position : Vector3.zero;
+
+        // 두 번째 재료 시작 위치 저장
+        Vector3 secondStartPosition = secondMaterialTransform != null ? secondMaterialTransform.position : Vector3.zero;
+
+        // 목표 위치는 스킬을 사용한 Pawn의 현재 위치
+        Vector3 targetWorldPosition = targetPawn.transform.position;
+
+        // 연출 시간이 0 이하이면 즉시 Pawn 위치로 이동
+        if (synthesisMaterialAnimationDuration <= 0f)
+        {
+            if (firstMaterialTransform != null)
+            {
+                firstMaterialTransform.position = targetWorldPosition;
+            }
+
+            if (secondMaterialTransform != null)
+            {
+                secondMaterialTransform.position = targetWorldPosition;
+            }
+
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < synthesisMaterialAnimationDuration)
+        {
+            // 목표 Pawn이 중간에 사라졌으면 연출 중단
+            if (targetPawn == null)
+            {
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            // 0~1 진행률 계산
+            float normalizedTime = Mathf.Clamp01(elapsedTime / synthesisMaterialAnimationDuration);
+
+            // 이동 진행을 부드럽게 처리
+            float easedTime = Mathf.SmoothStep(0f, 1f, normalizedTime);
+
+            // 중간 지점에서 가장 높아지는 포물선 높이
+            float arcOffset = Mathf.Sin(normalizedTime * Mathf.PI) * synthesisMaterialArcHeight;
+
+            // Pawn이 연출 중 이동할 가능성까지 고려해 매 프레임 목표 위치 갱신
+            targetWorldPosition = targetPawn.transform.position;
+
+            // 첫 번째 재료 이동 처리
+            if (firstMaterialTransform != null)
+            {
+                Vector3 firstCurrentPosition = Vector3.Lerp(firstStartPosition, targetWorldPosition, easedTime);
+                firstCurrentPosition.y += arcOffset;
+                firstMaterialTransform.position = firstCurrentPosition;
+            }
+
+            // 두 번째 재료 이동 처리
+            if (secondMaterialTransform != null)
+            {
+                Vector3 secondCurrentPosition = Vector3.Lerp(secondStartPosition, targetWorldPosition, easedTime);
+                secondCurrentPosition.y += arcOffset;
+                secondMaterialTransform.position = secondCurrentPosition;
+            }
+
+            yield return null;
+        }
+
+        // 연출 종료 후 재료 위치를 Pawn 위치로 정확히 보정
+        if (targetPawn != null)
+        {
+            targetWorldPosition = targetPawn.transform.position;
+
+            if (firstMaterialTransform != null)
+            {
+                firstMaterialTransform.position = targetWorldPosition;
+            }
+
+            if (secondMaterialTransform != null)
+            {
+                secondMaterialTransform.position = targetWorldPosition;
+            }
+        }
+    }
 }
+
+

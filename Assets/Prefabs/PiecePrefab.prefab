@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Piece
   generalSkills: []
   speciesTags: 
+  statusEffects: []
   uniqueSkillCooldown: 0
   uniqueSkillMaxCooldown: 1
   hasUsedUniqueSkillThisTurn: 0
@@ -207,7 +208,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 101
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: d84b6fda47a92dd43a85b4a2f846aad2, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -215,7 +216,7 @@ SpriteRenderer:
   m_Size: {x: 0.5, y: 0.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &7219982343684944320
 GameObject:

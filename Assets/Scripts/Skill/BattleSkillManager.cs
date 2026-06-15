@@ -1,5 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+// <변경부분> System.Random과 UnityEngine.Random 이름 충돌 방지
+using Random = UnityEngine.Random;
 
 // <변경부분> 전투 중 일반스킬과 스킬 발동 판정을 관리하는 매니저
 public class BattleSkillManager : MonoBehaviour
@@ -122,6 +127,35 @@ public class BattleSkillManager : MonoBehaviour
         }
     }
 
+    // <변경부분> 고유스킬을 코루틴으로 실행하는 함수
+    // 합성처럼 애니메이션 종료 후 실제 효과가 적용되어야 하는 스킬을 처리하기 위해 사용
+    public IEnumerator TryUseUniqueSkillRoutine(Piece piece, Action<bool> onComplete)
+    {
+        // 스킬을 사용할 기물이 없으면 실패 처리
+        if (piece == null)
+        {
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        bool skillUsed = false;
+
+        switch (piece.UniqueSkill)
+        {
+            // <변경부분> 젤루 합성은 재료 이동 연출 후 승급되어야 하므로 코루틴으로 처리
+            case UniqueSkillType.JelluSynthesis:
+                yield return UseJelluSynthesisRoutine(piece, result => skillUsed = result);
+                onComplete?.Invoke(skillUsed);
+                yield break;
+
+            // <변경부분> 나머지 고유스킬은 기존 즉시 실행 함수를 그대로 사용
+            default:
+                skillUsed = TryUseUniqueSkill(piece);
+                onComplete?.Invoke(skillUsed);
+                yield break;
+        }
+    }
+
     /// <변경부분> 복제 스킬: 인접한 빈칸 중 랜덤 위치에 자신과 같은 정보를 가진 기물을 복제
     private bool UseJelluClone(Piece piece)
     {
@@ -178,8 +212,8 @@ public class BattleSkillManager : MonoBehaviour
         int randomIndex = Random.Range(0, emptyPositions.Count);
         Vector2Int selectedPosition = emptyPositions[randomIndex];
 
-        // 선택된 위치에 현재 기물과 같은 정보를 가진 기물 복제
-        Piece clonedPiece = pieceManager.ClonePieceTo(
+        // <변경부분> 복제 기물이 시전자 위치에서 생성 위치까지 포물선으로 이동하도록 생성
+        Piece clonedPiece = pieceManager.ClonePieceToFromSource(
             piece,
             selectedPosition.x,
             selectedPosition.y
@@ -196,136 +230,212 @@ public class BattleSkillManager : MonoBehaviour
         return false;
     }
 
-   // <변경부분> 젤루 폰 고유스킬: 인접한 아군/중립 젤루 태그 기물 2개를 제거하고 랜덤 상위 젤루 기물로 승급
-private bool UseJelluSynthesis(Piece piece)
-{
-    // 필요한 매니저가 연결되지 않았으면 스킬 실행 불가
-    if (boardManager == null || pieceManager == null)
+    // <변경부분> 젤루 폰 고유스킬: 코루틴 실행 전용 안내 함수
+    // 실제 합성은 재료 이동 애니메이션을 기다려야 하므로 UseJelluSynthesisRoutine에서 처리
+    private bool UseJelluSynthesis(Piece piece)
     {
-        Debug.LogWarning("BattleSkillManager 초기화가 완료되지 않아 JelluSynthesis를 사용할 수 없습니다.");
+        Debug.LogWarning("JelluSynthesis는 코루틴 기반 스킬입니다. TryUseUniqueSkillRoutine을 통해 실행해야 합니다.");
         return false;
     }
 
-    // 스킬을 사용할 기물이 없으면 실패
-    if (piece == null)
+    // <변경부분> 젤루 폰 고유스킬: 인접한 아군/중립 젤루 태그 기물 2개가 Pawn으로 이동한 뒤 랜덤 상위 젤루 기물로 승급
+    private IEnumerator UseJelluSynthesisRoutine(Piece piece, Action<bool> onComplete)
     {
-        return false;
-    }
-
-    // <변경부분> 젤루 합성은 젤루 Pawn 전용 스킬
-    if (piece.PieceType != PieceType.Pawn)
-    {
-        Debug.Log("젤루 합성 실패: Pawn 타입만 사용할 수 있습니다.");
-        return false;
-    }
-
-    // <변경부분> 스킬 사용자도 젤루 태그를 가지고 있어야 함
-    if (piece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
-    {
-        Debug.Log("젤루 합성 실패: 젤루 태그가 없는 기물입니다.");
-        return false;
-    }
-
-    List<Piece> synthesisCandidates = new List<Piece>();
-
-    for (int offsetY = -1; offsetY <= 1; offsetY++)
-    {
-        for (int offsetX = -1; offsetX <= 1; offsetX++)
+        // 필요한 매니저가 연결되지 않았으면 스킬 실행 불가
+        if (boardManager == null || pieceManager == null)
         {
-            // 자기 위치는 제외
-            if (offsetX == 0 && offsetY == 0)
-            {
-                continue;
-            }
-
-            int targetX = piece.X + offsetX;
-            int targetY = piece.Y + offsetY;
-
-            // 보드 밖 좌표는 제외
-            if (IsInsideBoard(targetX, targetY) == false)
-            {
-                continue;
-            }
-
-            Piece candidatePiece = pieceManager.GetPieceAt(targetX, targetY);
-
-            // 인접 칸에 기물이 없으면 제외
-            if (candidatePiece == null)
-            {
-                continue;
-            }
-
-            // <변경부분> 젤루 태그가 없는 기물은 합성 소재에서 제외
-            if (candidatePiece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
-            {
-                continue;
-            }
-
-            // <변경부분> King은 승패 조건이 꼬일 수 있으므로 합성 소재에서 제외
-            if (candidatePiece.PieceType == PieceType.King)
-            {
-                continue;
-            }
-
-            // <변경부분> 합성 소재는 아군 또는 중립 젤루 태그 기물만 허용
-            if (candidatePiece.Team != piece.Team &&
-                candidatePiece.Team != PieceTeam.Neutral)
-            {
-                continue;
-            }
-
-            synthesisCandidates.Add(candidatePiece);
+            Debug.LogWarning("BattleSkillManager 초기화가 완료되지 않아 JelluSynthesis를 사용할 수 없습니다.");
+            onComplete?.Invoke(false);
+            yield break;
         }
-    }
 
-    // <변경부분> 합성 소재가 2개 미만이면 스킬 실패
-    if (synthesisCandidates.Count < 2)
+        // 스킬을 사용할 기물이 없으면 실패
+        if (piece == null)
+        {
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        // <변경부분> 젤루 합성은 젤루 Pawn 전용 스킬
+        if (piece.PieceType != PieceType.Pawn)
+        {
+            Debug.Log("젤루 합성 실패: Pawn 타입만 사용할 수 있습니다.");
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        // <변경부분> 스킬 사용자도 젤루 태그를 가지고 있어야 함
+        if (piece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
+        {
+            Debug.Log("젤루 합성 실패: 젤루 태그가 없는 기물입니다.");
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        List<Piece> synthesisCandidates = new List<Piece>();
+
+        for (int offsetY = -1; offsetY <= 1; offsetY++)
+        {
+            for (int offsetX = -1; offsetX <= 1; offsetX++)
+            {
+                // 자기 위치는 제외
+                if (offsetX == 0 && offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX = piece.X + offsetX;
+                int targetY = piece.Y + offsetY;
+
+                // 보드 밖 좌표는 제외
+                if (IsInsideBoard(targetX, targetY) == false)
+                {
+                    continue;
+                }
+
+                Piece candidatePiece = pieceManager.GetPieceAt(targetX, targetY);
+
+                // 인접 칸에 기물이 없으면 제외
+                if (candidatePiece == null)
+                {
+                    continue;
+                }
+
+                // <변경부분> 젤루 태그가 없는 기물은 합성 소재에서 제외
+                if (candidatePiece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
+                {
+                    continue;
+                }
+
+                // <변경부분> King은 승패 조건이 꼬일 수 있으므로 합성 소재에서 제외
+                if (candidatePiece.PieceType == PieceType.King)
+                {
+                    continue;
+                }
+
+                // <변경부분> 합성 소재는 아군 또는 중립 젤루 태그 기물만 허용
+                if (candidatePiece.Team != piece.Team &&
+                    candidatePiece.Team != PieceTeam.Neutral)
+                {
+                    continue;
+                }
+
+                synthesisCandidates.Add(candidatePiece);
+            }
+        }
+
+        // <변경부분> 합성 소재가 2개 미만이면 스킬 실패
+        if (synthesisCandidates.Count < 2)
+        {
+            Debug.Log($"젤루 합성 실패: 인접한 아군/중립 젤루 소재가 부족합니다. 현재 {synthesisCandidates.Count}개 / 필요 2개");
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        List<Piece> selectedMaterials = new List<Piece>();
+
+        // <변경부분> 인접한 젤루 소재 중 2개를 중복 없이 랜덤 선택
+        for (int i = 0; i < 2; i++)
+        {
+            int randomIndex = Random.Range(0, synthesisCandidates.Count);
+            selectedMaterials.Add(synthesisCandidates[randomIndex]);
+            synthesisCandidates.RemoveAt(randomIndex);
+        }
+
+        // <변경부분> 현재 고유스킬이 준비된 젤루 상위 기물 중 랜덤 승급
+        // Rook은 전용 스킬이 생기기 전까지 후보에서 제외
+        // Queen은 현재 실물/흡수/UI 스프라이트가 없으면 제외 유지
+        List<PieceType> promotionTypes = new List<PieceType>
     {
-        Debug.Log($"젤루 합성 실패: 인접한 아군/중립 젤루 소재가 부족합니다. 현재 {synthesisCandidates.Count}개 / 필요 2개");
-        return false;
-    }
-
-    List<Piece> selectedMaterials = new List<Piece>();
-
-    // <변경부분> 인접한 젤루 소재 중 2개를 중복 없이 랜덤 선택
-    for (int i = 0; i < 2; i++)
-    {
-        int randomIndex = Random.Range(0, synthesisCandidates.Count);
-        selectedMaterials.Add(synthesisCandidates[randomIndex]);
-        synthesisCandidates.RemoveAt(randomIndex);
-    }
-
-    // <변경부분> 현재 실물 리소스가 있는 젤루 상위 기물 중 랜덤 승급
-    // Queen은 현재 PieceManager에 실물/흡수/UI 스프라이트가 없으면 제외 유지
-    List<PieceType> promotionTypes = new List<PieceType>
-    {
-        PieceType.Rook,
         PieceType.Knight,
         PieceType.Bishop
     };
 
-    PieceType selectedPromotionType = promotionTypes[Random.Range(0, promotionTypes.Count)];
+        PieceType selectedPromotionType = promotionTypes[Random.Range(0, promotionTypes.Count)];
 
-    // <변경부분> 선택된 소재 2개 제거
-    foreach (Piece materialPiece in selectedMaterials)
-    {
-        pieceManager.RemovePiece(materialPiece);
+        // <변경부분> 승급 타입에 맞는 젤루 고유스킬 결정
+        UniqueSkillType promotedUniqueSkill = GetJelluPromotionUniqueSkill(selectedPromotionType);
+
+        // <변경부분> 선택된 재료 2개가 스킬을 사용한 Pawn 위치로 포물선 이동
+        yield return pieceManager.PlaySynthesisMaterialMoveAnimation(
+            selectedMaterials[0],
+            selectedMaterials[1],
+            piece
+        );
+
+        // 연출 중 스킬 사용자 Pawn이 사라졌으면 실패
+        if (piece == null)
+        {
+            Debug.LogWarning("젤루 합성 실패: 연출 중 스킬 사용자가 사라졌습니다.");
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        // <변경부분> 선택된 소재 2개 제거
+        foreach (Piece materialPiece in selectedMaterials)
+        {
+            if (materialPiece != null)
+            {
+                pieceManager.RemovePiece(materialPiece);
+            }
+        }
+
+        // <변경부분> 나중에 Spine 승급 애니메이션을 연결할 자리
+        yield return PlayJelluSynthesisPromotionEffect(piece);
+
+        // <변경부분> 스킬을 사용한 젤루 Pawn을 랜덤 상위 젤루 기물로 승급
+        // 승급 후에는 승급 타입에 맞는 젤루 고유스킬을 부여
+        bool promoteSuccess = pieceManager.PromotePieceToJelluType(piece, selectedPromotionType, promotedUniqueSkill);
+
+        if (promoteSuccess == false)
+        {
+            Debug.LogWarning("젤루 합성 실패: 승급 처리에 실패했습니다.");
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        Debug.Log($"젤루 합성 성공: 아군/중립 젤루 소재 2개 이동 및 제거 후 {selectedPromotionType}으로 승급");
+
+        onComplete?.Invoke(true);
     }
 
-    // <변경부분> 스킬을 사용한 젤루 Pawn을 랜덤 상위 젤루 기물로 승급
-    // 승급 후에는 Pawn 전용 고유스킬을 계속 쓰지 못하도록 고유스킬 None 처리
-    bool promoteSuccess = pieceManager.PromotePieceToJelluType(piece, selectedPromotionType, UniqueSkillType.None);
-
-    if (promoteSuccess == false)
+    // <변경부분> 젤루 합성 승급 연출 자리
+    // 지금은 임시 대기만 넣고, 나중에 Spine 승급 애니메이션을 이 함수 안에 연결하면 됨
+    private IEnumerator PlayJelluSynthesisPromotionEffect(Piece piece)
     {
-        Debug.LogWarning("젤루 합성 실패: 승급 처리에 실패했습니다.");
-        return false;
+        // 승급할 기물이 없으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 나중에 Spine 승급 애니메이션 호출 위치
+        // 예시:
+        // yield return pieceSpineController.PlayPromotionAnimation(piece);
+
+        // 현재는 승급 타이밍이 너무 즉시 바뀌지 않도록 짧은 임시 대기만 적용
+        yield return new WaitForSeconds(0.15f);
     }
 
-    Debug.Log($"젤루 합성 성공: 아군/중립 젤루 소재 2개 제거 후 {selectedPromotionType}으로 승급");
+    // <변경부분> 젤루 합성 승급 타입에 맞는 고유스킬을 반환하는 함수
+    private UniqueSkillType GetJelluPromotionUniqueSkill(PieceType promotedType)
+    {
+        switch (promotedType)
+        {
+            // <변경부분> 젤루 Knight 고유스킬: 퇴화
+            case PieceType.Knight:
+                return UniqueSkillType.JelluDegeneration;
 
-    return true;
-}
+            // <변경부분> 젤루 Bishop 고유스킬: 젤루 벽
+            // 기존 Rook 스킬이 Bishop 스킬로 이동했으므로 Bishop에게 부여
+            case PieceType.Bishop:
+                return UniqueSkillType.JelluWall;
+        }
+
+        // <변경부분> 아직 고유스킬이 정해지지 않은 승급 타입은 None
+        // Rook 전용 스킬이 생기면 여기 case를 추가하면 됨
+        return UniqueSkillType.None;
+    }
 
     // <변경부분> 증식 스킬: 인접한 빈칸 중 랜덤 위치에 젤루 Pawn을 생성
     private bool UseJelluMultiply(Piece piece)
@@ -383,8 +493,9 @@ private bool UseJelluSynthesis(Piece piece)
         int randomIndex = Random.Range(0, emptyPositions.Count);
         Vector2Int selectedPosition = emptyPositions[randomIndex];
 
-        // <변경부분> 원본 기물을 복제하지 않고 젤루 Pawn을 새로 생성
-        Piece createdPawn = pieceManager.SpawnJelluPawn(
+        // <변경부분> 젤루 Pawn이 시전자 위치에서 생성 위치까지 포물선으로 이동하도록 생성
+        Piece createdPawn = pieceManager.SpawnJelluPawnFromSource(
+            piece,
             piece.Team,
             selectedPosition.x,
             selectedPosition.y
@@ -443,17 +554,11 @@ private bool UseJelluSynthesis(Piece piece)
             return false;
         }
 
-        // <변경부분> 젤루 벽은 Rook 타입만 사용할 수 있음
-        if (piece.PieceType != PieceType.Rook)
-        {
-            Debug.Log("젤루 벽 실패: Rook 타입만 사용할 수 있습니다.");
-            return false;
-        }
-
-        // <변경부분> 젤루 태그를 가진 Rook만 사용할 수 있음
+        // <변경부분> 젤루 벽은 특정 PieceType에 고정하지 않음
+        // 어떤 기물이든 JelluWall 고유스킬을 가지고 있고, 젤루 태그가 있으면 사용할 수 있음
         if (piece.HasSpeciesTag(PieceSpeciesTag.Jellu) == false)
         {
-            Debug.Log("젤루 벽 실패: 젤루 태그가 없는 Rook입니다.");
+            Debug.Log("젤루 벽 실패: 젤루 태그가 없는 기물입니다.");
             return false;
         }
 
@@ -486,8 +591,8 @@ private bool UseJelluSynthesis(Piece piece)
             return false;
         }
 
-        // <변경부분> 앞칸에 젤루 태그를 가진 중립 Special 벽 생성
-        Piece wallPiece = pieceManager.SpawnJelluWall(targetX, targetY);
+        // <변경부분> 젤루 벽이 시전자 위치에서 생성 위치까지 포물선으로 이동하도록 생성
+        Piece wallPiece = pieceManager.SpawnJelluWallFromSource(piece, targetX, targetY);
 
         // 생성 실패 시 스킬 실패
         if (wallPiece == null)

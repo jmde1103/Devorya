@@ -106900,6 +106900,23 @@ MonoBehaviour:
   obstacleSprite: {fileID: 21300000, guid: f2ab36f48476f774099c2bdd8e0e79d5, type: 3}
   jelluWallSprite: {fileID: 21300000, guid: b1dea2452d257504b93f90baf90b0d2f, type: 3}
   pieceYOffset: 0.25
+  moveAnimationDuration: 0.25
+  moveJumpHeight: 0.35
+  attackRiseHeight: 0.45
+  attackMoveDuration: 0.18
+  attackMoveArcHeight: 0.25
+  skillSpawnAnimationDuration: 0.22
+  skillSpawnArcHeight: 0.3
+  synthesisMaterialAnimationDuration: 0.22
+  synthesisMaterialArcHeight: 0.3
+  attackHoverWaitDuration: 0.2
+  attackExtraRiseHeight: 0.18
+  attackExtraRiseDuration: 0.08
+  attackSlamDuration: 0.08
+  cameraShakeTarget: {fileID: 330585546}
+  cameraShakeDuration: 0.12
+  cameraShakeStrength: 0.06
+  enableMobileVibration: 1
   maxPlayerPieceCount: 10
   maxEnemyPieceCount: 10
 --- !u!4 &1157817763
