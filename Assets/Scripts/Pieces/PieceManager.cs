@@ -111,6 +111,9 @@ public class PieceManager : MonoBehaviour
     // <변경부분> 공격자가 상대 기물 위쪽에 도착할 높이
     [SerializeField] private float attackRiseHeight = 0.45f;
 
+    // <변경부분> 공격 연출 중 공격자가 항상 위에 보이도록 임시 적용할 Sorting Order
+    [SerializeField] private int attackAnimationSortingOrder = 10000;
+
     // <변경부분> 현재 위치에서 상대 기물 위쪽까지 포물선으로 이동하는 시간
     [SerializeField] private float attackMoveDuration = 0.18f;
 
@@ -957,13 +960,30 @@ public class PieceManager : MonoBehaviour
 
     // <변경부분> 공격/흡수 연출용 단계형 이동 함수
     // 현재 위치 → 상대 기물 위쪽으로 사선 상승 이동 → 잠깐 정지 → 추가 상승 → 내려찍기 → 화면 흔들림/진동
-    // 보드 좌표는 갱신하지 않고, 기물 Transform만 목표 월드 위치까지 이동시킴
+    // 보드 좌표는 갱신하지 않고, 기물 Transform만 목표 월드 위치까지 이동시킨다
     public IEnumerator PlayPieceAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
     {
         // 이동할 기물이 없으면 종료
         if (piece == null)
         {
             yield break;
+        }
+
+        // <변경부분> 공격 연출 중 공격자가 타겟 뒤에 가려지지 않도록 SpriteRenderer 저장
+        SpriteRenderer attackPieceRenderer = piece.GetComponent<SpriteRenderer>();
+
+        // <변경부분> 공격 연출 전 원래 Sorting Order 저장
+        int originalSortingOrder = 0;
+
+        // <변경부분> 공격 연출 중 임시 Sorting Order 적용 여부
+        bool changedSortingOrder = false;
+
+        // <변경부분> 공격자가 항상 위에 보이도록 공격 연출 동안만 Sorting Order를 크게 올림
+        if (attackPieceRenderer != null)
+        {
+            originalSortingOrder = attackPieceRenderer.sortingOrder;
+            attackPieceRenderer.sortingOrder = attackAnimationSortingOrder;
+            changedSortingOrder = true;
         }
 
         // 공격 시작 위치 저장
@@ -980,19 +1000,29 @@ public class PieceManager : MonoBehaviour
             yield return new WaitForSeconds(attackHoverWaitDuration);
         }
 
-        // 기물이 중간에 제거되었으면 종료
+        // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
         if (piece == null)
         {
+            if (attackPieceRenderer != null && changedSortingOrder)
+            {
+                attackPieceRenderer.sortingOrder = originalSortingOrder;
+            }
+
             yield break;
         }
 
-        // <변경부분> 3단계: 내려찍기 전 살짝 더 위로 상승
+        // <변경부분> 3단계: 내려찍기 직전에 살짝 더 위로 상승
         Vector3 extraRisePosition = hoverTargetPosition + Vector3.up * attackExtraRiseHeight;
         yield return MoveTransformRoutine(piece.transform, hoverTargetPosition, extraRisePosition, attackExtraRiseDuration);
 
-        // 기물이 중간에 제거되었으면 종료
+        // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
         if (piece == null)
         {
+            if (attackPieceRenderer != null && changedSortingOrder)
+            {
+                attackPieceRenderer.sortingOrder = originalSortingOrder;
+            }
+
             yield break;
         }
 
@@ -1001,6 +1031,13 @@ public class PieceManager : MonoBehaviour
 
         // <변경부분> 5단계: 내려찍기 충격 피드백
         PlayAttackImpactFeedback();
+
+        // <변경부분> 공격 연출이 끝나면 임시 Sorting Order 복구
+        // 이후 BattleManager에서 MovePiece(..., playAnimation:false)를 호출하면서 최종 좌표 기준 Sorting Order가 다시 적용됨
+        if (attackPieceRenderer != null && changedSortingOrder)
+        {
+            attackPieceRenderer.sortingOrder = originalSortingOrder;
+        }
     }
 
     // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일의 실제 월드 위치를 기준으로 기물 위치 계산
