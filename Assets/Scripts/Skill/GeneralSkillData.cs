@@ -46,6 +46,16 @@ public class GeneralSkillData : ScriptableObject
     // <변경부분> Defense LV3 발동 확률
     public int defenseLevel3Percent = 80;
 
+    [Header("Insight")]
+    // <변경부분> Insight LV1 발동 확률
+    public int insightLevel1Percent = 30;
+
+    // <변경부분> Insight LV2 발동 확률
+    public int insightLevel2Percent = 50;
+
+    // <변경부분> Insight LV3 발동 확률
+    public int insightLevel3Percent = 80;
+
     // <변경부분> 전달받은 레벨 기준 ChanceAttack 기본 발동 확률 반환
     public int GetChanceAttackPercent(int level)
     {
@@ -89,6 +99,25 @@ public class GeneralSkillData : ScriptableObject
 
             case 3:
                 return defenseLevel3Percent;
+
+            default:
+                return 0;
+        }
+    }
+
+    // <변경부분> 전달받은 레벨 기준 Insight 기본 발동 확률 반환
+    public int GetInsightPercent(int level)
+    {
+        switch (level)
+        {
+            case 1:
+                return insightLevel1Percent;
+
+            case 2:
+                return insightLevel2Percent;
+
+            case 3:
+                return insightLevel3Percent;
 
             default:
                 return 0;

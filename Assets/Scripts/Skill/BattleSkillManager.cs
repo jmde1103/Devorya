@@ -139,6 +139,68 @@ public class BattleSkillManager : MonoBehaviour
         return isActivated;
     }
 
+    // <변경부분> Insight 발동 여부를 행동 시작 시점의 간파 스킬 정보와 GeneralSkillDatabase 기준으로 판정하는 함수
+    // targetCanceledSkillType은 이번에 무효화하려는 상대 일반스킬 타입이다.
+    // 현재는 Defense를 대상으로 사용하고, 나중에 Evasion 추가 시 같은 함수로 확장 가능하다.
+    public bool TryActivateInsight(Piece attackerPiece, OwnedGeneralSkillData insightDataBeforeAction, GeneralSkillType targetCanceledSkillType)
+    {
+        // 공격자가 없으면 간파 불가
+        if (attackerPiece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 행동 시작 시점에 Insight가 없었다면 이번 공격에서는 발동 불가
+        if (insightDataBeforeAction == null ||
+            insightDataBeforeAction.skillType != GeneralSkillType.Insight ||
+            insightDataBeforeAction.level <= 0)
+        {
+            return false;
+        }
+
+        // <변경부분> 현재 간파가 무효화할 수 있는 스킬만 허용
+        // 회피는 아직 구현되지 않았으므로 지금은 Defense만 처리
+        if (targetCanceledSkillType != GeneralSkillType.Defense)
+        {
+            return false;
+        }
+
+        // <변경부분> 일반스킬 데이터베이스가 없으면 간파 판정 불가
+        if (generalSkillDatabase == null)
+        {
+            Debug.LogWarning("GeneralSkillDatabase가 연결되지 않아 Insight를 판정할 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> Insight 설정 데이터 가져오기
+        GeneralSkillData insightData = generalSkillDatabase.GetData(GeneralSkillType.Insight);
+
+        if (insightData == null)
+        {
+            Debug.LogWarning("GeneralSkillDatabase에서 Insight 데이터를 찾을 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 데이터베이스에 저장된 레벨별 확률 사용
+        int insightChancePercent = insightData.GetInsightPercent(insightDataBeforeAction.level);
+
+        // 확률이 0 이하이면 간파 실패
+        if (insightChancePercent <= 0)
+        {
+            return false;
+        }
+
+        // 0~100 사이 랜덤값 생성
+        float randomValue = Random.Range(0f, 100f);
+
+        // 최종 확률 안에 들어오면 간파 성공
+        bool isActivated = randomValue < insightChancePercent;
+
+        Debug.Log($"Insight 판정: 행동전 LV.{insightDataBeforeAction.level} / 대상 {targetCanceledSkillType} / 확률 {insightChancePercent}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+
+        return isActivated;
+    }
+
     // <변경부분> 고유스킬 종류에 따라 실제 효과를 실행하는 함수
     public bool TryUseUniqueSkill(Piece piece)
     {

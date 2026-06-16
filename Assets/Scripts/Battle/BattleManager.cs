@@ -423,9 +423,12 @@ public class BattleManager : MonoBehaviour
             isActionAnimating = false;
             yield break;
         }
-
         // 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보만을 복사해서 저장
         OwnedGeneralSkillData chanceAttackDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.ChanceAttack);
+
+        // <변경부분> 공격 시작 시점의 Insight 보유 정보 저장
+        // 공격 중 흡수/레벨업으로 얻은 Insight가 즉시 발동하지 않도록 행동 시작 전 상태를 기준으로 판정
+        OwnedGeneralSkillData insightDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.Insight);
 
         // 이번 행동으로 적대 기물을 처치했는지 확인하기 위한 값
         bool killedEnemyPiece = false;
@@ -475,11 +478,26 @@ public class BattleManager : MonoBehaviour
                 battleSkillManager != null &&
                 battleSkillManager.TryActivateDefense(targetPiece, defenseDataBeforeAction);
 
+            // <변경부분> 방어가 실제로 발동했을 때만 공격자의 Insight로 무효화 시도
+            bool isDefenseCanceledByInsight = false;
+
+            if (isDefenseActivated)
+            {
+                isDefenseCanceledByInsight =
+                    battleSkillManager != null &&
+                    battleSkillManager.TryActivateInsight(actingPiece, insightDataBeforeAction, GeneralSkillType.Defense);
+
+                if (isDefenseCanceledByInsight)
+                {
+                    Debug.Log($"Insight 발동: {actingPiece.Team} {actingPiece.PieceType}이 {targetPiece.Team} {targetPiece.PieceType}의 Defense를 무효화했습니다.");
+                }
+            }
+
             // <변경부분> 공격자의 목표 월드 위치 저장
             Vector3 targetWorldPosition = targetPiece.transform.position;
 
-            // <변경부분> 방어 성공 시 공격자는 내려찍기 중 막혀서 원래 자리로 튕겨나감
-            if (isDefenseActivated)
+            // <변경부분> Defense가 성공했고 Insight로 무효화되지 않았다면 공격 무효 처리
+            if (isDefenseActivated && isDefenseCanceledByInsight == false)
             {
                 yield return pieceManager.PlayPieceBlockedAttackMoveAnimation(actingPiece, targetWorldPosition);
 
@@ -503,7 +521,7 @@ public class BattleManager : MonoBehaviour
             }
             else
             {
-                // <변경부분> 방어 실패 시 기존처럼 공격자가 타겟 위치까지 점프 이동
+                // <변경부분> Defense가 실패했거나 Insight로 무효화되었으면 기존처럼 공격자가 타겟 위치까지 점프 이동
                 yield return pieceManager.PlayPieceAttackMoveAnimation(actingPiece, targetWorldPosition);
 
                 if (isAbsorbAction)
@@ -544,10 +562,10 @@ public class BattleManager : MonoBehaviour
                     killedEnemyPiece = true;
                 }
 
-                // <변경부분> 방어 실패 시에만 타겟 제거
+                // <변경부분> Defense 실패 또는 Insight 무효화 성공 시에만 타겟 제거
                 pieceManager.RemovePiece(targetPiece);
 
-                // <변경부분> 방어 실패로 실제 사망했을 때만 퇴화 사망 효과 처리
+                // <변경부분> 실제 사망했을 때만 퇴화 사망 효과 처리
                 TryTriggerDegenerationOnDeath(
                     shouldTriggerDegeneration,
                     degenerationDeadPieceTeam,
@@ -557,10 +575,10 @@ public class BattleManager : MonoBehaviour
                     degenerationSourceWorldPosition
                 );
 
-                // <변경부분> 방어 실패로 실제 사망했을 때만 해당 진영 사망 스택 증가
+                // <변경부분> 실제 사망했을 때만 해당 진영 사망 스택 증가
                 AddDeathStackForUniqueSkill(deadPieceTeam);
 
-                // <변경부분> 방어 실패 시에만 공격자를 타겟 좌표로 이동 확정
+                // <변경부분> 실제 공격 성공 시에만 공격자를 타겟 좌표로 이동 확정
                 yield return pieceManager.MovePieceRoutine(actingPiece, tile.X, tile.Y, false);
             }
         }

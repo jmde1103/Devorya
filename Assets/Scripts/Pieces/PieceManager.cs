@@ -226,14 +226,13 @@ public class PieceManager : MonoBehaviour
             speciesTags
         );
 
-        // <변경부분> 테스트용: 적 기물은 King을 제외하고 ChanceAttack / Defense 일반스킬을 각각 확률적으로 보유
-        // 흡수 시 일반스킬 2개가 모두 정상 흡수되는지 확인하기 위한 테스트 로직
+        // <변경부분> 테스트용: 적 기물은 King을 제외하고 일반스킬을 각각 확률적으로 보유
+        // 여러 일반스킬 흡수와 발동 흐름을 테스트하기 위한 임시 로직
         if (team == PieceTeam.Enemy && pieceType != PieceType.King)
         {
             // <변경부분> 테스트 단계에서는 80% 확률로 ChanceAttack을 부여
             if (Random.Range(0, 100) < 80)
             {
-                // <변경부분> 테스트용으로 LV1 ChanceAttack 부여
                 piece.SetTestGeneralSkill(GeneralSkillType.ChanceAttack, 1);
 
                 Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / ChanceAttack LV.1");
@@ -242,10 +241,18 @@ public class PieceManager : MonoBehaviour
             // <변경부분> 테스트 단계에서는 80% 확률로 Defense를 부여
             if (Random.Range(0, 100) < 80)
             {
-                // <변경부분> 테스트용으로 LV1 Defense 부여
                 piece.SetTestGeneralSkill(GeneralSkillType.Defense, 1);
 
                 Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / Defense LV.1");
+            }
+
+            // <변경부분> 테스트 단계에서는 80% 확률로 Insight를 부여
+            // 적 기물을 흡수했을 때 플레이어가 Insight를 얻는지 확인하기 위한 테스트용
+            if (Random.Range(0, 100) < 80)
+            {
+                piece.SetTestGeneralSkill(GeneralSkillType.Insight, 1);
+
+                Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / Insight LV.1");
             }
         }
 
