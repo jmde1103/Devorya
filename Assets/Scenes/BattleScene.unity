@@ -47354,6 +47354,75 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &481279947
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 481279949}
+  - component: {fileID: 481279948}
+  m_Layer: 0
+  m_Name: PieceAnimationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &481279948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 481279947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec57419054ce3bd4897c736ec540691b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceAnimationManager
+  moveAnimationDuration: 0.25
+  moveJumpHeight: 0.35
+  attackAnimationSortingOrder: 10000
+  attackRiseHeight: 0.45
+  attackMoveDuration: 0.18
+  attackMoveArcHeight: 0.25
+  attackHoverWaitDuration: 0.08
+  attackExtraRiseHeight: 0.18
+  attackExtraRiseDuration: 0.08
+  attackSlamDuration: 0.08
+  defenseFallShortDistance: 0.25
+  defenseFallBackDuration: 0.12
+  defenseFirstBounceDuration: 0.13
+  defenseFirstBounceHeight: 0.22
+  defenseSecondBounceDuration: 0.11
+  defenseSecondBounceHeight: 0.11
+  defenseFinalReturnDuration: 0.08
+  skillSpawnAnimationDuration: 0.22
+  skillSpawnArcHeight: 0.3
+  synthesisMaterialAnimationDuration: 0.22
+  synthesisMaterialArcHeight: 0.3
+  cameraShakeTarget: {fileID: 330585546}
+  cameraShakeDuration: 0.12
+  cameraShakeStrength: 0.06
+  enableMobileVibration: 1
+--- !u!4 &481279949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 481279947}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.24417, y: 1.11414, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &483042738
 GameObject:
   m_ObjectHideFlags: 0
@@ -106854,6 +106923,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceManager
   boardManager: {fileID: 1009230094}
+  pieceAnimationManager: {fileID: 481279948}
   pieceParent: {fileID: 1377629335}
   piecePrefab: {fileID: 4794599025964605050, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
   playerPawnSprite: {fileID: 21300000, guid: d5f31ef29fc69ea4786a01fe38d54d36, type: 3}
@@ -106900,23 +106970,6 @@ MonoBehaviour:
   obstacleSprite: {fileID: 21300000, guid: f2ab36f48476f774099c2bdd8e0e79d5, type: 3}
   jelluWallSprite: {fileID: 21300000, guid: b1dea2452d257504b93f90baf90b0d2f, type: 3}
   pieceYOffset: 0.25
-  moveAnimationDuration: 0.25
-  moveJumpHeight: 0.35
-  attackRiseHeight: 0.45
-  attackMoveDuration: 0.18
-  attackMoveArcHeight: 0.25
-  skillSpawnAnimationDuration: 0.22
-  skillSpawnArcHeight: 0.3
-  synthesisMaterialAnimationDuration: 0.22
-  synthesisMaterialArcHeight: 0.3
-  attackHoverWaitDuration: 0.2
-  attackExtraRiseHeight: 0.18
-  attackExtraRiseDuration: 0.08
-  attackSlamDuration: 0.08
-  cameraShakeTarget: {fileID: 330585546}
-  cameraShakeDuration: 0.12
-  cameraShakeStrength: 0.06
-  enableMobileVibration: 1
   maxPlayerPieceCount: 10
   maxEnemyPieceCount: 10
 --- !u!4 &1157817763
@@ -202112,3 +202165,4 @@ SceneRoots:
   - {fileID: 178608793}
   - {fileID: 212060307}
   - {fileID: 1035375298}
+  - {fileID: 481279949}

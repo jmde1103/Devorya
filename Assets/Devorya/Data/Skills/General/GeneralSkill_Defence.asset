@@ -18,10 +18,10 @@ MonoBehaviour:
   description: "\uD655\uB960\uC801\uC73C\uB85C \uC0C1\uB300\uC758 \uACF5\uACA9\uC744
     \uBC29\uC5B4\uD55C\uB2E4."
   maxLevel: 3
-  chanceAttackLevel1Percent: 30
-  chanceAttackLevel2Percent: 50
-  chanceAttackLevel3Percent: 80
+  chanceAttackLevel1Percent: 0
+  chanceAttackLevel2Percent: 0
+  chanceAttackLevel3Percent: 0
   chanceAttackContinuousPenaltyRate: 0.33333334
-  defenseLevel1Percent: 100
+  defenseLevel1Percent: 30
   defenseLevel2Percent: 50
   defenseLevel3Percent: 80

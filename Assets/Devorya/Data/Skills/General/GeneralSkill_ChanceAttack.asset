@@ -19,10 +19,10 @@ MonoBehaviour:
     \uAC00\uB2A5\uD558\uB2E4\uBA74 \uD655\uB960\uC801\uC73C\uB85C \uD55C \uBC88 \uB354
     \uD589\uB3D9\uD569\uB2C8\uB2E4."
   maxLevel: 3
-  chanceAttackLevel1Percent: 100
+  chanceAttackLevel1Percent: 30
   chanceAttackLevel2Percent: 50
   chanceAttackLevel3Percent: 80
   chanceAttackContinuousPenaltyRate: 0.33333334
-  defenseLevel1Percent: 30
-  defenseLevel2Percent: 50
-  defenseLevel3Percent: 80
+  defenseLevel1Percent: 0
+  defenseLevel2Percent: 0
+  defenseLevel3Percent: 0
