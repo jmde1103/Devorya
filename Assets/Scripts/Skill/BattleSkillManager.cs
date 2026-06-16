@@ -86,6 +86,59 @@ public class BattleSkillManager : MonoBehaviour
         return isActivated;
     }
 
+    // <변경부분> Defense 발동 여부를 행동 시작 시점의 방어 스킬 정보와 GeneralSkillDatabase 기준으로 판정하는 함수
+    public bool TryActivateDefense(Piece defenderPiece, OwnedGeneralSkillData defenseDataBeforeAction)
+    {
+        // 방어할 기물이 없으면 실패
+        if (defenderPiece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 공격 시작 시점에 Defense가 없었다면 방어 불가
+        if (defenseDataBeforeAction == null ||
+            defenseDataBeforeAction.skillType != GeneralSkillType.Defense ||
+            defenseDataBeforeAction.level <= 0)
+        {
+            return false;
+        }
+
+        // <변경부분> 일반스킬 데이터베이스가 없으면 방어 판정 불가
+        if (generalSkillDatabase == null)
+        {
+            Debug.LogWarning("GeneralSkillDatabase가 연결되지 않아 Defense를 판정할 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> Defense 설정 데이터 가져오기
+        GeneralSkillData defenseData = generalSkillDatabase.GetData(GeneralSkillType.Defense);
+
+        if (defenseData == null)
+        {
+            Debug.LogWarning("GeneralSkillDatabase에서 Defense 데이터를 찾을 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 데이터베이스에 저장된 레벨별 확률 사용
+        int defenseChancePercent = defenseData.GetDefensePercent(defenseDataBeforeAction.level);
+
+        // 확률이 0 이하이면 방어 실패
+        if (defenseChancePercent <= 0)
+        {
+            return false;
+        }
+
+        // 0~100 사이 랜덤값 생성
+        float randomValue = Random.Range(0f, 100f);
+
+        // 최종 확률 안에 들어오면 방어 성공
+        bool isActivated = randomValue < defenseChancePercent;
+
+        Debug.Log($"Defense 판정: 행동전 LV.{defenseDataBeforeAction.level} / 확률 {defenseChancePercent}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+
+        return isActivated;
+    }
+
     // <변경부분> 고유스킬 종류에 따라 실제 효과를 실행하는 함수
     public bool TryUseUniqueSkill(Piece piece)
     {

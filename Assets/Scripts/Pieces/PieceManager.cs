@@ -6,8 +6,6 @@ public class PieceManager : MonoBehaviour
     [Header("Manager")]
     [SerializeField] private BoardManager boardManager;
 
-
-
     // 생성한 기물들을 정리해서 담아둘 부모 오브젝트
     [SerializeField] private Transform pieceParent;
 
@@ -107,33 +105,17 @@ public class PieceManager : MonoBehaviour
 
     // <변경부분> 공격 연출 전용 설정
     [Header("Piece Attack Animation")]
+    // <변경부분> 공격 연출 중 공격자가 항상 위에 보이도록 임시 적용할 Sorting Order
+    [SerializeField] private int attackAnimationSortingOrder = 10000;
 
     // <변경부분> 공격자가 상대 기물 위쪽에 도착할 높이
     [SerializeField] private float attackRiseHeight = 0.45f;
-
-    // <변경부분> 공격 연출 중 공격자가 항상 위에 보이도록 임시 적용할 Sorting Order
-    [SerializeField] private int attackAnimationSortingOrder = 10000;
 
     // <변경부분> 현재 위치에서 상대 기물 위쪽까지 포물선으로 이동하는 시간
     [SerializeField] private float attackMoveDuration = 0.18f;
 
     // <변경부분> 상대 위로 이동하는 동안 추가로 그려지는 포물선 높이
     [SerializeField] private float attackMoveArcHeight = 0.25f;
-
-    // <변경부분> 스킬로 생성된 기물이 시전자 위치에서 생성 위치까지 날아가는 시간
-    // <변경부분> 스킬로 생성된 기물이 시전자 위치에서 생성 위치까지 날아가는 시간
-    [Header("Skill Spawn Animation")]
-    [SerializeField] private float skillSpawnAnimationDuration = 0.22f;
-
-    // <변경부분> 스킬 생성 기물이 이동 중 그리는 포물선 높이
-    [SerializeField] private float skillSpawnArcHeight = 0.3f;
-
-    // <변경부분> 젤루 합성 재료 기물이 Pawn 위치로 모이는 시간
-    [Header("Jellu Synthesis Animation")]
-    [SerializeField] private float synthesisMaterialAnimationDuration = 0.22f;
-
-    // <변경부분> 젤루 합성 재료 기물이 이동 중 그리는 포물선 높이
-    [SerializeField] private float synthesisMaterialArcHeight = 0.3f;
 
     // <변경부분> 상대 기물 위에 도착한 뒤 잠깐 멈춰 있는 시간
     [SerializeField] private float attackHoverWaitDuration = 0.08f;
@@ -146,6 +128,46 @@ public class PieceManager : MonoBehaviour
 
     // <변경부분> 위에서 아래로 내려찍는 시간
     [SerializeField] private float attackSlamDuration = 0.08f;
+
+
+    // <변경부분> 방어 성공 시 공격자가 원래 위치에 도달하지 못하고 앞쪽에 떨어지는 거리
+    // 값이 클수록 원래 위치에서 타겟 방향으로 더 앞에 떨어짐
+    [Header("Defense Bounce Animation")]
+    [SerializeField] private float defenseFallShortDistance = 0.25f;
+
+    // <변경부분> 방어에 막힌 지점에서 원래 위치 앞쪽 착지 지점까지 튕겨나가는 시간
+    [SerializeField] private float defenseFallBackDuration = 0.12f;
+
+    // <변경부분> 첫 번째로 크게 튀며 원래 위치 쪽으로 이동하는 시간
+    [SerializeField] private float defenseFirstBounceDuration = 0.13f;
+
+    // <변경부분> 첫 번째 큰 튐 높이
+    [SerializeField] private float defenseFirstBounceHeight = 0.22f;
+
+    // <변경부분> 두 번째로 작게 튀며 원래 위치 쪽으로 이동하는 시간
+    [SerializeField] private float defenseSecondBounceDuration = 0.11f;
+
+    // <변경부분> 두 번째 작은 튐 높이
+    [SerializeField] private float defenseSecondBounceHeight = 0.11f;
+
+    // <변경부분> 마지막으로 원래 위치에 정확히 복귀하는 시간
+    [SerializeField] private float defenseFinalReturnDuration = 0.08f;
+
+
+    // <변경부분> 스킬로 생성된 기물이 시전자 위치에서 생성 위치까지 날아가는 시간
+    [Header("Skill Spawn Animation")]
+    [SerializeField] private float skillSpawnAnimationDuration = 0.22f;
+
+    // <변경부분> 스킬 생성 기물이 이동 중 그리는 포물선 높이
+    [SerializeField] private float skillSpawnArcHeight = 0.3f;
+
+
+    // <변경부분> 젤루 합성 재료 기물이 Pawn 위치로 모이는 시간
+    [Header("Jellu Synthesis Animation")]
+    [SerializeField] private float synthesisMaterialAnimationDuration = 0.22f;
+
+    // <변경부분> 젤루 합성 재료 기물이 이동 중 그리는 포물선 높이
+    [SerializeField] private float synthesisMaterialArcHeight = 0.3f;
 
     // <변경부분> 공격 내려찍기 후 화면 흔들림 설정
     [Header("Attack Impact Feedback")]
@@ -245,20 +267,39 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
-        // 기물 데이터 초기화
-        // <변경부분> 생성 시 종족 태그도 함께 초기화
-        piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill, speciesTags);
+        // <변경부분> 생성된 기물의 실제 전투 데이터 초기화
+        // 이 코드가 빠지면 Team / PieceType / 좌표 / CurrentTile / CanMove / UniqueSkill / 종족태그가 설정되지 않아 기물 선택이 막힘
+        piece.Initialize(
+            pieceType,
+            team,
+            x,
+            y,
+            targetTile,
+            canMove,
+            uniqueSkill,
+            speciesTags
+        );
 
-        // <변경부분> 테스트용: 적 기물은 King을 제외하고 확률적으로 찬스어택 일반 스킬을 보유
+        // <변경부분> 테스트용: 적 기물은 King을 제외하고 ChanceAttack / Defense 일반스킬을 각각 확률적으로 보유
+        // 흡수 시 일반스킬 2개가 모두 정상 흡수되는지 확인하기 위한 테스트 로직
         if (team == PieceTeam.Enemy && pieceType != PieceType.King)
         {
-            // 테스트 단계에서는 50% 확률로 찬스어택을 부여
+            // <변경부분> 테스트 단계에서는 80% 확률로 ChanceAttack을 부여
             if (Random.Range(0, 100) < 80)
             {
-                // 테스트용으로 LV1 찬스어택 부여
+                // <변경부분> 테스트용으로 LV1 ChanceAttack 부여
                 piece.SetTestGeneralSkill(GeneralSkillType.ChanceAttack, 1);
 
                 Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / ChanceAttack LV.1");
+            }
+
+            // <변경부분> 테스트 단계에서는 80% 확률로 Defense를 부여
+            if (Random.Range(0, 100) < 80)
+            {
+                // <변경부분> 테스트용으로 LV1 Defense 부여
+                piece.SetTestGeneralSkill(GeneralSkillType.Defense, 1);
+
+                Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / Defense LV.1");
             }
         }
 
@@ -1033,7 +1074,168 @@ public class PieceManager : MonoBehaviour
         PlayAttackImpactFeedback();
 
         // <변경부분> 공격 연출이 끝나면 임시 Sorting Order 복구
-        // 이후 BattleManager에서 MovePiece(..., playAnimation:false)를 호출하면서 최종 좌표 기준 Sorting Order가 다시 적용됨
+        // 이후 BattleManager에서 MovePieceRoutine(..., playAnimation:false)를 호출하면서 최종 좌표 기준 Sorting Order가 다시 적용됨
+        if (attackPieceRenderer != null && changedSortingOrder)
+        {
+            attackPieceRenderer.sortingOrder = originalSortingOrder;
+        }
+    }
+
+    // <변경부분> Defense 성공 시 공격자가 내려찍기 도중 막히고,
+    // 원래 위치에 도달하지 못한 앞쪽 지점에 떨어진 뒤 두 번 튀며 원위치로 복귀하는 연출
+    // 보드 좌표는 갱신하지 않고 Transform만 이동시킨다
+    public IEnumerator PlayPieceBlockedAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
+    {
+        // 이동할 기물이 없으면 종료
+if (piece == null)
+{
+    yield break;
+}
+
+// <변경부분> 방어 연출 중 공격자가 타겟 뒤에 가려지지 않도록 SpriteRenderer 저장
+SpriteRenderer attackPieceRenderer = piece.GetComponent<SpriteRenderer>();
+
+// <변경부분> 방어 연출 전 원래 Sorting Order 저장
+int originalSortingOrder = 0;
+
+// <변경부분> 방어 연출 중 임시 Sorting Order 적용 여부
+bool changedSortingOrder = false;
+
+// <변경부분> 방어 성공 연출도 공격자가 공중에서 보이도록 Sorting Order를 크게 올림
+if (attackPieceRenderer != null)
+{
+    originalSortingOrder = attackPieceRenderer.sortingOrder;
+    attackPieceRenderer.sortingOrder = attackAnimationSortingOrder;
+    changedSortingOrder = true;
+}
+
+// 공격 시작 위치 저장
+Vector3 startPosition = piece.transform.position;
+
+        // <변경부분> 기존 공격과 동일하게 타겟 위쪽까지 포물선 이동
+        Vector3 hoverTargetPosition = targetWorldPosition + Vector3.up * attackRiseHeight;
+        yield return MoveTransformArcRoutine(piece.transform, startPosition, hoverTargetPosition, attackMoveDuration, attackMoveArcHeight);
+
+        // <변경부분> 타겟 위에서 잠깐 멈춤
+        if (attackHoverWaitDuration > 0f)
+        {
+            yield return new WaitForSeconds(attackHoverWaitDuration);
+        }
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 내려찍기 직전 살짝 더 상승
+        Vector3 extraRisePosition = hoverTargetPosition + Vector3.up * attackExtraRiseHeight;
+        yield return MoveTransformRoutine(piece.transform, hoverTargetPosition, extraRisePosition, attackExtraRiseDuration);
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 내려찍는 도중 방어에 막히는 지점
+        // 완전히 타겟 위치까지 내려가지 않고 중간 지점까지만 내려감
+        Vector3 blockedImpactPosition = Vector3.Lerp(extraRisePosition, targetWorldPosition, 0.65f);
+        yield return MoveTransformRoutine(piece.transform, extraRisePosition, blockedImpactPosition, attackSlamDuration * 0.65f);
+
+        // <변경부분> 방어 충격 피드백
+        PlayAttackImpactFeedback();
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 공격 시작 위치에서 타겟으로 향하는 방향 계산
+        Vector3 attackDirection = targetWorldPosition - startPosition;
+
+        // 방향값이 너무 작으면 기본 방향 사용
+        if (attackDirection.sqrMagnitude <= 0.0001f)
+        {
+            attackDirection = Vector3.right;
+        }
+
+        attackDirection.Normalize();
+
+        // <변경부분> 원래 위치에 도달하지 못한 앞쪽 착지 지점
+        // startPosition보다 타겟 방향으로 defenseFallShortDistance만큼 앞에 있음
+        Vector3 fallShortPosition = startPosition + attackDirection * defenseFallShortDistance;
+
+        // <변경부분> 첫 번째 튐 후 도착할 위치
+        // 착지 지점에서 원래 위치 쪽으로 많이 이동하지만, 아직 원위치에는 도달하지 않음
+        Vector3 firstBounceLandingPosition = startPosition + attackDirection * (defenseFallShortDistance * 0.45f);
+
+        // <변경부분> 두 번째 튐 후 도착할 위치
+        // 원래 위치에 거의 가까운 지점
+        Vector3 secondBounceLandingPosition = startPosition + attackDirection * (defenseFallShortDistance * 0.15f);
+
+        // <변경부분> 방어에 막힌 공격자가 뒤로 튕겨나오지만,
+        // 원래 위치를 지나치지 않고 원래 위치 앞쪽 지점에 떨어짐
+        yield return MoveTransformArcRoutine(
+            piece.transform,
+            blockedImpactPosition,
+            fallShortPosition,
+            defenseFallBackDuration,
+            defenseSecondBounceHeight
+        );
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 첫 번째 반동: 크게 튀면서 원래 위치 쪽으로 이동
+        yield return MoveTransformArcRoutine(
+            piece.transform,
+            fallShortPosition,
+            firstBounceLandingPosition,
+            defenseFirstBounceDuration,
+            defenseFirstBounceHeight
+        );
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 두 번째 반동: 작게 튀면서 원래 위치에 더 가까워짐
+        yield return MoveTransformArcRoutine(
+            piece.transform,
+            firstBounceLandingPosition,
+            secondBounceLandingPosition,
+            defenseSecondBounceDuration,
+            defenseSecondBounceHeight
+        );
+
+        // 기물이 중간에 제거되었으면 종료
+        if (piece == null)
+        {
+            yield break;
+        }
+
+        // <변경부분> 마지막으로 원래 위치에 정확히 복귀
+        yield return MoveTransformRoutine(
+            piece.transform,
+            secondBounceLandingPosition,
+            startPosition,
+            defenseFinalReturnDuration
+        );
+
+        // 연출 종료 후 정확히 원래 위치로 보정
+        if (piece != null)
+        {
+            piece.transform.position = startPosition;
+        }
+
+        // <변경부분> 방어 연출이 끝나면 임시 Sorting Order 복구
         if (attackPieceRenderer != null && changedSortingOrder)
         {
             attackPieceRenderer.sortingOrder = originalSortingOrder;

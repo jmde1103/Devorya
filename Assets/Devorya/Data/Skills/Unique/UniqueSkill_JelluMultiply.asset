@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 2
   skillName: "\uC99D\uC2DD"
-  iconSprite: {fileID: 21300000, guid: f63416cfa67d856469c21790a1e657d2, type: 3}
+  iconSprite: {fileID: 21300000, guid: 7cdfcc3498ec2194c9288245f29902d5, type: 3}
   description: "\uC778\uC811\uD55C \uB79C\uB364\uD55C 1\uCE78\uC5D0 \uC824\uB8E8
     \uD3F0\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4."
   cooldownTurn: 3

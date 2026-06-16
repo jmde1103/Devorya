@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 6
   skillName: "\uD1F4\uD654"
-  iconSprite: {fileID: 0}
+  iconSprite: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
   description: "\uC790\uC2E0\uC5D0\uAC8C \uD1F4\uD654 \uC0C1\uD0DC\uC774\uC0C1\uC744
     1 \uBD80\uC5EC\uD55C\uB2E4."
-  cooldownTurn: 1
+  cooldownTurn: 2
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1

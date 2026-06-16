@@ -36,6 +36,16 @@ public class GeneralSkillData : ScriptableObject
     // 예: 0.3333이면 연속 발동 1회마다 확률이 1/3로 감소
     public float chanceAttackContinuousPenaltyRate = 1f / 3f;
 
+    [Header("Defense")]
+    // <변경부분> Defense LV1 발동 확률
+    public int defenseLevel1Percent = 30;
+
+    // <변경부분> Defense LV2 발동 확률
+    public int defenseLevel2Percent = 50;
+
+    // <변경부분> Defense LV3 발동 확률
+    public int defenseLevel3Percent = 80;
+
     // <변경부분> 전달받은 레벨 기준 ChanceAttack 기본 발동 확률 반환
     public int GetChanceAttackPercent(int level)
     {
@@ -64,5 +74,24 @@ public class GeneralSkillData : ScriptableObject
         }
 
         return Mathf.Pow(chanceAttackContinuousPenaltyRate, continuousCount);
+    }
+
+    // <변경부분> 전달받은 레벨 기준 Defense 기본 발동 확률 반환
+    public int GetDefensePercent(int level)
+    {
+        switch (level)
+        {
+            case 1:
+                return defenseLevel1Percent;
+
+            case 2:
+                return defenseLevel2Percent;
+
+            case 3:
+                return defenseLevel3Percent;
+
+            default:
+                return 0;
+        }
     }
 }

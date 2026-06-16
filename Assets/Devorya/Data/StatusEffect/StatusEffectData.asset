@@ -17,6 +17,6 @@ MonoBehaviour:
   description: "\uD1F4\uD654 \uC0C1\uD0DC\uC758 \uAE30\uBB3C\uC774 \uC7A1\uD788\uBA74
     \uC778\uC811\uD55C \uBE48 \uCE78 \uC911 1\uAC1C\uB97C \uB79C\uB364\uC73C\uB85C
     \uC120\uD0DD\uD574 \uC824\uB8E8 \uD3F0\uC744 \uC0DD\uC131\uD55C\uB2E4."
-  iconSprite: {fileID: 21300000, guid: f63416cfa67d856469c21790a1e657d2, type: 3}
+  iconSprite: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
   durationTurn: 1
   maxStack: 1
