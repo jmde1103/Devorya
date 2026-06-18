@@ -2,12 +2,15 @@ using System.Collections; // <변경부분> 기물 이동 연출 코루틴 사용
 using UnityEngine;
 public class PieceManager : MonoBehaviour
 {
-    // 보드 정보를 가져오기 위한 BoardManager 참조
     [Header("Manager")]
     [SerializeField] private BoardManager boardManager;
 
     // <변경부분> 기물 이동/공격/방어/스킬 생성 등 시각 연출을 담당하는 매니저
     [SerializeField] private PieceAnimationManager pieceAnimationManager;
+
+    // <변경부분> PieceType 기준 기본 PieceData를 찾아주는 데이터베이스
+    // 1차 데이터화에서는 선택 사용이며, SpawnPieceFromData는 BattlePieceSpawnData의 pieceData를 우선 사용한다.
+    [SerializeField] private PieceDatabase pieceDatabase;
 
     // 생성한 기물들을 정리해서 담아둘 부모 오브젝트
     [SerializeField] private Transform pieceParent;
@@ -172,6 +175,17 @@ public class PieceManager : MonoBehaviour
         }
 
         // 중립 장애물은 지금은 기본 배치에서 제외
+
+        // <변경부분> 테스트용: PieceDatabase에서 JelluPawn 데이터를 정확히 찾아 데이터 기반 생성 확인
+        if (pieceDatabase != null)
+        {
+            PieceData pawnData = pieceDatabase.GetData("Jellu Pawn");
+
+            if (pawnData != null)
+            {
+                SpawnPieceFromData(pawnData, PieceTeam.Enemy, 2, 3, true);
+            }
+        }
     }
 
     // <변경부분> 외부에서도 스킬로 기물을 생성할 수 있도록 public으로 변경
@@ -272,6 +286,174 @@ public class PieceManager : MonoBehaviour
         pieces[x, y] = piece;
 
         // 생성한 Piece 반환
+        return piece;
+    }
+
+    // <변경부분> BattlePieceSpawnData 기준으로 기물을 생성하는 데이터 기반 생성 함수
+    // 기존 SpawnPiece는 유지하고, 노드/스테이지/플레이어 저장 데이터 기반 생성은 이 함수로 점진 전환한다.
+    public Piece SpawnPieceFromData(BattlePieceSpawnData spawnData)
+    {
+        if (spawnData == null)
+        {
+            Debug.LogError("SpawnPieceFromData 실패: spawnData가 null입니다.");
+            return null;
+        }
+
+        if (spawnData.pieceData == null)
+        {
+            Debug.LogError("SpawnPieceFromData 실패: spawnData.pieceData가 null입니다.");
+            return null;
+        }
+
+        return SpawnPieceFromData(
+            spawnData.pieceData,
+            spawnData.team,
+            spawnData.x,
+            spawnData.y,
+            spawnData.GetCanMove(),
+            spawnData.isAbsorbedPlayerVisual
+        );
+    }
+
+    // <변경부분> PieceData에 설정된 기본 일반스킬 목록을 Piece에 적용
+    private void ApplyDefaultGeneralSkillsFromData(Piece piece, PieceData pieceData)
+    {
+        if (piece == null || pieceData == null)
+        {
+            return;
+        }
+
+        if (pieceData.defaultGeneralSkills == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < pieceData.defaultGeneralSkills.Length; i++)
+        {
+            OwnedGeneralSkillData skillData = pieceData.defaultGeneralSkills[i];
+
+            if (skillData == null)
+            {
+                continue;
+            }
+
+            if (skillData.skillType == GeneralSkillType.None)
+            {
+                continue;
+            }
+
+            // <변경부분> 현재 Piece에 일반스킬을 지정 레벨로 부여
+            piece.SetTestGeneralSkill(skillData.skillType, skillData.level);
+        }
+    }
+
+    // <변경부분> PieceData 기준으로 생성 직후 외형 관련 정보를 적용
+    private void ApplyPieceDataVisual(Piece piece, PieceData pieceData, PieceTeam team, bool isAbsorbedPlayerVisual)
+    {
+        if (piece == null || pieceData == null)
+        {
+            return;
+        }
+
+        SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+        {
+            Sprite spriteToApply = pieceData.GetSprite(team, isAbsorbedPlayerVisual);
+
+            if (spriteToApply != null)
+            {
+                spriteRenderer.sprite = spriteToApply;
+            }
+        }
+
+        // <변경부분> 상태창 UI용 스프라이트를 PieceData 기준으로 저장
+        Sprite statusSprite = pieceData.GetStatusSprite(team, isAbsorbedPlayerVisual);
+
+        if (statusSprite != null)
+        {
+            piece.SetStatusUISprite(statusSprite);
+        }
+
+        // <변경부분> 타입 아이콘 위치를 PieceData 기준으로 적용
+        Vector3 typeIconPosition = pieceData.GetTypeIconPosition(team, isAbsorbedPlayerVisual);
+
+        piece.SetTypeIconLocalPosition(typeIconPosition);
+    }
+
+    // <변경부분> PieceData 기준으로 기물을 생성하는 핵심 함수
+    // 기존 SpawnPiece와 달리 스프라이트/상태 UI/타입 아이콘/기본 일반스킬을 PieceData에서 적용한다.
+    public Piece SpawnPieceFromData(PieceData pieceData, PieceTeam team, int x, int y, bool canMove, bool isAbsorbedPlayerVisual = false)
+    {
+        if (pieceData == null)
+        {
+            Debug.LogError("SpawnPieceFromData 실패: pieceData가 null입니다.");
+            return null;
+        }
+
+        if (piecePrefab == null)
+        {
+            Debug.LogError("SpawnPieceFromData 실패: Piece Prefab이 연결되지 않았습니다.");
+            return null;
+        }
+
+        Tile targetTile = boardManager.GetTile(x, y);
+
+        if (targetTile == null)
+        {
+            Debug.LogError($"SpawnPieceFromData 실패: 좌표 ({x}, {y})에 타일이 없습니다.");
+            return null;
+        }
+
+        if (pieces[x, y] != null)
+        {
+            Debug.LogWarning($"SpawnPieceFromData 실패: 좌표 ({x}, {y})에 이미 기물이 있습니다.");
+            return null;
+        }
+
+        Vector3 spawnPosition = GetPieceWorldPosition(targetTile);
+
+        GameObject pieceObject = Instantiate(piecePrefab, spawnPosition, Quaternion.identity, pieceParent);
+
+        pieceObject.name = $"{team}_{pieceData.pieceType}_{x}_{y}_Data";
+
+        Piece piece = pieceObject.GetComponent<Piece>();
+
+        if (piece == null)
+        {
+            Debug.LogError($"{pieceObject.name}에 Piece 컴포넌트가 없습니다.");
+            Destroy(pieceObject);
+            return null;
+        }
+
+        // <변경부분> PieceData의 기본 전투 정보로 Piece 초기화
+        piece.Initialize(
+            pieceData.pieceType,
+            team,
+            x,
+            y,
+            targetTile,
+            canMove,
+            pieceData.uniqueSkill,
+            pieceData.speciesTags
+        );
+
+        // <변경부분> 플레이어 저장 데이터 기반 생성 시 흡수 외형 상태를 적용할 수 있도록 준비
+        piece.SetAbsorbedJelluVisual(isAbsorbedPlayerVisual);
+
+        // <변경부분> PieceData에 지정된 기본 일반스킬을 적용
+        ApplyDefaultGeneralSkillsFromData(piece, pieceData);
+
+        // <변경부분> PieceData 기준으로 스프라이트/상태 UI/타입 아이콘 위치 적용
+        ApplyPieceDataVisual(piece, pieceData, team, isAbsorbedPlayerVisual);
+
+        // 기물의 아이소메트리 정렬 순서 설정
+        SetPieceSortingOrder(pieceObject, x, y);
+
+        pieces[x, y] = piece;
+
+        Debug.Log($"데이터 기반 기물 생성: {team} / {pieceData.pieceType} / ({x}, {y})");
+
         return piece;
     }
 

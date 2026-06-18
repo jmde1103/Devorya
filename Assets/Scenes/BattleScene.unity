@@ -106234,6 +106234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceManager
   boardManager: {fileID: 1009230094}
   pieceAnimationManager: {fileID: 481279948}
+  pieceDatabase: {fileID: 11400000, guid: 5efa2b10da0508c4da63f88c4d746711, type: 2}
   pieceParent: {fileID: 1377629335}
   piecePrefab: {fileID: 4794599025964605050, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
   playerPawnSprite: {fileID: 21300000, guid: d5f31ef29fc69ea4786a01fe38d54d36, type: 3}
