@@ -93652,9 +93652,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoardManager
   width: 5
   height: 6
-  tilePrefab1: {fileID: 1820473027504545552, guid: 16b3b5d0ff6deb44ab6d8ddfd394fe07, type: 3}
-  tilePrefab2: {fileID: 6934795377244567476, guid: bc02c99d91238bd4394df66148b03cee, type: 3}
+  tilePrefab: {fileID: 166692226950237219, guid: 394e5d438a1c197439b42f093b8bb889, type: 3}
   tileParent: {fileID: 1721427428}
+  checkerTileDataA: {fileID: 11400000, guid: 3e0588bdb5663a944a8c17ef598c4ede, type: 2}
+  checkerTileDataB: {fileID: 11400000, guid: 7ef9bec2953763c459d6bedeaeeef1bc, type: 2}
+  tileDatabase: {fileID: 11400000, guid: c7c261a930bce37488cffc88335bd1f3, type: 2}
   tileWidthHalf: 0.48
   tileHeightHalf: 0.24
 --- !u!4 &1009230095

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28847ee270aad6346b645bf8628cbc76, type: 3}
-  m_Name: StatusEffectData
+  m_Name: StatusEffect_Degeneration
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
   effectType: 1
   effectName: "\uD1F4\uD654"

@@ -155,14 +155,14 @@ public class PieceManager : MonoBehaviour
 
         // 적 진영 위쪽 배치
         // <변경부분> 현재 테스트 단계에서는 적 진영을 젤루 종족 태그 보유 기물로 생성
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.HornHeadbutt, PieceSpeciesTag.Jellu);
         SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true, UniqueSkillType.JelluDegeneration, PieceSpeciesTag.Jellu);
         SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true, UniqueSkillType.JelluWall, PieceSpeciesTag.Jellu);
 
         // <변경부분> 기존 증식 스킬은 젤루 King 테스트용으로 이동
         SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true, UniqueSkillType.JelluMultiply, PieceSpeciesTag.Jellu);
 
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true, UniqueSkillType.None, PieceSpeciesTag.Jellu);
+        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true, UniqueSkillType.HornHeadbutt, PieceSpeciesTag.Jellu);
 
         // 적 폰 배치
         for (int x = 0; x < boardManager.Width; x++)

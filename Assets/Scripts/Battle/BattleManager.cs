@@ -473,12 +473,24 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 타겟이 공격 시작 시점에 가지고 있던 Defense 일반스킬 정보를 복사
             OwnedGeneralSkillData defenseDataBeforeAction = targetPiece.GetGeneralSkillDataCopy(GeneralSkillType.Defense);
 
-            // <변경부분> 방어 발동 여부를 공격 애니메이션 전에 먼저 판정
+            // <변경부분> 공격자가 Breakthrough 상태이면 상대 Defense를 무시
+            bool shouldIgnoreDefenseByBreakthrough =
+                actingPiece != null &&
+                actingPiece.HasStatusEffect(StatusEffectType.Breakthrough);
+
+            if (shouldIgnoreDefenseByBreakthrough)
+            {
+                Debug.Log($"Breakthrough 발동: {actingPiece.Team} {actingPiece.PieceType}이 {targetPiece.Team} {targetPiece.PieceType}의 Defense를 무시합니다.");
+            }
+
+            // <변경부분> Breakthrough 상태가 아닐 때만 Defense 발동 판정
             bool isDefenseActivated =
+                shouldIgnoreDefenseByBreakthrough == false &&
                 battleSkillManager != null &&
                 battleSkillManager.TryActivateDefense(targetPiece, defenseDataBeforeAction);
 
-            // <변경부분> 방어가 실제로 발동했을 때만 공격자의 Insight로 무효화 시도
+            // <변경부분> Defense가 실제로 발동했을 때만 공격자의 Insight로 무효화 시도
+            // Breakthrough가 Defense를 무시한 경우에는 Defense 자체가 발동하지 않았으므로 Insight 판정도 하지 않음
             bool isDefenseCanceledByInsight = false;
 
             if (isDefenseActivated)

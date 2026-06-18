@@ -14,6 +14,9 @@ public enum UniqueSkillType
     // <변경부분> 젤루 룩 고유스킬: 진행방향 1칸 앞에 젤루 태그 중립 벽 생성
     JelluWall,
 
-        // <변경부분> 젤루 나이트 고유스킬: 자기 자신에게 퇴화 상태이상 부여
-    JelluDegeneration
+    // <변경부분> 젤루 나이트 고유스킬: 자기 자신에게 퇴화 상태이상 부여
+    JelluDegeneration,
+
+    // <변경부분> 액티브 고유스킬: 물/늪 타일 위에서 사용 시 자신에게 돌파 상태 1턴 부여
+    HornHeadbutt
 }

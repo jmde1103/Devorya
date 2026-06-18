@@ -7,9 +7,22 @@ public class BoardManager : MonoBehaviour
     [SerializeField] private int height = 6;
 
     [Header("Tile")]
-    [SerializeField] private GameObject tilePrefab1;// 첫 번째 타일 프리팹
-    [SerializeField] private GameObject tilePrefab2;// 두 번째 타일 프리팹
-    [SerializeField] private Transform tileParent; // 생성된 타일들을 자식으로 넣을 부모 오브젝트
+    // <변경부분> 모든 지형이 공통으로 사용할 단일 타일 프리팹
+    [SerializeField] private GameObject tilePrefab;
+
+    // <변경부분> 생성된 타일들을 자식으로 넣을 부모 오브젝트
+    [SerializeField] private Transform tileParent;
+
+    [Header("Checker Tile Data")]
+    // <변경부분> 체크무늬 A칸에 적용할 타일 데이터
+    [SerializeField] private TileData checkerTileDataA;
+
+    // <변경부분> 체크무늬 B칸에 적용할 타일 데이터
+    [SerializeField] private TileData checkerTileDataB;
+
+    [Header("Tile Database")]
+    // <변경부분> 스킬이나 외부 시스템에서 TileType으로 타일을 변경할 때 사용할 데이터베이스
+    [SerializeField] private TileDatabase tileDatabase;
 
     [Header("Isometric Setting")] //타일 전체 높이의 절반. 아이소메트리의 2:1 타일 비율
     [SerializeField] private float tileWidthHalf = 0.64f;
@@ -37,24 +50,30 @@ public class BoardManager : MonoBehaviour
 
     private void GenerateBoard() // 보드 생성기
     {
-        for (int y = 0; y < height; y++) // 타일 높이 6개 만큼 반복
+        for (int y = 0; y < height; y++) // 타일 높이만큼 반복
         {
-            for (int x = 0; x < width; x++) // 타일 너비 5개 만큼 반복
+            for (int x = 0; x < width; x++) // 타일 너비만큼 반복
             {
                 Vector3 position = GridToWorld(x, y); // 격자 좌표를 월드 좌표로 변환
 
-                GameObject prefabToSpawn = GetTilePrefab(x, y);
-                GameObject tileObject = Instantiate(prefabToSpawn, position, Quaternion.identity, tileParent);  // 프리팹을 복제여 배치
+                // <변경부분> 단일 타일 프리팹을 복제하여 배치
+                GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity, tileParent);
 
                 tileObject.name = $"Tile_{x}_{y}"; // 자식 타일 이름 지정
 
                 SpriteRenderer spriteRenderer = tileObject.GetComponent<SpriteRenderer>();
+
+                if (spriteRenderer == null)
+                {
+                    spriteRenderer = tileObject.GetComponentInChildren<SpriteRenderer>();
+                }
+
                 if (spriteRenderer != null) // 아이소메트리 타일 정렬 순서 지정
                 {
                     spriteRenderer.sortingOrder = -(x + y);
                 }
 
-                Tile tile = tileObject.GetComponent<Tile>(); // 타일 컨포넌트 가져오기
+                Tile tile = tileObject.GetComponent<Tile>(); // 타일 컴포넌트 가져오기
 
                 if (tile == null)
                 {
@@ -62,20 +81,66 @@ public class BoardManager : MonoBehaviour
                     continue;
                 }
 
-                TileType tileType = ((x + y) % 2 == 0) ? TileType.Metal : TileType.MetalDark; //초기 지형 타입 결정
+                // <변경부분> 체크무늬 규칙에 따라 A/B 타일 데이터를 선택
+                TileData tileData = GetCheckerTileData(x, y);
 
-                tile.Initialize(x, y, tileType); // 타일에 타입과 좌표를 넣는다
+                if (tileData == null)
+                {
+                    Debug.LogError($"체크무늬 타일 데이터가 없습니다. 좌표: ({x}, {y}) / BoardManager의 checkerTileDataA, checkerTileDataB를 확인하세요.");
+                    continue;
+                }
+
+                // <변경부분> TileData 기준으로 좌표/지형/스프라이트/효과를 한 번에 초기화
+                tile.Initialize(x, y, tileData);
 
                 tiles[x, y] = tile; // 2차원 배열에 저장
             }
         }
     }
 
-
-    private GameObject GetTilePrefab(int x, int y)
+    // <변경부분> 체크무늬 규칙에 따라 사용할 TileData를 반환하는 함수
+    private TileData GetCheckerTileData(int x, int y)
     {
-        bool isEven = (x + y) % 2 == 0; //x + y가 짝수이면 첫 번째 프리팹
-        return isEven ? tilePrefab1 : tilePrefab2; // 짝수 칸이면 타일 1, 홀수 칸이면 타일 2 반환
+        bool isEven = (x + y) % 2 == 0;
+
+        return isEven ? checkerTileDataA : checkerTileDataB;
+    }
+
+    // <변경부분> TileType 기준으로 TileData를 가져오는 함수
+    private TileData GetTileData(TileType tileType)
+    {
+        if (tileDatabase == null)
+        {
+            Debug.LogError("TileDatabase가 BoardManager에 연결되지 않았습니다.");
+            return null;
+        }
+
+        return tileDatabase.GetData(tileType);
+    }
+
+    // <변경부분> 외부 시스템 또는 스킬에서 특정 좌표의 타일 데이터를 교체할 때 사용하는 함수
+    public bool ChangeTileData(int x, int y, TileType newTileType)
+    {
+        Tile tile = GetTile(x, y);
+
+        if (tile == null)
+        {
+            return false;
+        }
+
+        TileData tileData = GetTileData(newTileType);
+
+        if (tileData == null)
+        {
+            Debug.LogWarning($"{newTileType}에 해당하는 TileData가 없어 타일을 변경할 수 없습니다.");
+            return false;
+        }
+
+        tile.ApplyTileData(tileData);
+
+        Debug.Log($"타일 변경: ({x}, {y}) → {newTileType}");
+
+        return true;
     }
 
 

@@ -212,34 +212,31 @@ public class BattleSkillManager : MonoBehaviour
 
         switch (piece.UniqueSkill)
         {
-            // <변경부분> 복제: 원본 기물과 같은 정보를 가진 기물을 생성
             case UniqueSkillType.JelluClone:
                 return UseJelluClone(piece);
 
-            // <변경부분> 증식: 인접한 빈칸에 젤루 Pawn 생성
             case UniqueSkillType.JelluMultiply:
                 return UseJelluMultiply(piece);
 
-            // <변경부분> 젤루 폰 고유스킬: 인접한 아군/중립 젤루 태그 기물 2개를 합성해 랜덤 상위 젤루 기물로 승급
-            case UniqueSkillType.JelluSynthesis:
-                return UseJelluSynthesis(piece);
-
-            // <변경부분> King 전용 고유스킬: 이번 턴 동안 이동/공격만 Queen처럼 처리
             case UniqueSkillType.KingQueenMove:
                 return UseKingQueenMove(piece);
 
-            // <변경부분> 젤루 벽: 진행방향 1칸 앞에 젤루 태그 중립 벽 생성
+            case UniqueSkillType.JelluSynthesis:
+                return UseJelluSynthesis(piece);
+
             case UniqueSkillType.JelluWall:
                 return UseJelluWall(piece);
 
-            // <변경부분> 퇴화: 자기 자신에게 퇴화 상태이상 부여
             case UniqueSkillType.JelluDegeneration:
                 return UseJelluDegeneration(piece);
 
-            default:
-                Debug.Log("사용할 수 있는 고유 스킬이 없습니다.");
-                return false;
+            // <변경부분> 뿔 박치기: 물/늪 타일 위에서 자신에게 돌파 상태 1턴 부여
+            case UniqueSkillType.HornHeadbutt:
+                return UseHornHeadbutt(piece);
         }
+
+        // <변경부분> 처리할 수 없는 고유스킬이면 스킬 사용 실패 처리
+        return false;
     }
 
     // <변경부분> 고유스킬을 코루틴으로 실행하는 함수
@@ -771,6 +768,55 @@ public class BattleSkillManager : MonoBehaviour
         piece.AddStatusEffect(degenerationData);
 
         Debug.Log($"{piece.Team} {piece.PieceType}에게 퇴화 상태이상을 부여했습니다.");
+
+        return true;
+    }
+
+    // <변경부분> 뿔 박치기 고유스킬
+    // 스킬을 사용하는 기물이 Water 또는 Swamp 타일 위에 있을 때 자신에게 Breakthrough 상태이상 1턴을 부여
+    private bool UseHornHeadbutt(Piece piece)
+    {
+        // 필요한 매니저가 연결되지 않았으면 스킬 실행 불가
+        if (piece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 현재 기물이 올라간 타일 정보가 없으면 스킬 실패
+        if (piece.CurrentTile == null)
+        {
+            Debug.Log("뿔 박치기 실패: 현재 타일 정보를 찾을 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 물 또는 늪 타일 위에서만 사용 가능
+        if (piece.CurrentTile.TileType != TileType.Water &&
+            piece.CurrentTile.TileType != TileType.Swamp)
+        {
+            Debug.Log($"뿔 박치기 실패: 현재 타일이 {piece.CurrentTile.TileType}입니다. Water 또는 Swamp 타일에서만 사용할 수 있습니다.");
+            return false;
+        }
+
+        // <변경부분> 돌파 상태이상 데이터가 없으면 스킬 실패
+        if (statusEffectDatabase == null)
+        {
+            Debug.LogWarning("StatusEffectDatabase가 연결되지 않아 뿔 박치기를 사용할 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 돌파 상태이상 데이터 가져오기
+        StatusEffectData breakthroughData = statusEffectDatabase.GetData(StatusEffectType.Breakthrough);
+
+        if (breakthroughData == null)
+        {
+            Debug.LogWarning("StatusEffectDatabase에서 Breakthrough 데이터를 찾을 수 없습니다.");
+            return false;
+        }
+
+        // <변경부분> 자신에게 돌파 상태이상 부여
+        piece.AddStatusEffect(breakthroughData);
+
+        Debug.Log($"뿔 박치기 성공: {piece.Team} {piece.PieceType}에게 Breakthrough 상태이상 1턴 부여");
 
         return true;
     }
