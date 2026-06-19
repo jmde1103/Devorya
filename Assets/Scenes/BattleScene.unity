@@ -5028,6 +5028,8 @@ MonoBehaviour:
   battleMoveValidator: {fileID: 1035375297}
   currentTurn: 0
   turnCount: 1
+  playerDefeatCondition: -1
+  enemyDefeatCondition: 10
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -106283,6 +106285,112 @@ MonoBehaviour:
   pieceYOffset: 0.25
   maxPlayerPieceCount: 10
   maxEnemyPieceCount: 10
+  testBattlePieceSpawnData:
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
+    team: 0
+    x: 0
+    y: 1
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
+    team: 0
+    x: 1
+    y: 1
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
+    team: 0
+    x: 2
+    y: 1
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
+    team: 0
+    x: 3
+    y: 1
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
+    team: 0
+    x: 4
+    y: 1
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
+    team: 0
+    x: 0
+    y: 0
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
+    team: 0
+    x: 4
+    y: 0
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 7402bfcf50eb2f042979f1373fcf7f07, type: 2}
+    team: 0
+    x: 3
+    y: 0
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 61c3ce4b2ec3253418f1fa0f8726e066, type: 2}
+    team: 0
+    x: 1
+    y: 0
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
+    team: 0
+    x: 2
+    y: 0
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+    team: 1
+    x: 0
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+    team: 1
+    x: 1
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+    team: 1
+    x: 2
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+    team: 1
+    x: 3
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+    team: 1
+    x: 4
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
 --- !u!4 &1157817763
 Transform:
   m_ObjectHideFlags: 0

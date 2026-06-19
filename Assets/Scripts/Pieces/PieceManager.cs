@@ -109,6 +109,11 @@ public class PieceManager : MonoBehaviour
     // <변경부분> 적 진영이 보유할 수 있는 최대 기물 수
     [SerializeField] private int maxEnemyPieceCount = 10;
 
+    [Header("Data Based Test Spawn")]
+    // <변경부분> 2차 데이터화: 현재 테스트 전투에서 사용할 기물 배치 데이터 목록
+    // 나중에는 이 배열을 PieceManager가 직접 들고 있지 않고, NodeBattleData / PlayerPartyData / BattleSetupManager에서 전달받게 된다.
+    [SerializeField] private BattlePieceSpawnData[] testBattlePieceSpawnData;
+
     private void Start()
     {
         pieces = new Piece[boardManager.Width, boardManager.Height];
@@ -140,50 +145,47 @@ public class PieceManager : MonoBehaviour
         return pieceAnimationManager;
     }
 
-    // 테스트용 기물들을 보드 위에 배치하는 함수
+    // <변경부분> 테스트용 기물 배치를 데이터 기반으로 생성하는 함수
+    // 기존처럼 코드에서 직접 PieceType / Team / 좌표를 박지 않고,
+    // 인스펙터의 testBattlePieceSpawnData 배열을 기준으로 생성한다.
     private void SpawnTestPieces()
     {
-        // 플레이어 진영 아래쪽 배치
-        SpawnPiece(PieceType.Rook, PieceTeam.Player, 0, 0, true);
-        SpawnPiece(PieceType.Knight, PieceTeam.Player, 3, 0, true);
-        SpawnPiece(PieceType.Bishop, PieceTeam.Player, 1, 0, true);
-        SpawnPiece(PieceType.King, PieceTeam.Player, 2, 0, true);
-        SpawnPiece(PieceType.Rook, PieceTeam.Player, 4, 0, true);
-
-        // 플레이어 폰 배치
-        for (int x = 0; x < boardManager.Width; x++)
+        // <변경부분> 테스트 배치 데이터가 없으면 생성하지 않음
+        if (testBattlePieceSpawnData == null || testBattlePieceSpawnData.Length == 0)
         {
-            SpawnPiece(PieceType.Pawn, PieceTeam.Player, x, 1, true);
+            Debug.LogWarning("testBattlePieceSpawnData가 비어 있습니다. PieceManager 인스펙터에서 테스트 기물 배치 데이터를 설정하세요.");
+            return;
         }
 
-        // 적 진영 위쪽 배치
-        // <변경부분> 현재 테스트 단계에서는 적 진영을 젤루 종족 태그 보유 기물로 생성
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 4, 5, true, UniqueSkillType.HornHeadbutt, PieceSpeciesTag.Jellu);
-        SpawnPiece(PieceType.Knight, PieceTeam.Enemy, 1, 5, true, UniqueSkillType.JelluDegeneration, PieceSpeciesTag.Jellu);
-        SpawnPiece(PieceType.Bishop, PieceTeam.Enemy, 3, 5, true, UniqueSkillType.JelluWall, PieceSpeciesTag.Jellu);
+        // <변경부분> 데이터 배열을 순회하며 기물 생성
+        SpawnPiecesFromDataList(testBattlePieceSpawnData);
+    }
 
-        // <변경부분> 기존 증식 스킬은 젤루 King 테스트용으로 이동
-        SpawnPiece(PieceType.King, PieceTeam.Enemy, 2, 5, true, UniqueSkillType.JelluMultiply, PieceSpeciesTag.Jellu);
-
-        SpawnPiece(PieceType.Rook, PieceTeam.Enemy, 0, 5, true, UniqueSkillType.HornHeadbutt, PieceSpeciesTag.Jellu);
-
-        // 적 폰 배치
-        for (int x = 0; x < boardManager.Width; x++)
+    // <변경부분> 여러 개의 BattlePieceSpawnData를 순서대로 생성하는 함수
+    // 현재는 테스트 배치용으로 사용하고, 나중에는 BattleSetupManager가 이 함수를 호출하게 된다.
+    public void SpawnPiecesFromDataList(BattlePieceSpawnData[] spawnDataList)
+    {
+        if (spawnDataList == null)
         {
-            // <변경부분> 젤루 Pawn의 새 고유스킬은 젤루 합성
-            SpawnPiece(PieceType.Pawn, PieceTeam.Enemy, x, 4, true, UniqueSkillType.JelluSynthesis, PieceSpeciesTag.Jellu);
+            Debug.LogWarning("SpawnPiecesFromDataList 실패: spawnDataList가 null입니다.");
+            return;
         }
 
-        // 중립 장애물은 지금은 기본 배치에서 제외
-
-        // <변경부분> 테스트용: PieceDatabase에서 JelluPawn 데이터를 정확히 찾아 데이터 기반 생성 확인
-        if (pieceDatabase != null)
+        for (int i = 0; i < spawnDataList.Length; i++)
         {
-            PieceData pawnData = pieceDatabase.GetData("Jellu Pawn");
+            BattlePieceSpawnData spawnData = spawnDataList[i];
 
-            if (pawnData != null)
+            if (spawnData == null)
             {
-                SpawnPieceFromData(pawnData, PieceTeam.Enemy, 2, 3, true);
+                Debug.LogWarning($"SpawnPiecesFromDataList: {i}번 배치 데이터가 null입니다.");
+                continue;
+            }
+
+            Piece spawnedPiece = SpawnPieceFromData(spawnData);
+
+            if (spawnedPiece == null)
+            {
+                Debug.LogWarning($"SpawnPiecesFromDataList: {i}번 배치 데이터 생성 실패");
             }
         }
     }
@@ -1022,6 +1024,37 @@ public class PieceManager : MonoBehaviour
         }
 
         // 하나도 없으면 false
+        return false;
+    }
+
+    // <변경부분> 지정한 진영에 이동 가능한 기물이 하나라도 있는지 확인하는 함수
+    // NoMovablePieces 패배 조건에서 사용한다.
+    public bool HasAnyMovablePiece(PieceTeam team)
+    {
+        for (int x = 0; x < boardManager.Width; x++)
+        {
+            for (int y = 0; y < boardManager.Height; y++)
+            {
+                Piece piece = pieces[x, y];
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != team)
+                {
+                    continue;
+                }
+
+                // <변경부분> CanMove가 true인 기물이 하나라도 있으면 아직 패배 아님
+                if (piece.CanMove)
+                {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
