@@ -7,6 +7,10 @@ public class Piece : MonoBehaviour
     public PieceType PieceType { get; private set; } // 현재 기물의 종류
     public PieceTeam Team { get; private set; } // 기물의 소속 진영
 
+    // <변경부분> 이 기물이 어떤 PieceData를 기반으로 생성/변경되었는지 저장
+    // 외형, 상태 UI 이미지, 타입 아이콘 위치를 PieceData 기준으로 갱신할 때 사용
+    public PieceData CurrentPieceData { get; private set; }
+
     // <변경부분> 이 기물이 보유한 일반스킬 목록
     [SerializeField] private List<OwnedGeneralSkillData> generalSkills = new List<OwnedGeneralSkillData>();
 
@@ -121,6 +125,13 @@ public class Piece : MonoBehaviour
 
         // <변경부분> 생성 시 전달받은 종족 태그를 초기화
         SetSpeciesTags(initialSpeciesTags);
+    }
+
+    // <변경부분> 현재 기물이 참조할 PieceData를 저장하는 함수
+    // PieceManager가 SpawnPieceFromData / 흡수 / 승급 / 복제 후 외형 갱신 기준으로 사용한다.
+    public void SetCurrentPieceData(PieceData pieceData)
+    {
+        CurrentPieceData = pieceData;
     }
 
     public void SetPosition(int x, int y, Tile newTile)  // 기물의 보드 좌표와 현재 타일 정보를 갱신하는 함수
@@ -504,6 +515,40 @@ public class Piece : MonoBehaviour
         hasUsedUniqueSkillThisTurn = false;
     }
 
+    // <변경부분> PieceData 기준으로 기물의 핵심 데이터를 변경하는 함수
+    // 젤루 합성 승급, 아이템 변환, 추후 저장 데이터 복원에서 사용한다.
+    public void ChangePieceData(PieceData newPieceData, bool isAbsorbedJelluVisual)
+    {
+        if (newPieceData == null)
+        {
+            Debug.LogWarning("ChangePieceData 실패: newPieceData가 null입니다.");
+            return;
+        }
+
+        // <변경부분> 현재 기물이 참조할 PieceData 갱신
+        CurrentPieceData = newPieceData;
+
+        // <변경부분> PieceData의 타입/고유스킬을 현재 기물에 반영
+        PieceType = newPieceData.pieceType;
+        UniqueSkill = newPieceData.uniqueSkill;
+
+        // <변경부분> 흡수 젤루 외형 여부 저장
+        IsAbsorbedJelluVisual = isAbsorbedJelluVisual;
+
+        // <변경부분> PieceData에 정의된 종족 태그로 갱신
+        SetSpeciesTags(newPieceData.speciesTags);
+
+        // <변경부분> 흡수 외형이면 젤루 태그 보장
+        if (isAbsorbedJelluVisual)
+        {
+            AddSpeciesTag(PieceSpeciesTag.Jellu);
+        }
+
+        // <변경부분> 새 고유스킬은 다음 턴부터 자연스럽게 사용할 수 있도록 쿨타임 초기화
+        uniqueSkillCooldown = 0;
+        hasUsedUniqueSkillThisTurn = false;
+    }
+
     // <변경부분> 다른 기물의 핵심 데이터를 흡수해서 현재 기물에 적용하는 함수
     public void AbsorbFrom(Piece targetPiece)
     {
@@ -519,6 +564,10 @@ public class Piece : MonoBehaviour
 
         // 대상의 고유 스킬 복사
         UniqueSkill = targetPiece.UniqueSkill;
+
+        // <변경부분> 흡수 대상의 PieceData를 현재 기물에 복사
+        // 이후 외형/상태 UI/타입 아이콘 위치는 이 데이터 기준으로 갱신된다.
+        CurrentPieceData = targetPiece.CurrentPieceData;
 
         // <변경부분> 흡수로 새로 얻은 고유스킬은 이번 턴에는 바로 사용할 수 없도록 처리
         hasUsedUniqueSkillThisTurn = true;

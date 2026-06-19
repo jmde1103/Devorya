@@ -19,82 +19,6 @@ public class PieceManager : MonoBehaviour
     [Header("Piece Prefab")]
     [SerializeField] private GameObject piecePrefab;
 
-    // 플레이어 기물 스프라이트들
-    [Header("Player Piece Sprites")]
-    [SerializeField] private Sprite playerPawnSprite;
-    [SerializeField] private Sprite playerRookSprite;
-    [SerializeField] private Sprite playerKnightSprite;
-    [SerializeField] private Sprite playerBishopSprite;
-    [SerializeField] private Sprite playerKingSprite;
-
-
-    // 적 기물 스프라이트들
-    [Header("Enemy Piece Sprites")]
-    [SerializeField] private Sprite enemyPawnSprite;
-    [SerializeField] private Sprite enemyRookSprite;
-    [SerializeField] private Sprite enemyKnightSprite;
-    [SerializeField] private Sprite enemyBishopSprite;
-    [SerializeField] private Sprite enemyKingSprite;
-
-    [Header("Absorbed Jellu Back Sprites")]
-    [SerializeField] private Sprite absorbedJelluPawnBackSprite;
-    [SerializeField] private Sprite absorbedJelluRookBackSprite;
-    [SerializeField] private Sprite absorbedJelluKnightBackSprite;
-    [SerializeField] private Sprite absorbedJelluBishopBackSprite;
-    [SerializeField] private Sprite absorbedJelluKingBackSprite;
-
-    // Player아이콘 위치
-    [Header("Player Type Icon Positions")]
-    [SerializeField] private Vector3 playerPawnTypeIconPosition;
-    [SerializeField] private Vector3 playerRookTypeIconPosition;
-    [SerializeField] private Vector3 playerKnightTypeIconPosition;
-    [SerializeField] private Vector3 playerBishopTypeIconPosition;
-    [SerializeField] private Vector3 playerKingTypeIconPosition;
-
-    // Enemy 타입 아이콘 위치
-    [Header("Enemy Type Icon Positions")]
-    [SerializeField] private Vector3 enemyPawnTypeIconPosition;
-    [SerializeField] private Vector3 enemyRookTypeIconPosition;
-    [SerializeField] private Vector3 enemyKnightTypeIconPosition;
-    [SerializeField] private Vector3 enemyBishopTypeIconPosition;
-    [SerializeField] private Vector3 enemyKingTypeIconPosition;
-
-
-    // 흡수된 Jellu 타입 아이콘 위치
-    [Header("Absorbed Jellu Type Icon Positions")]
-    [SerializeField] private Vector3 absorbedJelluPawnTypeIconPosition;
-    [SerializeField] private Vector3 absorbedJelluRookTypeIconPosition;
-    [SerializeField] private Vector3 absorbedJelluKnightTypeIconPosition;
-    [SerializeField] private Vector3 absorbedJelluBishopTypeIconPosition;
-    [SerializeField] private Vector3 absorbedJelluKingTypeIconPosition;
-
-    // <변경부분> 중립 기물 타입 아이콘 위치
-    // 나중에는 PieceData에 포함시킬 예정이므로, 현재는 임시로 Special 위치만 PieceManager에서 관리
-    [Header("Neutral Type Icon Positions")]
-    [SerializeField] private Vector3 neutralSpecialTypeIconPosition;
-
-    [Header("Player Status UI Sprites")]
-    [SerializeField] private Sprite playerPawnStatusSprite;
-    [SerializeField] private Sprite playerRookStatusSprite;
-    [SerializeField] private Sprite playerKnightStatusSprite;
-    [SerializeField] private Sprite playerBishopStatusSprite;
-    [SerializeField] private Sprite playerKingStatusSprite;
-
-    [Header("Absorbed Jellu Status UI Sprites")]
-    [SerializeField] private Sprite absorbedJelluPawnStatusSprite;
-    [SerializeField] private Sprite absorbedJelluRookStatusSprite;
-    [SerializeField] private Sprite absorbedJelluKnightStatusSprite;
-    [SerializeField] private Sprite absorbedJelluBishopStatusSprite;
-    [SerializeField] private Sprite absorbedJelluKingStatusSprite;
-
-    //중립 기물 스프라이트
-    [Header("Neutral Piece Sprites")]
-    [SerializeField] private Sprite obstacleSprite;
-
-    // <변경부분> 젤루 벽 전용 스프라이트
-    // Neutral + Special + Jellu 태그를 가진 벽 기물에 사용
-    [SerializeField] private Sprite jelluWallSprite;
-
     //보드 좌표별 기물 저장 배열
     private Piece[,] pieces;
 
@@ -229,18 +153,17 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
-        // <변경부분> 생성된 기물의 실제 전투 데이터 초기화
-        // 이 코드가 빠지면 Team / PieceType / 좌표 / CurrentTile / CanMove / UniqueSkill / 종족태그가 설정되지 않아 기물 선택이 막힘
-        piece.Initialize(
-            pieceType,
-            team,
-            x,
-            y,
-            targetTile,
-            canMove,
-            uniqueSkill,
-            speciesTags
-        );
+        // 기물 데이터 초기화
+        // <변경부분> 생성 시 종족 태그도 함께 초기화
+        piece.Initialize(pieceType, team, x, y, targetTile, canMove, uniqueSkill, speciesTags);
+
+        // <변경부분> 기존 SpawnPiece로 생성된 기물도 가능한 경우 PieceData를 연결
+        PieceData resolvedPieceData = ResolvePieceDataForLegacySpawn(pieceType, team, speciesTags);
+
+        if (resolvedPieceData != null)
+        {
+            piece.SetCurrentPieceData(resolvedPieceData);
+        }
 
         // <변경부분> 테스트용: 적 기물은 King을 제외하고 일반스킬을 각각 확률적으로 보유
         // 여러 일반스킬 흡수와 발동 흐름을 테스트하기 위한 임시 로직
@@ -272,14 +195,9 @@ public class PieceManager : MonoBehaviour
             }
         }
 
-        // 팀과 기물 종류에 맞는 스프라이트 적용
-        ApplyPieceSprite(pieceObject, pieceType, team);
-
-        // <변경부분> 생성된 기물의 스테이터스 UI용 스프라이트 적용
-        ApplyStatusUISprite(piece);
-
-        // <변경부분> 생성된 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
-        ApplyCurrentTypeIconPosition(piece);
+        // <변경부분> 생성된 기물의 PieceData가 있으면 데이터 기준으로,
+        // 없으면 기존 하드코딩 기준으로 외형/UI/아이콘 위치 적용
+        RefreshPieceVisual(piece);
 
         // 기물의 아이소메트리 정렬 순서 설정
         SetPieceSortingOrder(pieceObject, x, y);
@@ -289,6 +207,128 @@ public class PieceManager : MonoBehaviour
 
         // 생성한 Piece 반환
         return piece;
+    }
+
+    // <변경부분> 기존 SpawnPiece 경로에서 PieceType / Team / SpeciesTag를 기준으로 PieceData를 찾아주는 임시 변환 함수
+    // 최종적으로 모든 생성이 SpawnPieceFromData로 바뀌면 삭제 대상
+    private PieceData ResolvePieceDataForLegacySpawn(PieceType pieceType, PieceTeam team, PieceSpeciesTag[] speciesTags)
+    {
+        if (pieceDatabase == null)
+        {
+            return null;
+        }
+
+        // <변경부분> 중립 젤루 벽
+        if (team == PieceTeam.Neutral &&
+            pieceType == PieceType.Special &&
+            HasSpeciesTagInArray(speciesTags, PieceSpeciesTag.Jellu))
+        {
+            PieceData wallData = pieceDatabase.GetData("Jellu Netral");
+
+            if (wallData != null)
+            {
+                return wallData;
+            }
+        }
+
+        // <변경부분> 젤루 계열 기물
+        if (HasSpeciesTagInArray(speciesTags, PieceSpeciesTag.Jellu))
+        {
+            string jelluPieceId = GetJelluPieceId(pieceType);
+
+            PieceData jelluData = pieceDatabase.GetData(jelluPieceId);
+
+            if (jelluData != null)
+            {
+                return jelluData;
+            }
+        }
+
+        // <변경부분> 기본 플레이어 데보리아 계열 기물
+        if (team == PieceTeam.Player)
+        {
+            string devoryaPieceId = GetDevoryaPieceId(pieceType);
+
+            PieceData devoryaData = pieceDatabase.GetData(devoryaPieceId);
+
+            if (devoryaData != null)
+            {
+                return devoryaData;
+            }
+        }
+
+        // <변경부분> 그 외에는 PieceType 기준 fallback
+        return pieceDatabase.GetData(pieceType);
+    }
+
+    // <변경부분> 종족 태그 배열에 특정 태그가 있는지 확인
+    private bool HasSpeciesTagInArray(PieceSpeciesTag[] speciesTags, PieceSpeciesTag targetTag)
+    {
+        if (speciesTags == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < speciesTags.Length; i++)
+        {
+            if (speciesTags[i] == targetTag)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // <변경부분> PieceType 기준 젤루 PieceData ID 반환
+    private string GetJelluPieceId(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Pawn:
+                return "Jellu Pawn";
+
+            case PieceType.Rook:
+                return "Jellu Rook";
+
+            case PieceType.Knight:
+                return "Jellu Knight";
+
+            case PieceType.Bishop:
+                return "Jellu Bishop";
+
+            case PieceType.King:
+                return "Jellu King";
+
+            case PieceType.Special:
+                return "Jellu Netral";
+        }
+
+        return string.Empty;
+    }
+
+    // <변경부분> PieceType 기준 데보리아 기본 PieceData ID 반환
+    private string GetDevoryaPieceId(PieceType pieceType)
+    {
+        switch (pieceType)
+        {
+            case PieceType.Pawn:
+                return "Devorya Pawn";
+
+            case PieceType.Rook:
+                return "Devorya Rook";
+
+            case PieceType.Knight:
+                return "Devorya Knight";
+
+            case PieceType.Bishop:
+                return "Devorya Bishop";
+
+            case PieceType.King:
+                return "Devorya King";
+        }
+
+        return string.Empty;
     }
 
     // <변경부분> BattlePieceSpawnData 기준으로 기물을 생성하는 데이터 기반 생성 함수
@@ -349,40 +389,6 @@ public class PieceManager : MonoBehaviour
         }
     }
 
-    // <변경부분> PieceData 기준으로 생성 직후 외형 관련 정보를 적용
-    private void ApplyPieceDataVisual(Piece piece, PieceData pieceData, PieceTeam team, bool isAbsorbedPlayerVisual)
-    {
-        if (piece == null || pieceData == null)
-        {
-            return;
-        }
-
-        SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
-
-        if (spriteRenderer != null)
-        {
-            Sprite spriteToApply = pieceData.GetSprite(team, isAbsorbedPlayerVisual);
-
-            if (spriteToApply != null)
-            {
-                spriteRenderer.sprite = spriteToApply;
-            }
-        }
-
-        // <변경부분> 상태창 UI용 스프라이트를 PieceData 기준으로 저장
-        Sprite statusSprite = pieceData.GetStatusSprite(team, isAbsorbedPlayerVisual);
-
-        if (statusSprite != null)
-        {
-            piece.SetStatusUISprite(statusSprite);
-        }
-
-        // <변경부분> 타입 아이콘 위치를 PieceData 기준으로 적용
-        Vector3 typeIconPosition = pieceData.GetTypeIconPosition(team, isAbsorbedPlayerVisual);
-
-        piece.SetTypeIconLocalPosition(typeIconPosition);
-    }
-
     // <변경부분> PieceData 기준으로 기물을 생성하는 핵심 함수
     // 기존 SpawnPiece와 달리 스프라이트/상태 UI/타입 아이콘/기본 일반스킬을 PieceData에서 적용한다.
     public Piece SpawnPieceFromData(PieceData pieceData, PieceTeam team, int x, int y, bool canMove, bool isAbsorbedPlayerVisual = false)
@@ -430,24 +436,27 @@ public class PieceManager : MonoBehaviour
 
         // <변경부분> PieceData의 기본 전투 정보로 Piece 초기화
         piece.Initialize(
-            pieceData.pieceType,
-            team,
-            x,
-            y,
-            targetTile,
-            canMove,
-            pieceData.uniqueSkill,
-            pieceData.speciesTags
+         pieceData.pieceType,
+         team,
+          x,
+          y,
+         targetTile,
+         canMove,
+         pieceData.uniqueSkill,
+         pieceData.speciesTags
         );
 
-        // <변경부분> 플레이어 저장 데이터 기반 생성 시 흡수 외형 상태를 적용할 수 있도록 준비
+        // <변경부분> 이 기물이 어떤 PieceData를 기반으로 생성되었는지 저장
+        piece.SetCurrentPieceData(pieceData);
+
+        // <변경부분> 플레이어 흡수 외형인 경우 PieceData 외형 선택 전에 상태를 먼저 저장
         piece.SetAbsorbedJelluVisual(isAbsorbedPlayerVisual);
 
-        // <변경부분> PieceData에 지정된 기본 일반스킬을 적용
+        // <변경부분> PieceData에 정의된 기본 일반스킬을 적용
         ApplyDefaultGeneralSkillsFromData(piece, pieceData);
 
-        // <변경부분> PieceData 기준으로 스프라이트/상태 UI/타입 아이콘 위치 적용
-        ApplyPieceDataVisual(piece, pieceData, team, isAbsorbedPlayerVisual);
+        // <변경부분> PieceData 기준으로 필드 스프라이트, 상태 UI, 타입 아이콘 위치를 한 번에 적용
+        RefreshPieceVisual(piece);
 
         // 기물의 아이소메트리 정렬 순서 설정
         SetPieceSortingOrder(pieceObject, x, y);
@@ -457,29 +466,6 @@ public class PieceManager : MonoBehaviour
         Debug.Log($"데이터 기반 기물 생성: {team} / {pieceData.pieceType} / ({x}, {y})");
 
         return piece;
-    }
-
-    //기물 종류와 팀에 따라 스프라이트를 설정하는 함수
-    private void ApplyPieceSprite(GameObject pieceObject, PieceType pieceType, PieceTeam team)
-    {
-        //SpriteRenderer 가져오기
-        SpriteRenderer spriteRenderer = pieceObject.GetComponent<SpriteRenderer>();
-
-        //SpriteRenderer가 없으면 처리하지 않음
-        if (spriteRenderer == null)
-        {
-            return;
-        }
-
-        //적용할 스프라이트를 결정
-        Sprite spriteTpApply = GetPieceSprite(pieceType, team);
-
-        //스프라이트가 있으면 적용
-        if (spriteTpApply != null)
-        {
-            spriteRenderer.sprite = spriteTpApply;
-        }
-
     }
 
     // 흡수 대상의 데이터를 복사하고 외형을 갱신하는 함수
@@ -494,38 +480,15 @@ public class PieceManager : MonoBehaviour
         // 흡수자는 Jellu 뒷면 외형 상태로 변경
         absorber.SetAbsorbedJelluVisual(true);
 
-        // 흡수할 대상의 기물 타입 저장
-        PieceType absorbedType = targetPiece.PieceType;
-
         // 대상 기물 데이터를 흡수자에게 복사
         absorber.AbsorbFrom(targetPiece);
 
         // <변경부분> 대상이 가진 일반 스킬을 흡수자 일반 스킬 슬롯에 저장하거나 성장시킴
         absorber.AbsorbGeneralSkillsFrom(targetPiece);
 
-        // 흡수자의 SpriteRenderer 가져오기
-        SpriteRenderer spriteRenderer = absorber.GetComponent<SpriteRenderer>();
-
-        // SpriteRenderer가 없으면 종료
-        if (spriteRenderer == null)
-        {
-            return;
-        }
-
-        // <변경부분> 흡수 시에는 Devorya 기본 스프라이트가 아니라 흡수한 Jellu의 뒷면 스프라이트 적용
-        Sprite newSprite = GetAbsorbedBackSprite(absorbedType);
-
-        // 스프라이트가 있으면 교체
-        if (newSprite != null)
-        {
-            spriteRenderer.sprite = newSprite;
-        }
-
-        // <변경부분> 흡수 후 스테이터스 UI에는 흡수한 Jellu의 앞면 이미지를 표시
-        ApplyStatusUISprite(absorber);
-
-        // <변경부분> 흡수 후 현재 외형 상태에 맞는 타입 아이콘 위치 적용
-        ApplyCurrentTypeIconPosition(absorber);
+        // <변경부분> 흡수 후 외형/상태 UI/타입 아이콘 위치를 PieceData 기준으로 갱신
+        // CurrentPieceData가 없는 레거시 기물은 RefreshPieceVisual 내부 fallback으로 기존 방식 처리
+        RefreshPieceVisual(absorber);
     }
 
     // <변경부분> King 전용 흡수 처리 함수
@@ -554,208 +517,48 @@ public class PieceManager : MonoBehaviour
         Debug.Log($"King 일반스킬 흡수 완료: 대상 {targetPiece.PieceType}");
     }
 
-    // 흡수 후 플레이어 진영에서 사용할 Jellu 뒷면 스프라이트 반환
-    private Sprite GetAbsorbedBackSprite(PieceType pieceType)
+    // <변경부분> PieceData 기준으로 필드 스프라이트, 스테이터스 UI, 타입 아이콘 위치를 한 번에 적용하는 함수
+    // 데이터화 이후 외형 갱신의 1차 기준 함수
+    private bool ApplyPieceDataVisual(Piece piece)
     {
-        switch (pieceType)
-        {
-            case PieceType.Pawn: return absorbedJelluPawnBackSprite;
-            case PieceType.Rook: return absorbedJelluRookBackSprite;
-            case PieceType.Knight: return absorbedJelluKnightBackSprite;
-            case PieceType.Bishop: return absorbedJelluBishopBackSprite;
-            case PieceType.King: return absorbedJelluKingBackSprite;
-        }
-
-        return null;
-    }
-
-    // <변경부분> 기물의 현재 외형 상태에 맞춰 스프라이트를 다시 적용하는 함수
-    private void ApplyCurrentVisual(Piece piece)
-    {
-        // 기물이 없으면 종료
         if (piece == null)
         {
-            return;
+            return false;
         }
 
-        // SpriteRenderer 가져오기
+        PieceData pieceData = piece.CurrentPieceData;
+
+        if (pieceData == null)
+        {
+            return false;
+        }
+
+        // <변경부분> 필드 스프라이트 적용
         SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
 
-        // SpriteRenderer가 없으면 종료
-        if (spriteRenderer == null)
+        if (spriteRenderer != null)
         {
-            return;
+            Sprite spriteToApply = pieceData.GetSprite(piece.Team, piece.IsAbsorbedJelluVisual);
+
+            if (spriteToApply != null)
+            {
+                spriteRenderer.sprite = spriteToApply;
+            }
         }
 
-        Sprite spriteToApply;
+        // <변경부분> 스테이터스 UI 스프라이트 적용
+        Sprite statusSprite = pieceData.GetStatusSprite(piece.Team, piece.IsAbsorbedJelluVisual);
 
-        // 흡수된 Jellu 외형이면 Jellu 뒷면 스프라이트 사용
-        if (piece.IsAbsorbedJelluVisual)
+        if (statusSprite != null)
         {
-            spriteToApply = GetAbsorbedBackSprite(piece.PieceType);
-        }
-        // <변경부분> 젤루 벽 전용 외형 적용
-        // Neutral + Special + Jellu 태그 기물은 일반 obstacleSprite가 아니라 jelluWallSprite를 우선 사용
-        else if (piece.Team == PieceTeam.Neutral &&
-                 piece.PieceType == PieceType.Special &&
-                 piece.HasSpeciesTag(PieceSpeciesTag.Jellu))
-        {
-            spriteToApply = jelluWallSprite != null ? jelluWallSprite : obstacleSprite;
-        }
-        else
-        {
-            spriteToApply = GetPieceSprite(piece.PieceType, piece.Team);
+            piece.SetStatusUISprite(statusSprite);
         }
 
-        // 스프라이트 적용
-        if (spriteToApply != null)
-        {
-            spriteRenderer.sprite = spriteToApply;
-        }
-    }
+        // <변경부분> 타입 아이콘 위치 적용
+        Vector3 typeIconPosition = pieceData.GetTypeIconPosition(piece.Team, piece.IsAbsorbedJelluVisual);
+        piece.SetTypeIconLocalPosition(typeIconPosition);
 
-    // <변경부분> 기물의 현재 외형 상태에 맞는 타입 아이콘 위치 적용
-    private void ApplyCurrentTypeIconPosition(Piece piece)
-    {
-        // 기물이 없으면 종료
-        if (piece == null)
-        {
-            return;
-        }
-
-        // 현재 기물 상태에 맞는 타입 아이콘 위치 가져오기
-        Vector3 iconPosition = GetTypeIconPosition(piece);
-
-        // 기물에 타입 아이콘 위치 적용
-        piece.SetTypeIconLocalPosition(iconPosition);
-    }
-
-    // <변경부분> 현재 기물 상태에 맞는 타입 아이콘 위치 반환
-    private Vector3 GetTypeIconPosition(Piece piece)
-    {
-        // 기물이 없으면 기본 위치 반환
-        if (piece == null)
-        {
-            return Vector3.zero;
-        }
-
-        // 흡수된 Jellu 외형이면 흡수된 Jellu 아이콘 위치 사용
-        if (piece.IsAbsorbedJelluVisual)
-        {
-            return GetAbsorbedJelluTypeIconPosition(piece.PieceType);
-        }
-
-        // Player 기물이면 Player 아이콘 위치 사용
-        if (piece.Team == PieceTeam.Player)
-        {
-            return GetPlayerTypeIconPosition(piece.PieceType);
-        }
-
-        // Enemy 기물이면 Enemy 아이콘 위치 사용
-        if (piece.Team == PieceTeam.Enemy)
-        {
-            return GetEnemyTypeIconPosition(piece.PieceType);
-        }
-
-        // <변경부분> Neutral 기물이면 Neutral 아이콘 위치 사용
-        // 현재는 젤루 벽 같은 Special 중립 기물용 임시 처리
-        if (piece.Team == PieceTeam.Neutral)
-        {
-            return GetNeutralTypeIconPosition(piece.PieceType);
-        }
-
-        // 그 외 기물은 기본 위치 사용
-        return Vector3.zero;
-    }
-
-    // <변경부분> Player 기물 타입에 맞는 아이콘 위치 반환
-    private Vector3 GetPlayerTypeIconPosition(PieceType pieceType)
-    {
-        switch (pieceType)
-        {
-            case PieceType.Pawn:
-                return playerPawnTypeIconPosition;
-
-            case PieceType.Rook:
-                return playerRookTypeIconPosition;
-
-            case PieceType.Knight:
-                return playerKnightTypeIconPosition;
-
-            case PieceType.Bishop:
-                return playerBishopTypeIconPosition;
-
-            case PieceType.King:
-                return playerKingTypeIconPosition;
-        }
-
-        // 타입이 맞지 않으면 기본 위치 반환
-        return Vector3.zero;
-    }
-
-    // <변경부분> Enemy 기물 타입에 맞는 아이콘 위치 반환
-    private Vector3 GetEnemyTypeIconPosition(PieceType pieceType)
-    {
-        switch (pieceType)
-        {
-            case PieceType.Pawn:
-                return enemyPawnTypeIconPosition;
-
-            case PieceType.Rook:
-                return enemyRookTypeIconPosition;
-
-            case PieceType.Knight:
-                return enemyKnightTypeIconPosition;
-
-            case PieceType.Bishop:
-                return enemyBishopTypeIconPosition;
-
-            case PieceType.King:
-                return enemyKingTypeIconPosition;
-        }
-
-        // 타입이 맞지 않으면 기본 위치 반환
-        return Vector3.zero;
-    }
-
-    // <변경부분> Neutral 기물 타입에 맞는 아이콘 위치 반환
-    // 현재는 젤루 벽처럼 Neutral + Special 기물만 사용하므로 Special 위치만 임시 관리
-    private Vector3 GetNeutralTypeIconPosition(PieceType pieceType)
-    {
-        switch (pieceType)
-        {
-            case PieceType.Special:
-                return neutralSpecialTypeIconPosition;
-        }
-
-        // 아직 중립 Pawn/Rook/Knight/Bishop/King은 사용하지 않으므로 기본 위치 반환
-        return Vector3.zero;
-    }
-
-
-    // <변경부분> 흡수된 Jellu 기물 타입에 맞는 아이콘 위치 반환
-    private Vector3 GetAbsorbedJelluTypeIconPosition(PieceType pieceType)
-    {
-        switch (pieceType)
-        {
-            case PieceType.Pawn:
-                return absorbedJelluPawnTypeIconPosition;
-
-            case PieceType.Rook:
-                return absorbedJelluRookTypeIconPosition;
-
-            case PieceType.Knight:
-                return absorbedJelluKnightTypeIconPosition;
-
-            case PieceType.Bishop:
-                return absorbedJelluBishopTypeIconPosition;
-
-            case PieceType.King:
-                return absorbedJelluKingTypeIconPosition;
-        }
-
-        // 타입이 맞지 않으면 기본 위치 반환
-        return Vector3.zero;
+        return true;
     }
 
     public Piece GetPieceAt(int x, int y)
@@ -774,108 +577,6 @@ public class PieceManager : MonoBehaviour
     {
         // 해당 좌표에 기물이 없으면 true 반환
         return GetPieceAt(x, y) == null;
-    }
-
-
-    // 기물 종류와 팀에 맞는 스프라이트를 반환
-    private Sprite GetPieceSprite(PieceType pieceType, PieceTeam team)
-    {
-        if (team == PieceTeam.Player)
-        {
-            switch (pieceType)
-            {
-                case PieceType.Pawn: return playerPawnSprite;
-                case PieceType.Rook: return playerRookSprite;
-                case PieceType.Knight: return playerKnightSprite;
-                case PieceType.Bishop: return playerBishopSprite;
-                case PieceType.King: return playerKingSprite;
-            }
-        }
-
-        if (team == PieceTeam.Enemy)
-        {
-            switch (pieceType)
-            {
-                case PieceType.Pawn: return enemyPawnSprite;
-                case PieceType.Rook: return enemyRookSprite;
-                case PieceType.Knight: return enemyKnightSprite;
-                case PieceType.Bishop: return enemyBishopSprite;
-                case PieceType.King: return enemyKingSprite;
-            }
-        }
-
-        if (team == PieceTeam.Neutral)
-        {
-            if (pieceType == PieceType.Special)
-            {
-                return obstacleSprite;
-            }
-        }
-
-        return null;
-    }
-
-    // <변경부분> 현재 기물 상태에 맞는 스테이터스 UI용 스프라이트를 적용하는 함수
-    private void ApplyStatusUISprite(Piece piece)
-    {
-        // 기물이 없으면 종료
-        if (piece == null)
-        {
-            return;
-        }
-
-        // 현재 기물 상태에 맞는 스테이터스 UI용 스프라이트 결정
-        Sprite statusSprite = GetStatusUISprite(piece);
-
-        // 결정된 스테이터스 UI용 스프라이트를 Piece에 저장
-        piece.SetStatusUISprite(statusSprite);
-    }
-
-    // <변경부분> 현재 기물 상태에 맞는 스테이터스 UI용 스프라이트를 반환하는 함수
-    private Sprite GetStatusUISprite(Piece piece)
-    {
-        // 기물이 없으면 null 반환
-        if (piece == null)
-        {
-            return null;
-        }
-
-        // 흡수된 Jellu 외형이면 흡수한 Jellu의 앞면 UI 스프라이트 사용
-        if (piece.IsAbsorbedJelluVisual)
-        {
-            switch (piece.PieceType)
-            {
-                case PieceType.Pawn: return absorbedJelluPawnStatusSprite;
-                case PieceType.Rook: return absorbedJelluRookStatusSprite;
-                case PieceType.Knight: return absorbedJelluKnightStatusSprite;
-                case PieceType.Bishop: return absorbedJelluBishopStatusSprite;
-                case PieceType.King: return absorbedJelluKingStatusSprite;
-            }
-        }
-
-        // 플레이어 기물이면 Devorya 앞면 UI 스프라이트 사용
-        if (piece.Team == PieceTeam.Player)
-        {
-            switch (piece.PieceType)
-            {
-                case PieceType.Pawn: return playerPawnStatusSprite;
-                case PieceType.Rook: return playerRookStatusSprite;
-                case PieceType.Knight: return playerKnightStatusSprite;
-                case PieceType.Bishop: return playerBishopStatusSprite;
-                case PieceType.King: return playerKingStatusSprite;
-            }
-        }
-
-        // <변경부분> 젤루 벽은 스테이터스 UI에서도 젤루 벽 전용 스프라이트 사용
-        if (piece.Team == PieceTeam.Neutral &&
-            piece.PieceType == PieceType.Special &&
-            piece.HasSpeciesTag(PieceSpeciesTag.Jellu))
-        {
-            return jelluWallSprite != null ? jelluWallSprite : obstacleSprite;
-        }
-
-        // 적 기물은 기존 Enemy 스프라이트를 스테이터스 UI에도 사용
-        return GetPieceSprite(piece.PieceType, piece.Team);
     }
 
     // 기물을 특정 좌표로 이동시키는 함수
@@ -1189,21 +890,21 @@ public class PieceManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 현재 기물 데이터에 맞는 필드 스프라이트 갱신
-        ApplyCurrentVisual(piece);
+        // <변경부분> PieceData 기준으로만 외형/UI/타입 아이콘 위치를 갱신
+        // 이제 PieceManager의 하드코딩 스프라이트/아이콘 위치 fallback은 사용하지 않는다.
+        bool appliedByPieceData = ApplyPieceDataVisual(piece);
 
-        // <변경부분> 현재 기물 데이터에 맞는 스테이터스 UI 이미지 갱신
-        ApplyStatusUISprite(piece);
-
-        // <변경부분> 현재 기물 데이터에 맞는 타입 아이콘 위치 갱신
-        ApplyCurrentTypeIconPosition(piece);
+        if (appliedByPieceData == false)
+        {
+            Debug.LogWarning($"RefreshPieceVisual 실패: {piece.Team} {piece.PieceType}에 CurrentPieceData가 연결되어 있지 않습니다.");
+        }
 
         // <변경부분> 현재 좌표 기준 정렬 순서 갱신
         SetPieceSortingOrder(piece.gameObject, piece.X, piece.Y);
     }
 
     // <변경부분> 증식 스킬로 젤루 Pawn을 생성하는 함수
-    // 기존 복제 스킬과 달리 원본 타입을 복사하지 않고 항상 Pawn을 생성함
+    // 기존 SpawnPiece 경유 없이 "Jellu Pawn" PieceData 기준으로 직접 생성한다.
     public Piece SpawnJelluPawn(PieceTeam team, int x, int y)
     {
         // <변경부분> Player / Enemy 진영이 최대 기물 수에 도달했다면 젤루 Pawn 생성 불가
@@ -1214,60 +915,78 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
-        // <변경부분> 젤루 Pawn은 Pawn 전용 고유스킬인 JelluSynthesis를 가진 상태로 생성
-        Piece createdPiece = SpawnPiece(
-            PieceType.Pawn,
+        if (pieceDatabase == null)
+        {
+            Debug.LogWarning("젤루 Pawn 생성 실패: PieceDatabase가 연결되어 있지 않습니다.");
+            return null;
+        }
+
+        // <변경부분> 실제 PieceData ID 기준으로 Jellu Pawn 데이터 검색
+        PieceData jelluPawnData = pieceDatabase.GetData("Jellu Pawn");
+
+        if (jelluPawnData == null)
+        {
+            Debug.LogWarning("젤루 Pawn 생성 실패: PieceDatabase에서 'Jellu Pawn' PieceData를 찾을 수 없습니다.");
+            return null;
+        }
+
+        // <변경부분> Player가 생성한 젤루는 흡수 젤루 뒷면 외형 사용
+        // Enemy가 생성한 젤루는 적 앞면 외형 사용
+        bool useBackSprite = team == PieceTeam.Player;
+
+        // <변경부분> SpawnPiece 경유 없이 PieceData 기반 생성 함수로 직접 생성
+        Piece createdPiece = SpawnPieceFromData(
+            jelluPawnData,
             team,
             x,
             y,
-            true,
-            UniqueSkillType.JelluSynthesis,
-            PieceSpeciesTag.Jellu
+            jelluPawnData.canMove,
+            useBackSprite
         );
 
-        // 생성 실패 시 종료
         if (createdPiece == null)
         {
             return null;
         }
 
-        // <변경부분> Player 젤루는 뒷면, Enemy 젤루는 앞면으로 표시
-        bool useBackSprite = team == PieceTeam.Player;
-
-        // <변경부분> Player가 만든 젤루 Pawn만 흡수 젤루 뒷면 외형 사용
-        createdPiece.SetAbsorbedJelluVisual(useBackSprite);
-
-        // <변경부분> 생성 직후 현재 진영/외형 상태에 맞게 스프라이트와 UI 갱신
-        RefreshPieceVisual(createdPiece);
+        Debug.Log($"젤루 Pawn 생성 완료: {team} / ({x}, {y})");
 
         return createdPiece;
     }
 
-    // <변경부분> 젤루 벽 스킬로 중립 Special 벽을 생성하는 함수
+    // <변경부분> 젤루 벽 스킬로 중립 Special 기물을 생성하는 함수
+    // PieceDatabase의 "Jellu Netral" PieceData 기준으로 생성함
     public Piece SpawnJelluWall(int x, int y)
     {
-        // <변경부분> 벽은 중립 / Special / 이동 불가 / 고유스킬 없음 / 젤루 태그 보유 상태로 생성
-        Piece createdWall = SpawnPiece(
-            PieceType.Special,
+        if (pieceDatabase == null)
+        {
+            Debug.LogWarning("젤루 벽 생성 실패: PieceDatabase가 연결되어 있지 않습니다.");
+            return null;
+        }
+
+        // <변경부분> PieceDatabase에 등록된 실제 중립 젤루 pieceId 기준으로 데이터 검색
+        PieceData jelluNeutralData = pieceDatabase.GetData("Jellu Netral");
+
+        if (jelluNeutralData == null)
+        {
+            Debug.LogWarning("젤루 벽 생성 실패: PieceDatabase에서 'Jellu Netral' PieceData를 찾을 수 없습니다.");
+            return null;
+        }
+
+        // <변경부분> SpawnPiece 경유 없이 PieceData 기반 생성 함수로 바로 생성
+        Piece createdWall = SpawnPieceFromData(
+            jelluNeutralData,
             PieceTeam.Neutral,
             x,
             y,
             false,
-            UniqueSkillType.None,
-            PieceSpeciesTag.Jellu
+            false
         );
 
-        // 생성 실패 시 종료
         if (createdWall == null)
         {
             return null;
         }
-
-        // <변경부분> 중립 벽은 흡수 젤루 뒷면 외형을 쓰지 않고 obstacleSprite 기반 외형을 사용
-        createdWall.SetAbsorbedJelluVisual(false);
-
-        // <변경부분> 생성 직후 중립 Special 스프라이트 / Special 아이콘 / 스테이터스 UI 갱신
-        RefreshPieceVisual(createdWall);
 
         Debug.Log($"젤루 벽 생성 완료: Neutral Special / ({x}, {y})");
 
@@ -1298,11 +1017,23 @@ public class PieceManager : MonoBehaviour
         // Enemy 승급 시 true를 넣으면 흡수 젤루 뒷면 스프라이트가 적용되는 버그가 생김
         bool useBackSprite = piece.Team == PieceTeam.Player;
 
-        // <변경부분> 젤루 승급 후에는 젤루 종족 태그를 유지하되,
-        // 실제 필드 스프라이트는 진영에 따라 Player=뒷면 / Enemy=앞면으로 분기
-        piece.ChangePieceData(promotedType, promotedUniqueSkill, useBackSprite, PieceSpeciesTag.Jellu);
+        string promotedPieceId = GetJelluPieceId(promotedType);
 
-        // <변경부분> 변경된 타입/외형/아이콘/UI를 즉시 갱신
+        PieceData promotedPieceData = null;
+
+        if (pieceDatabase != null)
+        {
+            promotedPieceData = pieceDatabase.GetData(promotedPieceId);
+        }
+
+        if (promotedPieceData == null)
+        {
+            Debug.LogWarning($"젤루 합성 승급 실패: {promotedPieceId} PieceData를 찾을 수 없습니다.");
+            return false;
+        }
+
+        piece.ChangePieceData(promotedPieceData, useBackSprite);
+
         RefreshPieceVisual(piece);
 
         Debug.Log($"젤루 합성 승급 완료: {promotedType}");
@@ -1352,17 +1083,14 @@ public class PieceManager : MonoBehaviour
             return null;
         }
 
+        // <변경부분> 원본 기물의 PieceData 참조 복사
+        clonedPiece.SetCurrentPieceData(sourcePiece.CurrentPieceData);
+
         // <변경부분> 흡수 외형 상태 복사
         clonedPiece.SetAbsorbedJelluVisual(sourcePiece.IsAbsorbedJelluVisual);
 
-        // <변경부분> 복제된 외형 상태 반영
-        ApplyCurrentVisual(clonedPiece);
-
-        // <변경부분> 복제된 기물의 스테이터스 UI 이미지도 현재 외형 상태에 맞게 다시 적용
-        ApplyStatusUISprite(clonedPiece);
-
-        // <변경부분> 복제된 기물의 타입 아이콘 위치도 현재 외형 상태에 맞게 다시 적용
-        ApplyCurrentTypeIconPosition(clonedPiece);
+        // <변경부분> 복제된 기물의 외형/상태 UI/타입 아이콘 위치를 현재 PieceData 기준으로 갱신
+        RefreshPieceVisual(clonedPiece);
 
         return clonedPiece;
     }

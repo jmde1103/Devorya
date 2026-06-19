@@ -5029,7 +5029,7 @@ MonoBehaviour:
   currentTurn: 0
   turnCount: 1
   playerDefeatCondition: -1
-  enemyDefeatCondition: 10
+  enemyDefeatCondition: -1
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -106239,49 +106239,6 @@ MonoBehaviour:
   pieceDatabase: {fileID: 11400000, guid: 5efa2b10da0508c4da63f88c4d746711, type: 2}
   pieceParent: {fileID: 1377629335}
   piecePrefab: {fileID: 4794599025964605050, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-  playerPawnSprite: {fileID: 21300000, guid: d5f31ef29fc69ea4786a01fe38d54d36, type: 3}
-  playerRookSprite: {fileID: 21300000, guid: 2c9190e5399fe804e9cc83870f8db6ff, type: 3}
-  playerKnightSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
-  playerBishopSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  playerKingSprite: {fileID: 21300000, guid: a3676b634bc0aa646b3bbf43dd54ffdd, type: 3}
-  enemyPawnSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
-  enemyRookSprite: {fileID: 21300000, guid: 6edba64561d5bf149a33e55fb0c5b028, type: 3}
-  enemyKnightSprite: {fileID: 21300000, guid: 9bf4251361e76374b97e4a58eae6379c, type: 3}
-  enemyBishopSprite: {fileID: 21300000, guid: 3572dc753ec9b2f419490ef49db2f378, type: 3}
-  enemyKingSprite: {fileID: 21300000, guid: b8202c0c5def56c49a3211f3710ba995, type: 3}
-  absorbedJelluPawnBackSprite: {fileID: 21300000, guid: 9785b8fdc85d1b6439dc333f43817ad4, type: 3}
-  absorbedJelluRookBackSprite: {fileID: 21300000, guid: 4e11c3fde15660449ab96fe774147801, type: 3}
-  absorbedJelluKnightBackSprite: {fileID: 21300000, guid: 2057adc286d131a49afaf92362b9f81f, type: 3}
-  absorbedJelluBishopBackSprite: {fileID: 21300000, guid: f2ab36f48476f774099c2bdd8e0e79d5, type: 3}
-  absorbedJelluKingBackSprite: {fileID: 21300000, guid: 5b46de2e04bd6ae4dadbbb5f1eda3787, type: 3}
-  playerPawnTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  playerRookTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  playerKnightTypeIconPosition: {x: 0.23, y: 0.23, z: 0}
-  playerBishopTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  playerKingTypeIconPosition: {x: 0.32, y: 0.32, z: 0}
-  enemyPawnTypeIconPosition: {x: 0.32, y: 0.16, z: 0}
-  enemyRookTypeIconPosition: {x: 0.35, y: 0.16, z: 0}
-  enemyKnightTypeIconPosition: {x: 0.32, y: 0.4, z: 0}
-  enemyBishopTypeIconPosition: {x: 0.35, y: 0.16, z: 0}
-  enemyKingTypeIconPosition: {x: 0.32, y: 0.32, z: 0}
-  absorbedJelluPawnTypeIconPosition: {x: 0.32, y: 0.16, z: 0}
-  absorbedJelluRookTypeIconPosition: {x: 0.35, y: 0.16, z: 0}
-  absorbedJelluKnightTypeIconPosition: {x: 0.32, y: 0.4, z: 0}
-  absorbedJelluBishopTypeIconPosition: {x: 0.35, y: 0.16, z: 0}
-  absorbedJelluKingTypeIconPosition: {x: 0.32, y: 0.32, z: 0}
-  neutralSpecialTypeIconPosition: {x: 0.35, y: 0.16, z: 0}
-  playerPawnStatusSprite: {fileID: 21300000, guid: d5f31ef29fc69ea4786a01fe38d54d36, type: 3}
-  playerRookStatusSprite: {fileID: 21300000, guid: 2c9190e5399fe804e9cc83870f8db6ff, type: 3}
-  playerKnightStatusSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
-  playerBishopStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  playerKingStatusSprite: {fileID: 21300000, guid: a3676b634bc0aa646b3bbf43dd54ffdd, type: 3}
-  absorbedJelluPawnStatusSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
-  absorbedJelluRookStatusSprite: {fileID: 21300000, guid: 6edba64561d5bf149a33e55fb0c5b028, type: 3}
-  absorbedJelluKnightStatusSprite: {fileID: 21300000, guid: 9bf4251361e76374b97e4a58eae6379c, type: 3}
-  absorbedJelluBishopStatusSprite: {fileID: 21300000, guid: 3572dc753ec9b2f419490ef49db2f378, type: 3}
-  absorbedJelluKingStatusSprite: {fileID: 21300000, guid: b8202c0c5def56c49a3211f3710ba995, type: 3}
-  obstacleSprite: {fileID: 21300000, guid: f2ab36f48476f774099c2bdd8e0e79d5, type: 3}
-  jelluWallSprite: {fileID: 21300000, guid: b1dea2452d257504b93f90baf90b0d2f, type: 3}
   pieceYOffset: 0.25
   maxPlayerPieceCount: 10
   maxEnemyPieceCount: 10
@@ -106388,6 +106345,41 @@ MonoBehaviour:
     team: 1
     x: 4
     y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 6ff441806ed07dc4b8e4fed0add136e7, type: 2}
+    team: 1
+    x: 4
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 6ff441806ed07dc4b8e4fed0add136e7, type: 2}
+    team: 1
+    x: 0
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
+    team: 1
+    x: 1
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: a450123fb22e0a742a57cb8300707e0c, type: 2}
+    team: 1
+    x: 3
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
+    team: 1
+    x: 2
+    y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
