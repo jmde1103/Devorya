@@ -51,17 +51,14 @@ public class BattleManager : MonoBehaviour
 
     [Header("Battle End Condition")]
     // <변경부분> 플레이어 진영 패배 조건
-    // 여러 조건을 동시에 선택할 수 있음
-    // 기본 King 전투 예: KingDeath + AllNonKingPiecesDead
     [SerializeField]
     private BattleDefeatConditionType playerDefeatCondition =
-     BattleDefeatConditionType.KingDeath | BattleDefeatConditionType.AllNonKingPiecesDead;
+    BattleDefeatConditionType.KingDeath | BattleDefeatConditionType.AllNonKingPiecesDead;
 
     // <변경부분> 적 진영 패배 조건
-    // King 없는 전투 예: AllPiecesDead + NoActionablePieces
     [SerializeField]
     private BattleDefeatConditionType enemyDefeatCondition =
-        BattleDefeatConditionType.KingDeath | BattleDefeatConditionType.AllNonKingPiecesDead;
+        BattleDefeatConditionType.AllPiecesDead | BattleDefeatConditionType.NoActionablePieces;
 
 
 
@@ -684,6 +681,17 @@ public class BattleManager : MonoBehaviour
 
         // 이동 후 턴 종료
         EndTurn();
+    }
+
+    // <변경부분> StageBattleData에서 받은 진영별 패배 조건을 적용하는 함수
+    public void SetBattleEndCondition(
+        BattleDefeatConditionType playerCondition,
+        BattleDefeatConditionType enemyCondition)
+    {
+        playerDefeatCondition = playerCondition;
+        enemyDefeatCondition = enemyCondition;
+
+        Debug.Log($"승패 조건 적용: Player={playerDefeatCondition} / Enemy={enemyDefeatCondition}");
     }
 
     // 일반 전투에서 기권하는 함수
@@ -1772,8 +1780,6 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 적 진영이 설정된 패배 조건 중 하나라도 만족했는지 확인
         bool isEnemyDefeated = IsTeamDefeated(PieceTeam.Enemy, enemyDefeatCondition);
 
-        // <변경부분> 양쪽이 동시에 패배 조건을 만족한 경우
-        // 현재는 플레이어 패배를 우선 처리
         if (isPlayerDefeated && isEnemyDefeated)
         {
             Debug.Log("전투 종료: 양쪽 모두 패배 조건 충족 / 플레이어 패배 우선 처리");
@@ -1781,14 +1787,12 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 플레이어 패배 조건 충족
         if (isPlayerDefeated)
         {
             EndBattle(BattleResult.Lose);
             return;
         }
 
-        // <변경부분> 적 패배 조건 충족
         if (isEnemyDefeated)
         {
             EndBattle(BattleResult.Win);
@@ -1799,41 +1803,75 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 지정한 진영이 설정된 패배 조건 중 하나라도 만족했는지 확인하는 함수
     private bool IsTeamDefeated(PieceTeam team, BattleDefeatConditionType defeatConditions)
     {
-        // 패배 조건이 없으면 패배하지 않음
         if (defeatConditions == BattleDefeatConditionType.None)
         {
             return false;
         }
 
-        // <변경부분> KingDeath 조건 검사
         if (defeatConditions.HasFlag(BattleDefeatConditionType.KingDeath) &&
-            IsTeamDefeatedByKingDeath(team))
+            pieceManager.HasKing(team) == false)
         {
             return true;
         }
 
-        // <변경부분> AllPiecesDead 조건 검사
         if (defeatConditions.HasFlag(BattleDefeatConditionType.AllPiecesDead) &&
-            IsTeamDefeatedByAllPiecesDead(team))
+            pieceManager.HasAnyPiece(team) == false)
         {
             return true;
         }
 
-        // <변경부분> AllNonKingPiecesDead 조건 검사
         if (defeatConditions.HasFlag(BattleDefeatConditionType.AllNonKingPiecesDead) &&
-            IsTeamDefeatedByAllNonKingPiecesDead(team))
+            pieceManager.HasAnyNonKingPiece(team) == false)
         {
             return true;
         }
 
-        // <변경부분> NoActionablePieces 조건 검사
         if (defeatConditions.HasFlag(BattleDefeatConditionType.NoActionablePieces) &&
-            IsTeamDefeatedByNoActionablePieces(team))
+            HasNoActionablePieces(team))
         {
             return true;
         }
 
         return false;
+    }
+
+    // <변경부분> 해당 진영에 실제 이동/공격 가능한 기물이 하나도 없는지 확인
+    private bool HasNoActionablePieces(PieceTeam team)
+    {
+        if (pieceManager == null || battleMoveValidator == null || boardManager == null)
+        {
+            return false;
+        }
+
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece piece = pieceManager.GetPieceAt(x, y);
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != team)
+                {
+                    continue;
+                }
+
+                if (piece.CanMove == false)
+                {
+                    continue;
+                }
+
+                if (battleMoveValidator.HasAnySelectableTile(piece))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     // <변경부분> KingDeath 조건

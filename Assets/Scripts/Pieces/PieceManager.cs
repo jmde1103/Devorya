@@ -34,19 +34,68 @@ public class PieceManager : MonoBehaviour
     [SerializeField] private int maxEnemyPieceCount = 10;
 
     [Header("Data Based Test Spawn")]
-    // <변경부분> 2차 데이터화: 현재 테스트 전투에서 사용할 기물 배치 데이터 목록
-    // 나중에는 이 배열을 PieceManager가 직접 들고 있지 않고, NodeBattleData / PlayerPartyData / BattleSetupManager에서 전달받게 된다.
+    // <변경부분> true면 PieceManager가 Start에서 testBattlePieceSpawnData를 자동 생성한다.
+    // BattleSetupManager를 사용할 때는 false로 둔다.
+    [SerializeField] private bool spawnTestPiecesOnStart = false;
+
+    // <변경부분> 현재 테스트 전투에서 사용할 기물 배치 데이터 목록
+    // BattleSetupManager 전환 후에는 임시 테스트용으로만 사용한다.
     [SerializeField] private BattlePieceSpawnData[] testBattlePieceSpawnData;
 
     private void Start()
     {
-        pieces = new Piece[boardManager.Width, boardManager.Height];
+        // <변경부분> BattleSetupManager가 먼저 실행되어 이미 pieces 배열을 만든 경우 다시 초기화하지 않음
+        // Start 실행 순서에 따라 생성된 기물 배열이 비어버리는 문제를 방지
+        if (pieces == null)
+        {
+            InitializePieceGrid();
+        }
 
         // <변경부분> PieceAnimationManager 참조가 비어 있으면 같은 오브젝트에서 자동으로 찾음
         GetPieceAnimationManager();
 
-        // 테스트용 초기 기물 배치
-        SpawnTestPieces();
+        // <변경부분> BattleSetupManager를 쓰지 않는 임시 테스트일 때만 자동 배치
+        if (spawnTestPiecesOnStart)
+        {
+            SpawnTestPieces();
+        }
+    }
+    // <변경부분> 현재 BoardManager 크기에 맞춰 기물 배열을 초기화하는 함수
+    public void InitializePieceGrid()
+    {
+        if (boardManager == null)
+        {
+            Debug.LogError("PieceManager 초기화 실패: BoardManager가 연결되어 있지 않습니다.");
+            return;
+        }
+
+        pieces = new Piece[boardManager.Width, boardManager.Height];
+
+        Debug.Log($"PieceManager 기물 배열 초기화: {boardManager.Width} x {boardManager.Height}");
+    }
+
+    // <변경부분> 현재 생성된 모든 기물을 제거하고 기물 배열을 다시 초기화하는 함수
+    public void ClearAllPieces()
+    {
+        if (pieces != null)
+        {
+            for (int y = 0; y < boardManager.Height; y++)
+            {
+                for (int x = 0; x < boardManager.Width; x++)
+                {
+                    Piece piece = pieces[x, y];
+
+                    if (piece == null)
+                    {
+                        continue;
+                    }
+
+                    Destroy(piece.gameObject);
+                }
+            }
+        }
+
+        InitializePieceGrid();
     }
 
     // <변경부분> PieceAnimationManager 참조를 안전하게 가져오는 함수

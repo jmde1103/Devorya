@@ -13,15 +13,15 @@ public class BoardManager : MonoBehaviour
     // <변경부분> 생성된 타일들을 자식으로 넣을 부모 오브젝트
     [SerializeField] private Transform tileParent;
 
-    [Header("Checker Tile Data")]
-    // <변경부분> 체크무늬 A칸에 적용할 타일 데이터
-    [SerializeField] private TileData checkerTileDataA;
+    [Header("Checker Tile Type")]
+    // <변경부분> 체크무늬 A칸에 사용할 기본 타일 타입
+    [SerializeField] private TileType checkerTileTypeA = TileType.Metal;
 
-    // <변경부분> 체크무늬 B칸에 적용할 타일 데이터
-    [SerializeField] private TileData checkerTileDataB;
+    // <변경부분> 체크무늬 B칸에 사용할 기본 타일 타입
+    [SerializeField] private TileType checkerTileTypeB = TileType.MetalDark;
 
     [Header("Tile Database")]
-    // <변경부분> 스킬이나 외부 시스템에서 TileType으로 타일을 변경할 때 사용할 데이터베이스
+    // <변경부분> TileType 기준으로 실제 TileData를 찾는 데이터베이스
     [SerializeField] private TileDatabase tileDatabase;
 
     [Header("Isometric Setting")] //타일 전체 높이의 절반. 아이소메트리의 2:1 타일 비율
@@ -98,12 +98,14 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 체크무늬 규칙에 따라 사용할 TileData를 반환하는 함수
+    // <변경부분> 체크무늬 규칙에 따라 TileType을 선택하고 TileDatabase에서 TileData를 가져오는 함수
     private TileData GetCheckerTileData(int x, int y)
     {
-        bool isEven = (x + y) % 2 == 0;
+        TileType selectedTileType = (x + y) % 2 == 0
+            ? checkerTileTypeA
+            : checkerTileTypeB;
 
-        return isEven ? checkerTileDataA : checkerTileDataB;
+        return GetTileData(selectedTileType);
     }
 
     // <변경부분> TileType 기준으로 TileData를 가져오는 함수
@@ -143,6 +145,34 @@ public class BoardManager : MonoBehaviour
         return true;
     }
 
+    // <변경부분> StageBattleData에서 받은 TileType A/B 기준으로 보드를 다시 생성하는 함수
+    public void RebuildBoardByTileType(TileType tileTypeA, TileType tileTypeB)
+    {
+        checkerTileTypeA = tileTypeA;
+        checkerTileTypeB = tileTypeB;
+
+        ClearBoard();
+
+        tiles = new Tile[width, height];
+
+        GenerateBoard();
+
+        Debug.Log($"보드 재생성 완료: {checkerTileTypeA} / {checkerTileTypeB}");
+    }
+
+    // <변경부분> 기존 보드 타일 오브젝트를 모두 제거하는 함수
+    private void ClearBoard()
+    {
+        if (tileParent != null)
+        {
+            for (int i = tileParent.childCount - 1; i >= 0; i--)
+            {
+                Destroy(tileParent.GetChild(i).gameObject);
+            }
+        }
+
+        tiles = null;
+    }
 
     public Vector3 GridToWorld(int x, int y) // 격자 좌표를 실제 화면 위치로 바꿈
     {
