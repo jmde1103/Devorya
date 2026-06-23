@@ -19,6 +19,9 @@ public class PieceStatusUIController : MonoBehaviour
     // <변경부분> 일반스킬 슬롯에 표시할 아이콘 이미지 배열
     [SerializeField] private Image[] generalSkillIconImages;
 
+    // <변경부분> 일반스킬 슬롯을 꾹 눌렀을 때 설명을 표시할 TooltipTrigger 배열
+    [SerializeField] private TooltipTrigger[] generalSkillTooltipTriggers;
+
     // <변경부분> 일반스킬 아이콘/이름/설명을 찾기 위한 데이터베이스
     [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
 
@@ -145,6 +148,14 @@ public class PieceStatusUIController : MonoBehaviour
             // <변경부분> Database에서 일반스킬 표시 데이터 가져오기
             GeneralSkillData skillData = GetGeneralSkillData(ownedSkillData.skillType);
 
+            // <변경부분> 일반스킬 슬롯 Tooltip에 현재 일반스킬 설명 데이터 연결
+            if (generalSkillTooltipTriggers != null &&
+                i < generalSkillTooltipTriggers.Length &&
+                generalSkillTooltipTriggers[i] != null)
+            {
+                generalSkillTooltipTriggers[i].SetTooltipData(skillData != null ? skillData.tooltipData : null);
+            }
+
             // <변경부분> 아이콘 이미지 표시
             if (generalSkillIconImages != null &&
                 i < generalSkillIconImages.Length &&
@@ -191,6 +202,18 @@ public class PieceStatusUIController : MonoBehaviour
                 {
                     generalSkillIconImages[i].sprite = null;
                     generalSkillIconImages[i].enabled = false;
+                }
+            }
+        }
+
+        // <변경부분> 일반스킬 Tooltip 데이터 초기화
+        if (generalSkillTooltipTriggers != null)
+        {
+            for (int i = 0; i < generalSkillTooltipTriggers.Length; i++)
+            {
+                if (generalSkillTooltipTriggers[i] != null)
+                {
+                    generalSkillTooltipTriggers[i].SetTooltipData(null);
                 }
             }
         }

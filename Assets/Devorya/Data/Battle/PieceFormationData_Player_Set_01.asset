@@ -15,73 +15,73 @@ MonoBehaviour:
   formationName: Player Devorya
   description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uC14B\uD305"
   spawnDataList:
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
     team: 0
     x: 0
     y: 0
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 61c3ce4b2ec3253418f1fa0f8726e066, type: 2}
     team: 0
-    x: 0
+    x: 1
     y: 0
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     team: 0
-    x: 0
+    x: 2
     y: 0
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 7402bfcf50eb2f042979f1373fcf7f07, type: 2}
     team: 0
-    x: 0
+    x: 3
     y: 0
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
     team: 0
-    x: 0
+    x: 4
     y: 0
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
     team: 0
     x: 0
-    y: 0
+    y: 1
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
     team: 0
-    x: 0
-    y: 0
+    x: 1
+    y: 1
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
     team: 0
-    x: 0
-    y: 0
+    x: 2
+    y: 1
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
     team: 0
-    x: 0
-    y: 0
+    x: 3
+    y: 1
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 0}
+  - pieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
     team: 0
-    x: 0
-    y: 0
+    x: 4
+    y: 1
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0

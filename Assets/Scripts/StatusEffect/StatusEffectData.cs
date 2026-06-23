@@ -14,6 +14,9 @@ public class StatusEffectData : ScriptableObject
     [TextArea]
     public string description;
 
+    // <변경부분> 상태이상 아이콘을 꾹 눌렀을 때 표시할 Tooltip 데이터
+    public TooltipData tooltipData;
+
     // <변경부분> 상태이상 UI에 표시할 아이콘
     public Sprite iconSprite;
 

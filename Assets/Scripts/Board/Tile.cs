@@ -133,15 +133,6 @@ public class Tile : MonoBehaviour
         }
     }
 
-    // <변경부분> TileType만으로 타일을 바꾸는 기존 함수는 직접 데이터 적용 구조로 이동했으므로 사용하지 않음
-    // 타일 변경이 필요하면 BoardManager.ChangeTileData(...) 또는 tile.ApplyTileData(tileData)를 사용
-    public void ChangeTileType(TileType newTileType)
-    {
-        TileType = newTileType;
-
-        Debug.LogWarning("ChangeTileType(TileType)는 TileType만 변경하므로 스프라이트/효과가 갱신되지 않습니다. TileData 기반 ApplyTileData 사용을 권장합니다.");
-    }
-
     public void AddTileEffect(TileEffectType effectType) // 타일 효과 추가
     {
         if (!TileEffects.Contains(effectType)) // 중복 효과 방지

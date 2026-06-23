@@ -33,15 +33,6 @@ public class PieceManager : MonoBehaviour
     // <변경부분> 적 진영이 보유할 수 있는 최대 기물 수
     [SerializeField] private int maxEnemyPieceCount = 10;
 
-    [Header("Data Based Test Spawn")]
-    // <변경부분> true면 PieceManager가 Start에서 testBattlePieceSpawnData를 자동 생성한다.
-    // BattleSetupManager를 사용할 때는 false로 둔다.
-    [SerializeField] private bool spawnTestPiecesOnStart = false;
-
-    // <변경부분> 현재 테스트 전투에서 사용할 기물 배치 데이터 목록
-    // BattleSetupManager 전환 후에는 임시 테스트용으로만 사용한다.
-    [SerializeField] private BattlePieceSpawnData[] testBattlePieceSpawnData;
-
     private void Start()
     {
         // <변경부분> BattleSetupManager가 먼저 실행되어 이미 pieces 배열을 만든 경우 다시 초기화하지 않음
@@ -53,13 +44,8 @@ public class PieceManager : MonoBehaviour
 
         // <변경부분> PieceAnimationManager 참조가 비어 있으면 같은 오브젝트에서 자동으로 찾음
         GetPieceAnimationManager();
-
-        // <변경부분> BattleSetupManager를 쓰지 않는 임시 테스트일 때만 자동 배치
-        if (spawnTestPiecesOnStart)
-        {
-            SpawnTestPieces();
-        }
     }
+
     // <변경부분> 현재 BoardManager 크기에 맞춰 기물 배열을 초기화하는 함수
     public void InitializePieceGrid()
     {
@@ -116,22 +102,6 @@ public class PieceManager : MonoBehaviour
         }
 
         return pieceAnimationManager;
-    }
-
-    // <변경부분> 테스트용 기물 배치를 데이터 기반으로 생성하는 함수
-    // 기존처럼 코드에서 직접 PieceType / Team / 좌표를 박지 않고,
-    // 인스펙터의 testBattlePieceSpawnData 배열을 기준으로 생성한다.
-    private void SpawnTestPieces()
-    {
-        // <변경부분> 테스트 배치 데이터가 없으면 생성하지 않음
-        if (testBattlePieceSpawnData == null || testBattlePieceSpawnData.Length == 0)
-        {
-            Debug.LogWarning("testBattlePieceSpawnData가 비어 있습니다. PieceManager 인스펙터에서 테스트 기물 배치 데이터를 설정하세요.");
-            return;
-        }
-
-        // <변경부분> 데이터 배열을 순회하며 기물 생성
-        SpawnPiecesFromDataList(testBattlePieceSpawnData);
     }
 
     // <변경부분> 여러 개의 BattlePieceSpawnData를 순서대로 생성하는 함수
@@ -212,36 +182,6 @@ public class PieceManager : MonoBehaviour
         if (resolvedPieceData != null)
         {
             piece.SetCurrentPieceData(resolvedPieceData);
-        }
-
-        // <변경부분> 테스트용: 적 기물은 King을 제외하고 일반스킬을 각각 확률적으로 보유
-        // 여러 일반스킬 흡수와 발동 흐름을 테스트하기 위한 임시 로직
-        if (team == PieceTeam.Enemy && pieceType != PieceType.King)
-        {
-            // <변경부분> 테스트 단계에서는 80% 확률로 ChanceAttack을 부여
-            if (Random.Range(0, 100) < 80)
-            {
-                piece.SetTestGeneralSkill(GeneralSkillType.ChanceAttack, 1);
-
-                Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / ChanceAttack LV.1");
-            }
-
-            // <변경부분> 테스트 단계에서는 80% 확률로 Defense를 부여
-            if (Random.Range(0, 100) < 80)
-            {
-                piece.SetTestGeneralSkill(GeneralSkillType.Defense, 1);
-
-                Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / Defense LV.1");
-            }
-
-            // <변경부분> 테스트 단계에서는 80% 확률로 Insight를 부여
-            // 적 기물을 흡수했을 때 플레이어가 Insight를 얻는지 확인하기 위한 테스트용
-            if (Random.Range(0, 100) < 80)
-            {
-                piece.SetTestGeneralSkill(GeneralSkillType.Insight, 1);
-
-                Debug.Log($"적 기물 일반 스킬 부여: {pieceType} / Insight LV.1");
-            }
         }
 
         // <변경부분> 생성된 기물의 PieceData가 있으면 데이터 기준으로,

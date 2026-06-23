@@ -18,6 +18,9 @@ public class GeneralSkillData : ScriptableObject
     [TextArea]
     public string description;
 
+    // <변경부분> 일반스킬 아이콘을 꾹 눌렀을 때 표시할 Tooltip 데이터
+    public TooltipData tooltipData;
+
     [Header("Level")]
     // <변경부분> 일반스킬 최대 레벨
     public int maxLevel = 3;

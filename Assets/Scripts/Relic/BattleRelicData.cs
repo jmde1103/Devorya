@@ -18,6 +18,9 @@ public class BattleRelicData : ScriptableObject
     [TextArea]
     public string description;
 
+    // <변경부분> 유물 아이콘을 꾹 눌렀을 때 표시할 Tooltip 데이터
+    public TooltipData tooltipData;
+
     [Header("Absorb Chance Attack Effect")]
     // <변경부분> 유물 효과가 플레이어 턴에만 발동 가능한지 여부
     public bool onlyPlayerTurn = true;

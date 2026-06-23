@@ -38,8 +38,19 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 고유스킬 버튼 위에 표시할 쿨타임 숫자 텍스트
     [SerializeField] private TMP_Text uniqueSkillCooldownText;
 
-    // <변경부분> 고유스킬 아이콘과 설명을 가져올 데이터베이스
+    [Header("Unique Skill Database")]
+    // <변경부분> 고유스킬 타입으로 아이콘 데이터를 찾기 위한 데이터베이스
     [SerializeField] private UniqueSkillDatabase uniqueSkillDatabase;
+
+    [Header("Tooltip")]
+    // <변경부분> 흡수 버튼을 꾹 눌렀을 때 표시할 Tooltip 데이터
+    [SerializeField] private TooltipData absorbTooltipData;
+
+    // <변경부분> 흡수 버튼에 붙어 있는 TooltipTrigger
+    [SerializeField] private TooltipTrigger absorbTooltipTrigger;
+
+    // <변경부분> 고유스킬 버튼에 붙어 있는 TooltipTrigger
+    [SerializeField] private TooltipTrigger uniqueSkillTooltipTrigger;
 
     // <변경부분> 전투 중 사용하는 아이템 슬롯 UI 목록
     [Header("Item Slots")]
@@ -83,6 +94,9 @@ public class BattleUIController : MonoBehaviour
 
         // <변경부분> 아이템 슬롯 버튼 클릭 이벤트 연결
         InitializeItemSlots();
+
+        // <변경부분> 흡수/고유스킬 버튼 Tooltip 초기화
+        InitializeActionButtonTooltips();
 
         // 게임 시작 시 액션 버튼 숨김
         HideActionButtons();
@@ -130,6 +144,22 @@ public class BattleUIController : MonoBehaviour
             }
 
             itemSlotUIs[i].Initialize(this, i);
+        }
+    }
+
+    // <변경부분> 전투 액션 버튼에 TooltipData를 연결하는 함수
+    private void InitializeActionButtonTooltips()
+    {
+        // 흡수 버튼은 전투 내내 같은 설명을 사용하므로 시작 시 한 번만 연결
+        if (absorbTooltipTrigger != null)
+        {
+            absorbTooltipTrigger.SetTooltipData(absorbTooltipData);
+        }
+
+        // 고유스킬 버튼은 선택한 기물에 따라 Tooltip이 바뀌므로 초기에는 비움
+        if (uniqueSkillTooltipTrigger != null)
+        {
+            uniqueSkillTooltipTrigger.SetTooltipData(null);
         }
     }
 
@@ -312,6 +342,12 @@ public class BattleUIController : MonoBehaviour
             uniqueSkillIconImage.sprite = null;
             uniqueSkillIconImage.enabled = false;
 
+            // <변경부분> 표시할 고유스킬 데이터가 없으면 Tooltip도 비움
+            if (uniqueSkillTooltipTrigger != null)
+            {
+                uniqueSkillTooltipTrigger.SetTooltipData(null);
+            }
+
             Debug.LogWarning($"고유 스킬 아이콘을 찾지 못했습니다: {skillType}");
             return;
         }
@@ -319,6 +355,12 @@ public class BattleUIController : MonoBehaviour
         // 데이터에 등록된 아이콘 적용
         uniqueSkillIconImage.sprite = skillData.iconSprite;
         uniqueSkillIconImage.enabled = true;
+
+        // <변경부분> 현재 선택된 고유스킬 설명 Tooltip 연결
+        if (uniqueSkillTooltipTrigger != null)
+        {
+            uniqueSkillTooltipTrigger.SetTooltipData(skillData.tooltipData);
+        }
     }
 
     // <변경부분> 선택된 기물의 고유스킬 쿨타임 숫자와 배경 이미지를 갱신하는 함수
@@ -393,11 +435,16 @@ public class BattleUIController : MonoBehaviour
         // 흡수 버튼 아이콘을 기본 OFF 상태로 변경
         SetAbsorbModeIcon(false);
 
-        // <변경부분> 고유 스킬 아이콘 숨김
         if (uniqueSkillIconImage != null)
         {
             uniqueSkillIconImage.sprite = null;
             uniqueSkillIconImage.enabled = false;
+        }
+
+        // <변경부분> 선택 기물이 사라지면 고유스킬 Tooltip도 비움
+        if (uniqueSkillTooltipTrigger != null)
+        {
+            uniqueSkillTooltipTrigger.SetTooltipData(null);
         }
 
         // <변경부분> 고유스킬 쿨타임 배경 이미지와 숫자 숨김

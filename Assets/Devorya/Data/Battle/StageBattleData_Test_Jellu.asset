@@ -12,11 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
   m_Name: StageBattleData_Test_Jellu
   m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
-  stageName: 
-  description: 
-  playerDefeatCondition: 5
-  enemyDefeatCondition: 10
-  enemySpawnDataList: []
-  enemyGeneralSkillGrantRules: []
-  checkerTileDataA: {fileID: 0}
-  checkerTileDataB: {fileID: 0}
+  stageName: "\uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0"
+  description: "\uC824\uB8E8\uC138\uD2B8\uB97C \uB123\uC5B4 \uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0\uB97C
+    \uC9C4\uD589\uD55C\uB2E4."
+  checkerTileTypeA: 0
+  checkerTileTypeB: 1
+  playerDefeatCondition: -1
+  enemyDefeatCondition: -1
+  playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
+  enemyFormationData: {fileID: 11400000, guid: 597d51eee876daa4d9df5c354eba66c7, type: 2}
+  enemyGeneralSkillGrantRules:
+  - skillType: 1
+    grantChancePercent: 30
+    minLevel: 1
+    maxLevel: 1
+    allowKing: 0
+  - skillType: 2
+    grantChancePercent: 30
+    minLevel: 1
+    maxLevel: 1
+    allowKing: 0
+  - skillType: 3
+    grantChancePercent: 30
+    minLevel: 1
+    maxLevel: 1
+    allowKing: 0

@@ -17,12 +17,20 @@ public class BattleItemData : ScriptableObject
     // <변경부분> 아이템 설명
     [TextArea]
     public string description;
+    // <변경부분> 아이템 아이콘을 꾹 눌렀을 때 표시할 Tooltip 데이터
+    public TooltipData tooltipData;
 
     [Header("Change Piece Effect")]
+    // <변경부분> 아이템 사용 시 변경할 기물 데이터
+    // PieceManager.RefreshPieceVisual()이 CurrentPieceData 기준으로 외형을 갱신하므로 반드시 연결해야 한다.
+    public PieceData changeTargetPieceData;
+
     // <변경부분> 아이템 사용 시 변경할 기물 타입
+    // changeTargetPieceData가 비어 있을 때만 사용하는 구버전 보조값이다.
     public PieceType changeTargetPieceType = PieceType.Pawn;
 
     // <변경부분> 아이템 사용 시 부여할 고유스킬
+    // changeTargetPieceData가 비어 있을 때만 사용하는 구버전 보조값이다.
     public UniqueSkillType changeTargetUniqueSkill = UniqueSkillType.None;
 
     // <변경부분> 아이템 사용 시 부여할 일반스킬

@@ -17,6 +17,8 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
   description: "\uC120\uD0DD\uD55C \uC790\uC2E0\uC758 \uAE30\uBB3C\uC744 \uC824\uB8E8
     \uD3F0\uC73C\uB85C \uBCC0\uD615\uD55C\uB2E4."
+  tooltipData: {fileID: 0}
+  changeTargetPieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
   changeTargetPieceType: 0
   changeTargetUniqueSkill: 4
   changeTargetGeneralSkill: 0

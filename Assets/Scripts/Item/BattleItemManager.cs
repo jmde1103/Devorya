@@ -19,13 +19,6 @@ public class BattleItemManager : MonoBehaviour
     // <변경부분> BattleItemType으로 BattleItemData를 찾는 아이템 데이터베이스
     [SerializeField] private BattleItemDatabase battleItemDatabase;
 
-    [Header("Test Item")]
-    // <변경부분> 테스트용으로 전투 시작 시 지급할 아이템 타입
-    [SerializeField] private BattleItemType testStartItemType = BattleItemType.ChangeSelectedPieceToJelluPawn;
-
-    // 게임 시작 시 테스트 아이템을 지급할지 여부
-    [SerializeField] private bool addTestStartItem = true;
-
     // <변경부분> BattleManager에서 전투 시작 시 아이템 매니저를 초기화하는 함수
     public void Initialize(BattleManager owner, BattleUIController uiController)
     {
@@ -37,12 +30,6 @@ public class BattleItemManager : MonoBehaviour
 
         // 게임 시작 시 아이템 슬롯 UI 초기화
         RefreshItemSlotUI();
-
-        // <변경부분> 테스트용 아이템 타입이 설정되어 있으면 Database에서 찾아 전투 시작 시 1개 지급
-        if (addTestStartItem && testStartItemType != BattleItemType.None)
-        {
-            AddBattleItemByType(testStartItemType);
-        }
     }
 
     // <변경부분> 아이템 타입을 받아 Database에서 BattleItemData를 찾은 뒤 슬롯에 추가하는 함수
@@ -69,6 +56,15 @@ public class BattleItemManager : MonoBehaviour
         }
 
         AddBattleItem(itemData);
+    }
+
+    // <변경부분> 디버그 버튼으로 테스트 아이템을 수동 추가하는 함수
+    // 자동 지급이 아니라 개발 중 기능 테스트용으로만 사용한다.
+    public void AddTestItemForDebug()
+    {
+        // <변경부분> 테스트할 기본 아이템 타입을 코드에서 지정
+        // 데이터화 이후에도 수동 테스트 버튼은 유지하되, 전투 시작 자동 지급은 하지 않는다.
+        AddBattleItemByType(BattleItemType.ChangeSelectedPieceToJelluPawn);
     }
 
     // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하는 함수
@@ -100,20 +96,6 @@ public class BattleItemManager : MonoBehaviour
 
         Debug.Log("아이템 슬롯이 가득 찼습니다.");
     }
-
-    public void AddTestItemForDebug()
-    {
-        // <변경부분> 테스트 아이템 타입이 없으면 추가 불가
-        if (testStartItemType == BattleItemType.None)
-        {
-            Debug.LogWarning("테스트 아이템 타입이 설정되지 않았습니다.");
-            return;
-        }
-
-        // <변경부분> 테스트 아이템 타입으로 Database에서 데이터를 찾아 슬롯에 추가
-        AddBattleItemByType(testStartItemType);
-    }
-
 
     // <변경부분> 특정 슬롯의 아이템을 사용하는 함수
     public void UseItemAtSlot(int slotIndex)

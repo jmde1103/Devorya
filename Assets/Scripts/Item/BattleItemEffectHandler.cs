@@ -71,12 +71,27 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        // <변경부분> 데이터에 설정된 기물 타입/고유스킬/외형 상태로 기물 데이터 변경
-        targetPiece.ChangePieceData(
-            itemData.changeTargetPieceType,
-            itemData.changeTargetUniqueSkill,
-            itemData.useAbsorbedJelluVisual
-        );
+        // <변경부분> PieceData가 연결되어 있으면 PieceData 기준으로 기물 정보를 변경
+        // RefreshPieceVisual()은 CurrentPieceData 기준으로 외형을 갱신하므로 이 방식이 기본이다.
+        if (itemData.changeTargetPieceData != null)
+        {
+            targetPiece.ChangePieceData(
+                itemData.changeTargetPieceData,
+                itemData.useAbsorbedJelluVisual
+            );
+        }
+        else
+        {
+            // <변경부분> PieceData가 비어 있을 때만 기존 방식으로 타입/고유스킬만 변경
+            // 이 경우 CurrentPieceData는 바뀌지 않으므로 외형 갱신은 기존 데이터 기준으로 유지될 수 있다.
+            targetPiece.ChangePieceData(
+                itemData.changeTargetPieceType,
+                itemData.changeTargetUniqueSkill,
+                itemData.useAbsorbedJelluVisual
+            );
+
+            Debug.LogWarning($"아이템 변환 대상 PieceData가 비어 있습니다: {itemData.itemName}");
+        }
 
         // <변경부분> 데이터에 설정된 일반스킬이 있으면 지정 레벨로 부여
         if (itemData.changeTargetGeneralSkill != GeneralSkillType.None)

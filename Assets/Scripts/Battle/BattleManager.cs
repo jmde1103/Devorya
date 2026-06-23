@@ -49,14 +49,14 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 현재 전투 턴 번호
     [SerializeField] private int turnCount = 1;
 
-    [Header("Battle End Condition")]
-    // <변경부분> 플레이어 진영 패배 조건
-    [SerializeField]
+    // <변경부분> 현재 전투에서 사용할 플레이어 진영 패배 조건
+    // StageBattleData가 BattleSetupManager를 통해 SetBattleEndCondition()으로 덮어쓴다.
+    // Inspector 하드코딩을 막기 위해 SerializeField는 사용하지 않는다.
     private BattleDefeatConditionType playerDefeatCondition =
-    BattleDefeatConditionType.KingDeath | BattleDefeatConditionType.AllNonKingPiecesDead;
+        BattleDefeatConditionType.KingDeath | BattleDefeatConditionType.AllNonKingPiecesDead;
 
-    // <변경부분> 적 진영 패배 조건
-    [SerializeField]
+    // <변경부분> 현재 전투에서 사용할 적 진영 패배 조건
+    // StageBattleData가 없는 테스트 상황을 대비한 기본값만 유지한다.
     private BattleDefeatConditionType enemyDefeatCondition =
         BattleDefeatConditionType.AllPiecesDead | BattleDefeatConditionType.NoActionablePieces;
 
@@ -976,17 +976,18 @@ public class BattleManager : MonoBehaviour
         battleItemManager.AddBattleItem(itemData);
     }
 
-    // <변경부분> 테스트 버튼에서 호출하는 테스트 아이템 추가 함수
+    // <변경부분> 디버그 버튼에서 테스트 아이템 추가를 요청하는 함수
+    // BattleUIController는 BattleItemManager를 직접 알지 않고 BattleManager를 통해 요청한다.
     public void AddTestItemForDebug()
     {
-        // 전투 아이템 매니저가 연결되지 않았으면 테스트 아이템 추가 불가
+        // <변경부분> 전투 아이템 매니저가 연결되지 않았으면 테스트 아이템 추가 불가
         if (battleItemManager == null)
         {
             Debug.LogWarning("BattleItemManager가 연결되지 않았습니다.");
             return;
         }
 
-        // 테스트 아이템 추가는 BattleItemManager가 처리
+        // <변경부분> 실제 테스트 아이템 추가는 BattleItemManager가 처리
         battleItemManager.AddTestItemForDebug();
     }
 
