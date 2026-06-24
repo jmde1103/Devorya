@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,9 +17,24 @@ public class TooltipPopupUI : MonoBehaviour
     [SerializeField] private TMP_Text categoryText;
     [SerializeField] private TMP_Text mainDescriptionText;
 
+    [System.Serializable]
+    public class TooltipSectionPrefabData
+    {
+        // <변경부분> 이 프리팹이 담당할 Section 종류
+        public TooltipSectionType sectionType;
+
+        // <변경부분> 해당 Section 종류에 사용할 UI 프리팹
+        public TooltipSectionItemUI sectionPrefab;
+    }
+
     [Header("Section")]
     [SerializeField] private Transform sectionParent;
-    [SerializeField] private TooltipSectionItemUI sectionItemPrefab;
+
+    // <변경부분> 매칭되는 프리팹이 없을 때 사용할 기본 Section 프리팹
+    [SerializeField] private TooltipSectionItemUI defaultSectionPrefab;
+
+    // <변경부분> SectionType별로 사용할 프리팹 목록
+    [SerializeField] private TooltipSectionPrefabData[] sectionPrefabs;
 
     [Header("Position")]
     [SerializeField] private Vector2 popupOffset = new Vector2(30f, 30f);
@@ -34,10 +50,16 @@ public class TooltipPopupUI : MonoBehaviour
         }
     }
 
-    // <변경부분> TooltipData를 받아 팝업을 표시
+    // <변경부분> TooltipData 에셋을 받아 TooltipViewData로 변환 후 팝업 표시
     public void Show(TooltipData tooltipData, Vector2 screenPosition)
     {
-        if (tooltipData == null || popupRoot == null)
+        Show(TooltipViewData.FromTooltipData(tooltipData), screenPosition);
+    }
+
+    // <변경부분> 실제 표시용 TooltipViewData를 받아 팝업 표시
+    public void Show(TooltipViewData tooltipViewData, Vector2 screenPosition)
+    {
+        if (tooltipViewData == null || popupRoot == null)
         {
             Hide();
             return;
@@ -47,20 +69,20 @@ public class TooltipPopupUI : MonoBehaviour
 
         if (titleText != null)
         {
-            titleText.text = tooltipData.title;
+            titleText.text = tooltipViewData.title;
         }
 
         if (categoryText != null)
         {
-            categoryText.text = tooltipData.category;
+            categoryText.text = tooltipViewData.category;
         }
 
         if (mainDescriptionText != null)
         {
-            mainDescriptionText.text = tooltipData.mainDescription;
+            mainDescriptionText.text = tooltipViewData.mainDescription;
         }
 
-        RefreshSections(tooltipData);
+        RefreshSections(tooltipViewData.sections);
         SetPopupPosition(screenPosition);
     }
 
@@ -73,29 +95,71 @@ public class TooltipPopupUI : MonoBehaviour
         }
     }
 
-    // <변경부분> 하단 추가 설명 블록을 TooltipData 기준으로 다시 생성
-    private void RefreshSections(TooltipData tooltipData)
+    // <변경부분> 하단 추가 설명 블록을 sections 순서대로 다시 생성
+    private void RefreshSections(List<TooltipSectionData> sections)
     {
-        if (sectionParent == null || sectionItemPrefab == null)
+        if (sectionParent == null)
         {
             return;
         }
 
+        // 기존에 생성되어 있던 Section 블록 제거
         for (int i = sectionParent.childCount - 1; i >= 0; i--)
         {
             Destroy(sectionParent.GetChild(i).gameObject);
         }
 
-        if (tooltipData.sections == null)
+        if (sections == null)
         {
             return;
         }
 
-        for (int i = 0; i < tooltipData.sections.Count; i++)
+        // TooltipData에 들어있는 순서대로 Section 블록 생성
+        for (int i = 0; i < sections.Count; i++)
         {
-            TooltipSectionItemUI itemUI = Instantiate(sectionItemPrefab, sectionParent);
-            itemUI.Refresh(tooltipData.sections[i]);
+            TooltipSectionData sectionData = sections[i];
+
+            if (sectionData == null)
+            {
+                continue;
+            }
+
+            // <변경부분> SectionType에 맞는 프리팹 선택
+            TooltipSectionItemUI sectionPrefab = GetSectionPrefab(sectionData.sectionType);
+
+            if (sectionPrefab == null)
+            {
+                Debug.LogWarning($"Tooltip Section 프리팹을 찾지 못했습니다: {sectionData.sectionType}");
+                continue;
+            }
+
+            // <변경부분> 선택한 Section 프리팹을 SectionParent 아래에 순서대로 생성
+            TooltipSectionItemUI itemUI = Instantiate(sectionPrefab, sectionParent);
+            itemUI.Refresh(sectionData);
         }
+    }
+
+    // <변경부분> SectionType에 맞는 Section 프리팹을 찾아 반환
+    private TooltipSectionItemUI GetSectionPrefab(TooltipSectionType sectionType)
+    {
+        if (sectionPrefabs != null)
+        {
+            for (int i = 0; i < sectionPrefabs.Length; i++)
+            {
+                if (sectionPrefabs[i] == null)
+                {
+                    continue;
+                }
+
+                if (sectionPrefabs[i].sectionType == sectionType)
+                {
+                    return sectionPrefabs[i].sectionPrefab;
+                }
+            }
+        }
+
+        // 등록된 타입별 프리팹이 없으면 기본 프리팹 사용
+        return defaultSectionPrefab;
     }
 
     // <변경부분> 누른 위치 옆에 팝업을 배치하고 화면 밖으로 나가지 않게 보정

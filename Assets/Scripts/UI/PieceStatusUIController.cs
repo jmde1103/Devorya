@@ -150,10 +150,11 @@ public class PieceStatusUIController : MonoBehaviour
 
             // <변경부분> 일반스킬 슬롯 Tooltip에 현재 일반스킬 설명 데이터 연결
             if (generalSkillTooltipTriggers != null &&
-                i < generalSkillTooltipTriggers.Length &&
-                generalSkillTooltipTriggers[i] != null)
+            i < generalSkillTooltipTriggers.Length &&
+            generalSkillTooltipTriggers[i] != null)
             {
-                generalSkillTooltipTriggers[i].SetTooltipData(skillData != null ? skillData.tooltipData : null);
+                // <변경부분> 일반스킬 데이터의 기존 이름/설명/아이콘으로 Tooltip을 자동 구성
+                generalSkillTooltipTriggers[i].SetTooltipViewData(TooltipViewData.FromGeneralSkillData(skillData));
             }
 
             // <변경부분> 아이콘 이미지 표시
@@ -213,7 +214,7 @@ public class PieceStatusUIController : MonoBehaviour
             {
                 if (generalSkillTooltipTriggers[i] != null)
                 {
-                    generalSkillTooltipTriggers[i].SetTooltipData(null);
+                    generalSkillTooltipTriggers[i].SetTooltipViewData(null);
                 }
             }
         }

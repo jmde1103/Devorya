@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // <변경부분> 고유스킬 하나의 기본 설정 데이터를 관리하는 ScriptableObject
@@ -17,8 +18,9 @@ public class UniqueSkillData : ScriptableObject
     [TextArea]
     public string description;
 
-    // <변경부분> 고유스킬 아이콘을 꾹 눌렀을 때 표시할 Tooltip 데이터
-    public TooltipData tooltipData;
+    // <변경부분> 고유스킬 설명 팝업 하단에 추가로 붙일 설명 블록 목록
+    // 이름, 설명, 아이콘은 기존 skillName / description / iconSprite를 그대로 사용한다.
+    public List<TooltipSectionData> tooltipSections = new List<TooltipSectionData>();
 
     [Header("Balance")]
     // <변경부분> 고유스킬 사용 후 적용할 쿨타임 턴 수

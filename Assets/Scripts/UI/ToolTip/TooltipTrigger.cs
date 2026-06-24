@@ -6,7 +6,11 @@ using UnityEngine.EventSystems;
 public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     [Header("Tooltip")]
+    // <변경부분> 흡수 버튼처럼 별도 Data가 없는 UI에서 사용할 고정 Tooltip 에셋
     [SerializeField] private TooltipData tooltipData;
+
+    // <변경부분> 스킬/아이템/상태효과 데이터에서 런타임으로 만든 표시용 Tooltip 데이터
+    private TooltipViewData tooltipViewData;
 
     [Header("Input")]
     [SerializeField] private float holdDelay = 0.3f;
@@ -14,10 +18,23 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     private Coroutine holdCoroutine;
     private bool isHolding;
 
-    // <변경부분> 외부 UI 갱신 코드에서 현재 아이콘에 맞는 TooltipData를 주입
+    // <변경부분> 별도 TooltipData 에셋을 연결
     public void SetTooltipData(TooltipData newTooltipData)
     {
         tooltipData = newTooltipData;
+        tooltipViewData = TooltipViewData.FromTooltipData(newTooltipData);
+    }
+
+    // <변경부분> 기존 SkillData / ItemData / StatusEffectData에서 만든 TooltipViewData를 연결
+    public void SetTooltipViewData(TooltipViewData newTooltipViewData)
+    {
+        tooltipViewData = newTooltipViewData;
+
+        // 런타임 데이터가 들어오면 고정 TooltipData 에셋은 사용하지 않음
+        if (newTooltipViewData != null)
+        {
+            tooltipData = null;
+        }
     }
 
     // <변경부분> 포인터를 누르기 시작하면 꾹 누름 대기 시작
@@ -55,14 +72,20 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
             yield break;
         }
 
-        if (tooltipData == null)
+        // <변경부분> 런타임 TooltipViewData가 없고 고정 TooltipData가 있으면 변환해서 사용
+        if (tooltipViewData == null && tooltipData != null)
+        {
+            tooltipViewData = TooltipViewData.FromTooltipData(tooltipData);
+        }
+
+        if (tooltipViewData == null)
         {
             yield break;
         }
 
         if (TooltipPopupUI.Instance != null)
         {
-            TooltipPopupUI.Instance.Show(tooltipData, screenPosition);
+            TooltipPopupUI.Instance.Show(tooltipViewData, screenPosition);
         }
     }
 

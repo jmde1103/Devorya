@@ -345,7 +345,7 @@ public class BattleUIController : MonoBehaviour
             // <변경부분> 표시할 고유스킬 데이터가 없으면 Tooltip도 비움
             if (uniqueSkillTooltipTrigger != null)
             {
-                uniqueSkillTooltipTrigger.SetTooltipData(null);
+                uniqueSkillTooltipTrigger.SetTooltipViewData(null);
             }
 
             Debug.LogWarning($"고유 스킬 아이콘을 찾지 못했습니다: {skillType}");
@@ -359,7 +359,8 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 현재 선택된 고유스킬 설명 Tooltip 연결
         if (uniqueSkillTooltipTrigger != null)
         {
-            uniqueSkillTooltipTrigger.SetTooltipData(skillData.tooltipData);
+            // <변경부분> 고유스킬 데이터의 기존 이름/설명/아이콘으로 Tooltip을 자동 구성
+            uniqueSkillTooltipTrigger.SetTooltipViewData(TooltipViewData.FromUniqueSkillData(skillData));
         }
     }
 
@@ -444,7 +445,7 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 선택 기물이 사라지면 고유스킬 Tooltip도 비움
         if (uniqueSkillTooltipTrigger != null)
         {
-            uniqueSkillTooltipTrigger.SetTooltipData(null);
+            uniqueSkillTooltipTrigger.SetTooltipViewData(null);
         }
 
         // <변경부분> 고유스킬 쿨타임 배경 이미지와 숫자 숨김
