@@ -616,8 +616,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipSectionItemUI
   backgroundImage: {fileID: 0}
-  titleText: {fileID: 0}
-  descriptionText: {fileID: 0}
+  titleText: {fileID: 844813791367391386}
+  categoryText: {fileID: 2455033877251715459}
+  mainDescriptionText: {fileID: 1864834568707294945}
+  iconImage: {fileID: 7270895612504305069}
 --- !u!222 &2747036311521662380
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -15,12 +15,20 @@ public class GeneralSkillData : ScriptableObject
     // 일반스킬 아이콘
     public Sprite iconSprite;
 
-    // 일반스킬 설명
+    // 일반스킬 기본 설명
     [TextArea]
     public string description;
 
+    [Header("Tooltip")]
+    [TextArea(2, 5)]
+    // <변경부분> 레벨별 수치를 자동 반영할 Tooltip 설명 형식
+    // {level} = 현재 레벨
+    // {value} 또는 {percent} = 현재 레벨에 맞는 주요 수치
+    // 예: 적 처치 시 {percent}% 확률로 추가 행동을 얻습니다.
+    public string tooltipDescriptionFormat;
+
     // <변경부분> 일반스킬 설명 팝업 하단에 추가로 붙일 설명 블록 목록
-    // 이름, 설명, 아이콘은 기존 skillName / description / iconSprite를 그대로 사용한다.
+    // 이름, 아이콘은 기존 skillName / iconSprite를 그대로 사용한다.
     public List<TooltipSectionData> tooltipSections = new List<TooltipSectionData>();
 
     [Header("Level")]
@@ -127,5 +135,43 @@ public class GeneralSkillData : ScriptableObject
             default:
                 return 0;
         }
+    }
+
+    // <변경부분> 현재 레벨 기준 Tooltip 설명에 들어갈 주요 수치를 반환
+    public int GetTooltipMainValue(int level)
+    {
+        int clampedLevel = Mathf.Clamp(level, 1, maxLevel);
+
+        switch (skillType)
+        {
+            case GeneralSkillType.ChanceAttack:
+                return GetChanceAttackPercent(clampedLevel);
+
+            case GeneralSkillType.Defense:
+                return GetDefensePercent(clampedLevel);
+
+            case GeneralSkillType.Insight:
+                return GetInsightPercent(clampedLevel);
+        }
+
+        return 0;
+    }
+
+    // <변경부분> 현재 레벨 기준으로 Tooltip 설명 문장을 생성
+    public string GetTooltipDescriptionByLevel(int level)
+    {
+        int clampedLevel = Mathf.Clamp(level, 1, maxLevel);
+
+        // Tooltip 전용 설명 형식이 비어 있으면 기존 description을 사용
+        string sourceText = string.IsNullOrEmpty(tooltipDescriptionFormat)
+            ? description
+            : tooltipDescriptionFormat;
+
+        int value = GetTooltipMainValue(clampedLevel);
+
+        return sourceText
+            .Replace("{level}", clampedLevel.ToString())
+            .Replace("{value}", value.ToString())
+            .Replace("{percent}", value.ToString());
     }
 }

@@ -45,6 +45,9 @@ public class TooltipViewData
     // 팝업 상단 분류
     public string category;
 
+    // <변경부분> 일반스킬처럼 레벨이 있는 Tooltip에서 표시할 레벨 텍스트
+    public string levelText;
+
     // 기본 설명
     public string mainDescription;
 
@@ -72,19 +75,28 @@ public class TooltipViewData
         };
     }
 
-    // <변경부분> 일반스킬 데이터의 기존 이름/설명/아이콘을 Tooltip 기본 정보로 사용
+    // <변경부분> 레벨 정보가 없을 때는 기본 1레벨 Tooltip으로 표시
     public static TooltipViewData FromGeneralSkillData(GeneralSkillData data)
+    {
+        return FromGeneralSkillData(data, 1);
+    }
+
+    // <변경부분> 일반스킬 데이터의 기존 이름/아이콘과 현재 레벨에 맞는 설명을 Tooltip 기본 정보로 사용
+    public static TooltipViewData FromGeneralSkillData(GeneralSkillData data, int level)
     {
         if (data == null)
         {
             return null;
         }
 
+        int clampedLevel = Mathf.Clamp(level, 1, data.maxLevel);
+
         return new TooltipViewData
         {
             title = data.skillName,
             category = "일반스킬",
-            mainDescription = data.description,
+            levelText = "Lv." + clampedLevel,
+            mainDescription = data.GetTooltipDescriptionByLevel(clampedLevel),
             icon = data.iconSprite,
             sections = data.tooltipSections
         };
