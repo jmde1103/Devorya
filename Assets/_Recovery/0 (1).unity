@@ -526,7 +526,6 @@ GameObject:
   - component: {fileID: 8041340}
   - component: {fileID: 8041342}
   - component: {fileID: 8041341}
-  - component: {fileID: 8041343}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -567,7 +566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -591,20 +590,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8041339}
   m_CullTransparentMesh: 1
---- !u!114 &8041343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8041339}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &8305332
 GameObject:
   m_ObjectHideFlags: 0
@@ -746,7 +731,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4146,7 +4131,6 @@ GameObject:
   - component: {fileID: 45107028}
   - component: {fileID: 45107027}
   - component: {fileID: 45107026}
-  - component: {fileID: 45107030}
   m_Layer: 5
   m_Name: Slot_1
   m_TagString: Untagged
@@ -4188,7 +4172,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   slotButton: {fileID: 45107027}
   itemIconImage: {fileID: 1825739333}
-  tooltipTrigger: {fileID: 45107030}
 --- !u!114 &45107027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4271,20 +4254,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 45107024}
   m_CullTransparentMesh: 1
---- !u!114 &45107030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45107024}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &45966205
 GameObject:
   m_ObjectHideFlags: 0
@@ -6390,7 +6359,6 @@ GameObject:
   - component: {fileID: 69731426}
   - component: {fileID: 69731428}
   - component: {fileID: 69731429}
-  - component: {fileID: 69731430}
   m_Layer: 5
   m_Name: StatusEffectSlot_6
   m_TagString: Untagged
@@ -6470,7 +6438,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 69731424}
   iconImage: {fileID: 1477297734}
-  tooltipTrigger: {fileID: 69731430}
   warningAnimator: {fileID: 69731429}
   warningBoolParameterName: IsWarning
 --- !u!95 &69731429
@@ -6495,20 +6462,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &69731430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 69731424}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &69843416
 GameObject:
   m_ObjectHideFlags: 0
@@ -9556,7 +9509,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -13559,7 +13512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -15849,7 +15802,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -16786,7 +16739,6 @@ GameObject:
   - component: {fileID: 182397557}
   - component: {fileID: 182397559}
   - component: {fileID: 182397560}
-  - component: {fileID: 182397561}
   m_Layer: 5
   m_Name: StatusEffectSlot_1
   m_TagString: Untagged
@@ -16866,7 +16818,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 182397555}
   iconImage: {fileID: 1239003437}
-  tooltipTrigger: {fileID: 182397561}
   warningAnimator: {fileID: 182397560}
   warningBoolParameterName: IsWarning
 --- !u!95 &182397560
@@ -16891,20 +16842,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &182397561
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 182397555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &187239492
 GameObject:
   m_ObjectHideFlags: 0
@@ -17346,7 +17283,6 @@ GameObject:
   - component: {fileID: 190832467}
   - component: {fileID: 190832469}
   - component: {fileID: 190832470}
-  - component: {fileID: 190832471}
   m_Layer: 5
   m_Name: StatusEffectSlot_3
   m_TagString: Untagged
@@ -17426,7 +17362,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 190832465}
   iconImage: {fileID: 150117606}
-  tooltipTrigger: {fileID: 190832471}
   warningAnimator: {fileID: 190832470}
   warningBoolParameterName: IsWarning
 --- !u!95 &190832470
@@ -17451,20 +17386,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &190832471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 190832465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &190857174
 GameObject:
   m_ObjectHideFlags: 0
@@ -21097,7 +21018,6 @@ GameObject:
   - component: {fileID: 224316231}
   - component: {fileID: 224316230}
   - component: {fileID: 224316232}
-  - component: {fileID: 224316233}
   m_Layer: 5
   m_Name: RelicSlot_6
   m_TagString: Untagged
@@ -21175,21 +21095,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 224316230}
-  tooltipTrigger: {fileID: 224316233}
---- !u!114 &224316233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 224316228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &224686414
 GameObject:
   m_ObjectHideFlags: 0
@@ -24306,7 +24211,6 @@ GameObject:
   - component: {fileID: 244269280}
   - component: {fileID: 244269282}
   - component: {fileID: 244269283}
-  - component: {fileID: 244269284}
   m_Layer: 5
   m_Name: StatusEffectSlot_2
   m_TagString: Untagged
@@ -24386,7 +24290,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 244269278}
   iconImage: {fileID: 1524664488}
-  tooltipTrigger: {fileID: 244269284}
   warningAnimator: {fileID: 244269283}
   warningBoolParameterName: IsWarning
 --- !u!95 &244269283
@@ -24411,20 +24314,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &244269284
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 244269278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &244600529
 GameObject:
   m_ObjectHideFlags: 0
@@ -26743,7 +26632,6 @@ GameObject:
   - component: {fileID: 272209943}
   - component: {fileID: 272209945}
   - component: {fileID: 272209946}
-  - component: {fileID: 272209947}
   m_Layer: 5
   m_Name: StatusEffectSlot_7
   m_TagString: Untagged
@@ -26823,7 +26711,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 272209941}
   iconImage: {fileID: 367192613}
-  tooltipTrigger: {fileID: 272209947}
   warningAnimator: {fileID: 272209946}
   warningBoolParameterName: IsWarning
 --- !u!95 &272209946
@@ -26848,20 +26735,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &272209947
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 272209941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &274352240
 GameObject:
   m_ObjectHideFlags: 0
@@ -29135,7 +29008,6 @@ GameObject:
   - component: {fileID: 297222918}
   - component: {fileID: 297222917}
   - component: {fileID: 297222919}
-  - component: {fileID: 297222920}
   m_Layer: 5
   m_Name: RelicSlot_3
   m_TagString: Untagged
@@ -29213,21 +29085,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 297222917}
-  tooltipTrigger: {fileID: 297222920}
---- !u!114 &297222920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 297222915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &297819009
 GameObject:
   m_ObjectHideFlags: 0
@@ -31501,7 +31358,6 @@ GameObject:
   - component: {fileID: 323654738}
   - component: {fileID: 323654740}
   - component: {fileID: 323654741}
-  - component: {fileID: 323654742}
   m_Layer: 5
   m_Name: StatusEffectSlot_4
   m_TagString: Untagged
@@ -31581,7 +31437,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 323654736}
   iconImage: {fileID: 1468371398}
-  tooltipTrigger: {fileID: 323654742}
   warningAnimator: {fileID: 323654741}
   warningBoolParameterName: IsWarning
 --- !u!95 &323654741
@@ -31606,20 +31461,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &323654742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 323654736}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &324295269
 GameObject:
   m_ObjectHideFlags: 0
@@ -35402,7 +35243,6 @@ GameObject:
   - component: {fileID: 364295034}
   - component: {fileID: 364295033}
   - component: {fileID: 364295035}
-  - component: {fileID: 364295036}
   m_Layer: 5
   m_Name: RelicSlot_2
   m_TagString: Untagged
@@ -35480,21 +35320,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 364295033}
-  tooltipTrigger: {fileID: 364295036}
---- !u!114 &364295036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 364295031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &364882340
 GameObject:
   m_ObjectHideFlags: 0
@@ -35743,7 +35568,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -41121,7 +40946,6 @@ GameObject:
   - component: {fileID: 419309296}
   - component: {fileID: 419309295}
   - component: {fileID: 419309297}
-  - component: {fileID: 419309298}
   m_Layer: 5
   m_Name: RelicSlot_7
   m_TagString: Untagged
@@ -41199,21 +41023,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 419309295}
-  tooltipTrigger: {fileID: 419309298}
---- !u!114 &419309298
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419309293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &420191633
 GameObject:
   m_ObjectHideFlags: 0
@@ -42796,7 +42605,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -47685,7 +47494,6 @@ GameObject:
   - component: {fileID: 486082638}
   - component: {fileID: 486082640}
   - component: {fileID: 486082641}
-  - component: {fileID: 486082642}
   m_Layer: 5
   m_Name: StatusEffectSlot_0
   m_TagString: Untagged
@@ -47765,7 +47573,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 486082636}
   iconImage: {fileID: 436821188}
-  tooltipTrigger: {fileID: 486082642}
   warningAnimator: {fileID: 486082641}
   warningBoolParameterName: IsWarning
 --- !u!95 &486082641
@@ -47790,20 +47597,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &486082642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 486082636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &487128873
 GameObject:
   m_ObjectHideFlags: 0
@@ -51913,7 +51706,6 @@ GameObject:
   - component: {fileID: 535706721}
   - component: {fileID: 535706720}
   - component: {fileID: 535706719}
-  - component: {fileID: 535706723}
   m_Layer: 5
   m_Name: Slot_3
   m_TagString: Untagged
@@ -51955,7 +51747,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   slotButton: {fileID: 535706720}
   itemIconImage: {fileID: 1906248681}
-  tooltipTrigger: {fileID: 535706723}
 --- !u!114 &535706720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52038,20 +51829,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 535706717}
   m_CullTransparentMesh: 1
---- !u!114 &535706723
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 535706717}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &535934682
 GameObject:
   m_ObjectHideFlags: 0
@@ -62132,7 +61909,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -62956,7 +62733,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -69478,7 +69255,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -72849,13 +72626,7 @@ MonoBehaviour:
   - {fileID: 8305333}
   - {fileID: 742499322}
   - {fileID: 366229217}
-  generalSkillTooltipTriggers:
-  - {fileID: 1158074390}
-  - {fileID: 1362937608}
-  - {fileID: 8305336}
-  - {fileID: 8305336}
-  - {fileID: 742499325}
-  - {fileID: 366229220}
+  generalSkillTooltipTriggers: []
   generalSkillDatabase: {fileID: 11400000, guid: 50b8b3b2fa5d4bc4eaa165202763e91e, type: 2}
   statusEffectDatabase: {fileID: 11400000, guid: f26ee5cc41fb04141a7cbc718f41c71f, type: 2}
   statusEffectSlots:
@@ -84888,13 +84659,7 @@ MonoBehaviour:
   - {fileID: 1231463041}
   - {fileID: 2003865549}
   - {fileID: 739438597}
-  generalSkillTooltipTriggers:
-  - {fileID: 1726566238}
-  - {fileID: 266423216}
-  - {fileID: 1410532639}
-  - {fileID: 1231463043}
-  - {fileID: 2003865551}
-  - {fileID: 739438599}
+  generalSkillTooltipTriggers: []
   generalSkillDatabase: {fileID: 11400000, guid: 50b8b3b2fa5d4bc4eaa165202763e91e, type: 2}
   statusEffectDatabase: {fileID: 11400000, guid: f26ee5cc41fb04141a7cbc718f41c71f, type: 2}
   statusEffectSlots:
@@ -86127,7 +85892,6 @@ GameObject:
   - component: {fileID: 922785296}
   - component: {fileID: 922785298}
   - component: {fileID: 922785299}
-  - component: {fileID: 922785300}
   m_Layer: 5
   m_Name: StatusEffectSlot_2
   m_TagString: Untagged
@@ -86207,7 +85971,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 922785294}
   iconImage: {fileID: 1882158161}
-  tooltipTrigger: {fileID: 922785300}
   warningAnimator: {fileID: 922785299}
   warningBoolParameterName: IsWarning
 --- !u!95 &922785299
@@ -86232,20 +85995,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &922785300
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 922785294}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &923305355
 GameObject:
   m_ObjectHideFlags: 0
@@ -93152,7 +92901,6 @@ GameObject:
   - component: {fileID: 997359664}
   - component: {fileID: 997359663}
   - component: {fileID: 997359665}
-  - component: {fileID: 997359666}
   m_Layer: 5
   m_Name: RelicSlot_5
   m_TagString: Untagged
@@ -93230,21 +92978,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 997359663}
-  tooltipTrigger: {fileID: 997359666}
---- !u!114 &997359666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 997359661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &998102688
 GameObject:
   m_ObjectHideFlags: 0
@@ -105349,7 +105082,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -106400,7 +106133,6 @@ GameObject:
   - component: {fileID: 1151795475}
   - component: {fileID: 1151795477}
   - component: {fileID: 1151795478}
-  - component: {fileID: 1151795479}
   m_Layer: 5
   m_Name: StatusEffectSlot_6
   m_TagString: Untagged
@@ -106480,7 +106212,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1151795473}
   iconImage: {fileID: 8838355}
-  tooltipTrigger: {fileID: 1151795479}
   warningAnimator: {fileID: 1151795478}
   warningBoolParameterName: IsWarning
 --- !u!95 &1151795478
@@ -106505,20 +106236,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1151795479
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1151795473}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1152437870
 GameObject:
   m_ObjectHideFlags: 0
@@ -114688,7 +114405,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -130541,7 +130258,6 @@ GameObject:
   - component: {fileID: 1403185402}
   - component: {fileID: 1403185404}
   - component: {fileID: 1403185405}
-  - component: {fileID: 1403185406}
   m_Layer: 5
   m_Name: StatusEffectSlot_4
   m_TagString: Untagged
@@ -130621,7 +130337,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1403185400}
   iconImage: {fileID: 660587903}
-  tooltipTrigger: {fileID: 1403185406}
   warningAnimator: {fileID: 1403185405}
   warningBoolParameterName: IsWarning
 --- !u!95 &1403185405
@@ -130646,20 +130361,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1403185406
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1403185400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1404121766
 GameObject:
   m_ObjectHideFlags: 0
@@ -133476,7 +133177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -135111,7 +134812,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -136149,7 +135850,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -136652,7 +136353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -138508,7 +138209,6 @@ GameObject:
   - component: {fileID: 1504419510}
   - component: {fileID: 1504419512}
   - component: {fileID: 1504419513}
-  - component: {fileID: 1504419514}
   m_Layer: 5
   m_Name: StatusEffectSlot_5
   m_TagString: Untagged
@@ -138588,7 +138288,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1504419508}
   iconImage: {fileID: 107675603}
-  tooltipTrigger: {fileID: 1504419514}
   warningAnimator: {fileID: 1504419513}
   warningBoolParameterName: IsWarning
 --- !u!95 &1504419513
@@ -138613,20 +138312,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1504419514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1504419508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1504579307
 GameObject:
   m_ObjectHideFlags: 0
@@ -138853,7 +138538,6 @@ GameObject:
   - component: {fileID: 1506992547}
   - component: {fileID: 1506992546}
   - component: {fileID: 1506992548}
-  - component: {fileID: 1506992549}
   m_Layer: 5
   m_Name: RelicSlot_8
   m_TagString: Untagged
@@ -138931,21 +138615,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 1506992546}
-  tooltipTrigger: {fileID: 1506992549}
---- !u!114 &1506992549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1506992544}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1508255492
 GameObject:
   m_ObjectHideFlags: 0
@@ -139532,7 +139201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -139890,7 +139559,6 @@ GameObject:
   - component: {fileID: 1513921748}
   - component: {fileID: 1513921750}
   - component: {fileID: 1513921751}
-  - component: {fileID: 1513921752}
   m_Layer: 5
   m_Name: StatusEffectSlot_7
   m_TagString: Untagged
@@ -139970,7 +139638,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1513921746}
   iconImage: {fileID: 653242009}
-  tooltipTrigger: {fileID: 1513921752}
   warningAnimator: {fileID: 1513921751}
   warningBoolParameterName: IsWarning
 --- !u!95 &1513921751
@@ -139995,20 +139662,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1513921752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1513921746}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1516420998
 GameObject:
   m_ObjectHideFlags: 0
@@ -141451,7 +141104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -146527,7 +146180,6 @@ GameObject:
   - component: {fileID: 1577817081}
   - component: {fileID: 1577817080}
   - component: {fileID: 1577817079}
-  - component: {fileID: 1577817082}
   m_Layer: 5
   m_Name: RelicSlot_9
   m_TagString: Untagged
@@ -146567,7 +146219,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 1577817080}
-  tooltipTrigger: {fileID: 1577817082}
 --- !u!114 &1577817080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146606,20 +146257,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1577817077}
   m_CullTransparentMesh: 1
---- !u!114 &1577817082
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1577817077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1578310452
 GameObject:
   m_ObjectHideFlags: 0
@@ -147060,7 +146697,6 @@ GameObject:
   - component: {fileID: 1581375280}
   - component: {fileID: 1581375279}
   - component: {fileID: 1581375281}
-  - component: {fileID: 1581375282}
   m_Layer: 5
   m_Name: RelicSlot_1
   m_TagString: Untagged
@@ -147138,21 +146774,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 1581375279}
-  tooltipTrigger: {fileID: 1581375282}
---- !u!114 &1581375282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1581375277}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1582021307
 GameObject:
   m_ObjectHideFlags: 0
@@ -148236,7 +147857,6 @@ GameObject:
   - component: {fileID: 1591332563}
   - component: {fileID: 1591332565}
   - component: {fileID: 1591332566}
-  - component: {fileID: 1591332567}
   m_Layer: 5
   m_Name: StatusEffectSlot_1
   m_TagString: Untagged
@@ -148316,7 +147936,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1591332561}
   iconImage: {fileID: 722024888}
-  tooltipTrigger: {fileID: 1591332567}
   warningAnimator: {fileID: 1591332566}
   warningBoolParameterName: IsWarning
 --- !u!95 &1591332566
@@ -148341,20 +147960,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1591332567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1591332561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1593157992
 GameObject:
   m_ObjectHideFlags: 0
@@ -149262,7 +148867,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -153121,7 +152726,6 @@ GameObject:
   - component: {fileID: 1636582489}
   - component: {fileID: 1636582491}
   - component: {fileID: 1636582492}
-  - component: {fileID: 1636582493}
   m_Layer: 5
   m_Name: StatusEffectSlot_5
   m_TagString: Untagged
@@ -153201,7 +152805,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1636582487}
   iconImage: {fileID: 1600690534}
-  tooltipTrigger: {fileID: 1636582493}
   warningAnimator: {fileID: 1636582492}
   warningBoolParameterName: IsWarning
 --- !u!95 &1636582492
@@ -153226,20 +152829,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1636582493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1636582487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1637100758
 GameObject:
   m_ObjectHideFlags: 0
@@ -158541,7 +158130,6 @@ GameObject:
   - component: {fileID: 1696296248}
   - component: {fileID: 1696296247}
   - component: {fileID: 1696296246}
-  - component: {fileID: 1696296250}
   m_Layer: 5
   m_Name: Slot_2
   m_TagString: Untagged
@@ -158583,7 +158171,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   slotButton: {fileID: 1696296247}
   itemIconImage: {fileID: 1511553291}
-  tooltipTrigger: {fileID: 1696296250}
 --- !u!114 &1696296247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158666,20 +158253,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1696296244}
   m_CullTransparentMesh: 1
---- !u!114 &1696296250
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1696296244}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1697111900
 GameObject:
   m_ObjectHideFlags: 0
@@ -159959,7 +159532,6 @@ GameObject:
   - component: {fileID: 1717307421}
   - component: {fileID: 1717307420}
   - component: {fileID: 1717307422}
-  - component: {fileID: 1717307424}
   - component: {fileID: 1717307423}
   m_Layer: 5
   m_Name: StatusEffectSlot_0
@@ -160040,7 +159612,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 1717307418}
   iconImage: {fileID: 1440695371}
-  tooltipTrigger: {fileID: 1717307424}
   warningAnimator: {fileID: 1717307423}
   warningBoolParameterName: IsWarning
 --- !u!95 &1717307423
@@ -160065,20 +159636,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1717307424
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1717307418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1720523659
 GameObject:
   m_ObjectHideFlags: 0
@@ -165820,7 +165377,6 @@ GameObject:
   - component: {fileID: 1780984912}
   - component: {fileID: 1780984911}
   - component: {fileID: 1780984913}
-  - component: {fileID: 1780984914}
   m_Layer: 5
   m_Name: RelicSlot_0
   m_TagString: Untagged
@@ -165898,21 +165454,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 1780984911}
-  tooltipTrigger: {fileID: 1780984914}
---- !u!114 &1780984914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1780984909}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &1781845021
 GameObject:
   m_ObjectHideFlags: 0
@@ -170244,7 +169785,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -176632,7 +176173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -178997,7 +178538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -180446,7 +179987,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 6.33, y: 74.9}
+  m_AnchoredPosition: {x: 73, y: 74.9}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1924617870
@@ -180503,7 +180044,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -190679,7 +190220,6 @@ GameObject:
   - component: {fileID: 2032457545}
   - component: {fileID: 2032457547}
   - component: {fileID: 2032457548}
-  - component: {fileID: 2032457549}
   m_Layer: 5
   m_Name: StatusEffectSlot_3
   m_TagString: Untagged
@@ -190759,7 +190299,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectSlotUI
   root: {fileID: 2032457543}
   iconImage: {fileID: 173799631}
-  tooltipTrigger: {fileID: 2032457549}
   warningAnimator: {fileID: 2032457548}
   warningBoolParameterName: IsWarning
 --- !u!95 &2032457548
@@ -190784,20 +190323,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2032457549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2032457543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &2036441181
 GameObject:
   m_ObjectHideFlags: 0
@@ -196463,7 +195988,6 @@ GameObject:
   - component: {fileID: 2090160611}
   - component: {fileID: 2090160610}
   - component: {fileID: 2090160612}
-  - component: {fileID: 2090160613}
   m_Layer: 5
   m_Name: RelicSlot_4
   m_TagString: Untagged
@@ -196541,21 +196065,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
   relicIconImage: {fileID: 2090160610}
-  tooltipTrigger: {fileID: 2090160613}
---- !u!114 &2090160613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2090160608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &2091940006
 GameObject:
   m_ObjectHideFlags: 0
@@ -201705,7 +201214,6 @@ GameObject:
   - component: {fileID: 2143243971}
   - component: {fileID: 2143243970}
   - component: {fileID: 2143243973}
-  - component: {fileID: 2143243974}
   m_Layer: 5
   m_Name: Slot_0
   m_TagString: Untagged
@@ -201829,21 +201337,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   slotButton: {fileID: 2143243970}
   itemIconImage: {fileID: 8041341}
-  tooltipTrigger: {fileID: 2143243974}
---- !u!114 &2143243974
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2143243968}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
 --- !u!1 &2147015346
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,8 +15,9 @@ MonoBehaviour:
   skillType: 2
   skillName: "\uBC29\uC5B4"
   iconSprite: {fileID: 21300000, guid: 73579cc356e29934088d077dc7a506f4, type: 3}
-  description: "\uD655\uB960\uC801\uC73C\uB85C \uC0C1\uB300\uC758 \uACF5\uACA9\uC744
-    \uBC29\uC5B4\uD55C\uB2E4."
+  description: " {percent}% \uD655\uB960\uB85C \uACF5\uACA9\uC744 \uB9C9\uC544\uB0C5\uB2C8\uB2E4."
+  tooltipDescriptionFormat: 
+  tooltipSections: []
   maxLevel: 3
   chanceAttackLevel1Percent: 0
   chanceAttackLevel2Percent: 0

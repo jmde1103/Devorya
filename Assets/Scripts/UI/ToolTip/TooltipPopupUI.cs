@@ -88,6 +88,12 @@ public class TooltipPopupUI : MonoBehaviour
             categoryText.text = tooltipViewData.category;
         }
 
+        if (levelText != null)
+        {
+            levelText.text = tooltipViewData.levelText;
+            levelText.gameObject.SetActive(string.IsNullOrEmpty(tooltipViewData.levelText) == false);
+        }
+
         if (mainDescriptionText != null)
         {
             mainDescriptionText.text = tooltipViewData.mainDescription;

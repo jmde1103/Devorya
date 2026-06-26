@@ -14,6 +14,9 @@ public class BattleItemSlotUI : MonoBehaviour
     [SerializeField] private Button slotButton;
     [SerializeField] private Image itemIconImage;
 
+    // <변경부분> 아이템 슬롯을 꾹 눌렀을 때 아이템 설명 팝업을 표시할 TooltipTrigger
+    [SerializeField] private TooltipTrigger tooltipTrigger;
+
     // <변경부분> 슬롯 번호와 상위 UI를 저장하고 버튼 클릭 이벤트를 연결하는 함수
     public void Initialize(BattleUIController owner, int index)
     {
@@ -27,6 +30,17 @@ public class BattleItemSlotUI : MonoBehaviour
         if (slotButton == null)
         {
             slotButton = GetComponent<Button>();
+        }
+
+        // <변경부분> TooltipTrigger가 인스펙터에 연결되지 않았다면 현재 오브젝트 또는 자식에서 찾음
+        if (tooltipTrigger == null)
+        {
+            tooltipTrigger = GetComponent<TooltipTrigger>();
+
+            if (tooltipTrigger == null)
+            {
+                tooltipTrigger = GetComponentInChildren<TooltipTrigger>();
+            }
         }
 
         // 슬롯 버튼 클릭 시 OnClickSlot이 실행되도록 연결
@@ -54,6 +68,20 @@ public class BattleItemSlotUI : MonoBehaviour
         if (slotButton != null)
         {
             slotButton.interactable = hasItem;
+        }
+
+        // 아이템이 있는 슬롯만 클릭 가능하게 처리
+        if (slotButton != null)
+        {
+            slotButton.interactable = hasItem;
+        }
+
+        // <변경부분> 아이템이 있는 슬롯에는 아이템 데이터 기반 Tooltip을 연결하고, 빈 슬롯은 Tooltip을 제거
+        if (tooltipTrigger != null)
+        {
+            tooltipTrigger.SetTooltipViewData(
+                hasItem ? TooltipViewData.FromBattleItemData(itemData) : null
+            );
         }
     }
 
