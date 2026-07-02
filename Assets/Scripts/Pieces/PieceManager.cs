@@ -522,16 +522,28 @@ public class PieceManager : MonoBehaviour
             return false;
         }
 
-        // <변경부분> 필드 스프라이트 적용
-        SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
+        // <변경부분> 필드 외형 적용
+        // Spine Visual이 등록된 PieceData는 Spine으로 표시하고, 없으면 기존 SpriteRenderer 방식으로 표시
+        PieceVisualController visualController = piece.GetComponent<PieceVisualController>();
 
-        if (spriteRenderer != null)
+        if (visualController != null)
         {
-            Sprite spriteToApply = pieceData.GetSprite(piece.Team, piece.IsAbsorbedJelluVisual);
+            visualController.ApplyVisual(pieceData, piece.Team, piece.IsAbsorbedJelluVisual);
+        }
+        else
+        {
+            // <변경부분> PieceVisualController가 없는 기존 프리팹을 위한 SpriteRenderer fallback
+            SpriteRenderer spriteRenderer = piece.GetComponent<SpriteRenderer>();
 
-            if (spriteToApply != null)
+            if (spriteRenderer != null)
             {
-                spriteRenderer.sprite = spriteToApply;
+                Sprite spriteToApply = pieceData.GetSprite(piece.Team, piece.IsAbsorbedJelluVisual);
+
+                if (spriteToApply != null)
+                {
+                    spriteRenderer.sprite = spriteToApply;
+                    spriteRenderer.enabled = true;
+                }
             }
         }
 
@@ -855,17 +867,30 @@ public class PieceManager : MonoBehaviour
     // 기물의 화면 정렬 순서를 설정하는 함수
     private void SetPieceSortingOrder(GameObject pieceObject, int x, int y)
     {
-        // SpriteRenderer 가져오기
-        SpriteRenderer spriteRenderer = pieceObject.GetComponent<SpriteRenderer>();
-
-        // SpriteRenderer가 없으면 처리하지 않음
-        if (spriteRenderer == null)
+        if (pieceObject == null)
         {
             return;
         }
 
         // 타일보다 기물이 앞에 보이도록 큰 값을 더함
-        spriteRenderer.sortingOrder = 100 - (x + y);
+        int sortingOrder = 100 - (x + y);
+
+        // <변경부분> Sprite / Spine 외형 컨트롤러가 있으면 해당 컨트롤러를 통해 정렬 순서 적용
+        PieceVisualController visualController = pieceObject.GetComponent<PieceVisualController>();
+
+        if (visualController != null)
+        {
+            visualController.SetSortingOrder(sortingOrder);
+            return;
+        }
+
+        // <변경부분> 기존 SpriteRenderer만 있는 프리팹을 위한 fallback
+        SpriteRenderer spriteRenderer = pieceObject.GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = sortingOrder;
+        }
     }
 
 
@@ -1174,6 +1199,45 @@ public class PieceManager : MonoBehaviour
         }
 
         animationManager.PlaySkillSpawnAnimationFromWorldPosition(spawnedPiece, sourceWorldPosition);
+    }
+
+    // <변경부분> 기물 선택 시 Select → Select_Idle 애니메이션을 요청하는 외부 호출 함수
+    public void PlayPieceSelectAnimation(Piece piece)
+    {
+        PieceAnimationManager animationManager = GetPieceAnimationManager();
+
+        if (animationManager == null)
+        {
+            return;
+        }
+
+        animationManager.PlayPieceSelectAnimation(piece);
+    }
+
+    // <변경부분> 기물 선택 해제 시 Down → Idle 애니메이션을 요청하는 외부 호출 함수
+    public void PlayPieceDeselectAnimation(Piece piece)
+    {
+        PieceAnimationManager animationManager = GetPieceAnimationManager();
+
+        if (animationManager == null)
+        {
+            return;
+        }
+
+        animationManager.PlayPieceDeselectAnimation(piece);
+    }
+
+    // <변경부분> 기물을 강제로 Idle 상태로 되돌리는 외부 호출 함수
+    public void PlayPieceIdleAnimation(Piece piece)
+    {
+        PieceAnimationManager animationManager = GetPieceAnimationManager();
+
+        if (animationManager == null)
+        {
+            return;
+        }
+
+        animationManager.PlayPieceIdleAnimation(piece);
     }
 
     // <변경부분> 기존 외부 호출 호환용 래퍼

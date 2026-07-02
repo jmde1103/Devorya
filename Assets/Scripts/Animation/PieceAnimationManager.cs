@@ -38,6 +38,11 @@ public class PieceAnimationManager : MonoBehaviour
     // <변경부분> 위에서 아래로 내려찍는 시간
     [SerializeField] private float attackSlamDuration = 0.08f;
 
+    [Header("Spine Attack Timing")]
+    // <변경부분> Down 애니메이션을 먼저 재생한 뒤 실제 내려찍기 Transform 이동을 시작하기 전 대기 시간
+    // 값이 클수록 Down 모션을 더 보여준 뒤 내려찍는다.
+    [SerializeField] private float attackDownPreSlamDelay = 0.03f;
+
 
     [Header("Defense Bounce Animation")]
     // <변경부분> 방어 성공 시 공격자가 원래 위치에 도달하지 못하고 앞쪽에 떨어지는 거리
@@ -105,10 +110,29 @@ public class PieceAnimationManager : MonoBehaviour
         // 시작 위치 저장
         Vector3 startPosition = piece.transform.position;
 
+        // <변경부분> Spine 애니메이션 컨트롤러 가져오기
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        // <변경부분> 이동 방향 계산
+        bool isRightDirection = IsRightDirection(startPosition, targetPosition);
+
+        // <변경부분> Spine 이동 애니메이션 재생
+        if (spineAnimator != null)
+        {
+            spineAnimator.PlayMoveByDirection(isRightDirection);
+        }
+
         // 연출 시간이 0 이하이면 즉시 이동
         if (moveAnimationDuration <= 0f)
         {
             piece.transform.position = targetPosition;
+
+            // <변경부분> 즉시 이동이어도 착지 느낌을 위해 Down 후 Idle로 복귀
+            if (spineAnimator != null)
+            {
+                yield return spineAnimator.PlayDownToIdleRoutine();
+            }
+
             yield break;
         }
 
@@ -147,6 +171,12 @@ public class PieceAnimationManager : MonoBehaviour
         {
             piece.transform.position = targetPosition;
         }
+
+        // <변경부분> 일반 이동은 도착 지점에서 Down 착지 애니메이션 재생 후 Idle로 복귀
+        if (spineAnimator != null)
+        {
+            yield return spineAnimator.PlayDownToIdleRoutine();
+        }
     }
 
 
@@ -160,19 +190,52 @@ public class PieceAnimationManager : MonoBehaviour
             yield break;
         }
 
-        // 공격 연출 중 공격자가 타겟 뒤에 가려지지 않도록 Sorting Order 임시 상승
+        // <변경부분> Spine / Sprite 공통 정렬 처리를 위해 VisualController와 SpriteRenderer를 함께 가져옴
+        PieceVisualController attackVisualController = piece.GetComponent<PieceVisualController>();
         SpriteRenderer attackPieceRenderer = piece.GetComponent<SpriteRenderer>();
+
         int originalSortingOrder = 0;
         bool changedSortingOrder = false;
 
-        ApplyTemporaryTopSortingOrder(attackPieceRenderer, ref originalSortingOrder, ref changedSortingOrder);
+        // <변경부분> 공격 연출 중 공격자가 타겟 뒤에 가려지지 않도록 Sorting Order 임시 상승
+        ApplyTemporaryTopSortingOrder(
+            attackVisualController,
+            attackPieceRenderer,
+            ref originalSortingOrder,
+            ref changedSortingOrder
+        );
 
         // 공격 시작 위치 저장
         Vector3 startPosition = piece.transform.position;
 
+        // <변경부분> Spine 애니메이션 컨트롤러 가져오기
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        // <변경부분> 공격 방향 계산
+        bool isRightDirection = IsRightDirection(startPosition, targetWorldPosition);
+
+        // <변경부분> 공격 접근 이동 애니메이션 재생
+        if (spineAnimator != null)
+        {
+            spineAnimator.PlayMoveByDirection(isRightDirection);
+        }
+
         // 1단계: 현재 위치에서 상대 기물 위쪽까지 포물선으로 이동
         Vector3 hoverTargetPosition = targetWorldPosition + Vector3.up * attackRiseHeight;
         yield return MoveTransformArcRoutine(piece.transform, startPosition, hoverTargetPosition, attackMoveDuration, attackMoveArcHeight);
+
+        // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
+        if (piece == null)
+        {
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            yield break;
+        }
+
+        // <변경부분> 공격 중에는 Stop 후 Idle로 복귀하지 않고, 바로 Down으로 이어지도록 Stop만 재생
+        if (spineAnimator != null)
+        {
+            yield return spineAnimator.PlayStopOnlyRoutine(isRightDirection);
+        }
 
         // 2단계: 상대 기물 위에서 잠깐 멈춤
         if (attackHoverWaitDuration > 0f)
@@ -183,7 +246,7 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
         }
 
@@ -194,8 +257,20 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
+        }
+
+        // <변경부분> 내려찍기 시작 타이밍에 Down 애니메이션을 재생하고, 공격 후 무조건 Idle로 복귀
+        if (spineAnimator != null)
+        {
+            StartCoroutine(spineAnimator.PlayDownToIdleRoutine());
+
+            // <변경부분> Spine Down 모션과 실제 Transform 내려찍기 타이밍을 맞추기 위한 조절값
+            if (attackDownPreSlamDelay > 0f)
+            {
+                yield return new WaitForSeconds(attackDownPreSlamDelay);
+            }
         }
 
         // 4단계: 상대 기물 위치로 빠르게 내려찍기
@@ -205,9 +280,8 @@ public class PieceAnimationManager : MonoBehaviour
         PlayAttackImpactFeedback();
 
         // 공격 연출이 끝나면 임시 Sorting Order 복구
-        RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+        RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
     }
-
 
     // <변경부분> Defense 성공 시 공격자가 내려찍기 도중 막히고,
     // 원래 위치에 도달하지 못한 앞쪽 지점에 떨어진 뒤 두 번 튀며 원위치로 복귀하는 연출
@@ -219,19 +293,52 @@ public class PieceAnimationManager : MonoBehaviour
             yield break;
         }
 
-        // 방어 연출 중 공격자가 타겟 뒤에 가려지지 않도록 Sorting Order 임시 상승
+        // <변경부분> Spine / Sprite 공통 정렬 처리를 위해 VisualController와 SpriteRenderer를 함께 가져옴
+        PieceVisualController attackVisualController = piece.GetComponent<PieceVisualController>();
         SpriteRenderer attackPieceRenderer = piece.GetComponent<SpriteRenderer>();
+
         int originalSortingOrder = 0;
         bool changedSortingOrder = false;
 
-        ApplyTemporaryTopSortingOrder(attackPieceRenderer, ref originalSortingOrder, ref changedSortingOrder);
+        // <변경부분> 방어 연출 중 공격자가 타겟 뒤에 가려지지 않도록 Sorting Order 임시 상승
+        ApplyTemporaryTopSortingOrder(
+            attackVisualController,
+            attackPieceRenderer,
+            ref originalSortingOrder,
+            ref changedSortingOrder
+        );
 
         // 공격 시작 위치 저장
         Vector3 startPosition = piece.transform.position;
 
+        // <변경부분> Spine 애니메이션 컨트롤러 가져오기
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        // <변경부분> 공격 방향 계산
+        bool isRightDirection = IsRightDirection(startPosition, targetWorldPosition);
+
+        // <변경부분> 공격 접근 이동 애니메이션 재생
+        if (spineAnimator != null)
+        {
+            spineAnimator.PlayMoveByDirection(isRightDirection);
+        }
+
         // 기존 공격과 동일하게 타겟 위쪽까지 포물선 이동
         Vector3 hoverTargetPosition = targetWorldPosition + Vector3.up * attackRiseHeight;
         yield return MoveTransformArcRoutine(piece.transform, startPosition, hoverTargetPosition, attackMoveDuration, attackMoveArcHeight);
+
+        // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
+        if (piece == null)
+        {
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            yield break;
+        }
+
+        // <변경부분> 방어 공격 중에도 Stop 후 Idle로 복귀하지 않고 Down으로 이어지도록 Stop만 재생
+        if (spineAnimator != null)
+        {
+            yield return spineAnimator.PlayStopOnlyRoutine(isRightDirection);
+        }
 
         // 타겟 위에서 잠깐 멈춤
         if (attackHoverWaitDuration > 0f)
@@ -242,7 +349,7 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
         }
 
@@ -253,8 +360,20 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
+        }
+
+        // <변경부분> 방어에 막히는 공격도 Down 후 무조건 Idle로 복귀
+        if (spineAnimator != null)
+        {
+            StartCoroutine(spineAnimator.PlayDownToIdleRoutine());
+
+            // <변경부분> Spine Down 모션과 실제 내려찍기 타이밍을 맞추기 위한 조절값
+            if (attackDownPreSlamDelay > 0f)
+            {
+                yield return new WaitForSeconds(attackDownPreSlamDelay);
+            }
         }
 
         // 내려찍는 도중 방어에 막히는 지점
@@ -268,7 +387,7 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
         }
 
@@ -304,7 +423,7 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
         }
 
@@ -320,7 +439,7 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
         }
 
@@ -336,7 +455,7 @@ public class PieceAnimationManager : MonoBehaviour
         // 기물이 중간에 제거되었으면 Sorting Order 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
             yield break;
         }
 
@@ -354,8 +473,14 @@ public class PieceAnimationManager : MonoBehaviour
             piece.transform.position = startPosition;
         }
 
+        // <변경부분> 방어 연출 후 기본 대기 상태로 복귀
+        if (spineAnimator != null)
+        {
+            spineAnimator.PlayReturnIdle();
+        }
+
         // 방어 연출이 끝나면 임시 Sorting Order 복구
-        RestoreSortingOrder(attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+        RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
     }
 
 
@@ -601,10 +726,29 @@ public class PieceAnimationManager : MonoBehaviour
             yield break;
         }
 
+        // <변경부분> 생성된 기물의 Spine 애니메이션 컨트롤러 가져오기
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(spawnedPiece);
+
+        // <변경부분> 생성 위치까지 날아가는 방향 계산
+        bool isRightDirection = IsRightDirection(startWorldPosition, targetWorldPosition);
+
+        // <변경부분> 생성 기물이 이동 중일 때 방향 이동 애니메이션 재생
+        if (spineAnimator != null)
+        {
+            spineAnimator.PlayMoveByDirection(isRightDirection);
+        }
+
         // 연출 시간이 0 이하이면 즉시 최종 위치로 보정
         if (skillSpawnAnimationDuration <= 0f)
         {
             spawnedPiece.transform.position = targetWorldPosition;
+
+            // <변경부분> 최종 위치에 도착한 뒤 Born 애니메이션 재생
+            if (spineAnimator != null)
+            {
+                yield return spineAnimator.PlayBornRoutine();
+            }
+
             yield break;
         }
 
@@ -645,8 +789,40 @@ public class PieceAnimationManager : MonoBehaviour
         {
             spawnedPiece.transform.position = targetWorldPosition;
         }
+
+        // <변경부분> 생성 위치에 도착한 뒤 Born 애니메이션 재생
+        if (spineAnimator != null)
+        {
+            yield return spineAnimator.PlayBornRoutine();
+        }
     }
 
+  
+    // <변경부분> 기물 생성 또는 변형 시 Born 애니메이션을 재생하는 함수
+    public IEnumerator PlayPieceBornAnimation(Piece piece)
+    {
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        if (spineAnimator == null)
+        {
+            yield break;
+        }
+
+        yield return spineAnimator.PlayBornRoutine();
+    }
+
+    // <변경부분> 기물 사망 시 Death 애니메이션을 재생하는 함수
+    public IEnumerator PlayPieceDeathAnimation(Piece piece)
+    {
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        if (spineAnimator == null)
+        {
+            yield break;
+        }
+
+        yield return spineAnimator.PlayDeathRoutine();
+    }
 
     // <변경부분> 공격/방어 충격 피드백 실행
     private void PlayAttackImpactFeedback()
@@ -704,29 +880,127 @@ public class PieceAnimationManager : MonoBehaviour
         shakeTarget.localPosition = originalPosition;
     }
 
-
-    // <변경부분> 공격자 Sorting Order를 임시로 최상단으로 올림
-    private void ApplyTemporaryTopSortingOrder(SpriteRenderer spriteRenderer, ref int originalSortingOrder, ref bool changedSortingOrder)
+    // <변경부분> 기물 선택 시 Spine Select 애니메이션을 재생하는 함수
+    public void PlayPieceSelectAnimation(Piece piece)
     {
-        if (spriteRenderer == null)
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        if (spineAnimator == null)
         {
             return;
         }
 
-        originalSortingOrder = spriteRenderer.sortingOrder;
-        spriteRenderer.sortingOrder = attackAnimationSortingOrder;
-        changedSortingOrder = true;
+        StartCoroutine(spineAnimator.PlaySelectRoutine());
+    }
+
+    // <변경부분> 다른 기물을 선택하거나 선택이 해제될 때 기존 선택 기물을 Down 후 Idle로 전환
+    public void PlayPieceDeselectAnimation(Piece piece)
+    {
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        if (spineAnimator == null)
+        {
+            return;
+        }
+
+        StartCoroutine(spineAnimator.PlayDownToIdleRoutine());
+    }
+
+    // <변경부분> 기물을 강제로 Idle 상태로 되돌리는 함수
+    public void PlayPieceIdleAnimation(Piece piece)
+    {
+        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+
+        if (spineAnimator == null)
+        {
+            return;
+        }
+
+        spineAnimator.PlayIdle();
+    }
+
+    // <변경부분> Piece에 연결된 Spine 애니메이션 컨트롤러를 가져오는 함수
+    private PieceSpineAnimationController GetSpineAnimator(Piece piece)
+    {
+        if (piece == null)
+        {
+            return null;
+        }
+
+        PieceVisualController visualController = piece.GetComponent<PieceVisualController>();
+
+        if (visualController != null &&
+            visualController.CurrentSpineAnimationController != null)
+        {
+            return visualController.CurrentSpineAnimationController;
+        }
+
+        return piece.GetComponentInChildren<PieceSpineAnimationController>();
+    }
+
+    // <변경부분> 시작 위치와 목표 위치를 비교해서 오른쪽 방향 이동인지 판단하는 함수
+    private bool IsRightDirection(Vector3 startPosition, Vector3 targetPosition)
+    {
+        return targetPosition.x >= startPosition.x;
+    }
+
+    // <변경부분> 공격자 Sorting Order를 임시로 최상단으로 올림
+    // SpriteRenderer 기물과 Spine 기물을 모두 처리한다.
+    private void ApplyTemporaryTopSortingOrder(
+        PieceVisualController visualController,
+        SpriteRenderer spriteRenderer,
+        ref int originalSortingOrder,
+        ref bool changedSortingOrder
+    )
+    {
+        // 기존 SpriteRenderer의 정렬값을 원본 기준값으로 저장
+        if (spriteRenderer != null)
+        {
+            originalSortingOrder = spriteRenderer.sortingOrder;
+        }
+
+        // Spine/Sprite 통합 외형 컨트롤러가 있으면 해당 컨트롤러를 통해 정렬 적용
+        if (visualController != null)
+        {
+            visualController.SetSortingOrder(attackAnimationSortingOrder);
+            changedSortingOrder = true;
+            return;
+        }
+
+        // 기존 SpriteRenderer만 있는 기물을 위한 fallback
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = attackAnimationSortingOrder;
+            changedSortingOrder = true;
+        }
     }
 
 
     // <변경부분> 임시로 올렸던 Sorting Order를 원래 값으로 복구
-    private void RestoreSortingOrder(SpriteRenderer spriteRenderer, int originalSortingOrder, bool changedSortingOrder)
+    // SpriteRenderer 기물과 Spine 기물을 모두 처리한다.
+    private void RestoreSortingOrder(
+        PieceVisualController visualController,
+        SpriteRenderer spriteRenderer,
+        int originalSortingOrder,
+        bool changedSortingOrder
+    )
     {
-        if (spriteRenderer == null || changedSortingOrder == false)
+        if (changedSortingOrder == false)
         {
             return;
         }
 
-        spriteRenderer.sortingOrder = originalSortingOrder;
+        // Spine/Sprite 통합 외형 컨트롤러가 있으면 해당 컨트롤러를 통해 복구
+        if (visualController != null)
+        {
+            visualController.SetSortingOrder(originalSortingOrder);
+            return;
+        }
+
+        // 기존 SpriteRenderer만 있는 기물을 위한 fallback
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = originalSortingOrder;
+        }
     }
 }

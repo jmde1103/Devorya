@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6469059003001286801}
   - component: {fileID: 7671137728747154121}
+  - component: {fileID: 4106396624621441344}
   - component: {fileID: 8909022500806026355}
   m_Layer: 0
   m_Name: PiecePrefab
@@ -32,6 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1784796996259473930}
+  - {fileID: 2537530555151445295}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7671137728747154121
@@ -127,6 +129,37 @@ MonoBehaviour:
   enemyKingIconSprite: {fileID: 21300000, guid: d6f0a66a4a223724fbf8dea89d338d65, type: 3}
   enemyQueenIconSprite: {fileID: 21300000, guid: 3ce86be5b47b40542b059080bfe5f8df, type: 3}
   enemySpecialIconSprite: {fileID: 0}
+--- !u!1 &4961917013419762635
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2537530555151445295}
+  m_Layer: 0
+  m_Name: SpineVisualRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2537530555151445295
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4961917013419762635}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6469059003001286801}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7023221375921924997
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,6 +430,26 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 0}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3789181349419588140, guid: 6dcf609e3a7b7464ca54fb608a22fe8c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2537530555151445295}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6970628757967705187, guid: 6dcf609e3a7b7464ca54fb608a22fe8c, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 4106396624621441344}
   m_SourcePrefab: {fileID: 100100000, guid: 6dcf609e3a7b7464ca54fb608a22fe8c, type: 3}
+--- !u!114 &4106396624621441344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794599025964605050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c2e980875e5814409feac2e221ae9ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceVisualController
+  spriteRenderer: {fileID: 7671137728747154121}
+  spineVisualRoot: {fileID: 2537530555151445295}

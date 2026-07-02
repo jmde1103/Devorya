@@ -40,6 +40,19 @@ public class PieceData : ScriptableObject
     // <변경부분> 플레이어가 Jellu 계열을 흡수했을 때 사용할 뒤통수 스프라이트
     public Sprite absorbedPlayerBackSprite;
 
+    [Header("Spine Visual Prefabs")]
+    // <변경부분> 플레이어 진영에서 사용할 Spine Visual 프리팹
+    public GameObject playerSpineVisualPrefab;
+
+    // <변경부분> 적 진영에서 사용할 Spine Visual 프리팹
+    public GameObject enemySpineVisualPrefab;
+
+    // <변경부분> 중립 진영에서 사용할 Spine Visual 프리팹
+    public GameObject neutralSpineVisualPrefab;
+
+    // <변경부분> 플레이어가 Jellu 계열을 흡수했을 때 사용할 뒤통수 Spine Visual 프리팹
+    public GameObject absorbedPlayerBackSpineVisualPrefab;
+
     [Header("Status UI Sprites")]
     // <변경부분> 플레이어 상태 UI에서 사용할 스프라이트
     public Sprite playerStatusSprite;
@@ -84,6 +97,31 @@ public class PieceData : ScriptableObject
 
             case PieceTeam.Neutral:
                 return neutralSprite;
+        }
+
+        return null;
+    }
+
+    // <변경부분> 팀과 외형 상태에 맞는 Spine Visual 프리팹 반환
+    public GameObject GetSpineVisualPrefab(PieceTeam team, bool isAbsorbedPlayerVisual)
+    {
+        if (team == PieceTeam.Player &&
+            isAbsorbedPlayerVisual &&
+            absorbedPlayerBackSpineVisualPrefab != null)
+        {
+            return absorbedPlayerBackSpineVisualPrefab;
+        }
+
+        switch (team)
+        {
+            case PieceTeam.Player:
+                return playerSpineVisualPrefab;
+
+            case PieceTeam.Enemy:
+                return enemySpineVisualPrefab;
+
+            case PieceTeam.Neutral:
+                return neutralSpineVisualPrefab;
         }
 
         return null;

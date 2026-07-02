@@ -38639,6 +38639,7 @@ GameObject:
   - component: {fileID: 401649370}
   - component: {fileID: 401649372}
   - component: {fileID: 401649371}
+  - component: {fileID: 401649373}
   m_Layer: 0
   m_Name: BackgroundTile_Forest_20_8
   m_TagString: Untagged
@@ -38735,6 +38736,44 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &401649373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 401649369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec57419054ce3bd4897c736ec540691b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceAnimationManager
+  moveAnimationDuration: 0.25
+  moveJumpHeight: 0.35
+  attackAnimationSortingOrder: 10000
+  attackRiseHeight: 0.45
+  attackMoveDuration: 0.18
+  attackMoveArcHeight: 0.25
+  attackHoverWaitDuration: 0.08
+  attackExtraRiseHeight: 0.18
+  attackExtraRiseDuration: 0.08
+  attackSlamDuration: 0.08
+  attackDownPreSlamDelay: 0.03
+  defenseFallShortDistance: 0.25
+  defenseFallBackDuration: 0.12
+  defenseFirstBounceDuration: 0.13
+  defenseFirstBounceHeight: 0.22
+  defenseSecondBounceDuration: 0.11
+  defenseSecondBounceHeight: 0.11
+  defenseFinalReturnDuration: 0.08
+  skillSpawnAnimationDuration: 0.22
+  skillSpawnArcHeight: 0.3
+  synthesisMaterialAnimationDuration: 0.22
+  synthesisMaterialArcHeight: 0.3
+  cameraShakeTarget: {fileID: 0}
+  cameraShakeDuration: 0.12
+  cameraShakeStrength: 0.06
+  enableMobileVibration: 1
 --- !u!1 &403878994
 GameObject:
   m_ObjectHideFlags: 0
@@ -47424,10 +47463,11 @@ MonoBehaviour:
   attackRiseHeight: 0.5
   attackMoveDuration: 0.18
   attackMoveArcHeight: 0.25
-  attackHoverWaitDuration: 0.08
+  attackHoverWaitDuration: 0.01
   attackExtraRiseHeight: 0.18
-  attackExtraRiseDuration: 0.08
-  attackSlamDuration: 0.08
+  attackExtraRiseDuration: 0.05
+  attackSlamDuration: 0.05
+  attackDownPreSlamDelay: 0.03
   defenseFallShortDistance: 0.25
   defenseFallBackDuration: 0.12
   defenseFirstBounceDuration: 0.13
@@ -180547,7 +180587,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 6.33, y: 74.9}
+  m_AnchoredPosition: {x: 0.0000081062, y: 74.5}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1924617870

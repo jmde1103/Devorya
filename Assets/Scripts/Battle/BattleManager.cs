@@ -203,14 +203,11 @@ public class BattleManager : MonoBehaviour
     // 기물을 선택하는 함수
     public void SelectPiece(Piece piece)
     {
-        // 전투가 끝났으면 더 이상 선택 불가
-        if (isBattleEnded)
-        {
-            return;
-        }
+        // <변경부분> 새 선택 처리 전에 기존 선택 기물을 저장
+        Piece previousSelectedPiece = selectedPiece;
 
-        // <변경부분> 이동/공격 연출 중에는 추가 선택 방지
-        if (isActionAnimating)
+        // 전투가 종료되었다면 더 이상 선택 불가
+        if (isBattleEnded)
         {
             return;
         }
@@ -221,15 +218,18 @@ public class BattleManager : MonoBehaviour
         // 선택한 기물이 없으면 종료
         if (piece == null)
         {
+            // <변경부분> 기존 선택 기물이 있었다면 Down 후 Idle로 전환
+            if (previousSelectedPiece != null)
+            {
+                pieceManager.PlayPieceDeselectAnimation(previousSelectedPiece);
+            }
+
             selectedPiece = null;
 
-            // <변경부분> 선택 해제 시 공격 확인 대상 초기화
             pendingAttackTargetPiece = null;
 
-            // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
             SetAllTypeIconsVisible(false);
 
-            // <변경부분> 선택된 기물이 없으므로 흡수/고유스킬 버튼 숨김
             if (battleUIController != null)
             {
                 battleUIController.HideActionButtons();
@@ -266,6 +266,12 @@ public class BattleManager : MonoBehaviour
         {
             Debug.Log("상대 기물 정보를 확인합니다.");
 
+            // <변경부분> 상대 기물을 클릭해 선택이 해제되는 경우, 기존 선택 기물은 Down 후 Idle로 전환
+            if (previousSelectedPiece != null)
+            {
+                pieceManager.PlayPieceDeselectAnimation(previousSelectedPiece);
+            }
+
             // <변경부분> 플레이어 턴에 상대 기물을 클릭하면 오른쪽 상단 스테이터스 UI에 표시
             if (battleUIController != null)
             {
@@ -299,8 +305,21 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 선택 기물 저장
+        // <변경부분> 다른 아군 기물을 새로 선택한 경우, 이전 선택 기물은 Down 후 Idle로 전환
+        if (previousSelectedPiece != null && previousSelectedPiece != piece)
+        {
+            pieceManager.PlayPieceDeselectAnimation(previousSelectedPiece);
+        }
+
+        // 현재 기물 선택
         selectedPiece = piece;
+
+        // <변경부분> 현재 턴에 조작 가능한 기물을 선택한 경우에만 Select → Select_Idle 재생
+        // 상대 기물 정보 확인 클릭에서는 이 코드까지 오지 않으므로 Select가 실행되지 않는다.
+        if (previousSelectedPiece != selectedPiece)
+        {
+            pieceManager.PlayPieceSelectAnimation(selectedPiece);
+        }
 
         // <변경부분> 플레이어 기물을 새로 선택하면 상대 스테이터스 UI 숨김
         if (battleUIController != null)
@@ -1493,8 +1512,11 @@ public class BattleManager : MonoBehaviour
         // 찬스어택 발동 기물을 추가 행동 기물로 저장
         chanceAttackBonusPiece = piece;
 
-        // 선택 기물을 유지해서 바로 다음 행동을 이어갈 수 있게 처리
+        // 찬스어택 발동 기물을 추가 행동 기물로 선택
         selectedPiece = piece;
+
+        // <변경부분> 추가 행동으로 자동 선택된 기물도 Select → Select_Idle 상태로 표시
+        pieceManager.PlayPieceSelectAnimation(selectedPiece);
 
         // 기존 이동/공격 하이라이트 제거
         ClearHighlights();

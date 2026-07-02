@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1b3b4b945939a54ea0b23d3396115fb, type: 3}
-  m_Name: Jellu_Pawn_Back_SkeletonData
+  m_Name: Jellu_pawn_Front_SkeletonData
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonDataAsset
   atlasAssets:
-  - {fileID: 11400000, guid: e20932b6e8404e54ab32e3db94c80ef6, type: 2}
+  - {fileID: 11400000, guid: 4fe477d7764581b44a1c46a7b0060d9a, type: 2}
   scale: 0.0165
-  skeletonJSON: {fileID: 4900000, guid: 8e97637f10d348742b4297673bb5ec80, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: aed56d555d98da34e9aae29547a02e5c, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
@@ -28,4 +28,4 @@ MonoBehaviour:
   toAnimation: []
   duration: []
   defaultMix: 0.2
-  controller: {fileID: 9100000, guid: 27ee1d2d030ab9245abe0b210e6d25e5, type: 2}
+  controller: {fileID: 9100000, guid: 5f3fcf3d749765b4294ae31fc57cf807, type: 2}
