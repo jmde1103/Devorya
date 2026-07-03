@@ -1240,6 +1240,19 @@ public class PieceManager : MonoBehaviour
         animationManager.PlayPieceIdleAnimation(piece);
     }
 
+    // <변경부분> 기물 생성 또는 흡수 후 외형 변경 시 Born 애니메이션을 요청하는 외부 호출 함수
+    public IEnumerator PlayPieceBornAnimation(Piece piece)
+    {
+        PieceAnimationManager animationManager = GetPieceAnimationManager();
+
+        if (animationManager == null)
+        {
+            yield break;
+        }
+
+        yield return animationManager.PlayPieceBornAnimation(piece);
+    }
+
     // <변경부분> 기존 외부 호출 호환용 래퍼
     // 실제 이동 연출은 PieceAnimationManager가 처리
     public IEnumerator PlayPieceJumpMoveAnimation(Piece piece, Vector3 targetPosition)

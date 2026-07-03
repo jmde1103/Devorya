@@ -35,11 +35,21 @@ public class PieceStatusUIController : MonoBehaviour
     [Header("Root")]
     [SerializeField] private GameObject statusRoot;
 
+    [Header("Open Animation")]
+    // <변경부분> 스테이터스 창이 갱신될 때 지지직 오픈 애니메이션을 재생하는 컴포넌트
+    [SerializeField] private PopupOpenAnimator popupOpenAnimator;
+
+    // <변경부분> 기물을 클릭해 스테이터스 정보가 갱신될 때마다 오픈 애니메이션을 다시 재생할지 여부
+    [SerializeField] private bool playOpenAnimationOnRefresh = true;
+
+
     private void Start()
     {
-
+        // <변경부분> PopupOpenAnimator가 연결되지 않았다면 자동으로 탐색
+        AutoBindPopupOpenAnimator();
     }
 
+    // <변경부분> 선택한 기물 정보를 필드 기물에서 직접 받아 UI에 표시하는 함수
     // <변경부분> 선택한 기물 정보를 필드 기물에서 직접 받아 UI에 표시하는 함수
     public void Refresh(Piece selectedPiece)
     {
@@ -67,6 +77,9 @@ public class PieceStatusUIController : MonoBehaviour
 
         // <변경부분> 기물이 보유한 상태이상 목록을 UI 슬롯에 표시
         SetStatusEffectSlots(selectedPiece);
+
+        // <변경부분> 스테이터스 정보 갱신이 끝난 뒤 지지직 오픈 애니메이션 재생
+        PlayStatusOpenAnimation();
     }
 
     // <변경부분> 선택한 필드 기물의 현재 SpriteRenderer 이미지를 UI에 복사하는 함수
@@ -302,6 +315,55 @@ public class PieceStatusUIController : MonoBehaviour
         }
 
         return generalSkillDatabase.GetData(skillType);
+    }
+
+    // <변경부분> 스테이터스 창에 연결된 PopupOpenAnimator를 자동으로 찾는 함수
+    private void AutoBindPopupOpenAnimator()
+    {
+        if (popupOpenAnimator != null)
+        {
+            return;
+        }
+
+        // statusRoot에 PopupOpenAnimator가 붙어 있으면 우선 사용
+        if (statusRoot != null)
+        {
+            popupOpenAnimator = statusRoot.GetComponent<PopupOpenAnimator>();
+        }
+
+        // statusRoot에 없으면 PieceStatusUIController가 붙은 현재 오브젝트에서 찾음
+        if (popupOpenAnimator == null)
+        {
+            popupOpenAnimator = GetComponent<PopupOpenAnimator>();
+        }
+
+        // 자식 오브젝트까지 fallback 탐색
+        if (popupOpenAnimator == null)
+        {
+            popupOpenAnimator = GetComponentInChildren<PopupOpenAnimator>(true);
+        }
+    }
+
+
+    // <변경부분> 기물 정보 타입 아이콘 위치에서 검은 픽셀 파티클 재생
+
+    // <변경부분> 스테이터스 창 갱신 시 오픈 애니메이션을 다시 재생하는 함수
+    private void PlayStatusOpenAnimation()
+    {
+        if (playOpenAnimationOnRefresh == false)
+        {
+            return;
+        }
+
+        AutoBindPopupOpenAnimator();
+
+        if (popupOpenAnimator == null)
+        {
+            Debug.LogWarning("PieceStatusUIController에 PopupOpenAnimator가 연결되지 않았습니다.");
+            return;
+        }
+
+        popupOpenAnimator.PlayOpen();
     }
 
     // <변경부분> 선택 기물이 없을 때 UI를 비우는 함수

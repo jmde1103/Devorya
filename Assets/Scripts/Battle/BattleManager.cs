@@ -467,6 +467,9 @@ public class BattleManager : MonoBehaviour
         // 이번 행동이 플레이어 흡수 성공 행동인지 확인하기 위한 값
         bool absorbedEnemyPiece = false;
 
+        // <변경부분> 흡수로 기물 외형/종류가 변경된 뒤 Born 애니메이션을 재생할지 여부
+        bool shouldPlayAbsorbBornAnimation = false;
+
         // 기물이 이동/공격하면 모든 타입 아이콘 비활성화
         SetAllTypeIconsVisible(false);
 
@@ -581,6 +584,10 @@ public class BattleManager : MonoBehaviour
                     {
                         // 일반 기물은 기존처럼 대상의 타입/고유스킬/외형/일반스킬을 흡수
                         pieceManager.AbsorbPiece(actingPiece, targetPiece);
+
+                        // <변경부분> 일반 기물 흡수는 외형/기물 종류가 바뀌므로 대상 제거와 위치 확정 후 Born 재생
+                        shouldPlayAbsorbBornAnimation = true;
+
                         Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
                     }
 
@@ -605,10 +612,10 @@ public class BattleManager : MonoBehaviour
                     killedEnemyPiece = true;
                 }
 
-                // <변경부분> Defense 실패 또는 Insight 무효화 성공 시에만 타겟 제거
+                // Defense 실패 또는 Insight 무효화 성공 시에만 타겟 제거
                 pieceManager.RemovePiece(targetPiece);
 
-                // <변경부분> 실제 사망했을 때만 퇴화 사망 효과 처리
+                // 실제 사망했을 때만 퇴화 사망 효과 처리
                 TryTriggerDegenerationOnDeath(
                     shouldTriggerDegeneration,
                     degenerationDeadPieceTeam,
@@ -618,11 +625,17 @@ public class BattleManager : MonoBehaviour
                     degenerationSourceWorldPosition
                 );
 
-                // <변경부분> 실제 사망했을 때만 해당 진영 사망 스택 증가
+                // 실제 사망했을 때만 해당 진영 사망 스택 증가
                 AddDeathStackForUniqueSkill(deadPieceTeam);
 
-                // <변경부분> 실제 공격 성공 시에만 공격자를 타겟 좌표로 이동 확정
+                // 실제 공격 성공 시에만 공격자를 타겟 좌표로 이동 확정
                 yield return pieceManager.MovePieceRoutine(actingPiece, tile.X, tile.Y, false);
+
+                // <변경부분> 흡수로 외형/기물 종류가 변경된 경우, 최종 위치에서 Born 애니메이션 재생
+                if (shouldPlayAbsorbBornAnimation)
+                {
+                    yield return pieceManager.PlayPieceBornAnimation(actingPiece);
+                }
             }
         }
         else
@@ -1372,11 +1385,37 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 모든 기물 타입 아이콘 표시 상태 전환
     public void ToggleTypeIcons()
     {
+        // <변경부분> 기물 타입 아이콘 표시 버튼 위치에서 검은 픽셀 파티클 재생
+        PlayTypeIconButtonPixelBurst();
+
         // 타입 아이콘 표시 상태 반전
         isTypeIconVisible = !isTypeIconVisible;
 
         // 모든 기물의 타입 아이콘 표시 상태 적용
         SetAllTypeIconsVisible(isTypeIconVisible);
+    }
+
+    // <변경부분> 기물 타입 아이콘 표시 버튼 위치에서 검은 픽셀 파티클을 재생하는 함수
+    private void PlayTypeIconButtonPixelBurst()
+    {
+        if (battleUIController == null)
+        {
+            return;
+        }
+
+        if (typeIconButton == null)
+        {
+            return;
+        }
+
+        RectTransform typeIconButtonRectTransform = typeIconButton.GetComponent<RectTransform>();
+
+        if (typeIconButtonRectTransform == null)
+        {
+            return;
+        }
+
+        battleUIController.PlayIconPixelBurstAt(typeIconButtonRectTransform);
     }
 
     // <변경부분> 보드 위 모든 기물의 타입 아이콘 표시 상태 설정

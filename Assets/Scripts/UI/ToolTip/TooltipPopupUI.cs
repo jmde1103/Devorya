@@ -21,6 +21,10 @@ public class TooltipPopupUI : MonoBehaviour
 
     [SerializeField] private TMP_Text mainDescriptionText;
 
+    [Header("Open Animation")]
+    // <변경부분> Tooltip 팝업이 열릴 때 지지직 오픈 애니메이션을 재생하는 컴포넌트
+    [SerializeField] private PopupOpenAnimator popupOpenAnimator;
+
     [System.Serializable]
     public class TooltipSectionPrefabData
     {
@@ -58,6 +62,11 @@ public class TooltipPopupUI : MonoBehaviour
         if (popupRoot != null)
         {
             popupRoot.gameObject.SetActive(false);
+        }
+
+        if (popupOpenAnimator == null)
+        {
+            popupOpenAnimator = GetComponent<PopupOpenAnimator>();
         }
     }
 
@@ -103,6 +112,12 @@ public class TooltipPopupUI : MonoBehaviour
 
         RefreshSections(tooltipViewData.sections);
         SetPopupPosition(screenPosition);
+        // <변경부분> 위치와 내용 갱신이 끝난 뒤 팝업 오픈 애니메이션 재생
+        if (popupOpenAnimator != null)
+        {
+            popupOpenAnimator.PlayOpen();
+        }
+
     }
 
     // <변경부분> 팝업을 숨김

@@ -31,6 +31,20 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Sprite absorbOffSprite;
     [SerializeField] private Sprite absorbOnSprite;
 
+    [Header("Icon Pixel Burst Effect")]
+    // <변경부분> 흡수/고유스킬 아이콘 클릭 시 생성할 검은 픽셀 파티클 프리팹
+    [SerializeField] private PixelBurstEffect iconPixelBurstEffectPrefab;
+
+    // <변경부분> 생성된 파티클을 넣어둘 부모 Transform
+    // 비워두면 월드에 직접 생성
+    [SerializeField] private Transform iconPixelBurstEffectParent;
+
+    // <변경부분> 흡수 아이콘 파티클 기준 위치
+    [SerializeField] private RectTransform absorbIconPixelBurstAnchor;
+
+    // <변경부분> 고유스킬 아이콘 파티클 기준 위치
+    [SerializeField] private RectTransform uniqueSkillIconPixelBurstAnchor;
+
     [Header("Unique Skill Icon")]
     [SerializeField] private Image uniqueSkillIconImage;
     // <변경부분> 고유스킬 쿨타임 숫자 뒤에 표시할 검정 배경 이미지
@@ -98,6 +112,9 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 흡수/고유스킬 버튼 Tooltip 초기화
         InitializeActionButtonTooltips();
 
+        // <변경부분> 흡수/고유스킬 아이콘 파티클 기준 위치 자동 연결
+        AutoBindIconPixelBurstAnchors();
+
         // 게임 시작 시 액션 버튼 숨김
         HideActionButtons();
     }
@@ -111,6 +128,9 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
+        // <변경부분> 흡수 아이콘 클릭 위치에서 검은 픽셀 파티클 재생
+        PlayIconPixelBurst(absorbIconPixelBurstAnchor);
+
         battleManager.ToggleAbsorbMode();
     }
 
@@ -122,6 +142,9 @@ public class BattleUIController : MonoBehaviour
             Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
             return;
         }
+
+        // <변경부분> 고유스킬 아이콘 클릭 위치에서 검은 픽셀 파티클 재생
+        PlayIconPixelBurst(uniqueSkillIconPixelBurstAnchor);
 
         battleManager.UseSelectedPieceSkill();
     }
@@ -161,6 +184,46 @@ public class BattleUIController : MonoBehaviour
         {
             uniqueSkillTooltipTrigger.SetTooltipData(null);
         }
+    }
+
+    // <변경부분> 흡수/고유스킬 아이콘 파티클 기준 위치를 자동으로 연결
+    private void AutoBindIconPixelBurstAnchors()
+    {
+        if (absorbIconPixelBurstAnchor == null && absorbIconImage != null)
+        {
+            absorbIconPixelBurstAnchor = absorbIconImage.rectTransform;
+        }
+
+        if (uniqueSkillIconPixelBurstAnchor == null && uniqueSkillIconImage != null)
+        {
+            uniqueSkillIconPixelBurstAnchor = uniqueSkillIconImage.rectTransform;
+        }
+    }
+
+    // <변경부분> 외부 컨트롤러에서 특정 UI 위치에 검은 픽셀 파티클을 재생할 때 사용하는 함수
+    public void PlayIconPixelBurstAt(RectTransform targetAnchor)
+    {
+        PlayIconPixelBurst(targetAnchor);
+    }
+
+    // <변경부분> 지정한 UI 아이콘 위치에서 검은 픽셀 파티클을 생성하고 재생
+    private void PlayIconPixelBurst(RectTransform targetAnchor)
+    {
+        if (iconPixelBurstEffectPrefab == null)
+        {
+            return;
+        }
+
+        if (targetAnchor == null)
+        {
+            return;
+        }
+
+        PixelBurstEffect effect = iconPixelBurstEffectParent != null
+            ? Instantiate(iconPixelBurstEffectPrefab, iconPixelBurstEffectParent)
+            : Instantiate(iconPixelBurstEffectPrefab);
+
+        effect.PlayAtPositionAndDestroy(targetAnchor.position);
     }
 
     // <변경부분> 아이템 슬롯 클릭 시 BattleManager에 아이템 사용 요청

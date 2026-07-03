@@ -47463,7 +47463,7 @@ MonoBehaviour:
   attackRiseHeight: 0.5
   attackMoveDuration: 0.18
   attackMoveArcHeight: 0.25
-  attackHoverWaitDuration: 0.01
+  attackHoverWaitDuration: 0.18
   attackExtraRiseHeight: 0.18
   attackExtraRiseDuration: 0.05
   attackSlamDuration: 0.05
@@ -72892,7 +72892,7 @@ MonoBehaviour:
   generalSkillTooltipTriggers:
   - {fileID: 1158074390}
   - {fileID: 1362937608}
-  - {fileID: 8305336}
+  - {fileID: 1701547651}
   - {fileID: 8305336}
   - {fileID: 742499325}
   - {fileID: 366229220}
@@ -72908,6 +72908,8 @@ MonoBehaviour:
   - {fileID: 69731428}
   - {fileID: 1513921750}
   statusRoot: {fileID: 1454506790}
+  popupOpenAnimator: {fileID: 0}
+  playOpenAnimationOnRefresh: 1
 --- !u!1 &761238268
 GameObject:
   m_ObjectHideFlags: 0
@@ -84947,6 +84949,8 @@ MonoBehaviour:
   - {fileID: 1151795477}
   - {fileID: 272209945}
   statusRoot: {fileID: 1136322009}
+  popupOpenAnimator: {fileID: 0}
+  playOpenAnimationOnRefresh: 1
 --- !u!1 &911706533
 GameObject:
   m_ObjectHideFlags: 0
@@ -95640,6 +95644,10 @@ MonoBehaviour:
   absorbIconImage: {fileID: 322392658}
   absorbOffSprite: {fileID: 21300000, guid: 58e3c0f96fba7ad4db8217e7b85e1927, type: 3}
   absorbOnSprite: {fileID: 21300000, guid: 63c2a9c25f26b344ba5fe4a86045c4d9, type: 3}
+  iconPixelBurstEffectPrefab: {fileID: 6012457692454821657, guid: b1763ae852c8a404caa341eb0404fa8f, type: 3}
+  iconPixelBurstEffectParent: {fileID: 0}
+  absorbIconPixelBurstAnchor: {fileID: 670389589}
+  uniqueSkillIconPixelBurstAnchor: {fileID: 1275822945}
   uniqueSkillIconImage: {fileID: 2053653645}
   uniqueSkillCooldownImageObject: {fileID: 1721691223}
   uniqueSkillCooldownText: {fileID: 1884554128}
@@ -105396,6 +105404,8 @@ GameObject:
   - component: {fileID: 1136322012}
   - component: {fileID: 1136322011}
   - component: {fileID: 1136322013}
+  - component: {fileID: 1136322015}
+  - component: {fileID: 1136322014}
   m_Layer: 5
   m_Name: EnemyStatusPanel
   m_TagString: Untagged
@@ -105412,7 +105422,7 @@ RectTransform:
   m_GameObject: {fileID: 1136322009}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: -0.8333333, y: 0.8333333, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 909651713}
@@ -105436,7 +105446,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 604.1667, y: 286}
+  m_AnchoredPosition: {x: 565.83, y: 302.83}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1136322011
@@ -105498,6 +105508,35 @@ MonoBehaviour:
   statusEffectDatabase: {fileID: 0}
   statusEffectSlots: []
   statusRoot: {fileID: 0}
+  popupOpenAnimator: {fileID: 0}
+  playOpenAnimationOnRefresh: 1
+--- !u!225 &1136322014
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136322009}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1136322015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136322009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bf7446e345ebaf46adc0ce6fd0164a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopupOpenAnimator
+  animationData: {fileID: 11400000, guid: 6142ee025f2fcd249b6ce7e0b4006c30, type: 2}
+  targetRect: {fileID: 1136322010}
+  canvasGroup: {fileID: 1136322014}
 --- !u!1 &1136337740
 GameObject:
   m_ObjectHideFlags: 0
@@ -135158,6 +135197,8 @@ GameObject:
   - component: {fileID: 1454506791}
   - component: {fileID: 1454506793}
   - component: {fileID: 1454506792}
+  - component: {fileID: 1454506795}
+  - component: {fileID: 1454506794}
   m_Layer: 5
   m_Name: PlayerStatusPanel
   m_TagString: Untagged
@@ -135174,7 +135215,7 @@ RectTransform:
   m_GameObject: {fileID: 1454506790}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 155726074}
@@ -135198,7 +135239,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -580.83, y: -279.33}
+  m_AnchoredPosition: {x: -570.83, y: -273}
   m_SizeDelta: {x: 400, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1454506792
@@ -135239,6 +135280,33 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1454506790}
   m_CullTransparentMesh: 1
+--- !u!114 &1454506794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454506790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bf7446e345ebaf46adc0ce6fd0164a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopupOpenAnimator
+  animationData: {fileID: 11400000, guid: 6142ee025f2fcd249b6ce7e0b4006c30, type: 2}
+  targetRect: {fileID: 1454506791}
+  canvasGroup: {fileID: 1454506795}
+--- !u!225 &1454506795
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454506790}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1454696685
 GameObject:
   m_ObjectHideFlags: 0
@@ -152172,6 +152240,8 @@ GameObject:
   - component: {fileID: 1624233309}
   - component: {fileID: 1624233311}
   - component: {fileID: 1624233310}
+  - component: {fileID: 1624233313}
+  - component: {fileID: 1624233312}
   m_Layer: 5
   m_Name: BattleTooltipPopup
   m_TagString: Untagged
@@ -152222,6 +152292,7 @@ MonoBehaviour:
   categoryText: {fileID: 1118287760}
   levelText: {fileID: 1924617870}
   mainDescriptionText: {fileID: 1934699479}
+  popupOpenAnimator: {fileID: 0}
   sectionParent: {fileID: 1159753184}
   defaultSectionPrefab: {fileID: 5949523261928351889, guid: 7fb0b80725d63d54b986d89468079e28, type: 3}
   sectionPrefabs:
@@ -152238,6 +152309,33 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1624233308}
   m_CullTransparentMesh: 1
+--- !u!225 &1624233312
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624233308}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1624233313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624233308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bf7446e345ebaf46adc0ce6fd0164a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PopupOpenAnimator
+  animationData: {fileID: 11400000, guid: 989c18b1ea0b65749b25430910daa3d9, type: 2}
+  targetRect: {fileID: 1624233309}
+  canvasGroup: {fileID: 1624233312}
 --- !u!1 &1625084499
 GameObject:
   m_ObjectHideFlags: 0
@@ -178253,7 +178351,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -716.6667, y: -79.33331}
+  m_AnchoredPosition: {x: -716.6667, y: -30}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1897976746
