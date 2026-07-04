@@ -1,0 +1,18 @@
+Jellu_Rook_Back.png
+size:53,37
+filter:Linear,Linear
+pma:true
+그림자
+bounds:28,6,29,11
+offsets:1,1,31,13
+rotate:90
+몸통
+bounds:2,2,33,24
+offsets:1,1,35,26
+rotate:90
+뿔 뒷면
+bounds:41,15,8,8
+offsets:1,1,10,10
+뿔 뒷면 아웃라인
+bounds:41,25,10,10
+offsets:1,1,12,12

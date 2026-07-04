@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -45,6 +46,19 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 고유스킬 아이콘 파티클 기준 위치
     [SerializeField] private RectTransform uniqueSkillIconPixelBurstAnchor;
 
+    [Header("Button Icon Noise Animation")]
+    // <변경부분> 흡수 아이콘이 표시될 때 재생할 버튼 노이즈 애니메이터
+    [SerializeField] private UIButtonNoiseAnimator absorbIconNoiseAnimator;
+
+    // <변경부분> 고유스킬 아이콘이 표시될 때 재생할 버튼 노이즈 애니메이터
+    [SerializeField] private UIButtonNoiseAnimator uniqueSkillIconNoiseAnimator;
+
+    // <변경부분> 기물 선택으로 액션 버튼이 표시될 때 아이콘 노이즈 애니메이션을 재생할지 여부
+    [SerializeField] private bool playActionIconNoiseOnShow = true;
+
+    // <변경부분> 액션 버튼 표시 직후 노이즈 애니메이션을 한 프레임 뒤 재생하기 위한 코루틴
+    private Coroutine actionButtonNoiseCoroutine;
+
     [Header("Unique Skill Icon")]
     [SerializeField] private Image uniqueSkillIconImage;
     // <변경부분> 고유스킬 쿨타임 숫자 뒤에 표시할 검정 배경 이미지
@@ -65,6 +79,28 @@ public class BattleUIController : MonoBehaviour
 
     // <변경부분> 고유스킬 버튼에 붙어 있는 TooltipTrigger
     [SerializeField] private TooltipTrigger uniqueSkillTooltipTrigger;
+
+    [Header("Unique Skill Failure Message")]
+    // <변경부분> 고유스킬 사용 실패 이유를 표시할 텍스트
+    [SerializeField] private TMP_Text uniqueSkillFailureText;
+
+    // <변경부분> 실패 메시지 페이드 처리를 위한 CanvasGroup
+    [SerializeField] private CanvasGroup uniqueSkillFailureCanvasGroup;
+
+    // <변경부분> 실패 메시지 팝업이 표시될 때 글리치 오픈 애니메이션을 재생하는 컴포넌트
+    [SerializeField] private PopupOpenAnimator uniqueSkillFailurePopupOpenAnimator;
+
+    // <변경부분> 실패 메시지가 유지되는 시간
+    [SerializeField] private float uniqueSkillFailureHoldDuration = 0.75f;
+
+    // <변경부분> 실패 메시지가 사라지는 페이드 시간
+    [SerializeField] private float uniqueSkillFailureFadeDuration = 0.25f;
+
+    // <변경부분> Time.timeScale 영향을 받지 않고 메시지를 표시할지 여부
+    [SerializeField] private bool useUnscaledTimeForFailureMessage = true;
+
+    // <변경부분> 현재 실행 중인 실패 메시지 코루틴
+    private Coroutine uniqueSkillFailureMessageCoroutine;
 
     // <변경부분> 전투 중 사용하는 아이템 슬롯 UI 목록
     [Header("Item Slots")]
@@ -112,8 +148,14 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 흡수/고유스킬 버튼 Tooltip 초기화
         InitializeActionButtonTooltips();
 
-        // <변경부분> 흡수/고유스킬 아이콘 파티클 기준 위치 자동 연결
-        AutoBindIconPixelBurstAnchors();
+        // <변경부분> 흡수/고유스킬 아이콘 노이즈 애니메이터 자동 연결
+        AutoBindButtonIconNoiseAnimators();
+
+        // <변경부분> 고유스킬 실패 메시지 팝업 오픈 애니메이터 자동 연결
+        AutoBindUniqueSkillFailurePopupAnimator();
+
+        // <변경부분> 고유스킬 실패 메시지 UI 초기화
+        HideUniqueSkillFailureMessageImmediately();
 
         // 게임 시작 시 액션 버튼 숨김
         HideActionButtons();
@@ -186,18 +228,58 @@ public class BattleUIController : MonoBehaviour
         }
     }
 
-    // <변경부분> 흡수/고유스킬 아이콘 파티클 기준 위치를 자동으로 연결
-    private void AutoBindIconPixelBurstAnchors()
+    // <변경부분> 흡수/고유스킬 아이콘에 붙은 UIButtonNoiseAnimator를 자동으로 찾는 함수
+    private void AutoBindButtonIconNoiseAnimators()
     {
-        if (absorbIconPixelBurstAnchor == null && absorbIconImage != null)
+        if (absorbIconNoiseAnimator == null && absorbIconImage != null)
         {
-            absorbIconPixelBurstAnchor = absorbIconImage.rectTransform;
+            absorbIconNoiseAnimator = absorbIconImage.GetComponent<UIButtonNoiseAnimator>();
         }
 
-        if (uniqueSkillIconPixelBurstAnchor == null && uniqueSkillIconImage != null)
+        if (uniqueSkillIconNoiseAnimator == null && uniqueSkillIconImage != null)
         {
-            uniqueSkillIconPixelBurstAnchor = uniqueSkillIconImage.rectTransform;
+            uniqueSkillIconNoiseAnimator = uniqueSkillIconImage.GetComponent<UIButtonNoiseAnimator>();
         }
+    }
+
+    // <변경부분> 기물 선택으로 액션 버튼이 표시될 때 아이콘 노이즈 애니메이션을 예약하는 함수
+    private void PlayActionButtonIconNoiseOnShow()
+    {
+        if (playActionIconNoiseOnShow == false)
+        {
+            return;
+        }
+
+        if (actionButtonNoiseCoroutine != null)
+        {
+            StopCoroutine(actionButtonNoiseCoroutine);
+        }
+
+        actionButtonNoiseCoroutine = StartCoroutine(PlayActionButtonIconNoiseOnShowRoutine());
+    }
+
+    // <변경부분> SetActive 직후 UI 갱신이 끝난 다음 프레임에 아이콘 노이즈 애니메이션 재생
+    private IEnumerator PlayActionButtonIconNoiseOnShowRoutine()
+    {
+        yield return null;
+
+        AutoBindButtonIconNoiseAnimators();
+
+        if (absorbIconNoiseAnimator != null &&
+            absorbButton != null &&
+            absorbButton.gameObject.activeInHierarchy)
+        {
+            absorbIconNoiseAnimator.PlayNoise();
+        }
+
+        if (uniqueSkillIconNoiseAnimator != null &&
+            uniqueSkillButton != null &&
+            uniqueSkillButton.gameObject.activeInHierarchy)
+        {
+            uniqueSkillIconNoiseAnimator.PlayNoise();
+        }
+
+        actionButtonNoiseCoroutine = null;
     }
 
     // <변경부분> 외부 컨트롤러에서 특정 UI 위치에 검은 픽셀 파티클을 재생할 때 사용하는 함수
@@ -316,9 +398,11 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 기물을 새로 선택할 때 흡수 아이콘은 기본 OFF 상태로 표시
         SetAbsorbModeIcon(false);
 
-        // 고유 스킬이 있는 기물만 고유 스킬 버튼 표시
         bool hasUniqueSkill = selectedPiece.UniqueSkill != UniqueSkillType.None;
         SetUniqueSkillButtonVisible(hasUniqueSkill);
+
+        // <변경부분> 고유스킬 버튼이 켜지는 순간 Prefab 기본 상태로 켜진 Cooldown UI를 먼저 초기화
+        HideUniqueSkillCooldownUI();
 
         // <변경부분> 고유 스킬이 있으면 해당 스킬 아이콘으로 변경
         if (hasUniqueSkill)
@@ -327,7 +411,11 @@ public class BattleUIController : MonoBehaviour
         }
 
         // <변경부분> 선택된 기물의 고유스킬 쿨타임 숫자 갱신
+        // 실제 쿨타임이 남아 있을 때만 다시 Cooldown UI가 켜짐
         RefreshUniqueSkillCooldownText(selectedPiece);
+
+        // <변경부분> 기물 선택으로 액션 버튼이 표시된 뒤 흡수/고유스킬 아이콘 노이즈 애니메이션 재생
+        PlayActionButtonIconNoiseOnShow();
     }
 
     // <변경부분> 상대 기물 정보를 오른쪽 상단 스테이터스 UI에 표시하는 함수
@@ -416,8 +504,28 @@ public class BattleUIController : MonoBehaviour
         }
 
         // 데이터에 등록된 아이콘 적용
+        uniqueSkillIconImage.gameObject.SetActive(true);
         uniqueSkillIconImage.sprite = skillData.iconSprite;
         uniqueSkillIconImage.enabled = true;
+
+        // <변경부분> 이전 UI 애니메이션이나 비활성화 상태 때문에 아이콘이 안 보이지 않도록 알파 복구
+        Color iconColor = uniqueSkillIconImage.color;
+        iconColor.a = 1f;
+        uniqueSkillIconImage.color = iconColor;
+
+        // <변경부분> 이전 노이즈 애니메이션 문제로 스케일이 0이면 아이콘이 안 보이므로 기본 스케일로 복구
+        RectTransform iconRectTransform = uniqueSkillIconImage.rectTransform;
+        if (iconRectTransform != null)
+        {
+            bool isScaleBroken =
+                Mathf.Approximately(iconRectTransform.localScale.x, 0f) ||
+                Mathf.Approximately(iconRectTransform.localScale.y, 0f);
+
+            if (isScaleBroken)
+            {
+                iconRectTransform.localScale = Vector3.one;
+            }
+        }
 
         // <변경부분> 현재 선택된 고유스킬 설명 Tooltip 연결
         if (uniqueSkillTooltipTrigger != null)
@@ -488,6 +596,12 @@ public class BattleUIController : MonoBehaviour
         }
 
         uniqueSkillButton.gameObject.SetActive(isVisible);
+
+        // <변경부분> 고유스킬 버튼을 숨길 때 Cooldown UI도 반드시 같이 숨김
+        if (isVisible == false)
+        {
+            HideUniqueSkillCooldownUI();
+        }
     }
 
     // <변경부분> 액션 버튼 전체 숨김
@@ -524,6 +638,129 @@ public class BattleUIController : MonoBehaviour
         if (enemyStatusUIController != null)
         {
             enemyStatusUIController.Clear();
+        }
+    }
+
+    // <변경부분> 고유스킬 실패 메시지 팝업에 연결된 PopupOpenAnimator를 자동으로 찾는 함수
+    private void AutoBindUniqueSkillFailurePopupAnimator()
+    {
+        if (uniqueSkillFailurePopupOpenAnimator != null)
+        {
+            return;
+        }
+
+        if (uniqueSkillFailureText == null)
+        {
+            return;
+        }
+
+        // <변경부분> Text 자기 자신 또는 부모 오브젝트에서 PopupOpenAnimator 탐색
+        uniqueSkillFailurePopupOpenAnimator =
+            uniqueSkillFailureText.GetComponentInParent<PopupOpenAnimator>(true);
+    }
+
+    // <변경부분> 고유스킬 사용 실패 메시지를 화면에 표시하는 함수
+    public void ShowUniqueSkillFailureMessage(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            return;
+        }
+
+        if (uniqueSkillFailureText == null)
+        {
+            Debug.LogWarning($"고유스킬 실패 메시지 Text가 연결되지 않았습니다: {message}");
+            return;
+        }
+
+        if (uniqueSkillFailureCanvasGroup == null)
+        {
+            uniqueSkillFailureCanvasGroup = uniqueSkillFailureText.GetComponent<CanvasGroup>();
+
+            if (uniqueSkillFailureCanvasGroup == null)
+            {
+                uniqueSkillFailureCanvasGroup = uniqueSkillFailureText.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        if (uniqueSkillFailureMessageCoroutine != null)
+        {
+            StopCoroutine(uniqueSkillFailureMessageCoroutine);
+            uniqueSkillFailureMessageCoroutine = null;
+        }
+
+        uniqueSkillFailureMessageCoroutine = StartCoroutine(ShowUniqueSkillFailureMessageRoutine(message));
+    }
+
+    // <변경부분> 고유스킬 실패 메시지를 일정 시간 표시한 뒤 페이드 아웃하는 코루틴
+    private IEnumerator ShowUniqueSkillFailureMessageRoutine(string message)
+    {
+        uniqueSkillFailureText.text = message;
+        uniqueSkillFailureText.gameObject.SetActive(true);
+
+        uniqueSkillFailureCanvasGroup.alpha = 1f;
+        uniqueSkillFailureCanvasGroup.interactable = false;
+        uniqueSkillFailureCanvasGroup.blocksRaycasts = false;
+
+        // <변경부분> 실패 메시지가 다시 표시될 때마다 글리치 오픈 애니메이션 재생
+        AutoBindUniqueSkillFailurePopupAnimator();
+
+        if (uniqueSkillFailurePopupOpenAnimator != null)
+        {
+            uniqueSkillFailurePopupOpenAnimator.PlayOpen();
+        }
+
+        float holdElapsed = 0f;
+
+        while (holdElapsed < uniqueSkillFailureHoldDuration)
+        {
+            holdElapsed += useUnscaledTimeForFailureMessage
+                ? Time.unscaledDeltaTime
+                : Time.deltaTime;
+
+            yield return null;
+        }
+
+        float fadeElapsed = 0f;
+        float fadeDuration = Mathf.Max(0.001f, uniqueSkillFailureFadeDuration);
+
+        while (fadeElapsed < fadeDuration)
+        {
+            fadeElapsed += useUnscaledTimeForFailureMessage
+                ? Time.unscaledDeltaTime
+                : Time.deltaTime;
+
+            float t = Mathf.Clamp01(fadeElapsed / fadeDuration);
+            uniqueSkillFailureCanvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
+
+            yield return null;
+        }
+
+        HideUniqueSkillFailureMessageImmediately();
+
+        uniqueSkillFailureMessageCoroutine = null;
+    }
+
+    // <변경부분> 고유스킬 실패 메시지를 즉시 숨기는 함수
+    private void HideUniqueSkillFailureMessageImmediately()
+    {
+        if (uniqueSkillFailureMessageCoroutine != null)
+        {
+            StopCoroutine(uniqueSkillFailureMessageCoroutine);
+            uniqueSkillFailureMessageCoroutine = null;
+        }
+
+        if (uniqueSkillFailureText != null)
+        {
+            uniqueSkillFailureText.text = "";
+            uniqueSkillFailureText.gameObject.SetActive(false);
+        }
+
+        if (uniqueSkillFailureCanvasGroup != null)
+        {
+            uniqueSkillFailureCanvasGroup.alpha = 0f;
+            uniqueSkillFailureCanvasGroup.interactable = false;
+            uniqueSkillFailureCanvasGroup.blocksRaycasts = false;
         }
     }
 

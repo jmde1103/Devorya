@@ -427,6 +427,9 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 이동/공격할 타일을 클릭한 순간, 선택한 타일 외 다른 하이라이트는 즉시 제거
+        ClearHighlightsExcept(tile);
+
         // <변경부분> 실제 이동/공격/흡수 처리는 연출 코루틴에서 순차 처리
         StartCoroutine(ExecuteSelectedTileActionRoutine(tile));
     }
@@ -770,6 +773,22 @@ public class BattleManager : MonoBehaviour
         Debug.Log(isAbsorbMode ? "흡수 모드 ON" : "흡수 모드 OFF");
     }
 
+    // <변경부분> 고유스킬 실패 메시지를 로그와 UI에 동시에 표시하는 함수
+    private void ShowUniqueSkillFailMessage(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            return;
+        }
+
+        Debug.Log(message);
+
+        if (battleUIController != null)
+        {
+            battleUIController.ShowUniqueSkillFailureMessage(message);
+        }
+    }
+
     // 현재 선택된 기물의 고유 스킬을 사용하는 함수
     public void UseSelectedPieceSkill()
     {
@@ -782,21 +801,21 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 이동/공격/스킬 연출 중에는 중복 입력 방지
         if (isActionAnimating)
         {
-            Debug.Log("현재 액션 연출 중이라 고유스킬을 사용할 수 없습니다.");
+            ShowUniqueSkillFailMessage("현재 다른 행동이 진행 중입니다.");
             return;
         }
 
         // 선택된 기물이 없으면 스킬 사용 불가
         if (selectedPiece == null)
         {
-            Debug.Log("스킬을 사용할 기물을 먼저 선택해야 합니다.");
+            ShowUniqueSkillFailMessage("스킬을 사용할 기물을 먼저 선택해야 합니다.");
             return;
         }
 
         // 현재 턴의 기물이 아니면 스킬 사용 불가
         if (IsCurrentTurnPiece(selectedPiece) == false)
         {
-            Debug.Log("현재 턴의 기물만 스킬을 사용할 수 있습니다.");
+            ShowUniqueSkillFailMessage("현재 턴의 기물만 고유스킬을 사용할 수 있습니다.");
             return;
         }
 
@@ -806,13 +825,14 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 고유스킬 데이터가 없으면 스킬 사용 불가
         if (skillData == null)
         {
+            ShowUniqueSkillFailMessage("고유스킬 데이터를 찾을 수 없습니다.");
             return;
         }
 
         // <변경부분> 데이터에서 한 턴 1회 제한이 켜져 있고, 이미 이번 턴에 고유스킬을 사용했다면 사용 불가
         if (skillData.oncePerTurn && hasUsedUniqueSkillThisTurn)
         {
-            Debug.Log("이번 턴에는 이미 고유 스킬을 사용했습니다.");
+            ShowUniqueSkillFailMessage("이번 턴에는\n 이미고유스킬을 사용했습니다.");
             return;
         }
 
@@ -820,14 +840,27 @@ public class BattleManager : MonoBehaviour
         // 여기서는 고유 스킬 없음 / 개별 쿨타임 여부를 검사
         if (selectedPiece.CanUseUniqueSkill() == false)
         {
-            Debug.Log("고유 스킬을 사용할 수 없습니다. 쿨타임 중이거나 사용할 수 없는 스킬입니다.");
+            int cooldown = selectedPiece.GetUniqueSkillCooldown();
+
+            if (selectedPiece.UniqueSkill == UniqueSkillType.None)
+            {
+                ShowUniqueSkillFailMessage("이 기물은 고유스킬이 없습니다.");
+            }
+            else if (cooldown > 0)
+            {
+                ShowUniqueSkillFailMessage($"고유스킬 쿨타임이 {cooldown}턴 남았습니다.");
+            }
+            else
+            {
+                ShowUniqueSkillFailMessage("현재 고유스킬을 사용할 수 없습니다.");
+            }
+
             return;
         }
 
-        // <변경부분> 데이터에 설정된 사망 스택 조건 확인
         if (HasEnoughDeathStackForUniqueSkill(selectedPiece.Team, skillData.requiredDeathStack) == false)
         {
-            Debug.Log($"고유스킬 사용 실패: 사망 스택이 부족합니다. 필요 스택 {skillData.requiredDeathStack}");
+            ShowUniqueSkillFailMessage("고유스킬 사용 조건이 부족합니다.");
             return;
         }
 
@@ -890,6 +923,18 @@ public class BattleManager : MonoBehaviour
             }
 
             Debug.Log($"고유 스킬 사용 완료: {skillPiece.UniqueSkill} / 쿨타임 {skillData.cooldownTurn}");
+        }
+        else
+        {
+            // <변경부분> 스킬 내부 조건이 맞지 않아 발동하지 못한 경우
+            string failMessage = "조건이 맞지 않아 사용할 수 없습니다.";
+
+            if (skillData != null && string.IsNullOrEmpty(skillData.conditionFailMessage) == false)
+            {
+                failMessage = skillData.conditionFailMessage;
+            }
+
+            ShowUniqueSkillFailMessage(failMessage);
         }
 
         // 스킬 연출 종료 후 다시 입력 허용
@@ -1777,6 +1822,38 @@ public class BattleManager : MonoBehaviour
 
         // 실제 선택 가능한 타일 목록에도 저장
         selectableTiles.Add(tile);
+    }
+
+    // <변경부분> 선택한 타일 하나만 남기고 나머지 하이라이트를 즉시 제거
+    private void ClearHighlightsExcept(Tile selectedTile)
+    {
+        // 선택한 타일이 없으면 기존 방식대로 전체 하이라이트 제거
+        if (selectedTile == null)
+        {
+            ClearHighlights();
+            return;
+        }
+
+        // 선택한 타일 외의 모든 하이라이트를 원래 색으로 복구
+        foreach (Tile tile in highlightedTiles)
+        {
+            if (tile == null)
+            {
+                continue;
+            }
+
+            if (tile != selectedTile)
+            {
+                tile.HideHighlight();
+            }
+        }
+
+        // 이후 후처리에서 선택한 타일만 정리할 수 있도록 목록을 선택 타일 하나로 재구성
+        highlightedTiles.Clear();
+        highlightedTiles.Add(selectedTile);
+
+        // 이동/공격 실행이 확정되었으므로 추가 선택 가능 목록은 비움
+        selectableTiles.Clear();
     }
 
     // 기존 하이라이트 제거

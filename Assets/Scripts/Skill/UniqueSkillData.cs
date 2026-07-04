@@ -34,4 +34,9 @@ public class UniqueSkillData : ScriptableObject
 
     // <변경부분> 한 턴에 한 번만 사용할 수 있는 스킬인지 여부
     public bool oncePerTurn = true;
+
+    [Header("Failure Message")]
+    // <변경부분> 스킬 내부 조건이 맞지 않아 발동하지 못했을 때 표시할 기본 실패 문구
+    [TextArea]
+    public string conditionFailMessage = "조건이 맞지 않아 사용할 수 없습니다.";
 }

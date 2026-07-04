@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,8 +25,19 @@ public class Tile : MonoBehaviour
 
 
     private Color originalColor; // 원래 타일 색상 적용
+
     [SerializeField]
     private Color highlightColor = Color.yellowNice; // 이동 가능 타일 표시 색
+
+    [Header("Highlight Animation")]
+    // <변경부분> 타일 하이라이트 색상 변경을 부드럽게 처리할지 여부
+    [SerializeField] private bool useHighlightFade = true;
+
+    // <변경부분> 타일 하이라이트 색상 전환 시간
+    [SerializeField] private float highlightFadeDuration = 0.12f;
+
+    // <변경부분> 현재 실행 중인 타일 색상 전환 코루틴
+    private Coroutine highlightColorCoroutine;
 
     private SpriteRenderer spriteRenderer;
 
@@ -153,12 +165,65 @@ public class Tile : MonoBehaviour
 
     public void ShowHighlight() // 이동 가능 타일 표시
     {
-        spriteRenderer.color = highlightColor;
+        // <변경부분> 하이라이트 색상으로 부드럽게 전환
+        ChangeTileColorSmooth(highlightColor);
     }
 
     public void HideHighlight()  // 타일 표시 원상 복구
     {
-        spriteRenderer.color = originalColor;
+        // <변경부분> 원래 타일 색상으로 부드럽게 복귀
+        ChangeTileColorSmooth(originalColor);
+    }
+
+    // <변경부분> 타일 색상을 부드럽게 변경하는 함수
+    private void ChangeTileColorSmooth(Color targetColor)
+    {
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        // <변경부분> 기존 색상 전환 코루틴이 있으면 중단하고 새 목표 색상으로 전환
+        if (highlightColorCoroutine != null)
+        {
+            StopCoroutine(highlightColorCoroutine);
+            highlightColorCoroutine = null;
+        }
+
+        // <변경부분> 페이드가 꺼져 있거나 시간이 0 이하이면 즉시 색상 변경
+        if (useHighlightFade == false || highlightFadeDuration <= 0f)
+        {
+            spriteRenderer.color = targetColor;
+            return;
+        }
+
+        highlightColorCoroutine = StartCoroutine(ChangeTileColorSmoothRoutine(targetColor));
+    }
+
+    // <변경부분> 현재 색상에서 목표 색상까지 부드럽게 보간하는 코루틴
+    private IEnumerator ChangeTileColorSmoothRoutine(Color targetColor)
+    {
+        Color startColor = spriteRenderer.color;
+
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.001f, highlightFadeDuration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            // <변경부분> 직선 보간보다 조금 더 자연스럽게 보이도록 SmoothStep 적용
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+            spriteRenderer.color = Color.Lerp(startColor, targetColor, smoothT);
+
+            yield return null;
+        }
+
+        spriteRenderer.color = targetColor;
+        highlightColorCoroutine = null;
     }
 
     public Vector2Int GetGridPosition()  // 현재 좌표 반환
