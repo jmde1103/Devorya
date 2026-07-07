@@ -460,7 +460,8 @@ public class BattleSkillManager : MonoBehaviour
         List<PieceType> promotionTypes = new List<PieceType>
     {
         PieceType.Knight,
-        PieceType.Bishop
+        PieceType.Bishop,
+        PieceType.Rook
     };
 
         PieceType selectedPromotionType = promotionTypes[Random.Range(0, promotionTypes.Count)];
@@ -538,14 +539,15 @@ public class BattleSkillManager : MonoBehaviour
             case PieceType.Knight:
                 return UniqueSkillType.JelluDegeneration;
 
+            // 젤루 벽은 Bishop 고유스킬로 이동한 상태
+            case PieceType.Rook:
+                return UniqueSkillType.HornHeadbutt;
+
             // <변경부분> 젤루 Bishop 고유스킬: 젤루 벽
-            // 기존 Rook 스킬이 Bishop 스킬로 이동했으므로 Bishop에게 부여
             case PieceType.Bishop:
                 return UniqueSkillType.JelluWall;
         }
 
-        // <변경부분> 아직 고유스킬이 정해지지 않은 승급 타입은 None
-        // Rook 전용 스킬이 생기면 여기 case를 추가하면 됨
         return UniqueSkillType.None;
     }
 
