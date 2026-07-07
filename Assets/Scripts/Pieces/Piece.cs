@@ -804,6 +804,44 @@ public class Piece : MonoBehaviour
         return generalSkills;
     }
 
+    // <변경부분> 현재 기물이 보유한 일반스킬 목록을 모두 제거하는 함수
+    // 런 저장 데이터 복원 시 PieceData 기본 일반스킬을 덮어쓰기 위해 사용
+    public void ClearGeneralSkills()
+    {
+        generalSkills.Clear();
+    }
+
+
+    // <변경부분> 런 저장 데이터에 기록된 일반스킬 목록을 현재 기물에 복원하는 함수
+    public void ApplyGeneralSkillRuntimeData(List<GeneralSkillRuntimeData> runtimeGeneralSkills)
+    {
+        // 기존 일반스킬을 모두 제거한 뒤 저장된 상태로 다시 구성
+        ClearGeneralSkills();
+
+        if (runtimeGeneralSkills == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < runtimeGeneralSkills.Count; i++)
+        {
+            GeneralSkillRuntimeData runtimeSkill = runtimeGeneralSkills[i];
+
+            if (runtimeSkill == null)
+            {
+                continue;
+            }
+
+            if (runtimeSkill.skillType == GeneralSkillType.None)
+            {
+                continue;
+            }
+
+            // 저장된 레벨을 그대로 적용
+            SetTestGeneralSkill(runtimeSkill.skillType, runtimeSkill.level);
+        }
+    }
+
     // <변경부분> 다른 기물이 가진 일반스킬을 흡수해서 획득하거나 성장시키는 함수
     public void AbsorbGeneralSkillsFrom(Piece targetPiece)
     {

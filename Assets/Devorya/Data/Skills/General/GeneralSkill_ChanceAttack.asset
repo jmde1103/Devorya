@@ -20,13 +20,13 @@ MonoBehaviour:
   tooltipDescriptionFormat: 
   tooltipSections: []
   maxLevel: 3
-  chanceAttackLevel1Percent: 30
-  chanceAttackLevel2Percent: 50
-  chanceAttackLevel3Percent: 80
+  chanceAttackLevel1Percent: 10
+  chanceAttackLevel2Percent: 20
+  chanceAttackLevel3Percent: 30
   chanceAttackContinuousPenaltyRate: 0.33333334
-  defenseLevel1Percent: 0
-  defenseLevel2Percent: 0
-  defenseLevel3Percent: 0
-  insightLevel1Percent: 30
-  insightLevel2Percent: 50
-  insightLevel3Percent: 80
+  defenseLevel1Percent: 10
+  defenseLevel2Percent: 20
+  defenseLevel3Percent: 30
+  insightLevel1Percent: 15
+  insightLevel2Percent: 30
+  insightLevel3Percent: 45

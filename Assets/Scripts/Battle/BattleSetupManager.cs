@@ -1,3 +1,4 @@
+using System.Collections.Generic; // <변경부분> RunStateManager의 플레이어 기물 목록을 가져올 때 사용
 using UnityEngine;
 
 // <변경부분> StageBattleData를 읽어서 전투 시작 구성을 세팅하는 매니저
@@ -7,11 +8,15 @@ public class BattleSetupManager : MonoBehaviour
     [Header("Stage Data")]
     // <변경부분> 현재 전투에 사용할 스테이지 데이터
     [SerializeField] private StageBattleData stageBattleData;
-
+    
     [Header("Managers")]
     [SerializeField] private BoardManager boardManager;
     [SerializeField] private PieceManager pieceManager;
     [SerializeField] private BattleManager battleManager;
+
+    [Header("Run State")]
+    // <변경부분> 저장된 플레이어 기물 상태가 있으면 StageBattleData의 playerFormationData 대신 사용할지 여부
+    [SerializeField] private bool useRunStatePlayerPieces = true;
 
     private void Start()
     {
@@ -27,7 +32,7 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        if (stageBattleData.IsValid() == false)
+        if (IsStageBattleDataValidForSetup() == false)
         {
             Debug.LogError($"BattleSetupManager 실패: StageBattleData가 유효하지 않습니다. {stageBattleData.name}");
             return;
@@ -48,8 +53,8 @@ public class BattleSetupManager : MonoBehaviour
         // <변경부분> 기존 테스트/이전 기물 제거 후 현재 보드 크기에 맞춰 기물 배열 초기화
         pieceManager.ClearAllPieces();
 
-        // <변경부분> StageBattleData의 플레이어 편성 데이터를 기준으로 플레이어 기물 생성
-        pieceManager.SpawnPiecesFromDataList(stageBattleData.playerFormationData.spawnDataList);
+        // <변경부분> 저장된 런 상태가 있으면 저장된 플레이어 기물을 사용하고, 없으면 기본 편성을 사용
+        SpawnPlayerPieces();
 
         // <변경부분> StageBattleData의 적 편성 데이터를 기준으로 적 기물 생성
         pieceManager.SpawnPiecesFromDataList(stageBattleData.enemyFormationData.spawnDataList);
@@ -64,6 +69,80 @@ public class BattleSetupManager : MonoBehaviour
         ApplyEnemyGeneralSkillGrantRules();
 
         Debug.Log($"전투 세팅 완료: {stageBattleData.stageName}");
+    }
+
+    // <변경부분> 현재 StageBattleData가 전투 세팅에 사용할 수 있는 상태인지 확인하는 함수
+    // RunStateManager에 저장된 플레이어 기물이 있으면 playerFormationData가 없어도 플레이어 배치를 진행할 수 있다.
+    private bool IsStageBattleDataValidForSetup()
+    {
+        if (stageBattleData == null)
+        {
+            return false;
+        }
+
+        bool hasRunStatePlayerPieces =
+            useRunStatePlayerPieces &&
+            RunStateManager.Instance != null &&
+            RunStateManager.Instance.HasPlayerPieceRuntimeData;
+
+        // <변경부분> 저장된 플레이어 기물이 없을 때만 기본 플레이어 편성 데이터가 필수
+        if (hasRunStatePlayerPieces == false)
+        {
+            if (stageBattleData.playerFormationData == null)
+            {
+                return false;
+            }
+
+            if (stageBattleData.playerFormationData.IsValid() == false)
+            {
+                return false;
+            }
+        }
+
+        // <변경부분> 적 편성은 모든 전투에서 필수
+        if (stageBattleData.enemyFormationData == null)
+        {
+            return false;
+        }
+
+        if (stageBattleData.enemyFormationData.IsValid() == false)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // <변경부분> 저장된 플레이어 기물이 있으면 런 저장 데이터를 사용하고, 없으면 StageBattleData 기본 편성을 사용
+    private void SpawnPlayerPieces()
+    {
+        if (useRunStatePlayerPieces &&
+            RunStateManager.Instance != null &&
+            RunStateManager.Instance.HasPlayerPieceRuntimeData)
+        {
+            List<PlayerPieceRuntimeData> playerRuntimePieces =
+                RunStateManager.Instance.GetPlayerPiecesCopy();
+
+            pieceManager.SpawnPlayerPiecesFromRuntimeData(
+                playerRuntimePieces,
+                false
+            );
+
+            Debug.Log($"저장된 런 상태 플레이어 기물 배치 완료: {playerRuntimePieces.Count}개");
+            return;
+        }
+
+        if (stageBattleData.playerFormationData == null)
+        {
+            Debug.LogWarning("플레이어 기본 편성 배치 실패: playerFormationData가 없습니다.");
+            return;
+        }
+
+        pieceManager.SpawnPiecesFromDataList(
+            stageBattleData.playerFormationData.spawnDataList
+        );
+
+        Debug.Log($"StageBattleData 기본 플레이어 편성 배치 완료: {stageBattleData.playerFormationData.formationName}");
     }
 
     // <변경부분> StageBattleData에 등록된 규칙을 기준으로 적 기물에게 일반스킬을 랜덤 부여

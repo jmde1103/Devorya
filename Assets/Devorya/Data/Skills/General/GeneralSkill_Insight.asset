@@ -27,6 +27,6 @@ MonoBehaviour:
   defenseLevel1Percent: 30
   defenseLevel2Percent: 50
   defenseLevel3Percent: 80
-  insightLevel1Percent: 30
-  insightLevel2Percent: 50
-  insightLevel3Percent: 80
+  insightLevel1Percent: 15
+  insightLevel2Percent: 30
+  insightLevel3Percent: 45

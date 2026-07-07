@@ -1,4 +1,5 @@
 using System.Collections; // <변경부분> 기물 이동 연출 코루틴 사용
+using System.Collections.Generic; // <변경부분> 런타임 기물 상태 목록 저장에 사용
 using UnityEngine;
 public class PieceManager : MonoBehaviour
 {
@@ -83,6 +84,271 @@ public class PieceManager : MonoBehaviour
 
         InitializePieceGrid();
     }
+
+    // <변경부분> 현재 보드에 살아있는 플레이어 기물 상태를 런타임 데이터로 저장하는 함수
+    public List<PlayerPieceRuntimeData> CapturePlayerPieceRuntimeData()
+    {
+        return CaptureTeamPieceRuntimeData(PieceTeam.Player);
+    }
+
+    // <변경부분> 특정 진영의 현재 기물 상태를 런타임 데이터로 저장하는 함수
+    private List<PlayerPieceRuntimeData> CaptureTeamPieceRuntimeData(PieceTeam team)
+    {
+        List<PlayerPieceRuntimeData> runtimeDataList = new List<PlayerPieceRuntimeData>();
+
+        if (pieces == null)
+        {
+            return runtimeDataList;
+        }
+
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece piece = pieces[x, y];
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != team)
+                {
+                    continue;
+                }
+
+                PlayerPieceRuntimeData runtimeData = PlayerPieceRuntimeData.FromPiece(piece);
+
+                if (runtimeData == null)
+                {
+                    continue;
+                }
+
+                runtimeDataList.Add(runtimeData);
+            }
+        }
+
+        Debug.Log($"{team} 기물 런타임 데이터 캡처 완료: {runtimeDataList.Count}개");
+
+        return runtimeDataList;
+    }
+
+    // <변경부분> 특정 진영의 기물만 제거하는 함수
+    // 다음 전투 시작 시 기존 테스트 플레이어 편성을 제거하고 런 저장 데이터를 배치할 때 사용
+    public void ClearPiecesByTeam(PieceTeam team)
+    {
+        if (pieces == null)
+        {
+            return;
+        }
+
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece piece = pieces[x, y];
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != team)
+                {
+                    continue;
+                }
+
+                Destroy(piece.gameObject);
+                pieces[x, y] = null;
+            }
+        }
+
+        Debug.Log($"{team} 진영 기물 제거 완료");
+    }
+
+    // <변경부분> 저장된 런타임 데이터 기준으로 플레이어 기물을 자동 배치해서 다시 생성하는 함수
+    // 전투 중 좌표는 저장하지 않고, 다음 전투 시작 시 플레이어 진영 기본 진형에 다시 배치한다.
+    public void SpawnPlayerPiecesFromRuntimeData(
+        List<PlayerPieceRuntimeData> runtimeDataList,
+        bool clearExistingPlayerPieces = true)
+    {
+        if (runtimeDataList == null)
+        {
+            Debug.LogWarning("플레이어 기물 복원 실패: runtimeDataList가 null입니다.");
+            return;
+        }
+
+        if (clearExistingPlayerPieces)
+        {
+            ClearPiecesByTeam(PieceTeam.Player);
+        }
+
+        List<PlayerPieceRuntimeData> kingPieces = new List<PlayerPieceRuntimeData>();
+        List<PlayerPieceRuntimeData> backRowPreferredPieces = new List<PlayerPieceRuntimeData>();
+        List<PlayerPieceRuntimeData> frontRowPreferredPieces = new List<PlayerPieceRuntimeData>();
+
+        // <변경부분> 저장된 기물을 타입 기준으로 자동 배치 그룹에 분류
+        for (int i = 0; i < runtimeDataList.Count; i++)
+        {
+            PlayerPieceRuntimeData runtimeData = runtimeDataList[i];
+
+            if (runtimeData == null)
+            {
+                continue;
+            }
+
+            if (runtimeData.pieceType == PieceType.King)
+            {
+                kingPieces.Add(runtimeData);
+                continue;
+            }
+
+            if (runtimeData.pieceType == PieceType.Pawn)
+            {
+                frontRowPreferredPieces.Add(runtimeData);
+                continue;
+            }
+
+            // <변경부분> Knight / Rook / Bishop / 기타 비-Pawn 기물은 우선 뒷열 배치
+            backRowPreferredPieces.Add(runtimeData);
+        }
+
+        int spawnedCount = 0;
+
+        int backRowY = 0;
+        int frontRowY = 1;
+        int kingX = boardManager.Width / 2;
+
+        Vector2Int kingPosition = new Vector2Int(kingX, backRowY);
+
+        List<Vector2Int> backRowSlots = new List<Vector2Int>();
+        List<Vector2Int> frontRowSlots = new List<Vector2Int>();
+
+        // <변경부분> 뒷열 슬롯 구성
+        // King 위치는 King이 있으면 비워두고, King이 없으면 일반 슬롯으로 사용한다.
+        for (int x = 0; x < boardManager.Width; x++)
+        {
+            if (kingPieces.Count > 0 && x == kingX)
+            {
+                continue;
+            }
+
+            backRowSlots.Add(new Vector2Int(x, backRowY));
+        }
+
+        // <변경부분> 앞열 슬롯 구성
+        for (int x = 0; x < boardManager.Width; x++)
+        {
+            frontRowSlots.Add(new Vector2Int(x, frontRowY));
+        }
+
+        // <변경부분> King은 항상 고정 위치에 먼저 배치
+        if (kingPieces.Count > 0)
+        {
+            Piece kingPiece = SpawnPlayerRuntimePieceAt(kingPieces[0], kingPosition.x, kingPosition.y);
+
+            if (kingPiece != null)
+            {
+                spawnedCount++;
+            }
+
+            // <변경부분> 혹시 King이 여러 개면 첫 번째만 고정 King으로 처리하고 나머지는 뒷열 선호 기물로 처리
+            for (int i = 1; i < kingPieces.Count; i++)
+            {
+                backRowPreferredPieces.Add(kingPieces[i]);
+            }
+        }
+
+        // <변경부분> Knight / Rook / Bishop 계열은 우선 뒷열에 배치
+        spawnedCount += SpawnRuntimePiecesToSlots(backRowPreferredPieces, backRowSlots);
+
+        // <변경부분> Pawn 계열은 우선 앞열에 배치
+        spawnedCount += SpawnRuntimePiecesToSlots(frontRowPreferredPieces, frontRowSlots);
+
+        // <변경부분> 뒷열 선호 기물이 남으면 앞열 남은 칸에 배치
+        spawnedCount += SpawnRuntimePiecesToSlots(backRowPreferredPieces, frontRowSlots);
+
+        // <변경부분> Pawn이 남으면 뒷열 남은 칸에 배치
+        spawnedCount += SpawnRuntimePiecesToSlots(frontRowPreferredPieces, backRowSlots);
+
+        Debug.Log($"플레이어 기물 런타임 데이터 자동 배치 복원 완료: {spawnedCount}개 / 저장 데이터 {runtimeDataList.Count}개");
+    }
+
+    // <변경부분> 런타임 기물 목록을 지정 슬롯 목록에 순서대로 생성하는 함수
+    private int SpawnRuntimePiecesToSlots(
+        List<PlayerPieceRuntimeData> runtimePieces,
+        List<Vector2Int> targetSlots)
+    {
+        if (runtimePieces == null || targetSlots == null)
+        {
+            return 0;
+        }
+
+        int spawnedCount = 0;
+
+        while (runtimePieces.Count > 0 && targetSlots.Count > 0)
+        {
+            PlayerPieceRuntimeData runtimeData = runtimePieces[0];
+            Vector2Int targetSlot = targetSlots[0];
+
+            runtimePieces.RemoveAt(0);
+            targetSlots.RemoveAt(0);
+
+            Piece spawnedPiece = SpawnPlayerRuntimePieceAt(runtimeData, targetSlot.x, targetSlot.y);
+
+            if (spawnedPiece != null)
+            {
+                spawnedCount++;
+            }
+        }
+
+        return spawnedCount;
+    }
+
+    // <변경부분> 런타임 데이터 1개를 지정 좌표에 플레이어 기물로 생성하는 함수
+    private Piece SpawnPlayerRuntimePieceAt(PlayerPieceRuntimeData runtimeData, int x, int y)
+    {
+        if (runtimeData == null)
+        {
+            return null;
+        }
+
+        if (runtimeData.pieceData == null)
+        {
+            Debug.LogWarning("플레이어 기물 복원 실패: PieceData가 null입니다.");
+            return null;
+        }
+
+        if (IsEmpty(x, y) == false)
+        {
+            Debug.LogWarning($"플레이어 기물 복원 실패: ({x}, {y}) 좌표에 이미 기물이 있습니다.");
+            return null;
+        }
+
+        Piece spawnedPiece = SpawnPieceFromData(
+            runtimeData.pieceData,
+            PieceTeam.Player,
+            x,
+            y,
+            runtimeData.canMove,
+            runtimeData.isAbsorbedPlayerVisual
+        );
+
+        if (spawnedPiece == null)
+        {
+            Debug.LogWarning($"플레이어 기물 복원 실패: {runtimeData.pieceData.pieceId} / ({x}, {y})");
+            return null;
+        }
+
+        // <변경부분> PieceData 기본 일반스킬이 아니라 전투 종료 시 저장된 일반스킬 상태로 복원
+        spawnedPiece.ApplyGeneralSkillRuntimeData(runtimeData.generalSkills);
+
+        // <변경부분> 일반스킬 복원 후 외형/정렬 상태 재갱신
+        RefreshPieceVisual(spawnedPiece);
+
+        return spawnedPiece;
+    }
+
 
     // <변경부분> PieceAnimationManager 참조를 안전하게 가져오는 함수
     private PieceAnimationManager GetPieceAnimationManager()

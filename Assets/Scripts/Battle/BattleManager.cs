@@ -26,6 +26,9 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 전투 유물 슬롯과 중복 획득 방지를 관리하는 매니저
     [SerializeField] private BattleRelicManager battleRelicManager;
 
+    // <변경부분> 전투 종료 후 보상 정산 / 맵 복귀 흐름을 담당하는 컨트롤러
+    [SerializeField] private BattleEndFlowController battleEndFlowController;
+
 
     // <변경부분> 전투 아이템의 실제 효과 실행을 담당하는 핸들러
     [SerializeField] private BattleItemEffectHandler battleItemEffectHandler;
@@ -95,6 +98,9 @@ public class BattleManager : MonoBehaviour
 
     // <변경부분> 흡수 유물 찬스어택이 이번 플레이어 턴에 이미 발동했는지 확인
     private bool hasUsedAbsorbChanceAttackRelicThisTurn = false;
+
+    // <변경부분> 이번 전투에서 플레이어가 흡수에 성공한 적 기물 수
+    private int playerAbsorbCountThisBattle = 0;
 
     [Header("UI")]
     [SerializeField] private BattleUIController battleUIController;
@@ -593,6 +599,11 @@ public class BattleManager : MonoBehaviour
 
                         Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
                     }
+
+                    // <변경부분> 실제 흡수에 성공한 경우에만 이번 전투 흡수 수 증가
+                    playerAbsorbCountThisBattle++;
+
+                    Debug.Log($"플레이어 흡수 수 증가: {playerAbsorbCountThisBattle}");
 
                     // 흡수 결과가 UI에 반영되도록 스테이터스/버튼 갱신
                     if (battleUIController != null)
@@ -2096,6 +2107,39 @@ public class BattleManager : MonoBehaviour
         return true;
     }
 
+    // <변경부분> 전투 종료 후 플레이어 기물 상태를 RunStateManager에 저장하는 함수
+    private void SavePlayerPiecesToRunState()
+    {
+        if (pieceManager == null)
+        {
+            Debug.LogWarning("플레이어 기물 상태 저장 실패: PieceManager가 연결되지 않았습니다.");
+            return;
+        }
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning("플레이어 기물 상태 저장 실패: RunStateManager가 씬에 없습니다.");
+            return;
+        }
+
+        List<PlayerPieceRuntimeData> runtimeDataList = pieceManager.CapturePlayerPieceRuntimeData();
+
+        RunStateManager.Instance.SavePlayerPieces(runtimeDataList);
+    }
+
+    // <변경부분> 전투 종료 후 보상 정산 / 맵 복귀 흐름을 BattleEndFlowController에 전달하는 함수
+    private void NotifyBattleEndFlow(BattleResult result)
+    {
+        if (battleEndFlowController == null)
+        {
+            Debug.LogWarning("전투 종료 흐름 처리 실패: BattleEndFlowController가 연결되지 않았습니다.");
+            return;
+        }
+
+        battleEndFlowController.HandleBattleEnd(result, playerAbsorbCountThisBattle);
+    }
+
+
     // 전투를 종료하는 함수
     private void EndBattle(BattleResult result)
     {
@@ -2118,11 +2162,20 @@ public class BattleManager : MonoBehaviour
         // 결과 출력
         if (battleResult == BattleResult.Win)
         {
-            Debug.Log("전투 승리: 적 진영 패배 조건 충족");
+            // <변경부분> 전투 승리 시 현재 플레이어 기물 상태를 런 상태에 저장
+            SavePlayerPiecesToRunState();
+
+            Debug.Log("전투 승리: 적 진영 패배 조건 충족 / 플레이어 기물 상태 저장 완료");
+
+            // <변경부분> 저장 완료 후 보상 정산 / 맵 복귀 흐름으로 전달
+            NotifyBattleEndFlow(battleResult);
         }
         else if (battleResult == BattleResult.Lose)
         {
             Debug.Log("전투 패배: 플레이어 진영 패배 조건 충족");
+
+            // <변경부분> 패배 결과를 전투 종료 흐름으로 전달
+            NotifyBattleEndFlow(battleResult);
         }
     }
 
