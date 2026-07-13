@@ -213,10 +213,41 @@ public class BattleEndFlowController : MonoBehaviour
                 continue;
             }
 
+            // <변경부분> 금화는 선택지가 아니라 확정 보상으로 즉시 획득 처리
+            if (rewardOption.rewardType == BattleRewardOptionType.Gold)
+            {
+                ApplyGoldReward(rewardOption);
+                continue;
+            }
+
             pendingRewardOptions.Add(rewardOption);
 
             Debug.Log($"보상 후보 생성: {i} / {rewardOption.GetDebugName()}");
         }
+    }
+
+    // <변경부분> 금화 보상을 RunStateManager에 즉시 적립하는 함수
+    private void ApplyGoldReward(BattleRewardOptionRuntimeData rewardOption)
+    {
+        if (rewardOption == null)
+        {
+            return;
+        }
+
+        if (rewardOption.goldAmount <= 0)
+        {
+            return;
+        }
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning("금화 보상 적용 실패: RunStateManager가 없습니다.");
+            return;
+        }
+
+        RunStateManager.Instance.AddGold(rewardOption.goldAmount);
+
+        Debug.Log($"금화 보상 적용 완료: {rewardOption.goldAmount}");
     }
 
     // <변경부분> 나중에 보상 UI가 현재 보상 후보 목록을 읽을 때 사용할 함수

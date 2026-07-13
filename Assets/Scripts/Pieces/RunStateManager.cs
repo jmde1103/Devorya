@@ -13,6 +13,10 @@ public class RunStateManager : MonoBehaviour
     private List<PlayerPieceRuntimeData> playerPieceRuntimeDataList =
         new List<PlayerPieceRuntimeData>();
 
+    [Header("Currency")]
+    // <변경부분> 현재 런에서 보유 중인 금화
+    [SerializeField] private int goldAmount = 0;
+
     // <변경부분> 저장된 플레이어 기물 데이터가 있는지 여부
     public bool HasPlayerPieceRuntimeData
     {
@@ -93,6 +97,25 @@ public class RunStateManager : MonoBehaviour
         return playerPieceRuntimeDataList.Count;
     }
 
+    // <변경부분> 현재 런에서 보유 중인 금화량을 반환하는 함수
+    public int GetGoldAmount()
+    {
+        return goldAmount;
+    }
+
+    // <변경부분> 금화 보상을 현재 런 상태에 추가하는 함수
+    public void AddGold(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        goldAmount += amount;
+
+        Debug.Log($"금화 획득: +{amount} / 현재 보유 금화 {goldAmount}");
+    }
+
     // <변경부분> 보상으로 획득한 플레이어 기물을 런 상태에 추가하는 함수
     // 최대 기물 수를 넘으면 추가하지 않는다.
     public bool TryAddPlayerPiece(PlayerPieceRuntimeData runtimeData, int maxPieceCount)
@@ -120,6 +143,9 @@ public class RunStateManager : MonoBehaviour
     public void ClearRunState()
     {
         playerPieceRuntimeDataList.Clear();
+
+        // <변경부분> 새 런 시작 시 금화도 초기화
+        goldAmount = 0;
 
         Debug.Log("런 상태 초기화 완료");
     }
