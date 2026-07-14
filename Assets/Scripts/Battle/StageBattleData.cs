@@ -43,6 +43,11 @@ public class StageBattleData : ScriptableObject
     // 기물 10개를 StageBattleData에 직접 넣지 않고, PieceFormationData로 분리해서 재사용한다.
     public PieceFormationData enemyFormationData;
 
+    [Header("Battle Reward")]
+    // <변경부분> 이 스테이지 전투 승리 후 사용할 보상 데이터
+    // 여러 StageBattleData가 같은 BattleRewardData를 공유할 수 있다.
+    public BattleRewardData battleRewardData;
+
     [Header("Enemy General Skill Grant Rules")]
     // <변경부분> 스테이지 시작 시 적 기물에게 랜덤으로 부여할 일반스킬 규칙 목록
     // BattleSetupManager가 이 배열을 읽어서 Enemy 기물에게만 적용한다.

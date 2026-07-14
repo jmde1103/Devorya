@@ -9,10 +9,13 @@ public class BattleSetupManager : MonoBehaviour
     // <변경부분> 현재 전투에 사용할 스테이지 데이터
     [SerializeField] private StageBattleData stageBattleData;
     
-    [Header("Managers")]
-    [SerializeField] private BoardManager boardManager;
-    [SerializeField] private PieceManager pieceManager;
-    [SerializeField] private BattleManager battleManager;
+   [Header("Managers")]
+[SerializeField] private BoardManager boardManager;
+[SerializeField] private PieceManager pieceManager;
+[SerializeField] private BattleManager battleManager;
+
+// <변경부분> StageBattleData의 보상 데이터를 전달할 전투 종료 흐름 컨트롤러
+[SerializeField] private BattleEndFlowController battleEndFlowController;
 
     [Header("Run State")]
     // <변경부분> 저장된 플레이어 기물 상태가 있으면 StageBattleData의 playerFormationData 대신 사용할지 여부
@@ -38,9 +41,12 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        if (boardManager == null || pieceManager == null || battleManager == null)
+        if (boardManager == null || pieceManager == null || battleManager == null || battleEndFlowController == null)
         {
-            Debug.LogError("BattleSetupManager 실패: BoardManager / PieceManager / BattleManager 연결을 확인하세요.");
+            Debug.LogError(
+                "BattleSetupManager 실패: BoardManager / PieceManager / BattleManager / BattleEndFlowController 연결을 확인하세요."
+            );
+
             return;
         }
 
@@ -63,6 +69,11 @@ public class BattleSetupManager : MonoBehaviour
         battleManager.SetBattleEndCondition(
             stageBattleData.playerDefeatCondition,
             stageBattleData.enemyDefeatCondition
+        );
+
+        // <변경부분> 현재 스테이지의 전투 보상 데이터를 BattleEndFlowController에 전달
+        battleEndFlowController.SetBattleRewardData(
+            stageBattleData.battleRewardData
         );
 
         // <변경부분> 스테이지별 적 일반스킬 랜덤 부여 규칙 적용

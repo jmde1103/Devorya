@@ -173,6 +173,45 @@ public class TooltipViewData
             sections = data.tooltipSections
         };
     }
+
+    // <변경부분> 기물 복구 보상에 표시할 PieceData 기반 Tooltip 생성
+    public static TooltipViewData FromPieceData(PieceData data)
+    {
+        if (data == null)
+        {
+            return null;
+        }
+
+        // <변경부분> 별도 표시 이름이 없으므로 pieceId를 우선 사용
+        string displayName = string.IsNullOrEmpty(data.pieceId)
+            ? data.pieceType.ToString()
+            : data.pieceId;
+
+        // <변경부분> PieceData에 별도 설명 필드가 없으므로
+        // 복구 기물이라는 기본 설명과 고유스킬 정보를 조합
+        string description =
+            $"전투 종료 후 복구된 {data.pieceType} 기물입니다.";
+
+        if (data.uniqueSkill != UniqueSkillType.None)
+        {
+            description +=
+                $"\n기본 고유스킬: {data.uniqueSkill}";
+        }
+
+        // <변경부분> 보상 아이콘은 상태 UI용 스프라이트를 우선 사용
+        Sprite displayIcon = data.playerStatusSprite != null
+            ? data.playerStatusSprite
+            : data.playerSprite;
+
+        return new TooltipViewData
+        {
+            title = displayName,
+            category = "기물 복구",
+            mainDescription = description,
+            icon = displayIcon,
+            sections = new List<TooltipSectionData>()
+        };
+    }
 }
 
 // <변경부분> 별도 데이터가 없는 버튼/설명 전용 Tooltip 에셋

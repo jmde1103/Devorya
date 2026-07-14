@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // <변경부분> 전투 중 사용하는 소모성 아이템 슬롯과 사용 흐름을 관리하는 매니저
@@ -22,14 +23,43 @@ public class BattleItemManager : MonoBehaviour
     // <변경부분> BattleManager에서 전투 시작 시 아이템 매니저를 초기화하는 함수
     public void Initialize(BattleManager owner, BattleUIController uiController)
     {
-        // 아이템 효과 실행을 요청할 BattleManager 저장
         battleManager = owner;
-
-        // 아이템 슬롯 UI 갱신을 요청할 BattleUIController 저장
         battleUIController = uiController;
 
-        // 게임 시작 시 아이템 슬롯 UI 초기화
+        // <변경부분> 이전 전투에서 RunStateManager에 저장한
+        // 아이템을 현재 전투 슬롯에 복원
+        RestoreItemsFromRunState();
+
         RefreshItemSlotUI();
+    }
+
+    // <변경부분> RunStateManager에 저장된 아이템을
+    // 현재 전투 슬롯로 복원
+    private void RestoreItemsFromRunState()
+    {
+        itemSlots = new BattleItemData[MaxItemSlotCount];
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "아이템 복원 생략: RunStateManager가 없습니다."
+            );
+
+            return;
+        }
+
+        List<BattleItemData> savedItems =
+            RunStateManager.Instance.GetBattleItemsCopy();
+
+        int restoreCount =
+            Mathf.Min(savedItems.Count, MaxItemSlotCount);
+
+        for (int i = 0; i < restoreCount; i++)
+        {
+            itemSlots[i] = savedItems[i];
+        }
+
+        Debug.Log($"런 아이템 복원 완료: {restoreCount}개");
     }
 
     // <변경부분> 아이템 타입을 받아 Database에서 BattleItemData를 찾은 뒤 슬롯에 추가하는 함수
@@ -67,34 +97,64 @@ public class BattleItemManager : MonoBehaviour
         AddBattleItemByType(BattleItemType.ChangeSelectedPieceToJelluPawn);
     }
 
-    // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하는 함수
-    public void AddBattleItem(BattleItemData itemData)
+    // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하고
+    // RunStateManager에도 저장
+    public bool AddBattleItem(BattleItemData itemData)
     {
-        // 추가할 아이템 데이터가 없으면 종료
-        if (itemData == null || itemData.itemType == BattleItemType.None)
+        if (itemData == null ||
+            itemData.itemType == BattleItemType.None)
         {
             Debug.LogWarning("추가할 아이템 데이터가 없습니다.");
-            return;
+            return false;
         }
 
-        // 왼쪽 슬롯부터 빈칸을 찾음
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "아이템 획득 실패: RunStateManager가 없습니다."
+            );
+
+            return false;
+        }
+
+        // <변경부분> 런 저장 목록에 먼저 추가해
+        // 슬롯 제한과 씬 유지 여부를 한곳에서 관리
+        if (RunStateManager.Instance.TryAddBattleItem(
+                itemData,
+                MaxItemSlotCount) == false)
+        {
+            return false;
+        }
+
         for (int i = 0; i < itemSlots.Length; i++)
         {
-            if (itemSlots[i] != null && itemSlots[i].itemType != BattleItemType.None)
+            if (itemSlots[i] != null &&
+                itemSlots[i].itemType != BattleItemType.None)
             {
                 continue;
             }
 
             itemSlots[i] = itemData;
-
-            // 아이템 획득 후 슬롯 UI 갱신
             RefreshItemSlotUI();
 
-            Debug.Log($"아이템 획득: {itemData.itemName} / 슬롯 {i}");
-            return;
+            Debug.Log(
+                $"아이템 획득: {itemData.itemName} / 슬롯 {i}"
+            );
+
+            return true;
         }
 
-        Debug.Log("아이템 슬롯이 가득 찼습니다.");
+        // <변경부분> 저장과 슬롯이 불일치한 예외 상황이면
+        // 방금 추가한 런 아이템을 원복
+        RunStateManager.Instance.RemoveBattleItemAt(
+            RunStateManager.Instance.GetBattleItemsCopy().Count - 1
+        );
+
+        Debug.LogWarning(
+            "아이템 슬롯 추가 실패: 런 저장과 전투 슬롯 상태가 일치하지 않습니다."
+        );
+
+        return false;
     }
 
     // <변경부분> 특정 슬롯의 아이템을 사용하는 함수
@@ -137,13 +197,22 @@ public class BattleItemManager : MonoBehaviour
             return;
         }
 
-        // 사용한 아이템 제거
+        // <변경부분> 실제 사용에 성공한 아이템을
+        // 런 저장 목록에서도 같은 슬롯 기준으로 제거
+        if (RunStateManager.Instance != null)
+        {
+            RunStateManager.Instance.RemoveBattleItemAt(slotIndex);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "아이템 사용 저장 반영 실패: RunStateManager가 없습니다."
+            );
+        }
+
         itemSlots[slotIndex] = null;
 
-        // 빈칸이 생기면 왼쪽부터 다시 정렬
         CompressItemSlots();
-
-        // 아이템 사용 후 UI 갱신
         RefreshItemSlotUI();
 
         Debug.Log($"아이템 사용 완료: {itemData.itemName}");

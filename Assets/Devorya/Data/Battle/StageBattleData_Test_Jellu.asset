@@ -21,6 +21,7 @@ MonoBehaviour:
   enemyDefeatCondition: -1
   playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
   enemyFormationData: {fileID: 11400000, guid: 597d51eee876daa4d9df5c354eba66c7, type: 2}
+  battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
   enemyGeneralSkillGrantRules:
   - skillType: 1
     grantChancePercent: 30

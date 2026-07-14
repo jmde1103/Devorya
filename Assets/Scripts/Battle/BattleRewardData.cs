@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// <변경부분> 전투 승리 후 생성할 보상 후보 데이터를 관리하는 ScriptableObject
+// 전투 승리 후 금화·아이템·유물 드롭 보상을 생성하는 ScriptableObject
 [CreateAssetMenu(fileName = "BattleRewardData", menuName = "Devorya/Battle/Battle Reward Data")]
 public class BattleRewardData : ScriptableObject
 {
@@ -17,15 +17,9 @@ public class BattleRewardData : ScriptableObject
     // <변경부분> 보상 후보로 등장할 수 있는 전투 아이템 드롭 테이블
     public BattleItemRewardDropEntry[] itemDropTable;
 
-    // <변경부분> 이번 전투 보상에서 최대로 뽑을 아이템 후보 수
-    public int itemRewardCount = 1;
-
     [Header("Relic Rewards")]
     // <변경부분> 보상 후보로 등장할 수 있는 유물 드롭 테이블
     public BattleRelicRewardDropEntry[] relicDropTable;
-
-    // <변경부분> 이번 전투 보상에서 최대로 뽑을 유물 후보 수
-    public int relicRewardCount = 1;
 
     [Header("Gold Reward")]
     // <변경부분> 금화 보상을 포함할지 여부
@@ -56,12 +50,12 @@ public class BattleRewardData : ScriptableObject
 
         if (includeItemRewards)
         {
-            AddRandomItemRewards(rewardOptions);
+            AddDroppedItemRewards(rewardOptions);
         }
 
         if (includeRelicRewards)
         {
-            AddRandomRelicRewards(rewardOptions);
+            AddDroppedRelicRewards(rewardOptions);
         }
 
         return rewardOptions;
@@ -88,8 +82,10 @@ public class BattleRewardData : ScriptableObject
         rewardOptions.Add(BattleRewardOptionRuntimeData.CreateGoldReward(goldAmount));
     }
 
-    // <변경부분> 아이템 드롭 테이블에서 개별 확률을 통과한 아이템 중 랜덤으로 보상 후보를 추가하는 함수
-    private void AddRandomItemRewards(List<BattleRewardOptionRuntimeData> rewardOptions)
+    // <변경부분> 아이템 드롭 테이블의 각 항목을 독립적으로 판정하고,
+    // 확률 판정을 통과한 모든 아이템을 보상 목록에 추가하는 함수
+    private void AddDroppedItemRewards(
+        List<BattleRewardOptionRuntimeData> rewardOptions)
     {
         if (rewardOptions == null)
         {
@@ -101,44 +97,34 @@ public class BattleRewardData : ScriptableObject
             return;
         }
 
-        List<BattleItemData> passedCandidateList = new List<BattleItemData>();
-
-        // <변경부분> 아이템별 드롭 확률을 각각 독립적으로 판정
         for (int i = 0; i < itemDropTable.Length; i++)
         {
             BattleItemRewardDropEntry dropEntry = itemDropTable[i];
 
-            if (dropEntry == null)
+            if (dropEntry == null || dropEntry.itemData == null)
             {
                 continue;
             }
 
-            if (dropEntry.itemData == null)
+            // <변경부분> 각 아이템은 다른 항목과 관계없이
+            // 자신의 확률로 독립 판정한다.
+            if (dropEntry.RollDrop() == false)
             {
                 continue;
             }
 
-            if (dropEntry.RollDrop())
-            {
-                passedCandidateList.Add(dropEntry.itemData);
-            }
-        }
-
-        int count = Mathf.Min(itemRewardCount, passedCandidateList.Count);
-
-        for (int i = 0; i < count; i++)
-        {
-            int randomIndex = Random.Range(0, passedCandidateList.Count);
-            BattleItemData selectedItem = passedCandidateList[randomIndex];
-
-            passedCandidateList.RemoveAt(randomIndex);
-
-            rewardOptions.Add(BattleRewardOptionRuntimeData.CreateItemReward(selectedItem));
+            rewardOptions.Add(
+                BattleRewardOptionRuntimeData.CreateItemReward(
+                    dropEntry.itemData
+                )
+            );
         }
     }
 
-    // <변경부분> 유물 드롭 테이블에서 개별 확률을 통과한 유물 중 랜덤으로 보상 후보를 추가하는 함수
-    private void AddRandomRelicRewards(List<BattleRewardOptionRuntimeData> rewardOptions)
+    // <변경부분> 유물 드롭 테이블의 각 항목을 독립적으로 판정하고,
+    // 확률 판정을 통과한 모든 유물을 보상 목록에 추가하는 함수
+    private void AddDroppedRelicRewards(
+        List<BattleRewardOptionRuntimeData> rewardOptions)
     {
         if (rewardOptions == null)
         {
@@ -150,39 +136,27 @@ public class BattleRewardData : ScriptableObject
             return;
         }
 
-        List<BattleRelicData> passedCandidateList = new List<BattleRelicData>();
-
-        // <변경부분> 유물별 드롭 확률을 각각 독립적으로 판정
         for (int i = 0; i < relicDropTable.Length; i++)
         {
             BattleRelicRewardDropEntry dropEntry = relicDropTable[i];
 
-            if (dropEntry == null)
+            if (dropEntry == null || dropEntry.relicData == null)
             {
                 continue;
             }
 
-            if (dropEntry.relicData == null)
+            // <변경부분> 각 유물은 다른 항목과 관계없이
+            // 자신의 확률로 독립 판정한다.
+            if (dropEntry.RollDrop() == false)
             {
                 continue;
             }
 
-            if (dropEntry.RollDrop())
-            {
-                passedCandidateList.Add(dropEntry.relicData);
-            }
-        }
-
-        int count = Mathf.Min(relicRewardCount, passedCandidateList.Count);
-
-        for (int i = 0; i < count; i++)
-        {
-            int randomIndex = Random.Range(0, passedCandidateList.Count);
-            BattleRelicData selectedRelic = passedCandidateList[randomIndex];
-
-            passedCandidateList.RemoveAt(randomIndex);
-
-            rewardOptions.Add(BattleRewardOptionRuntimeData.CreateRelicReward(selectedRelic));
+            rewardOptions.Add(
+                BattleRewardOptionRuntimeData.CreateRelicReward(
+                    dropEntry.relicData
+                )
+            );
         }
     }
 }

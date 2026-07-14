@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // <변경부분> 전투 중 보유하는 유물 슬롯과 중복 획득 방지를 관리하는 매니저
@@ -26,81 +27,170 @@ public class BattleRelicManager : MonoBehaviour
     // <변경부분> BattleManager에서 전투 시작 시 유물 매니저를 초기화하는 함수
     public void Initialize(BattleUIController uiController)
     {
-        // 유물 슬롯 UI 갱신을 요청할 BattleUIController 저장
         battleUIController = uiController;
 
-        // 게임 시작 시 유물 슬롯 UI 초기화
+        // <변경부분> 이전 전투에서 RunStateManager에 저장한
+        // 유물을 현재 전투 슬롯에 복원
+        RestoreRelicsFromRunState();
+
         RefreshRelicSlotUI();
 
-        // <변경부분> 테스트용 유물 타입이 설정되어 있으면 Database에서 찾아 전투 시작 시 1개 지급
-        if (addTestStartRelic && testRelicType != BattleRelicType.None)
+        if (addTestStartRelic &&
+            testRelicType != BattleRelicType.None)
         {
             AddBattleRelicByType(testRelicType);
         }
     }
 
-    // <변경부분> 유물 타입을 받아 Database에서 BattleRelicData를 찾은 뒤 슬롯에 추가하는 함수
+    // <변경부분> RunStateManager에 저장된 유물을
+    // 현재 전투 슬롯로 복원
+    private void RestoreRelicsFromRunState()
+    {
+        relicSlots = new BattleRelicData[MaxRelicSlotCount];
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "유물 복원 생략: RunStateManager가 없습니다."
+            );
+
+            return;
+        }
+
+        List<BattleRelicData> savedRelics =
+            RunStateManager.Instance.GetBattleRelicsCopy();
+
+        int restoreCount =
+            Mathf.Min(savedRelics.Count, MaxRelicSlotCount);
+
+        for (int i = 0; i < restoreCount; i++)
+        {
+            relicSlots[i] = savedRelics[i];
+        }
+
+        Debug.Log($"런 유물 복원 완료: {restoreCount}개");
+    }
+
+    // <변경부분> 유물 타입을 받아 BattleRelicDatabase에서
+    // BattleRelicData를 찾은 뒤 실제 유물 추가 함수로 전달한다.
     public bool AddBattleRelicByType(BattleRelicType relicType)
     {
+        // None은 실제 유물 타입이 아니므로 추가하지 않는다.
         if (relicType == BattleRelicType.None)
         {
             Debug.LogWarning("추가할 유물 타입이 None입니다.");
             return false;
         }
 
+        // 유물 데이터베이스가 연결되지 않았다면
+        // 타입으로 BattleRelicData를 찾을 수 없다.
         if (battleRelicDatabase == null)
         {
-            Debug.LogWarning("BattleRelicDatabase가 연결되지 않아 유물을 추가할 수 없습니다.");
+            Debug.LogWarning(
+                "BattleRelicDatabase가 연결되지 않아 유물을 추가할 수 없습니다."
+            );
+
             return false;
         }
 
-        BattleRelicData relicData = battleRelicDatabase.GetData(relicType);
+        // 전달받은 타입과 일치하는 유물 데이터를 데이터베이스에서 찾는다.
+        BattleRelicData relicData =
+            battleRelicDatabase.GetData(relicType);
 
         if (relicData == null)
         {
-            Debug.LogWarning($"BattleRelicDatabase에서 유물 데이터를 찾을 수 없습니다: {relicType}");
+            Debug.LogWarning(
+                $"BattleRelicDatabase에서 유물 데이터를 찾을 수 없습니다: {relicType}"
+            );
+
             return false;
         }
 
+        // 찾은 유물 데이터를 실제 전투 및 런 상태에 추가한다.
         return AddBattleRelic(relicData);
     }
 
-    // <변경부분> 전투 유물을 왼쪽 빈 슬롯부터 추가하는 함수
+    // <변경부분> 전투 유물을 왼쪽 빈 슬롯부터 추가하고 RunStateManager에도 저장
+    // 전투 슬롯에 실제 빈칸이 있는지 먼저 확인한 뒤 런 상태와 슬롯을 함께 갱신한다.
     public bool AddBattleRelic(BattleRelicData relicData)
     {
-        // 추가할 유물 데이터가 없으면 실패
-        if (relicData == null || relicData.relicType == BattleRelicType.None)
+        // 추가할 유물 데이터가 없거나 None 타입이면 획득 처리하지 않는다.
+        if (relicData == null ||
+            relicData.relicType == BattleRelicType.None)
         {
             Debug.LogWarning("추가할 유물 데이터가 없습니다.");
             return false;
         }
 
-        // 같은 유물은 중복 획득할 수 없음
+        // 현재 전투 슬롯에 같은 타입의 유물이 있으면 중복 획득을 막는다.
         if (HasRelic(relicData.relicType))
         {
-            Debug.Log($"유물 획득 실패: 이미 보유 중인 유물입니다. / {relicData.relicName}");
+            Debug.Log(
+                $"유물 획득 실패: 이미 보유 중인 유물입니다. / " +
+                $"{relicData.relicName}"
+            );
+
             return false;
         }
 
-        // 왼쪽 슬롯부터 빈칸을 찾음
-        for (int i = 0; i < relicSlots.Length; i++)
+        // 런 상태 매니저가 없으면 씬 이동 후 유물을 유지할 수 없으므로 획득하지 않는다.
+        if (RunStateManager.Instance == null)
         {
-            if (relicSlots[i] != null && relicSlots[i].relicType != BattleRelicType.None)
-            {
-                continue;
-            }
+            Debug.LogWarning(
+                "유물 획득 실패: RunStateManager가 없습니다."
+            );
 
-            relicSlots[i] = relicData;
-
-            // 유물 획득 후 슬롯 UI 갱신
-            RefreshRelicSlotUI();
-
-            Debug.Log($"유물 획득: {relicData.relicName} / 슬롯 {i}");
-            return true;
+            return false;
         }
 
-        Debug.Log("유물 슬롯이 가득 찼습니다.");
-        return false;
+        // <변경부분> 전투 유물 슬롯에서 실제로 사용할 빈 슬롯 위치를 먼저 찾는다.
+        int emptySlotIndex = -1;
+
+        for (int i = 0; i < relicSlots.Length; i++)
+        {
+            bool isEmptySlot =
+                relicSlots[i] == null ||
+                relicSlots[i].relicType == BattleRelicType.None;
+
+            if (isEmptySlot)
+            {
+                emptySlotIndex = i;
+                break;
+            }
+        }
+
+        // 전투 슬롯이 가득 찼다면 런 상태에도 유물을 추가하지 않는다.
+        if (emptySlotIndex < 0)
+        {
+            Debug.Log("유물 슬롯이 가득 찼습니다.");
+            return false;
+        }
+
+        // <변경부분> 런 상태에 유물을 먼저 저장한다.
+        // RunStateManager가 최대 개수와 중복 여부를 최종적으로 다시 검사한다.
+        bool addedToRunState =
+            RunStateManager.Instance.TryAddBattleRelic(
+                relicData,
+                MaxRelicSlotCount
+            );
+
+        if (addedToRunState == false)
+        {
+            return false;
+        }
+
+        // <변경부분> 런 상태 저장에 성공한 경우에만 전투 슬롯에도 같은 유물을 추가한다.
+        relicSlots[emptySlotIndex] = relicData;
+
+        // 유물 획득 결과를 UI에 즉시 반영한다.
+        RefreshRelicSlotUI();
+
+        Debug.Log(
+            $"유물 획득: {relicData.relicName} / " +
+            $"슬롯 {emptySlotIndex}"
+        );
+
+        return true;
     }
 
     // <변경부분> 특정 유물을 현재 보유 중인지 확인하는 함수

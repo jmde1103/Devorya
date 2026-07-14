@@ -16,12 +16,10 @@ MonoBehaviour:
   description: 
   itemDropTable:
   - itemData: {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}
-    dropChancePercent: 15
-  itemRewardCount: 1
+    dropChancePercent: 100
   relicDropTable:
   - relicData: {fileID: 11400000, guid: 179ca9bcb92cb6a4aa319c47cdc5c429, type: 2}
-    dropChancePercent: 15
-  relicRewardCount: 1
+    dropChancePercent: 100
   includeGoldReward: 1
   minGoldAmount: 10
   maxGoldAmount: 30

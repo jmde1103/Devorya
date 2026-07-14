@@ -17,8 +17,15 @@ public class BattleEndFlowController : MonoBehaviour
     [SerializeField] private bool moveToMapSceneOnLose = false;
 
     [Header("Reward")]
-    // <변경부분> 전투 승리 후 생성할 보상 데이터
-    [SerializeField] private BattleRewardData battleRewardData;
+    // <변경부분> 아이템 보상으로 보유할 수 있는 최대 아이템 수
+    private const int MaxBattleItemCount = 4;
+
+    // <변경부분> 유물 보상으로 보유할 수 있는 최대 유물 수
+    private const int MaxBattleRelicCount = 10;
+
+    // <변경부분> 현재 전투 스테이지에서 전달받은 보상 데이터
+    // BattleSetupManager가 StageBattleData의 battleRewardData를 전투 시작 시 전달한다.
+    private BattleRewardData battleRewardData;
 
     [Header("Devorya Recovery Reward")]
     // <변경부분> 플레이어가 보유할 수 있는 최대 기물 수
@@ -38,12 +45,36 @@ public class BattleEndFlowController : MonoBehaviour
     // <변경부분> 마지막 전투에서 플레이어가 흡수한 적 기물 수
     private int lastPlayerAbsorbCount = 0;
 
-    // <변경부분> 현재 전투 승리 후 생성된 보상 후보 목록
-    private readonly List<BattleRewardOptionRuntimeData> pendingRewardOptions =
+    // <변경부분> 이번 전투에서 실제 획득에 성공한 아이템·유물 보상 목록
+    // 추후 보상 결과 UI가 이 목록을 읽어서 획득 결과를 표시한다.
+    private readonly List<BattleRewardOptionRuntimeData> acquiredRewardOptions =
         new List<BattleRewardOptionRuntimeData>();
+
+    // <변경부분> 이번 전투에서 실제 복구에 성공한 기물을
+    // PieceData 종류별 수량으로 집계하는 목록
+    private readonly List<BattleRecoveryRewardRuntimeData> acquiredRecoveryRewards =
+        new List<BattleRecoveryRewardRuntimeData>();
+
+    // <변경부분> 이번 전투에서 실제 획득한 금화량
+    private int lastAcquiredGoldAmount = 0;
 
     // <변경부분> 마지막 전투 결과 저장
     private BattleResult lastBattleResult = BattleResult.None;
+
+    // <변경부분> 현재 StageBattleData가 사용하는 전투 보상 데이터를 전달받는 함수
+    // BattleSetupManager가 전투 시작 시 한 번 호출한다.
+    public void SetBattleRewardData(BattleRewardData rewardData)
+    {
+        battleRewardData = rewardData;
+
+        if (battleRewardData == null)
+        {
+            Debug.LogWarning("전투 보상 데이터 적용 경고: 현재 StageBattleData에 BattleRewardData가 없습니다.");
+            return;
+        }
+
+        Debug.Log($"전투 보상 데이터 적용: {battleRewardData.rewardName}");
+    }
 
     // <변경부분> BattleManager가 전투 종료 시 호출하는 함수
     public void HandleBattleEnd(BattleResult result, int playerAbsorbCount)
@@ -75,11 +106,17 @@ public class BattleEndFlowController : MonoBehaviour
     {
         Debug.Log("전투 종료 흐름: 승리 / 보상 정산 단계 진입");
 
+        // <변경부분> 이전 전투에서 사용한 보상 결과 기록 초기화
+        acquiredRecoveryRewards.Clear();
+        acquiredRewardOptions.Clear();
+        lastAcquiredGoldAmount = 0;
+
         // <변경부분> 흡수 횟수 기반 데보리아 기물 회복 보상 적용
         ApplyDevoryaRecoveryReward();
 
-        // <변경부분> 전투 승리 보상 후보 생성
-        CreatePendingRewardOptions();
+        // <변경부분> 확률 판정을 통과한 모든 전투 보상을
+        // 즉시 런 상태에 적용
+        CreateAndApplyBattleRewards();
 
         // <변경부분> 1차 테스트용 즉시 맵 복귀
         // 추후 보상 UI가 생기면 여기서는 보상 UI를 띄우고, 보상 선택 완료 후 MoveToMapScene() 호출
@@ -140,10 +177,47 @@ public class BattleEndFlowController : MonoBehaviour
             if (added)
             {
                 createdCount++;
+
+                // <변경부분> 실제 복구에 성공한 기물을 종류별로 집계
+                AddOrIncreaseRecoveryReward(selectedPieceData);
             }
         }
 
         Debug.Log($"데보리아 회복 보상 완료: 흡수 {lastPlayerAbsorbCount}개 / 생성 {createdCount}개");
+    }
+
+    // <변경부분> 같은 PieceData가 이미 집계되어 있으면 수량을 증가시키고,
+    // 처음 복구된 종류라면 새로운 결과 항목으로 추가한다.
+    private void AddOrIncreaseRecoveryReward(PieceData pieceData)
+    {
+        if (pieceData == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < acquiredRecoveryRewards.Count; i++)
+        {
+            BattleRecoveryRewardRuntimeData recoveryReward =
+                acquiredRecoveryRewards[i];
+
+            if (recoveryReward == null)
+            {
+                continue;
+            }
+
+            if (recoveryReward.pieceData == pieceData)
+            {
+                recoveryReward.amount++;
+                return;
+            }
+        }
+
+        acquiredRecoveryRewards.Add(
+            new BattleRecoveryRewardRuntimeData(
+                pieceData,
+                1
+            )
+        );
     }
 
     // <변경부분> 데보리아 회복 보상으로 생성할 PieceData를 확률에 따라 선택하는 함수
@@ -184,14 +258,27 @@ public class BattleEndFlowController : MonoBehaviour
         return advancedCandidates[randomIndex];
     }
 
-    // <변경부분> BattleRewardData를 기준으로 현재 전투의 보상 후보를 생성하는 함수
-    private void CreatePendingRewardOptions()
+    // <변경부분> BattleRewardData의 개별 드롭 확률을 판정한 뒤
+    // 생성된 금화·아이템·유물 보상을 모두 즉시 런 상태에 적용하는 함수
+    private void CreateAndApplyBattleRewards()
     {
-        pendingRewardOptions.Clear();
+        acquiredRewardOptions.Clear();
 
         if (battleRewardData == null)
         {
-            Debug.LogWarning("보상 후보 생성 실패: BattleRewardData가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "전투 보상 적용 실패: BattleRewardData가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "전투 보상 적용 실패: RunStateManager가 없습니다."
+            );
+
             return;
         }
 
@@ -200,73 +287,151 @@ public class BattleEndFlowController : MonoBehaviour
 
         if (createdOptions == null || createdOptions.Count == 0)
         {
-            Debug.LogWarning($"보상 후보 생성 실패: {battleRewardData.rewardName}에서 생성된 보상이 없습니다.");
+            Debug.Log(
+                $"전투 보상 없음: {battleRewardData.rewardName}에서 " +
+                "드롭에 성공한 보상이 없습니다."
+            );
+
             return;
         }
 
         for (int i = 0; i < createdOptions.Count; i++)
         {
-            BattleRewardOptionRuntimeData rewardOption = createdOptions[i];
+            BattleRewardOptionRuntimeData rewardOption =
+                createdOptions[i];
 
             if (rewardOption == null)
             {
                 continue;
             }
 
-            // <변경부분> 금화는 선택지가 아니라 확정 보상으로 즉시 획득 처리
-            if (rewardOption.rewardType == BattleRewardOptionType.Gold)
+            // <변경부분> 금화는 기존과 동일하게 즉시 런 상태에 적립한다.
+            if (rewardOption.rewardType ==
+                BattleRewardOptionType.Gold)
             {
                 ApplyGoldReward(rewardOption);
                 continue;
             }
 
-            pendingRewardOptions.Add(rewardOption);
+            bool rewardApplied =
+                TryApplyDroppedReward(rewardOption);
 
-            Debug.Log($"보상 후보 생성: {i} / {rewardOption.GetDebugName()}");
+            if (rewardApplied == false)
+            {
+                Debug.LogWarning(
+                    $"드롭 보상 획득 실패: " +
+                    $"{rewardOption.GetDebugName()}"
+                );
+
+                continue;
+            }
+
+            // <변경부분> 실제 저장에 성공한 아이템·유물만
+            // 결과 UI 표시 목록에 보관한다.
+            acquiredRewardOptions.Add(rewardOption);
+
+            Debug.Log(
+                $"드롭 보상 획득 완료: " +
+                $"{rewardOption.GetDebugName()}"
+            );
         }
     }
 
-    // <변경부분> 금화 보상을 RunStateManager에 즉시 적립하는 함수
-    private void ApplyGoldReward(BattleRewardOptionRuntimeData rewardOption)
+    // <변경부분> 드롭된 아이템 또는 유물을
+    // RunStateManager에 즉시 저장하는 함수
+    private bool TryApplyDroppedReward(
+        BattleRewardOptionRuntimeData rewardOption)
     {
-        if (rewardOption == null)
+        if (rewardOption == null ||
+            RunStateManager.Instance == null)
         {
-            return;
+            return false;
         }
 
-        if (rewardOption.goldAmount <= 0)
+        if (rewardOption.rewardType ==
+            BattleRewardOptionType.Item)
+        {
+            return RunStateManager.Instance.TryAddBattleItem(
+                rewardOption.itemData,
+                MaxBattleItemCount
+            );
+        }
+
+        if (rewardOption.rewardType ==
+            BattleRewardOptionType.Relic)
+        {
+            return RunStateManager.Instance.TryAddBattleRelic(
+                rewardOption.relicData,
+                MaxBattleRelicCount
+            );
+        }
+
+        return false;
+    }
+
+    // <변경부분> 금화 보상을 RunStateManager에 즉시 적립하는 함수
+    private void ApplyGoldReward(
+        BattleRewardOptionRuntimeData rewardOption)
+    {
+        if (rewardOption == null ||
+            rewardOption.goldAmount <= 0)
         {
             return;
         }
 
         if (RunStateManager.Instance == null)
         {
-            Debug.LogWarning("금화 보상 적용 실패: RunStateManager가 없습니다.");
+            Debug.LogWarning(
+                "금화 보상 적용 실패: RunStateManager가 없습니다."
+            );
+
             return;
         }
 
-        RunStateManager.Instance.AddGold(rewardOption.goldAmount);
+        RunStateManager.Instance.AddGold(
+            rewardOption.goldAmount
+        );
 
-        Debug.Log($"금화 보상 적용 완료: {rewardOption.goldAmount}");
+        Debug.Log(
+            $"금화 보상 적용 완료: " +
+            $"{rewardOption.goldAmount}"
+        );
     }
 
-    // <변경부분> 나중에 보상 UI가 현재 보상 후보 목록을 읽을 때 사용할 함수
-    public List<BattleRewardOptionRuntimeData> GetPendingRewardOptionsCopy()
+    // <변경부분> 이번 전투에서 실제 복구된 기물 목록을
+    // 외부 UI가 안전하게 읽을 수 있도록 복사본으로 반환
+    public List<BattleRecoveryRewardRuntimeData>
+        GetAcquiredRecoveryRewardsCopy()
     {
-        List<BattleRewardOptionRuntimeData> copiedList =
-            new List<BattleRewardOptionRuntimeData>();
+        List<BattleRecoveryRewardRuntimeData> copiedRewards =
+            new List<BattleRecoveryRewardRuntimeData>();
 
-        for (int i = 0; i < pendingRewardOptions.Count; i++)
+        for (int i = 0; i < acquiredRecoveryRewards.Count; i++)
         {
-            if (pendingRewardOptions[i] == null)
+            BattleRecoveryRewardRuntimeData reward =
+                acquiredRecoveryRewards[i];
+
+            if (reward == null)
             {
                 continue;
             }
 
-            copiedList.Add(pendingRewardOptions[i]);
+            copiedRewards.Add(
+                reward.Clone()
+            );
         }
 
-        return copiedList;
+        return copiedRewards;
+    }
+
+    // <변경부분> 추후 보상 결과 UI가 이번 전투에서 실제 획득한
+    // 아이템·유물 목록을 읽을 때 사용하는 함수
+    public List<BattleRewardOptionRuntimeData>
+        GetAcquiredRewardOptionsCopy()
+    {
+        return new List<BattleRewardOptionRuntimeData>(
+            acquiredRewardOptions
+        );
     }
 
     // <변경부분> 전투 패배 후 처리
@@ -296,5 +461,35 @@ public class BattleEndFlowController : MonoBehaviour
     public BattleResult GetLastBattleResult()
     {
         return lastBattleResult;
+    }
+}
+
+// <변경부분> 전투 종료 시 실제 복구된 기물 종류와 수량을
+// 보상 결과 UI에 전달하기 위한 런타임 데이터
+[System.Serializable]
+public class BattleRecoveryRewardRuntimeData
+{
+    // <변경부분> 실제 복구된 기물 데이터
+    public PieceData pieceData;
+
+    // <변경부분> 같은 종류의 기물이 복구된 수량
+    public int amount;
+
+    // <변경부분> 복구 기물 결과 데이터 생성
+    public BattleRecoveryRewardRuntimeData(
+        PieceData pieceData,
+        int amount)
+    {
+        this.pieceData = pieceData;
+        this.amount = Mathf.Max(0, amount);
+    }
+
+    // <변경부분> 외부에서 원본 결과를 직접 수정하지 못하도록 복사본 생성
+    public BattleRecoveryRewardRuntimeData Clone()
+    {
+        return new BattleRecoveryRewardRuntimeData(
+            pieceData,
+            amount
+        );
     }
 }
