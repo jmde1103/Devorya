@@ -11,9 +11,18 @@ public class PieceSpineAnimationController : MonoBehaviour
     [SerializeField] private SkeletonAnimation skeletonAnimation;
 
     [Header("Animation Names")]
+    // <변경부분> 기물 생성 또는 외형 변경 시 재생
     [SpineAnimation][SerializeField] private string bornAnimation = "Born";
-    [SpineAnimation][SerializeField] private string deathAnimation = "Death";
+
+    // <변경부분> 일반 이동·공격 착지 시 재생
     [SpineAnimation][SerializeField] private string downAnimation = "Down";
+
+    // <변경부분> 흡수 공격 내려찍기 시 일반 Down 대신 재생
+    [SpineAnimation][SerializeField] private string downAbsorbAnimation = "Down_Absorb";
+
+    // <변경부분> 흡수 공격에서 Stop 이후 내려찍기 전에 재생
+    [SpineAnimation][SerializeField] private string absorbAnimation = "Absorb";
+
     [SpineAnimation][SerializeField] private string idleAnimation = "Idle";
 
     [SpineAnimation][SerializeField] private string leftMoveAnimation = "Left";
@@ -95,12 +104,14 @@ public class PieceSpineAnimationController : MonoBehaviour
         PlayIdle();
     }
 
-    // <변경부분> 사망 애니메이션 재생
-    public IEnumerator PlayDeathRoutine()
+    // <변경부분> 흡수 공격에서 Stop_Left / Stop_Right 다음에
+    // Absorb 애니메이션을 1회 재생하는 코루틴
+    // 완료 후 Idle로 돌아가지 않고 Down_Absorb로 이어진다.
+    public IEnumerator PlayAbsorbRoutine()
     {
         int requestVersion = ++animationVersion;
 
-        yield return PlayOnceRoutine(deathAnimation);
+        yield return PlayOnceRoutine(absorbAnimation);
 
         if (requestVersion != animationVersion)
         {
@@ -174,6 +185,24 @@ public class PieceSpineAnimationController : MonoBehaviour
         isSelected = false;
 
         yield return PlayOnceRoutine(downAnimation);
+
+        if (requestVersion != animationVersion)
+        {
+            yield break;
+        }
+
+        SetLoopAnimation(idleAnimation);
+    }
+
+    // <변경부분> 흡수 공격 내려찍기에서는 일반 Down 대신
+    // Down_Absorb를 재생한 뒤 Idle로 복귀한다.
+    public IEnumerator PlayDownAbsorbToIdleRoutine()
+    {
+        int requestVersion = ++animationVersion;
+
+        isSelected = false;
+
+        yield return PlayOnceRoutine(downAbsorbAnimation);
 
         if (requestVersion != animationVersion)
         {

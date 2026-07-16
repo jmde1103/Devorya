@@ -463,20 +463,29 @@ public class BattleManager : MonoBehaviour
             isActionAnimating = false;
             yield break;
         }
+
         // 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보만을 복사해서 저장
-        OwnedGeneralSkillData chanceAttackDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.ChanceAttack);
+        OwnedGeneralSkillData chanceAttackDataBeforeAction =
+            actingPiece.GetGeneralSkillDataCopy(
+                GeneralSkillType.ChanceAttack
+            );
 
         // <변경부분> 공격 시작 시점의 Insight 보유 정보 저장
-        // 공격 중 흡수/레벨업으로 얻은 Insight가 즉시 발동하지 않도록 행동 시작 전 상태를 기준으로 판정
-        OwnedGeneralSkillData insightDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.Insight);
+        // 공격 중 흡수/레벨업으로 얻은 Insight가 즉시 발동하지 않도록
+        // 행동 시작 전 상태를 기준으로 판정한다.
+        OwnedGeneralSkillData insightDataBeforeAction =
+            actingPiece.GetGeneralSkillDataCopy(
+                GeneralSkillType.Insight
+            );
 
-        // 이번 행동으로 적대 기물을 처치했는지 확인하기 위한 값
+        // 이번 행동으로 적대 기물을 처치했는지 확인
         bool killedEnemyPiece = false;
 
-        // 이번 행동이 플레이어 흡수 성공 행동인지 확인하기 위한 값
+        // 이번 행동이 플레이어 흡수 성공 행동인지 확인
         bool absorbedEnemyPiece = false;
 
-        // <변경부분> 흡수로 기물 외형/종류가 변경된 뒤 Born 애니메이션을 재생할지 여부
+        // <변경부분> 흡수로 기물 외형/종류가 변경된 뒤
+        // Born 애니메이션을 재생할지 여부
         bool shouldPlayAbsorbBornAnimation = false;
 
         // 기물이 이동/공격하면 모든 타입 아이콘 비활성화
@@ -492,144 +501,250 @@ public class BattleManager : MonoBehaviour
                 yield break;
             }
 
-            // <변경부분> 흡수 모드이고, 플레이어 기물이 적 기물을 잡는 경우
-            // 단, 상대 King은 흡수 대상에서 제외
+            // <변경부분> 흡수 모드이고 플레이어 기물이 적 기물을 잡는 경우
+            // 단, 상대 King은 흡수 대상에서 제외한다.
             bool isAbsorbAction =
                 isAbsorbMode &&
                 actingPiece.Team == PieceTeam.Player &&
                 targetPiece.Team == PieceTeam.Enemy &&
                 targetPiece.PieceType != PieceType.King;
 
-            // 제거될 기물 정보 미리 저장
+            // 제거될 기물의 소속을 미리 저장
             PieceTeam deadPieceTeam = targetPiece.Team;
 
-            // <변경부분> 타겟이 퇴화 상태였는지 사망 전 정보로 저장
-            bool shouldTriggerDegeneration = targetPiece.HasStatusEffect(StatusEffectType.Degeneration);
-            PieceTeam degenerationDeadPieceTeam = targetPiece.Team;
-            PieceType degenerationDeadPieceType = targetPiece.PieceType;
-            int degenerationDeadPieceX = targetPiece.X;
-            int degenerationDeadPieceY = targetPiece.Y;
+            // <변경부분> 타겟이 퇴화 상태였는지 사망 전에 저장
+            bool shouldTriggerDegeneration =
+                targetPiece.HasStatusEffect(
+                    StatusEffectType.Degeneration
+                );
 
-            // <변경부분> 퇴화 생성 연출 시작 위치로 사용할 사망 기물의 월드 위치 저장
-            Vector3 degenerationSourceWorldPosition = targetPiece.transform.position;
+            PieceTeam degenerationDeadPieceTeam =
+                targetPiece.Team;
 
-            // <변경부분> 타겟이 공격 시작 시점에 가지고 있던 Defense 일반스킬 정보를 복사
-            OwnedGeneralSkillData defenseDataBeforeAction = targetPiece.GetGeneralSkillDataCopy(GeneralSkillType.Defense);
+            PieceType degenerationDeadPieceType =
+                targetPiece.PieceType;
 
-            // <변경부분> 공격자가 Breakthrough 상태이면 상대 Defense를 무시
+            int degenerationDeadPieceX =
+                targetPiece.X;
+
+            int degenerationDeadPieceY =
+                targetPiece.Y;
+
+            // <변경부분> 퇴화 생성 연출 시작 위치로 사용할
+            // 사망 기물의 월드 위치 저장
+            Vector3 degenerationSourceWorldPosition =
+                targetPiece.transform.position;
+
+            // <변경부분> 공격 시작 시점의 Defense 일반스킬 저장
+            OwnedGeneralSkillData defenseDataBeforeAction =
+                targetPiece.GetGeneralSkillDataCopy(
+                    GeneralSkillType.Defense
+                );
+
+            // <변경부분> 공격자가 Breakthrough 상태이면
+            // 상대의 Defense를 무시한다.
             bool shouldIgnoreDefenseByBreakthrough =
                 actingPiece != null &&
-                actingPiece.HasStatusEffect(StatusEffectType.Breakthrough);
+                actingPiece.HasStatusEffect(
+                    StatusEffectType.Breakthrough
+                );
 
             if (shouldIgnoreDefenseByBreakthrough)
             {
-                Debug.Log($"Breakthrough 발동: {actingPiece.Team} {actingPiece.PieceType}이 {targetPiece.Team} {targetPiece.PieceType}의 Defense를 무시합니다.");
+                Debug.Log(
+                    $"Breakthrough 발동: " +
+                    $"{actingPiece.Team} {actingPiece.PieceType}이 " +
+                    $"{targetPiece.Team} {targetPiece.PieceType}의 " +
+                    $"Defense를 무시합니다."
+                );
             }
 
-            // <변경부분> Breakthrough 상태가 아닐 때만 Defense 발동 판정
+            // <변경부분> Breakthrough 상태가 아닐 때만
+            // Defense 발동 여부를 판정한다.
             bool isDefenseActivated =
                 shouldIgnoreDefenseByBreakthrough == false &&
                 battleSkillManager != null &&
-                battleSkillManager.TryActivateDefense(targetPiece, defenseDataBeforeAction);
+                battleSkillManager.TryActivateDefense(
+                    targetPiece,
+                    defenseDataBeforeAction
+                );
 
-            // <변경부분> Defense가 실제로 발동했을 때만 공격자의 Insight로 무효화 시도
-            // Breakthrough가 Defense를 무시한 경우에는 Defense 자체가 발동하지 않았으므로 Insight 판정도 하지 않음
+            // <변경부분> Defense가 실제로 발동했을 때만
+            // 공격자의 Insight로 무효화를 시도한다.
             bool isDefenseCanceledByInsight = false;
 
             if (isDefenseActivated)
             {
                 isDefenseCanceledByInsight =
                     battleSkillManager != null &&
-                    battleSkillManager.TryActivateInsight(actingPiece, insightDataBeforeAction, GeneralSkillType.Defense);
+                    battleSkillManager.TryActivateInsight(
+                        actingPiece,
+                        insightDataBeforeAction,
+                        GeneralSkillType.Defense
+                    );
 
                 if (isDefenseCanceledByInsight)
                 {
-                    Debug.Log($"Insight 발동: {actingPiece.Team} {actingPiece.PieceType}이 {targetPiece.Team} {targetPiece.PieceType}의 Defense를 무효화했습니다.");
+                    Debug.Log(
+                        $"Insight 발동: " +
+                        $"{actingPiece.Team} {actingPiece.PieceType}이 " +
+                        $"{targetPiece.Team} {targetPiece.PieceType}의 " +
+                        $"Defense를 무효화했습니다."
+                    );
                 }
             }
 
-            // <변경부분> 공격자의 목표 월드 위치 저장
-            Vector3 targetWorldPosition = targetPiece.transform.position;
+            // 공격 대상의 월드 위치 저장
+            Vector3 targetWorldPosition =
+                targetPiece.transform.position;
 
-            // <변경부분> Defense가 성공했고 Insight로 무효화되지 않았다면 공격 무효 처리
-            if (isDefenseActivated && isDefenseCanceledByInsight == false)
+            // Defense가 성공했고 Insight로 무효화되지 않은 경우
+            if (isDefenseActivated &&
+                isDefenseCanceledByInsight == false)
             {
-                yield return pieceManager.PlayPieceBlockedAttackMoveAnimation(actingPiece, targetWorldPosition);
+                // <변경부분> 방어 성공 전용 공격 반동 연출 실행
+                yield return
+                    pieceManager.PlayPieceBlockedAttackMoveAnimation(
+                        actingPiece,
+                        targetWorldPosition
+                    );
 
-                // <변경부분> 흡수 공격도 일반 공격 취급이므로 방어 성공 시 흡수 모드 해제
+                // 흡수 공격이 방어되었다면 흡수 모드 해제
                 if (isAbsorbAction)
                 {
                     isAbsorbMode = false;
 
                     if (battleUIController != null)
                     {
-                        battleUIController.SetAbsorbModeIcon(false);
+                        battleUIController.SetAbsorbModeIcon(
+                            false
+                        );
                     }
                 }
 
-                // <변경부분> 방어 성공 시 공격은 무효화
-                // 타겟 제거 없음 / 흡수 없음 / 퇴화 사망 없음 / 사망스택 없음 / 공격자 좌표 이동 없음
+                // 방어 성공 시 타겟 제거 및 흡수 처리 없음
                 killedEnemyPiece = false;
                 absorbedEnemyPiece = false;
 
-                Debug.Log($"Defense 발동: {targetPiece.Team} {targetPiece.PieceType}이 공격을 방어했습니다.");
+                Debug.Log(
+                    $"Defense 발동: " +
+                    $"{targetPiece.Team} {targetPiece.PieceType}이 " +
+                    $"공격을 방어했습니다."
+                );
             }
             else
             {
-                // <변경부분> Defense가 실패했거나 Insight로 무효화되었으면 기존처럼 공격자가 타겟 위치까지 점프 이동
-                yield return pieceManager.PlayPieceAttackMoveAnimation(actingPiece, targetWorldPosition);
+                // <변경부분> Defense가 실패했거나 Insight로 무효화되면 공격 연출 실행
+                // 흡수 공격에서는 내려찍기 충격과 화면 흔들림이 시작되는 순간
+                // 상대 기물을 화면에서 즉시 숨긴다.
+                // 실제 흡수 데이터 복사와 RemovePiece는 Down_Absorb 종료 후 아래에서 처리한다.
+                yield return pieceManager.PlayPieceAttackMoveAnimation(
+                    actingPiece,
+                    targetWorldPosition,
+                    isAbsorbAction,
+                    () =>
+                    {
+                        // 일반 공격은 기존 제거 시점을 그대로 유지한다.
+                        if (isAbsorbAction == false)
+                        {
+                            return;
+                        }
 
+                        // 흡수 대상이 이미 사라졌다면 처리하지 않는다.
+                        if (targetPiece == null)
+                        {
+                            return;
+                        }
+
+                        // <변경부분> 충격 순간에는 화면에서만 숨긴다.
+                        // 비활성화된 Piece 데이터는 Down_Absorb 종료 후 흡수 처리에 계속 사용한다.
+                        targetPiece.gameObject.SetActive(false);
+                    }
+                );
+
+                // 실제 흡수 공격인 경우
                 if (isAbsorbAction)
                 {
-                    PieceType absorbedType = targetPiece.PieceType;
+                    PieceType absorbedType =
+                        targetPiece.PieceType;
 
-                    // Player King은 정체성/외형/고유스킬을 유지하고 일반스킬만 흡수
-                    if (actingPiece.PieceType == PieceType.King)
+                    // Player King은 타입/외형/고유스킬을 유지하고
+                    // 일반스킬만 흡수한다.
+                    if (actingPiece.PieceType ==
+                        PieceType.King)
                     {
-                        pieceManager.AbsorbGeneralSkillsOnly(actingPiece, targetPiece);
-                        Debug.Log($"King 흡수 성공: {absorbedType}의 일반스킬만 흡수했습니다.");
+                        pieceManager.AbsorbGeneralSkillsOnly(
+                            actingPiece,
+                            targetPiece
+                        );
+
+                        Debug.Log(
+                            $"King 흡수 성공: " +
+                            $"{absorbedType}의 일반스킬만 흡수했습니다."
+                        );
                     }
                     else
                     {
-                        // 일반 기물은 기존처럼 대상의 타입/고유스킬/외형/일반스킬을 흡수
-                        pieceManager.AbsorbPiece(actingPiece, targetPiece);
+                        // 일반 기물은 대상의 타입, 고유스킬,
+                        // 외형, 일반스킬을 흡수한다.
+                        pieceManager.AbsorbPiece(
+                            actingPiece,
+                            targetPiece
+                        );
 
-                        // <변경부분> 일반 기물 흡수는 외형/기물 종류가 바뀌므로 대상 제거와 위치 확정 후 Born 재생
+                        // 외형이 변경된 일반 기물은
+                        // 최종 위치 확정 후 Born을 재생한다.
                         shouldPlayAbsorbBornAnimation = true;
 
-                        Debug.Log($"흡수 성공: {absorbedType} 데이터를 복사했습니다.");
+                        Debug.Log(
+                            $"흡수 성공: " +
+                            $"{absorbedType} 데이터를 복사했습니다."
+                        );
                     }
 
-                    // <변경부분> 실제 흡수에 성공한 경우에만 이번 전투 흡수 수 증가
+                    // 이번 전투의 실제 흡수 성공 횟수 증가
                     playerAbsorbCountThisBattle++;
 
-                    Debug.Log($"플레이어 흡수 수 증가: {playerAbsorbCountThisBattle}");
+                    Debug.Log(
+                        $"플레이어 흡수 수 증가: " +
+                        $"{playerAbsorbCountThisBattle}"
+                    );
 
-                    // 흡수 결과가 UI에 반영되도록 스테이터스/버튼 갱신
+                    // 흡수 결과를 버튼 및 스테이터스 UI에 반영
                     if (battleUIController != null)
                     {
-                        battleUIController.RefreshSelectedPieceButtons(actingPiece);
+                        battleUIController
+                            .RefreshSelectedPieceButtons(
+                                actingPiece
+                            );
                     }
 
-                    // 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
+                    // 적대 기물을 제거했으므로
+                    // ChanceAttack 판정 대상으로 저장
                     killedEnemyPiece = true;
 
-                    // 플레이어 흡수 성공 행동이므로 유물 효과 판정 대상으로 저장
+                    // 실제 플레이어 흡수 성공 행동으로 저장
                     absorbedEnemyPiece = true;
 
+                    // 흡수 행동을 완료했으므로 흡수 모드 해제
                     isAbsorbMode = false;
                 }
                 else
                 {
-                    // 적대 기물을 제거했으므로 찬스어택 판정 대상으로 저장
-                    // 중립 기물 처치도 여기서 true로 유지되어 ChanceAttack 판정 대상이 됨
+                    // 일반 공격으로 적대 기물을 제거
+                    // 중립 기물 처치도 ChanceAttack 판정 대상
                     killedEnemyPiece = true;
                 }
 
-                // Defense 실패 또는 Insight 무효화 성공 시에만 타겟 제거
+                // <변경부분> 공격 애니메이션이 끝난 이후에만
+                // 타겟 기물을 실제로 제거한다.
+                //
+                // 흡수 공격에서는 PieceAnimationManager가
+                // Down_Absorb 전체 종료까지 기다리고 복귀하므로
+                // Down_Absorb 중간에 타겟 제거 또는 외형 변경이 실행되지 않는다.
                 pieceManager.RemovePiece(targetPiece);
 
-                // 실제 사망했을 때만 퇴화 사망 효과 처리
+                // 실제 사망한 경우에만 퇴화 효과 처리
                 TryTriggerDegenerationOnDeath(
                     shouldTriggerDegeneration,
                     degenerationDeadPieceTeam,
@@ -639,23 +754,40 @@ public class BattleManager : MonoBehaviour
                     degenerationSourceWorldPosition
                 );
 
-                // 실제 사망했을 때만 해당 진영 사망 스택 증가
-                AddDeathStackForUniqueSkill(deadPieceTeam);
+                // 실제 사망한 경우에만 해당 진영 사망 스택 증가
+                AddDeathStackForUniqueSkill(
+                    deadPieceTeam
+                );
 
-                // 실제 공격 성공 시에만 공격자를 타겟 좌표로 이동 확정
-                yield return pieceManager.MovePieceRoutine(actingPiece, tile.X, tile.Y, false);
+                // 실제 공격 성공 시 공격자의 논리 좌표와
+                // 월드 위치를 타겟 위치로 확정
+                yield return pieceManager.MovePieceRoutine(
+                    actingPiece,
+                    tile.X,
+                    tile.Y,
+                    false
+                );
 
-                // <변경부분> 흡수로 외형/기물 종류가 변경된 경우, 최종 위치에서 Born 애니메이션 재생
+                // 흡수로 외형과 기물 종류가 변경된 일반 기물은
+                // 최종 위치에서 Born 애니메이션 재생
                 if (shouldPlayAbsorbBornAnimation)
                 {
-                    yield return pieceManager.PlayPieceBornAnimation(actingPiece);
+                    yield return
+                        pieceManager.PlayPieceBornAnimation(
+                            actingPiece
+                        );
                 }
             }
         }
         else
         {
-            // <변경부분> 빈칸 이동은 기존 점프 이동 연출을 기다림
-            yield return pieceManager.MovePieceRoutine(actingPiece, tile.X, tile.Y, true);
+            // 빈칸 이동은 기존 점프 이동 연출 실행
+            yield return pieceManager.MovePieceRoutine(
+                actingPiece,
+                tile.X,
+                tile.Y,
+                true
+            );
         }
 
         // 이동/공격이 실행되었으므로 공격 확인 대상 초기화
@@ -671,64 +803,93 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
-        // <변경부분> 흡수 성공 유물 효과는 실제 흡수가 성공했을 때만 발동
-        // 방어 성공 시 absorbedEnemyPiece가 false라서 여기로 들어오지 않음
-        if (absorbedEnemyPiece && TryActivateAbsorbChanceAttackRelic(actingPiece))
+        // <변경부분> 흡수 성공 유물 효과는
+        // 실제 흡수가 성공했을 때만 발동한다.
+        if (absorbedEnemyPiece &&
+            TryActivateAbsorbChanceAttackRelic(
+                actingPiece
+            ))
         {
-            // 현재 발동한 유물 데이터를 가져와 데이터 설정값을 적용
-            BattleRelicData activatedRelicData = GetRelicData(BattleRelicType.AbsorbChanceAttackOncePerTurn);
+            BattleRelicData activatedRelicData =
+                GetRelicData(
+                    BattleRelicType
+                        .AbsorbChanceAttackOncePerTurn
+                );
 
-            // 데이터에서 턴당 1회 제한이 켜져 있을 때만 이번 턴 사용 처리
-            if (activatedRelicData == null || activatedRelicData.oncePerTurn)
+            // 유물 데이터가 턴당 1회라면 사용 처리
+            if (activatedRelicData == null ||
+                activatedRelicData.oncePerTurn)
             {
-                hasUsedAbsorbChanceAttackRelicThisTurn = true;
+                hasUsedAbsorbChanceAttackRelicThisTurn =
+                    true;
             }
 
-            // 데이터에서 허용한 경우에만 흡수 직후 고유스킬 사용 제한을 해제
-            if (activatedRelicData == null || activatedRelicData.enableUniqueSkillAfterAbsorb)
+            // 유물 데이터가 허용하면 흡수 직후
+            // 고유스킬 사용 제한 해제
+            if (activatedRelicData == null ||
+                activatedRelicData
+                    .enableUniqueSkillAfterAbsorb)
             {
-                actingPiece.EnableUniqueSkillAfterAbsorbChanceAttack();
+                actingPiece
+                    .EnableUniqueSkillAfterAbsorbChanceAttack();
             }
 
-            // 현재 전투 구조에서는 유물 발동 시 1회 추가 행동 상태를 부여
-            ActivateChanceAttackBonus(actingPiece);
+            // 흡수 유물의 추가 행동 상태 적용
+            ActivateChanceAttackBonus(
+                actingPiece
+            );
 
-            Debug.Log($"유물 효과 발동: {activatedRelicData?.relicName} / 흡수 성공으로 추가 행동을 얻었습니다.");
+            Debug.Log(
+                $"유물 효과 발동: " +
+                $"{activatedRelicData?.relicName} / " +
+                $"흡수 성공으로 추가 행동을 얻었습니다."
+            );
 
             isActionAnimating = false;
             yield break;
         }
 
-        // 적대 기물을 처치했을 때, 행동 시작 전 레벨 기준으로 찬스어택 발동 여부 확인
-        // <변경부분> 방어 성공 시 killedEnemyPiece가 false라서 ChanceAttack 발동 안 됨
+        // 적대 기물을 처치했을 때
+        // 행동 시작 전 ChanceAttack 레벨 기준으로 발동 판정
         if (killedEnemyPiece &&
             battleSkillManager != null &&
             battleMoveValidator != null &&
-            battleMoveValidator.HasAnySelectableTile(actingPiece) &&
-            battleSkillManager.TryActivateChanceAttack(actingPiece, chanceAttackDataBeforeAction, chanceAttackContinuousCount))
+            battleMoveValidator.HasAnySelectableTile(
+                actingPiece
+            ) &&
+            battleSkillManager.TryActivateChanceAttack(
+                actingPiece,
+                chanceAttackDataBeforeAction,
+                chanceAttackContinuousCount
+            ))
         {
             // 일반 ChanceAttack 연속 발동 횟수 증가
             chanceAttackContinuousCount++;
 
-            // 일반 ChanceAttack으로 추가 행동 상태를 부여
-            ActivateChanceAttackBonus(actingPiece);
+            // 추가 행동 상태 적용
+            ActivateChanceAttackBonus(
+                actingPiece
+            );
 
-            Debug.Log("ChanceAttack 발동: 턴 종료 없이 한 번 더 이동할 수 있습니다.");
+            Debug.Log(
+                "ChanceAttack 발동: " +
+                "턴 종료 없이 한 번 더 이동할 수 있습니다."
+            );
 
             isActionAnimating = false;
             yield break;
         }
 
-        // 찬스어택이 실패하거나 발동 조건이 아니면 연속 발동 상태 초기화
+        // ChanceAttack이 실패했거나
+        // 발동 조건이 아니면 연속 발동 상태 초기화
         chanceAttackBonusPiece = null;
         chanceAttackContinuousCount = 0;
 
         isActionAnimating = false;
 
-        // 이동 후 턴 종료
+        // 이동 또는 공격 완료 후 턴 종료
         EndTurn();
     }
-
     // <변경부분> StageBattleData에서 받은 진영별 패배 조건을 적용하는 함수
     public void SetBattleEndCondition(
         BattleDefeatConditionType playerCondition,

@@ -1518,43 +1518,70 @@ public class PieceManager : MonoBehaviour
 
         yield return animationManager.PlayPieceBornAnimation(piece);
     }
-
-    // <변경부분> 기존 외부 호출 호환용 래퍼
-    // 실제 이동 연출은 PieceAnimationManager가 처리
-    public IEnumerator PlayPieceJumpMoveAnimation(Piece piece, Vector3 targetPosition)
+    // <변경부분> 기존 2개 인수 호출을 유지하기 위한 호환용 래퍼
+    // 흡수 여부를 전달하지 않은 기존 호출은 일반 공격으로 처리한다.
+    public IEnumerator PlayPieceAttackMoveAnimation(
+        Piece piece,
+        Vector3 targetWorldPosition)
     {
-        PieceAnimationManager animationManager = GetPieceAnimationManager();
-
-        if (animationManager == null)
-        {
-            if (piece != null)
-            {
-                piece.transform.position = targetPosition;
-            }
-
-            yield break;
-        }
-
-        yield return animationManager.PlayPieceJumpMoveAnimation(piece, targetPosition);
+        yield return PlayPieceAttackMoveAnimation(
+            piece,
+            targetWorldPosition,
+            false,
+            null
+        );
     }
 
-    // <변경부분> 기존 외부 호출 호환용 래퍼
-    // 실제 공격/흡수 연출은 PieceAnimationManager가 처리
-    public IEnumerator PlayPieceAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
+    // <변경부분> 기존 3개 인수 호출을 유지하기 위한 호환용 래퍼
+    // 충격 콜백이 필요 없는 호출은 기존 동작을 그대로 사용한다.
+    public IEnumerator PlayPieceAttackMoveAnimation(
+        Piece piece,
+        Vector3 targetWorldPosition,
+        bool isAbsorbAction)
     {
-        PieceAnimationManager animationManager = GetPieceAnimationManager();
+        yield return PlayPieceAttackMoveAnimation(
+            piece,
+            targetWorldPosition,
+            isAbsorbAction,
+            null
+        );
+    }
+
+    // <변경부분> 일반 공격/흡수 공격 여부와 충격 순간 실행할 콜백을
+    // PieceAnimationManager에 전달하는 실제 공격 연출 중계 함수
+    public IEnumerator PlayPieceAttackMoveAnimation(
+        Piece piece,
+        Vector3 targetWorldPosition,
+        bool isAbsorbAction,
+        System.Action onImpact)
+    {
+        PieceAnimationManager animationManager =
+            GetPieceAnimationManager();
 
         if (animationManager == null)
         {
+            // 애니메이션 매니저가 없어도 공격 기물 위치는 타겟 위치로 보정한다.
             if (piece != null)
             {
-                piece.transform.position = targetWorldPosition;
+                piece.transform.position =
+                    targetWorldPosition;
             }
+
+            // <변경부분> 연출이 없어도 충격 순간 처리 자체는 실행한다.
+            onImpact?.Invoke();
 
             yield break;
         }
 
-        yield return animationManager.PlayPieceAttackMoveAnimation(piece, targetWorldPosition);
+        // <변경부분> 흡수 공격 여부와 충격 콜백을
+        // 실제 공격 애니메이션 담당자에게 그대로 전달한다.
+        yield return
+            animationManager.PlayPieceAttackMoveAnimation(
+                piece,
+                targetWorldPosition,
+                isAbsorbAction,
+                onImpact
+            );
     }
 
     // <변경부분> 기존 외부 호출 호환용 래퍼

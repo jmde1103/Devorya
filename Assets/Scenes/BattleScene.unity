@@ -39351,6 +39351,8 @@ MonoBehaviour:
   skillSpawnArcHeight: 0.3
   synthesisMaterialAnimationDuration: 0.22
   synthesisMaterialArcHeight: 0.3
+  blackPixelBurstEffectPrefab: {fileID: 0}
+  absorbBlackPixelBurstScale: 0.8
   cameraShakeTarget: {fileID: 0}
   cameraShakeDuration: 0.12
   cameraShakeStrength: 0.06
@@ -48060,6 +48062,8 @@ MonoBehaviour:
   skillSpawnArcHeight: 0.3
   synthesisMaterialAnimationDuration: 0.22
   synthesisMaterialArcHeight: 0.3
+  blackPixelBurstEffectPrefab: {fileID: 6012457692454821657, guid: b1763ae852c8a404caa341eb0404fa8f, type: 3}
+  absorbBlackPixelBurstScale: 0.8
   cameraShakeTarget: {fileID: 330585546}
   cameraShakeDuration: 0.12
   cameraShakeStrength: 0.06

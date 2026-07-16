@@ -1,3 +1,4 @@
+using Spine.Unity;
 using System.Collections;
 using UnityEngine;
 
@@ -82,6 +83,19 @@ public class PieceAnimationManager : MonoBehaviour
 
     // <변경부분> 젤루 합성 재료 기물이 이동 중 그리는 포물선 높이
     [SerializeField] private float synthesisMaterialArcHeight = 0.3f;
+
+
+    [Header("Absorb Impact Pixel Burst")]
+    // <변경부분> 흡수 공격 내려찍기 충격 순간 생성할
+    // BlackPixelBurstEffect 프리팹
+    [SerializeField]
+    private PixelBurstEffect blackPixelBurstEffectPrefab;
+
+    // <변경부분> 버튼에서 사용하는 원본 프리팹 크기보다
+    // 작게 표시하기 위한 스케일 배율
+    [Range(0.1f, 2f)]
+    [SerializeField]
+    private float absorbBlackPixelBurstScale = 0.8f;
 
 
     [Header("Attack Impact Feedback")]
@@ -180,24 +194,44 @@ public class PieceAnimationManager : MonoBehaviour
     }
 
 
-    // <변경부분> 공격/흡수 연출용 단계형 이동 함수
-    // 보드 좌표는 갱신하지 않고, 기물 Transform만 목표 월드 위치까지 이동시킨다.
-    public IEnumerator PlayPieceAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
+    // <변경부분> 일반 공격과 흡수 공격의 이동 및 Spine 애니메이션을 처리하는 코루틴
+    //
+    // 일반 공격:
+    // Left 또는 Right
+    // → 이동 방향에 맞는 Stop 1회
+    // → Down
+    // → 내려찍기
+    //
+    // 흡수 공격:
+    // Left 또는 Right
+    // → 이동 방향에 맞는 Stop 1회
+    // → Absorb
+    // → Down_Absorb와 실제 내려찍기 동시 진행
+    // → 충격 순간 onImpact 호출
+    // → Down_Absorb가 완전히 끝날 때까지 대기
+    public IEnumerator PlayPieceAttackMoveAnimation(
+        Piece piece,
+        Vector3 targetWorldPosition,
+        bool isAbsorbAction,
+        System.Action onImpact = null)
     {
-        // 이동할 기물이 없으면 종료
+        // 공격할 기물이 없으면 종료
         if (piece == null)
         {
             yield break;
         }
 
-        // <변경부분> Spine / Sprite 공통 정렬 처리를 위해 VisualController와 SpriteRenderer를 함께 가져옴
-        PieceVisualController attackVisualController = piece.GetComponent<PieceVisualController>();
-        SpriteRenderer attackPieceRenderer = piece.GetComponent<SpriteRenderer>();
+        // Spine / Sprite 외형 정렬에 사용할 컴포넌트
+        PieceVisualController attackVisualController =
+            piece.GetComponent<PieceVisualController>();
+
+        SpriteRenderer attackPieceRenderer =
+            piece.GetComponent<SpriteRenderer>();
 
         int originalSortingOrder = 0;
         bool changedSortingOrder = false;
 
-        // <변경부분> 공격 연출 중 공격자가 타겟 뒤에 가려지지 않도록 Sorting Order 임시 상승
+        // 공격 중 공격자가 타겟 뒤에 가려지지 않도록 정렬 순서 상승
         ApplyTemporaryTopSortingOrder(
             attackVisualController,
             attackPieceRenderer,
@@ -208,81 +242,197 @@ public class PieceAnimationManager : MonoBehaviour
         // 공격 시작 위치 저장
         Vector3 startPosition = piece.transform.position;
 
-        // <변경부분> Spine 애니메이션 컨트롤러 가져오기
-        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+        // 현재 기물의 Spine 애니메이션 컨트롤러
+        PieceSpineAnimationController spineAnimator =
+            GetSpineAnimator(piece);
 
-        // <변경부분> 공격 방향 계산
-        bool isRightDirection = IsRightDirection(startPosition, targetWorldPosition);
+        // 타겟이 오른쪽에 있는지 확인
+        bool isRightDirection =
+            IsRightDirection(
+                startPosition,
+                targetWorldPosition
+            );
 
-        // <변경부분> 공격 접근 이동 애니메이션 재생
+        // 왼쪽 이동이면 Left, 오른쪽 이동이면 Right 재생
         if (spineAnimator != null)
         {
-            spineAnimator.PlayMoveByDirection(isRightDirection);
+            spineAnimator.PlayMoveByDirection(
+                isRightDirection
+            );
         }
 
-        // 1단계: 현재 위치에서 상대 기물 위쪽까지 포물선으로 이동
-        Vector3 hoverTargetPosition = targetWorldPosition + Vector3.up * attackRiseHeight;
-        yield return MoveTransformArcRoutine(piece.transform, startPosition, hoverTargetPosition, attackMoveDuration, attackMoveArcHeight);
+        // 1단계:
+        // 현재 위치에서 타겟 위쪽까지 포물선 이동
+        Vector3 hoverTargetPosition =
+            targetWorldPosition +
+            Vector3.up * attackRiseHeight;
 
-        // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
+        yield return MoveTransformArcRoutine(
+            piece.transform,
+            startPosition,
+            hoverTargetPosition,
+            attackMoveDuration,
+            attackMoveArcHeight
+        );
+
+        // 이동 중 기물이 제거되었다면 정렬 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(
+                attackVisualController,
+                attackPieceRenderer,
+                originalSortingOrder,
+                changedSortingOrder
+            );
+
             yield break;
         }
 
-        // <변경부분> 공격 중에는 Stop 후 Idle로 복귀하지 않고, 바로 Down으로 이어지도록 Stop만 재생
+        // <변경부분> 이동 방향에 맞는 Stop을 정확히 한 번만 실행
+        //
+        // 왼쪽 이동:
+        // Stop_Left
+        //
+        // 오른쪽 이동:
+        // Stop_Right
         if (spineAnimator != null)
         {
-            yield return spineAnimator.PlayStopOnlyRoutine(isRightDirection);
+            yield return spineAnimator.PlayStopOnlyRoutine(
+                isRightDirection
+            );
+
+            // 흡수 공격일 때만 Stop 이후 Absorb 실행
+            if (isAbsorbAction)
+            {
+                yield return spineAnimator.PlayAbsorbRoutine();
+            }
         }
 
-        // 2단계: 상대 기물 위에서 잠깐 멈춤
+        // 2단계:
+        // 타겟 위에서 잠깐 정지
         if (attackHoverWaitDuration > 0f)
         {
-            yield return new WaitForSeconds(attackHoverWaitDuration);
+            yield return new WaitForSeconds(
+                attackHoverWaitDuration
+            );
         }
 
-        // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
+        // 대기 중 기물이 제거되었다면 정렬 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(
+                attackVisualController,
+                attackPieceRenderer,
+                originalSortingOrder,
+                changedSortingOrder
+            );
+
             yield break;
         }
 
-        // 3단계: 내려찍기 직전에 살짝 더 위로 상승
-        Vector3 extraRisePosition = hoverTargetPosition + Vector3.up * attackExtraRiseHeight;
-        yield return MoveTransformRoutine(piece.transform, hoverTargetPosition, extraRisePosition, attackExtraRiseDuration);
+        // 3단계:
+        // 내려찍기 직전에 조금 더 상승
+        Vector3 extraRisePosition =
+            hoverTargetPosition +
+            Vector3.up * attackExtraRiseHeight;
 
-        // 기물이 중간에 제거되었으면 Sorting Order를 복구하고 종료
+        yield return MoveTransformRoutine(
+            piece.transform,
+            hoverTargetPosition,
+            extraRisePosition,
+            attackExtraRiseDuration
+        );
+
+        // 상승 중 기물이 제거되었다면 정렬 복구 후 종료
         if (piece == null)
         {
-            RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
+            RestoreSortingOrder(
+                attackVisualController,
+                attackPieceRenderer,
+                originalSortingOrder,
+                changedSortingOrder
+            );
+
             yield break;
         }
 
-        // <변경부분> 내려찍기 시작 타이밍에 Down 애니메이션을 재생하고, 공격 후 무조건 Idle로 복귀
+        // <변경부분> 흡수 공격의 Down_Absorb 코루틴 참조
+        // 내려찍기 Transform 이동과 동시에 실행한 뒤,
+        // 충격 처리 후 남은 애니메이션이 끝날 때까지 기다린다.
+        Coroutine absorbDownAnimationCoroutine = null;
+
         if (spineAnimator != null)
         {
-            StartCoroutine(spineAnimator.PlayDownToIdleRoutine());
+            if (isAbsorbAction)
+            {
+                // 흡수 공격은 Down_Absorb 시작
+                absorbDownAnimationCoroutine =
+                    StartCoroutine(
+                        spineAnimator
+                            .PlayDownAbsorbToIdleRoutine()
+                    );
+            }
+            else
+            {
+                // 일반 공격은 기존 Down 시작
+                StartCoroutine(
+                    spineAnimator.PlayDownToIdleRoutine()
+                );
+            }
 
-            // <변경부분> Spine Down 모션과 실제 Transform 내려찍기 타이밍을 맞추기 위한 조절값
+            // Spine 모션을 먼저 조금 보여준 뒤 실제 내려찍기 시작
             if (attackDownPreSlamDelay > 0f)
             {
-                yield return new WaitForSeconds(attackDownPreSlamDelay);
+                yield return new WaitForSeconds(
+                    attackDownPreSlamDelay
+                );
             }
         }
 
         // 4단계: 상대 기물 위치로 빠르게 내려찍기
-        yield return MoveTransformRoutine(piece.transform, extraRisePosition, targetWorldPosition, attackSlamDuration);
+        yield return MoveTransformRoutine(
+            piece.transform,
+            extraRisePosition,
+            targetWorldPosition,
+            attackSlamDuration
+        );
 
         // 5단계: 내려찍기 충격 피드백
+        // 이 함수가 호출되는 순간 화면 흔들림과 모바일 진동이 시작된다.
         PlayAttackImpactFeedback();
 
-        // 공격 연출이 끝나면 임시 Sorting Order 복구
-        RestoreSortingOrder(attackVisualController, attackPieceRenderer, originalSortingOrder, changedSortingOrder);
-    }
+        // <변경부분> 화면 흔들림이 시작되는 동일한 충격 순간에
+        // BattleManager가 전달한 처리를 실행한다.
+        // 흡수 공격에서는 이 콜백으로 상대 기물을 화면에서 즉시 숨긴다.
+        onImpact?.Invoke();
 
+        // <변경부분> 흡수 공격일 때만 화면 흔들림이 시작되는
+        // 동일한 충격 순간에 상대 기물 위치에서
+        // BlackPixelBurstEffect를 생성한다.
+        if (isAbsorbAction)
+        {
+            PlayAbsorbBlackPixelBurst(
+                targetWorldPosition
+            );
+        }
+
+        // <변경부분> 흡수 공격은 Down_Absorb가 완전히 끝난 뒤에만
+        // BattleManager로 복귀해 흡수 데이터 적용, 타겟 제거,
+        // 외형 변경, Born을 실행한다.
+        if (isAbsorbAction &&
+            absorbDownAnimationCoroutine != null)
+        {
+            yield return absorbDownAnimationCoroutine;
+        }
+
+        // 공격 연출 종료 후 원래 정렬 순서로 복구
+        RestoreSortingOrder(
+            attackVisualController,
+            attackPieceRenderer,
+            originalSortingOrder,
+            changedSortingOrder
+        );
+    }
     // <변경부분> Defense 성공 시 공격자가 내려찍기 도중 막히고,
     // 원래 위치에 도달하지 못한 앞쪽 지점에 떨어진 뒤 두 번 튀며 원위치로 복귀하는 연출
     public IEnumerator PlayPieceBlockedAttackMoveAnimation(Piece piece, Vector3 targetWorldPosition)
@@ -797,11 +947,14 @@ public class PieceAnimationManager : MonoBehaviour
         }
     }
 
-  
+
     // <변경부분> 기물 생성 또는 변형 시 Born 애니메이션을 재생하는 함수
+    // <변경부분> 기물 생성 또는 변형 시
+    // Born 애니메이션을 재생하는 함수
     public IEnumerator PlayPieceBornAnimation(Piece piece)
     {
-        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+        PieceSpineAnimationController spineAnimator =
+            GetSpineAnimator(piece);
 
         if (spineAnimator == null)
         {
@@ -811,18 +964,49 @@ public class PieceAnimationManager : MonoBehaviour
         yield return spineAnimator.PlayBornRoutine();
     }
 
-    // <변경부분> 기물 사망 시 Death 애니메이션을 재생하는 함수
-    public IEnumerator PlayPieceDeathAnimation(Piece piece)
-    {
-        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
 
-        if (spineAnimator == null)
+    // <변경부분> 흡수 공격 내려찍기 충격 순간
+    // 상대 기물 위치에서 검은 픽셀 파티클을 생성해 재생한다.
+    private void PlayAbsorbBlackPixelBurst(
+        Vector3 targetWorldPosition)
+    {
+        // 프리팹이 연결되지 않았다면 실행하지 않음
+        if (blackPixelBurstEffectPrefab == null)
         {
-            yield break;
+            Debug.LogWarning(
+                "흡수 공격 픽셀 이펙트 재생 실패: " +
+                "BlackPixelBurstEffect 프리팹이 연결되지 않았습니다."
+            );
+
+            return;
         }
 
-        yield return spineAnimator.PlayDeathRoutine();
+        // <변경부분> 버튼에서 사용하는 프리팹 원본과
+        // 별도의 파티클 인스턴스를 생성한다.
+        PixelBurstEffect effectInstance =
+            Instantiate(
+                blackPixelBurstEffectPrefab
+            );
+
+        // <변경부분> 프리팹의 기존 스케일을 기준으로
+        // Inspector의 설정 배율을 적용한다.
+        // 기본값 0.8이면 원본 프리팹 크기의 80%로 표시된다.
+        float appliedScale =
+            Mathf.Max(
+                0.01f,
+                absorbBlackPixelBurstScale
+            );
+
+        effectInstance.transform.localScale *=
+            appliedScale;
+
+        // <변경부분> 상대 기물이 있던 월드 위치에서 재생하고,
+        // 파티클 수명이 끝나면 생성된 인스턴스를 자동 제거한다.
+        effectInstance.PlayAtPositionAndDestroy(
+            targetWorldPosition
+        );
     }
+
 
     // <변경부분> 공격/방어 충격 피드백 실행
     private void PlayAttackImpactFeedback()
