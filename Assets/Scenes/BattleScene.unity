@@ -33233,7 +33233,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &337650155
 RectTransform:
   m_ObjectHideFlags: 0
@@ -48040,11 +48040,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec57419054ce3bd4897c736ec540691b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceAnimationManager
-  moveAnimationDuration: 0.25
+  moveAnimationDuration: 0.3
   moveJumpHeight: 0.45
   attackAnimationSortingOrder: 10000
   attackRiseHeight: 0.5
-  attackMoveDuration: 0.18
+  attackMoveDuration: 0.25
   attackMoveArcHeight: 0.25
   attackHoverWaitDuration: 0.18
   attackExtraRiseHeight: 0.18

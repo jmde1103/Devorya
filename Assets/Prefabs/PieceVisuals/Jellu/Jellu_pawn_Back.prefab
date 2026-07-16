@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1443601746876032345
+--- !u!1 &6243048534144791661
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,49 +8,49 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7498353984005808584}
-  - component: {fileID: 2428894157951636508}
-  - component: {fileID: 4443036680688137038}
-  - component: {fileID: 3214807368445075903}
-  - component: {fileID: 3034132591088540042}
-  - component: {fileID: 6578983955108366851}
+  - component: {fileID: 9208792251663179763}
+  - component: {fileID: 8266115741736369183}
+  - component: {fileID: 3763198090173677194}
+  - component: {fileID: 4892491468900734582}
+  - component: {fileID: 4517649572979318187}
+  - component: {fileID: 1068069483785677443}
   m_Layer: 0
-  m_Name: JelluPawn_Front_SpineVisual
+  m_Name: Jellu_pawn_Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7498353984005808584
+--- !u!4 &9208792251663179763
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443601746876032345}
+  m_GameObject: {fileID: 6243048534144791661}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.55, y: 0.545, z: 0}
+  m_LocalPosition: {x: -0.54, y: 0.56, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &2428894157951636508
+--- !u!33 &8266115741736369183
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443601746876032345}
+  m_GameObject: {fileID: 6243048534144791661}
   m_Mesh: {fileID: 0}
---- !u!23 &4443036680688137038
+--- !u!23 &3763198090173677194
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443601746876032345}
+  m_GameObject: {fileID: 6243048534144791661}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9e2fbce19afd2e14496648e7acd4f9fd, type: 2}
+  - {fileID: 2100000, guid: 81dc2ba9c71513649b66e593752f1df5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -93,19 +93,19 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3214807368445075903
+--- !u!114 &4892491468900734582
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443601746876032345}
+  m_GameObject: {fileID: 6243048534144791661}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e075b9a3e08e2f74fbd651c858ab16ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonRenderer
-  skeletonDataAsset: {fileID: 11400000, guid: e82b938f098120b408d05cccef8af1a9, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: aa90bee8289c8ef4081a674756112e36, type: 2}
   initialSkinName: 
   initialFlipX: 0
   initialFlipY: 0
@@ -141,13 +141,13 @@ MonoBehaviour:
   tintBlackDeprecated: 0
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
---- !u!114 &3034132591088540042
+--- !u!114 &4517649572979318187
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443601746876032345}
+  m_GameObject: {fileID: 6243048534144791661}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
@@ -178,22 +178,23 @@ MonoBehaviour:
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
   maskInteractionDeprecated: 0
---- !u!114 &6578983955108366851
+--- !u!114 &1068069483785677443
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1443601746876032345}
+  m_GameObject: {fileID: 6243048534144791661}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0dd5ddd9f180c5e408d2240fc20d4756, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceSpineAnimationController
-  skeletonAnimation: {fileID: 3034132591088540042}
+  skeletonAnimation: {fileID: 0}
   bornAnimation: Born
-  deathAnimation: Death
   downAnimation: Down
+  downAbsorbAnimation: Down_Absorb
+  absorbAnimation: Absorb
   idleAnimation: Idle
   leftMoveAnimation: Left
   rightMoveAnimation: Right
