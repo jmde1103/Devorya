@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6465171199338273470
+--- !u!1 &3861077918449017434
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,12 +8,12 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 9043294684468573038}
-  - component: {fileID: 4358506693052062373}
-  - component: {fileID: 5341062462812731437}
-  - component: {fileID: 6607070380360973472}
-  - component: {fileID: 7198112931262199955}
-  - component: {fileID: 3664212924670001786}
+  - component: {fileID: 1624337806608542982}
+  - component: {fileID: 1821242224947817383}
+  - component: {fileID: 4272752480143215692}
+  - component: {fileID: 803889279365453338}
+  - component: {fileID: 3643719290878690321}
+  - component: {fileID: 9109515360411505765}
   m_Layer: 0
   m_Name: Jellu_Pawn_Back
   m_TagString: Untagged
@@ -21,13 +21,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &9043294684468573038
+--- !u!4 &1624337806608542982
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6465171199338273470}
+  m_GameObject: {fileID: 3861077918449017434}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.54, y: 0.56, z: 0}
@@ -36,21 +36,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &4358506693052062373
+--- !u!33 &1821242224947817383
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6465171199338273470}
+  m_GameObject: {fileID: 3861077918449017434}
   m_Mesh: {fileID: 0}
---- !u!23 &5341062462812731437
+--- !u!23 &4272752480143215692
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6465171199338273470}
+  m_GameObject: {fileID: 3861077918449017434}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -93,13 +93,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6607070380360973472
+--- !u!114 &803889279365453338
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6465171199338273470}
+  m_GameObject: {fileID: 3861077918449017434}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e075b9a3e08e2f74fbd651c858ab16ed, type: 3}
@@ -141,13 +141,13 @@ MonoBehaviour:
   tintBlackDeprecated: 0
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
---- !u!114 &7198112931262199955
+--- !u!114 &3643719290878690321
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6465171199338273470}
+  m_GameObject: {fileID: 3861077918449017434}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonAnimation
   updateTiming: 1
   threadedAnimation: 2
-  animationName: 
+  animationName: Idle
   loop: 1
   timeScale: 1
   unscaledTime: 0
@@ -178,13 +178,13 @@ MonoBehaviour:
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
   maskInteractionDeprecated: 0
---- !u!114 &3664212924670001786
+--- !u!114 &9109515360411505765
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6465171199338273470}
+  m_GameObject: {fileID: 3861077918449017434}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0dd5ddd9f180c5e408d2240fc20d4756, type: 3}

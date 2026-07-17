@@ -95319,8 +95319,8 @@ MonoBehaviour:
   height: 6
   tilePrefab: {fileID: 166692226950237219, guid: 394e5d438a1c197439b42f093b8bb889, type: 3}
   tileParent: {fileID: 1721427428}
-  checkerTileTypeA: 4
-  checkerTileTypeB: 5
+  checkerTileTypeA: 0
+  checkerTileTypeB: 1
   tileDatabase: {fileID: 11400000, guid: c7c261a930bce37488cffc88335bd1f3, type: 2}
   tileWidthHalf: 0.48
   tileHeightHalf: 0.24
@@ -153606,7 +153606,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 1146.79, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1624233310
@@ -170734,7 +170734,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -205}
+  m_AnchoredPosition: {x: 1146.79, y: -205}
   m_SizeDelta: {x: 600, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1814115443
