@@ -366,7 +366,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Jellu_pawn_Back_Controller
+  m_Name: Jellu_Pawn_Back_Controller
   serializedVersion: 6
   m_AnimatorParameters: []
   m_AnimatorLayers:

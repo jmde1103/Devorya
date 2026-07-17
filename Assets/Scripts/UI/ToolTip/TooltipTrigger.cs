@@ -69,12 +69,13 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     }
 
     // <변경부분> 포인터를 누르기 시작하면 꾹 누름 대기 시작
-    public void OnPointerDown(PointerEventData eventData)
+    // <변경부분> 포인터 입력이 TooltipTrigger까지 실제로 도달하는지 확인
+    public void OnPointerDown(
+        PointerEventData eventData)
     {
+
         isHolding = true;
         isTooltipVisible = false;
-
-        // <변경부분> 새 입력이 시작될 때 Long Press 클릭 차단 기록 초기화
         wasTooltipShownDuringPress = false;
 
         if (holdCoroutine != null)
@@ -82,7 +83,11 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
             StopCoroutine(holdCoroutine);
         }
 
-        holdCoroutine = StartCoroutine(ShowTooltipAfterDelay(eventData.position));
+        holdCoroutine = StartCoroutine(
+            ShowTooltipAfterDelay(
+                eventData.position
+            )
+        );
     }
     // <변경부분> 포인터를 떼면 팝업 숨김
     public void OnPointerUp(PointerEventData eventData)
@@ -156,38 +161,61 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         // 팝업 UI가 레이캐스트를 가로채면서 순간적으로 PointerExit가 발생하는 문제 방지
     }
 
-    // <변경부분> 지정 시간 이상 누르고 있으면 팝업 표시
-    private IEnumerator ShowTooltipAfterDelay(Vector2 screenPosition)
+    // <변경부분> Long Press 이후 어느 단계에서 표시가 중단되는지 진단
+    private IEnumerator ShowTooltipAfterDelay(
+        Vector2 screenPosition)
     {
-        yield return new WaitForSeconds(holdDelay);
+        yield return new WaitForSecondsRealtime(
+            holdDelay
+        );
 
         if (isHolding == false)
         {
+            Debug.LogWarning(
+                $"[Tooltip 진단 중단] 누르고 있는 상태가 해제됨 / " +
+                $"대상: {gameObject.name}"
+            );
+
             yield break;
         }
 
-        // <변경부분> 런타임 TooltipViewData가 없고 고정 TooltipData가 있으면 변환해서 사용
-        if (tooltipViewData == null && tooltipData != null)
+        if (tooltipViewData == null &&
+            tooltipData != null)
         {
-            tooltipViewData = TooltipViewData.FromTooltipData(tooltipData);
+            tooltipViewData =
+                TooltipViewData.FromTooltipData(
+                    tooltipData
+                );
         }
 
         if (tooltipViewData == null)
         {
+            Debug.LogWarning(
+                $"툴팁 표시 실패: " +
+                $"{gameObject.name}에 TooltipViewData가 없습니다."
+            );
+
             yield break;
         }
 
-        if (TooltipPopupUI.Instance != null)
+        if (TooltipPopupUI.Instance == null)
         {
-            TooltipPopupUI.Instance.Show(tooltipViewData, screenPosition);
+            Debug.LogWarning(
+                $"툴팁 표시 실패: " +
+                $"TooltipPopupUI.Instance가 없습니다. " +
+                $"대상 오브젝트: {gameObject.name}"
+            );
 
-            // <변경부분> Tooltip이 실제로 표시되었음을 기록
-            isTooltipVisible = true;
-
-            // <변경부분> 이번 누르기 입력은 Tooltip 확인용 Long Press로 처리
-            // 손을 뗄 때 Button.onClick이 실행되지 않게 만드는 기준값
-            wasTooltipShownDuringPress = true;
+            yield break;
         }
+
+        TooltipPopupUI.Instance.Show(
+            tooltipViewData,
+            screenPosition
+        );
+
+        isTooltipVisible = true;
+        wasTooltipShownDuringPress = true;
     }
 
     // <변경부분> 꾹 누름 상태를 종료하고 팝업을 숨김

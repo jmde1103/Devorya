@@ -47,5 +47,5 @@ MonoBehaviour:
   flickerCount: 13
   usePositionJitter: 1
   jitterRange: {x: 38, y: 16}
-  blocksRaycasts: 0
-  interactable: 0
+  blocksRaycasts: 1
+  interactable: 1

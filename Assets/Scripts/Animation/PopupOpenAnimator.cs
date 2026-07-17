@@ -85,7 +85,9 @@ public class PopupOpenAnimator : MonoBehaviour
             StopCoroutine(openCoroutine);
         }
 
-        openCoroutine = StartCoroutine(PlayOpenRoutine());
+        openCoroutine = StartCoroutine(
+            PlayOpenRoutine()
+        );
     }
 
     // <변경부분> 즉시 최종 상태로 보정

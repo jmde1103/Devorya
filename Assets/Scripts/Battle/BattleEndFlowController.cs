@@ -27,6 +27,12 @@ public class BattleEndFlowController : MonoBehaviour
     // BattleSetupManager가 StageBattleData의 battleRewardData를 전투 시작 시 전달한다.
     private BattleRewardData battleRewardData;
 
+
+    [Header("Reward Popup")]
+    // <변경부분> 전투 승리 후 획득 결과를 표시할 보상 팝업
+    [SerializeField]
+    private BattleRewardPopupUI battleRewardPopupUI;
+
     [Header("Devorya Recovery Reward")]
     // <변경부분> 플레이어가 보유할 수 있는 최대 기물 수
     [SerializeField] private int maxPlayerPieceCount = 10;
@@ -101,29 +107,59 @@ public class BattleEndFlowController : MonoBehaviour
         HandleBattleEnd(result, 0);
     }
 
-    // <변경부분> 전투 승리 후 처리
+    // <변경부분> 전투 승리 후 보상을 적용하고
+    // 실제 획득 결과 팝업을 표시하는 함수
     private void HandleBattleWin()
     {
         Debug.Log("전투 종료 흐름: 승리 / 보상 정산 단계 진입");
 
-        // <변경부분> 이전 전투에서 사용한 보상 결과 기록 초기화
+        // <변경부분> 이전 전투의 결과가 남지 않도록
+        // 이번 전투 보상 집계값을 먼저 초기화한다.
         acquiredRecoveryRewards.Clear();
         acquiredRewardOptions.Clear();
         lastAcquiredGoldAmount = 0;
 
-        // <변경부분> 흡수 횟수 기반 데보리아 기물 회복 보상 적용
+        // 흡수 횟수 기반 데보리아 기물 회복 보상 적용
         ApplyDevoryaRecoveryReward();
 
-        // <변경부분> 확률 판정을 통과한 모든 전투 보상을
-        // 즉시 런 상태에 적용
+        // 확률 판정을 통과한 금화·아이템·유물 보상을
+        // 런 상태에 즉시 적용
         CreateAndApplyBattleRewards();
 
-        // <변경부분> 1차 테스트용 즉시 맵 복귀
-        // 추후 보상 UI가 생기면 여기서는 보상 UI를 띄우고, 보상 선택 완료 후 MoveToMapScene() 호출
+        // 즉시 맵 이동 테스트 옵션이 켜져 있으면
+        // 보상 팝업 없이 기존 방식대로 맵으로 이동
         if (moveToMapSceneImmediatelyOnWin)
         {
             MoveToMapScene();
+            return;
         }
+
+        // 보상 팝업이 연결되지 않았다면 명확한 경고 출력
+        if (battleRewardPopupUI == null)
+        {
+            Debug.LogWarning(
+                "전투 보상 팝업 표시 실패: " +
+                "BattleEndFlowController의 Battle Reward Popup UI가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        // <변경부분> 실제 복구에 성공한 기물, 이번 전투 획득 금화,
+        // 실제 저장에 성공한 아이템·유물을 팝업에 전달한다.
+        battleRewardPopupUI.Show(
+            this,
+            GetAcquiredRecoveryRewardsCopy(),
+            lastAcquiredGoldAmount,
+            GetAcquiredRewardOptionsCopy()
+        );
+
+        Debug.Log(
+            $"전투 보상 팝업 Show 호출 완료: " +
+            $"복구 {acquiredRecoveryRewards.Count}종 / " +
+            $"금화 {lastAcquiredGoldAmount} / " +
+            $"아이템·유물 {acquiredRewardOptions.Count}개"
+        );
     }
 
     // <변경부분> 흡수한 적 기물 수의 절반만큼 데보리아 기물을 회복하는 함수
@@ -369,7 +405,8 @@ public class BattleEndFlowController : MonoBehaviour
         return false;
     }
 
-    // <변경부분> 금화 보상을 RunStateManager에 즉시 적립하는 함수
+    // <변경부분> 금화 보상을 RunStateManager에 즉시 적립하고
+    // 이번 전투에서 획득한 총 금화량을 팝업 표시용으로 집계한다.
     private void ApplyGoldReward(
         BattleRewardOptionRuntimeData rewardOption)
     {
@@ -392,9 +429,15 @@ public class BattleEndFlowController : MonoBehaviour
             rewardOption.goldAmount
         );
 
+        // <변경부분> 보상 팝업에는 현재 총 보유량이 아니라
+        // 이번 전투에서 실제 획득한 금화량을 표시한다.
+        lastAcquiredGoldAmount +=
+            rewardOption.goldAmount;
+
         Debug.Log(
             $"금화 보상 적용 완료: " +
-            $"{rewardOption.goldAmount}"
+            $"이번 획득 {rewardOption.goldAmount} / " +
+            $"전투 총 획득 {lastAcquiredGoldAmount}"
         );
     }
 

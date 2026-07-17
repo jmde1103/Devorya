@@ -22,10 +22,10 @@ MonoBehaviour:
   enemySprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
   neutralSprite: {fileID: 0}
   absorbedPlayerBackSprite: {fileID: 21300000, guid: 9785b8fdc85d1b6439dc333f43817ad4, type: 3}
-  playerSpineVisualPrefab: {fileID: 6243048534144791661, guid: 640872ac9ab625040a5c0ae275e13650, type: 3}
+  playerSpineVisualPrefab: {fileID: 6465171199338273470, guid: 640872ac9ab625040a5c0ae275e13650, type: 3}
   enemySpineVisualPrefab: {fileID: 3356446670136911829, guid: 11ebcf498119eef40bc28fdaa8b112cd, type: 3}
   neutralSpineVisualPrefab: {fileID: 0}
-  absorbedPlayerBackSpineVisualPrefab: {fileID: 6243048534144791661, guid: 640872ac9ab625040a5c0ae275e13650, type: 3}
+  absorbedPlayerBackSpineVisualPrefab: {fileID: 6465171199338273470, guid: 640872ac9ab625040a5c0ae275e13650, type: 3}
   playerStatusSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
   enemyStatusSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
   neutralStatusSprite: {fileID: 0}
