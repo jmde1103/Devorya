@@ -113,7 +113,11 @@ public class PieceAnimationManager : MonoBehaviour
 
 
     // <변경부분> 기물이 시작 위치에서 목표 위치까지 살짝 떠서 이동하는 기본 이동 연출
-    public IEnumerator PlayPieceJumpMoveAnimation(Piece piece, Vector3 targetPosition)
+    // 이동 중에는 Sprite/Spine 외형을 임시로 최상단에 표시하고,
+    // 이동이 끝나면 원래 Sorting Order로 복구한다.
+    public IEnumerator PlayPieceJumpMoveAnimation(
+        Piece piece,
+        Vector3 targetPosition)
     {
         // 이동할 기물이 없으면 종료
         if (piece == null)
@@ -121,31 +125,68 @@ public class PieceAnimationManager : MonoBehaviour
             yield break;
         }
 
+        // <변경부분> Sprite 및 Spine 기물을 동일하게 정렬하기 위해
+        // PieceVisualController와 기존 SpriteRenderer를 함께 가져온다.
+        PieceVisualController moveVisualController =
+            piece.GetComponent<PieceVisualController>();
+
+        SpriteRenderer movePieceRenderer =
+            piece.GetComponent<SpriteRenderer>();
+
+        int originalSortingOrder = 0;
+        bool changedSortingOrder = false;
+
+        // <변경부분> 이동 중 다른 기물 뒤에 가려지지 않도록
+        // 이동 기물의 Sorting Order를 임시로 최상단으로 올린다.
+        ApplyTemporaryTopSortingOrder(
+            moveVisualController,
+            movePieceRenderer,
+            ref originalSortingOrder,
+            ref changedSortingOrder
+        );
+
         // 시작 위치 저장
-        Vector3 startPosition = piece.transform.position;
+        Vector3 startPosition =
+            piece.transform.position;
 
-        // <변경부분> Spine 애니메이션 컨트롤러 가져오기
-        PieceSpineAnimationController spineAnimator = GetSpineAnimator(piece);
+        // Spine 애니메이션 컨트롤러 가져오기
+        PieceSpineAnimationController spineAnimator =
+            GetSpineAnimator(piece);
 
-        // <변경부분> 이동 방향 계산
-        bool isRightDirection = IsRightDirection(startPosition, targetPosition);
+        // 이동 방향 계산
+        bool isRightDirection =
+            IsRightDirection(
+                startPosition,
+                targetPosition
+            );
 
-        // <변경부분> Spine 이동 애니메이션 재생
+        // Spine 이동 애니메이션 재생
         if (spineAnimator != null)
         {
-            spineAnimator.PlayMoveByDirection(isRightDirection);
+            spineAnimator.PlayMoveByDirection(
+                isRightDirection
+            );
         }
 
-        // 연출 시간이 0 이하이면 즉시 이동
+        // 연출 시간이 0 이하라면 즉시 이동
         if (moveAnimationDuration <= 0f)
         {
-            piece.transform.position = targetPosition;
+            piece.transform.position =
+                targetPosition;
 
-            // <변경부분> 즉시 이동이어도 착지 느낌을 위해 Down 후 Idle로 복귀
             if (spineAnimator != null)
             {
-                yield return spineAnimator.PlayDownToIdleRoutine();
+                yield return spineAnimator
+                    .PlayDownToIdleRoutine();
             }
+
+            // <변경부분> 즉시 이동이 끝난 뒤 원래 정렬 순서 복구
+            RestoreSortingOrder(
+                moveVisualController,
+                movePieceRenderer,
+                originalSortingOrder,
+                changedSortingOrder
+            );
 
             yield break;
         }
@@ -154,43 +195,71 @@ public class PieceAnimationManager : MonoBehaviour
 
         while (elapsedTime < moveAnimationDuration)
         {
-            // 기물이 연출 중 제거되었으면 중단
+            // 이동 연출 중 기물이 제거되었으면 종료
             if (piece == null)
             {
+                RestoreSortingOrder(
+                    moveVisualController,
+                    movePieceRenderer,
+                    originalSortingOrder,
+                    changedSortingOrder
+                );
+
                 yield break;
             }
 
-            elapsedTime += Time.deltaTime;
+            elapsedTime +=
+                Time.deltaTime;
 
-            // 0~1 이동 진행률
-            float normalizedTime = Mathf.Clamp01(elapsedTime / moveAnimationDuration);
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    moveAnimationDuration
+                );
 
-            // 시작 위치에서 목표 위치까지 선형 이동
-            Vector3 currentPosition = Vector3.Lerp(startPosition, targetPosition, normalizedTime);
+            Vector3 currentPosition =
+                Vector3.Lerp(
+                    startPosition,
+                    targetPosition,
+                    normalizedTime
+                );
 
-            // 중간 지점에서 가장 높게 떠오르는 포물선 높이 계산
-            float jumpOffset = Mathf.Sin(normalizedTime * Mathf.PI) * moveJumpHeight;
+            float jumpOffset =
+                Mathf.Sin(
+                    normalizedTime *
+                    Mathf.PI
+                ) * moveJumpHeight;
 
-            // Y축으로 점프 높이 적용
-            currentPosition.y += jumpOffset;
+            currentPosition.y +=
+                jumpOffset;
 
-            // 실제 시각 위치 적용
-            piece.transform.position = currentPosition;
+            piece.transform.position =
+                currentPosition;
 
             yield return null;
         }
 
-        // 연출 종료 후 정확한 목표 위치로 보정
         if (piece != null)
         {
-            piece.transform.position = targetPosition;
+            piece.transform.position =
+                targetPosition;
         }
 
-        // <변경부분> 일반 이동은 도착 지점에서 Down 착지 애니메이션 재생 후 Idle로 복귀
+        // <변경부분> 이동이 끝난 뒤 착지 애니메이션 재생
         if (spineAnimator != null)
         {
-            yield return spineAnimator.PlayDownToIdleRoutine();
+            yield return spineAnimator
+                .PlayDownToIdleRoutine();
         }
+
+        // <변경부분> 일반 이동 연출이 끝났으므로
+        // 이동 시작 전의 Sorting Order로 복구한다.
+        RestoreSortingOrder(
+            moveVisualController,
+            movePieceRenderer,
+            originalSortingOrder,
+            changedSortingOrder
+        );
     }
 
 
@@ -361,26 +430,29 @@ public class PieceAnimationManager : MonoBehaviour
         // 충격 처리 후 남은 애니메이션이 끝날 때까지 기다린다.
         Coroutine absorbDownAnimationCoroutine = null;
 
+        // <변경부분> 실제 내려찍기 직전에 Spine 내려찍기 애니메이션을 시작한다.
+        // 일반 공격은 Down, 흡수 공격은 Down_Absorb를 사용한다.
         if (spineAnimator != null)
         {
             if (isAbsorbAction)
             {
-                // 흡수 공격은 Down_Absorb 시작
-                absorbDownAnimationCoroutine =
-                    StartCoroutine(
-                        spineAnimator
-                            .PlayDownAbsorbToIdleRoutine()
-                    );
+                // <변경부분> Down_Absorb 코루틴 참조를 저장한다.
+                // 충격 이후 이 코루틴이 완전히 끝날 때까지 기다려
+                // 흡수 외형 변경과 Born이 Down_Absorb를 덮어쓰지 않게 한다.
+                absorbDownAnimationCoroutine = StartCoroutine(
+                    spineAnimator.PlayDownAbsorbToIdleRoutine()
+                );
             }
             else
             {
-                // 일반 공격은 기존 Down 시작
+                // 일반 공격은 기존처럼 내려찍기와 충격 연출이 끝날 때까지
+                // 임시 최상단 Sorting Order를 유지한다.
                 StartCoroutine(
                     spineAnimator.PlayDownToIdleRoutine()
                 );
             }
 
-            // Spine 모션을 먼저 조금 보여준 뒤 실제 내려찍기 시작
+            // Spine 모션이 먼저 보인 뒤 실제 Transform 내려찍기를 시작한다.
             if (attackDownPreSlamDelay > 0f)
             {
                 yield return new WaitForSeconds(
