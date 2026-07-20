@@ -3,6 +3,16 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+// <변경부분> Tooltip을 표시할 위치 계산 방식을 구분한다.
+public enum TooltipPositionMode
+{
+    // 누른 위치를 기준으로 공통 Offset과 개별 Offset을 적용한다.
+    PointerOffset,
+
+    // 누른 위치를 무시하고 Canvas 기준 고정 좌표에 표시한다.
+    FixedCanvasPosition
+}
+
 // <변경부분> UI 아이콘/버튼을 꾹 눌렀을 때 TooltipPopupUI를 표시하는 트리거
 public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerClickHandler
 {
@@ -15,6 +25,23 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
     [Header("Input")]
     [SerializeField] private float holdDelay = 0.3f;
+
+    [Header("Position")]
+    // <변경부분> 이 TooltipTrigger가 사용할 위치 계산 방식
+    [SerializeField]
+    private TooltipPositionMode positionMode =
+    TooltipPositionMode.PointerOffset;
+
+    // <변경부분> PointerOffset 모드에서
+    // 기존 자동 위치에 추가할 개별 위치 보정값
+    // X 양수는 오른쪽, Y 양수는 위쪽으로 이동한다.
+    [SerializeField]
+    private Vector2 customPositionOffset;
+
+    // <변경부분> FixedCanvasPosition 모드에서 사용할
+    // Root Canvas 기준 고정 Anchored Position
+    [SerializeField]
+    private Vector2 fixedCanvasPosition;
 
     private Coroutine holdCoroutine;
     private bool isHolding;
@@ -161,24 +188,22 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         // 팝업 UI가 레이캐스트를 가로채면서 순간적으로 PointerExit가 발생하는 문제 방지
     }
 
-    // <변경부분> Long Press 이후 어느 단계에서 표시가 중단되는지 진단
+    // <변경부분> 지정 시간 이상 누르고 있으면 Tooltip을 표시한다.
     private IEnumerator ShowTooltipAfterDelay(
         Vector2 screenPosition)
     {
+        // Time.timeScale의 영향을 받지 않는 실제 시간 기준 Long Press
         yield return new WaitForSecondsRealtime(
             holdDelay
         );
 
+        // 대기 도중 손을 뗐거나 포인터가 벗어났으면 표시하지 않는다.
         if (isHolding == false)
         {
-            Debug.LogWarning(
-                $"[Tooltip 진단 중단] 누르고 있는 상태가 해제됨 / " +
-                $"대상: {gameObject.name}"
-            );
-
             yield break;
         }
 
+        // 고정 TooltipData만 연결된 경우 표시용 런타임 데이터 생성
         if (tooltipViewData == null &&
             tooltipData != null)
         {
@@ -209,9 +234,14 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
             yield break;
         }
 
+        // <변경부분> 이 TooltipTrigger의 위치 모드와
+        // 개별 Offset 또는 고정 Canvas 위치를 함께 전달한다.
         TooltipPopupUI.Instance.Show(
             tooltipViewData,
-            screenPosition
+            screenPosition,
+            positionMode,
+            customPositionOffset,
+            fixedCanvasPosition
         );
 
         isTooltipVisible = true;

@@ -48,6 +48,12 @@ public class TooltipPopupUI : MonoBehaviour
     [SerializeField] private Vector2 popupOffset = new Vector2(30f, 30f);
     [SerializeField] private Vector2 screenPadding = new Vector2(20f, 20f);
 
+    // <변경부분> FixedCanvasPosition 모드에서 사용할 PopupRoot Pivot
+    // 기본값 0.5, 0.5는 팝업 중심을 고정 좌표에 맞춘다.
+    [SerializeField]
+    private Vector2 fixedPositionPivot =
+        new Vector2(0.5f, 0.5f);
+
     // <변경부분> Section 블록이 1개 추가될 때마다 Tooltip 위치를 Y축으로 더 밀어낼 값
     [SerializeField] private float additionalOffsetYPerSection = 100f;
 
@@ -70,16 +76,48 @@ public class TooltipPopupUI : MonoBehaviour
         }
     }
 
-    // <변경부분> TooltipData 에셋을 받아 TooltipViewData로 변환 후 팝업 표시
-    public void Show(TooltipData tooltipData, Vector2 screenPosition)
+    // <변경부분> TooltipData 에셋을 받아 TooltipViewData로 변환 후
+    // 공통 위치 설정으로 팝업을 표시한다.
+    public void Show(
+        TooltipData tooltipData,
+        Vector2 screenPosition)
     {
-        Show(TooltipViewData.FromTooltipData(tooltipData), screenPosition);
+        Show(
+            TooltipViewData.FromTooltipData(
+                tooltipData
+            ),
+            screenPosition,
+            Vector2.zero
+        );
     }
 
-    // <변경부분> 실제 표시용 TooltipViewData를 받아 팝업 표시
-    public void Show(TooltipViewData tooltipViewData, Vector2 screenPosition)
+    // <변경부분> 기존 호출부와의 호환성을 유지한다.
+    // 이 함수로 호출하면 기존 PointerOffset 방식으로 표시한다.
+    public void Show(
+        TooltipViewData tooltipViewData,
+        Vector2 screenPosition,
+        Vector2 customPositionOffset)
     {
-        if (tooltipViewData == null || popupRoot == null)
+        Show(
+            tooltipViewData,
+            screenPosition,
+            TooltipPositionMode.PointerOffset,
+            customPositionOffset,
+            Vector2.zero
+        );
+    }
+
+    // <변경부분> Tooltip 위치 모드와
+    // 개별 Offset 또는 고정 Canvas 위치를 받아 팝업을 표시한다.
+    public void Show(
+        TooltipViewData tooltipViewData,
+        Vector2 screenPosition,
+        TooltipPositionMode positionMode,
+        Vector2 customPositionOffset,
+        Vector2 fixedCanvasPosition)
+    {
+        if (tooltipViewData == null ||
+            popupRoot == null)
         {
             Hide();
             return;
@@ -89,35 +127,57 @@ public class TooltipPopupUI : MonoBehaviour
 
         if (titleText != null)
         {
-            titleText.text = tooltipViewData.title;
+            titleText.text =
+                tooltipViewData.title;
         }
 
         if (categoryText != null)
         {
-            categoryText.text = tooltipViewData.category;
+            categoryText.text =
+                tooltipViewData.category;
         }
 
         if (levelText != null)
         {
-            levelText.text = tooltipViewData.levelText;
-            levelText.gameObject.SetActive(string.IsNullOrEmpty(tooltipViewData.levelText) == false);
+            levelText.text =
+                tooltipViewData.levelText;
+
+            levelText.gameObject.SetActive(
+                string.IsNullOrEmpty(
+                    tooltipViewData.levelText
+                ) == false
+            );
         }
 
         if (mainDescriptionText != null)
         {
-            mainDescriptionText.text = tooltipViewData.mainDescription;
+            mainDescriptionText.text =
+                tooltipViewData.mainDescription;
         }
-        // <변경부분> 현재 Tooltip에 붙는 Section 블록 개수를 기록
-        currentSectionCount = tooltipViewData.sections != null ? tooltipViewData.sections.Count : 0;
 
-        RefreshSections(tooltipViewData.sections);
-        SetPopupPosition(screenPosition);
-        // <변경부분> 위치와 내용 갱신이 끝난 뒤 팝업 오픈 애니메이션 재생
+        // 현재 Tooltip에 붙는 Section 블록 개수를 기록
+        currentSectionCount =
+            tooltipViewData.sections != null
+                ? tooltipViewData.sections.Count
+                : 0;
+
+        RefreshSections(
+            tooltipViewData.sections
+        );
+
+        // <변경부분> 위치 모드에 따라
+        // 자동 위치 또는 고정 Canvas 위치를 적용한다.
+        SetPopupPosition(
+            screenPosition,
+            positionMode,
+            customPositionOffset,
+            fixedCanvasPosition
+        );
+
         if (popupOpenAnimator != null)
         {
             popupOpenAnimator.PlayOpen();
         }
-
     }
 
     // <변경부분> 팝업을 숨김
@@ -199,15 +259,22 @@ public class TooltipPopupUI : MonoBehaviour
         return defaultSectionPrefab;
     }
 
-    // <변경부분> 화면 4분할 기준으로 Tooltip 팝업의 코너가 커서 위치에 오도록 배치
-    private void SetPopupPosition(Vector2 screenPosition)
+    // <변경부분> 위치 모드에 따라
+    // 포인터 기준 자동 위치 또는 Canvas 기준 고정 위치를 적용한다.
+    private void SetPopupPosition(
+        Vector2 screenPosition,
+        TooltipPositionMode positionMode,
+        Vector2 customPositionOffset,
+        Vector2 fixedCanvasPosition)
     {
-        if (rootCanvas == null || popupRoot == null)
+        if (rootCanvas == null ||
+            popupRoot == null)
         {
             return;
         }
 
-        RectTransform canvasRect = rootCanvas.transform as RectTransform;
+        RectTransform canvasRect =
+            rootCanvas.transform as RectTransform;
 
         if (canvasRect == null)
         {
@@ -215,62 +282,148 @@ public class TooltipPopupUI : MonoBehaviour
         }
 
         // Tooltip 내용 길이에 따라 PopupRoot 크기를 먼저 갱신
-        LayoutRebuilder.ForceRebuildLayoutImmediate(popupRoot);
-
-        Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvasRect,
-            screenPosition,
-            rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : rootCanvas.worldCamera,
-            out localPoint
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            popupRoot
         );
 
-        // <변경부분> 커서가 화면 오른쪽 절반에 있는지 확인
-        bool isRightSide = localPoint.x >= 0f;
+        Vector2 targetPosition;
 
-        // <변경부분> 커서가 화면 위쪽 절반에 있는지 확인
-        bool isTopSide = localPoint.y >= 0f;
+        // <변경부분> 고정 위치 모드에서는
+        // 포인터 위치와 사분면 계산을 사용하지 않는다.
+        if (positionMode ==
+            TooltipPositionMode.FixedCanvasPosition)
+        {
+            popupRoot.pivot =
+                new Vector2(
+                    Mathf.Clamp01(
+                        fixedPositionPivot.x
+                    ),
+                    Mathf.Clamp01(
+                        fixedPositionPivot.y
+                    )
+                );
 
-        // <변경부분> 커서가 있는 위치에 따라 팝업의 코너 Pivot을 결정
-        // 오른쪽 아래: pivot = (1, 0) → 오른쪽 아래 코너가 커서에 붙고 왼쪽 위로 펼쳐짐
-        // 오른쪽 위:   pivot = (1, 1) → 오른쪽 위 코너가 커서에 붙고 왼쪽 아래로 펼쳐짐
-        // 왼쪽 위:     pivot = (0, 1) → 왼쪽 위 코너가 커서에 붙고 오른쪽 아래로 펼쳐짐
-        // 왼쪽 아래:   pivot = (0, 0) → 왼쪽 아래 코너가 커서에 붙고 오른쪽 위로 펼쳐짐
-        popupRoot.pivot = new Vector2(
-            isRightSide ? 1f : 0f,
-            isTopSide ? 1f : 0f
-        );
+            targetPosition =
+                fixedCanvasPosition;
+        }
+        else
+        {
+            Vector2 localPoint;
 
-        // <변경부분> 팝업 코너를 커서 위치에 맞춤
-        // popupOffset은 커서와 팝업이 완전히 겹치지 않도록 아주 살짝만 밀어내는 용도
-        // <변경부분> Section 블록 개수만큼 Y Offset을 추가
-        float dynamicOffsetY = popupOffset.y + (currentSectionCount * additionalOffsetYPerSection);
+            RectTransformUtility
+                .ScreenPointToLocalPointInRectangle(
+                    canvasRect,
+                    screenPosition,
+                    rootCanvas.renderMode ==
+                        RenderMode.ScreenSpaceOverlay
+                        ? null
+                        : rootCanvas.worldCamera,
+                    out localPoint
+                );
 
-        // <변경부분> 커서가 있는 사분면의 반대 방향으로 팝업을 밀어낸다.
-        // X는 기존 Offset 그대로 사용
-        float offsetX = isRightSide ? -popupOffset.x : popupOffset.x;
+            // 커서가 화면 오른쪽 절반에 있는지 확인
+            bool isRightSide =
+                localPoint.x >= 0f;
 
-        // <변경부분> Y는 Section 개수에 따라 증가한 Offset 사용
-        // 위쪽 UI에서는 아래로, 아래쪽 UI에서는 위로 밀어낸다.
-        float offsetY = isTopSide ? -dynamicOffsetY : dynamicOffsetY;
+            // 커서가 화면 위쪽 절반에 있는지 확인
+            bool isTopSide =
+                localPoint.y >= 0f;
 
-        Vector2 targetPosition = localPoint + new Vector2(offsetX, offsetY);
+            // 포인터 위치에 따라 팝업 Pivot 결정
+            popupRoot.pivot =
+                new Vector2(
+                    isRightSide ? 1f : 0f,
+                    isTopSide ? 1f : 0f
+                );
 
-        float halfCanvasWidth = canvasRect.rect.width * 0.5f;
-        float halfCanvasHeight = canvasRect.rect.height * 0.5f;
+            // Section 블록 개수에 따라 Y Offset 증가
+            float dynamicOffsetY =
+                popupOffset.y +
+                (
+                    currentSectionCount *
+                    additionalOffsetYPerSection
+                );
 
-        float popupWidth = popupRoot.rect.width;
-        float popupHeight = popupRoot.rect.height;
+            // 포인터가 있는 사분면의 반대 방향으로 이동
+            float offsetX =
+                isRightSide
+                    ? -popupOffset.x
+                    : popupOffset.x;
 
-        // <변경부분> Pivot 기준으로 팝업이 화면 밖으로 나가지 않도록 보정
-        float minX = -halfCanvasWidth + screenPadding.x + popupWidth * popupRoot.pivot.x;
-        float maxX = halfCanvasWidth - screenPadding.x - popupWidth * (1f - popupRoot.pivot.x);
-        float minY = -halfCanvasHeight + screenPadding.y + popupHeight * popupRoot.pivot.y;
-        float maxY = halfCanvasHeight - screenPadding.y - popupHeight * (1f - popupRoot.pivot.y);
+            float offsetY =
+                isTopSide
+                    ? -dynamicOffsetY
+                    : dynamicOffsetY;
 
-        targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
-        targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
+            // 기존 자동 위치에 Trigger별 개별 Offset 적용
+            targetPosition =
+                localPoint +
+                new Vector2(
+                    offsetX,
+                    offsetY
+                ) +
+                customPositionOffset;
+        }
 
-        popupRoot.anchoredPosition = targetPosition;
+        float halfCanvasWidth =
+            canvasRect.rect.width * 0.5f;
+
+        float halfCanvasHeight =
+            canvasRect.rect.height * 0.5f;
+
+        float popupWidth =
+            popupRoot.rect.width;
+
+        float popupHeight =
+            popupRoot.rect.height;
+
+        // <변경부분> 자동 위치와 고정 위치 모두
+        // 팝업이 화면 밖으로 나가지 않도록 최종 보정한다.
+        float minX =
+            -halfCanvasWidth +
+            screenPadding.x +
+            popupWidth *
+            popupRoot.pivot.x;
+
+        float maxX =
+            halfCanvasWidth -
+            screenPadding.x -
+            popupWidth *
+            (
+                1f -
+                popupRoot.pivot.x
+            );
+
+        float minY =
+            -halfCanvasHeight +
+            screenPadding.y +
+            popupHeight *
+            popupRoot.pivot.y;
+
+        float maxY =
+            halfCanvasHeight -
+            screenPadding.y -
+            popupHeight *
+            (
+                1f -
+                popupRoot.pivot.y
+            );
+
+        targetPosition.x =
+            Mathf.Clamp(
+                targetPosition.x,
+                minX,
+                maxX
+            );
+
+        targetPosition.y =
+            Mathf.Clamp(
+                targetPosition.y,
+                minY,
+                maxY
+            );
+
+        popupRoot.anchoredPosition =
+            targetPosition;
     }
 }

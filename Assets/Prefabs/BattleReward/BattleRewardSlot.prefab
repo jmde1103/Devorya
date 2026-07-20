@@ -63,6 +63,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 11400000, guid: d06b053ccb5386d46b1d32785551123b, type: 2}
   holdDelay: 0.3
+  positionMode: 1
+  customPositionOffset: {x: 0, y: 0}
+  fixedCanvasPosition: {x: 500, y: 125}
 --- !u!114 &2537777922694835768
 MonoBehaviour:
   m_ObjectHideFlags: 0

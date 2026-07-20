@@ -7,11 +7,19 @@ public class BattleEndFlowController : MonoBehaviour
 {
     [Header("Scene Move")]
     // <변경부분> 승리 후 바로 맵 씬으로 이동할지 여부
-    // 나중에 보상 UI가 생기면 false로 두고, 보상 선택 완료 후 MoveToMapScene()을 호출하면 된다.
-    [SerializeField] private bool moveToMapSceneImmediatelyOnWin = false;
+    // 보상 팝업을 사용할 때는 false로 유지한다.
+    [SerializeField]
+    private bool moveToMapSceneImmediatelyOnWin = false;
+
+    // <변경부분> 맵 씬 연결 전 테스트용 옵션
+    // true이면 리워드 확인 후 맵 씬 대신 현재 전투 씬을 새로 불러온다.
+    // RunStateManager의 저장 데이터가 다음 전투에 복원되는지 검증할 때 사용한다.
+    [SerializeField]
+    private bool reloadCurrentBattleSceneForTest = true;
 
     // <변경부분> 전투 승리 후 돌아갈 로그라이크 맵 씬 이름
-    [SerializeField] private string mapSceneName = "RoguelikeMapScene";
+    [SerializeField]
+    private string mapSceneName = "RoguelikeMapScene";
 
     // <변경부분> 패배 후 바로 이동할 씬이 필요한 경우 사용
     [SerializeField] private bool moveToMapSceneOnLose = false;
@@ -488,16 +496,60 @@ public class BattleEndFlowController : MonoBehaviour
         }
     }
 
-    // <변경부분> 보상 선택 완료 후 로그라이크 맵 씬으로 이동할 때 호출할 함수
+    // <변경부분> 보상 확인 완료 후 다음 씬으로 이동하는 함수
+    // 테스트 중에는 현재 전투 씬을 새로 불러오고,
+    // 실제 맵 씬 연결 후에는 기존 mapSceneName을 사용한다.
     public void MoveToMapScene()
     {
-        if (string.IsNullOrEmpty(mapSceneName))
+        // <변경부분> 맵 씬 연결 전 런 상태 복원 테스트
+        if (reloadCurrentBattleSceneForTest)
         {
-            Debug.LogWarning("맵 씬 이동 실패: mapSceneName이 비어 있습니다.");
+            Scene currentScene =
+                SceneManager.GetActiveScene();
+
+            if (string.IsNullOrEmpty(currentScene.name))
+            {
+                Debug.LogWarning(
+                    "전투 씬 재로드 실패: " +
+                    "현재 활성 씬 이름을 가져오지 못했습니다."
+                );
+
+                return;
+            }
+
+            Debug.Log(
+                $"리워드 확인 완료: " +
+                $"런 상태를 유지한 채 현재 전투 씬을 다시 불러옵니다. / " +
+                $"{currentScene.name}"
+            );
+
+            SceneManager.LoadScene(
+                currentScene.name
+            );
+
             return;
         }
 
-        SceneManager.LoadScene(mapSceneName);
+        // <변경부분> 실제 게임에서는 로그라이크 맵 씬으로 이동
+        if (string.IsNullOrEmpty(mapSceneName))
+        {
+            Debug.LogWarning(
+                "맵 씬 이동 실패: " +
+                "mapSceneName이 비어 있습니다."
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            $"리워드 확인 완료: " +
+            $"로그라이크 맵 씬으로 이동합니다. / " +
+            $"{mapSceneName}"
+        );
+
+        SceneManager.LoadScene(
+            mapSceneName
+        );
     }
 
     // <변경부분> 마지막 전투 결과 반환
