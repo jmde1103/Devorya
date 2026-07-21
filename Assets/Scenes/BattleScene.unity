@@ -5101,6 +5101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 52600100}
   - component: {fileID: 52600099}
+  - component: {fileID: 52600101}
   m_Layer: 0
   m_Name: BattleManager
   m_TagString: Untagged
@@ -5130,6 +5131,7 @@ MonoBehaviour:
   battleItemEffectHandler: {fileID: 178608792}
   battleRelicEffectHandler: {fileID: 212060306}
   battleMoveValidator: {fileID: 1035375297}
+  battleAIManager: {fileID: 52600101}
   currentTurn: 0
   turnCount: 1
   battleUIController: {fileID: 1031164066}
@@ -5151,6 +5153,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &52600101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52600098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c4a76cf9966fd47b47e3db615b5fe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleAIManager
+  controlEnemyWithAI: 1
+  decisionDelay: 0.5
 --- !u!1 &53757416
 GameObject:
   m_ObjectHideFlags: 0

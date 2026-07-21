@@ -39,6 +39,18 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 전투 중 이동/공격 가능 여부를 판정하는 클래스
     [SerializeField] private BattleMoveValidator battleMoveValidator;
 
+    // <변경부분> Enemy 턴의 AI 진행과 행동 선택을 관리하는 컴포넌트
+    [SerializeField] private BattleAIManager battleAIManager;
+
+    // <변경부분> AI의 합법적인 이동 및 공격 후보를 생성하는 클래스
+    // 일반 C# 클래스이므로 GameObject에 부착하지 않고 BattleManager가 직접 생성한다.
+    private BattleAIActionGenerator battleAIActionGenerator;
+
+    // <변경부분> AI 행동 후보 생성 시 반복해서 재사용하는 목록
+    // 후보를 생성할 때마다 새로운 List를 만들지 않아 불필요한 GC 할당을 줄인다.
+    private readonly List<BattleAIAction> battleAIActionCandidates =
+        new List<BattleAIAction>();
+
     // 현재 선택된 기물
     private Piece selectedPiece;
     // <변경부분> 공격 전에 한 번 확인한 상대 기물
@@ -112,6 +124,24 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private TurnInfoUIController turnInfoUIController;
 
 
+    // <변경부분> AI 매니저가 현재 턴을 확인할 수 있도록 공개한다.
+    public BattleTurn CurrentTurn
+    {
+        get { return currentTurn; }
+    }
+
+    // <변경부분> AI 매니저가 전투 종료 상태를 확인할 수 있도록 공개한다.
+    public bool IsBattleEnded
+    {
+        get { return isBattleEnded; }
+    }
+
+    // <변경부분> AI 매니저가 다른 행동 연출 진행 여부를 확인할 수 있도록 공개한다.
+    public bool IsActionAnimating
+    {
+        get { return isActionAnimating; }
+    }
+
     // 오브젝트 생성 시 한 번 실행
     private void Awake()
     {
@@ -161,7 +191,44 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 게임 시작 시 이동 판정기 초기화
         if (battleMoveValidator != null)
         {
-            battleMoveValidator.Initialize(boardManager, pieceManager);
+            battleMoveValidator.Initialize(
+                boardManager,
+                pieceManager
+            );
+        }
+
+        // <변경부분> 공용 이동 판정기 초기화가 끝난 뒤
+        // AI 행동 후보 생성기를 일반 C# 객체로 생성한다.
+        if (boardManager != null &&
+            pieceManager != null &&
+            battleMoveValidator != null)
+        {
+            battleAIActionGenerator =
+                new BattleAIActionGenerator(
+                    boardManager,
+                    pieceManager,
+                    battleMoveValidator
+                );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "AI 행동 후보 생성기 초기화 실패: " +
+                "BoardManager, PieceManager 또는 BattleMoveValidator가 연결되지 않았습니다."
+            );
+        }
+
+        // <변경부분> Enemy 턴 진행을 담당할 AI 매니저 초기화
+        if (battleAIManager != null)
+        {
+            battleAIManager.Initialize(this);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "BattleAIManager가 연결되지 않았습니다. " +
+                "Enemy 진영은 기존 수동 조작 상태로 유지됩니다."
+            );
         }
 
         // < 변경부분 > 게임 시작 시 스킬 매니저 초기화
@@ -175,10 +242,21 @@ public class BattleManager : MonoBehaviour
         {
             battleItemEffectHandler.Initialize(pieceManager);
         }
+
+        // <변경부분> 전투 시작 시 현재 턴 정보를 AI 매니저에 전달한다.
+        // 현재 턴이 Player라면 AI는 아무 행동도 하지 않는다.
+        if (battleAIManager != null)
+        {
+            battleAIManager.HandleTurnStarted(
+                currentTurn
+            );
+        }
     }
 
     private void Update()
     {
+
+
         // Space 키를 누르면 턴 종료
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -202,6 +280,14 @@ public class BattleManager : MonoBehaviour
         {
             UseSelectedPieceSkill();
         }
+
+        // <변경부분> F8 키를 누르면 Enemy 진영의
+        // 현재 합법적인 AI 행동 후보를 Console에 출력한다.
+        // AI 후보 검증이 끝나면 이 단축키 코드는 제거할 예정이다.
+        if (Input.GetKeyDown(KeyCode.F8))
+        {
+            DebugGenerateEnemyAIActions();
+        }
     }
 
 
@@ -214,6 +300,16 @@ public class BattleManager : MonoBehaviour
 
         // 전투가 종료되었다면 더 이상 선택 불가
         if (isBattleEnded)
+        {
+            return;
+        }
+
+        // <변경부분> Enemy 진영을 AI가 조작하는 모드에서는
+        // Enemy 턴에 사람의 기물 선택 입력을 받지 않는다.
+        // AI가 꺼져 있으면 기존 2인 수동 조작이 그대로 유지된다.
+        if (currentTurn == BattleTurn.Enemy &&
+            battleAIManager != null &&
+            battleAIManager.IsEnemyControlledByAI())
         {
             return;
         }
@@ -355,11 +451,21 @@ public class BattleManager : MonoBehaviour
     //타일을 선택했을 때 호출되는 함수
     public void SelectTile(Tile tile)
     {
-        //전투가 끝났으면 타일 선택 불가
+        // 전투가 끝났으면 타일 선택 불가
         if (isBattleEnded)
         {
             return;
         }
+
+        // <변경부분> Enemy AI 턴에는 사람의 타일 클릭을 받지 않는다.
+        // AI가 꺼져 있으면 Enemy 수동 조작을 허용한다.
+        if (currentTurn == BattleTurn.Enemy &&
+            battleAIManager != null &&
+            battleAIManager.IsEnemyControlledByAI())
+        {
+            return;
+        }
+
 
         // <변경부분> 이동/공격 연출 중에는 추가 입력 방지
         if (isActionAnimating)
@@ -433,36 +539,181 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 이동/공격할 타일을 클릭한 순간, 선택한 타일 외 다른 하이라이트는 즉시 제거
+        // <변경부분> 이동/공격할 타일을 클릭한 순간,
+        // 선택한 타일 외 다른 하이라이트는 즉시 제거한다.
         ClearHighlightsExcept(tile);
 
-        // <변경부분> 실제 이동/공격/흡수 처리는 연출 코루틴에서 순차 처리
-        StartCoroutine(ExecuteSelectedTileActionRoutine(tile));
+        // <변경부분> 사람 조작도 공용 행동 실행 함수에
+        // 행동 기물과 목표 좌표를 명시적으로 전달한다.
+        bool actionStarted =
+            TryExecuteBattleAction(
+                selectedPiece,
+                new Vector2Int(
+                    tile.X,
+                    tile.Y
+                )
+            );
+
+        // 예상하지 못한 이유로 실행 요청이 실패했다면
+        // 남아 있는 선택 타일 하이라이트를 정리한다.
+        if (actionStarted == false)
+        {
+            ClearHighlights();
+        }
+
+
     }
 
-    // <변경부분> 선택한 타일로 이동/공격/흡수를 실행하는 코루틴
-    // 공격/흡수 시 타겟 제거를 이동 연출 이후로 미룸
-    private IEnumerator ExecuteSelectedTileActionRoutine(Tile tile)
+    // <변경부분> 사람과 AI가 공통으로 사용하는 전투 행동 실행 진입점
+    // 행동 기물과 목표 좌표를 직접 전달받아 selectedPiece 의존성을 제거한다.
+    public bool TryExecuteBattleAction(
+        Piece actingPiece,
+        Vector2Int targetPosition)
     {
-        // 이미 연출 중이면 중복 실행 방지
+        // 전투가 종료된 상태에서는 행동을 실행할 수 없다.
+        if (isBattleEnded)
+        {
+            Debug.Log(
+                "전투 행동 실행 실패: 전투가 이미 종료되었습니다."
+            );
+
+            return false;
+        }
+
+        // 다른 이동, 공격 또는 스킬 연출 중에는
+        // 새로운 행동을 중복 실행하지 않는다.
         if (isActionAnimating)
+        {
+            Debug.Log(
+                "전투 행동 실행 실패: 다른 행동이 진행 중입니다."
+            );
+
+            return false;
+        }
+
+        // 행동할 기물이 없으면 실행할 수 없다.
+        if (actingPiece == null)
+        {
+            Debug.LogWarning(
+                "전투 행동 실행 실패: 행동 기물이 없습니다."
+            );
+
+            return false;
+        }
+
+        // 현재 턴에 조작 가능한 진영의 기물인지 검사한다.
+        if (IsCurrentTurnPiece(actingPiece) == false)
+        {
+            Debug.LogWarning(
+                $"전투 행동 실행 실패: " +
+                $"{actingPiece.Team} {actingPiece.PieceType}은 " +
+                $"현재 턴의 기물이 아닙니다."
+            );
+
+            return false;
+        }
+
+        // 이동 불가능한 기물은 행동할 수 없다.
+        if (actingPiece.CanMove == false)
+        {
+            Debug.LogWarning(
+                $"전투 행동 실행 실패: " +
+                $"{actingPiece.Team} {actingPiece.PieceType}은 " +
+                $"이동할 수 없는 기물입니다."
+            );
+
+            return false;
+        }
+
+        // 필요한 전투 참조가 없으면 행동을 실행할 수 없다.
+        if (boardManager == null ||
+            pieceManager == null ||
+            battleMoveValidator == null)
+        {
+            Debug.LogWarning(
+                "전투 행동 실행 실패: " +
+                "필요한 전투 매니저가 연결되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        // 공용 이동 판정기를 사용해
+        // 요청받은 목표 좌표가 실제 합법 행동인지 검사한다.
+        List<Vector2Int> selectablePositions =
+            battleMoveValidator.GetSelectablePositions(
+                actingPiece
+            );
+
+        if (selectablePositions.Contains(targetPosition) == false)
+        {
+            Debug.LogWarning(
+                $"전투 행동 실행 실패: " +
+                $"{actingPiece.Team} {actingPiece.PieceType} / " +
+                $"({actingPiece.X}, {actingPiece.Y}) → " +
+                $"({targetPosition.x}, {targetPosition.y})는 " +
+                $"이동 또는 공격 가능한 좌표가 아닙니다."
+            );
+
+            return false;
+        }
+
+        // 목표 좌표에 대응하는 실제 Tile을 가져온다.
+        Tile targetTile =
+            boardManager.GetTile(
+                targetPosition.x,
+                targetPosition.y
+            );
+
+        if (targetTile == null)
+        {
+            Debug.LogWarning(
+                $"전투 행동 실행 실패: " +
+                $"목표 Tile을 찾을 수 없습니다. " +
+                $"({targetPosition.x}, {targetPosition.y})"
+            );
+
+            return false;
+        }
+
+        // <변경부분> 검증을 통과한 행동만 공용 코루틴으로 실행한다.
+        StartCoroutine(
+            ExecutePieceActionRoutine(
+                actingPiece,
+                targetTile
+            )
+        );
+
+        return true;
+    }
+    // <변경부분> 지정한 기물의 이동/공격/흡수를 실행하는 공용 코루틴
+    // 사람과 AI가 동일한 전투 실행 흐름을 사용한다.
+    // 공격/흡수 시 타겟 제거는 이동 연출 이후에 처리한다.
+    private IEnumerator ExecutePieceActionRoutine(
+        Piece actingPiece,
+        Tile tile)
+    {
+        // 이미 연출 중이면 중복 실행을 방지한다.
+        if (isActionAnimating)
+        {
+            yield break;
+        }
+
+        // 행동 기물이나 목표 타일이 사라졌다면 실행하지 않는다.
+        if (actingPiece == null ||
+            tile == null)
         {
             yield break;
         }
 
         isActionAnimating = true;
 
-        // 해당 타일에 있는 기물 확인
-        Piece targetPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
-
-        // 이번 행동을 실행하는 기물을 미리 저장
-        Piece actingPiece = selectedPiece;
-
-        if (actingPiece == null)
-        {
-            isActionAnimating = false;
-            yield break;
-        }
+        // 해당 타일에 있는 기물을 확인한다.
+        Piece targetPiece =
+            pieceManager.GetPieceAt(
+                tile.X,
+                tile.Y
+            );
 
         // 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보만을 복사해서 저장
         OwnedGeneralSkillData chanceAttackDataBeforeAction =
@@ -1366,236 +1617,41 @@ public class BattleManager : MonoBehaviour
         battleRelicManager.AddTestRelicForDebug();
     }
 
-    // 선택한 기물의 종류에 따라 이동 가능한 타일을 표시하는 함수
+    // <변경부분> 선택한 기물의 이동 및 공격 가능한 타일을 표시하는 함수
+    // 실제 이동 규칙은 BattleMoveValidator 한곳에서만 계산한다.
+    // 플레이어 하이라이트와 AI 행동 후보가 동일한 좌표 결과를 공유한다.
     private void ShowMovableTiles(Piece piece)
     {
-        // 기물이 없으면 종료
+        // 기물이 없으면 표시할 좌표가 없다.
         if (piece == null)
         {
             return;
         }
 
-        // <변경부분> 실제 기물 타입이 아니라 현재 이동 판정 타입 기준으로 이동 하이라이트 표시
-        switch (piece.GetCurrentMoveType())
+        // 공용 이동 판정기가 연결되지 않았다면 하이라이트를 생성할 수 없다.
+        if (battleMoveValidator == null)
         {
-            case PieceType.Pawn:
-                ShowPawnMovableTiles(piece);
-                break;
+            Debug.LogWarning(
+                "이동 가능 타일 표시 실패: BattleMoveValidator가 연결되지 않았습니다."
+            );
 
-            case PieceType.Rook:
-                ShowRookMovableTiles(piece);
-                break;
-
-            case PieceType.Bishop:
-                ShowBishopMovableTiles(piece);
-                break;
-
-            case PieceType.Knight:
-                ShowKnightMovableTiles(piece);
-                break;
-
-            case PieceType.King:
-                ShowKingMovableTiles(piece);
-                break;
-
-            // <변경부분> Queen은 Rook + Bishop 이동 방식을 모두 사용
-            case PieceType.Queen:
-                ShowQueenMovableTiles(piece);
-                break;
-        }
-    }
-
-    private void ShowRookMovableTiles(Piece piece)
-    {
-        // 오른쪽
-        CheckLineMovement(piece, 1, 0);
-
-        // 왼쪽
-        CheckLineMovement(piece, -1, 0);
-
-        // 위쪽
-        CheckLineMovement(piece, 0, 1);
-
-        // 아래쪽
-        CheckLineMovement(piece, 0, -1);
-    }
-
-    //비숍처럼 대각선 방향으로 이동/공격 가능한 타일 표시
-    private void ShowBishopMovableTiles(Piece piece)
-    {
-        // 오른쪽 위 대각선
-        CheckLineMovement(piece, 1, 1);
-
-        // 왼쪽 위 대각선
-        CheckLineMovement(piece, -1, 1);
-
-        // 오른쪽 아래 대각선
-        CheckLineMovement(piece, 1, -1);
-
-        // 왼쪽 아래 대각선
-        CheckLineMovement(piece, -1, -1);
-    }
-
-    // <변경부분> Queen처럼 직선 + 대각선 방향으로 이동/공격 가능한 타일 표시
-    private void ShowQueenMovableTiles(Piece piece)
-    {
-        // Queen은 Rook 이동 방식 사용
-        ShowRookMovableTiles(piece);
-
-        // Queen은 Bishop 이동 방식 사용
-        ShowBishopMovableTiles(piece);
-    }
-
-    // 한 방향으로 계속 검사하며 이동/공격 가능한 타일을 찾는 함수
-    private void CheckLineMovement(Piece piece, int dirX, int dirY)
-    {
-        // 현재 기물 위치에서 한 칸 이동한 좌표부터 시작
-        int checkX = piece.X + dirX;
-        int checkY = piece.Y + dirY;
-
-        // 보드 안쪽인 동안 계속 검사
-        while (IsInsideBoard(checkX, checkY))
-        {
-            // 검사 좌표에 있는 기물 확인
-            Piece targetPiece = pieceManager.GetPieceAt(checkX, checkY);
-
-            // 기물이 없는 칸이면 이동 가능
-            if (targetPiece == null)
-            {
-                HighlightTile(checkX, checkY);
-            }
-            else
-            {
-                // 적대 기물이 있으면 공격 가능
-                if (piece.IsEnemyOf(targetPiece))
-                {
-                    HighlightTile(checkX, checkY);
-                }
-
-                // 기물이 있으면 그 뒤로는 더 이상 이동 불가
-                break;
-            }
-
-            // 같은 방향으로 다음 칸 검사
-            checkX += dirX;
-            checkY += dirY;
-        }
-    }
-
-    // 나이트의 L자 이동/공격 가능한 타일 표시
-    private void ShowKnightMovableTiles(Piece piece)
-    {
-        // 나이트가 이동할 수 있는 8개 상대 좌표
-        int[,] knightMoves =
-        {
-        { 1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { -1, -2 }, { -2, -1 }, { -2, 1 }, { -1, 2 }
-    };
-
-        // 8개 좌표를 하나씩 검사
-        for (int i = 0; i < knightMoves.GetLength(0); i++)
-        {
-            // 이동할 좌표 계산
-            int targetX = piece.X + knightMoves[i, 0];
-            int targetY = piece.Y + knightMoves[i, 1];
-
-            // 단일 칸 이동/공격 가능 여부 검사
-            CheckSingleTileMovement(piece, targetX, targetY);
-        }
-    }
-
-    // 킹의 주변 8칸 이동/공격 가능한 타일 표시
-    private void ShowKingMovableTiles(Piece piece)
-    {
-        // 주변 8칸 검사
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                // 자기 위치는 제외
-                if (x == 0 && y == 0)
-                {
-                    continue;
-                }
-
-                // 이동할 좌표 계산
-                int targetX = piece.X + x;
-                int targetY = piece.Y + y;
-
-                // 단일 칸 이동/공격 가능 여부 검사
-                CheckSingleTileMovement(piece, targetX, targetY);
-            }
-        }
-    }
-
-    // <변경부분> 한 칸짜리 이동/공격 가능 여부를 검사하는 함수
-    private void CheckSingleTileMovement(Piece piece, int x, int y)
-    {
-        // 보드 밖이면 종료
-        if (IsInsideBoard(x, y) == false)
-        {
             return;
         }
 
-        // 해당 좌표의 기물 확인
-        Piece targetPiece = pieceManager.GetPieceAt(x, y);
+        // 현재 이동 타입과 보드 상태를 반영한
+        // 모든 합법 이동 및 공격 좌표를 공용 판정기에서 가져온다.
+        List<Vector2Int> selectablePositions =
+            battleMoveValidator.GetSelectablePositions(piece);
 
-        // 비어 있는 칸이면 이동 가능
-        if (targetPiece == null)
+        for (int i = 0; i < selectablePositions.Count; i++)
         {
-            HighlightTile(x, y);
-            return;
-        }
+            Vector2Int position =
+                selectablePositions[i];
 
-        // 적대 기물이 있으면 공격 가능
-        if (piece.IsEnemyOf(targetPiece))
-        {
-            HighlightTile(x, y);
-        }
-    }
-
-    private void ShowPawnMovableTiles(Piece piece) // Pawn의 이동 가능 타일 표시
-    {
-        // 플레이어는 위쪽(y + 1), 적은 아래쪽(y - 1)으로 이동
-        int direction = piece.Team == PieceTeam.Player ? 1 : -1;
-
-        // 전진 좌표
-        int forwardX = piece.X;
-        int forwardY = piece.Y + direction;
-
-        // 앞칸이 비어 있으면 이동 가능
-        if (IsInsideBoard(forwardX, forwardY) && pieceManager.IsEmpty(forwardX, forwardY))
-        {
-            HighlightTile(forwardX, forwardY);
-        }
-
-        // 왼쪽 대각선 공격 좌표
-        CheckPawnAttackTile(piece, piece.X - 1, piece.Y + direction);
-
-        // 오른쪽 대각선 공격 좌표
-        CheckPawnAttackTile(piece, piece.X + 1, piece.Y + direction);
-    }
-
-    // Pawn이 공격 가능한 대각선 타일인지 확인
-    private void CheckPawnAttackTile(Piece piece, int x, int y)
-    {
-        // 보드 밖이면 종료
-        if (IsInsideBoard(x, y) == false)
-        {
-            return;
-        }
-
-        // 해당 좌표의 기물 확인
-        Piece targetPiece = pieceManager.GetPieceAt(x, y);
-
-        //공격 판정 확인용 로그
-        Debug.Log($"공격 확인 좌표 ({x}, {y}) / 대상: {targetPiece}");
-
-        // 대상 기물이 있고, 적대 관계라면 공격 가능
-        if (targetPiece != null && piece.IsEnemyOf(targetPiece))
-        {
-            Debug.Log($"공격 가능: {targetPiece.Team} / {targetPiece.PieceType}");
-
-            HighlightTile(x, y);
+            HighlightTile(
+                position.x,
+                position.y
+            );
         }
     }
 
@@ -1822,6 +1878,117 @@ public class BattleManager : MonoBehaviour
         );
     }
 
+    // <변경부분> 지정 진영에 행동 후보가 없을 때
+    // 승패 조건을 확인하고 전투가 끝나지 않았다면 턴을 넘긴다.
+    public void ResolveNoActionableTurn(
+        PieceTeam actingTeam)
+    {
+        PieceTeam currentTurnTeam =
+            currentTurn == BattleTurn.Player
+                ? PieceTeam.Player
+                : PieceTeam.Enemy;
+
+        // 현재 턴 진영과 요청 진영이 다르면 처리하지 않는다.
+        if (actingTeam != currentTurnTeam)
+        {
+            Debug.LogWarning(
+                $"행동 불가 턴 처리 실패: " +
+                $"현재 턴 진영은 {currentTurnTeam}이지만 " +
+                $"요청 진영은 {actingTeam}입니다."
+            );
+
+            return;
+        }
+
+        // NoActionablePieces를 포함한 현재 승패 조건을 다시 검사한다.
+        CheckBattleEnd();
+
+        // 승패 조건으로 전투가 끝났다면 턴을 넘기지 않는다.
+        if (isBattleEnded)
+        {
+            return;
+        }
+
+        Debug.Log(
+            $"{actingTeam} 진영에 실행 가능한 행동이 없어 턴을 종료합니다."
+        );
+
+        EndTurn();
+    }
+
+    // <변경부분> 지정한 진영의 현재 합법적인 AI 행동 후보를 생성하는 공용 함수
+    // 디버그 출력과 실제 AI 턴 모두 같은 BattleAIActionGenerator를 사용한다.
+    public void GenerateAIActions(
+        PieceTeam actingTeam,
+        List<BattleAIAction> results)
+    {
+        // 결과를 저장할 목록이 없으면 생성 불가
+        if (results == null)
+        {
+            Debug.LogWarning(
+                "AI 행동 후보 생성 실패: 결과 목록이 없습니다."
+            );
+
+            return;
+        }
+
+        // AI 행동 생성기가 초기화되지 않았다면
+        // 이전 후보가 남지 않도록 목록을 비운다.
+        if (battleAIActionGenerator == null)
+        {
+            results.Clear();
+
+            Debug.LogWarning(
+                "AI 행동 후보 생성 실패: " +
+                "BattleAIActionGenerator가 초기화되지 않았습니다."
+            );
+
+            return;
+        }
+
+        // 실제 행동 후보 생성은 전용 생성기에 위임한다.
+        battleAIActionGenerator.GenerateActions(
+            actingTeam,
+            results
+        );
+    }
+
+    // <변경부분> 현재 보드 상태를 기준으로
+    // Enemy 진영의 모든 합법 이동 및 공격 후보를 생성해 확인하는 함수
+    public void DebugGenerateEnemyAIActions()
+    {
+        // 전투가 종료된 뒤에는 AI 후보를 생성하지 않는다.
+        if (isBattleEnded)
+        {
+            Debug.Log(
+                "AI 행동 후보 생성 중단: 전투가 이미 종료되었습니다."
+            );
+
+            return;
+        }
+
+        // AI 행동 생성기가 초기화되지 않았다면 테스트할 수 없다.
+        if (battleAIActionGenerator == null)
+        {
+            Debug.LogWarning(
+                "AI 행동 후보 생성 실패: BattleAIActionGenerator가 초기화되지 않았습니다."
+            );
+
+            return;
+        }
+
+        GenerateAIActions(
+     PieceTeam.Enemy,
+     battleAIActionCandidates
+ );
+
+        // 생성된 후보의 수와 세부 내용을 Console에 출력한다.
+        battleAIActionGenerator.DebugLogActions(
+            PieceTeam.Enemy,
+            battleAIActionCandidates
+        );
+    }
+
     // <변경부분> 테스트용 버튼에서 턴을 강제로 넘기는 함수
     public void DebugForceEndTurn()
     {
@@ -1896,7 +2063,16 @@ public class BattleManager : MonoBehaviour
             turnInfoUIController.RefreshTurnInfo(turnCount, currentTurn);
         }
 
-        Debug.Log($"턴 변경: Turn {turnCount} / {currentTurn}");
+        Debug.Log( $"턴 변경: Turn {turnCount} / {currentTurn}");
+
+        // <변경부분> 턴 상태 갱신이 모두 끝난 뒤
+        // 새 턴 주체를 AI 매니저에 전달한다.
+        if (battleAIManager != null)
+        {
+            battleAIManager.HandleTurnStarted(
+                currentTurn
+            );
+        }
     }
 
     // <변경부분> 턴 시작 시 현재 턴 진영 기물의 고유 스킬 상태만 갱신
@@ -2185,89 +2361,7 @@ public class BattleManager : MonoBehaviour
         return true;
     }
 
-    // <변경부분> KingDeath 조건
-    // 해당 진영에 King이 없으면 패배로 판단
-    private bool IsTeamDefeatedByKingDeath(PieceTeam team)
-    {
-        if (pieceManager == null)
-        {
-            return false;
-        }
-
-        return pieceManager.HasKing(team) == false;
-    }
-
-    // <변경부분> AllPiecesDead 조건
-    // 해당 진영의 모든 기물이 사라지면 패배로 판단
-    private bool IsTeamDefeatedByAllPiecesDead(PieceTeam team)
-    {
-        if (pieceManager == null)
-        {
-            return false;
-        }
-
-        return pieceManager.HasAnyPiece(team) == false;
-    }
-
-    // <변경부분> AllNonKingPiecesDead 조건
-    // 해당 진영의 King을 제외한 모든 기물이 사라지면 패배로 판단
-    private bool IsTeamDefeatedByAllNonKingPiecesDead(PieceTeam team)
-    {
-        if (pieceManager == null)
-        {
-            return false;
-        }
-
-        return pieceManager.HasAnyNonKingPiece(team) == false;
-    }
-
-    // <변경부분> NoActionablePieces 조건
-    // 해당 진영에 실제로 이동/공격 가능한 기물이 하나도 없으면 패배로 판단
-    private bool IsTeamDefeatedByNoActionablePieces(PieceTeam team)
-    {
-        if (pieceManager == null)
-        {
-            return false;
-        }
-
-        if (battleMoveValidator == null)
-        {
-            Debug.LogWarning("BattleMoveValidator가 연결되지 않아 NoActionablePieces 조건을 판정할 수 없습니다.");
-            return false;
-        }
-
-        for (int y = 0; y < boardManager.Height; y++)
-        {
-            for (int x = 0; x < boardManager.Width; x++)
-            {
-                Piece piece = pieceManager.GetPieceAt(x, y);
-
-                if (piece == null)
-                {
-                    continue;
-                }
-
-                if (piece.Team != team)
-                {
-                    continue;
-                }
-
-                if (piece.CanMove == false)
-                {
-                    continue;
-                }
-
-                // <변경부분> 현재 보드 상황에서 실제 이동/공격 가능한 타일이 하나라도 있으면 패배 아님
-                if (battleMoveValidator.HasAnySelectableTile(piece))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
+   
     // <변경부분> 전투 종료 후 플레이어 기물 상태를 RunStateManager에 저장하는 함수
     private void SavePlayerPiecesToRunState()
     {

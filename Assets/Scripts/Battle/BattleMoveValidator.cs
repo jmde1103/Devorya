@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // <변경부분> 전투 중 기물이 이동 또는 공격 가능한 상태인지 판정하는 클래스
@@ -19,169 +20,469 @@ public class BattleMoveValidator : MonoBehaviour
         pieceManager = pieceManagerRef;
     }
 
-    // <변경부분> 현재 위치에서 해당 기물이 이동 또는 공격 가능한 타일이 하나라도 있는지 검사하는 함수
-    public bool HasAnySelectableTile(Piece piece)
+    // <변경부분> 기물 하나가 현재 보드에서 선택할 수 있는
+    // 모든 이동 및 공격 좌표를 반환하는 공용 함수
+    // 플레이어 하이라이트와 AI 후보 생성이 이 결과를 함께 사용한다.
+    public List<Vector2Int> GetSelectablePositions(Piece piece)
     {
-        // 검사할 기물이 없으면 추가 행동 불가
+        List<Vector2Int> selectablePositions =
+            new List<Vector2Int>();
+
+        // 기물이 없으면 빈 목록 반환
         if (piece == null)
         {
-            return false;
+            return selectablePositions;
         }
 
-        // 필요한 매니저가 없으면 판정 불가
-        if (boardManager == null || pieceManager == null)
+        // 이동 불가능한 중립 기물 등은 행동 후보를 생성하지 않음
+        if (piece.CanMove == false)
         {
-            Debug.LogWarning("BattleMoveValidator 초기화가 완료되지 않았습니다.");
-            return false;
+            return selectablePositions;
         }
 
-        // <변경부분> 실제 기물 타입이 아니라 현재 이동 판정 타입 기준으로 검사
-        switch (piece.GetCurrentMoveType())
+        // 필요한 매니저가 초기화되지 않았다면 판정 불가
+        if (boardManager == null ||
+            pieceManager == null)
+        {
+            Debug.LogWarning(
+                "BattleMoveValidator 초기화가 완료되지 않았습니다."
+            );
+
+            return selectablePositions;
+        }
+
+        // 실제 기물 타입이 아니라
+        // KingQueenMove 등의 임시 이동 타입까지 반영한 타입 사용
+        PieceType moveType =
+            piece.GetCurrentMoveType();
+
+        switch (moveType)
         {
             case PieceType.Pawn:
-                return HasAnyPawnSelectableTile(piece);
+                AddPawnSelectablePositions(
+                    piece,
+                    selectablePositions
+                );
+                break;
 
             case PieceType.Rook:
-                return HasAnyLineSelectableTile(piece, 1, 0) ||
-                       HasAnyLineSelectableTile(piece, -1, 0) ||
-                       HasAnyLineSelectableTile(piece, 0, 1) ||
-                       HasAnyLineSelectableTile(piece, 0, -1);
+                AddLineSelectablePositions(
+                    piece,
+                    1,
+                    0,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    -1,
+                    0,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    0,
+                    1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    0,
+                    -1,
+                    selectablePositions
+                );
+                break;
 
             case PieceType.Bishop:
-                return HasAnyLineSelectableTile(piece, 1, 1) ||
-                       HasAnyLineSelectableTile(piece, -1, 1) ||
-                       HasAnyLineSelectableTile(piece, 1, -1) ||
-                       HasAnyLineSelectableTile(piece, -1, -1);
+                AddLineSelectablePositions(
+                    piece,
+                    1,
+                    1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    -1,
+                    1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    1,
+                    -1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    -1,
+                    -1,
+                    selectablePositions
+                );
+                break;
 
             case PieceType.Knight:
-                return HasAnyKnightSelectableTile(piece);
+                AddKnightSelectablePositions(
+                    piece,
+                    selectablePositions
+                );
+                break;
 
             case PieceType.King:
-                return HasAnyKingSelectableTile(piece);
+                AddKingSelectablePositions(
+                    piece,
+                    selectablePositions
+                );
+                break;
 
-            // <변경부분> Queen은 Rook + Bishop 방향을 모두 검사
             case PieceType.Queen:
-                return HasAnyLineSelectableTile(piece, 1, 0) ||
-                       HasAnyLineSelectableTile(piece, -1, 0) ||
-                       HasAnyLineSelectableTile(piece, 0, 1) ||
-                       HasAnyLineSelectableTile(piece, 0, -1) ||
-                       HasAnyLineSelectableTile(piece, 1, 1) ||
-                       HasAnyLineSelectableTile(piece, -1, 1) ||
-                       HasAnyLineSelectableTile(piece, 1, -1) ||
-                       HasAnyLineSelectableTile(piece, -1, -1);
+                // Queen은 Rook과 Bishop의 모든 방향을 사용
+                AddLineSelectablePositions(
+                    piece,
+                    1,
+                    0,
+                    selectablePositions
+                );
 
-            default:
-                return false;
+                AddLineSelectablePositions(
+                    piece,
+                    -1,
+                    0,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    0,
+                    1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    0,
+                    -1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    1,
+                    1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    -1,
+                    1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    1,
+                    -1,
+                    selectablePositions
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    -1,
+                    -1,
+                    selectablePositions
+                );
+                break;
         }
+
+        return selectablePositions;
     }
 
-    // <변경부분> Pawn이 현재 위치에서 이동 또는 공격 가능한 타일이 있는지 검사하는 함수
-    private bool HasAnyPawnSelectableTile(Piece piece)
+    // <변경부분> AI가 일반 이동 후보만 따로 평가할 수 있도록
+    // 빈칸인 이동 좌표만 반환하는 함수
+    public List<Vector2Int> GetMovePositions(Piece piece)
     {
-        // 플레이어는 위쪽, 적은 아래쪽으로 전진
-        int direction = piece.Team == PieceTeam.Player ? 1 : -1;
+        List<Vector2Int> selectablePositions =
+            GetSelectablePositions(piece);
 
-        // 전진 이동 가능 여부 검사
+        List<Vector2Int> movePositions =
+            new List<Vector2Int>();
+
+        if (pieceManager == null)
+        {
+            return movePositions;
+        }
+
+        for (int i = 0;
+             i < selectablePositions.Count;
+             i++)
+        {
+            Vector2Int position =
+                selectablePositions[i];
+
+            Piece targetPiece =
+                pieceManager.GetPieceAt(
+                    position.x,
+                    position.y
+                );
+
+            // 대상 칸이 비어 있으면 일반 이동 후보
+            if (targetPiece == null)
+            {
+                movePositions.Add(position);
+            }
+        }
+
+        return movePositions;
+    }
+
+    // <변경부분> AI가 공격 가치를 별도로 평가할 수 있도록
+    // 적대 기물이 있는 공격 좌표만 반환하는 함수
+    public List<Vector2Int> GetAttackPositions(Piece piece)
+    {
+        List<Vector2Int> selectablePositions =
+            GetSelectablePositions(piece);
+
+        List<Vector2Int> attackPositions =
+            new List<Vector2Int>();
+
+        if (piece == null ||
+            pieceManager == null)
+        {
+            return attackPositions;
+        }
+
+        for (int i = 0;
+             i < selectablePositions.Count;
+             i++)
+        {
+            Vector2Int position =
+                selectablePositions[i];
+
+            Piece targetPiece =
+                pieceManager.GetPieceAt(
+                    position.x,
+                    position.y
+                );
+
+            if (targetPiece != null &&
+                piece.IsEnemyOf(targetPiece))
+            {
+                attackPositions.Add(position);
+            }
+        }
+
+        return attackPositions;
+    }
+
+    // <변경부분> 현재 기물이 이동 또는 공격 가능한 좌표를
+    // 하나라도 가지고 있는지 확인하는 함수
+    // 실제 좌표 판정은 GetSelectablePositions() 한곳에서 처리한다.
+    public bool HasAnySelectableTile(Piece piece)
+    {
+        return GetSelectablePositions(piece).Count > 0;
+    }
+
+    // <변경부분> Pawn의 전진 이동과 대각선 공격 좌표를 추가한다.
+    private void AddPawnSelectablePositions(
+        Piece piece,
+        List<Vector2Int> results)
+    {
+        int direction =
+            piece.Team == PieceTeam.Player
+                ? 1
+                : -1;
+
+        // 전진 이동 좌표
         int forwardX = piece.X;
         int forwardY = piece.Y + direction;
 
-        if (IsInsideBoard(forwardX, forwardY) && pieceManager.IsEmpty(forwardX, forwardY))
+        if (IsInsideBoard(forwardX, forwardY) &&
+            pieceManager.IsEmpty(
+                forwardX,
+                forwardY
+            ))
         {
-            return true;
+            results.Add(
+                new Vector2Int(
+                    forwardX,
+                    forwardY
+                )
+            );
         }
 
-        // 왼쪽 대각선 공격 가능 여부 검사
-        if (CanAttackTile(piece, piece.X - 1, piece.Y + direction))
-        {
-            return true;
-        }
+        // 왼쪽 대각선 공격 좌표
+        TryAddAttackPosition(
+            piece,
+            piece.X - 1,
+            piece.Y + direction,
+            results
+        );
 
-        // 오른쪽 대각선 공격 가능 여부 검사
-        if (CanAttackTile(piece, piece.X + 1, piece.Y + direction))
-        {
-            return true;
-        }
-
-        return false;
+        // 오른쪽 대각선 공격 좌표
+        TryAddAttackPosition(
+            piece,
+            piece.X + 1,
+            piece.Y + direction,
+            results
+        );
     }
 
-    // <변경부분> Rook/Bishop처럼 한 방향으로 계속 이동하는 기물의 이동 또는 공격 가능 여부를 검사하는 함수
-    private bool HasAnyLineSelectableTile(Piece piece, int dirX, int dirY)
+    // <변경부분> Rook, Bishop, Queen처럼
+    // 한 방향으로 연속 이동하는 기물의 좌표를 추가한다.
+    private void AddLineSelectablePositions(
+        Piece piece,
+        int dirX,
+        int dirY,
+        List<Vector2Int> results)
     {
-        // 현재 위치에서 지정 방향으로 한 칸씩 검사
         int checkX = piece.X + dirX;
         int checkY = piece.Y + dirY;
 
         while (IsInsideBoard(checkX, checkY))
         {
-            Piece targetPiece = pieceManager.GetPieceAt(checkX, checkY);
+            Piece targetPiece =
+                pieceManager.GetPieceAt(
+                    checkX,
+                    checkY
+                );
 
-            // 빈칸이면 이동 가능
+            // 빈칸은 이동 가능
             if (targetPiece == null)
             {
-                return true;
+                results.Add(
+                    new Vector2Int(
+                        checkX,
+                        checkY
+                    )
+                );
             }
-
-            // 적대 기물이 있으면 공격 가능
-            if (piece.IsEnemyOf(targetPiece))
+            else
             {
-                return true;
+                // 적대 기물이 있는 첫 칸은 공격 가능
+                if (piece.IsEnemyOf(targetPiece))
+                {
+                    results.Add(
+                        new Vector2Int(
+                            checkX,
+                            checkY
+                        )
+                    );
+                }
+
+                // 기물이 있으면 그 뒤는 이동 불가
+                break;
             }
 
-            // 같은 편 기물이 막고 있으면 이 방향은 더 이상 진행 불가
-            return false;
+            checkX += dirX;
+            checkY += dirY;
         }
-
-        return false;
     }
 
-    // <변경부분> Knight가 현재 위치에서 이동 또는 공격 가능한 타일이 있는지 검사하는 함수
-    private bool HasAnyKnightSelectableTile(Piece piece)
+    // <변경부분> Knight의 8개 이동 후보를 검사해 추가한다.
+    private void AddKnightSelectablePositions(
+        Piece piece,
+        List<Vector2Int> results)
     {
         int[,] knightMoves =
         {
-            { 1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 },
-            { -1, -2 }, { -2, -1 }, { -2, 1 }, { -1, 2 }
-        };
+        { 1, 2 },
+        { 2, 1 },
+        { 2, -1 },
+        { 1, -2 },
+        { -1, -2 },
+        { -2, -1 },
+        { -2, 1 },
+        { -1, 2 }
+    };
 
-        for (int i = 0; i < knightMoves.GetLength(0); i++)
+        for (int i = 0;
+             i < knightMoves.GetLength(0);
+             i++)
         {
-            int targetX = piece.X + knightMoves[i, 0];
-            int targetY = piece.Y + knightMoves[i, 1];
+            int targetX =
+                piece.X + knightMoves[i, 0];
 
-            if (CanMoveOrAttackTile(piece, targetX, targetY))
-            {
-                return true;
-            }
+            int targetY =
+                piece.Y + knightMoves[i, 1];
+
+            TryAddMoveOrAttackPosition(
+                piece,
+                targetX,
+                targetY,
+                results
+            );
         }
-
-        return false;
     }
 
-    // <변경부분> King이 현재 위치에서 이동 또는 공격 가능한 타일이 있는지 검사하는 함수
-    private bool HasAnyKingSelectableTile(Piece piece)
+    // <변경부분> King의 주변 8칸 이동 및 공격 좌표를 추가한다.
+    private void AddKingSelectablePositions(
+        Piece piece,
+        List<Vector2Int> results)
     {
-        for (int x = -1; x <= 1; x++)
+        for (int offsetX = -1;
+             offsetX <= 1;
+             offsetX++)
         {
-            for (int y = -1; y <= 1; y++)
+            for (int offsetY = -1;
+                 offsetY <= 1;
+                 offsetY++)
             {
-                // 자기 위치는 검사하지 않음
-                if (x == 0 && y == 0)
+                // 현재 위치는 제외
+                if (offsetX == 0 &&
+                    offsetY == 0)
                 {
                     continue;
                 }
 
-                int targetX = piece.X + x;
-                int targetY = piece.Y + y;
-
-                if (CanMoveOrAttackTile(piece, targetX, targetY))
-                {
-                    return true;
-                }
+                TryAddMoveOrAttackPosition(
+                    piece,
+                    piece.X + offsetX,
+                    piece.Y + offsetY,
+                    results
+                );
             }
         }
+    }
 
-        return false;
+    // <변경부분> 단일 좌표가 이동 또는 공격 가능한 경우 목록에 추가한다.
+    private void TryAddMoveOrAttackPosition(
+        Piece piece,
+        int x,
+        int y,
+        List<Vector2Int> results)
+    {
+        if (CanMoveOrAttackTile(
+                piece,
+                x,
+                y))
+        {
+            results.Add(
+                new Vector2Int(x, y)
+            );
+        }
+    }
+
+    // <변경부분> 단일 좌표가 공격 가능한 경우에만 목록에 추가한다.
+    private void TryAddAttackPosition(
+        Piece piece,
+        int x,
+        int y,
+        List<Vector2Int> results)
+    {
+        if (CanAttackTile(
+                piece,
+                x,
+                y))
+        {
+            results.Add(
+                new Vector2Int(x, y)
+            );
+        }
     }
 
     // <변경부분> 특정 좌표가 이동 또는 공격 가능한 타일인지 검사하는 함수
@@ -218,6 +519,56 @@ public class BattleMoveValidator : MonoBehaviour
 
         // 대상 기물이 있고 적대 관계면 공격 가능
         return targetPiece != null && piece.IsEnemyOf(targetPiece);
+    }
+
+    // <변경부분> AI 공용 이동 판정 개발 중
+    // 특정 기물의 이동 및 공격 좌표를 Console에서 확인하는 테스트 함수
+    public void DebugLogSelectablePositions(
+        Piece piece)
+    {
+        if (piece == null)
+        {
+            Debug.Log(
+                "AI 이동 좌표 테스트 실패: 기물이 없습니다."
+            );
+
+            return;
+        }
+
+        List<Vector2Int> movePositions =
+            GetMovePositions(piece);
+
+        List<Vector2Int> attackPositions =
+            GetAttackPositions(piece);
+
+        Debug.Log(
+            $"AI 이동 좌표 테스트: " +
+            $"{piece.Team} {piece.PieceType} / " +
+            $"이동 {movePositions.Count}개 / " +
+            $"공격 {attackPositions.Count}개"
+        );
+
+        for (int i = 0;
+             i < movePositions.Count;
+             i++)
+        {
+            Debug.Log(
+                $"이동 후보: " +
+                $"({movePositions[i].x}, " +
+                $"{movePositions[i].y})"
+            );
+        }
+
+        for (int i = 0;
+             i < attackPositions.Count;
+             i++)
+        {
+            Debug.Log(
+                $"공격 후보: " +
+                $"({attackPositions[i].x}, " +
+                $"{attackPositions[i].y})"
+            );
+        }
     }
 
     // <변경부분> 좌표가 보드 안쪽인지 확인하는 함수
