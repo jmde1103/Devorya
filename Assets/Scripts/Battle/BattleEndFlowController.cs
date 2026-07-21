@@ -6,23 +6,19 @@ using UnityEngine.SceneManagement;
 public class BattleEndFlowController : MonoBehaviour
 {
     [Header("Scene Move")]
-    // <변경부분> 승리 후 바로 맵 씬으로 이동할지 여부
-    // 보상 팝업을 사용할 때는 false로 유지한다.
-    [SerializeField]
-    private bool moveToMapSceneImmediatelyOnWin = false;
 
-    // <변경부분> 맵 씬 연결 전 테스트용 옵션
-    // true이면 리워드 확인 후 맵 씬 대신 현재 전투 씬을 새로 불러온다.
-    // RunStateManager의 저장 데이터가 다음 전투에 복원되는지 검증할 때 사용한다.
-    [SerializeField]
-    private bool reloadCurrentBattleSceneForTest = true;
+    // <변경부분> 승리 후 바로 맵 씬으로 이동할지 여부
+    [SerializeField] private bool moveToMapSceneImmediatelyOnWin = false;
 
     // <변경부분> 전투 승리 후 돌아갈 로그라이크 맵 씬 이름
-    [SerializeField]
-    private string mapSceneName = "RoguelikeMapScene";
+    [SerializeField] private string mapSceneName = "RoguelikeMapScene";
 
-    // <변경부분> 패배 후 바로 이동할 씬이 필요한 경우 사용
-    [SerializeField] private bool moveToMapSceneOnLose = false;
+    // <변경부분> 로그라이크 맵 씬 연결 전 테스트 옵션
+    // 승리 보상 확인 후 런 데이터를 유지한 채 현재 전투 씬을 다시 불러온다.
+    // 패배 시에는 이 옵션과 관계없이 런 데이터를 초기화하고 현재 씬을 재시작한다.
+    [SerializeField] private bool reloadCurrentBattleSceneForTest = true;
+
+
 
     [Header("Reward")]
     // <변경부분> 아이템 보상으로 보유할 수 있는 최대 아이템 수
@@ -485,15 +481,47 @@ public class BattleEndFlowController : MonoBehaviour
         );
     }
 
-    // <변경부분> 전투 패배 후 처리
+    // <변경부분> 전투 패배 후 현재 런 데이터를 초기화하고
+    // 현재 전투 씬을 다시 로드한다.
+    // 추후 타이틀 씬이 완성되면 씬 이동 부분만 타이틀 씬으로 교체한다.
     private void HandleBattleLose()
     {
-        Debug.Log("전투 종료 흐름: 패배 / 런 실패 또는 패배 처리 단계 진입 준비");
+        Debug.Log(
+            "전투 종료 흐름: 패배 / " +
+            "런 데이터 초기화 후 현재 전투 씬 재시작"
+        );
 
-        if (moveToMapSceneOnLose)
+        // 패배한 런에서 저장된 기물, 금화, 아이템, 유물 데이터를 제거한다.
+        if (RunStateManager.Instance != null)
         {
-            MoveToMapScene();
+            RunStateManager.Instance.ClearRunState();
         }
+        else
+        {
+            Debug.LogWarning(
+                "패배 후 런 데이터 초기화 실패: " +
+                "RunStateManager가 없습니다."
+            );
+        }
+
+        // 현재 활성화된 전투 씬 정보를 가져온다.
+        Scene currentScene =
+            SceneManager.GetActiveScene();
+
+        if (string.IsNullOrEmpty(currentScene.name))
+        {
+            Debug.LogWarning(
+                "패배 후 전투 씬 재시작 실패: " +
+                "현재 씬 이름을 확인할 수 없습니다."
+            );
+
+            return;
+        }
+
+        // 현재 전투 씬을 처음부터 다시 로드한다.
+        SceneManager.LoadScene(
+            currentScene.name
+        );
     }
 
     // <변경부분> 보상 확인 완료 후 다음 씬으로 이동하는 함수

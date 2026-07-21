@@ -287,6 +287,458 @@ public class BattleMoveValidator : MonoBehaviour
         return GetSelectablePositions(piece).Count > 0;
     }
 
+    // <변경부분> AI 행동이 실행된 이후의 가상 보드 상태에서
+    // 지정한 진영의 King이 상대 기물에게 공격받는지 검사한다.
+    //
+    // 실제 Piece 좌표나 PieceManager 배열은 변경하지 않는다.
+    // AI 평가 중 애니메이션, 사망 처리, 스킬 효과가 발생하지 않도록
+    // SourcePosition과 TargetPosition만 가상으로 반영한다.
+    public bool IsKingThreatenedAfterAction(
+        BattleAIAction action,
+        PieceTeam kingTeam)
+    {
+        if (action == null ||
+            action.ActingPiece == null)
+        {
+            return false;
+        }
+
+        if (boardManager == null ||
+            pieceManager == null)
+        {
+            Debug.LogWarning(
+                "King 위험도 판정 실패: " +
+                "BattleMoveValidator가 초기화되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        Piece kingPiece =
+            FindKingPieceAfterAction(
+                action,
+                kingTeam
+            );
+
+        // 해당 진영에 King이 없는 전투에서는
+        // King 위험도 점수를 적용하지 않는다.
+        if (kingPiece == null)
+        {
+            return false;
+        }
+
+        Vector2Int kingPosition =
+            GetVirtualPiecePosition(
+                kingPiece,
+                action
+            );
+
+        // 가상 행동 이후 보드에 남아 있는 모든 적대 기물을 검사한다.
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece attacker =
+                    GetVirtualPieceAt(
+                        x,
+                        y,
+                        action
+                    );
+
+                if (attacker == null)
+                {
+                    continue;
+                }
+
+                if (attacker == kingPiece)
+                {
+                    continue;
+                }
+
+                // 이동 불가능한 벽이나 특수 기물은
+                // 현재 전투 규칙상 공격 위협으로 계산하지 않는다.
+                if (attacker.CanMove == false)
+                {
+                    continue;
+                }
+
+                if (attacker.IsEnemyOf(kingPiece) == false)
+                {
+                    continue;
+                }
+
+                Vector2Int attackerPosition =
+                    GetVirtualPiecePosition(
+                        attacker,
+                        action
+                    );
+
+                if (CanPieceAttackPositionInVirtualBoard(
+                        attacker,
+                        attackerPosition,
+                        kingPosition,
+                        action))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // <변경부분> AI 행동 이후 행동한 기물이
+    // 상대 기물의 기본 공격 범위에 노출되는지 검사한다.
+    //
+    // 실제 Piece 좌표와 PieceManager 배열은 변경하지 않고,
+    // 기존 가상 보드 판정 함수를 그대로 재사용한다.
+    public bool IsActingPieceThreatenedAfterAction(
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActingPiece == null)
+        {
+            return false;
+        }
+
+        if (boardManager == null ||
+            pieceManager == null)
+        {
+            Debug.LogWarning(
+                "행동 기물 위험도 판정 실패: " +
+                "BattleMoveValidator가 초기화되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        Piece actingPiece =
+            action.ActingPiece;
+
+        // 행동이 완료된 뒤 행동 기물은 목표 위치에 있다고 가정한다.
+        Vector2Int actingPiecePosition =
+            action.TargetPosition;
+
+        // 가상 행동 이후 보드에 남아 있는 모든 기물을 검사한다.
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece attacker =
+                    GetVirtualPieceAt(
+                        x,
+                        y,
+                        action
+                    );
+
+                if (attacker == null)
+                {
+                    continue;
+                }
+
+                // 행동 기물 자신은 공격자로 검사하지 않는다.
+                if (attacker == actingPiece)
+                {
+                    continue;
+                }
+
+                // 이동 불가능한 벽과 특수 기물은
+                // 현재 전투 규칙상 공격 위협으로 계산하지 않는다.
+                if (attacker.CanMove == false)
+                {
+                    continue;
+                }
+
+                // 행동 기물과 적대 관계가 아닌 기물은 제외한다.
+                if (attacker.IsEnemyOf(actingPiece) == false)
+                {
+                    continue;
+                }
+
+                Vector2Int attackerPosition =
+                    GetVirtualPiecePosition(
+                        attacker,
+                        action
+                    );
+
+                // 가상 행동 이후 상대 기물이 행동 기물의 위치를
+                // 공격할 수 있다면 다음 턴에 잡힐 위험이 있다고 판단한다.
+                if (CanPieceAttackPositionInVirtualBoard(
+                        attacker,
+                        attackerPosition,
+                        actingPiecePosition,
+                        action))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // <변경부분> AI 행동 이후에도 살아 있는
+    // 지정 진영의 King 기물을 찾는다.
+    private Piece FindKingPieceAfterAction(
+        BattleAIAction action,
+        PieceTeam kingTeam)
+    {
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece piece =
+                    GetVirtualPieceAt(
+                        x,
+                        y,
+                        action
+                    );
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != kingTeam)
+                {
+                    continue;
+                }
+
+                if (piece.PieceType == PieceType.King)
+                {
+                    return piece;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // <변경부분> 지정한 기물의 가상 행동 이후 좌표를 반환한다.
+    private Vector2Int GetVirtualPiecePosition(
+        Piece piece,
+        BattleAIAction action)
+    {
+        if (piece == null)
+        {
+            return new Vector2Int(-1, -1);
+        }
+
+        if (action != null &&
+            piece == action.ActingPiece)
+        {
+            return action.TargetPosition;
+        }
+
+        return new Vector2Int(
+            piece.X,
+            piece.Y
+        );
+    }
+
+    // <변경부분> AI 행동 이후의 가상 보드에서
+    // 특정 좌표에 존재하는 기물을 반환한다.
+    private Piece GetVirtualPieceAt(
+        int x,
+        int y,
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActingPiece == null)
+        {
+            return pieceManager.GetPieceAt(x, y);
+        }
+
+        Vector2Int position =
+            new Vector2Int(x, y);
+
+        // 행동 기물의 기존 위치는 가상 상태에서 비어 있다.
+        if (position == action.SourcePosition)
+        {
+            return null;
+        }
+
+        // 목표 위치에는 이동한 행동 기물이 존재한다.
+        // 공격 대상 기물은 제거된 것으로 처리한다.
+        if (position == action.TargetPosition)
+        {
+            return action.ActingPiece;
+        }
+
+        return pieceManager.GetPieceAt(x, y);
+    }
+
+    // <변경부분> 가상 보드 상태에서 특정 기물이
+    // 목표 좌표를 공격할 수 있는지 검사한다.
+    //
+    // 이동 가능 위치가 아니라 실제 공격 범위만 검사하므로
+    // Pawn의 전진 이동은 공격으로 계산하지 않는다.
+    private bool CanPieceAttackPositionInVirtualBoard(
+        Piece attacker,
+        Vector2Int attackerPosition,
+        Vector2Int targetPosition,
+        BattleAIAction action)
+    {
+        if (attacker == null)
+        {
+            return false;
+        }
+
+        PieceType moveType =
+            attacker.GetCurrentMoveType();
+
+        int deltaX =
+            targetPosition.x -
+            attackerPosition.x;
+
+        int deltaY =
+            targetPosition.y -
+            attackerPosition.y;
+
+        switch (moveType)
+        {
+            case PieceType.Pawn:
+                {
+                    int direction =
+                        attacker.Team == PieceTeam.Player
+                            ? 1
+                            : -1;
+
+                    return deltaY == direction &&
+                           Mathf.Abs(deltaX) == 1;
+                }
+
+            case PieceType.Knight:
+                {
+                    int absoluteX =
+                        Mathf.Abs(deltaX);
+
+                    int absoluteY =
+                        Mathf.Abs(deltaY);
+
+                    return
+                        (absoluteX == 1 && absoluteY == 2) ||
+                        (absoluteX == 2 && absoluteY == 1);
+                }
+
+            case PieceType.King:
+                {
+                    return
+                        Mathf.Abs(deltaX) <= 1 &&
+                        Mathf.Abs(deltaY) <= 1 &&
+                        (deltaX != 0 || deltaY != 0);
+                }
+
+            case PieceType.Rook:
+                {
+                    if (deltaX != 0 &&
+                        deltaY != 0)
+                    {
+                        return false;
+                    }
+
+                    return IsVirtualLineClear(
+                        attackerPosition,
+                        targetPosition,
+                        action
+                    );
+                }
+
+            case PieceType.Bishop:
+                {
+                    if (Mathf.Abs(deltaX) !=
+                        Mathf.Abs(deltaY))
+                    {
+                        return false;
+                    }
+
+                    return IsVirtualLineClear(
+                        attackerPosition,
+                        targetPosition,
+                        action
+                    );
+                }
+
+            case PieceType.Queen:
+                {
+                    bool isStraight =
+                        deltaX == 0 ||
+                        deltaY == 0;
+
+                    bool isDiagonal =
+                        Mathf.Abs(deltaX) ==
+                        Mathf.Abs(deltaY);
+
+                    if (isStraight == false &&
+                        isDiagonal == false)
+                    {
+                        return false;
+                    }
+
+                    return IsVirtualLineClear(
+                        attackerPosition,
+                        targetPosition,
+                        action
+                    );
+                }
+        }
+
+        return false;
+    }
+
+    // <변경부분> Rook, Bishop, Queen의 공격 경로가
+    // 가상 보드 상태에서 막혀 있지 않은지 검사한다.
+    private bool IsVirtualLineClear(
+        Vector2Int sourcePosition,
+        Vector2Int targetPosition,
+        BattleAIAction action)
+    {
+        int directionX =
+            targetPosition.x == sourcePosition.x
+                ? 0
+                : targetPosition.x > sourcePosition.x
+                    ? 1
+                    : -1;
+
+        int directionY =
+            targetPosition.y == sourcePosition.y
+                ? 0
+                : targetPosition.y > sourcePosition.y
+                    ? 1
+                    : -1;
+
+        int checkX =
+            sourcePosition.x + directionX;
+
+        int checkY =
+            sourcePosition.y + directionY;
+
+        while (checkX != targetPosition.x ||
+               checkY != targetPosition.y)
+        {
+            Piece blockingPiece =
+                GetVirtualPieceAt(
+                    checkX,
+                    checkY,
+                    action
+                );
+
+            if (blockingPiece != null)
+            {
+                return false;
+            }
+
+            checkX += directionX;
+            checkY += directionY;
+        }
+
+        return true;
+    }
+
     // <변경부분> Pawn의 전진 이동과 대각선 공격 좌표를 추가한다.
     private void AddPawnSelectablePositions(
         Piece piece,

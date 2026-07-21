@@ -1916,6 +1916,51 @@ public class BattleManager : MonoBehaviour
         EndTurn();
     }
 
+    // <변경부분> AI 행동 이후 지정한 진영의 King이
+    // 상대 공격 범위에 노출되는지 공용 이동 판정기에 요청한다.
+    public bool IsKingThreatenedAfterAIAction(
+        BattleAIAction action,
+        PieceTeam kingTeam)
+    {
+        if (battleMoveValidator == null)
+        {
+            Debug.LogWarning(
+                "AI King 위험도 판정 실패: " +
+                "BattleMoveValidator가 연결되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        return battleMoveValidator
+            .IsKingThreatenedAfterAction(
+                action,
+                kingTeam
+            );
+    }
+
+    // <변경부분> AI 행동 이후 행동한 기물이
+    // 상대 기본 공격 범위에 노출되는지 공용 이동 판정기에 요청한다.
+    public bool IsActingPieceThreatenedAfterAIAction(
+        BattleAIAction action)
+    {
+        if (battleMoveValidator == null)
+        {
+            Debug.LogWarning(
+                "AI 행동 기물 위험도 판정 실패: " +
+                "BattleMoveValidator가 연결되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        return battleMoveValidator
+            .IsActingPieceThreatenedAfterAction(
+                action
+            );
+    }
+
+
     // <변경부분> 지정한 진영의 현재 합법적인 AI 행동 후보를 생성하는 공용 함수
     // 디버그 출력과 실제 AI 턴 모두 같은 BattleAIActionGenerator를 사용한다.
     public void GenerateAIActions(

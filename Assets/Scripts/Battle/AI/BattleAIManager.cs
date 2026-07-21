@@ -19,13 +19,35 @@ public class BattleAIManager : MonoBehaviour
     private readonly List<BattleAIAction> actionCandidates =
         new List<BattleAIAction>();
 
+    // <변경부분> 최고 점수가 같은 행동 후보들을 저장하는 재사용 목록
+    // 매 턴 새로운 List를 만들지 않아 불필요한 GC 할당을 줄인다.
+    private readonly List<BattleAIAction> bestActionCandidates =
+        new List<BattleAIAction>();
+
+    // <변경부분> AI 행동 후보의 점수를 계산하고
+    // 최고 점수 행동을 선택하는 일반 C# 평가기
+    private BattleAIActionEvaluator actionEvaluator;
+
+    [Header("AI Debug")]
+    [SerializeField]
+    private bool logEvaluatedActionScores = true;
+
     // 같은 Enemy 턴에 AI 코루틴이 중복 실행되는 것을 방지한다.
     private Coroutine enemyTurnRoutine;
 
     // <변경부분> BattleManager가 전투 시작 시 한 번 호출하는 초기화 함수
     public void Initialize(BattleManager manager)
     {
+        // 실제 전투 실행을 담당하는 BattleManager 저장
         battleManager = manager;
+
+        // <변경부분> AI 행동 점수 평가기가
+        // 가상 King 위험도 판정을 요청할 수 있도록
+        // BattleManager 참조를 전달한다.
+        actionEvaluator =
+            new BattleAIActionEvaluator(
+                battleManager
+            );
     }
 
     // <변경부분> 턴이 시작될 때 BattleManager가 호출한다.
@@ -109,19 +131,60 @@ public class BattleAIManager : MonoBehaviour
             yield break;
         }
 
-        // <변경부분> 현재 단계에서는 후보 중 하나를 랜덤 선택한다.
-        int selectedIndex =
-            Random.Range(0, actionCandidates.Count);
+        // <변경부분> AI 행동 평가기가 초기화되지 않았다면
+        // 행동을 선택할 수 없으므로 턴 진행을 중단한다.
+        if (actionEvaluator == null)
+        {
+            Debug.LogWarning(
+                "Enemy AI 행동 선택 실패: " +
+                "BattleAIActionEvaluator가 초기화되지 않았습니다."
+            );
 
+            enemyTurnRoutine = null;
+            yield break;
+        }
+
+        // <변경부분> 생성된 모든 이동 및 공격 후보의 점수를 계산한다.
+        actionEvaluator.EvaluateActions(
+            actionCandidates
+        );
+
+        // 개발 중에는 각 행동 후보의 점수를 Console에서 확인한다.
+        if (logEvaluatedActionScores)
+        {
+            actionEvaluator.DebugLogEvaluatedActions(
+                actionCandidates
+            );
+        }
+
+        // <변경부분> 최고 점수 행동들을 추려내고,
+        // 같은 점수의 행동 중 하나를 랜덤으로 선택한다.
         BattleAIAction selectedAction =
-            actionCandidates[selectedIndex];
+            actionEvaluator.SelectBestAction(
+                actionCandidates,
+                bestActionCandidates
+            );
+
+        // 유효한 행동을 선택하지 못했다면 실행하지 않는다.
+        if (selectedAction == null)
+        {
+            Debug.LogWarning(
+                "Enemy AI 행동 선택 실패: " +
+                "최고 점수 행동을 선택하지 못했습니다."
+            );
+
+            enemyTurnRoutine = null;
+            yield break;
+        }
 
         Debug.Log(
             $"Enemy AI 행동 선택: " +
             $"{selectedAction.ActionType} / " +
             $"{selectedAction.ActingPiece.PieceType} / " +
             $"{selectedAction.SourcePosition} → " +
-            $"{selectedAction.TargetPosition}"
+            $"{selectedAction.TargetPosition} / " +
+            $"점수 {selectedAction.Score} / " +
+            $"동점 후보 {bestActionCandidates.Count}개"
         );
 
         // 실제 이동 및 공격은 BattleManager의 공용 실행 함수 사용
