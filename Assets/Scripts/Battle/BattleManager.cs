@@ -142,6 +142,14 @@ public class BattleManager : MonoBehaviour
         get { return isActionAnimating; }
     }
 
+    // <변경부분> 현재 ChanceAttack 추가 행동을 받아
+    // 같은 턴에 다시 행동해야 하는 기물을 반환한다.
+    // 추가 행동 상태가 아니라면 null을 반환한다.
+    public Piece GetChanceAttackBonusPiece()
+    {
+        return chanceAttackBonusPiece;
+    }
+
     // 오브젝트 생성 시 한 번 실행
     private void Awake()
     {
@@ -1695,8 +1703,8 @@ public class BattleManager : MonoBehaviour
     }
 
     // <변경부분> 전체 타입 아이콘 토글,
-    // 현재 선택 기물, 정보 확인 중인 상대 기물을 기준으로
-    // 보드 위 모든 타입 아이콘의 표시와 선택 연출을 갱신한다.
+    // 현재 선택 기물과 상대 확인 대상을 기준으로
+    // 타입 아이콘 표시, 선택 위치, 비선택 알파값을 갱신한다.
     private void RefreshTypeIconVisuals()
     {
         if (boardManager == null ||
@@ -1704,6 +1712,19 @@ public class BattleManager : MonoBehaviour
         {
             return;
         }
+
+        // Player 기물이 선택되어 있으면
+        // 전체 토글이 꺼져 있어도 Enemy 타입 아이콘 전체를 표시한다.
+        bool shouldShowAllEnemyTypeIcons =
+            selectedPiece != null &&
+            selectedPiece.Team == PieceTeam.Player;
+
+        // <변경부분> 현재 선택된 기물이 하나라도 있는지 확인한다.
+        // 조작 기물 또는 상대 확인 대상 중 하나라도 있으면
+        // 선택되지 않은 표시 중 아이콘을 반투명하게 처리한다.
+        bool hasSelectedTypeIcon =
+            selectedPiece != null ||
+            pendingAttackTargetPiece != null;
 
         for (int x = 0;
              x < boardManager.Width;
@@ -1724,11 +1745,20 @@ public class BattleManager : MonoBehaviour
                     continue;
                 }
 
-                // 전체 표시 토글이 켜져 있거나,
-                // 현재 선택 기물이거나,
-                // 상대 정보 확인 대상으로 지정된 기물은 표시한다.
+                // 다음 조건 중 하나라도 만족하면
+                // 해당 기물의 타입 아이콘을 표시한다.
                 bool shouldShowTypeIcon =
                     isTypeIconVisible ||
+                    piece == selectedPiece ||
+                    piece == pendingAttackTargetPiece ||
+                    (
+                        shouldShowAllEnemyTypeIcons &&
+                        piece.Team == PieceTeam.Enemy
+                    );
+
+                // 현재 직접 선택된 Player 기물 또는
+                // 정보·공격 확인 대상으로 선택된 상대 기물인지 확인
+                bool isSelectedTypeIcon =
                     piece == selectedPiece ||
                     piece == pendingAttackTargetPiece;
 
@@ -1736,18 +1766,29 @@ public class BattleManager : MonoBehaviour
                     shouldShowTypeIcon
                 );
 
-                // 선택 상승과 점멸 연출은
-                // 실제 조작 대상으로 선택된 기물에만 적용한다.
+                // 선택된 기물은 기존처럼 살짝 위로 올라가고,
+                // 선택 해제 시 기본 위치로 내려온다.
                 piece.SetTypeIconSelected(
-                    piece == selectedPiece
+                    isSelectedTypeIcon
+                );
+
+                // <변경부분> 선택된 기물이 하나 이상 있을 때만,
+                // 표시 중이면서 선택되지 않은 타입 아이콘을 반투명 처리한다.
+                bool shouldDimTypeIcon =
+                    shouldShowTypeIcon &&
+                    hasSelectedTypeIcon &&
+                    isSelectedTypeIcon == false;
+
+                piece.SetTypeIconDimmed(
+                    shouldDimTypeIcon
                 );
             }
         }
     }
 
-    // <변경부분> 기존 호출 위치를 유지하기 위한 함수
-    // 이제 선택 기물만 표시하는 것이 아니라
-    // 전체 토글 상태를 유지하면서 선택 연출을 갱신한다.
+    // <변경부분> 기존 스킬·아이템·찬스어택 코드의 호출 위치를 유지하면서
+    // 지정된 기물을 현재 선택 기물로 설정하고
+    // 전체 타입 아이콘 표시 상태를 다시 계산한다.
     private void ShowOnlySelectedPieceTypeIcon(
         Piece piece)
     {
@@ -1902,6 +1943,49 @@ public class BattleManager : MonoBehaviour
             hasUsedAbsorbChanceAttackRelicThisTurn,
             hasAnySelectableTile
         );
+    }
+
+    // <변경부분> Enemy AI가 ChanceAttack 추가 행동을
+    // 더 이상 정상적으로 진행할 수 없을 때 추가 행동 상태를 정리하고
+    // 현재 Enemy 턴을 안전하게 종료한다.
+    public void FinishEnemyAIChanceAttackTurn()
+    {
+        if (isBattleEnded)
+        {
+            return;
+        }
+
+        if (currentTurn != BattleTurn.Enemy)
+        {
+            Debug.LogWarning(
+                "Enemy AI 추가 행동 종료 실패: " +
+                "현재 턴이 Enemy가 아닙니다."
+            );
+
+            return;
+        }
+
+        // 추가 행동 제한 상태 초기화
+        chanceAttackBonusPiece = null;
+
+        // 연속 ChanceAttack 발동 횟수 초기화
+        chanceAttackContinuousCount = 0;
+
+        // 선택 및 공격 확인 상태 초기화
+        selectedPiece = null;
+        pendingAttackTargetPiece = null;
+
+        // 남아 있는 하이라이트 제거
+        ClearHighlights();
+
+        // 타입 아이콘 표시 상태 갱신
+        RefreshTypeIconVisuals();
+
+        Debug.Log(
+            "Enemy AI ChanceAttack 추가 행동 상태를 정리하고 턴을 종료합니다."
+        );
+
+        EndTurn();
     }
 
     // <변경부분> 지정 진영에 행동 후보가 없을 때
@@ -2083,6 +2167,60 @@ public class BattleManager : MonoBehaviour
             actingTeam,
             results
         );
+    }
+
+    // <변경부분> 지정한 기물만 사용할 수 있는
+    // 현재 합법적인 AI 행동 후보를 생성한다.
+    //
+    // ChanceAttack 추가 행동에서는 다른 Enemy 기물이 아니라
+    // 추가 행동을 획득한 동일 기물만 다시 행동해야 하므로 사용한다.
+    public void GenerateAIActionsForPiece(
+        Piece actingPiece,
+        List<BattleAIAction> results)
+    {
+        if (results == null)
+        {
+            Debug.LogWarning(
+                "기물 지정 AI 행동 후보 생성 실패: " +
+                "결과 목록이 없습니다."
+            );
+
+            return;
+        }
+
+        results.Clear();
+
+        if (actingPiece == null)
+        {
+            Debug.LogWarning(
+                "기물 지정 AI 행동 후보 생성 실패: " +
+                "행동 기물이 없습니다."
+            );
+
+            return;
+        }
+
+        // 우선 현재 진영의 전체 합법 행동 후보를 생성한다.
+        GenerateAIActions(
+            actingPiece.Team,
+            results
+        );
+
+        // 뒤에서부터 검사하면서 지정한 기물이 아닌
+        // 다른 기물의 행동 후보를 제거한다.
+        for (int i = results.Count - 1;
+             i >= 0;
+             i--)
+        {
+            BattleAIAction action =
+                results[i];
+
+            if (action == null ||
+                action.ActingPiece != actingPiece)
+            {
+                results.RemoveAt(i);
+            }
+        }
     }
 
     // <변경부분> 현재 보드 상태를 기준으로

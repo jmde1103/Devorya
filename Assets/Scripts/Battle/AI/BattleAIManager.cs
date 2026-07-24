@@ -12,6 +12,11 @@ public class BattleAIManager : MonoBehaviour
     [SerializeField, Min(0f)]
     private float decisionDelay = 0.5f;
 
+    // <변경부분> ChanceAttack이 비정상적으로 계속 발동해
+    // Enemy 턴이 무한히 이어지는 상황을 막기 위한 최대 AI 행동 횟수
+    [SerializeField, Min(1)]
+    private int maxActionsPerEnemyTurn = 10;
+
     // 실제 전투 규칙과 행동 실행을 담당하는 매니저
     private BattleManager battleManager;
 
@@ -86,127 +91,262 @@ public class BattleAIManager : MonoBehaviour
         return controlEnemyWithAI;
     }
 
-    // <변경부분> Enemy 턴의 모든 행동 후보를 평가하고
-    // 최고 점수 행동을 선택해 공용 전투 실행 함수에 전달한다.
+    // <변경부분> Enemy 턴의 행동을 실행하고,
+    // ChanceAttack 추가 행동이 발생하면 같은 코루틴 안에서
+    // 행동 종료를 기다린 뒤 추가 행동 기물로 다시 판단한다.
     private IEnumerator ExecuteEnemyTurnRoutine()
     {
-        if (decisionDelay > 0f)
-        {
-            yield return new WaitForSeconds(decisionDelay);
-        }
+        int executedActionCount = 0;
 
-        // 다른 연출이 끝날 때까지 기다린다.
         while (battleManager != null &&
-               battleManager.IsActionAnimating)
+               battleManager.IsBattleEnded == false &&
+               battleManager.CurrentTurn ==
+               BattleTurn.Enemy)
         {
-            yield return null;
-        }
+            // 첫 행동과 추가 행동 사이에 판단 지연을 둔다.
+            if (decisionDelay > 0f)
+            {
+                yield return
+                    new WaitForSeconds(
+                        decisionDelay
+                    );
+            }
 
-        if (battleManager == null ||
-            battleManager.IsBattleEnded ||
-            battleManager.CurrentTurn != BattleTurn.Enemy)
-        {
-            enemyTurnRoutine = null;
-            yield break;
-        }
+            // 이전 이동, 공격 또는 스킬 연출이
+            // 완전히 끝날 때까지 기다린다.
+            while (battleManager != null &&
+                   battleManager.IsActionAnimating)
+            {
+                yield return null;
+            }
 
-        // Enemy 진영의 현재 합법 행동 후보 생성
-        battleManager.GenerateAIActions(
-            PieceTeam.Enemy,
-            actionCandidates
-        );
+            // 대기 중 전투가 끝나거나 턴이 변경됐다면 종료한다.
+            if (battleManager == null ||
+                battleManager.IsBattleEnded ||
+                battleManager.CurrentTurn !=
+                BattleTurn.Enemy)
+            {
+                enemyTurnRoutine = null;
+                yield break;
+            }
 
-        // 행동 가능한 후보가 없다면 승패 조건을 다시 확인한다.
-        if (actionCandidates.Count == 0)
-        {
-            Debug.LogWarning(
-                "Enemy AI 행동 실행 실패: 생성된 행동 후보가 없습니다."
-            );
+            // <변경부분> ChanceAttack 추가 행동 중인지 확인한다.
+            // 추가 행동 중이라면 해당 기물만 다시 행동해야 한다.
+            Piece bonusActionPiece =
+                battleManager
+                    .GetChanceAttackBonusPiece();
 
-            battleManager.ResolveNoActionableTurn(
-                PieceTeam.Enemy
-            );
+            if (bonusActionPiece != null)
+            {
+                battleManager
+                    .GenerateAIActionsForPiece(
+                        bonusActionPiece,
+                        actionCandidates
+                    );
+            }
+            else
+            {
+                // 일반 Enemy 턴 첫 행동에서는
+                // Enemy 전체 기물의 후보를 생성한다.
+                battleManager.GenerateAIActions(
+                    PieceTeam.Enemy,
+                    actionCandidates
+                );
+            }
 
-            enemyTurnRoutine = null;
-            yield break;
-        }
+            // 행동 가능한 후보가 없다면 현재 상황에 따라 처리한다.
+            if (actionCandidates.Count == 0)
+            {
+                if (bonusActionPiece != null)
+                {
+                    Debug.LogWarning(
+                        "Enemy AI ChanceAttack 추가 행동 실패: " +
+                        "추가 행동 기물의 합법 행동 후보가 없습니다."
+                    );
 
-        // <변경부분> AI 행동 평가기가 초기화되지 않았다면
-        // 행동을 선택할 수 없으므로 턴 진행을 중단한다.
-        if (actionEvaluator == null)
-        {
-            Debug.LogWarning(
-                "Enemy AI 행동 선택 실패: " +
-                "BattleAIActionEvaluator가 초기화되지 않았습니다."
-            );
+                    // 다른 Enemy 기물을 대신 움직이지 않고
+                    // 추가 행동 상태를 정리한 뒤 Enemy 턴을 종료한다.
+                    battleManager
+                        .FinishEnemyAIChanceAttackTurn();
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        "Enemy AI 행동 실행 실패: " +
+                        "생성된 행동 후보가 없습니다."
+                    );
 
-            enemyTurnRoutine = null;
-            yield break;
-        }
+                    battleManager.ResolveNoActionableTurn(
+                        PieceTeam.Enemy
+                    );
+                }
 
-        // <변경부분> 생성된 모든 이동 및 공격 후보의 점수를 계산한다.
-        actionEvaluator.EvaluateActions(
-            actionCandidates
-        );
+                enemyTurnRoutine = null;
+                yield break;
+            }
 
-        // 개발 중에는 각 행동 후보의 점수를 Console에서 확인한다.
-        if (logEvaluatedActionScores)
-        {
-            actionEvaluator.DebugLogEvaluatedActions(
+            if (actionEvaluator == null)
+            {
+                Debug.LogWarning(
+                    "Enemy AI 행동 선택 실패: " +
+                    "BattleAIActionEvaluator가 초기화되지 않았습니다."
+                );
+
+                // 추가 행동 상태에서 평가기가 없다면
+                // Enemy 턴이 멈추지 않도록 정리한다.
+                if (bonusActionPiece != null)
+                {
+                    battleManager
+                        .FinishEnemyAIChanceAttackTurn();
+                }
+
+                enemyTurnRoutine = null;
+                yield break;
+            }
+
+            // 모든 후보의 점수를 계산한다.
+            actionEvaluator.EvaluateActions(
                 actionCandidates
             );
-        }
 
-        // <변경부분> 최고 점수 행동들을 추려내고,
-        // 같은 점수의 행동 중 하나를 랜덤으로 선택한다.
-        BattleAIAction selectedAction =
-            actionEvaluator.SelectBestAction(
-                actionCandidates,
-                bestActionCandidates
+            if (logEvaluatedActionScores)
+            {
+                actionEvaluator
+                    .DebugLogEvaluatedActions(
+                        actionCandidates
+                    );
+            }
+
+            // 최고 점수 후보 중 하나를 선택한다.
+            BattleAIAction selectedAction =
+                actionEvaluator.SelectBestAction(
+                    actionCandidates,
+                    bestActionCandidates
+                );
+
+            if (selectedAction == null)
+            {
+                Debug.LogWarning(
+                    "Enemy AI 행동 선택 실패: " +
+                    "최고 점수 행동을 선택하지 못했습니다."
+                );
+
+                if (bonusActionPiece != null)
+                {
+                    battleManager
+                        .FinishEnemyAIChanceAttackTurn();
+                }
+
+                enemyTurnRoutine = null;
+                yield break;
+            }
+
+            Debug.Log(
+                $"Enemy AI 행동 선택: " +
+                $"{selectedAction.ActionType} / " +
+                $"{selectedAction.ActingPiece.PieceType} / " +
+                $"{selectedAction.SourcePosition} → " +
+                $"{selectedAction.TargetPosition} / " +
+                $"점수 {selectedAction.Score} / " +
+                $"동점 후보 {bestActionCandidates.Count}개 / " +
+                $"추가 행동 여부 {bonusActionPiece != null}"
             );
 
-        // 유효한 행동을 선택하지 못했다면 실행하지 않는다.
-        if (selectedAction == null)
-        {
-            Debug.LogWarning(
-                "Enemy AI 행동 선택 실패: " +
-                "최고 점수 행동을 선택하지 못했습니다."
-            );
+            bool actionStarted =
+                battleManager.TryExecuteBattleAction(
+                    selectedAction.ActingPiece,
+                    selectedAction.TargetPosition
+                );
 
-            enemyTurnRoutine = null;
-            yield break;
-        }
+            if (actionStarted == false)
+            {
+                Debug.LogWarning(
+                    "Enemy AI 행동 실행 실패: " +
+                    "선택한 행동을 시작하지 못했습니다."
+                );
 
-        Debug.Log(
-            $"Enemy AI 행동 선택: " +
-            $"{selectedAction.ActionType} / " +
-            $"{selectedAction.ActingPiece.PieceType} / " +
-            $"{selectedAction.SourcePosition} → " +
-            $"{selectedAction.TargetPosition} / " +
-            $"점수 {selectedAction.Score} / " +
-            $"동점 후보 {bestActionCandidates.Count}개"
-        );
+                // 추가 행동 실행에 실패했다면
+                // Enemy 턴이 그대로 멈추지 않도록 정리한다.
+                if (bonusActionPiece != null)
+                {
+                    battleManager
+                        .FinishEnemyAIChanceAttackTurn();
+                }
 
-        // 실제 이동 및 공격은 BattleManager의 공용 실행 함수 사용
-        bool actionStarted =
-     battleManager.TryExecuteBattleAction(
-         selectedAction.ActingPiece,
-         selectedAction.TargetPosition
-     );
+                enemyTurnRoutine = null;
+                yield break;
+            }
 
-        if (actionStarted == false)
-        {
-            Debug.LogWarning(
-                "Enemy AI 행동 실행 실패: 선택한 행동을 시작하지 못했습니다."
-            );
-        }
-        else
-        {
-            // <변경부분> 실제 행동 실행이 시작된 경우에만
-            // 다음 Enemy 턴의 왕복 이동 판정용 기록으로 저장한다.
+            // 실제로 실행을 시작한 행동만
+            // 왕복 행동 판정 기록으로 저장한다.
             actionEvaluator.SetPreviousExecutedAction(
                 selectedAction
             );
+
+            executedActionCount++;
+
+            // StartCoroutine 직후에는 BattleManager의 행동 코루틴이
+            // 아직 첫 프레임을 실행하지 않아 IsActionAnimating이
+            // false일 수 있으므로 반드시 한 프레임 기다린다.
+            yield return null;
+
+            // 현재 행동 애니메이션과 전투 후처리가
+            // 모두 끝날 때까지 기다린다.
+            while (battleManager != null &&
+                   battleManager.IsActionAnimating)
+            {
+                yield return null;
+            }
+
+            // 일반 행동이라면 BattleManager.EndTurn()이 실행돼
+            // CurrentTurn이 Player로 변경되므로 while 반복이 끝난다.
+            //
+            // ChanceAttack이 발동했다면 Enemy 턴과
+            // chanceAttackBonusPiece가 유지되므로 다음 반복에서
+            // 같은 기물의 추가 행동 후보를 다시 평가한다.
+            if (battleManager == null ||
+                battleManager.IsBattleEnded ||
+                battleManager.CurrentTurn !=
+                BattleTurn.Enemy)
+            {
+                enemyTurnRoutine = null;
+                yield break;
+            }
+
+            // 비정상적인 무한 추가 행동을 막는다.
+            if (executedActionCount >=
+                Mathf.Max(
+                    1,
+                    maxActionsPerEnemyTurn
+                ))
+            {
+                Debug.LogWarning(
+                    $"Enemy AI 한 턴 최대 행동 횟수 도달: " +
+                    $"{executedActionCount}회 / " +
+                    $"추가 행동 상태를 종료합니다."
+                );
+
+                battleManager
+                    .FinishEnemyAIChanceAttackTurn();
+
+                enemyTurnRoutine = null;
+                yield break;
+            }
+
+            // Enemy 턴이 유지됐지만 추가 행동 기물이 없다면
+            // 예상하지 못한 상태이므로 반복하지 않고 안전 종료한다.
+            if (battleManager
+                    .GetChanceAttackBonusPiece() ==
+                null)
+            {
+                Debug.LogWarning(
+                    "Enemy AI 행동 후 Enemy 턴이 유지됐지만 " +
+                    "ChanceAttack 추가 행동 기물이 없습니다."
+                );
+
+                enemyTurnRoutine = null;
+                yield break;
+            }
         }
 
         enemyTurnRoutine = null;

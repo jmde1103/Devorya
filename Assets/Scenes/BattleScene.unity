@@ -5167,6 +5167,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleAIManager
   controlEnemyWithAI: 1
   decisionDelay: 0.5
+  maxActionsPerEnemyTurn: 10
   logEvaluatedActionScores: 1
 --- !u!1 &53757416
 GameObject:

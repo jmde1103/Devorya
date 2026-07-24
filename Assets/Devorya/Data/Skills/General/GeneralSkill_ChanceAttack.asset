@@ -20,7 +20,7 @@ MonoBehaviour:
   tooltipDescriptionFormat: 
   tooltipSections: []
   maxLevel: 3
-  chanceAttackLevel1Percent: 10
+  chanceAttackLevel1Percent: 100
   chanceAttackLevel2Percent: 20
   chanceAttackLevel3Percent: 30
   chanceAttackContinuousPenaltyRate: 0.33333334
