@@ -86,8 +86,8 @@ public class BattleAIManager : MonoBehaviour
         return controlEnemyWithAI;
     }
 
-    // <변경부분> Enemy 턴의 행동 후보 중 하나를 임시로 랜덤 선택해 실행한다.
-    // 현재 단계에서는 평가 점수를 사용하지 않는다.
+    // <변경부분> Enemy 턴의 모든 행동 후보를 평가하고
+    // 최고 점수 행동을 선택해 공용 전투 실행 함수에 전달한다.
     private IEnumerator ExecuteEnemyTurnRoutine()
     {
         if (decisionDelay > 0f)
@@ -189,15 +189,23 @@ public class BattleAIManager : MonoBehaviour
 
         // 실제 이동 및 공격은 BattleManager의 공용 실행 함수 사용
         bool actionStarted =
-            battleManager.TryExecuteBattleAction(
-                selectedAction.ActingPiece,
-                selectedAction.TargetPosition
-            );
+     battleManager.TryExecuteBattleAction(
+         selectedAction.ActingPiece,
+         selectedAction.TargetPosition
+     );
 
         if (actionStarted == false)
         {
             Debug.LogWarning(
                 "Enemy AI 행동 실행 실패: 선택한 행동을 시작하지 못했습니다."
+            );
+        }
+        else
+        {
+            // <변경부분> 실제 행동 실행이 시작된 경우에만
+            // 다음 Enemy 턴의 왕복 이동 판정용 기록으로 저장한다.
+            actionEvaluator.SetPreviousExecutedAction(
+                selectedAction
             );
         }
 

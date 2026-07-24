@@ -9,6 +9,16 @@ public class BattleAIActionEvaluator
     // 일반 이동 행동의 기본 점수
     private const float MoveScore = 0f;
 
+    // <변경부분> Player King과 거리가 한 칸 가까워질 때마다
+    // 추가하는 전진 압박 점수
+    private const float ForwardPressureScorePerTile =
+        5f;
+
+    // <변경부분> 같은 기물이 직전 Enemy 턴의 이동을
+    // 그대로 되돌리는 왕복 행동에 적용하는 감점
+    private const float ImmediateReturnPenalty =
+        -30f;
+
     // <변경부분> 행동 후 Enemy King이 다음 턴에 잡힐 수 있을 때
     // 해당 행동이 거의 선택되지 않도록 적용하는 치명적 감점
     private const float KingThreatenedPenalty =
@@ -17,12 +27,44 @@ public class BattleAIActionEvaluator
     // 실제 보드 상태와 가상 King 위험도 판정을 제공하는 매니저
     private readonly BattleManager battleManager;
 
+    // <변경부분> 직전 Enemy 턴에 행동한 기물
+    // 같은 기물이 직전 위치로 돌아가는지 판정할 때 사용한다.
+    private Piece previousActingPiece;
+
+    // <변경부분> 직전 Enemy 행동의 출발 좌표
+    private Vector2Int previousSourcePosition;
+
+    // <변경부분> 직전 Enemy 행동의 목표 좌표
+    private Vector2Int previousTargetPosition;
+
     // <변경부분> 평가기 생성 시 필요한 전투 참조를 한 번 전달받는다.
     public BattleAIActionEvaluator(
-        BattleManager manager)
+     BattleManager manager)
     {
         battleManager = manager;
     }
+
+    // <변경부분> 실제 실행에 성공한 직전 Enemy 행동을 저장한다.
+    // 평가만 하고 실행되지 않은 후보는 기록하지 않는다.
+    public void SetPreviousExecutedAction(
+        BattleAIAction executedAction)
+    {
+        if (executedAction == null ||
+            executedAction.ActingPiece == null)
+        {
+            return;
+        }
+
+        previousActingPiece =
+            executedAction.ActingPiece;
+
+        previousSourcePosition =
+            executedAction.SourcePosition;
+
+        previousTargetPosition =
+            executedAction.TargetPosition;
+    }
+
 
     // <변경부분> 전달받은 모든 AI 행동 후보의 점수를 계산한다.
     public void EvaluateActions(
@@ -87,12 +129,7 @@ public class BattleAIActionEvaluator
         // King 자체가 위험한 위치로 이동하는 행동뿐 아니라,
         // 다른 기물이 이동하여 Rook/Bishop/Queen의 공격 경로를
         // 열어버리는 행동도 함께 감지한다.
-        bool isEnemyKingThreatened =
-            battleManager != null &&
-            battleManager.IsKingThreatenedAfterAIAction(
-                action,
-                PieceTeam.Enemy
-            );
+        bool isEnemyKingThreatened = battleManager != null && battleManager.IsKingThreatenedAfterAIAction(action, PieceTeam.Enemy);
 
         if (isEnemyKingThreatened)
         {
@@ -105,21 +142,121 @@ public class BattleAIActionEvaluator
         //
         // 공격으로 얻는 점수와 행동 기물을 잃는 점수를 함께 계산하므로
         // 단순 회피가 아니라 실제 교환 손익을 평가할 수 있다.
-        if (action.ActingPiece != null &&
-            action.ActingPiece.PieceType != PieceType.King &&
-            battleManager != null &&
-            battleManager.IsActingPieceThreatenedAfterAIAction(
-                action))
+        if (action.ActingPiece != null && action.ActingPiece.PieceType != PieceType.King && battleManager != null && battleManager.IsActingPieceThreatenedAfterAIAction(
+        action))
         {
-            float actingPieceValue =
-                GetPieceValue(
-                    action.ActingPiece.PieceType
-                );
-
+            float actingPieceValue = GetPieceValue(action.ActingPiece.PieceType);
             score -= actingPieceValue;
         }
 
+        // <변경부분> 직전 Enemy 턴에 움직였던 같은 기물이
+        // 직전 출발 위치로 바로 되돌아가는 행동이면 감점한다.
+        //
+        // 예:
+        // 이전 행동 (3, 4) → (2, 4)
+        // 현재 후보 (2, 4) → (3, 4)
+        if (IsImmediateReturnAction(action))
+        {
+            score += ImmediateReturnPenalty;
+        }
+
+        // <변경부분> Enemy 일반 기물이 Player King과 가까워지는 행동에
+        // 거리 감소량만큼 작은 전진 압박 점수를 추가한다.
+        //
+        // King은 무리하게 앞으로 나서는 부작용을 막기 위해 제외한다.
+        // 위험한 위치로 이동하는 행동에는 기존 기물 손실 감점과
+        // King 위험 감점이 먼저 적용되므로 안전 판단은 그대로 유지된다.
+        score +=
+            EvaluateForwardPressureScore(
+                action
+            );
+
         return score;
+    }
+
+    // <변경부분> 행동 전후 Player King과의 거리를 비교해
+    // 전진 또는 후퇴에 따른 압박 점수를 계산한다.
+    private float EvaluateForwardPressureScore(
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActingPiece == null ||
+            battleManager == null)
+        {
+            return 0f;
+        }
+
+        // Enemy King은 전진 압박 점수 대상에서 제외한다.
+        // King의 이동은 생존과 안전도 평가를 우선한다.
+        if (action.ActingPiece.PieceType ==
+            PieceType.King)
+        {
+            return 0f;
+        }
+
+        int sourceDistance =
+            battleManager.GetDistanceToKing(
+                action.SourcePosition,
+                PieceTeam.Player
+            );
+
+        int targetDistance =
+            battleManager.GetDistanceToKing(
+                action.TargetPosition,
+                PieceTeam.Player
+            );
+
+        // Player King이 없는 전투에서는
+        // 전진 압박 점수를 적용하지 않는다.
+        if (sourceDistance < 0 ||
+            targetDistance < 0)
+        {
+            return 0f;
+        }
+
+        // 양수: Player King과 가까워짐
+        // 음수: Player King에게서 멀어짐
+        int distanceReduction =
+            sourceDistance -
+            targetDistance;
+
+        return
+            distanceReduction *
+            ForwardPressureScorePerTile;
+    }
+
+    // <변경부분> 현재 후보가 직전 Enemy 행동을
+    // 그대로 되돌리는 즉시 왕복 행동인지 검사한다.
+    private bool IsImmediateReturnAction(
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActingPiece == null)
+        {
+            return false;
+        }
+
+        // 직전 행동 기록이 없거나,
+        // 직전 행동 기물이 이미 제거되었다면 왕복 판정하지 않는다.
+        if (previousActingPiece == null)
+        {
+            return false;
+        }
+
+        // 직전에 움직인 기물과 같은 기물이어야 한다.
+        if (action.ActingPiece !=
+            previousActingPiece)
+        {
+            return false;
+        }
+
+        // 현재 출발점이 직전 행동의 도착점이고,
+        // 현재 도착점이 직전 행동의 출발점이면 즉시 왕복이다.
+        return
+            action.SourcePosition ==
+            previousTargetPosition &&
+            action.TargetPosition ==
+            previousSourcePosition;
     }
 
     // <변경부분> 공격 대상 기물의 가치에 따라 공격 점수를 계산한다.

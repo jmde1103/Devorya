@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,8 +46,41 @@ public class Piece : MonoBehaviour
     [Header("Type Icon")]
     // 기물 타입 아이콘 전체 오브젝트
     [SerializeField] private GameObject typeIconRoot;
+
     // 기물 타입 아이콘 이미지
     [SerializeField] private SpriteRenderer typeIconRenderer;
+
+    [Header("Selected Type Icon Animation")]
+    // <변경부분> 선택된 기물의 타입 아이콘을
+    // 기본 위치보다 위로 올리는 로컬 Y 거리
+    [SerializeField] private float selectedTypeIconRaiseAmount = 0.08f;
+
+    // <변경부분> 선택 아이콘 점멸 시 가장 어두워지는 알파값
+    [Range(0f, 1f)]
+    [SerializeField] private float selectedTypeIconMinimumAlpha = 0.45f;
+
+    // <변경부분> 아이콘이 밝아졌다 어두워지는 한 방향의 시간
+    [SerializeField] private float selectedTypeIconBlinkHalfDuration = 0.7f;
+
+    // <변경부분> 선택 또는 선택 해제 시
+    // 타입 아이콘이 목표 위치까지 부드럽게 이동하는 시간
+    [SerializeField] private float selectedTypeIconMoveDuration = 0.16f;
+
+    // <변경부분> PieceData 적용 후 정해진
+    // 타입 아이콘의 기본 로컬 위치
+    private Vector3 typeIconBaseLocalPosition;
+
+    // <변경부분> 타입 아이콘의 원래 색상
+    private Color typeIconBaseColor = Color.white;
+
+    // <변경부분> 현재 이 기물이 선택 상태인지 확인
+    private bool isTypeIconSelected = false;
+
+    // <변경부분> 현재 실행 중인 타입 아이콘 점멸 코루틴
+    private Coroutine typeIconBlinkCoroutine;
+
+    // <변경부분> 현재 실행 중인 타입 아이콘 위치 이동 코루틴
+    private Coroutine typeIconMoveCoroutine;
 
     // <변경부분> Player / Neutral에서 사용할 기존 회색 타입 아이콘 세트
     [Header("Player / Neutral Type Icon Sprites")]
@@ -92,12 +126,37 @@ public class Piece : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer를 한 번만 찾아 저장
-        // <변경부분> 기물 생성 직후 타입 아이콘 비활성화
+        // SpriteRenderer를 한 번만 찾아 저장
+        spriteRenderer =
+            GetComponent<SpriteRenderer>();
+
+        // <변경부분> 타입 아이콘의 초기 위치와 색상을 저장한다.
+        // PieceData에서 위치를 다시 적용하면
+        // SetTypeIconLocalPosition()에서 기본 위치가 갱신된다.
         if (typeIconRoot != null)
         {
+            typeIconBaseLocalPosition =
+                typeIconRoot.transform.localPosition;
+
             typeIconRoot.SetActive(false);
         }
+
+        if (typeIconRenderer != null)
+        {
+            typeIconBaseColor =
+                typeIconRenderer.color;
+        }
+    }
+
+    // <변경부분> 기물이 제거되거나 비활성화될 때
+    // 실행 중인 타입 아이콘 점멸을 안전하게 정리한다.
+    private void OnDisable()
+    {
+        // 기물이 비활성화될 때 점멸 코루틴 정리
+        StopTypeIconBlink();
+
+        // 기물이 비활성화될 때 위치 이동 코루틴도 정리
+        StopTypeIconMove();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -626,11 +685,399 @@ public class Piece : MonoBehaviour
         // 타입 아이콘 표시 상태 변경
         typeIconRoot.SetActive(isVisible);
 
-        // 타입 아이콘을 켤 때 현재 기물 타입에 맞는 이미지 적용
         if (isVisible)
         {
+            // 타입 아이콘을 켤 때
+            // 현재 기물 타입에 맞는 이미지 적용
             UpdateTypeIconSprite();
+
+            // 선택된 기물이라면 표시가 다시 켜진 뒤
+            // 선택 아이콘 위치와 점멸 상태를 다시 적용한다.
+            if (isTypeIconSelected)
+            {
+                ApplySelectedTypeIconPosition();
+                StartTypeIconBlink();
+            }
+
+            return;
         }
+
+        // 아이콘이 숨겨질 때 실행 중인 점멸 코루틴은 중단한다.
+        StopTypeIconBlink();
+    }
+
+    // <변경부분> 현재 기물의 타입 아이콘에
+    // 선택 상태 연출을 적용하거나 해제한다.
+    public void SetTypeIconSelected(bool isSelected)
+    {
+        if (typeIconRoot == null)
+        {
+            return;
+        }
+
+        // 동일한 선택 상태를 다시 요청한 경우에도
+        // 아이콘이 활성화되어야 한다면 연출 상태를 보정한다.
+        if (isTypeIconSelected == isSelected)
+        {
+            if (isSelected &&
+                typeIconRoot.activeSelf)
+            {
+                ApplySelectedTypeIconPosition();
+                StartTypeIconBlink();
+            }
+
+            return;
+        }
+
+        isTypeIconSelected =
+            isSelected;
+
+        if (isTypeIconSelected)
+        {
+            // 선택된 아이콘을 기본 위치보다 살짝 위로 올린다.
+            ApplySelectedTypeIconPosition();
+
+            // 아이콘이 현재 표시 중일 때만 점멸을 시작한다.
+            if (typeIconRoot.activeSelf)
+            {
+                StartTypeIconBlink();
+            }
+
+            return;
+        }
+
+        // 선택이 해제되면 점멸을 멈추고
+        // 위치와 알파값을 원래 상태로 복구한다.
+        ResetTypeIconSelectionVisual();
+    }
+
+    // <변경부분> 선택된 타입 아이콘을
+    // 기본 로컬 위치보다 위쪽 목표 위치까지 부드럽게 이동시킨다.
+    private void ApplySelectedTypeIconPosition()
+    {
+        if (typeIconRoot == null)
+        {
+            return;
+        }
+
+        Vector3 selectedLocalPosition =
+            typeIconBaseLocalPosition +
+            Vector3.up *
+            selectedTypeIconRaiseAmount;
+
+        StartTypeIconMove(
+            selectedLocalPosition
+        );
+    }
+    // <변경부분> 타입 아이콘 위치 이동 코루틴을 시작한다.
+    // 기존 이동 코루틴이 실행 중이면 중단하고
+    // 현재 위치에서 새 목표 위치로 다시 이동한다.
+    private void StartTypeIconMove(
+        Vector3 targetLocalPosition)
+    {
+        if (typeIconRoot == null)
+        {
+            return;
+        }
+
+        StopTypeIconMove();
+
+        typeIconMoveCoroutine =
+            StartCoroutine(
+                TypeIconMoveRoutine(
+                    targetLocalPosition
+                )
+            );
+    }
+
+    // <변경부분> 현재 실행 중인 타입 아이콘 위치 이동 코루틴을 중단한다.
+    private void StopTypeIconMove()
+    {
+        if (typeIconMoveCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(
+            typeIconMoveCoroutine
+        );
+
+        typeIconMoveCoroutine = null;
+    }
+
+    // <변경부분> 타입 아이콘을 현재 위치에서 목표 위치까지
+    // SmoothStep을 사용해 부드럽게 이동시키는 코루틴
+    private IEnumerator TypeIconMoveRoutine(
+        Vector3 targetLocalPosition)
+    {
+        if (typeIconRoot == null)
+        {
+            typeIconMoveCoroutine = null;
+            yield break;
+        }
+
+        Vector3 startLocalPosition =
+            typeIconRoot.transform.localPosition;
+
+        float moveDuration =
+            Mathf.Max(
+                0f,
+                selectedTypeIconMoveDuration
+            );
+
+        // 이동 시간이 0이면 즉시 목표 위치로 이동
+        if (moveDuration <= 0f)
+        {
+            typeIconRoot.transform.localPosition =
+                targetLocalPosition;
+
+            typeIconMoveCoroutine = null;
+            yield break;
+        }
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < moveDuration)
+        {
+            if (typeIconRoot == null)
+            {
+                typeIconMoveCoroutine = null;
+                yield break;
+            }
+
+            elapsedTime +=
+                Time.deltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    moveDuration
+                );
+
+            float easedTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            typeIconRoot.transform.localPosition =
+                Vector3.Lerp(
+                    startLocalPosition,
+                    targetLocalPosition,
+                    easedTime
+                );
+
+            yield return null;
+        }
+
+        if (typeIconRoot != null)
+        {
+            typeIconRoot.transform.localPosition =
+                targetLocalPosition;
+        }
+
+        typeIconMoveCoroutine = null;
+    }
+
+
+    // <변경부분> 선택 아이콘 점멸 코루틴을 시작한다.
+    // 이미 실행 중이면 중복 실행하지 않는다.
+    private void StartTypeIconBlink()
+    {
+        if (typeIconRenderer == null ||
+            typeIconRoot == null ||
+            typeIconRoot.activeInHierarchy == false ||
+            isTypeIconSelected == false)
+        {
+            return;
+        }
+
+        if (typeIconBlinkCoroutine != null)
+        {
+            return;
+        }
+
+        typeIconBlinkCoroutine =
+            StartCoroutine(
+                TypeIconBlinkRoutine()
+            );
+    }
+
+    // <변경부분> 선택 아이콘 점멸 코루틴을 중단하고
+    // 알파값을 기본값으로 복구한다.
+    private void StopTypeIconBlink()
+    {
+        if (typeIconBlinkCoroutine != null)
+        {
+            StopCoroutine(
+                typeIconBlinkCoroutine
+            );
+
+            typeIconBlinkCoroutine = null;
+        }
+
+        RestoreTypeIconColor();
+    }
+
+    // <변경부분> 선택된 타입 아이콘의 알파값을
+    // 천천히 낮췄다가 다시 높이는 코루틴
+    private IEnumerator TypeIconBlinkRoutine()
+    {
+        float blinkDuration =
+            Mathf.Max(
+                0.01f,
+                selectedTypeIconBlinkHalfDuration
+            );
+
+        float minimumAlpha =
+            Mathf.Clamp01(
+                selectedTypeIconMinimumAlpha
+            );
+
+        while (isTypeIconSelected &&
+               typeIconRoot != null &&
+               typeIconRoot.activeInHierarchy)
+        {
+            // 기본 알파에서 최소 알파로 천천히 감소
+            float elapsedTime = 0f;
+
+            while (elapsedTime < blinkDuration)
+            {
+                if (CanContinueTypeIconBlink() == false)
+                {
+                    typeIconBlinkCoroutine = null;
+                    RestoreTypeIconColor();
+                    yield break;
+                }
+
+                elapsedTime +=
+                    Time.deltaTime;
+
+                float normalizedTime =
+                    Mathf.Clamp01(
+                        elapsedTime /
+                        blinkDuration
+                    );
+
+                float easedTime =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        normalizedTime
+                    );
+
+                SetTypeIconAlpha(
+                    Mathf.Lerp(
+                        typeIconBaseColor.a,
+                        minimumAlpha,
+                        easedTime
+                    )
+                );
+
+                yield return null;
+            }
+
+            // 최소 알파에서 기본 알파로 천천히 증가
+            elapsedTime = 0f;
+
+            while (elapsedTime < blinkDuration)
+            {
+                if (CanContinueTypeIconBlink() == false)
+                {
+                    typeIconBlinkCoroutine = null;
+                    RestoreTypeIconColor();
+                    yield break;
+                }
+
+                elapsedTime +=
+                    Time.deltaTime;
+
+                float normalizedTime =
+                    Mathf.Clamp01(
+                        elapsedTime /
+                        blinkDuration
+                    );
+
+                float easedTime =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        normalizedTime
+                    );
+
+                SetTypeIconAlpha(
+                    Mathf.Lerp(
+                        minimumAlpha,
+                        typeIconBaseColor.a,
+                        easedTime
+                    )
+                );
+
+                yield return null;
+            }
+        }
+
+        typeIconBlinkCoroutine = null;
+        RestoreTypeIconColor();
+    }
+
+    // <변경부분> 선택 아이콘 점멸을 계속할 수 있는지 검사한다.
+    private bool CanContinueTypeIconBlink()
+    {
+        return
+            isTypeIconSelected &&
+            typeIconRoot != null &&
+            typeIconRoot.activeInHierarchy &&
+            typeIconRenderer != null;
+    }
+
+    // <변경부분> 타입 아이콘의 알파값만 변경한다.
+    // 원래 RGB 색상은 유지한다.
+    private void SetTypeIconAlpha(float alpha)
+    {
+        if (typeIconRenderer == null)
+        {
+            return;
+        }
+
+        Color iconColor =
+            typeIconBaseColor;
+
+        iconColor.a =
+            Mathf.Clamp01(alpha);
+
+        typeIconRenderer.color =
+            iconColor;
+    }
+
+    // <변경부분> 타입 아이콘 색상을
+    // 선택 연출 전 기본 색상으로 복구한다.
+    private void RestoreTypeIconColor()
+    {
+        if (typeIconRenderer == null)
+        {
+            return;
+        }
+
+        typeIconRenderer.color =
+            typeIconBaseColor;
+    }
+
+    // <변경부분> 타입 아이콘 선택 연출을 해제한다.
+    // 점멸은 즉시 중단하고 위치는 기본 위치까지 부드럽게 내려온다.
+    private void ResetTypeIconSelectionVisual()
+    {
+        StopTypeIconBlink();
+
+        if (typeIconRoot == null)
+        {
+            return;
+        }
+
+        StartTypeIconMove(
+            typeIconBaseLocalPosition
+        );
     }
 
     // <변경부분> 현재 기물 타입 아이콘 스프라이트를 최신 상태로 갱신한 뒤 반환하는 함수
@@ -650,17 +1097,36 @@ public class Piece : MonoBehaviour
     }
 
     // <변경부분> 타입 아이콘 위치 설정
-    public void SetTypeIconLocalPosition(Vector3 localPosition)
+    public void SetTypeIconLocalPosition(
+     Vector3 localPosition)
     {
-        // 타입 아이콘 오브젝트가 없으면 종료
         if (typeIconRoot == null)
         {
             return;
         }
 
-        // 타입 아이콘 위치 적용
-        typeIconRoot.transform.localPosition = localPosition;
+        // PieceData에서 전달된 위치를
+        // 선택 연출 전 기본 위치로 저장한다.
+        typeIconBaseLocalPosition =
+            localPosition;
+
+        // 선택 중이라면 새 기본 위치를 기준으로
+        // 상승 위치까지 부드럽게 이동한다.
+        if (isTypeIconSelected)
+        {
+            ApplySelectedTypeIconPosition();
+            return;
+        }
+
+        // 선택 중이 아니라면 기존 이동 코루틴을 정리하고
+        // 새 기본 위치를 즉시 적용한다.
+        StopTypeIconMove();
+
+        typeIconRoot.transform.localPosition =
+            typeIconBaseLocalPosition;
     }
+
+
 
     // <변경부분> 현재 기물 타입과 소속 진영에 맞는 아이콘 스프라이트 적용
     private void UpdateTypeIconSprite()

@@ -1131,7 +1131,12 @@ public class PieceManager : MonoBehaviour
 
 
     // 기물의 화면 정렬 순서를 설정하는 함수
-    private void SetPieceSortingOrder(GameObject pieceObject, int x, int y)
+    // <변경부분> 기물과 타입 아이콘의 화면 정렬 순서를
+    // 현재 타일 위치 기준으로 함께 설정하는 함수
+    private void SetPieceSortingOrder(
+     GameObject pieceObject,
+     int x,
+     int y)
     {
         if (pieceObject == null)
         {
@@ -1139,23 +1144,31 @@ public class PieceManager : MonoBehaviour
         }
 
         // 타일보다 기물이 앞에 보이도록 큰 값을 더함
-        int sortingOrder = 100 - (x + y);
+        int sortingOrder =
+            100 - (x + y);
 
-        // <변경부분> Sprite / Spine 외형 컨트롤러가 있으면 해당 컨트롤러를 통해 정렬 순서 적용
-        PieceVisualController visualController = pieceObject.GetComponent<PieceVisualController>();
+        // Sprite / Spine 외형 컨트롤러가 있으면
+        // 해당 컨트롤러를 통해 정렬 순서 적용
+        PieceVisualController visualController =
+            pieceObject.GetComponent<PieceVisualController>();
 
         if (visualController != null)
         {
-            visualController.SetSortingOrder(sortingOrder);
+            visualController.SetSortingOrder(
+                sortingOrder
+            );
+
             return;
         }
 
-        // <변경부분> 기존 SpriteRenderer만 있는 프리팹을 위한 fallback
-        SpriteRenderer spriteRenderer = pieceObject.GetComponent<SpriteRenderer>();
+        // 기존 SpriteRenderer만 있는 프리팹을 위한 fallback
+        SpriteRenderer spriteRenderer =
+            pieceObject.GetComponent<SpriteRenderer>();
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.sortingOrder = sortingOrder;
+            spriteRenderer.sortingOrder =
+                sortingOrder;
         }
     }
 

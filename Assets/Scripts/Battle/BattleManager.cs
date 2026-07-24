@@ -330,7 +330,7 @@ public class BattleManager : MonoBehaviour
 
             pendingAttackTargetPiece = null;
 
-            SetAllTypeIconsVisible(false);
+            RefreshTypeIconVisuals();
 
             if (battleUIController != null)
             {
@@ -352,14 +352,15 @@ public class BattleManager : MonoBehaviour
         {
             selectedPiece = null;
 
-            // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+            // 선택된 기물이 없으므로 액션 버튼 숨김
             if (battleUIController != null)
             {
                 battleUIController.HideActionButtons();
             }
 
-            // <변경부분> 선택 가능한 기물이 아니면 모든 타입 아이콘 비활성화
-            SetAllTypeIconsVisible(false);
+            // <변경부분> 선택은 해제하지만
+            // 전체 타입 아이콘 토글 상태는 유지한다.
+            RefreshTypeIconVisuals();
             return;
         }
 
@@ -380,11 +381,16 @@ public class BattleManager : MonoBehaviour
                 battleUIController.RefreshEnemyStatus(piece);
             }
 
-            // <변경부분> 상대 기물은 플레이어 선택 기물로 저장하지 않음
             selectedPiece = null;
 
-            // <변경부분> 상대 기물 클릭 시 플레이어 타입 아이콘만 비활성화
-            SetAllTypeIconsVisible(false);
+            // <변경부분> 클릭한 상대 기물을
+            // 정보 확인용 타입 아이콘 표시 대상으로 저장한다.
+            pendingAttackTargetPiece =
+                piece;
+
+            // 전체 토글이 켜져 있으면 모든 아이콘을 유지하고,
+            // 꺼져 있으면 확인 중인 상대 아이콘만 표시한다.
+            RefreshTypeIconVisuals();
 
             // 중요: 여기서는 HideActionButtons() 호출 금지
             // HideActionButtons()를 호출하면 EnemyStatusPanel까지 같이 꺼짐
@@ -438,8 +444,9 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 새 기물을 선택했으므로 이전 공격 확인 대상 초기화
         pendingAttackTargetPiece = null;
 
-        // 선택한 기물의 타입 아이콘만 표시
-        ShowOnlySelectedPieceTypeIcon(selectedPiece);
+        // <변경부분> 전체 토글 상태를 유지하면서
+        // 선택 기물 아이콘에는 상승과 점멸 연출을 적용한다.
+        RefreshTypeIconVisuals();
 
         // 이동 가능 타일 표시
         ShowMovableTiles(selectedPiece);
@@ -500,18 +507,11 @@ public class BattleManager : MonoBehaviour
             // 처음 클릭한 상대 기물이거나 이전 확인 대상과 다르면 정보만 표시
             if (pendingAttackTargetPiece != clickedPiece)
             {
-                // <변경부분> 이전에 확인하던 상대 기물 아이콘만 끔
-                if (pendingAttackTargetPiece != null)
-                {
-                    pendingAttackTargetPiece.SetTypeIconVisible(false);
-                }
-
-                // <변경부분> 새로 확인한 상대 기물을 저장
                 pendingAttackTargetPiece = clickedPiece;
 
-                // <변경부분> 클릭한 상대 기물의 타입 아이콘 표시
-                // 플레이어 선택 기물의 타입 아이콘은 유지
-                clickedPiece.SetTypeIconVisible(true);
+                // <변경부분> 전체 토글 상태와 현재 선택 기물을 유지하면서
+                // 새 상대 정보 확인 대상 아이콘 표시를 갱신한다.
+                RefreshTypeIconVisuals();
 
                 // 상대 스테이터스 UI 표시
                 if (battleUIController != null)
@@ -740,7 +740,7 @@ public class BattleManager : MonoBehaviour
         bool shouldPlayAbsorbBornAnimation = false;
 
         // 기물이 이동/공격하면 모든 타입 아이콘 비활성화
-        SetAllTypeIconsVisible(false);
+        RefreshTypeIconVisuals();
 
         // 타겟 기물이 있으면 공격/흡수 처리
         if (targetPiece != null)
@@ -1658,14 +1658,17 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 모든 기물 타입 아이콘 표시 상태 전환
     public void ToggleTypeIcons()
     {
-        // <변경부분> 기물 타입 아이콘 표시 버튼 위치에서 검은 픽셀 파티클 재생
+        // 기물 타입 아이콘 표시 버튼 위치에서
+        // 검은 픽셀 파티클 재생
         PlayTypeIconButtonPixelBurst();
 
-        // 타입 아이콘 표시 상태 반전
-        isTypeIconVisible = !isTypeIconVisible;
+        // 전체 타입 아이콘 토글 상태 반전
+        isTypeIconVisible =
+            !isTypeIconVisible;
 
-        // 모든 기물의 타입 아이콘 표시 상태 적용
-        SetAllTypeIconsVisible(isTypeIconVisible);
+        // <변경부분> 선택 상태와 상대 정보 확인 상태까지 포함해
+        // 전체 보드의 타입 아이콘 표시를 다시 계산한다.
+        RefreshTypeIconVisuals();
     }
 
     // <변경부분> 기물 타입 아이콘 표시 버튼 위치에서 검은 픽셀 파티클을 재생하는 함수
@@ -1691,44 +1694,67 @@ public class BattleManager : MonoBehaviour
         battleUIController.PlayIconPixelBurstAt(typeIconButtonRectTransform);
     }
 
-    // <변경부분> 보드 위 모든 기물의 타입 아이콘 표시 상태 설정
-    private void SetAllTypeIconsVisible(bool isVisible)
+    // <변경부분> 전체 타입 아이콘 토글,
+    // 현재 선택 기물, 정보 확인 중인 상대 기물을 기준으로
+    // 보드 위 모든 타입 아이콘의 표시와 선택 연출을 갱신한다.
+    private void RefreshTypeIconVisuals()
     {
-        // 보드 전체 X 좌표 검사
-        for (int x = 0; x < boardManager.Width; x++)
+        if (boardManager == null ||
+            pieceManager == null)
         {
-            // 보드 전체 Y 좌표 검사
-            for (int y = 0; y < boardManager.Height; y++)
-            {
-                // 현재 좌표의 기물 가져오기
-                Piece piece = pieceManager.GetPieceAt(x, y);
+            return;
+        }
 
-                // 기물이 없으면 다음 칸 검사
+        for (int x = 0;
+             x < boardManager.Width;
+             x++)
+        {
+            for (int y = 0;
+                 y < boardManager.Height;
+                 y++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
                 if (piece == null)
                 {
                     continue;
                 }
 
-                // 해당 기물의 타입 아이콘 표시 상태 적용
-                piece.SetTypeIconVisible(isVisible);
+                // 전체 표시 토글이 켜져 있거나,
+                // 현재 선택 기물이거나,
+                // 상대 정보 확인 대상으로 지정된 기물은 표시한다.
+                bool shouldShowTypeIcon =
+                    isTypeIconVisible ||
+                    piece == selectedPiece ||
+                    piece == pendingAttackTargetPiece;
+
+                piece.SetTypeIconVisible(
+                    shouldShowTypeIcon
+                );
+
+                // 선택 상승과 점멸 연출은
+                // 실제 조작 대상으로 선택된 기물에만 적용한다.
+                piece.SetTypeIconSelected(
+                    piece == selectedPiece
+                );
             }
         }
     }
 
-    // <변경부분> 선택한 기물만 타입 아이콘 표시
-    private void ShowOnlySelectedPieceTypeIcon(Piece piece)
+    // <변경부분> 기존 호출 위치를 유지하기 위한 함수
+    // 이제 선택 기물만 표시하는 것이 아니라
+    // 전체 토글 상태를 유지하면서 선택 연출을 갱신한다.
+    private void ShowOnlySelectedPieceTypeIcon(
+        Piece piece)
     {
-        // 모든 기물 타입 아이콘 끄기
-        SetAllTypeIconsVisible(false);
+        selectedPiece =
+            piece;
 
-        // 선택한 기물이 없으면 종료
-        if (piece == null)
-        {
-            return;
-        }
-
-        // 선택한 기물의 타입 아이콘만 켜기
-        piece.SetTypeIconVisible(true);
+        RefreshTypeIconVisuals();
     }
 
     // <변경부분> 퇴화 상태의 기물이 잡혔을 때 인접 빈칸에 젤루 Pawn을 생성하는 함수
@@ -1960,6 +1986,67 @@ public class BattleManager : MonoBehaviour
             );
     }
 
+    // <변경부분> 지정한 좌표에서 특정 진영 King까지의
+    // 맨해튼 거리를 반환한다.
+    // AI가 Player King 쪽으로 전진하는 행동을 평가할 때 사용한다.
+    public int GetDistanceToKing(
+        Vector2Int position,
+        PieceTeam kingTeam)
+    {
+        if (boardManager == null ||
+            pieceManager == null)
+        {
+            Debug.LogWarning(
+                "King 거리 계산 실패: " +
+                "BoardManager 또는 PieceManager가 연결되지 않았습니다."
+            );
+
+            return -1;
+        }
+
+        // 보드 전체에서 지정한 진영의 King을 찾는다.
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != kingTeam)
+                {
+                    continue;
+                }
+
+                if (piece.PieceType != PieceType.King)
+                {
+                    continue;
+                }
+
+                // 가로 거리와 세로 거리를 더한
+                // 맨해튼 거리를 반환한다.
+                return
+                    Mathf.Abs(position.x - x) +
+                    Mathf.Abs(position.y - y);
+            }
+        }
+
+        // King이 존재하지 않는 전투에서는
+        // 전진 압박 점수를 계산하지 않는다.
+        return -1;
+    }
+
 
     // <변경부분> 지정한 진영의 현재 합법적인 AI 행동 후보를 생성하는 공용 함수
     // 디버그 출력과 실제 AI 턴 모두 같은 BattleAIActionGenerator를 사용한다.
@@ -2063,7 +2150,7 @@ public class BattleManager : MonoBehaviour
         isAbsorbMode = false;
 
         // 모든 타입 아이콘 비활성화
-        SetAllTypeIconsVisible(false);
+        RefreshTypeIconVisuals();
 
         // 턴 종료 시 액션 버튼 숨김
         if (battleUIController != null)

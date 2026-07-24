@@ -5167,6 +5167,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleAIManager
   controlEnemyWithAI: 1
   decisionDelay: 0.5
+  logEvaluatedActionScores: 1
 --- !u!1 &53757416
 GameObject:
   m_ObjectHideFlags: 0
@@ -105220,9 +105221,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleEndFlowController
   moveToMapSceneImmediatelyOnWin: 0
-  reloadCurrentBattleSceneForTest: 1
   mapSceneName: RoguelikeMapScene
-  moveToMapSceneOnLose: 0
+  reloadCurrentBattleSceneForTest: 1
   battleRewardPopupUI: {fileID: 337650159}
   maxPlayerPieceCount: 10
   devoryaPawnRewardPercent: 90
