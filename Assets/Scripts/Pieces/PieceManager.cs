@@ -822,8 +822,27 @@ public class PieceManager : MonoBehaviour
         }
 
         // <변경부분> 타입 아이콘 위치 적용
-        Vector3 typeIconPosition = pieceData.GetTypeIconPosition(piece.Team, piece.IsAbsorbedJelluVisual);
-        piece.SetTypeIconLocalPosition(typeIconPosition);
+        Vector3 typeIconPosition =
+            pieceData.GetTypeIconPosition(
+                piece.Team,
+                piece.IsAbsorbedJelluVisual
+            );
+
+        piece.SetTypeIconLocalPosition(
+            typeIconPosition
+        );
+
+        // <변경부분> 필드 상태효과 아이콘 위치도
+        // 타입 아이콘과 동일하게 PieceData 기준으로 적용한다.
+        Vector3 fieldStatusEffectPosition =
+            pieceData.GetFieldStatusEffectPosition(
+                piece.Team,
+                piece.IsAbsorbedJelluVisual
+            );
+
+        piece.SetFieldStatusEffectLocalPosition(
+            fieldStatusEffectPosition
+        );
 
         return true;
     }

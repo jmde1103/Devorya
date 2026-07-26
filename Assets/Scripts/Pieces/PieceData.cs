@@ -79,6 +79,19 @@ public class PieceData : ScriptableObject
     // <변경부분> 흡수된 플레이어 외형 타입 아이콘 위치
     public Vector3 absorbedPlayerTypeIconPosition;
 
+    [Header("Field Status Effect Icon Positions")]
+    // <변경부분> 플레이어 진영 필드 상태효과 아이콘 위치
+    public Vector3 playerFieldStatusEffectPosition;
+
+    // <변경부분> 적 진영 필드 상태효과 아이콘 위치
+    public Vector3 enemyFieldStatusEffectPosition;
+
+    // <변경부분> 중립 진영 필드 상태효과 아이콘 위치
+    public Vector3 neutralFieldStatusEffectPosition;
+
+    // <변경부분> 흡수된 플레이어 외형 필드 상태효과 아이콘 위치
+    public Vector3 absorbedPlayerFieldStatusEffectPosition;
+
     // <변경부분> 팀과 외형 상태에 맞는 스프라이트 반환
     public Sprite GetSprite(PieceTeam team, bool isAbsorbedPlayerVisual)
     {
@@ -168,6 +181,36 @@ public class PieceData : ScriptableObject
 
             case PieceTeam.Neutral:
                 return neutralTypeIconPosition;
+        }
+
+        return Vector3.zero;
+    }
+
+    // <변경부분> 팀과 외형 상태에 맞는
+    // 필드 상태효과 아이콘 위치를 반환한다.
+    // 타입 아이콘 위치와 동일한 기준으로 관리한다.
+    public Vector3 GetFieldStatusEffectPosition(
+        PieceTeam team,
+        bool isAbsorbedPlayerVisual)
+    {
+        // 플레이어가 흡수 외형을 사용 중이면
+        // 흡수 외형 전용 상태효과 아이콘 위치를 반환한다.
+        if (team == PieceTeam.Player &&
+            isAbsorbedPlayerVisual)
+        {
+            return absorbedPlayerFieldStatusEffectPosition;
+        }
+
+        switch (team)
+        {
+            case PieceTeam.Player:
+                return playerFieldStatusEffectPosition;
+
+            case PieceTeam.Enemy:
+                return enemyFieldStatusEffectPosition;
+
+            case PieceTeam.Neutral:
+                return neutralFieldStatusEffectPosition;
         }
 
         return Vector3.zero;

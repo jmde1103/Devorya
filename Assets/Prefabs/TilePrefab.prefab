@@ -105,7 +105,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19425bdbee322d4c9580fdf686ed430, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tile
-  highlightColor: {r: 1, g: 0.19339621, b: 0.46830758, a: 1}
+  highlightColor: {r: 0, g: 0.7221478, b: 1, a: 1}
+  actionConfirmHighlightColor: {r: 1, g: 0.19215687, b: 0.46666667, a: 1}
+  useHighlightFade: 1
+  highlightFadeDuration: 0.12
 --- !u!60 &1283451463483802665
 PolygonCollider2D:
   m_ObjectHideFlags: 0

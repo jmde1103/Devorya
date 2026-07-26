@@ -53,7 +53,13 @@ public class BattleManager : MonoBehaviour
 
     // 현재 선택된 기물
     private Piece selectedPiece;
+
+    // <변경부분> 이동 또는 공격 실행 전에
+    // 첫 번째 클릭으로 확인한 타일
+    private Tile pendingActionTile = null;
+
     // <변경부분> 공격 전에 한 번 확인한 상대 기물
+    // 타입 아이콘과 상대 스테이터스 UI 표시에도 사용한다.
     private Piece pendingAttackTargetPiece = null;
 
     // 현재 전투 턴 주체
@@ -322,7 +328,8 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 이전 하이라이트 제거
+        // 이전 이동·공격 하이라이트와
+        // 첫 번째 클릭으로 확인 중이던 타일을 초기화
         ClearHighlights();
 
         // 선택한 기물이 없으면 종료
@@ -463,7 +470,9 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"선택됨: {piece.Team} / {piece.PieceType} / ({piece.X}, {piece.Y})");
     }
 
-    //타일을 선택했을 때 호출되는 함수
+    // <변경부분> 타일을 선택했을 때 호출되는 함수
+    // 이동과 공격 모두 첫 클릭은 확인,
+    // 같은 타일 두 번째 클릭은 실제 행동 실행으로 처리한다.
     public void SelectTile(Tile tile)
     {
         // 전투가 끝났으면 타일 선택 불가
@@ -472,8 +481,14 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> Enemy AI 턴에는 사람의 타일 클릭을 받지 않는다.
-        // AI가 꺼져 있으면 Enemy 수동 조작을 허용한다.
+        // 클릭한 타일이 없으면 처리할 수 없다.
+        if (tile == null)
+        {
+            return;
+        }
+
+        // Enemy AI 턴에는 사람의 타일 클릭을 받지 않는다.
+        // AI가 꺼져 있으면 Enemy 수동 조작은 허용한다.
         if (currentTurn == BattleTurn.Enemy &&
             battleAIManager != null &&
             battleAIManager.IsEnemyControlledByAI())
@@ -481,95 +496,149 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-
-        // <변경부분> 이동/공격 연출 중에는 추가 입력 방지
+        // 이동·공격 연출 중에는 추가 입력 방지
         if (isActionAnimating)
         {
             return;
         }
 
-        // <변경부분> 클릭한 타일 위에 있는 기물 확인
-        Piece clickedPiece = pieceManager.GetPieceAt(tile.X, tile.Y);
-
-        // <변경부분> 선택된 플레이어 기물이 없고, 타일 위에 기물이 있다면 기물 선택/정보 표시로 처리
-        if (selectedPiece == null && clickedPiece != null)
-        {
-            SelectPiece(clickedPiece);
-            return;
-        }
-
-        // <변경부분> 이미 선택된 기물이 있는 상태에서 같은 팀 기물을 클릭하면 새 기물 선택으로 처리
-        if (selectedPiece != null &&
-            clickedPiece != null &&
-            clickedPiece.Team == selectedPiece.Team)
-        {
-            SelectPiece(clickedPiece);
-            return;
-        }
-
-        // <변경부분> 선택된 플레이어 기물이 있고, 타일 위에 상대/중립 기물이 있다면 공격 확인 대상으로 처리
-        if (selectedPiece != null &&
-            clickedPiece != null &&
-            clickedPiece.Team != selectedPiece.Team)
-        {
-            // 처음 클릭한 상대 기물이거나 이전 확인 대상과 다르면 정보만 표시
-            if (pendingAttackTargetPiece != clickedPiece)
-            {
-                pendingAttackTargetPiece = clickedPiece;
-
-                // <변경부분> 전체 토글 상태와 현재 선택 기물을 유지하면서
-                // 새 상대 정보 확인 대상 아이콘 표시를 갱신한다.
-                RefreshTypeIconVisuals();
-
-                // 상대 스테이터스 UI 표시
-                if (battleUIController != null)
-                {
-                    battleUIController.RefreshEnemyStatus(clickedPiece);
-                }
-
-                Debug.Log("상대 기물 정보 확인: 같은 기물을 한 번 더 클릭하면 공격합니다.");
-                return;
-            }
-
-            // 같은 상대 기물을 두 번째 클릭했으므로 아래 기존 공격 로직으로 진행
-        }
-
-
-        // 선택된 기물이 없으면 종료
-        if (selectedPiece == null)
-        {
-            return;
-        }
-
-        // 클릭한 타일이 이동/공격 가능한 타일이 아니면 종료
-        if (selectableTiles.Contains(tile) == false)
-        {
-            return;
-        }
-
-        // <변경부분> 이동/공격할 타일을 클릭한 순간,
-        // 선택한 타일 외 다른 하이라이트는 즉시 제거한다.
-        ClearHighlightsExcept(tile);
-
-        // <변경부분> 사람 조작도 공용 행동 실행 함수에
-        // 행동 기물과 목표 좌표를 명시적으로 전달한다.
-        bool actionStarted =
-            TryExecuteBattleAction(
-                selectedPiece,
-                new Vector2Int(
-                    tile.X,
-                    tile.Y
-                )
+        // 클릭한 타일 위에 있는 기물 확인
+        Piece clickedPiece =
+            pieceManager.GetPieceAt(
+                tile.X,
+                tile.Y
             );
 
-        // 예상하지 못한 이유로 실행 요청이 실패했다면
-        // 남아 있는 선택 타일 하이라이트를 정리한다.
-        if (actionStarted == false)
+        // 선택된 기물이 없는 상태에서 기물이 있는 타일을 클릭하면
+        // 해당 기물 선택 또는 상대 정보 확인으로 처리한다.
+        if (selectedPiece == null)
         {
-            ClearHighlights();
+            if (clickedPiece != null)
+            {
+                SelectPiece(
+                    clickedPiece
+                );
+            }
+
+            return;
         }
 
+        // 선택된 기물이 있는 상태에서
+        // 같은 팀 기물을 클릭하면 새 기물 선택으로 처리한다.
+        if (clickedPiece != null &&
+            clickedPiece.Team ==
+            selectedPiece.Team)
+        {
+            SelectPiece(
+                clickedPiece
+            );
 
+            return;
+        }
+
+        // 선택된 기물이 있더라도
+        // 실제 이동·공격 가능 타일이 아니면 확인 대상으로 지정하지 않는다.
+        if (selectableTiles.Contains(tile) ==
+            false)
+        {
+            return;
+        }
+
+        // <변경부분> 이미 같은 타일을 한 번 확인한 상태라면
+        // 두 번째 클릭이므로 실제 이동 또는 공격을 실행한다.
+        if (pendingActionTile == tile)
+        {
+            // 실행할 타일만 남기고
+            // 나머지 이동 가능 하이라이트를 제거한다.
+            ClearHighlightsExcept(
+                tile
+            );
+
+            // 사람 조작도 공용 행동 실행 함수에
+            // 행동 기물과 목표 좌표를 명시적으로 전달한다.
+            bool actionStarted =
+                TryExecuteBattleAction(
+                    selectedPiece,
+                    new Vector2Int(
+                        tile.X,
+                        tile.Y
+                    )
+                );
+
+            // 예상하지 못한 이유로 실행 요청이 실패했다면
+            // 선택 상태와 하이라이트를 정리한다.
+            if (actionStarted == false)
+            {
+                ClearHighlights();
+
+                pendingAttackTargetPiece =
+                    null;
+
+                RefreshTypeIconVisuals();
+            }
+
+            return;
+        }
+
+        // <변경부분> 다른 타일을 첫 번째로 클릭했다면
+        // 이전 확인 타일은 일반 이동 가능 색상으로 복구한다.
+        if (pendingActionTile != null)
+        {
+            pendingActionTile
+                .ShowHighlight();
+        }
+
+        // 새 확인 타일 저장
+        pendingActionTile =
+            tile;
+
+        // 새 확인 타일을 전용 확인 색상으로 변경
+        pendingActionTile
+            .ShowActionConfirmHighlight();
+
+        // <변경부분> 상대 또는 중립 기물이 있는 타일이라면
+        // 공격 확인 대상으로 저장하고 상대 정보를 표시한다.
+        if (clickedPiece != null &&
+            clickedPiece.Team !=
+            selectedPiece.Team)
+        {
+            pendingAttackTargetPiece =
+                clickedPiece;
+
+            // 상대 스테이터스 UI 표시
+            if (battleUIController != null)
+            {
+                battleUIController
+                    .RefreshEnemyStatus(
+                        clickedPiece
+                    );
+            }
+
+            Debug.Log(
+                "공격 타일 확인: 같은 타일을 한 번 더 클릭하면 공격합니다."
+            );
+        }
+        else
+        {
+            // <변경부분> 빈칸 이동을 확인하는 경우에는
+            // 이전 상대 공격 확인 대상을 해제한다.
+            pendingAttackTargetPiece =
+                null;
+
+            if (battleUIController != null)
+            {
+                battleUIController
+                    .ClearEnemyStatus();
+            }
+
+            Debug.Log(
+                "이동 타일 확인: 같은 타일을 한 번 더 클릭하면 이동합니다."
+            );
+        }
+
+        // 선택 기물과 현재 공격 확인 대상에 맞춰
+        // 타입 아이콘 표시 및 반투명 상태를 갱신한다.
+        RefreshTypeIconVisuals();
     }
 
     // <변경부분> 사람과 AI가 공통으로 사용하는 전투 행동 실행 진입점
@@ -1049,8 +1118,13 @@ public class BattleManager : MonoBehaviour
             );
         }
 
-        // 이동/공격이 실행되었으므로 공격 확인 대상 초기화
-        pendingAttackTargetPiece = null;
+        // <변경부분> 이동 또는 공격이 실행되었으므로
+        // 타일 확인 상태와 공격 확인 대상을 모두 초기화한다.
+        pendingActionTile =
+            null;
+
+        pendingAttackTargetPiece =
+            null;
 
         // 이동/공격 후 승패 조건 확인
         CheckBattleEnd();
@@ -1342,10 +1416,23 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 선택된 기물에 고유스킬 데이터 기준 쿨타임 적용
             skillPiece.MarkUniqueSkillUsed(skillData.cooldownTurn);
 
-            // <변경부분> 고유스킬 사용 후 이동 가능 타일을 현재 기물 정보 기준으로 다시 갱신
+            // <변경부분> 고유스킬 사용 전 확인하던
+            // 이동·공격 대상 상태를 초기화한다.
+            pendingActionTile =
+                null;
+
+            pendingAttackTargetPiece =
+                null;
+
+            // 고유스킬 사용 후 이동 가능 타일을
+            // 현재 기물 정보 기준으로 다시 갱신
             ClearHighlights();
-            ShowOnlySelectedPieceTypeIcon(skillPiece);
-            ShowMovableTiles(skillPiece);
+            ShowOnlySelectedPieceTypeIcon(
+                skillPiece
+            );
+            ShowMovableTiles(
+                skillPiece
+            );
 
             // <변경부분> 고유스킬 사용 후 버튼과 스테이터스 UI를 현재 기물 정보 기준으로 다시 갱신
             if (battleUIController != null)
@@ -1554,8 +1641,13 @@ public class BattleManager : MonoBehaviour
         // 아이템 사용 후 흡수 모드 해제
         isAbsorbMode = false;
 
-        // 아이템 사용 후 공격 확인 대상 초기화
-        pendingAttackTargetPiece = null;
+        // <변경부분> 아이템 사용 후
+        // 이전 이동·공격 확인 상태를 초기화한다.
+        pendingActionTile =
+            null;
+
+        pendingAttackTargetPiece =
+            null;
 
         // 변경된 기물 기준으로 이동 가능 타일을 다시 표시
         ClearHighlights();
@@ -1896,6 +1988,13 @@ public class BattleManager : MonoBehaviour
 
         // <변경부분> 추가 행동으로 자동 선택된 기물도 Select → Select_Idle 상태로 표시
         pieceManager.PlayPieceSelectAnimation(selectedPiece);
+
+        // <변경부분> 이전 행동 확인 상태를 초기화한다.
+        pendingActionTile =
+            null;
+
+        pendingAttackTargetPiece =
+            null;
 
         // 기존 이동/공격 하이라이트 제거
         ClearHighlights();
@@ -2275,11 +2374,16 @@ public class BattleManager : MonoBehaviour
 
     private void EndTurn()
     {
-        // <변경부분> 턴 종료 시 이동/공격 가능 타일 하이라이트 제거
+        // 턴 종료 시 이동·공격 가능 타일과
+        // 첫 번째 클릭 확인 상태 제거
         ClearHighlights();
 
-        // <변경부분> 턴 종료 시 공격 확인 대상 초기화
-    pendingAttackTargetPiece = null;
+        pendingActionTile =
+            null;
+
+        // 턴 종료 시 공격 확인 대상 초기화
+        pendingAttackTargetPiece =
+            null;
 
         // 선택된 기물 해제
         selectedPiece = null;
@@ -2442,17 +2546,63 @@ public class BattleManager : MonoBehaviour
         selectableTiles.Add(tile);
     }
 
-    // <변경부분> 선택한 타일 하나만 남기고 나머지 하이라이트를 즉시 제거
-    private void ClearHighlightsExcept(Tile selectedTile)
+    // <변경부분> 행동이 확정된 타일 하나만 남기고
+    // 나머지 이동·공격 가능 하이라이트를 제거한다.
+    private void ClearHighlightsExcept(
+        Tile selectedTile)
     {
-        // 선택한 타일이 없으면 기존 방식대로 전체 하이라이트 제거
+        // 선택한 타일이 없으면 전체 하이라이트 제거
         if (selectedTile == null)
         {
             ClearHighlights();
             return;
         }
 
-        // 선택한 타일 외의 모든 하이라이트를 원래 색으로 복구
+        // 선택한 타일 외의 모든 하이라이트를
+        // 원래 타일 색상으로 복구한다.
+        foreach (Tile highlightedTile in
+                 highlightedTiles)
+        {
+            if (highlightedTile == null)
+            {
+                continue;
+            }
+
+            if (highlightedTile !=
+                selectedTile)
+            {
+                highlightedTile
+                    .HideHighlight();
+            }
+        }
+
+        // 선택한 타일은 행동 연출이 시작될 때까지
+        // 확인 색상 상태로 유지한다.
+        selectedTile
+            .ShowActionConfirmHighlight();
+
+        // 이후 후처리에서 선택 타일 하나만 정리할 수 있도록
+        // 하이라이트 목록을 다시 구성한다.
+        highlightedTiles.Clear();
+
+        highlightedTiles.Add(
+            selectedTile
+        );
+
+        // 행동 실행이 확정되었으므로
+        // 더 이상 다른 타일을 선택할 수 없도록 비운다.
+        selectableTiles.Clear();
+
+        // 확인 단계가 끝났으므로 참조는 초기화한다.
+        pendingActionTile =
+            null;
+    }
+
+    // <변경부분> 모든 이동·공격 하이라이트와
+    // 현재 확인 중인 행동 타일을 초기화한다.
+    private void ClearHighlights()
+    {
+        // 하이라이트된 타일 전부 원래 색으로 복구
         foreach (Tile tile in highlightedTiles)
         {
             if (tile == null)
@@ -2460,34 +2610,18 @@ public class BattleManager : MonoBehaviour
                 continue;
             }
 
-            if (tile != selectedTile)
-            {
-                tile.HideHighlight();
-            }
-        }
-
-        // 이후 후처리에서 선택한 타일만 정리할 수 있도록 목록을 선택 타일 하나로 재구성
-        highlightedTiles.Clear();
-        highlightedTiles.Add(selectedTile);
-
-        // 이동/공격 실행이 확정되었으므로 추가 선택 가능 목록은 비움
-        selectableTiles.Clear();
-    }
-
-    // 기존 하이라이트 제거
-    private void ClearHighlights()
-    {
-        // 하이라이트된 타일 전부 원래 색으로 복구
-        foreach (Tile tile in highlightedTiles)
-        {
             tile.HideHighlight();
         }
 
         // 하이라이트 목록 비우기
         highlightedTiles.Clear();
 
-        // 선택 가능 타일 목록도 비우기
+        // 선택 가능 타일 목록 비우기
         selectableTiles.Clear();
+
+        // 첫 번째 클릭으로 확인 중이던 타일 초기화
+        pendingActionTile =
+            null;
     }
 
     // 현재 선택된 기물이 있는지 반환하는 함수

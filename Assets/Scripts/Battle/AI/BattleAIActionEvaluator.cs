@@ -14,10 +14,25 @@ public class BattleAIActionEvaluator
     private const float ForwardPressureScorePerTile =
         5f;
 
-    // <변경부분> 같은 기물이 직전 Enemy 턴의 이동을
-    // 그대로 되돌리는 왕복 행동에 적용하는 감점
+    // <변경부분> 같은 기물이 직전 Enemy 행동을
+    // 그대로 되돌리는 즉시 왕복 행동에 적용하는 감점
     private const float ImmediateReturnPenalty =
+        -120f;
+
+    // <변경부분> 같은 기물이 최근에 방문했던 위치로
+    // 다시 이동할 때 적용하는 기본 재방문 감점
+    private const float RecentPositionRevisitPenalty =
+        -35f;
+
+    // <변경부분> 최근 위치 이력 안에서 같은 위치를
+    // 여러 번 방문한 횟수마다 추가하는 누적 감점
+    private const float RepeatedPositionVisitPenalty =
         -30f;
+
+    // <변경부분> 기물별로 기억할 최근 도착 위치 개수
+    // 너무 오래된 이동까지 계속 감점하지 않도록 제한한다.
+    private const int MaxRecentPositionHistory =
+        6;
 
     // <변경부분> 행동 후 Enemy King이 다음 턴에 잡힐 수 있을 때
     // 해당 행동이 거의 선택되지 않도록 적용하는 치명적 감점
@@ -37,6 +52,13 @@ public class BattleAIActionEvaluator
     // <변경부분> 직전 Enemy 행동의 목표 좌표
     private Vector2Int previousTargetPosition;
 
+    // <변경부분> Enemy 기물별 최근 도착 위치 이력
+    // 다른 기물이 중간에 움직여도 각 기물의 반복 이동을
+    // 독립적으로 기억하기 위해 Piece별로 관리한다.
+    private readonly Dictionary<Piece, List<Vector2Int>>
+        recentPositionHistoryByPiece =
+            new Dictionary<Piece, List<Vector2Int>>();
+
     // <변경부분> 평가기 생성 시 필요한 전투 참조를 한 번 전달받는다.
     public BattleAIActionEvaluator(
      BattleManager manager)
@@ -44,7 +66,8 @@ public class BattleAIActionEvaluator
         battleManager = manager;
     }
 
-    // <변경부분> 실제 실행에 성공한 직전 Enemy 행동을 저장한다.
+    // <변경부분> 실제 실행에 성공한 Enemy 행동을 저장한다.
+    // 직전 행동 정보와 기물별 최근 위치 이력을 함께 갱신한다.
     // 평가만 하고 실행되지 않은 후보는 기록하지 않는다.
     public void SetPreviousExecutedAction(
         BattleAIAction executedAction)
@@ -55,14 +78,52 @@ public class BattleAIActionEvaluator
             return;
         }
 
-        previousActingPiece =
+        Piece actingPiece =
             executedAction.ActingPiece;
+
+        // 기존 즉시 왕복 판정용 직전 행동 저장
+        previousActingPiece =
+            actingPiece;
 
         previousSourcePosition =
             executedAction.SourcePosition;
 
         previousTargetPosition =
             executedAction.TargetPosition;
+
+        // 해당 기물의 위치 이력이 아직 없다면 생성한다.
+        if (recentPositionHistoryByPiece.TryGetValue(
+                actingPiece,
+                out List<Vector2Int> positionHistory) ==
+            false)
+        {
+            positionHistory =
+                new List<Vector2Int>();
+
+            recentPositionHistoryByPiece.Add(
+                actingPiece,
+                positionHistory
+            );
+
+            // 최초 기록에서는 행동 전 출발 위치도 저장한다.
+            // 이후 이 위치로 되돌아오는 행동을 감지할 수 있다.
+            positionHistory.Add(
+                executedAction.SourcePosition
+            );
+        }
+
+        // 실제 행동 후 도착 위치 저장
+        positionHistory.Add(
+            executedAction.TargetPosition
+        );
+
+        // 오래된 위치 기록은 제거해서
+        // 최근 행동 패턴만 평가하도록 제한한다.
+        while (positionHistory.Count >
+               MaxRecentPositionHistory)
+        {
+            positionHistory.RemoveAt(0);
+        }
     }
 
 
@@ -149,8 +210,8 @@ public class BattleAIActionEvaluator
             score -= actingPieceValue;
         }
 
-        // <변경부분> 직전 Enemy 턴에 움직였던 같은 기물이
-        // 직전 출발 위치로 바로 되돌아가는 행동이면 감점한다.
+        // <변경부분> 직전 Enemy 행동을 같은 기물이
+        // 즉시 되돌리는 정확한 왕복 행동이면 큰 감점을 적용한다.
         //
         // 예:
         // 이전 행동 (3, 4) → (2, 4)
@@ -159,6 +220,14 @@ public class BattleAIActionEvaluator
         {
             score += ImmediateReturnPenalty;
         }
+
+        // <변경부분> 즉시 왕복이 아니더라도
+        // 같은 기물이 최근 방문했던 위치로 다시 이동한다면
+        // 최근 위치 이력과 반복 횟수에 따라 추가 감점을 적용한다.
+        score +=
+            EvaluateRecentPositionRevisitPenalty(
+                action
+            );
 
         // <변경부분> Enemy 일반 기물이 Player King과 가까워지는 행동에
         // 거리 감소량만큼 작은 전진 압박 점수를 추가한다.
@@ -257,6 +326,67 @@ public class BattleAIActionEvaluator
             previousTargetPosition &&
             action.TargetPosition ==
             previousSourcePosition;
+    }
+
+    // <변경부분> 같은 기물이 최근 방문했던 위치로
+    // 다시 이동하는 행동의 누적 감점을 계산한다.
+    private float EvaluateRecentPositionRevisitPenalty(
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActingPiece == null)
+        {
+            return 0f;
+        }
+
+        // 이 기물의 이전 위치 이력이 없다면
+        // 반복 행동으로 볼 수 없다.
+        if (recentPositionHistoryByPiece.TryGetValue(
+                action.ActingPiece,
+                out List<Vector2Int> positionHistory) ==
+            false)
+        {
+            return 0f;
+        }
+
+        if (positionHistory == null ||
+            positionHistory.Count == 0)
+        {
+            return 0f;
+        }
+
+        int visitCount = 0;
+
+        // 현재 후보의 목표 위치를
+        // 최근 위치 이력에서 몇 번 방문했는지 계산한다.
+        for (int i = 0;
+             i < positionHistory.Count;
+             i++)
+        {
+            if (positionHistory[i] ==
+                action.TargetPosition)
+            {
+                visitCount++;
+            }
+        }
+
+        // 한 번도 방문하지 않은 새 위치라면 감점하지 않는다.
+        if (visitCount <= 0)
+        {
+            return 0f;
+        }
+
+        // 최근 방문 위치로 돌아가는 기본 감점
+        float penalty =
+            RecentPositionRevisitPenalty;
+
+        // 같은 위치를 여러 번 방문한 기록이 있을수록
+        // 추가 누적 감점을 적용한다.
+        penalty +=
+            visitCount *
+            RepeatedPositionVisitPenalty;
+
+        return penalty;
     }
 
     // <변경부분> 공격 대상 기물의 가치에 따라 공격 점수를 계산한다.
@@ -408,6 +538,16 @@ public class BattleAIActionEvaluator
                     : $"{action.TargetPiece.Team} " +
                       $"{action.TargetPiece.PieceType}";
 
+            bool isImmediateReturn =
+    IsImmediateReturnAction(
+        action
+    );
+
+            float revisitPenalty =
+                EvaluateRecentPositionRevisitPenalty(
+                    action
+                );
+
             Debug.Log(
                 $"AI 점수 평가: " +
                 $"{action.ActionType} / " +
@@ -416,7 +556,9 @@ public class BattleAIActionEvaluator
                 $"{action.SourcePosition} → " +
                 $"{action.TargetPosition} / " +
                 $"대상: {targetText} / " +
-                $"점수: {action.Score}"
+                $"즉시 왕복: {isImmediateReturn} / " +
+                $"재방문 감점: {revisitPenalty} / " +
+                $"최종 점수: {action.Score}"
             );
         }
     }

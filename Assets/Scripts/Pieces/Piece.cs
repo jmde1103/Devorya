@@ -23,6 +23,11 @@ public class Piece : MonoBehaviour
     // 퇴화, 독, 기절 같은 전투 중 임시 효과를 관리
     [SerializeField] private List<OwnedStatusEffectData> statusEffects = new List<OwnedStatusEffectData>();
 
+    [Header("Field Status Effect UI")]
+    // <변경부분> 필드 위에 현재 상태효과 아이콘을 표시하는 UI 컴포넌트
+    [SerializeField]
+    private PieceFieldStatusEffectUI fieldStatusEffectUI;
+
     // <변경부분> 일반 스킬 최대 레벨
     private const int MaxGeneralSkillLevel = 3;
 
@@ -157,6 +162,16 @@ public class Piece : MonoBehaviour
             typeIconBoxBaseColor =
                 typeIconBoxRenderer.color;
         }
+
+        // <변경부분> 필드 상태효과 UI가 Inspector에 연결되지 않았다면
+        // 비활성화된 자식 오브젝트까지 포함해 자동으로 찾는다.
+        if (fieldStatusEffectUI == null)
+        {
+            fieldStatusEffectUI =
+                GetComponentInChildren<PieceFieldStatusEffectUI>(
+                    true
+                );
+        }
     }
 
     // <변경부분> 기물이 제거되거나 비활성화될 때
@@ -194,8 +209,14 @@ public class Piece : MonoBehaviour
         CanMove = canMove; //이동 가능 여부 저장
         UniqueSkill = uniqueSkill;
 
-        // <변경부분> 생성 시 전달받은 종족 태그를 초기화
-        SetSpeciesTags(initialSpeciesTags);
+        // 생성 시 전달받은 종족 태그를 초기화
+        SetSpeciesTags(
+            initialSpeciesTags
+        );
+
+        // <변경부분> 기물 생성 직후 현재 상태효과 기준으로
+        // 필드 상태효과 아이콘 표시를 초기화한다.
+        RefreshFieldStatusEffectUI();
     }
 
     // <변경부분> 현재 기물이 참조할 PieceData를 저장하는 함수
@@ -428,17 +449,46 @@ public class Piece : MonoBehaviour
         // 이미 있으면 지속 턴 갱신 + 중첩 증가
         if (existingStatusEffect != null)
         {
-            existingStatusEffect.remainingTurn = durationTurn;
-            existingStatusEffect.stackCount = Mathf.Min(existingStatusEffect.stackCount + 1, maxStack);
+            existingStatusEffect.remainingTurn =
+                durationTurn;
 
-            Debug.Log($"상태이상 갱신: {statusEffectData.effectName} / 남은 턴 {existingStatusEffect.remainingTurn} / 중첩 {existingStatusEffect.stackCount}");
+            existingStatusEffect.stackCount =
+                Mathf.Min(
+                    existingStatusEffect.stackCount + 1,
+                    maxStack
+                );
+
+            // <변경부분> 상태효과 지속시간이나 중첩이 갱신됐으므로
+            // 필드 위 아이콘과 경고 애니메이션도 즉시 갱신한다.
+            RefreshFieldStatusEffectUI();
+
+            Debug.Log(
+                $"상태이상 갱신: " +
+                $"{statusEffectData.effectName} / " +
+                $"남은 턴 {existingStatusEffect.remainingTurn} / " +
+                $"중첩 {existingStatusEffect.stackCount}"
+            );
+
             return;
         }
 
-        // 없으면 새 상태이상 추가
-        statusEffects.Add(new OwnedStatusEffectData(statusEffectData.effectType, durationTurn, 1));
+        statusEffects.Add(
+     new OwnedStatusEffectData(
+         statusEffectData.effectType,
+         durationTurn,
+         1
+     )
+ );
 
-        Debug.Log($"상태이상 추가: {statusEffectData.effectName} / 남은 턴 {durationTurn}");
+        // <변경부분> 새 상태효과가 추가됐으므로
+        // 필드 상태효과 아이콘을 즉시 갱신한다.
+        RefreshFieldStatusEffectUI();
+
+        Debug.Log(
+            $"상태이상 추가: " +
+            $"{statusEffectData.effectName} / " +
+            $"남은 턴 {durationTurn}"
+        );
     }
 
     // <변경부분> 특정 상태이상을 가지고 있는지 확인하는 함수
@@ -493,6 +543,26 @@ public class Piece : MonoBehaviour
         return copiedStatusEffects;
     }
 
+    // <변경부분> 현재 상태효과 목록을 기준으로
+    // 필드 위 상태효과 아이콘 표시를 갱신한다.
+    private void RefreshFieldStatusEffectUI()
+    {
+        if (fieldStatusEffectUI == null)
+        {
+            fieldStatusEffectUI =
+                GetComponentInChildren<PieceFieldStatusEffectUI>(
+                    true
+                );
+        }
+
+        if (fieldStatusEffectUI == null)
+        {
+            return;
+        }
+
+        fieldStatusEffectUI.Refresh();
+    }
+
     // <변경부분> 특정 상태이상의 보유 정보를 복사해서 반환하는 함수
     public OwnedStatusEffectData GetStatusEffectDataCopy(StatusEffectType statusEffectType)
     {
@@ -512,12 +582,16 @@ public class Piece : MonoBehaviour
         return null;
     }
 
-    // <변경부분> 현재 기물의 상태이상 유지 턴을 1 감소시키고 만료된 상태이상을 제거
+    // <변경부분> 현재 기물의 상태효과 유지 턴을 1 감소시키고
+    // 만료된 상태효과를 제거한 뒤 필드 UI를 갱신한다.
     public void ReduceStatusEffectTurnAndRemoveExpired()
     {
-        for (int i = statusEffects.Count - 1; i >= 0; i--)
+        for (int i = statusEffects.Count - 1;
+             i >= 0;
+             i--)
         {
-            OwnedStatusEffectData statusEffect = statusEffects[i];
+            OwnedStatusEffectData statusEffect =
+                statusEffects[i];
 
             if (statusEffect == null)
             {
@@ -529,10 +603,18 @@ public class Piece : MonoBehaviour
 
             if (statusEffect.remainingTurn <= 0)
             {
-                Debug.Log($"상태이상 만료: {statusEffect.effectType}");
+                Debug.Log(
+                    $"상태이상 만료: " +
+                    $"{statusEffect.effectType}"
+                );
+
                 statusEffects.RemoveAt(i);
             }
         }
+
+        // <변경부분> 남은 턴 표시, 경고 애니메이션,
+        // 만료로 제거된 슬롯 상태를 필드 UI에 반영한다.
+        RefreshFieldStatusEffectUI();
     }
 
     // <변경부분> 현재 종족 태그 목록 복사본을 반환하는 함수
@@ -1009,6 +1091,32 @@ public class Piece : MonoBehaviour
 
         typeIconRoot.transform.localPosition =
             typeIconBaseLocalPosition;
+    }
+
+    // <변경부분> PieceData에 설정된 기물별
+    // 필드 상태효과 아이콘 위치를 적용한다.
+    // 타입 아이콘 위치 적용 방식과 동일하게 동작한다.
+    public void SetFieldStatusEffectLocalPosition(
+        Vector3 localPosition)
+    {
+        // Inspector 연결이 비어 있으면
+        // 비활성화된 자식 오브젝트까지 포함해 자동으로 찾는다.
+        if (fieldStatusEffectUI == null)
+        {
+            fieldStatusEffectUI =
+                GetComponentInChildren<PieceFieldStatusEffectUI>(
+                    true
+                );
+        }
+
+        if (fieldStatusEffectUI == null)
+        {
+            return;
+        }
+
+        fieldStatusEffectUI.SetLocalPosition(
+            localPosition
+        );
     }
 
 

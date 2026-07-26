@@ -29,6 +29,12 @@ public class Tile : MonoBehaviour
     [SerializeField]
     private Color highlightColor = Color.yellowNice; // 이동 가능 타일 표시 색
 
+    // <변경부분> 이동 또는 공격 실행 전
+    // 첫 번째 클릭으로 확인한 타일에 표시할 색상
+    [SerializeField]
+    private Color actionConfirmHighlightColor =
+        new Color(1f, 0.65f, 0f, 1f);
+
     [Header("Highlight Animation")]
     // <변경부분> 타일 하이라이트 색상 변경을 부드럽게 처리할지 여부
     [SerializeField] private bool useHighlightFade = true;
@@ -168,6 +174,16 @@ public class Tile : MonoBehaviour
         // <변경부분> 하이라이트 색상으로 부드럽게 전환
         ChangeTileColorSmooth(highlightColor);
     }
+
+    // <변경부분> 이동 또는 공격 실행 전
+    // 첫 번째 클릭으로 확인된 타일의 전용 색상을 표시한다.
+    public void ShowActionConfirmHighlight()
+    {
+        ChangeTileColorSmooth(
+            actionConfirmHighlightColor
+        );
+    }
+
 
     public void HideHighlight()  // 타일 표시 원상 복구
     {
