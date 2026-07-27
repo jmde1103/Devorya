@@ -15,3 +15,4 @@ MonoBehaviour:
   statusEffectDataList:
   - {fileID: 11400000, guid: f02a606ddcaaad54e907582bc6b81132, type: 2}
   - {fileID: 11400000, guid: c2bc84be6b2f9304982528565ce5e921, type: 2}
+  - {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}

@@ -49,4 +49,9 @@ public class BattleItemData : ScriptableObject
 
     // <변경부분> 플레이어 기물에게만 사용 가능한지 여부
     public bool onlyPlayerPiece = true;
+
+    [Header("Status Effect")]
+    // <변경부분> 상태효과 부여 아이템이
+    // 선택한 기물에 적용할 StatusEffectData
+    public StatusEffectData applyStatusEffectData;
 }

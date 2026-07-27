@@ -88,13 +88,15 @@ public class BattleItemManager : MonoBehaviour
         AddBattleItem(itemData);
     }
 
-    // <변경부분> 디버그 버튼으로 테스트 아이템을 수동 추가하는 함수
-    // 자동 지급이 아니라 개발 중 기능 테스트용으로만 사용한다.
+    // <변경부분> 디버그 버튼으로 방어 아이템을 수동 추가하는 함수
+    // 자동 지급이 아니라 개발 중 상태효과 아이템 테스트용으로만 사용한다.
     public void AddTestItemForDebug()
     {
-        // <변경부분> 테스트할 기본 아이템 타입을 코드에서 지정
-        // 데이터화 이후에도 수동 테스트 버튼은 유지하되, 전투 시작 자동 지급은 하지 않는다.
-        AddBattleItemByType(BattleItemType.ChangeSelectedPieceToJelluPawn);
+        // <변경부분> BattleItemDatabase에서
+        // 방어 상태효과 부여 아이템 데이터를 찾아 빈 슬롯에 추가한다.
+        AddBattleItemByType(
+            BattleItemType.ApplyStatusEffectToSelectedPiece
+        );
     }
 
     // <변경부분> 전투 아이템을 왼쪽 빈 슬롯부터 추가하고

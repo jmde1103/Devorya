@@ -869,8 +869,15 @@ public class BattleManager : MonoBehaviour
                     GeneralSkillType.Defense
                 );
 
+            // <변경부분> 공격 시작 시점에 대상이
+            // 확정 방어용 Defence 상태효과를 보유하고 있는지 저장한다.
+            bool hasDefenceStatusEffect =
+                targetPiece.HasStatusEffect(
+                    StatusEffectType.Defence
+                );
+
             // <변경부분> 공격자가 Breakthrough 상태이면
-            // 상대의 Defense를 무시한다.
+            // 상대의 Defense 일반스킬과 Defence 상태효과를 모두 무시한다.
             bool shouldIgnoreDefenseByBreakthrough =
                 actingPiece != null &&
                 actingPiece.HasStatusEffect(
@@ -883,19 +890,36 @@ public class BattleManager : MonoBehaviour
                     $"Breakthrough 발동: " +
                     $"{actingPiece.Team} {actingPiece.PieceType}이 " +
                     $"{targetPiece.Team} {targetPiece.PieceType}의 " +
-                    $"Defense를 무시합니다."
+                    $"Defense 일반스킬과 Defence 상태효과를 무시합니다."
                 );
             }
 
-            // <변경부분> Breakthrough 상태가 아닐 때만
-            // Defense 발동 여부를 판정한다.
+            // <변경부분> Breakthrough 상태가 아닐 때만 방어를 판정한다.
+            //
+            // Defence 상태효과가 있으면 확률 판정 없이 확정 발동하고,
+            // 상태효과가 없으면 기존 Defense 일반스킬 확률 판정을 사용한다.
             bool isDefenseActivated =
                 shouldIgnoreDefenseByBreakthrough == false &&
-                battleSkillManager != null &&
-                battleSkillManager.TryActivateDefense(
-                    targetPiece,
-                    defenseDataBeforeAction
+                (
+                    hasDefenceStatusEffect ||
+                    (
+                        battleSkillManager != null &&
+                        battleSkillManager.TryActivateDefense(
+                            targetPiece,
+                            defenseDataBeforeAction
+                        )
+                    )
                 );
+
+            if (isDefenseActivated &&
+                hasDefenceStatusEffect)
+            {
+                Debug.Log(
+                    $"Defence 상태효과 발동: " +
+                    $"{targetPiece.Team} {targetPiece.PieceType}의 " +
+                    $"방어가 확정 발동했습니다."
+                );
+            }
 
             // <변경부분> Defense가 실제로 발동했을 때만
             // 공격자의 Insight로 무효화를 시도한다.
@@ -954,8 +978,13 @@ public class BattleManager : MonoBehaviour
                 killedEnemyPiece = false;
                 absorbedEnemyPiece = false;
 
+                string defenseSource =
+    hasDefenceStatusEffect
+        ? "Defence 상태효과"
+        : "Defense 일반스킬";
+
                 Debug.Log(
-                    $"Defense 발동: " +
+                    $"{defenseSource} 발동: " +
                     $"{targetPiece.Team} {targetPiece.PieceType}이 " +
                     $"공격을 방어했습니다."
                 );

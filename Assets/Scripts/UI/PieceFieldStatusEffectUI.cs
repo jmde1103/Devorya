@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // <변경부분> 필드 위 기물에 현재 적용된 상태효과를
-// 작은 StatusEffectSlotUI 아이콘으로 표시하는 컴포넌트
+// 말풍선 배경 안의 작은 StatusEffectSlotUI 아이콘으로 표시하는 컴포넌트
 public class PieceFieldStatusEffectUI : MonoBehaviour
 {
     // 필드에 동시에 표시할 최대 상태효과 개수
-    // 4번째 상태효과부터는 필드에서는 표시하지 않는다.
+    // 네 번째 상태효과부터는 필드에서는 표시하지 않는다.
     private const int MaxVisibleStatusEffectCount = 3;
 
     [Header("Owner")]
@@ -20,30 +21,32 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
     private StatusEffectDatabase statusEffectDatabase;
 
     [Header("Display")]
-    // 상태효과가 하나 이상 있을 때만 활성화할 표시 루트
-    // PieceFieldStatusEffectUI가 붙은 오브젝트 자체가 아니라
-    // 슬롯들을 감싸는 별도 자식 오브젝트를 연결한다.
+    // 상태효과가 하나 이상 있을 때만 활성화할 말풍선 루트
     [SerializeField]
     private GameObject contentRoot;
 
+    // <변경부분> 말풍선 배경과 HorizontalLayoutGroup,
+    // ContentSizeFitter가 붙어 있는 RectTransform
+    [SerializeField]
+    private RectTransform bubbleRoot;
+
     // 필드 위에 표시할 상태효과 슬롯 배열
-    // 최대 3개의 StatusEffectSlotUI를 순서대로 연결한다.
+    // 최대 세 개의 StatusEffectSlotUI를 순서대로 연결한다.
     [SerializeField]
     private StatusEffectSlotUI[] statusEffectSlots;
 
     [Header("Field Transform")]
-    // <변경부분> 필드 상태효과 아이콘 전체의
-    // 위치와 크기를 조절할 Transform
+    // 필드 상태효과 말풍선 전체의 위치와 크기를 조절할 Transform
+    // 일반적으로 BubbleRoot 자체를 연결한다.
     [SerializeField]
     private RectTransform displayRoot;
 
-    // <변경부분> 현재 PieceData에서 전달받은
-    // 필드 상태효과 아이콘의 기물별 로컬 위치
+    // 현재 PieceData에서 전달받은
+    // 필드 상태효과 말풍선의 기물별 로컬 위치
     private Vector3 fieldLocalPosition =
         Vector3.zero;
 
-    // 스테이터스 창보다 작게 표시하기 위한 필드 전용 스케일
-    // 기물 프리팹마다 Inspector에서 별도로 조절할 수 있다.
+    // 필드 전용 말풍선과 아이콘 전체 스케일
     [SerializeField]
     private Vector3 fieldLocalScale =
         new Vector3(
@@ -52,44 +55,37 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             1f
         );
 
-    [Header("Slot Layout")]
-    // <변경부분> 상태효과 아이콘 사이의 간격
-    // 하나일 때는 중앙, 둘 이상일 때는 이 값을 기준으로 좌우 배치한다.
-    [SerializeField]
-    private float slotSpacing = 42f;
-
     private void Awake()
     {
-        // Owner가 연결되지 않았다면
-        // 현재 오브젝트 또는 부모에서 Piece를 자동으로 찾는다.
+        // 소유 기물 자동 연결
         AutoBindOwnerPiece();
 
-        // 표시 루트가 연결되지 않았다면 자동으로 찾는다.
-        AutoBindDisplayRoot();
+        // 표시용 RectTransform 자동 연결
+        AutoBindDisplayRoots();
 
-        // 기물별 위치와 스케일 적용
+        // PieceData 기준 위치와 공용 스케일 적용
         ApplyFieldTransform();
 
-        // 시작 시 모든 슬롯 숨김
+        // 시작 시 모든 슬롯과 말풍선을 숨긴다.
         Clear();
     }
 
     private void OnEnable()
     {
-        // 오브젝트가 다시 활성화된 경우
-        // 현재 기물의 상태효과를 다시 표시한다.
+        // 기물이 다시 활성화되면
+        // 현재 상태효과를 기준으로 표시를 다시 갱신한다.
         Refresh();
     }
 
-    // <변경부분> 현재 Piece가 보유한 상태효과를
-    // 필드용 상태효과 슬롯에 다시 표시한다.
+    // <변경부분> 현재 기물이 보유한 상태효과를
+    // 말풍선 내부 슬롯에 다시 표시한다.
     public void Refresh()
     {
         AutoBindOwnerPiece();
-        AutoBindDisplayRoot();
+        AutoBindDisplayRoots();
         ApplyFieldTransform();
 
-        // 이전에 표시됐던 모든 슬롯을 먼저 숨긴다.
+        // 이전 슬롯 정보를 모두 제거하고 숨긴다.
         ClearSlots();
 
         if (ownerPiece == null)
@@ -116,7 +112,8 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             return;
         }
 
-        // Piece 원본 목록이 아니라 UI 표시용 복사본을 가져온다.
+        // 원본 상태효과 리스트가 아니라
+        // UI 표시용 복사본을 가져온다.
         List<OwnedStatusEffectData> ownedStatusEffects =
             ownerPiece.GetStatusEffectsCopy();
 
@@ -127,7 +124,7 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             return;
         }
 
-        // 실제 표시할 수 있는 유효 상태효과만 수집한다.
+        // 실제 표시할 수 있는 유효 상태효과를 수집한다.
         List<OwnedStatusEffectData> visibleStatusEffects =
             new List<OwnedStatusEffectData>();
 
@@ -174,7 +171,7 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
                 ownedStatusEffect
             );
 
-            // 필드에는 최대 3개까지만 표시한다.
+            // 필드에는 최대 세 개까지만 표시한다.
             if (visibleStatusEffects.Count >=
                 MaxVisibleStatusEffectCount)
             {
@@ -200,7 +197,8 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             return;
         }
 
-        // 전체 표시 루트를 먼저 활성화한다.
+        // 말풍선을 먼저 활성화해야
+        // LayoutGroup과 ContentSizeFitter가 크기를 계산할 수 있다.
         SetContentVisible(true);
 
         int actualVisibleCount = 0;
@@ -230,13 +228,10 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
                 continue;
             }
 
-            // <변경부분> 데이터가 들어갈 슬롯만 활성화한다.
-            // 슬롯 배열에 세 개가 연결돼 있어도
-            // 실제 상태효과 수만큼만 켜진다.
+            // 데이터가 들어가는 슬롯만 활성화한다.
             slot.gameObject.SetActive(true);
 
-            // 기존 스테이터스 창 슬롯과 동일한 방식으로
-            // 아이콘, 툴팁, 경고 애니메이션을 갱신한다.
+            // 기존 슬롯 표시 기능을 그대로 사용한다.
             slot.Refresh(
                 statusEffectData,
                 ownedStatusEffect
@@ -251,22 +246,19 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             return;
         }
 
-        // <변경부분> 실제 활성화된 슬롯 수를 기준으로
-        // 기물 중심에 맞춰 좌우 대칭으로 정렬한다.
-        ArrangeVisibleSlots(
-            actualVisibleCount
-        );
+        // <변경부분> 활성화된 슬롯 수를 기준으로
+        // HorizontalLayoutGroup과 ContentSizeFitter를 즉시 다시 계산한다.
+        RebuildBubbleLayout();
     }
 
-    // <변경부분> 모든 필드 상태효과 슬롯을 비우고 숨긴다.
+    // 모든 필드 상태효과 슬롯과 말풍선을 숨긴다.
     public void Clear()
     {
         ClearSlots();
         SetContentVisible(false);
     }
 
-    // <변경부분> 상태효과 슬롯 배열을 모두 비운 뒤
-    // 슬롯 GameObject 자체도 비활성화한다.
+    // 상태효과 슬롯 배열을 모두 초기화하고 비활성화한다.
     private void ClearSlots()
     {
         if (statusEffectSlots == null)
@@ -286,115 +278,34 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
                 continue;
             }
 
-            // 슬롯 내부의 아이콘, Tooltip,
-            // 경고 애니메이션 데이터를 초기화한다.
+            // 아이콘, Tooltip, 경고 애니메이션 초기화
             slot.Clear();
 
-            // <변경부분> 데이터가 없는 슬롯은
-            // 슬롯 GameObject 전체를 숨긴다.
+            // 데이터가 없는 슬롯은 GameObject 전체를 숨긴다.
             slot.gameObject.SetActive(false);
         }
     }
 
-    // <변경부분> 활성화된 슬롯을 기물 중심에 맞춰 배치한다.
-    private void ArrangeVisibleSlots(
-        int visibleCount)
+    // <변경부분> 현재 활성화된 슬롯 크기를 기준으로
+    // 말풍선 배경 크기와 내부 정렬을 즉시 다시 계산한다.
+    private void RebuildBubbleLayout()
     {
-        if (statusEffectSlots == null ||
-            visibleCount <= 0)
+        if (bubbleRoot == null)
         {
             return;
         }
 
-        int arrangedCount = 0;
+        // 자식 슬롯 활성화 상태 변경을 Canvas에 반영
+        Canvas.ForceUpdateCanvases();
 
-        for (int i = 0;
-             i < statusEffectSlots.Length;
-             i++)
-        {
-            StatusEffectSlotUI slot =
-                statusEffectSlots[i];
-
-            if (slot == null ||
-                slot.gameObject.activeSelf == false)
-            {
-                continue;
-            }
-
-            RectTransform slotRect =
-                slot.transform as RectTransform;
-
-            if (slotRect == null)
-            {
-                arrangedCount++;
-                continue;
-            }
-
-            float targetX =
-                GetCenteredSlotPositionX(
-                    arrangedCount,
-                    visibleCount
-                );
-
-            // Y 위치는 프리팹에 설정된 값을 유지하고
-            // X 위치만 중앙 정렬 결과로 변경한다.
-            Vector2 anchoredPosition =
-                slotRect.anchoredPosition;
-
-            anchoredPosition.x =
-                targetX;
-
-            slotRect.anchoredPosition =
-                anchoredPosition;
-
-            arrangedCount++;
-
-            if (arrangedCount >= visibleCount)
-            {
-                break;
-            }
-        }
+        // HorizontalLayoutGroup과 ContentSizeFitter의
+        // Preferred Size 계산을 즉시 실행한다.
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            bubbleRoot
+        );
     }
 
-    // <변경부분> 슬롯 수와 순서에 따라
-    // 기물 중심을 기준으로 한 X 좌표를 반환한다.
-    private float GetCenteredSlotPositionX(
-        int slotIndex,
-        int visibleCount)
-    {
-        switch (visibleCount)
-        {
-            // 상태효과 하나는 기물 중앙에 배치
-            case 1:
-                return 0f;
-
-            // 상태효과 두 개는 기물 중심을 기준으로
-            // 좌우에 절반 간격씩 배치
-            case 2:
-                return slotIndex == 0
-                    ? -slotSpacing * 0.5f
-                    : slotSpacing * 0.5f;
-
-            // 상태효과 세 개는 가운데 슬롯을 기물 중심에 두고
-            // 나머지 슬롯을 좌우에 배치
-            case 3:
-                if (slotIndex == 0)
-                {
-                    return -slotSpacing;
-                }
-
-                if (slotIndex == 1)
-                {
-                    return 0f;
-                }
-
-                return slotSpacing;
-        }
-
-        return 0f;
-    }
-
-    // 상태효과 표시 루트 활성화 여부를 변경한다.
+    // 말풍선 전체 표시 여부 변경
     private void SetContentVisible(
         bool isVisible)
     {
@@ -408,8 +319,8 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
         );
     }
 
-    // <변경부분> PieceData에서 전달받은 기물별 위치와
-    // 필드 상태효과 UI 공용 스케일을 표시 루트에 적용한다.
+    // PieceData에서 전달받은 기물별 위치와
+    // 필드 상태효과 UI 공용 스케일을 적용한다.
     private void ApplyFieldTransform()
     {
         if (displayRoot == null)
@@ -417,8 +328,6 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             return;
         }
 
-        // 타입 아이콘과 동일하게
-        // Piece 루트 기준 로컬 위치를 직접 적용한다.
         displayRoot.localPosition =
             fieldLocalPosition;
 
@@ -426,9 +335,7 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
             fieldLocalScale;
     }
 
-    // <변경부분> PieceData에 저장된 기물별 상태효과 아이콘 위치를
-    // 현재 필드 상태효과 표시 루트에 적용한다.
-    // 타입 아이콘의 SetTypeIconLocalPosition()과 같은 역할이다.
+    // PieceData에 저장된 기물별 말풍선 위치 적용
     public void SetLocalPosition(
         Vector3 localPosition)
     {
@@ -438,7 +345,7 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
         ApplyFieldTransform();
     }
 
-    // Piece 참조가 비어 있으면 자동으로 찾는다.
+    // 소유 Piece 자동 연결
     private void AutoBindOwnerPiece()
     {
         if (ownerPiece != null)
@@ -456,19 +363,20 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
         }
     }
 
-    // <변경부분> DisplayRoot가 연결되지 않았다면
-    // ContentRoot의 RectTransform을 자동으로 사용한다.
-    private void AutoBindDisplayRoot()
+    // 말풍선과 표시 루트 RectTransform 자동 연결
+    private void AutoBindDisplayRoots()
     {
-        if (displayRoot != null)
+        if (bubbleRoot == null &&
+            contentRoot != null)
         {
-            return;
+            bubbleRoot =
+                contentRoot.GetComponent<RectTransform>();
         }
 
-        if (contentRoot != null)
+        if (displayRoot == null)
         {
             displayRoot =
-                contentRoot.GetComponent<RectTransform>();
+                bubbleRoot;
         }
 
         if (displayRoot == null)
