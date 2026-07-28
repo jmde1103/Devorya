@@ -32,9 +32,9 @@ MonoBehaviour:
   absorbedPlayerStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
   playerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
   enemyTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  neutralTypeIconPosition: {x: 0, y: 0, z: 0}
+  neutralTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
   absorbedPlayerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  playerFieldStatusEffectPosition: {x: 0.23, y: 0.17, z: 0}
-  enemyFieldStatusEffectPosition: {x: 0, y: 0, z: 0}
-  neutralFieldStatusEffectPosition: {x: 0, y: 0, z: 0}
-  absorbedPlayerFieldStatusEffectPosition: {x: 0, y: 0, z: 0}
+  playerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}

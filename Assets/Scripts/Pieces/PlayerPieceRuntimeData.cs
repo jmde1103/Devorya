@@ -61,10 +61,13 @@ public class PlayerPieceRuntimeData
                     continue;
                 }
 
-                data.generalSkills.Add(new GeneralSkillRuntimeData(
-                    ownedSkill.skillType,
-                    ownedSkill.level
-                ));
+                // <변경부분> 일반스킬 레벨 없이
+                // 보유한 스킬 종류만 런 데이터에 저장한다.
+                data.generalSkills.Add(
+                    new GeneralSkillRuntimeData(
+                        ownedSkill.skillType
+                    )
+                );
             }
         }
 
@@ -103,10 +106,13 @@ public class PlayerPieceRuntimeData
                     continue;
                 }
 
-                data.generalSkills.Add(new GeneralSkillRuntimeData(
-                    defaultSkill.skillType,
-                    defaultSkill.level
-                ));
+                // <변경부분> PieceData의 기본 일반스킬도
+                // 레벨 없이 스킬 종류만 저장한다.
+                data.generalSkills.Add(
+                    new GeneralSkillRuntimeData(
+                        defaultSkill.skillType
+                    )
+                );
             }
         }
 
@@ -142,26 +148,30 @@ public class PlayerPieceRuntimeData
         return copiedData;
     }
 }
-
-// <변경부분> 런 진행 중 저장할 일반스킬 1개의 상태
+// <변경부분> 런 진행 중 저장할 일반스킬 1개의 보유 정보
+// 일반스킬 레벨은 더 이상 저장하지 않는다.
 [System.Serializable]
 public class GeneralSkillRuntimeData
 {
-    public GeneralSkillType skillType = GeneralSkillType.None;
-    public int level = 1;
+    // 저장할 일반스킬 종류
+    public GeneralSkillType skillType =
+        GeneralSkillType.None;
 
     public GeneralSkillRuntimeData()
     {
     }
 
-    public GeneralSkillRuntimeData(GeneralSkillType skillType, int level)
+    public GeneralSkillRuntimeData(
+        GeneralSkillType skillType)
     {
-        this.skillType = skillType;
-        this.level = Mathf.Max(1, level);
+        this.skillType =
+            skillType;
     }
 
     public GeneralSkillRuntimeData Clone()
     {
-        return new GeneralSkillRuntimeData(skillType, level);
+        return new GeneralSkillRuntimeData(
+            skillType
+        );
     }
 }

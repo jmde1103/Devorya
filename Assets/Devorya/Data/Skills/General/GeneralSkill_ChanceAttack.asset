@@ -19,14 +19,7 @@ MonoBehaviour:
     \uD655\uB960\uB85C \uCD94\uAC00 \uD589\uB3D9\uC744 \uC5BB\uC2B5\uB2C8\uB2E4."
   tooltipDescriptionFormat: 
   tooltipSections: []
-  maxLevel: 3
-  chanceAttackLevel1Percent: 10
-  chanceAttackLevel2Percent: 20
-  chanceAttackLevel3Percent: 30
+  chanceAttackPercent: 15
   chanceAttackContinuousPenaltyRate: 0.33333334
-  defenseLevel1Percent: 10
-  defenseLevel2Percent: 20
-  defenseLevel3Percent: 30
-  insightLevel1Percent: 15
-  insightLevel2Percent: 30
-  insightLevel3Percent: 45
+  defenseGrantChancePercent: 15
+  insightPercent: 30

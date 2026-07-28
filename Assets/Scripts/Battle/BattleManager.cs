@@ -812,6 +812,13 @@ public class BattleManager : MonoBehaviour
         // 이번 행동이 플레이어 흡수 성공 행동인지 확인
         bool absorbedEnemyPiece = false;
 
+        // <변경부분> 이번 행동에서 actingPiece가
+        // 실제로 다른 타일로 이동을 완료했는지 확인한다.
+        //
+        // 빈칸 이동과 공격 성공 후 목표 칸 이동은 true,
+        // Defence 상태효과로 공격이 막혀 원래 자리로 복귀한 경우는 false다.
+        bool didCompleteMove = false;
+
         // <변경부분> 흡수로 기물 외형/종류가 변경된 뒤
         // Born 애니메이션을 재생할지 여부
         bool shouldPlayAbsorbBornAnimation = false;
@@ -863,11 +870,7 @@ public class BattleManager : MonoBehaviour
             Vector3 degenerationSourceWorldPosition =
                 targetPiece.transform.position;
 
-            // <변경부분> 공격 시작 시점의 Defense 일반스킬 저장
-            OwnedGeneralSkillData defenseDataBeforeAction =
-                targetPiece.GetGeneralSkillDataCopy(
-                    GeneralSkillType.Defense
-                );
+            
 
             // <변경부분> 공격 시작 시점에 대상이
             // 확정 방어용 Defence 상태효과를 보유하고 있는지 저장한다.
@@ -877,7 +880,7 @@ public class BattleManager : MonoBehaviour
                 );
 
             // <변경부분> 공격자가 Breakthrough 상태이면
-            // 상대의 Defense 일반스킬과 Defence 상태효과를 모두 무시한다.
+            // 상대가 보유한 Defence 상태효과를 무시한다.
             bool shouldIgnoreDefenseByBreakthrough =
                 actingPiece != null &&
                 actingPiece.HasStatusEffect(
@@ -890,26 +893,17 @@ public class BattleManager : MonoBehaviour
                     $"Breakthrough 발동: " +
                     $"{actingPiece.Team} {actingPiece.PieceType}이 " +
                     $"{targetPiece.Team} {targetPiece.PieceType}의 " +
-                    $"Defense 일반스킬과 Defence 상태효과를 무시합니다."
+                    $"Defence 상태효과를 무시합니다."
                 );
             }
 
-            // <변경부분> Breakthrough 상태가 아닐 때만 방어를 판정한다.
+            // <변경부분> 피격 순간에는 Defence 상태효과만 방어를 발동한다.
             //
-            // Defence 상태효과가 있으면 확률 판정 없이 확정 발동하고,
-            // 상태효과가 없으면 기존 Defense 일반스킬 확률 판정을 사용한다.
+            // Defense 일반스킬 자체는 공격을 직접 방어하지 않으며,
+            // 이동 완료 후 일정 확률로 Defence 상태효과를 부여하는 역할만 한다.
             bool isDefenseActivated =
                 shouldIgnoreDefenseByBreakthrough == false &&
-                (
-                    hasDefenceStatusEffect ||
-                    (
-                        battleSkillManager != null &&
-                        battleSkillManager.TryActivateDefense(
-                            targetPiece,
-                            defenseDataBeforeAction
-                        )
-                    )
-                );
+                hasDefenceStatusEffect;
 
             if (isDefenseActivated &&
                 hasDefenceStatusEffect)
@@ -978,16 +972,11 @@ public class BattleManager : MonoBehaviour
                 killedEnemyPiece = false;
                 absorbedEnemyPiece = false;
 
-                string defenseSource =
-    hasDefenceStatusEffect
-        ? "Defence 상태효과"
-        : "Defense 일반스킬";
-
                 Debug.Log(
-                    $"{defenseSource} 발동: " +
-                    $"{targetPiece.Team} {targetPiece.PieceType}이 " +
-                    $"공격을 방어했습니다."
-                );
+                $"Defence 상태효과 발동: " +
+                $"{targetPiece.Team} {targetPiece.PieceType}이 " +
+                $"공격을 방어했습니다."
+            );
             }
             else
             {
@@ -1125,6 +1114,10 @@ public class BattleManager : MonoBehaviour
                     false
                 );
 
+                // <변경부분> 공격 성공 후 목표 타일까지
+                // 논리 좌표와 월드 위치 이동이 모두 완료됐다.
+                didCompleteMove = true;
+
                 // 흡수로 외형과 기물 종류가 변경된 일반 기물은
                 // 최종 위치에서 Born 애니메이션 재생
                 if (shouldPlayAbsorbBornAnimation)
@@ -1144,6 +1137,33 @@ public class BattleManager : MonoBehaviour
                 tile.X,
                 tile.Y,
                 true
+            );
+
+            // <변경부분> 빈칸 이동 애니메이션과
+            // 좌표 갱신이 모두 완료됐다.
+            didCompleteMove = true;
+        }
+
+        // <변경부분> 실제 이동을 완료한 경우에만
+        // Defense 일반스킬의 Defence 상태효과 부여를 판정한다.
+        //
+        // 빈칸 이동:
+        // 점프 이동 애니메이션과 좌표 갱신 종료 후 판정
+        //
+        // 일반 공격:
+        // 공격 연출, 대상 제거, 목표 칸 이동 종료 후 판정
+        //
+        // 흡수 공격:
+        // 흡수 연출, 대상 제거, 목표 칸 이동,
+        // 외형 변경 후 Born 애니메이션까지 끝난 뒤 판정
+        //
+        // Defence 상태효과로 공격이 막힌 경우:
+        // 실제 타일 이동이 없으므로 판정하지 않음
+        if (didCompleteMove &&
+            battleSkillManager != null)
+        {
+            battleSkillManager.TryGrantDefenceAfterMove(
+                actingPiece
             );
         }
 
@@ -1877,8 +1897,8 @@ public class BattleManager : MonoBehaviour
                         piece.Team == PieceTeam.Enemy
                     );
 
-                // 현재 직접 선택된 Player 기물 또는
-                // 정보·공격 확인 대상으로 선택된 상대 기물인지 확인
+                // 현재 직접 선택된 조작 기물 또는
+                // 정보·공격 확인 대상으로 선택된 상대 기물인지 확인한다.
                 bool isSelectedTypeIcon =
                     piece == selectedPiece ||
                     piece == pendingAttackTargetPiece;
@@ -1891,6 +1911,33 @@ public class BattleManager : MonoBehaviour
                 // 선택 해제 시 기본 위치로 내려온다.
                 piece.SetTypeIconSelected(
                     isSelectedTypeIcon
+                );
+
+                // <변경부분> 타입 아이콘 정렬 우선순위를 계산한다.
+                //
+                // 기본 기물은 우선순위 0,
+                // 공격 확인 대상은 우선순위 1,
+                // 실제 공격하는 selectedPiece는 우선순위 2로 적용한다.
+                int typeIconSortingPriority = 0;
+
+                if (piece == pendingAttackTargetPiece)
+                {
+                    // 공격받는 대상은 일반 기물보다 앞으로 표시한다.
+                    typeIconSortingPriority = 1;
+                }
+
+                if (piece == selectedPiece)
+                {
+                    // 공격 대상이 함께 선택된 공격 확인 상태에서는
+                    // 공격하는 기물을 대상보다 한 단계 더 앞으로 표시한다.
+                    typeIconSortingPriority =
+                        pendingAttackTargetPiece != null
+                            ? 2
+                            : 1;
+                }
+
+                piece.SetTypeIconSortingPriority(
+                    typeIconSortingPriority
                 );
 
                 // <변경부분> 선택된 기물이 하나 이상 있을 때만,

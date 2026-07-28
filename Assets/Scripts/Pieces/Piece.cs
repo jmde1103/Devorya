@@ -28,9 +28,6 @@ public class Piece : MonoBehaviour
     [SerializeField]
     private PieceFieldStatusEffectUI fieldStatusEffectUI;
 
-    // <변경부분> 일반 스킬 최대 레벨
-    private const int MaxGeneralSkillLevel = 3;
-
     // 현재 기물이 보유한 고유 스킬
     public UniqueSkillType UniqueSkill { get; private set; }
 
@@ -72,6 +69,19 @@ public class Piece : MonoBehaviour
     // <변경부분> 선택 또는 선택 해제 시
     // 타입 아이콘이 목표 위치까지 부드럽게 이동하는 시간
     [SerializeField] private float selectedTypeIconMoveDuration = 0.16f;
+
+    [Header("Selected Type Icon Sorting")]
+    // <변경부분> 기물이 선택됐을 때
+    // 타입 아이콘 박스와 아이콘의 기존 Order in Layer에 더할 값
+    [SerializeField] private int selectedTypeIconSortingOrderOffset = 100;
+
+    // <변경부분> TypeIconImage의 Inspector 기본 Order in Layer
+    // 선택 해제 시 정확한 원래 값으로 복구하기 위해 Awake에서 저장한다.
+    private int typeIconBaseSortingOrder;
+
+    // <변경부분> TypeIconBox의 Inspector 기본 Order in Layer
+    // 선택 해제 시 정확한 원래 값으로 복구하기 위해 Awake에서 저장한다.
+    private int typeIconBoxBaseSortingOrder;
 
     // <변경부분> PieceData 적용 후 정해진
     // 타입 아이콘의 기본 로컬 위치
@@ -151,16 +161,28 @@ public class Piece : MonoBehaviour
 
         if (typeIconRenderer != null)
         {
+            // 타입 아이콘의 Inspector 기본 색상 저장
             typeIconBaseColor =
                 typeIconRenderer.color;
+
+            // <변경부분> 타입 아이콘의 Inspector 기본
+            // Order in Layer를 선택 해제 복구용으로 저장한다.
+            typeIconBaseSortingOrder =
+                typeIconRenderer.sortingOrder;
         }
 
-        // <변경부분> TypeIconBox의 Inspector 기본 색상도 별도로 저장한다.
-        // 아이콘과 박스의 RGB 또는 기본 알파가 달라도 각각 정확하게 복구된다.
+        // <변경부분> TypeIconBox의 Inspector 기본 색상과
+        // Order in Layer를 별도로 저장한다.
         if (typeIconBoxRenderer != null)
         {
+            // 타입 아이콘 박스의 Inspector 기본 색상 저장
             typeIconBoxBaseColor =
                 typeIconBoxRenderer.color;
+
+            // <변경부분> 타입 아이콘 박스의 Inspector 기본
+            // Order in Layer를 선택 해제 복구용으로 저장한다.
+            typeIconBoxBaseSortingOrder =
+                typeIconBoxRenderer.sortingOrder;
         }
 
         // <변경부분> 필드 상태효과 UI가 Inspector에 연결되지 않았다면
@@ -174,8 +196,6 @@ public class Piece : MonoBehaviour
         }
     }
 
-    // <변경부분> 기물이 제거되거나 비활성화될 때
-    // 실행 중인 타입 아이콘 점멸을 안전하게 정리한다.
     private void OnDisable()
     {
         // 기물이 비활성화될 때 위치 이동 코루틴 정리
@@ -184,6 +204,10 @@ public class Piece : MonoBehaviour
         // 재사용될 때 알파값이 남지 않도록
         // 타입 아이콘 색상을 기본 상태로 복구
         RestoreTypeIconColor();
+
+        // <변경부분> 선택 상태의 높은 Order in Layer가
+        // 비활성화 이후에도 남지 않도록 기본값으로 복구한다.
+        RestoreTypeIconSortingOrder();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -789,13 +813,17 @@ public class Piece : MonoBehaviour
             // 기존 선택 상승 위치를 다시 적용한다.
             if (isTypeIconSelected)
             {
+                // <변경부분> 선택 상태에서 아이콘이 다시 표시되면
+                // 선택 전용 Order in Layer를 다시 적용한다.
+                ApplySelectedTypeIconSortingOrder();
+
                 ApplySelectedTypeIconPosition();
             }
         }
     }
 
     // <변경부분> 현재 기물의 타입 아이콘에
-    // 선택 상태 연출을 적용하거나 해제한다.
+    // 선택 위치와 Order in Layer 연출을 적용하거나 해제한다.
     public void SetTypeIconSelected(bool isSelected)
     {
         if (typeIconRoot == null)
@@ -803,14 +831,26 @@ public class Piece : MonoBehaviour
             return;
         }
 
-        // 동일한 선택 상태를 다시 요청한 경우에도
-        // 선택 중이라면 상승 위치를 다시 보정한다.
+        // 동일한 선택 상태가 다시 들어와도
+        // 위치와 정렬 순서를 현재 상태에 맞게 다시 보정한다.
         if (isTypeIconSelected == isSelected)
         {
-            if (isSelected &&
-                typeIconRoot.activeSelf)
+            if (isSelected)
             {
-                ApplySelectedTypeIconPosition();
+                // <변경부분> 선택 상태라면
+                // 아이콘과 박스를 다른 기물보다 앞으로 올린다.
+                ApplySelectedTypeIconSortingOrder();
+
+                if (typeIconRoot.activeSelf)
+                {
+                    ApplySelectedTypeIconPosition();
+                }
+            }
+            else
+            {
+                // <변경부분> 선택 해제 상태라면
+                // Inspector에 설정된 기본 정렬 순서로 복구한다.
+                RestoreTypeIconSortingOrder();
             }
 
             return;
@@ -821,15 +861,93 @@ public class Piece : MonoBehaviour
 
         if (isTypeIconSelected)
         {
+            // <변경부분> 선택된 아이콘과 박스의
+            // Order in Layer를 기본값보다 높여 앞으로 표시한다.
+            ApplySelectedTypeIconSortingOrder();
+
             // 선택된 아이콘을 기본 위치보다
             // 살짝 위쪽으로 부드럽게 이동한다.
             ApplySelectedTypeIconPosition();
+
             return;
         }
+
+        // <변경부분> 선택 해제 시 아이콘과 박스를
+        // Inspector에 설정된 기본 Order in Layer로 복구한다.
+        RestoreTypeIconSortingOrder();
 
         // 선택이 해제되면 기본 위치까지
         // 부드럽게 내려온다.
         ResetTypeIconSelectionVisual();
+    }
+
+    // <변경부분> 선택된 타입 아이콘과 박스를
+    // 기본 선택 우선순위 1로 다른 일반 기물보다 앞에 표시한다.
+    private void ApplySelectedTypeIconSortingOrder()
+    {
+        SetTypeIconSortingPriority(
+            1
+        );
+    }
+
+    // <변경부분> 타입 아이콘의 정렬 우선순위를 외부에서 지정한다.
+    //
+    // 우선순위 0: 기본 정렬 순서
+    // 우선순위 1: 선택된 기물 또는 공격 대상
+    // 우선순위 2: 공격하는 기물
+    public void SetTypeIconSortingPriority(
+        int sortingPriority)
+    {
+        // 음수 우선순위가 들어오지 않도록 0 이상으로 보정한다.
+        int clampedPriority =
+            Mathf.Max(
+                0,
+                sortingPriority
+            );
+
+        // Inspector에 설정된 선택 정렬 증가값을 기준으로
+        // 우선순위 단계마다 Order in Layer를 추가한다.
+        int sortingOrderOffset =
+            Mathf.Max(
+                0,
+                selectedTypeIconSortingOrderOffset
+            ) *
+            clampedPriority;
+
+        // 타입 아이콘 박스 정렬 순서 적용
+        if (typeIconBoxRenderer != null)
+        {
+            typeIconBoxRenderer.sortingOrder =
+                typeIconBoxBaseSortingOrder +
+                sortingOrderOffset;
+        }
+
+        // 타입 아이콘 이미지 정렬 순서 적용
+        if (typeIconRenderer != null)
+        {
+            typeIconRenderer.sortingOrder =
+                typeIconBaseSortingOrder +
+                sortingOrderOffset;
+        }
+    }
+
+    // <변경부분> 타입 아이콘과 박스의 Order in Layer를
+    // Awake에서 저장한 Inspector 기본값으로 복구한다.
+    private void RestoreTypeIconSortingOrder()
+    {
+        // 타입 아이콘 박스 기본 정렬 순서 복구
+        if (typeIconBoxRenderer != null)
+        {
+            typeIconBoxRenderer.sortingOrder =
+                typeIconBoxBaseSortingOrder;
+        }
+
+        // 타입 아이콘 기본 정렬 순서 복구
+        if (typeIconRenderer != null)
+        {
+            typeIconRenderer.sortingOrder =
+                typeIconBaseSortingOrder;
+        }
     }
 
     // <변경부분> 선택된 타입 아이콘을
@@ -1228,19 +1346,6 @@ public class Piece : MonoBehaviour
         return false;
     }
 
-    // <변경부분> 특정 일반스킬의 레벨을 반환하는 함수
-    public int GetGeneralSkillLevel(GeneralSkillType skillType)
-    {
-        foreach (OwnedGeneralSkillData skillData in generalSkills)
-        {
-            if (skillData.skillType == skillType)
-            {
-                return skillData.level;
-            }
-        }
-
-        return 0;
-    }
 
     // <변경부분> 현재 보유 중인 일반스킬 데이터를 복사해서 반환하는 함수
     // 흡수로 레벨이 오르기 전의 상태를 저장해야 할 때 사용
@@ -1271,10 +1376,13 @@ public class Piece : MonoBehaviour
     }
 
 
-    // <변경부분> 런 저장 데이터에 기록된 일반스킬 목록을 현재 기물에 복원하는 함수
-    public void ApplyGeneralSkillRuntimeData(List<GeneralSkillRuntimeData> runtimeGeneralSkills)
+    // <변경부분> 런 저장 데이터에 기록된 일반스킬 목록을
+    // 레벨 없이 현재 기물에 복원한다.
+    public void ApplyGeneralSkillRuntimeData(
+        List<GeneralSkillRuntimeData> runtimeGeneralSkills)
     {
-        // 기존 일반스킬을 모두 제거한 뒤 저장된 상태로 다시 구성
+        // PieceData 기본 일반스킬을 제거하고
+        // 저장된 실제 보유 상태로 다시 구성한다.
         ClearGeneralSkills();
 
         if (runtimeGeneralSkills == null)
@@ -1282,96 +1390,102 @@ public class Piece : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < runtimeGeneralSkills.Count; i++)
+        for (int i = 0;
+             i < runtimeGeneralSkills.Count;
+             i++)
         {
-            GeneralSkillRuntimeData runtimeSkill = runtimeGeneralSkills[i];
+            GeneralSkillRuntimeData runtimeSkill =
+                runtimeGeneralSkills[i];
 
             if (runtimeSkill == null)
             {
                 continue;
             }
 
-            if (runtimeSkill.skillType == GeneralSkillType.None)
+            if (runtimeSkill.skillType ==
+                GeneralSkillType.None)
             {
                 continue;
             }
 
-            // 저장된 레벨을 그대로 적용
-            SetTestGeneralSkill(runtimeSkill.skillType, runtimeSkill.level);
+            // <변경부분> 동일 스킬이 저장 데이터에 여러 번 있어도
+            // AddGeneralSkill 내부에서 중복을 차단한다.
+            AddGeneralSkill(
+                runtimeSkill.skillType
+            );
         }
     }
 
-    // <변경부분> 다른 기물이 가진 일반스킬을 흡수해서 획득하거나 성장시키는 함수
-    public void AbsorbGeneralSkillsFrom(Piece targetPiece)
+    // <변경부분> 대상 기물이 가진 일반스킬 중
+    // 현재 기물에 없는 새로운 스킬만 흡수한다.
+    //
+    // 이미 같은 일반스킬을 보유 중이면
+    // 복사하거나 강화하지 않고 그대로 무시한다.
+    public void AbsorbGeneralSkillsFrom(
+        Piece targetPiece)
     {
-        // 흡수 대상이 없으면 종료
         if (targetPiece == null)
         {
             return;
         }
 
-        // 대상이 가진 일반스킬 목록을 하나씩 검사
-        foreach (OwnedGeneralSkillData targetSkill in targetPiece.generalSkills)
+        foreach (OwnedGeneralSkillData targetSkill in
+                 targetPiece.generalSkills)
         {
-            // 대상의 일반스킬을 현재 기물에게 획득 또는 레벨업 처리
-            AddOrLevelUpGeneralSkill(targetSkill.skillType);
-        }
-    }
-
-    // <변경부분> 테스트용으로 일반스킬을 강제로 부여하는 함수
-    public void SetTestGeneralSkill(GeneralSkillType skillType, int level)
-    {
-        // 일반스킬 없음은 저장하지 않음
-        if (skillType == GeneralSkillType.None)
-        {
-            return;
-        }
-
-        // 레벨을 1~3 사이로 제한
-        int clampedLevel = Mathf.Clamp(level, 1, MaxGeneralSkillLevel);
-
-        // 이미 같은 스킬이 있으면 레벨만 갱신
-        foreach (OwnedGeneralSkillData skillData in generalSkills)
-        {
-            if (skillData.skillType == skillType)
+            if (targetSkill == null)
             {
-                skillData.level = clampedLevel;
-                return;
+                continue;
             }
-        }
 
-        // 같은 스킬이 없으면 새로 추가
-        generalSkills.Add(new OwnedGeneralSkillData(skillType, clampedLevel));
-    }
-
-    // <변경부분> 일반스킬을 추가하거나 같은 스킬이 있으면 레벨업하는 함수
-    public void AddOrLevelUpGeneralSkill(GeneralSkillType skillType)
-    {
-        // 일반스킬 없음은 저장하지 않음
-        if (skillType == GeneralSkillType.None)
-        {
-            return;
-        }
-
-        // 이미 같은 일반스킬을 가지고 있는지 검사
-        foreach (OwnedGeneralSkillData skillData in generalSkills)
-        {
-            if (skillData.skillType == skillType)
+            if (targetSkill.skillType ==
+                GeneralSkillType.None)
             {
-                // 같은 스킬이 있으면 최대 레벨 안에서 레벨업
-                skillData.level = Mathf.Min(skillData.level + 1, MaxGeneralSkillLevel);
-
-                Debug.Log($"일반스킬 레벨업: {skillType} / LV.{skillData.level}");
-                return;
+                continue;
             }
+
+            AddGeneralSkill(
+                targetSkill.skillType
+            );
         }
-
-        // 같은 스킬이 없으면 LV1로 새로 추가
-        generalSkills.Add(new OwnedGeneralSkillData(skillType, 1));
-
-        Debug.Log($"일반스킬 획득: {skillType} / LV.1");
     }
 
+    // <변경부분> 일반스킬을 중복 없이 추가한다.
+    //
+    // 이미 같은 스킬을 가지고 있으면
+    // 아무 변화 없이 false를 반환한다.
+    //
+    // 새로운 스킬을 추가한 경우에만 true를 반환한다.
+    public bool AddGeneralSkill(
+        GeneralSkillType skillType)
+    {
+        if (skillType ==
+            GeneralSkillType.None)
+        {
+            return false;
+        }
+
+        // 동일 스킬 중복 보유 차단
+        if (HasGeneralSkill(skillType))
+        {
+            Debug.Log(
+                $"일반스킬 중복 무시: {skillType}"
+            );
+
+            return false;
+        }
+
+        generalSkills.Add(
+            new OwnedGeneralSkillData(
+                skillType
+            )
+        );
+
+        Debug.Log(
+            $"일반스킬 획득: {skillType}"
+        );
+
+        return true;
+    }
     // 마우스로 이 기물을 클릭했을 때 Unity가 자동 호출하는 함수
     /*private void OnMouseDown()
     {

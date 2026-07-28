@@ -608,6 +608,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &8305332
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,6 +703,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 100
 --- !u!1 &8838353
 GameObject:
   m_ObjectHideFlags: 0
@@ -4294,6 +4298,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &45966205
 GameObject:
   m_ObjectHideFlags: 0
@@ -5165,7 +5171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c4a76cf9966fd47b47e3db615b5fe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleAIManager
-  controlEnemyWithAI: 0
+  controlEnemyWithAI: 1
   decisionDelay: 0.5
   maxActionsPerEnemyTurn: 10
   logEvaluatedActionScores: 1
@@ -6588,6 +6594,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &69843416
 GameObject:
   m_ObjectHideFlags: 0
@@ -17360,6 +17368,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &187239492
 GameObject:
   m_ObjectHideFlags: 0
@@ -17923,6 +17933,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &190857174
 GameObject:
   m_ObjectHideFlags: 0
@@ -21651,6 +21663,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &224686414
 GameObject:
   m_ObjectHideFlags: 0
@@ -24889,6 +24903,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &244600529
 GameObject:
   m_ObjectHideFlags: 0
@@ -26876,6 +26892,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &267424026
 GameObject:
   m_ObjectHideFlags: 0
@@ -27332,6 +27350,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &274352240
 GameObject:
   m_ObjectHideFlags: 0
@@ -29701,6 +29721,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &297819009
 GameObject:
   m_ObjectHideFlags: 0
@@ -32233,6 +32255,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &324295269
 GameObject:
   m_ObjectHideFlags: 0
@@ -36213,6 +36237,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &364882340
 GameObject:
   m_ObjectHideFlags: 0
@@ -36413,6 +36439,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 100
 --- !u!1 &367192611
 GameObject:
   m_ObjectHideFlags: 0
@@ -41979,6 +42007,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &420191633
 GameObject:
   m_ObjectHideFlags: 0
@@ -48637,6 +48667,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &487128873
 GameObject:
   m_ObjectHideFlags: 0
@@ -52888,6 +52920,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &535934682
 GameObject:
   m_ObjectHideFlags: 0
@@ -64935,6 +64969,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!114 &670389594
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71888,6 +71924,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &741067607
 GameObject:
   m_ObjectHideFlags: 0
@@ -72302,6 +72340,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 100
 --- !u!1 &742610262
 GameObject:
   m_ObjectHideFlags: 0
@@ -87375,6 +87415,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &923305355
 GameObject:
   m_ObjectHideFlags: 0
@@ -94514,6 +94556,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &998102688
 GameObject:
   m_ObjectHideFlags: 0
@@ -107992,6 +108036,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1152437870
 GameObject:
   m_ObjectHideFlags: 0
@@ -108458,6 +108504,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 100
 --- !u!1 &1158135183
 GameObject:
   m_ObjectHideFlags: 0
@@ -108565,37 +108613,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &1159753183
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1159753184}
-  m_Layer: 0
-  m_Name: SectionParent
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1159753184
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1159753183}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -50, y: 52, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1624233309}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1160213115
 GameObject:
   m_ObjectHideFlags: 0
@@ -115688,6 +115705,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1235657055
 GameObject:
   m_ObjectHideFlags: 0
@@ -119571,6 +119590,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1276073518
 GameObject:
   m_ObjectHideFlags: 0
@@ -121970,6 +121991,41 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1295253035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1295253036}
+  m_Layer: 5
+  m_Name: SectionParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1295253036
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1295253035}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1624233309}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1295296245
 GameObject:
   m_ObjectHideFlags: 0
@@ -128740,6 +128796,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 100
 --- !u!1 &1363868005
 GameObject:
   m_ObjectHideFlags: 0
@@ -129489,143 +129547,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1001 &1376821342
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1900323922703029836, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1900323922703029836, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1900323922703029836, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1900323922703029836, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1900323922703029836, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 45.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1900323922703029836, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4003063406417939385, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4003063406417939385, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4003063406417939385, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4003063406417939385, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4003063406417939385, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -12.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4003063406417939385, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 12.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4386011548134183902, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4386011548134183902, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4794599025964605050, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_Name
-      value: PiecePrefab
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.119
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.874
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6469059003001286801, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9216208328271771581, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9216208328271771581, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9216208328271771581, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9216208328271771581, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9216208328271771581, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 45.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 9216208328271771581, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
 --- !u!1 &1377629334
 GameObject:
   m_ObjectHideFlags: 0
@@ -132360,6 +132281,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1404121766
 GameObject:
   m_ObjectHideFlags: 0
@@ -132988,6 +132911,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1410823084
 GameObject:
   m_ObjectHideFlags: 0
@@ -140362,6 +140287,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1504579307
 GameObject:
   m_ObjectHideFlags: 0
@@ -140684,6 +140611,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1508255492
 GameObject:
   m_ObjectHideFlags: 0
@@ -141750,6 +141679,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1516420998
 GameObject:
   m_ObjectHideFlags: 0
@@ -148370,6 +148301,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1578310452
 GameObject:
   m_ObjectHideFlags: 0
@@ -148906,6 +148839,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1582021307
 GameObject:
   m_ObjectHideFlags: 0
@@ -150111,6 +150046,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1593157992
 GameObject:
   m_ObjectHideFlags: 0
@@ -153861,7 +153798,7 @@ RectTransform:
   - {fileID: 1118287759}
   - {fileID: 1934699478}
   - {fileID: 1924617869}
-  - {fileID: 1159753184}
+  - {fileID: 1295253036}
   m_Father: {fileID: 1034614936}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -153888,7 +153825,7 @@ MonoBehaviour:
   levelText: {fileID: 1924617870}
   mainDescriptionText: {fileID: 1934699479}
   popupOpenAnimator: {fileID: 0}
-  sectionParent: {fileID: 1159753184}
+  sectionParent: {fileID: 1295253036}
   defaultSectionPrefab: {fileID: 5949523261928351889, guid: 7fb0b80725d63d54b986d89468079e28, type: 3}
   sectionPrefabs:
   - sectionType: 1
@@ -153896,7 +153833,6 @@ MonoBehaviour:
   popupOffset: {x: 400, y: 200}
   screenPadding: {x: 0, y: 0}
   fixedPositionPivot: {x: 0.5, y: 0.5}
-  additionalOffsetYPerSection: 100
 --- !u!222 &1624233311
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -155030,6 +154966,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1637100758
 GameObject:
   m_ObjectHideFlags: 0
@@ -160473,6 +160411,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1697111900
 GameObject:
   m_ObjectHideFlags: 0
@@ -161208,6 +161148,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 100
 --- !u!1 &1704941778
 GameObject:
   m_ObjectHideFlags: 0
@@ -161878,6 +161820,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1720523659
 GameObject:
   m_ObjectHideFlags: 0
@@ -162185,6 +162129,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1727565521
 GameObject:
   m_ObjectHideFlags: 0
@@ -167766,6 +167712,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &1781845021
 GameObject:
   m_ObjectHideFlags: 0
@@ -189096,6 +189044,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &2004939064
 GameObject:
   m_ObjectHideFlags: 0
@@ -192762,6 +192712,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &2036441181
 GameObject:
   m_ObjectHideFlags: 0
@@ -194906,7 +194858,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 1.7, y: 1.8}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2053653645
@@ -198540,6 +198492,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &2091940006
 GameObject:
   m_ObjectHideFlags: 0
@@ -203831,6 +203785,8 @@ MonoBehaviour:
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
 --- !u!1 &2147015346
 GameObject:
   m_ObjectHideFlags: 0
@@ -203962,4 +203918,3 @@ SceneRoots:
   - {fileID: 579071687}
   - {fileID: 47045692}
   - {fileID: 1123980042}
-  - {fileID: 1376821342}

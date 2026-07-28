@@ -639,8 +639,11 @@ public class PieceManager : MonoBehaviour
                 continue;
             }
 
-            // <변경부분> 현재 Piece에 일반스킬을 지정 레벨로 부여
-            piece.SetTestGeneralSkill(skillData.skillType, skillData.level);
+            // <변경부분> PieceData의 기본 일반스킬을
+            // 레벨 없이 중복되지 않게 부여한다.
+            piece.AddGeneralSkill(
+                skillData.skillType
+            );
         }
     }
 

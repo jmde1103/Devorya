@@ -8,14 +8,14 @@ public class BattleSetupManager : MonoBehaviour
     [Header("Stage Data")]
     // <변경부분> 현재 전투에 사용할 스테이지 데이터
     [SerializeField] private StageBattleData stageBattleData;
-    
-   [Header("Managers")]
-[SerializeField] private BoardManager boardManager;
-[SerializeField] private PieceManager pieceManager;
-[SerializeField] private BattleManager battleManager;
 
-// <변경부분> StageBattleData의 보상 데이터를 전달할 전투 종료 흐름 컨트롤러
-[SerializeField] private BattleEndFlowController battleEndFlowController;
+    [Header("Managers")]
+    [SerializeField] private BoardManager boardManager;
+    [SerializeField] private PieceManager pieceManager;
+    [SerializeField] private BattleManager battleManager;
+
+    // <변경부분> StageBattleData의 보상 데이터를 전달할 전투 종료 흐름 컨트롤러
+    [SerializeField] private BattleEndFlowController battleEndFlowController;
 
     [Header("Run State")]
     // <변경부분> 저장된 플레이어 기물 상태가 있으면 StageBattleData의 playerFormationData 대신 사용할지 여부
@@ -219,11 +219,21 @@ public class BattleSetupManager : MonoBehaviour
                 continue;
             }
 
-            int level = rule.RollLevel();
+            // <변경부분> 일반스킬 레벨 없이
+            // 해당 적 기물에 스킬을 중복되지 않게 부여한다.
+            bool skillAdded =
+                piece.AddGeneralSkill(
+                    rule.skillType
+                );
 
-            piece.SetTestGeneralSkill(rule.skillType, level);
-
-            Debug.Log($"스테이지 적 일반스킬 부여: {piece.PieceType} / {rule.skillType} LV.{level}");
+            if (skillAdded)
+            {
+                Debug.Log(
+                    $"스테이지 적 일반스킬 부여: " +
+                    $"{piece.PieceType} / " +
+                    $"{rule.skillType}"
+                );
+            }
         }
     }
 }

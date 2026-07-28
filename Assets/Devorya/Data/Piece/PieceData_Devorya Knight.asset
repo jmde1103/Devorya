@@ -34,3 +34,7 @@ MonoBehaviour:
   enemyTypeIconPosition: {x: 0.23, y: 0.23, z: 0}
   neutralTypeIconPosition: {x: 0, y: 0, z: 0}
   absorbedPlayerTypeIconPosition: {x: 0.23, y: 0.23, z: 0}
+  playerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}

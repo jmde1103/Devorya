@@ -32,171 +32,293 @@ public class BattleSkillManager : MonoBehaviour
         pieceManager = pieceManagerRef;
     }
 
-    // <변경부분> ChanceAttack 발동 여부를 행동 시작 전 보유 일반스킬 정보와 GeneralSkillDatabase 기준으로 판정하는 함수
-    public bool TryActivateChanceAttack(Piece piece, OwnedGeneralSkillData chanceAttackDataBeforeAction, int chanceAttackContinuousCount)
+    // <변경부분> ChanceAttack 발동 여부를
+    // 행동 시작 전 스킬 보유 상태와 GeneralSkillData의 고정 확률로 판정한다.
+    public bool TryActivateChanceAttack(
+        Piece piece,
+        OwnedGeneralSkillData chanceAttackDataBeforeAction,
+        int chanceAttackContinuousCount)
     {
-        // 판정할 기물이 없으면 실패
+        // 판정할 기물이 없으면 발동할 수 없다.
         if (piece == null)
         {
             return false;
         }
 
-        // <변경부분> 행동 시작 전에 ChanceAttack이 없었다면 이번 처치에서는 발동 불가
+        // 행동 시작 전에 ChanceAttack을 보유하지 않았다면
+        // 이번 처치로 새로 흡수했더라도 즉시 발동하지 않는다.
         if (chanceAttackDataBeforeAction == null ||
-            chanceAttackDataBeforeAction.skillType != GeneralSkillType.ChanceAttack ||
-            chanceAttackDataBeforeAction.level <= 0)
+            chanceAttackDataBeforeAction.skillType !=
+            GeneralSkillType.ChanceAttack)
         {
-            Debug.Log("ChanceAttack 판정 실패: 이번 행동 시작 시점에는 ChanceAttack이 없었습니다.");
+            Debug.Log(
+                "ChanceAttack 판정 실패: " +
+                "이번 행동 시작 시점에는 ChanceAttack이 없었습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> 일반스킬 데이터베이스가 없으면 발동 불가
         if (generalSkillDatabase == null)
         {
-            Debug.LogWarning("GeneralSkillDatabase가 연결되지 않아 ChanceAttack을 판정할 수 없습니다.");
+            Debug.LogWarning(
+                "GeneralSkillDatabase가 연결되지 않아 " +
+                "ChanceAttack을 판정할 수 없습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> ChanceAttack 설정 데이터 가져오기
-        GeneralSkillData chanceAttackData = generalSkillDatabase.GetData(GeneralSkillType.ChanceAttack);
+        GeneralSkillData chanceAttackData =
+            generalSkillDatabase.GetData(
+                GeneralSkillType.ChanceAttack
+            );
 
         if (chanceAttackData == null)
         {
-            Debug.LogWarning("GeneralSkillDatabase에서 ChanceAttack 데이터를 찾을 수 없습니다.");
+            Debug.LogWarning(
+                "GeneralSkillDatabase에서 " +
+                "ChanceAttack 데이터를 찾을 수 없습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> 데이터베이스에 저장된 레벨별 확률 사용
-        int baseChancePercent = chanceAttackData.GetChanceAttackPercent(chanceAttackDataBeforeAction.level);
+        // 일반스킬 레벨 없이 데이터에 설정된 고정 확률을 사용한다.
+        int baseChancePercent =
+            chanceAttackData.GetChanceAttackPercent();
 
-        // <변경부분> 데이터베이스에 저장된 연속 발동 감소 배율 사용
-        float penaltyMultiplier = chanceAttackData.GetChanceAttackContinuousPenaltyMultiplier(chanceAttackContinuousCount);
+        // 연속 발동 횟수에 따른 감소 배율을 적용한다.
+        float penaltyMultiplier =
+            chanceAttackData
+                .GetChanceAttackContinuousPenaltyMultiplier(
+                    chanceAttackContinuousCount
+                );
 
-        // 최종 발동 확률 계산
-        float finalChancePercent = baseChancePercent * penaltyMultiplier;
+        float finalChancePercent =
+            baseChancePercent *
+            penaltyMultiplier;
 
-        // 0~100 사이 랜덤값 생성
-        float randomValue = Random.Range(0f, 100f);
+        float randomValue =
+            Random.Range(
+                0f,
+                100f
+            );
 
-        // 최종 확률 안에 들어오면 발동 성공
-        bool isActivated = randomValue < finalChancePercent;
+        bool isActivated =
+            randomValue <
+            finalChancePercent;
 
-        Debug.Log($"ChanceAttack 판정: 행동전 LV.{chanceAttackDataBeforeAction.level} / 기본확률 {baseChancePercent}% / 연속횟수 {chanceAttackContinuousCount} / 감소배율 {penaltyMultiplier:F3} / 최종확률 {finalChancePercent:F1}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+        Debug.Log(
+            $"ChanceAttack 판정: " +
+            $"기본확률 {baseChancePercent}% / " +
+            $"연속횟수 {chanceAttackContinuousCount} / " +
+            $"감소배율 {penaltyMultiplier:F3} / " +
+            $"최종확률 {finalChancePercent:F1}% / " +
+            $"랜덤 {randomValue:F1} / " +
+            $"결과 {isActivated}"
+        );
 
         return isActivated;
     }
 
-    // <변경부분> Defense 발동 여부를 행동 시작 시점의 방어 스킬 정보와 GeneralSkillDatabase 기준으로 판정하는 함수
-    public bool TryActivateDefense(Piece defenderPiece, OwnedGeneralSkillData defenseDataBeforeAction)
+    // <변경부분> 실제 이동을 완료한 기물이
+    // Defense 일반스킬을 보유한 경우 Defence 상태효과 부여를 판정한다.
+    //
+    // 빈칸 이동과 공격 성공 이동이 모두 끝난 뒤 호출해야 한다.
+    // 공격이 방어되어 원래 위치로 돌아온 경우에는 호출하지 않는다.
+    public bool TryGrantDefenceAfterMove(
+        Piece movedPiece)
     {
-        // 방어할 기물이 없으면 실패
-        if (defenderPiece == null)
+        if (movedPiece == null)
         {
             return false;
         }
 
-        // <변경부분> 공격 시작 시점에 Defense가 없었다면 방어 불가
-        if (defenseDataBeforeAction == null ||
-            defenseDataBeforeAction.skillType != GeneralSkillType.Defense ||
-            defenseDataBeforeAction.level <= 0)
+        // Defense 일반스킬이 없는 기물은 판정하지 않는다.
+        if (movedPiece.HasGeneralSkill(
+            GeneralSkillType.Defense
+        ) == false)
         {
             return false;
         }
 
-        // <변경부분> 일반스킬 데이터베이스가 없으면 방어 판정 불가
         if (generalSkillDatabase == null)
         {
-            Debug.LogWarning("GeneralSkillDatabase가 연결되지 않아 Defense를 판정할 수 없습니다.");
+            Debug.LogWarning(
+                "GeneralSkillDatabase가 연결되지 않아 " +
+                "Defense 일반스킬을 판정할 수 없습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> Defense 설정 데이터 가져오기
-        GeneralSkillData defenseData = generalSkillDatabase.GetData(GeneralSkillType.Defense);
+        GeneralSkillData defenseData =
+            generalSkillDatabase.GetData(
+                GeneralSkillType.Defense
+            );
 
         if (defenseData == null)
         {
-            Debug.LogWarning("GeneralSkillDatabase에서 Defense 데이터를 찾을 수 없습니다.");
+            Debug.LogWarning(
+                "GeneralSkillDatabase에서 " +
+                "Defense 데이터를 찾을 수 없습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> 데이터베이스에 저장된 레벨별 확률 사용
-        int defenseChancePercent = defenseData.GetDefensePercent(defenseDataBeforeAction.level);
+        int defenseGrantChancePercent =
+            defenseData
+                .GetDefenseGrantChancePercent();
 
-        // 확률이 0 이하이면 방어 실패
-        if (defenseChancePercent <= 0)
+        if (defenseGrantChancePercent <= 0)
         {
             return false;
         }
 
-        // 0~100 사이 랜덤값 생성
-        float randomValue = Random.Range(0f, 100f);
+        float randomValue =
+            Random.Range(
+                0f,
+                100f
+            );
 
-        // 최종 확률 안에 들어오면 방어 성공
-        bool isActivated = randomValue < defenseChancePercent;
+        bool isActivated =
+            randomValue <
+            defenseGrantChancePercent;
 
-        Debug.Log($"Defense 판정: 행동전 LV.{defenseDataBeforeAction.level} / 확률 {defenseChancePercent}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+        Debug.Log(
+            $"Defense 이동 완료 판정: " +
+            $"확률 {defenseGrantChancePercent}% / " +
+            $"랜덤 {randomValue:F1} / " +
+            $"결과 {isActivated}"
+        );
 
-        return isActivated;
+        if (isActivated == false)
+        {
+            return false;
+        }
+
+        if (statusEffectDatabase == null)
+        {
+            Debug.LogWarning(
+                "StatusEffectDatabase가 연결되지 않아 " +
+                "Defence 상태효과를 부여할 수 없습니다."
+            );
+
+            return false;
+        }
+
+        // 기존 아이템 방어 효과와 동일한
+        // Defence 상태효과 데이터를 사용한다.
+        StatusEffectData defenceStatusEffectData =
+            statusEffectDatabase.GetData(
+                StatusEffectType.Defence
+            );
+
+        if (defenceStatusEffectData == null)
+        {
+            Debug.LogWarning(
+                "StatusEffectDatabase에서 " +
+                "Defence 상태효과 데이터를 찾을 수 없습니다."
+            );
+
+            return false;
+        }
+
+        movedPiece.AddStatusEffect(
+            defenceStatusEffectData
+        );
+
+        Debug.Log(
+            $"Defense 일반스킬 발동: " +
+            $"{movedPiece.Team} {movedPiece.PieceType}에게 " +
+            $"Defence 상태효과를 부여했습니다."
+        );
+
+        return true;
     }
 
-    // <변경부분> Insight 발동 여부를 행동 시작 시점의 간파 스킬 정보와 GeneralSkillDatabase 기준으로 판정하는 함수
-    // targetCanceledSkillType은 이번에 무효화하려는 상대 일반스킬 타입이다.
-    // 현재는 Defense를 대상으로 사용하고, 나중에 Evasion 추가 시 같은 함수로 확장 가능하다.
-    public bool TryActivateInsight(Piece attackerPiece, OwnedGeneralSkillData insightDataBeforeAction, GeneralSkillType targetCanceledSkillType)
+    // <변경부분> Insight 발동 여부를
+    // 행동 시작 전 보유 상태와 GeneralSkillData의 고정 확률로 판정한다.
+    public bool TryActivateInsight(
+        Piece attackerPiece,
+        OwnedGeneralSkillData insightDataBeforeAction,
+        GeneralSkillType targetCanceledSkillType)
     {
-        // 공격자가 없으면 간파 불가
         if (attackerPiece == null)
         {
             return false;
         }
 
-        // <변경부분> 행동 시작 시점에 Insight가 없었다면 이번 공격에서는 발동 불가
+        // 행동 시작 시점에 Insight를 보유하지 않았다면
+        // 이번 공격에서는 발동하지 않는다.
         if (insightDataBeforeAction == null ||
-            insightDataBeforeAction.skillType != GeneralSkillType.Insight ||
-            insightDataBeforeAction.level <= 0)
+            insightDataBeforeAction.skillType !=
+            GeneralSkillType.Insight)
         {
             return false;
         }
 
-        // <변경부분> 현재 간파가 무효화할 수 있는 스킬만 허용
-        // 회피는 아직 구현되지 않았으므로 지금은 Defense만 처리
-        if (targetCanceledSkillType != GeneralSkillType.Defense)
+        // 현재 Insight는 Defence 상태효과로 발생한
+        // 방어 판정을 무효화하는 데 사용한다.
+        if (targetCanceledSkillType !=
+            GeneralSkillType.Defense)
         {
             return false;
         }
 
-        // <변경부분> 일반스킬 데이터베이스가 없으면 간파 판정 불가
         if (generalSkillDatabase == null)
         {
-            Debug.LogWarning("GeneralSkillDatabase가 연결되지 않아 Insight를 판정할 수 없습니다.");
+            Debug.LogWarning(
+                "GeneralSkillDatabase가 연결되지 않아 " +
+                "Insight를 판정할 수 없습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> Insight 설정 데이터 가져오기
-        GeneralSkillData insightData = generalSkillDatabase.GetData(GeneralSkillType.Insight);
+        GeneralSkillData insightData =
+            generalSkillDatabase.GetData(
+                GeneralSkillType.Insight
+            );
 
         if (insightData == null)
         {
-            Debug.LogWarning("GeneralSkillDatabase에서 Insight 데이터를 찾을 수 없습니다.");
+            Debug.LogWarning(
+                "GeneralSkillDatabase에서 " +
+                "Insight 데이터를 찾을 수 없습니다."
+            );
+
             return false;
         }
 
-        // <변경부분> 데이터베이스에 저장된 레벨별 확률 사용
-        int insightChancePercent = insightData.GetInsightPercent(insightDataBeforeAction.level);
+        // 일반스킬 레벨 없이 고정 확률을 사용한다.
+        int insightChancePercent =
+            insightData.GetInsightPercent();
 
-        // 확률이 0 이하이면 간파 실패
         if (insightChancePercent <= 0)
         {
             return false;
         }
 
-        // 0~100 사이 랜덤값 생성
-        float randomValue = Random.Range(0f, 100f);
+        float randomValue =
+            Random.Range(
+                0f,
+                100f
+            );
 
-        // 최종 확률 안에 들어오면 간파 성공
-        bool isActivated = randomValue < insightChancePercent;
+        bool isActivated =
+            randomValue <
+            insightChancePercent;
 
-        Debug.Log($"Insight 판정: 행동전 LV.{insightDataBeforeAction.level} / 대상 {targetCanceledSkillType} / 확률 {insightChancePercent}% / 랜덤 {randomValue:F1} / 결과 {isActivated}");
+        Debug.Log(
+            $"Insight 판정: " +
+            $"대상 {targetCanceledSkillType} / " +
+            $"확률 {insightChancePercent}% / " +
+            $"랜덤 {randomValue:F1} / " +
+            $"결과 {isActivated}"
+        );
 
         return isActivated;
     }

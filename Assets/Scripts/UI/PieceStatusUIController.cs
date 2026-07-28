@@ -130,9 +130,10 @@ public class PieceStatusUIController : MonoBehaviour
         pieceTypeIconImage.enabled = true;
         pieceTypeIconImage.preserveAspect = true;
     }
-
-    // <변경부분> 일반스킬 슬롯에 아이콘과 레벨을 표시하는 함수
-    private void SetGeneralSkillSlots(List<OwnedGeneralSkillData> generalSkills)
+    // <변경부분> 일반스킬 슬롯에 아이콘과 Tooltip을 표시하는 함수
+    // 일반스킬 레벨 시스템이 제거되었으므로 레벨 텍스트는 표시하지 않는다.
+    private void SetGeneralSkillSlots(
+        List<OwnedGeneralSkillData> generalSkills)
     {
         // 모든 일반스킬 슬롯을 먼저 빈 상태로 초기화
         ClearGeneralSkillSlots();
@@ -143,53 +144,98 @@ public class PieceStatusUIController : MonoBehaviour
             return;
         }
 
-        int textSlotCount = generalSkillTexts != null ? generalSkillTexts.Length : 0;
-        int iconSlotCount = generalSkillIconImages != null ? generalSkillIconImages.Length : 0;
-        int maxSlotCount = Mathf.Max(textSlotCount, iconSlotCount);
+        int textSlotCount =
+            generalSkillTexts != null
+                ? generalSkillTexts.Length
+                : 0;
 
-        int displayCount = Mathf.Min(generalSkills.Count, maxSlotCount, 6);
+        int iconSlotCount =
+            generalSkillIconImages != null
+                ? generalSkillIconImages.Length
+                : 0;
 
-        for (int i = 0; i < displayCount; i++)
+        int tooltipSlotCount =
+            generalSkillTooltipTriggers != null
+                ? generalSkillTooltipTriggers.Length
+                : 0;
+
+        int maxSlotCount =
+            Mathf.Max(
+                textSlotCount,
+                iconSlotCount,
+                tooltipSlotCount
+            );
+
+        int displayCount =
+            Mathf.Min(
+                generalSkills.Count,
+                maxSlotCount,
+                6
+            );
+
+        for (int i = 0;
+             i < displayCount;
+             i++)
         {
-            OwnedGeneralSkillData ownedSkillData = generalSkills[i];
+            OwnedGeneralSkillData ownedSkillData =
+                generalSkills[i];
 
-            if (ownedSkillData == null || ownedSkillData.skillType == GeneralSkillType.None)
+            if (ownedSkillData == null ||
+                ownedSkillData.skillType ==
+                GeneralSkillType.None)
             {
                 continue;
             }
 
-            // <변경부분> Database에서 일반스킬 표시 데이터 가져오기
-            GeneralSkillData skillData = GetGeneralSkillData(ownedSkillData.skillType);
-
-            // <변경부분> 일반스킬 슬롯 Tooltip에 현재 일반스킬 설명 데이터 연결
-            if (generalSkillTooltipTriggers != null &&
-            i < generalSkillTooltipTriggers.Length &&
-             generalSkillTooltipTriggers[i] != null)
-            {
-                // <변경부분> 일반스킬 데이터의 기존 이름/아이콘과 현재 보유 레벨에 맞는 설명으로 Tooltip을 자동 구성
-                generalSkillTooltipTriggers[i].SetTooltipViewData(
-                    TooltipViewData.FromGeneralSkillData(skillData, ownedSkillData.level)
+            // 일반스킬 타입에 맞는 표시 데이터 가져오기
+            GeneralSkillData skillData =
+                GetGeneralSkillData(
+                    ownedSkillData.skillType
                 );
+
+            // <변경부분> 일반스킬 레벨 없이
+            // 고정 확률 설명으로 Tooltip을 구성한다.
+            if (generalSkillTooltipTriggers != null &&
+                i < generalSkillTooltipTriggers.Length &&
+                generalSkillTooltipTriggers[i] != null)
+            {
+                generalSkillTooltipTriggers[i]
+                    .SetTooltipViewData(
+                        TooltipViewData
+                            .FromGeneralSkillData(
+                                skillData
+                            )
+                    );
             }
 
-            // <변경부분> 아이콘 이미지 표시
+            // 일반스킬 아이콘 표시
             if (generalSkillIconImages != null &&
                 i < generalSkillIconImages.Length &&
                 generalSkillIconImages[i] != null)
             {
-                Sprite skillIconSprite = skillData != null ? skillData.iconSprite : null;
+                Sprite skillIconSprite =
+                    skillData != null
+                        ? skillData.iconSprite
+                        : null;
 
-                generalSkillIconImages[i].sprite = skillIconSprite;
-                generalSkillIconImages[i].enabled = skillIconSprite != null;
-                generalSkillIconImages[i].preserveAspect = true;
+                generalSkillIconImages[i].sprite =
+                    skillIconSprite;
+
+                generalSkillIconImages[i].enabled =
+                    skillIconSprite != null;
+
+                generalSkillIconImages[i].preserveAspect =
+                    true;
             }
 
-            // <변경부분> 레벨 텍스트 표시
+            // <변경부분> 일반스킬 레벨 텍스트는 사용하지 않는다.
+            // 기존 Text 오브젝트가 연결돼 있어도 빈 문자열로 유지한다.
             if (generalSkillTexts != null &&
                 i < generalSkillTexts.Length &&
                 generalSkillTexts[i] != null)
             {
-                generalSkillTexts[i].text = "Lv" + ownedSkillData.level;
+                generalSkillTexts[i].text =
+                    string.Empty;
             }
         }
     }

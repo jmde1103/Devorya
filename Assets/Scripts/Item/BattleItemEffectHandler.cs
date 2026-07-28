@@ -126,13 +126,16 @@ public class BattleItemEffectHandler : MonoBehaviour
             );
         }
 
-        // 데이터에 설정된 일반스킬이 있으면 부여한다.
+        // <변경부분> 데이터에 설정된 일반스킬이 있으면
+        // 레벨 없이 중복되지 않게 부여한다.
+        //
+        // 이미 같은 일반스킬을 가지고 있다면
+        // AddGeneralSkill 내부에서 추가하지 않는다.
         if (itemData.changeTargetGeneralSkill !=
             GeneralSkillType.None)
         {
-            targetPiece.SetTestGeneralSkill(
-                itemData.changeTargetGeneralSkill,
-                itemData.changeTargetGeneralSkillLevel
+            targetPiece.AddGeneralSkill(
+                itemData.changeTargetGeneralSkill
             );
         }
 

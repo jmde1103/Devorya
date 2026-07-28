@@ -43,6 +43,21 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     [SerializeField]
     private Vector2 fixedCanvasPosition;
 
+    [Header("Section Position")]
+    // <변경부분> 기본 Tooltip 본체 위치는 유지하면서
+    // SectionParent에만 적용할 개별 위치 보정값
+    [SerializeField]
+    private Vector2 sectionPositionOffset =
+     Vector2.zero;
+
+    // <변경부분> Section이 추가되어 Tooltip 전체 길이가 길어질 때
+    // Section 1개당 PopupRoot 전체 위치를 얼마나 보정할지 설정한다.
+    //
+    // 상단 Tooltip처럼 별도 보정이 필요 없으면 0,
+    // 하단 Tooltip처럼 위로 밀어야 하면 양수 값을 사용한다.
+    [SerializeField]
+    private float popupOffsetYPerSection;
+
     private Coroutine holdCoroutine;
     private bool isHolding;
 
@@ -234,14 +249,16 @@ public class TooltipTrigger : MonoBehaviour, IPointerDownHandler, IPointerUpHand
             yield break;
         }
 
-        // <변경부분> 이 TooltipTrigger의 위치 모드와
-        // 개별 Offset 또는 고정 Canvas 위치를 함께 전달한다.
+        // <변경부분> Section 자체 위치 보정과 함께
+        // Section 개수에 따른 PopupRoot 전체 보정값도 전달한다.
         TooltipPopupUI.Instance.Show(
             tooltipViewData,
             screenPosition,
             positionMode,
             customPositionOffset,
-            fixedCanvasPosition
+            fixedCanvasPosition,
+            sectionPositionOffset,
+            popupOffsetYPerSection
         );
 
         isTooltipVisible = true;

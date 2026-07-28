@@ -36,7 +36,9 @@ public class TooltipPopupUI : MonoBehaviour
     }
 
     [Header("Section")]
-    [SerializeField] private Transform sectionParent;
+    // <변경부분> Section 위치 보정을 직접 적용해야 하므로
+    // 일반 Transform이 아니라 RectTransform으로 연결한다.
+    [SerializeField] private RectTransform sectionParent;
 
     // <변경부분> 매칭되는 프리팹이 없을 때 사용할 기본 Section 프리팹
     [SerializeField] private TooltipSectionItemUI defaultSectionPrefab;
@@ -52,18 +54,41 @@ public class TooltipPopupUI : MonoBehaviour
     // 기본값 0.5, 0.5는 팝업 중심을 고정 좌표에 맞춘다.
     [SerializeField]
     private Vector2 fixedPositionPivot =
-        new Vector2(0.5f, 0.5f);
+     new Vector2(0.5f, 0.5f);
 
-    // <변경부분> Section 블록이 1개 추가될 때마다 Tooltip 위치를 Y축으로 더 밀어낼 값
-    [SerializeField] private float additionalOffsetYPerSection = 100f;
+    [Header("Section Popup Position")]
+    // <변경부분> Section 블록이 추가되어 팝업 전체 높이가 길어질 때
+    // 기본 Tooltip 기준점을 Y축으로 보정할 값
+    //
+    // Section 1개당 이 값만큼 PopupRoot 전체 위치가 추가 보정된다.
 
-    // <변경부분> 현재 표시 중인 Tooltip의 Section 블록 개수
+    // <변경부분> 현재 Tooltip에 표시되는 유효한 Section 개수
     private int currentSectionCount;
+
+
+    // <변경부분> Tooltip 프리팹에 설정되어 있던
+    // SectionParent의 원래 Anchored Position
+    //
+    // 각 TooltipTrigger의 Section Offset이 누적되지 않도록
+    // 항상 이 기본 위치를 기준으로 계산한다.
+    private Vector2 defaultSectionParentAnchoredPosition;
 
 
     private void Awake()
     {
         Instance = this;
+
+        // <변경부분> Tooltip 프리팹에 설정된
+        // SectionParent의 기본 위치를 최초 한 번 저장한다.
+        //
+        // 이후 각 TooltipTrigger의 Section Position Offset은
+        // 이 위치를 기준으로 적용된다.
+        // <변경부분> SectionParent의 최초 위치를 저장한다.
+        if (sectionParent != null)
+        {
+            defaultSectionParentAnchoredPosition =
+                sectionParent.anchoredPosition;
+        }
 
         if (popupRoot != null)
         {
@@ -72,49 +97,39 @@ public class TooltipPopupUI : MonoBehaviour
 
         if (popupOpenAnimator == null)
         {
-            popupOpenAnimator = GetComponent<PopupOpenAnimator>();
+            popupOpenAnimator =
+                GetComponent<PopupOpenAnimator>();
         }
     }
 
     // <변경부분> TooltipData 에셋을 받아 TooltipViewData로 변환 후
     // 공통 위치 설정으로 팝업을 표시한다.
     public void Show(
-        TooltipData tooltipData,
-        Vector2 screenPosition)
-    {
-        Show(
-            TooltipViewData.FromTooltipData(
-                tooltipData
-            ),
-            screenPosition,
-            Vector2.zero
-        );
-    }
-
-    // <변경부분> 기존 호출부와의 호환성을 유지한다.
-    // 이 함수로 호출하면 기존 PointerOffset 방식으로 표시한다.
-    public void Show(
-        TooltipViewData tooltipViewData,
-        Vector2 screenPosition,
-        Vector2 customPositionOffset)
+    TooltipViewData tooltipViewData,
+    Vector2 screenPosition,
+    Vector2 customPositionOffset)
     {
         Show(
             tooltipViewData,
             screenPosition,
             TooltipPositionMode.PointerOffset,
             customPositionOffset,
-            Vector2.zero
+            Vector2.zero,
+            Vector2.zero,
+            0f
         );
     }
 
-    // <변경부분> Tooltip 위치 모드와
-    // 개별 Offset 또는 고정 Canvas 위치를 받아 팝업을 표시한다.
+    // <변경부분> Tooltip 전체 위치 설정과 별도로
+    // SectionParent 전용 위치 보정값을 함께 받는다.
     public void Show(
-        TooltipViewData tooltipViewData,
-        Vector2 screenPosition,
-        TooltipPositionMode positionMode,
-        Vector2 customPositionOffset,
-        Vector2 fixedCanvasPosition)
+     TooltipViewData tooltipViewData,
+     Vector2 screenPosition,
+     TooltipPositionMode positionMode,
+     Vector2 customPositionOffset,
+     Vector2 fixedCanvasPosition,
+     Vector2 sectionPositionOffset,
+     float popupOffsetYPerSection)
     {
         if (tooltipViewData == null ||
             popupRoot == null)
@@ -155,35 +170,62 @@ public class TooltipPopupUI : MonoBehaviour
                 tooltipViewData.mainDescription;
         }
 
-        // 현재 Tooltip에 붙는 Section 블록 개수를 기록
+        // <변경부분> 현재 Tooltip에 포함된 Section 개수를 기록한다.
+        // 팝업 전체가 길어진 만큼 기준 위치를 보정할 때 사용한다.
         currentSectionCount =
-            tooltipViewData.sections != null
-                ? tooltipViewData.sections.Count
-                : 0;
+            GetValidSectionCount(
+                tooltipViewData.sections
+            );
 
         RefreshSections(
             tooltipViewData.sections
         );
 
-        // <변경부분> 위치 모드에 따라
-        // 자동 위치 또는 고정 Canvas 위치를 적용한다.
+        // <변경부분> Section 생성 후 Tooltip 전체 레이아웃과
+        // 기본 팝업 위치를 먼저 확정한다.
+        //
+        // SetPopupPosition 내부에서 LayoutRebuilder가 실행되므로
+        // Section 전용 Offset보다 먼저 호출해야 한다.
         SetPopupPosition(
-            screenPosition,
-            positionMode,
-            customPositionOffset,
-            fixedCanvasPosition
+     screenPosition,
+     positionMode,
+     customPositionOffset,
+     fixedCanvasPosition,
+     popupOffsetYPerSection
+ );
+
+        // <변경부분> PopupRoot 레이아웃 계산이 모두 끝난 뒤
+        // SectionParent에만 Trigger별 위치 보정값을 적용한다.
+        //
+        // 이 순서로 적용해야 LayoutGroup이 Section 위치를
+        // 다시 원래 위치로 덮어쓰지 않는다.
+        // <변경부분> TooltipTrigger에서 Section Offset이
+        // 실제로 전달되는지 확인하기 위한 임시 로그
+        Debug.Log(
+            $"[Tooltip Section Offset] " +
+            $"Title: {tooltipViewData.title}, " +
+            $"Offset: {sectionPositionOffset}"
         );
 
+        // <변경부분> 오픈 애니메이션에서 초기 RectTransform 상태를
+        // 먼저 적용하도록 애니메이션을 선행 실행한다.
         if (popupOpenAnimator != null)
         {
             popupOpenAnimator.PlayOpen();
         }
+
+        // <변경부분> 오픈 애니메이션 초기화 이후
+        // SectionParent에만 Trigger별 위치 보정값을 적용한다.
+        ApplySectionPositionOffset(
+            sectionPositionOffset
+        );
     }
 
     // <변경부분> 팝업을 숨김
     public void Hide()
     {
-        // <변경부분> Tooltip이 꺼질 때 Section 개수 기록 초기화
+        // <변경부분> 다음 Tooltip에서 이전 Section 개수가
+        // 위치 계산에 남지 않도록 초기화한다.
         currentSectionCount = 0;
 
         if (popupRoot != null)
@@ -193,7 +235,8 @@ public class TooltipPopupUI : MonoBehaviour
     }
 
     // <변경부분> 하단 추가 설명 블록을 sections 순서대로 다시 생성
-    private void RefreshSections(List<TooltipSectionData> sections)
+    private void RefreshSections(
+        List<TooltipSectionData> sections)
     {
         if (sectionParent == null)
         {
@@ -201,9 +244,15 @@ public class TooltipPopupUI : MonoBehaviour
         }
 
         // 기존에 생성되어 있던 Section 블록 제거
-        for (int i = sectionParent.childCount - 1; i >= 0; i--)
+        for (int i = sectionParent.childCount - 1;
+             i >= 0;
+             i--)
         {
-            Destroy(sectionParent.GetChild(i).gameObject);
+            Destroy(
+                sectionParent
+                    .GetChild(i)
+                    .gameObject
+            );
         }
 
         if (sections == null)
@@ -212,28 +261,90 @@ public class TooltipPopupUI : MonoBehaviour
         }
 
         // TooltipData에 들어있는 순서대로 Section 블록 생성
-        for (int i = 0; i < sections.Count; i++)
+        for (int i = 0;
+             i < sections.Count;
+             i++)
         {
-            TooltipSectionData sectionData = sections[i];
+            TooltipSectionData sectionData =
+                sections[i];
 
             if (sectionData == null)
             {
                 continue;
             }
 
-            // <변경부분> SectionType에 맞는 프리팹 선택
-            TooltipSectionItemUI sectionPrefab = GetSectionPrefab(sectionData.sectionType);
+            // SectionType에 맞는 프리팹 선택
+            TooltipSectionItemUI sectionPrefab =
+                GetSectionPrefab(
+                    sectionData.sectionType
+                );
 
             if (sectionPrefab == null)
             {
-                Debug.LogWarning($"Tooltip Section 프리팹을 찾지 못했습니다: {sectionData.sectionType}");
+                Debug.LogWarning(
+                    $"Tooltip Section 프리팹을 찾지 못했습니다: " +
+                    $"{sectionData.sectionType}"
+                );
+
                 continue;
             }
 
-            // <변경부분> 선택한 Section 프리팹을 SectionParent 아래에 순서대로 생성
-            TooltipSectionItemUI itemUI = Instantiate(sectionPrefab, sectionParent);
-            itemUI.Refresh(sectionData);
+            // <변경부분> 기존처럼 프리팹과
+            // SectionParent의 Layout 설정을 그대로 사용한다.
+            TooltipSectionItemUI itemUI =
+                Instantiate(
+                    sectionPrefab,
+                    sectionParent
+                );
+
+            itemUI.Refresh(
+                sectionData
+            );
         }
+    }
+
+    // <변경부분> 실제로 생성 가능한 Section 데이터 개수를 반환한다.
+    // null 데이터는 Section 위치 보정 개수에서 제외한다.
+    private int GetValidSectionCount(
+        List<TooltipSectionData> sections)
+    {
+        if (sections == null)
+        {
+            return 0;
+        }
+
+        int validCount = 0;
+
+        for (int i = 0;
+             i < sections.Count;
+             i++)
+        {
+            if (sections[i] != null)
+            {
+                validCount++;
+            }
+        }
+
+        return validCount;
+    }
+
+    // <변경부분> TooltipTrigger에서 전달된 Offset을
+    // SectionParent의 Anchored Position에 직접 적용한다.
+    private void ApplySectionPositionOffset(
+        Vector2 sectionPositionOffset)
+    {
+        if (sectionParent == null)
+        {
+            Debug.LogWarning(
+                "[Tooltip] SectionParent가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        sectionParent.anchoredPosition =
+            defaultSectionParentAnchoredPosition +
+            sectionPositionOffset;
     }
 
     // <변경부분> SectionType에 맞는 Section 프리팹을 찾아 반환
@@ -262,10 +373,11 @@ public class TooltipPopupUI : MonoBehaviour
     // <변경부분> 위치 모드에 따라
     // 포인터 기준 자동 위치 또는 Canvas 기준 고정 위치를 적용한다.
     private void SetPopupPosition(
-        Vector2 screenPosition,
-        TooltipPositionMode positionMode,
-        Vector2 customPositionOffset,
-        Vector2 fixedCanvasPosition)
+     Vector2 screenPosition,
+     TooltipPositionMode positionMode,
+     Vector2 customPositionOffset,
+     Vector2 fixedCanvasPosition,
+     float popupOffsetYPerSection)
     {
         if (rootCanvas == null ||
             popupRoot == null)
@@ -336,12 +448,18 @@ public class TooltipPopupUI : MonoBehaviour
                     isTopSide ? 1f : 0f
                 );
 
-            // Section 블록 개수에 따라 Y Offset 증가
+            // <변경부분> Section이 추가되어 팝업 전체 높이가 길어지면
+            // Section 개수에 비례해 PopupRoot 전체 기준 위치를 보정한다.
+            //
+            // SectionParent 자체의 미세 위치는 별도의
+            // sectionPositionOffset으로 처리한다.
+            // <변경부분> 공통값이 아니라 현재 TooltipTrigger에서 전달한
+            // Section 1개당 PopupRoot 보정값을 사용한다.
             float dynamicOffsetY =
                 popupOffset.y +
                 (
                     currentSectionCount *
-                    additionalOffsetYPerSection
+                    popupOffsetYPerSection
                 );
 
             // 포인터가 있는 사분면의 반대 방향으로 이동
