@@ -14,6 +14,14 @@ public class BattleAIActionGenerator
     // 플레이어와 AI가 공용으로 사용하는 이동 판정기
     private readonly BattleMoveValidator battleMoveValidator;
 
+    // <변경부분> 젤루 합성 후보를 생성할 때
+    // 인접한 합성 가능 재료를 임시로 저장하는 재사용 목록
+    //
+    // 기물마다 새로운 List를 생성하지 않도록
+    // 후보 생성기 내부에서 하나의 목록을 반복해서 사용한다.
+    private readonly List<Piece> synthesisMaterialCandidates =
+        new List<Piece>();
+
     // <변경부분> 필요한 전투 참조를 생성 시 한 번 전달받는다.
     public BattleAIActionGenerator(
         BoardManager board,
@@ -90,17 +98,20 @@ public class BattleAIActionGenerator
         }
     }
 
-    // <변경부분> 기물 하나의 합법 좌표를 이동과 공격 행동으로 분류한다.
+    // <변경부분> 기물 하나의 이동, 공격,
+    // 고유스킬 행동 후보를 모두 생성한다.
     private void AddPieceActions(
         Piece actingPiece,
         List<BattleAIAction> results)
     {
-        if (actingPiece == null)
+        if (actingPiece == null ||
+            results == null)
         {
             return;
         }
 
-        // 플레이어 하이라이트와 같은 공용 이동 판정 결과를 사용
+        // 플레이어 하이라이트와 같은
+        // 공용 이동 판정 결과를 사용한다.
         List<Vector2Int> selectablePositions =
             battleMoveValidator.GetSelectablePositions(
                 actingPiece
@@ -112,6 +123,8 @@ public class BattleAIActionGenerator
                 actingPiece.Y
             );
 
+        // 현재 기물이 사용할 수 있는
+        // 일반 이동 및 공격 후보를 생성한다.
         for (int i = 0;
              i < selectablePositions.Count;
              i++)
@@ -125,7 +138,7 @@ public class BattleAIActionGenerator
                     targetPosition.y
                 );
 
-            // 대상 칸이 비어 있으면 일반 이동 행동
+            // 대상 칸이 비어 있으면 일반 이동 행동이다.
             if (targetPiece == null)
             {
                 results.Add(
@@ -139,7 +152,7 @@ public class BattleAIActionGenerator
                 continue;
             }
 
-            // 대상 칸에 적대 기물이 있으면 공격 행동
+            // 대상 칸에 적대 기물이 있으면 공격 행동이다.
             if (actingPiece.IsEnemyOf(targetPiece))
             {
                 results.Add(
@@ -152,13 +165,278 @@ public class BattleAIActionGenerator
                 );
             }
         }
+
+        // <변경부분> 일반 이동·공격 후보 생성이 끝난 뒤
+        // 현재 기물이 사용할 수 있는 고유스킬 후보를 추가한다.
+        //
+        // 고유스킬 후보 생성은 기물마다 한 번만 호출해야 한다.
+        // 합성 함수 내부에서 다시 호출하면 무한 재귀가 발생한다.
+        AddUniqueSkillActions(
+            actingPiece,
+            results
+        );
+    }
+
+    // <변경부분> 기물이 보유한 고유스킬 종류에 따라
+    // 해당 스킬 전용 AI 행동 후보를 생성한다.
+    //
+    // 각 스킬의 조건과 대상 형태가 다르므로
+    // 스킬별 후보 생성 함수로 분리한다.
+    private void AddUniqueSkillActions(
+            Piece actingPiece,
+            List<BattleAIAction> results)
+        {
+            if (actingPiece == null ||
+                results == null)
+            {
+                return;
+            }
+
+            // 개별 기물의 쿨타임 또는 이번 턴 사용 상태로
+            // 고유스킬을 사용할 수 없다면 후보를 만들지 않는다.
+            if (actingPiece.CanUseUniqueSkill() == false)
+            {
+                return;
+            }
+
+        switch (actingPiece.UniqueSkill)
+        {
+            case UniqueSkillType.JelluSynthesis:
+                AddJelluSynthesisActions(
+                    actingPiece,
+                    results
+                );
+                break;
+
+            case UniqueSkillType.JelluDegeneration:
+                AddJelluDegenerationActions(
+                    actingPiece,
+                    results
+                );
+                break;
+        }
+    }
+
+    // <변경부분> 현재 기물이 젤루 합성을 사용할 수 있다면
+    // 해당 기물에 대한 합성 행동 후보를 하나만 생성한다.
+    //
+    // AI는 특정 재료 조합을 선택하지 않는다.
+    // 주변에 유효한 재료가 2개 이상 있는지만 확인하고,
+    // 실제 재료 선택은 스킬 발동 순간 무작위로 처리한다.
+    private void AddJelluSynthesisActions(
+        Piece actingPiece,
+        List<BattleAIAction> results)
+    {
+        if (actingPiece == null ||
+            results == null)
+        {
+            return;
+        }
+
+        // 젤루 합성은 Pawn 타입만 사용할 수 있다.
+        if (actingPiece.PieceType !=
+            PieceType.Pawn)
+        {
+            return;
+        }
+
+        // 스킬 사용자도 Jellu 태그를 보유해야 한다.
+        if (actingPiece.HasSpeciesTag(
+                PieceSpeciesTag.Jellu) ==
+            false)
+        {
+            return;
+        }
+
+        // 이전 기물 검사에서 남은 재료 목록을 제거한다.
+        synthesisMaterialCandidates.Clear();
+
+        // 합성 Pawn 주변 8칸에서
+        // 현재 사용할 수 있는 모든 재료를 수집한다.
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
+        {
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
+            {
+                // 스킬 사용자 자신의 위치는 제외한다.
+                if (offsetX == 0 &&
+                    offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX =
+                    actingPiece.X +
+                    offsetX;
+
+                int targetY =
+                    actingPiece.Y +
+                    offsetY;
+
+                // 보드 밖 좌표는 검사하지 않는다.
+                if (IsInsideBoard(
+                        targetX,
+                        targetY) ==
+                    false)
+                {
+                    continue;
+                }
+
+                Piece candidatePiece =
+                    pieceManager.GetPieceAt(
+                        targetX,
+                        targetY
+                    );
+
+                if (candidatePiece == null)
+                {
+                    continue;
+                }
+
+                // Jellu 태그가 없는 기물은
+                // 합성 재료가 될 수 없다.
+                if (candidatePiece.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu) ==
+                    false)
+                {
+                    continue;
+                }
+
+                // King은 승패 조건 보호를 위해
+                // 합성 재료에서 제외한다.
+                if (candidatePiece.PieceType ==
+                    PieceType.King)
+                {
+                    continue;
+                }
+
+                // 시전자와 같은 팀 또는 Neutral Jellu만
+                // 합성 재료로 사용할 수 있다.
+                if (candidatePiece.Team !=
+                        actingPiece.Team &&
+                    candidatePiece.Team !=
+                        PieceTeam.Neutral)
+                {
+                    continue;
+                }
+
+                synthesisMaterialCandidates.Add(
+                    candidatePiece
+                );
+            }
+        }
+
+        // 합성에는 서로 다른 유효 재료가 두 개 필요하다.
+        if (synthesisMaterialCandidates.Count <
+            2)
+        {
+            return;
+        }
+
+        // AI는 특정 재료를 선택하지 않고
+        // 현재 Pawn이 합성을 사용할지 여부만 판단한다.
+        BattleAIAction synthesisAction =
+            BattleAIAction.CreateJelluSynthesis(
+                actingPiece
+            );
+
+        if (synthesisAction == null)
+        {
+            return;
+        }
+
+        results.Add(
+            synthesisAction
+        );
+    }
+
+    // <변경부분> 현재 기물이 젤루 퇴화를 사용할 수 있다면
+    // 자신에게 적용하는 고유스킬 행동 후보를 하나 생성한다.
+    //
+    // 실제 사용 여부는 평가기에서
+    // Knight의 이동 후 피격 위험을 기준으로 판단한다.
+    private void AddJelluDegenerationActions(
+        Piece actingPiece,
+        List<BattleAIAction> results)
+    {
+        if (actingPiece == null ||
+            results == null)
+        {
+            return;
+        }
+
+        // 퇴화는 Knight 타입 전용이다.
+        if (actingPiece.PieceType !=
+            PieceType.Knight)
+        {
+            return;
+        }
+
+        // 젤루 종족 Knight만 사용할 수 있다.
+        if (actingPiece.HasSpeciesTag(
+                PieceSpeciesTag.Jellu) ==
+            false)
+        {
+            return;
+        }
+
+        // Neutral 기물은 고유스킬 사용 대상이 아니다.
+        if (actingPiece.Team ==
+            PieceTeam.Neutral)
+        {
+            return;
+        }
+
+        // 이미 퇴화 상태라면 같은 상태를 중복으로 부여하지 않는다.
+        if (actingPiece.HasStatusEffect(
+                StatusEffectType.Degeneration))
+        {
+            return;
+        }
+
+        BattleAIAction degenerationAction =
+            BattleAIAction.CreateJelluDegeneration(
+                actingPiece
+            );
+
+        if (degenerationAction == null)
+        {
+            return;
+        }
+
+        results.Add(
+            degenerationAction
+        );
+    }
+
+    // <변경부분> 지정한 좌표가 현재 보드 범위 안인지 확인한다.
+    private bool IsInsideBoard(
+        int x,
+        int y)
+    {
+        if (boardManager == null)
+        {
+            return false;
+        }
+
+        return
+            x >= 0 &&
+            x < boardManager.Width &&
+            y >= 0 &&
+            y < boardManager.Height;
     }
 
     // <변경부분> 개발 중 생성된 후보 수와 내용을 Console에서 확인하는 함수
+    // <변경부분> 개발 중 생성된 이동, 공격,
+    // 고유스킬 후보 수와 상세 내용을 Console에서 확인하는 함수
     public void DebugLogActions(
         PieceTeam actingTeam,
         List<BattleAIAction> actions)
     {
+        // 행동 목록 자체가 없으면 로그를 출력할 수 없다.
         if (actions == null)
         {
             Debug.Log(
@@ -168,41 +446,60 @@ public class BattleAIActionGenerator
             return;
         }
 
+        // 생성된 행동 종류별 후보 개수
         int moveCount = 0;
         int attackCount = 0;
+        int uniqueSkillCount = 0;
 
-        for (int i = 0; i < actions.Count; i++)
+        // <변경부분> 모든 행동 후보를 순회하면서
+        // 이동, 공격, 고유스킬 개수를 각각 집계한다.
+        for (int i = 0;
+             i < actions.Count;
+             i++)
         {
-            BattleAIAction action = actions[i];
+            BattleAIAction action =
+                actions[i];
 
             if (action == null)
             {
                 continue;
             }
 
-            if (action.ActionType ==
-                BattleAIActionType.Move)
+            switch (action.ActionType)
             {
-                moveCount++;
-            }
-            else if (action.ActionType ==
-                     BattleAIActionType.Attack)
-            {
-                attackCount++;
+                case BattleAIActionType.Move:
+                    moveCount++;
+                    break;
+
+                case BattleAIActionType.Attack:
+                    attackCount++;
+                    break;
+
+                case BattleAIActionType.UniqueSkill:
+                    uniqueSkillCount++;
+                    break;
             }
         }
 
+        // <변경부분> 생성된 전체 후보와
+        // 행동 종류별 후보 개수를 한 번에 출력한다.
         Debug.Log(
             $"AI 행동 후보 생성 완료: " +
             $"{actingTeam} / " +
             $"전체 {actions.Count}개 / " +
             $"이동 {moveCount}개 / " +
-            $"공격 {attackCount}개"
+            $"공격 {attackCount}개 / " +
+            $"고유스킬 {uniqueSkillCount}개"
         );
 
-        for (int i = 0; i < actions.Count; i++)
+        // <변경부분> 생성된 각 행동 후보의
+        // 시전자, 위치, 공격 대상, 고유스킬 대상을 출력한다.
+        for (int i = 0;
+             i < actions.Count;
+             i++)
         {
-            BattleAIAction action = actions[i];
+            BattleAIAction action =
+                actions[i];
 
             if (action == null ||
                 action.ActingPiece == null)
@@ -210,20 +507,50 @@ public class BattleAIActionGenerator
                 continue;
             }
 
+            // 일반 공격 행동의 대상 정보
             string targetText =
                 action.TargetPiece == null
                     ? "없음"
                     : $"{action.TargetPiece.Team} " +
-                      $"{action.TargetPiece.PieceType}";
+                      $"{action.TargetPiece.PieceType} " +
+                      $"({action.TargetPiece.X}, " +
+                      $"{action.TargetPiece.Y})";
 
-            Debug.Log(
+            // 고유스킬이 아닌 행동은
+            // 고유스킬 상세 내용을 "없음"으로 표시한다.
+            string uniqueSkillText =
+                "없음";
+
+        if (action.ActionType ==
+     BattleAIActionType.UniqueSkill &&
+ action.UniqueSkillType !=
+     UniqueSkillType.None)
+        {
+            // <변경부분> 젤루 합성은 AI가 특정 재료를 선택하지 않는다.
+            // 실제 재료는 스킬 발동 순간 무작위로 선택된다.
+            if (action.UniqueSkillType ==
+                UniqueSkillType.JelluSynthesis)
+            {
+                uniqueSkillText =
+                    $"{action.UniqueSkillType} / " +
+                    "실제 재료 2개는 발동 시 무작위 선택";
+            }
+            else
+            {
+                uniqueSkillText =
+                    action.UniqueSkillType.ToString();
+            }
+        }
+
+        Debug.Log(
                 $"AI 후보: " +
                 $"{action.ActionType} / " +
                 $"{action.ActingPiece.Team} " +
                 $"{action.ActingPiece.PieceType} / " +
                 $"{action.SourcePosition} → " +
                 $"{action.TargetPosition} / " +
-                $"대상: {targetText}"
+                $"공격 대상: {targetText} / " +
+                $"고유스킬: {uniqueSkillText}"
             );
         }
     }

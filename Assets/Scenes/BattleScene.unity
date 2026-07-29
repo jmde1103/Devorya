@@ -5174,6 +5174,7 @@ MonoBehaviour:
   controlEnemyWithAI: 1
   decisionDelay: 0.5
   maxActionsPerEnemyTurn: 10
+  battleMoveValidator: {fileID: 1035375297}
   logEvaluatedActionScores: 1
 --- !u!1 &53757416
 GameObject:

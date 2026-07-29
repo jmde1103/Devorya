@@ -25,16 +25,10 @@ MonoBehaviour:
   enemyGeneralSkillGrantRules:
   - skillType: 1
     grantChancePercent: 30
-    minLevel: 1
-    maxLevel: 1
     allowKing: 0
   - skillType: 2
     grantChancePercent: 30
-    minLevel: 1
-    maxLevel: 1
     allowKing: 0
   - skillType: 3
     grantChancePercent: 30
-    minLevel: 1
-    maxLevel: 1
     allowKing: 0

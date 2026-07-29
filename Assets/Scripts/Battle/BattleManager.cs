@@ -763,6 +763,137 @@ public class BattleManager : MonoBehaviour
 
         return true;
     }
+
+    // <변경부분> AI가 선택한 고유스킬 행동을
+    // 실제 BattleSkillManager 실행 흐름으로 전달한다.
+    //
+    // 이동과 공격은 TryExecuteBattleAction()을 사용하고,
+    // 고유스킬은 이 함수를 사용하여 실행 경로를 분리한다.
+    public bool TryExecuteAIUniqueSkill(
+        BattleAIAction action)
+    {
+        if (CanUseAIUniqueSkillAction(
+                action) ==
+            false)
+        {
+            Debug.LogWarning(
+                "Enemy AI 고유스킬 실행 실패: " +
+                "현재 사용할 수 없는 고유스킬 행동입니다."
+            );
+
+            return false;
+        }
+
+        StartCoroutine(
+            ExecuteAIUniqueSkillRoutine(
+                action
+            )
+        );
+
+        return true;
+    }
+
+    // <변경부분> AI 고유스킬의 실제 효과와
+    // 쿨타임, 사망 스택, 턴당 사용 상태를 처리한다.
+    //
+    // 고유스킬 성공 후에는 턴을 종료하지 않는다.
+    // BattleAIManager가 변경된 보드 상태로 후보를 다시 생성하여
+    // 같은 Enemy 턴에 이동 또는 공격을 이어서 실행한다.
+    private IEnumerator ExecuteAIUniqueSkillRoutine(
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActingPiece == null ||
+            battleSkillManager == null)
+        {
+            yield break;
+        }
+
+        if (isActionAnimating)
+        {
+            yield break;
+        }
+
+        isActionAnimating = true;
+
+        Piece skillPiece =
+            action.ActingPiece;
+
+        UniqueSkillData skillData =
+            GetUniqueSkillData(
+                action.UniqueSkillType
+            );
+
+        if (skillData == null)
+        {
+            isActionAnimating = false;
+            yield break;
+        }
+
+        bool skillUsed = false;
+
+        // 실제 고유스킬 효과가 모두 끝날 때까지 기다린다.
+        yield return
+            battleSkillManager
+                .TryUseUniqueSkillRoutine(
+                    skillPiece,
+                    result =>
+                        skillUsed = result
+                );
+
+        if (skillUsed == false)
+        {
+            Debug.LogWarning(
+                $"Enemy AI 고유스킬 실행 실패: " +
+                $"{action.UniqueSkillType} 내부 조건을 만족하지 못했습니다."
+            );
+
+            isActionAnimating = false;
+            yield break;
+        }
+
+        // 데이터 설정에 따라 턴 전체 고유스킬 사용권을 소모한다.
+        if (skillData.oncePerTurn)
+        {
+            hasUsedUniqueSkillThisTurn =
+                true;
+        }
+
+        // 데이터 설정에 따라 요구 사망 스택을 소모한다.
+        if (skillData.consumeDeathStackOnUse)
+        {
+            ConsumeDeathStackForUniqueSkill(
+                skillPiece.Team,
+                skillData.requiredDeathStack
+            );
+        }
+
+        // 사용한 기물에 고유스킬 쿨타임을 적용한다.
+        skillPiece.MarkUniqueSkillUsed(
+            skillData.cooldownTurn
+        );
+
+        // AI 행동에는 플레이어 클릭 확인 상태가 필요하지 않으므로 초기화한다.
+        pendingActionTile = null;
+        pendingAttackTargetPiece = null;
+
+        ClearHighlights();
+        RefreshTypeIconVisuals();
+
+        // 합성으로 재료 기물이 제거되는 등
+        // 보드 상태가 변경되었으므로 승패 조건을 다시 확인한다.
+        CheckBattleEnd();
+
+        Debug.Log(
+            $"Enemy AI 고유스킬 사용 완료: " +
+            $"{action.UniqueSkillType} / " +
+            $"쿨타임 {skillData.cooldownTurn} / " +
+            "Enemy 턴 유지 후 행동 재평가"
+        );
+
+        isActionAnimating = false;
+    }
+
     // <변경부분> 지정한 기물의 이동/공격/흡수를 실행하는 공용 코루틴
     // 사람과 AI가 동일한 전투 실행 흐름을 사용한다.
     // 공격/흡수 시 타겟 제거는 이동 연출 이후에 처리한다.
@@ -2307,13 +2438,98 @@ public class BattleManager : MonoBehaviour
     }
 
 
-    // <변경부분> 지정한 진영의 현재 합법적인 AI 행동 후보를 생성하는 공용 함수
-    // 디버그 출력과 실제 AI 턴 모두 같은 BattleAIActionGenerator를 사용한다.
+    // <변경부분> AI 고유스킬 행동이 현재 전투 상태에서
+    // 실제로 사용할 수 있는 후보인지 검사한다.
+    //
+    // 후보 평가 전에 호출하여 사용 불가능한 고유스킬이
+    // 최고 점수로 선택된 뒤 실행 실패하는 상황을 방지한다.
+    private bool CanUseAIUniqueSkillAction(
+        BattleAIAction action)
+    {
+        if (action == null ||
+            action.ActionType !=
+                BattleAIActionType.UniqueSkill ||
+            action.ActingPiece == null)
+        {
+            return false;
+        }
+
+        Piece skillPiece =
+            action.ActingPiece;
+
+        // 전투가 종료됐거나 다른 행동이 진행 중이면 사용할 수 없다.
+        if (isBattleEnded ||
+            isActionAnimating)
+        {
+            return false;
+        }
+
+        // 현재 턴 진영의 기물만 고유스킬을 사용할 수 있다.
+        if (IsCurrentTurnPiece(
+                skillPiece) ==
+            false)
+        {
+            return false;
+        }
+
+        // 행동 데이터와 기물이 실제로 보유한 스킬이 일치해야 한다.
+        if (skillPiece.UniqueSkill !=
+            action.UniqueSkillType)
+        {
+            return false;
+        }
+
+        // 개별 쿨타임과 기물별 이번 턴 사용 상태를 검사한다.
+        if (skillPiece.CanUseUniqueSkill() ==
+            false)
+        {
+            return false;
+        }
+
+        UniqueSkillData skillData =
+            GetUniqueSkillData(
+                action.UniqueSkillType
+            );
+
+        if (skillData == null)
+        {
+            return false;
+        }
+
+        // 데이터에서 턴당 1회 제한을 사용하는 스킬이면
+        // 같은 진영 턴에 다른 고유스킬을 이미 사용한 경우 제외한다.
+        if (skillData.oncePerTurn &&
+            hasUsedUniqueSkillThisTurn)
+        {
+            return false;
+        }
+
+        // 필요한 사망 스택이 부족하면 후보에서 제외한다.
+        if (HasEnoughDeathStackForUniqueSkill(
+                skillPiece.Team,
+                skillData.requiredDeathStack) ==
+            false)
+        {
+            return false;
+        }
+
+        if (battleSkillManager == null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // <변경부분> 지정한 진영의 현재 합법적인 AI 행동 후보를 생성한다.
+    //
+    // 이동 및 공격 후보는 BattleAIActionGenerator 결과를 그대로 사용하고,
+    // 고유스킬 후보는 BattleManager의 턴 전체 제한,
+    // 스택, 쿨타임, 실제 데이터 조건까지 다시 검사한다.
     public void GenerateAIActions(
         PieceTeam actingTeam,
         List<BattleAIAction> results)
     {
-        // 결과를 저장할 목록이 없으면 생성 불가
         if (results == null)
         {
             Debug.LogWarning(
@@ -2323,8 +2539,6 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // AI 행동 생성기가 초기화되지 않았다면
-        // 이전 후보가 남지 않도록 목록을 비운다.
         if (battleAIActionGenerator == null)
         {
             results.Clear();
@@ -2337,11 +2551,42 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 실제 행동 후보 생성은 전용 생성기에 위임한다.
+        // 이동, 공격, 기본 고유스킬 후보를 생성한다.
         battleAIActionGenerator.GenerateActions(
             actingTeam,
             results
         );
+
+        // <변경부분> 생성기에서 확인할 수 없는
+        // BattleManager 전투 상태 조건을 적용한다.
+        //
+        // 뒤에서부터 제거하여 인덱스 변경 문제를 피한다.
+        for (int i = results.Count - 1;
+             i >= 0;
+             i--)
+        {
+            BattleAIAction action =
+                results[i];
+
+            if (action == null)
+            {
+                results.RemoveAt(i);
+                continue;
+            }
+
+            if (action.ActionType !=
+                BattleAIActionType.UniqueSkill)
+            {
+                continue;
+            }
+
+            if (CanUseAIUniqueSkillAction(
+                    action) ==
+                false)
+            {
+                results.RemoveAt(i);
+            }
+        }
     }
 
     // <변경부분> 지정한 기물만 사용할 수 있는

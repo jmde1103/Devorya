@@ -278,6 +278,375 @@ public class BattleMoveValidator : MonoBehaviour
 
         return attackPositions;
     }
+    // <변경부분> 지정한 젤루 합성 Pawn 주변에서
+    // 현재 실제 합성 재료로 사용할 수 있는 모든 기물을 반환한다.
+    //
+    // AI 후보 생성, 무작위 희생 기대값 평가,
+    // 실제 스킬 조건 검증이 같은 기준을 사용하도록 만든다.
+    public List<Piece> GetJelluSynthesisMaterialCandidates(
+        Piece actingPiece)
+    {
+        List<Piece> materials =
+            new List<Piece>();
+
+        if (actingPiece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return materials;
+        }
+
+        // 젤루 합성은 Jellu Pawn 전용이다.
+        if (actingPiece.PieceType !=
+                PieceType.Pawn ||
+            actingPiece.HasSpeciesTag(
+                PieceSpeciesTag.Jellu) ==
+            false)
+        {
+            return materials;
+        }
+
+        // 시전자 주변 8칸을 검사한다.
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
+        {
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
+            {
+                if (offsetX == 0 &&
+                    offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX =
+                    actingPiece.X +
+                    offsetX;
+
+                int targetY =
+                    actingPiece.Y +
+                    offsetY;
+
+                if (IsInsideBoard(
+                        targetX,
+                        targetY) ==
+                    false)
+                {
+                    continue;
+                }
+
+                Piece candidatePiece =
+                    pieceManager.GetPieceAt(
+                        targetX,
+                        targetY
+                    );
+
+                if (candidatePiece == null)
+                {
+                    continue;
+                }
+
+                // Jellu 태그가 없는 기물은 제외한다.
+                if (candidatePiece.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu) ==
+                    false)
+                {
+                    continue;
+                }
+
+                // King은 합성 재료가 될 수 없다.
+                if (candidatePiece.PieceType ==
+                    PieceType.King)
+                {
+                    continue;
+                }
+
+                // 같은 팀 또는 Neutral Jellu만 허용한다.
+                if (candidatePiece.Team !=
+                        actingPiece.Team &&
+                    candidatePiece.Team !=
+                        PieceTeam.Neutral)
+                {
+                    continue;
+                }
+
+                materials.Add(
+                    candidatePiece
+                );
+            }
+        }
+
+        return materials;
+    }
+
+
+    // <변경부분> 젤루 합성 후 시전자가 지정한 타입으로 승급했다고 가정하고
+    // 현재 위치에서 즉시 공격 가능한 적대 기물 좌표를 반환한다.
+    //
+    // 실제 PieceType, 임시 이동 타입, 좌표,
+    // PieceManager의 보드 배열은 절대 변경하지 않는다.
+    //
+    // 합성에 사용된 materialA와 materialB는
+    // 승급 시점에 제거되는 기물이므로 가상 보드에서 빈칸으로 처리한다.
+    public List<Vector2Int> GetAttackPositionsForSimulatedType(
+        Piece piece,
+        PieceType simulatedType,
+        Piece materialA,
+        Piece materialB)
+    {
+        List<Vector2Int> attackPositions =
+            new List<Vector2Int>();
+
+        // 평가할 시전자나 필요한 매니저가 없으면
+        // 가상 공격 범위를 계산할 수 없다.
+        if (piece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return attackPositions;
+        }
+
+        // 합성 후 공격 기대값은
+        // 실제 이동 가능한 기물만 평가한다.
+        if (piece.CanMove == false)
+        {
+            return attackPositions;
+        }
+
+        switch (simulatedType)
+        {
+            case PieceType.Knight:
+                AddSimulatedKnightAttackPositions(
+                    piece,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+                break;
+
+            case PieceType.Bishop:
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    1,
+                    1,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    -1,
+                    1,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    1,
+                    -1,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    -1,
+                    -1,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+                break;
+
+            case PieceType.Rook:
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    1,
+                    0,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    -1,
+                    0,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    0,
+                    1,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+
+                AddSimulatedLineAttackPositions(
+                    piece,
+                    0,
+                    -1,
+                    materialA,
+                    materialB,
+                    attackPositions
+                );
+                break;
+        }
+
+        return attackPositions;
+    }
+
+    // <변경부분> AI 평가기가 지정한 실제 보드 좌표의 기물을 조회한다.
+    //
+    // PieceManager를 평가기에 직접 노출하지 않고,
+    // 이동 판정기를 통해 현재 좌표의 기물만 안전하게 반환한다.
+    public Piece GetPieceAt(
+        Vector2Int position)
+    {
+        if (pieceManager == null)
+        {
+            return null;
+        }
+
+        return pieceManager.GetPieceAt(
+            position.x,
+            position.y
+        );
+    }
+
+
+
+    // <변경부분> 합성 승급 공격 기대값 평가 중
+    // 지정 좌표의 실제 기물을 외부 평가기에 반환한다.
+    //
+    // 합성 재료 A와 B는 합성 후 제거되므로
+    // 해당 기물이라면 null을 반환한다.
+    public Piece GetPieceAtAfterSimulatedSynthesis(
+        Vector2Int position,
+        Piece materialA,
+        Piece materialB)
+    {
+        if (pieceManager == null)
+        {
+            return null;
+        }
+
+        return GetPieceAtAfterSynthesis(
+            position.x,
+            position.y,
+            materialA,
+            materialB
+        );
+    }
+
+    // <변경부분> 젤루 합성 후 시전자가 지정 타입으로 승급했을 때
+    // 현재 위치에서 상대 기물에게 즉시 공격받는지 검사한다.
+    //
+    // 실제 PieceType과 보드는 변경하지 않는다.
+    // 합성 재료 A와 B는 제거된 가상 보드 상태로 처리한다.
+    public bool IsSimulatedSynthesisPieceThreatened(
+        Piece synthesisPiece,
+        PieceType simulatedType,
+        Piece materialA,
+        Piece materialB)
+    {
+        if (synthesisPiece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return false;
+        }
+
+        Vector2Int synthesisPosition =
+            new Vector2Int(
+                synthesisPiece.X,
+                synthesisPiece.Y
+            );
+
+        // 합성 후에도 시전자의 팀은 그대로 유지된다.
+        PieceTeam synthesisTeam =
+            synthesisPiece.Team;
+
+        // 보드 전체의 상대 기물을 검사한다.
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece attacker =
+                    GetPieceAtAfterSynthesis(
+                        x,
+                        y,
+                        materialA,
+                        materialB
+                    );
+
+                if (attacker == null)
+                {
+                    continue;
+                }
+
+                // 합성 시전자 자신은 공격자로 검사하지 않는다.
+                if (attacker == synthesisPiece)
+                {
+                    continue;
+                }
+
+                // 이동 불가능한 벽 또는 특수 기물은
+                // 현재 전투 규칙상 공격 위협에서 제외한다.
+                if (attacker.CanMove == false)
+                {
+                    continue;
+                }
+
+                // 같은 팀 기물은 위협이 아니다.
+                if (attacker.Team == synthesisTeam)
+                {
+                    continue;
+                }
+
+                // Neutral은 현재 서로 적대 관계가 아닐 수 있으므로
+                // 실제 적대 관계 판정을 사용한다.
+                if (attacker.IsEnemyOf(
+                        synthesisPiece) ==
+                    false)
+                {
+                    continue;
+                }
+
+                Vector2Int attackerPosition =
+                    new Vector2Int(
+                        attacker.X,
+                        attacker.Y
+                    );
+
+                if (CanPieceAttackPositionAfterSynthesis(
+                        attacker,
+                        attackerPosition,
+                        synthesisPosition,
+                        materialA,
+                        materialB))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     // <변경부분> 현재 기물이 이동 또는 공격 가능한 좌표를
     // 하나라도 가지고 있는지 확인하는 함수
@@ -572,6 +941,203 @@ public class BattleMoveValidator : MonoBehaviour
         return pieceManager.GetPieceAt(x, y);
     }
 
+    // <변경부분> 젤루 합성 이후의 가상 보드에서
+    // 특정 기물이 합성 시전자의 위치를 공격할 수 있는지 검사한다.
+    //
+    // 합성 재료 두 개는 제거된 빈칸으로 처리하며,
+    // 공격자의 실제 이동 타입을 사용한다.
+    private bool CanPieceAttackPositionAfterSynthesis(
+        Piece attacker,
+        Vector2Int attackerPosition,
+        Vector2Int targetPosition,
+        Piece materialA,
+        Piece materialB)
+    {
+        if (attacker == null)
+        {
+            return false;
+        }
+
+        PieceType moveType =
+            attacker.GetCurrentMoveType();
+
+        int deltaX =
+            targetPosition.x -
+            attackerPosition.x;
+
+        int deltaY =
+            targetPosition.y -
+            attackerPosition.y;
+
+        switch (moveType)
+        {
+            case PieceType.Pawn:
+                {
+                    int direction =
+                        attacker.Team == PieceTeam.Player
+                            ? 1
+                            : -1;
+
+                    return
+                        deltaY == direction &&
+                        Mathf.Abs(deltaX) == 1;
+                }
+
+            case PieceType.Knight:
+                {
+                    int absoluteX =
+                        Mathf.Abs(deltaX);
+
+                    int absoluteY =
+                        Mathf.Abs(deltaY);
+
+                    return
+                        (
+                            absoluteX == 1 &&
+                            absoluteY == 2
+                        ) ||
+                        (
+                            absoluteX == 2 &&
+                            absoluteY == 1
+                        );
+                }
+
+            case PieceType.King:
+                {
+                    return
+                        Mathf.Abs(deltaX) <= 1 &&
+                        Mathf.Abs(deltaY) <= 1 &&
+                        (
+                            deltaX != 0 ||
+                            deltaY != 0
+                        );
+                }
+
+            case PieceType.Rook:
+                {
+                    if (deltaX != 0 &&
+                        deltaY != 0)
+                    {
+                        return false;
+                    }
+
+                    return
+                        IsLineClearAfterSynthesis(
+                            attackerPosition,
+                            targetPosition,
+                            materialA,
+                            materialB
+                        );
+                }
+
+            case PieceType.Bishop:
+                {
+                    if (Mathf.Abs(deltaX) !=
+                        Mathf.Abs(deltaY))
+                    {
+                        return false;
+                    }
+
+                    return
+                        IsLineClearAfterSynthesis(
+                            attackerPosition,
+                            targetPosition,
+                            materialA,
+                            materialB
+                        );
+                }
+
+            case PieceType.Queen:
+                {
+                    bool isStraight =
+                        deltaX == 0 ||
+                        deltaY == 0;
+
+                    bool isDiagonal =
+                        Mathf.Abs(deltaX) ==
+                        Mathf.Abs(deltaY);
+
+                    if (isStraight == false &&
+                        isDiagonal == false)
+                    {
+                        return false;
+                    }
+
+                    return
+                        IsLineClearAfterSynthesis(
+                            attackerPosition,
+                            targetPosition,
+                            materialA,
+                            materialB
+                        );
+                }
+        }
+
+        return false;
+    }
+
+    // <변경부분> 합성 재료가 제거된 가상 보드에서
+    // Rook, Bishop, Queen의 공격 경로가 막혀 있는지 검사한다.
+    private bool IsLineClearAfterSynthesis(
+        Vector2Int sourcePosition,
+        Vector2Int targetPosition,
+        Piece materialA,
+        Piece materialB)
+    {
+        int directionX =
+            targetPosition.x ==
+            sourcePosition.x
+                ? 0
+                : targetPosition.x >
+                  sourcePosition.x
+                    ? 1
+                    : -1;
+
+        int directionY =
+            targetPosition.y ==
+            sourcePosition.y
+                ? 0
+                : targetPosition.y >
+                  sourcePosition.y
+                    ? 1
+                    : -1;
+
+        int checkX =
+            sourcePosition.x +
+            directionX;
+
+        int checkY =
+            sourcePosition.y +
+            directionY;
+
+        while (checkX !=
+                   targetPosition.x ||
+               checkY !=
+                   targetPosition.y)
+        {
+            Piece blockingPiece =
+                GetPieceAtAfterSynthesis(
+                    checkX,
+                    checkY,
+                    materialA,
+                    materialB
+                );
+
+            if (blockingPiece != null)
+            {
+                return false;
+            }
+
+            checkX +=
+                directionX;
+
+            checkY +=
+                directionY;
+        }
+
+        return true;
+    }
+
     // <변경부분> 가상 보드 상태에서 특정 기물이
     // 목표 좌표를 공격할 수 있는지 검사한다.
     //
@@ -737,6 +1303,188 @@ public class BattleMoveValidator : MonoBehaviour
         }
 
         return true;
+    }
+
+    // <변경부분> 합성 후 Knight로 승급했다고 가정하고
+    // 현재 위치에서 공격 가능한 적대 기물 좌표를 추가한다.
+    //
+    // 빈칸 이동은 공격 기대값에 포함하지 않으며,
+    // 적대 기물이 존재하는 좌표만 결과에 저장한다.
+    private void AddSimulatedKnightAttackPositions(
+        Piece piece,
+        Piece materialA,
+        Piece materialB,
+        List<Vector2Int> results)
+    {
+        if (piece == null ||
+            results == null)
+        {
+            return;
+        }
+
+        int[,] knightMoves =
+        {
+        { 1, 2 },
+        { 2, 1 },
+        { 2, -1 },
+        { 1, -2 },
+        { -1, -2 },
+        { -2, -1 },
+        { -2, 1 },
+        { -1, 2 }
+    };
+
+        for (int i = 0;
+             i < knightMoves.GetLength(0);
+             i++)
+        {
+            int targetX =
+                piece.X +
+                knightMoves[i, 0];
+
+            int targetY =
+                piece.Y +
+                knightMoves[i, 1];
+
+            if (IsInsideBoard(
+                    targetX,
+                    targetY) ==
+                false)
+            {
+                continue;
+            }
+
+            Piece targetPiece =
+                GetPieceAtAfterSynthesis(
+                    targetX,
+                    targetY,
+                    materialA,
+                    materialB
+                );
+
+            // 빈칸은 이동 가능하지만
+            // 이번 함수는 공격 기대값만 계산하므로 제외한다.
+            if (targetPiece == null)
+            {
+                continue;
+            }
+
+            if (piece.IsEnemyOf(targetPiece))
+            {
+                results.Add(
+                    new Vector2Int(
+                        targetX,
+                        targetY
+                    )
+                );
+            }
+        }
+    }
+
+    // <변경부분> 합성 후 Bishop 또는 Rook으로 승급했다고 가정하고
+    // 지정한 한 방향의 공격 가능한 첫 적대 기물 좌표를 추가한다.
+    //
+    // 재료 A와 B는 합성으로 제거되므로
+    // 해당 좌표를 빈칸으로 취급하여 그 뒤의 공격 경로도 계속 검사한다.
+    private void AddSimulatedLineAttackPositions(
+        Piece piece,
+        int dirX,
+        int dirY,
+        Piece materialA,
+        Piece materialB,
+        List<Vector2Int> results)
+    {
+        if (piece == null ||
+            results == null)
+        {
+            return;
+        }
+
+        int checkX =
+            piece.X +
+            dirX;
+
+        int checkY =
+            piece.Y +
+            dirY;
+
+        while (IsInsideBoard(
+            checkX,
+            checkY))
+        {
+            Piece targetPiece =
+                GetPieceAtAfterSynthesis(
+                    checkX,
+                    checkY,
+                    materialA,
+                    materialB
+                );
+
+            // 합성 후 빈칸이라면
+            // 같은 방향의 다음 좌표를 계속 검사한다.
+            if (targetPiece == null)
+            {
+                checkX += dirX;
+                checkY += dirY;
+
+                continue;
+            }
+
+            // 처음 만난 기물이 적대 기물이라면
+            // 해당 좌표를 공격 기대값 후보로 추가한다.
+            if (piece.IsEnemyOf(targetPiece))
+            {
+                results.Add(
+                    new Vector2Int(
+                        checkX,
+                        checkY
+                    )
+                );
+            }
+
+            // 아군 또는 적군 여부와 관계없이
+            // 처음 만난 기물 뒤쪽은 공격할 수 없다.
+            break;
+        }
+    }
+
+    // <변경부분> 젤루 합성 이후의 가상 보드에서
+    // 지정 좌표에 존재하는 기물을 반환한다.
+    //
+    // 합성 재료 A와 B가 있는 좌표는 실제 보드를 수정하지 않고
+    // 평가 중에만 빈칸으로 취급한다.
+    private Piece GetPieceAtAfterSynthesis(
+        int x,
+        int y,
+        Piece materialA,
+        Piece materialB)
+    {
+        Piece piece =
+            pieceManager.GetPieceAt(
+                x,
+                y
+            );
+
+        if (piece == null)
+        {
+            return null;
+        }
+
+        // 첫 번째 합성 재료는
+        // 합성 완료 후 제거된 것으로 가정한다.
+        if (piece == materialA)
+        {
+            return null;
+        }
+
+        // 두 번째 합성 재료도
+        // 합성 완료 후 제거된 것으로 가정한다.
+        if (piece == materialB)
+        {
+            return null;
+        }
+
+        return piece;
     }
 
     // <변경부분> Pawn의 전진 이동과 대각선 공격 좌표를 추가한다.

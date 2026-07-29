@@ -20,6 +20,14 @@ public class BattleAIManager : MonoBehaviour
     // 실제 전투 규칙과 행동 실행을 담당하는 매니저
     private BattleManager battleManager;
 
+    // <변경부분> 합성 승급 후 Knight/Bishop/Rook의
+    // 가상 공격 가능 범위를 평가할 때 사용하는 이동 판정기
+    //
+    // BattleManager가 사용하는 것과 동일한
+    // BattleMoveValidator 컴포넌트를 Inspector에서 연결한다.
+    [SerializeField]
+    private BattleMoveValidator battleMoveValidator;
+
     // 매 턴 재사용하는 AI 행동 후보 목록
     private readonly List<BattleAIAction> actionCandidates =
         new List<BattleAIAction>();
@@ -46,12 +54,41 @@ public class BattleAIManager : MonoBehaviour
         // 실제 전투 실행을 담당하는 BattleManager 저장
         battleManager = manager;
 
-        // <변경부분> AI 행동 점수 평가기가
-        // 가상 King 위험도 판정을 요청할 수 있도록
-        // BattleManager 참조를 전달한다.
+        // 합성 승급 공격 기대값을 계산하려면
+        // BattleMoveValidator 참조가 필요하다.
+        //
+        // Inspector 연결이 빠졌더라도 같은 오브젝트 또는
+        // 자식 오브젝트에서 한 번 더 검색해 초기화를 시도한다.
+        if (battleMoveValidator == null &&
+            battleManager != null)
+        {
+            battleMoveValidator =
+                battleManager.GetComponentInChildren<
+                    BattleMoveValidator
+                >(true);
+        }
+
+        if (battleMoveValidator == null)
+        {
+            Debug.LogWarning(
+                "Enemy AI 초기화 경고: " +
+                "BattleMoveValidator가 연결되지 않아 " +
+                "합성 승급 공격 기대값을 계산할 수 없습니다."
+            );
+        }
+
+        // <변경부분> 평가기에 BattleManager와
+        // BattleMoveValidator를 함께 전달한다.
+        //
+        // BattleManager:
+        // 일반 행동 후 King 및 행동 기물 위험도 평가
+        //
+        // BattleMoveValidator:
+        // 합성 후 Knight/Bishop/Rook 가상 공격 범위 평가
         actionEvaluator =
             new BattleAIActionEvaluator(
-                battleManager
+                battleManager,
+                battleMoveValidator
             );
     }
 
@@ -252,11 +289,30 @@ public class BattleAIManager : MonoBehaviour
                 $"추가 행동 여부 {bonusActionPiece != null}"
             );
 
-            bool actionStarted =
-                battleManager.TryExecuteBattleAction(
-                    selectedAction.ActingPiece,
-                    selectedAction.TargetPosition
-                );
+            // <변경부분> 선택된 행동 종류에 따라
+            // 일반 이동·공격과 고유스킬의 실행 경로를 분리한다.
+            bool actionStarted = false;
+
+            switch (selectedAction.ActionType)
+            {
+                case BattleAIActionType.Move:
+                case BattleAIActionType.Attack:
+                    actionStarted =
+                        battleManager
+                            .TryExecuteBattleAction(
+                                selectedAction.ActingPiece,
+                                selectedAction.TargetPosition
+                            );
+                    break;
+
+                case BattleAIActionType.UniqueSkill:
+                    actionStarted =
+                        battleManager
+                            .TryExecuteAIUniqueSkill(
+                                selectedAction
+                            );
+                    break;
+            }
 
             if (actionStarted == false)
             {
@@ -277,11 +333,21 @@ public class BattleAIManager : MonoBehaviour
                 yield break;
             }
 
-            // 실제로 실행을 시작한 행동만
-            // 왕복 행동 판정 기록으로 저장한다.
-            actionEvaluator.SetPreviousExecutedAction(
-                selectedAction
-            );
+            // <변경부분> 실제 위치를 변경하는 이동과 공격만
+            // 왕복 이동 및 최근 방문 위치 기록에 저장한다.
+            //
+            // 젤루 합성은 현재 좌표에서 사용하는 고유스킬이므로
+            // 이동 이력에 기록하지 않는다.
+            if (selectedAction.ActionType ==
+                    BattleAIActionType.Move ||
+                selectedAction.ActionType ==
+                    BattleAIActionType.Attack)
+            {
+                actionEvaluator
+                    .SetPreviousExecutedAction(
+                        selectedAction
+                    );
+            }
 
             executedActionCount++;
 
@@ -313,7 +379,12 @@ public class BattleAIManager : MonoBehaviour
                 yield break;
             }
 
-            // 비정상적인 무한 추가 행동을 막는다.
+            // <변경부분> 고유스킬, 일반 이동, 공격을 포함하여
+            // Enemy 한 턴에 실제로 시작한 모든 행동 횟수를 제한한다.
+            //
+            // 고유스킬 재평가 continue보다 먼저 검사해야
+            // 스킬 내부 실패나 비정상 후보 반복이 발생해도
+            // 안전 제한을 우회하지 않는다.
             if (executedActionCount >=
                 Mathf.Max(
                     1,
@@ -323,7 +394,7 @@ public class BattleAIManager : MonoBehaviour
                 Debug.LogWarning(
                     $"Enemy AI 한 턴 최대 행동 횟수 도달: " +
                     $"{executedActionCount}회 / " +
-                    $"추가 행동 상태를 종료합니다."
+                    $"Enemy 턴을 안전하게 종료합니다."
                 );
 
                 battleManager
@@ -331,6 +402,25 @@ public class BattleAIManager : MonoBehaviour
 
                 enemyTurnRoutine = null;
                 yield break;
+            }
+
+            // <변경부분> 고유스킬은 Enemy 턴의 일반 이동·공격 사용권을
+            // 즉시 종료하지 않는다.
+            //
+            // 합성으로 기물 종류와 보드 배치가 변경됐으므로
+            // 다음 반복에서 전체 Enemy 행동 후보를 다시 생성하고 평가한다.
+            //
+            // 정상적인 젤루 합성은:
+            // 1. hasUsedUniqueSkillThisTurn 적용
+            // 2. 합성 Pawn이 상위 기물로 승급
+            // 3. 기존 JelluSynthesis 후보 소멸
+            //
+            // 순서로 처리되므로 다음 반복에서는
+            // 같은 합성을 다시 선택하지 않고 이동 또는 공격을 판단한다.
+            if (selectedAction.ActionType ==
+                BattleAIActionType.UniqueSkill)
+            {
+                continue;
             }
 
             // Enemy 턴이 유지됐지만 추가 행동 기물이 없다면
