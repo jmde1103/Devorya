@@ -522,7 +522,6 @@ public class BattleManager : MonoBehaviour
 
             return;
         }
-
         // 선택된 기물이 있는 상태에서
         // 같은 팀 기물을 클릭하면 새 기물 선택으로 처리한다.
         if (clickedPiece != null &&
@@ -536,8 +535,60 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 선택된 기물이 있더라도
-        // 실제 이동·공격 가능 타일이 아니면 확인 대상으로 지정하지 않는다.
+        // <변경부분> 선택된 아군 기물의 공격 범위 밖에 있는
+        // 상대 또는 중립 기물을 클릭하면 전투 행동은 실행하지 않고
+        // 해당 기물의 스테이터스 정보만 표시한다.
+        //
+        // 기존 선택 기물과 이동 가능 타일 하이라이트는 유지하므로,
+        // 상대 정보를 확인한 뒤 다시 이동 또는 공격을 이어갈 수 있다.
+        if (clickedPiece != null &&
+            clickedPiece.Team !=
+                selectedPiece.Team &&
+            selectableTiles.Contains(tile) ==
+                false)
+        {
+            // 이전에 이동 또는 공격 타일을 한 번 확인 중이었다면
+            // 확인 전용 색상을 일반 이동 가능 색상으로 되돌린다.
+            if (pendingActionTile != null)
+            {
+                pendingActionTile
+                    .ShowHighlight();
+
+                pendingActionTile =
+                    null;
+            }
+
+            // 클릭한 상대 기물을 정보 확인 대상으로 저장한다.
+            // 실제 공격 대상으로 확정된 것은 아니며,
+            // 스테이터스 UI와 타입 아이콘 표시에만 사용한다.
+            pendingAttackTargetPiece =
+                clickedPiece;
+
+            // 선택한 상대 또는 중립 기물의 스테이터스 UI를 표시한다.
+            if (battleUIController != null)
+            {
+                battleUIController
+                    .RefreshEnemyStatus(
+                        clickedPiece
+                    );
+            }
+
+            // 전체 타입 아이콘 토글 상태를 유지하면서
+            // 현재 정보 확인 중인 상대 기물의 아이콘을 표시한다.
+            RefreshTypeIconVisuals();
+
+            Debug.Log(
+                $"상대 기물 정보 확인: " +
+                $"{clickedPiece.Team} " +
+                $"{clickedPiece.PieceType} / " +
+                $"({clickedPiece.X}, {clickedPiece.Y})"
+            );
+
+            return;
+        }
+
+        // <변경부분> 빈칸이거나 상대 기물이 없는 타일이면서
+        // 실제 이동·공격 가능 타일도 아니라면 아무 행동도 하지 않는다.
         if (selectableTiles.Contains(tile) ==
             false)
         {
@@ -2097,8 +2148,12 @@ public class BattleManager : MonoBehaviour
         RefreshTypeIconVisuals();
     }
 
-    // <변경부분> 퇴화 상태의 기물이 잡혔을 때 인접 빈칸에 젤루 Pawn을 생성하는 함수
-    // 제거된 Piece 참조를 직접 쓰지 않고, 제거 전에 저장한 사망 정보를 사용함
+    // <변경부분> 퇴화 상태의 기물이 잡혔을 때
+    // 인접한 빈칸에 중립 젤루 Special 기물을 생성한다.
+    //
+    // 생성되는 기물은 비숍의 JelluWall 스킬과 동일하다.
+    // 죽은 기물의 진영과 관계없이 항상 Neutral로 생성되며,
+    // 이동할 수 없고 다른 진영이 공격할 수 있는 장애물 역할을 한다.
     private void TryTriggerDegenerationOnDeath(
         bool shouldTriggerDegeneration,
         PieceTeam deadPieceTeam,
@@ -2107,75 +2162,121 @@ public class BattleManager : MonoBehaviour
         int deadPieceY,
         Vector3 sourceWorldPosition)
     {
-        // 퇴화 상태가 아니었다면 처리하지 않음
+        // 퇴화 상태가 아니었다면 처리하지 않는다.
         if (shouldTriggerDegeneration == false)
         {
             return;
         }
 
-        // 중립 기물은 현재 퇴화 스킬 사용 대상이 아니므로 예외 처리
-        if (deadPieceTeam == PieceTeam.Neutral)
+        // 중립 기물은 현재 퇴화 스킬 사용 대상이 아니다.
+        if (deadPieceTeam ==
+            PieceTeam.Neutral)
         {
             return;
         }
 
-        List<Vector2Int> emptyPositions = new List<Vector2Int>();
+        List<Vector2Int> emptyPositions =
+            new List<Vector2Int>();
 
-        // 사망 위치 주변 8방향 검사
-        for (int offsetY = -1; offsetY <= 1; offsetY++)
+        // 사망 위치 주변 8방향을 검사한다.
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
         {
-            for (int offsetX = -1; offsetX <= 1; offsetX++)
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
             {
-                // 자기 위치는 제외
-                // 퇴화는 "인접한 빈 공간"에 생성되므로 사망한 자리에는 생성하지 않음
-                if (offsetX == 0 && offsetY == 0)
+                // 퇴화는 사망 위치가 아니라
+                // 인접한 빈칸에 기물을 생성한다.
+                if (offsetX == 0 &&
+                    offsetY == 0)
                 {
                     continue;
                 }
 
-                int targetX = deadPieceX + offsetX;
-                int targetY = deadPieceY + offsetY;
+                int targetX =
+                    deadPieceX +
+                    offsetX;
 
-                // 보드 밖 좌표 제외
-                if (IsInsideBoard(targetX, targetY) == false)
+                int targetY =
+                    deadPieceY +
+                    offsetY;
+
+                // 보드 밖 좌표는 제외한다.
+                if (IsInsideBoard(
+                        targetX,
+                        targetY) ==
+                    false)
                 {
                     continue;
                 }
 
-                // 빈칸만 후보로 저장
-                if (pieceManager.IsEmpty(targetX, targetY))
+                // 실제로 비어 있는 좌표만 생성 후보로 저장한다.
+                if (pieceManager.IsEmpty(
+                        targetX,
+                        targetY))
                 {
-                    emptyPositions.Add(new Vector2Int(targetX, targetY));
+                    emptyPositions.Add(
+                        new Vector2Int(
+                            targetX,
+                            targetY
+                        )
+                    );
                 }
             }
         }
 
-        // 인접한 빈칸이 없으면 생성 실패
+        // 인접한 빈칸이 없으면 퇴화 효과는 발동하지 않는다.
         if (emptyPositions.Count == 0)
         {
-            Debug.Log("퇴화 발동 실패: 인접한 빈칸이 없습니다.");
+            Debug.Log(
+                "퇴화 발동 실패: " +
+                "인접한 빈칸이 없습니다."
+            );
+
             return;
         }
 
-        // 후보 빈칸 중 랜덤 선택
-        int randomIndex = Random.Range(0, emptyPositions.Count);
-        Vector2Int selectedPosition = emptyPositions[randomIndex];
+        // 인접 빈칸 중 하나를 무작위로 선택한다.
+        int randomIndex =
+            Random.Range(
+                0,
+                emptyPositions.Count
+            );
 
-        // <변경부분> 퇴화로 생성된 젤루 Pawn이 죽은 기물 위치에서 생성 위치까지 포물선으로 이동하도록 생성
-        Piece createdPiece = pieceManager.SpawnJelluPawnFromWorldPosition(
-            deadPieceTeam,
-            selectedPosition.x,
-            selectedPosition.y,
-            sourceWorldPosition
-        );
+        Vector2Int selectedPosition =
+            emptyPositions[randomIndex];
+
+        // <변경부분> 비숍의 JelluWall과 동일한
+        // Neutral / Special / Jellu 기물을 생성한다.
+        //
+        // 사망한 기물은 이미 제거될 수 있으므로
+        // 저장된 사망 월드 위치에서 생성 연출을 시작한다.
+        Piece createdPiece =
+            pieceManager
+                .SpawnJelluWallFromWorldPosition(
+                    selectedPosition.x,
+                    selectedPosition.y,
+                    sourceWorldPosition
+                );
 
         if (createdPiece == null)
         {
-            Debug.LogWarning("퇴화 발동 실패: 젤루 Pawn 생성에 실패했습니다.");
+            Debug.LogWarning(
+                "퇴화 발동 실패: " +
+                "중립 젤루 기물 생성에 실패했습니다."
+            );
+
             return;
         }
 
-        Debug.Log($"퇴화 발동: {deadPieceTeam} {deadPieceType} 사망 → ({selectedPosition.x}, {selectedPosition.y})에 젤루 Pawn 생성");
+        Debug.Log(
+            $"퇴화 발동: " +
+            $"{deadPieceTeam} {deadPieceType} 사망 → " +
+            $"({selectedPosition.x}, {selectedPosition.y})에 " +
+            $"중립 젤루 Special 생성"
+        );
     }
 
     // <변경부분> 찬스어택이 발동한 기물에게 추가 행동 상태를 부여하는 함수
@@ -2352,6 +2453,28 @@ public class BattleManager : MonoBehaviour
             .IsKingThreatenedAfterAction(
                 action,
                 kingTeam
+            );
+    }
+
+    // <변경부분> 지정한 기물이 이동하기 전 현재 위치에서
+    // 상대 공격 범위에 노출되어 있는지 공용 이동 판정기에 요청한다.
+    // 퇴화 AI의 선제 사용 조건을 판정할 때 사용한다.
+    public bool IsPieceCurrentlyThreatened(
+        Piece targetPiece)
+    {
+        if (battleMoveValidator == null)
+        {
+            Debug.LogWarning(
+                "현재 기물 위험도 판정 실패: " +
+                "BattleMoveValidator가 연결되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        return battleMoveValidator
+            .IsPieceCurrentlyThreatened(
+                targetPiece
             );
     }
 

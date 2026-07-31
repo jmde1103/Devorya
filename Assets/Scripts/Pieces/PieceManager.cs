@@ -1462,6 +1462,36 @@ public class PieceManager : MonoBehaviour
         return createdWall;
     }
 
+    // <변경부분> 퇴화 사망 효과 전용 중립 젤루 벽 생성 함수
+    //
+    // 퇴화 기물은 사망 처리 후 제거되므로
+    // Piece 참조 대신 사망 직전에 저장한 월드 위치를 사용한다.
+    //
+    // 실제 생성 기물은 JelluWall과 동일하게
+    // Neutral / Special / Jellu 태그를 가진 "Jellu Netral" 기물이다.
+    public Piece SpawnJelluWallFromWorldPosition(
+        int x,
+        int y,
+        Vector3 sourceWorldPosition)
+    {
+        // 비숍의 젤루 벽 스킬과 동일한
+        // 중립 Special 기물 생성 로직을 재사용한다.
+        Piece createdWall =
+            SpawnJelluWall(
+                x,
+                y
+            );
+
+        // 생성 성공 시 사망 위치에서 생성 위치까지
+        // 기존 스킬 생성 포물선 연출을 재사용한다.
+        PlaySkillSpawnAnimationFromWorldPosition(
+            createdWall,
+            sourceWorldPosition
+        );
+
+        return createdWall;
+    }
+
     // <변경부분> 기존 내부 호출 호환용 래퍼
     // 실제 스킬 생성 포물선 연출은 PieceAnimationManager가 처리
     private void PlaySkillSpawnAnimationFromSource(Piece spawnedPiece, Piece sourcePiece)

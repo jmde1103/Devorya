@@ -51,7 +51,33 @@ public class BattleAIActionEvaluator
         -500f;
 
     private const float QueenMaterialPenalty =
-        -900f;
+     -900f;
+
+    // <변경부분> Enemy 조합에 젤루 합성 사용자가 있을 때
+    // 중립 젤루 Special 공격에 적용하는 기본 감점
+    //
+    // 중립 젤루는 공격 대상이기도 하지만
+    // JelluSynthesis의 재료로 사용할 수 있으므로,
+    // 합성 조합에서는 일반 이동보다 낮게 평가해 보존한다.
+    private const float NeutralJelluAttackPenaltyWithSynthesis =
+        -300f;
+
+    // <변경부분> 합성 사용자가 없는 조합에서
+    // 중립 젤루 Special을 공격할 때 부여하는 낮은 점수
+    //
+    // 공격 자체는 허용하지만,
+    // 이동 불가능한 중립 기물을 Pawn이나 다른 전투 기물보다
+    // 먼저 제거하지 않도록 일반 이동과 비슷한 수준으로 평가한다.
+    private const float NeutralJelluAttackScoreWithoutSynthesis =
+        10f;
+
+    // <변경부분> 해당 중립 젤루가 현재 합성 Pawn 인접 위치에 있어
+    // 즉시 합성 재료로 사용할 수 있을 때 적용하는 추가 감점
+    //
+    // 단순히 나중에 활용할 수 있는 중립 기물보다
+    // 현재 바로 합성 가능한 재료를 더 강하게 보존한다.
+    private const float ImmediatelyUsableNeutralJelluPenalty =
+        -250f;
 
     // <변경부분> 인접한 합성 재료 후보 중
     // Knight, Bishop, Rook이 2개 이상 존재할 때 적용하는 추가 감점
@@ -65,26 +91,67 @@ public class BattleAIActionEvaluator
     private const float MultipleAdvancedMaterialPenalty =
         -700f;
 
-    // <변경부분> Knight가 이동 가능한 모든 위치에서
-    // 다음 턴에 공격받는 상황일 때 퇴화 사용에 부여하는 점수
-    //
-    // 안전한 이동이 하나도 없다면
-    // 일반 이동과 Pawn 공격보다 퇴화를 우선하도록 설정한다.
-    private const float DegenerationAllMovesThreatenedScore =
+    // <변경부분> 퇴화를 사용하면 실행할 가치가 있는
+    // 위험한 Knight 행동을 발견했을 때 부여하는 최소 스킬 점수
+    private const float DegenerationOpportunityBaseScore =
         450f;
 
-    // <변경부분> 일부 이동 위치만 위험하고
-    // 안전한 이동 또는 공격 위치가 남아 있을 때 적용하는 점수
+    // <변경부분> 퇴화 상태의 Knight가 행동 후 공격받을 때 적용하는 감점
     //
-    // 퇴화를 완전히 배제하지는 않지만
-    // 일반적으로 안전한 행동을 먼저 선택하게 한다.
-    private const float DegenerationSomeMovesThreatenedScore =
-        40f;
+    // 퇴화 사망 시 더 이상 아군 Pawn이 생성되지 않고
+    // 양쪽 모두 공격할 수 있는 중립 Special이 생성된다.
+    //
+    // 따라서 일반 Knight 사망 손실 -300보다는 조금 완화하지만,
+    // 중립 장애물을 만들기 위한 무리한 자살은 피하도록 설정한다.
+    private const float DegenerationThreatenedActionPenalty =
+        -220f;
 
-    // <변경부분> 현재 Knight의 모든 이동·공격 위치가 안전할 때
-    // 불필요한 퇴화 사용을 막기 위한 감점
-    private const float DegenerationNoThreatPenalty =
-        -250f;
+    // <변경부분> 퇴화를 먼저 사용할 가치가 있다고 판단한 행동이
+    // 현재 최고 일반 행동보다 확실히 우선되도록 추가하는 점수
+    private const float DegenerationOpportunityPriorityBonus =
+        100f;
+
+    // <변경부분> 퇴화 Knight가 현재 이미 상대 공격 범위에 있고,
+    // 이번 턴 최고 일반 행동은 다른 기물의 행동일 때
+    // 선제적으로 퇴화를 사용할 확률
+    private const float DegenerationCurrentThreatUseChance =
+        0.8f;
+
+    // <변경부분> 위 조건을 만족해 퇴화를 사용하기로 결정했을 때
+    // 현재 최고 일반 행동보다 먼저 선택되도록 추가하는 점수
+    private const float DegenerationCurrentThreatPriorityBonus =
+        75f;
+
+    // <변경부분> 젤루 킹이 안전하고
+    // 실제 증식 조건을 만족할 때 증식을 선택할 확률
+    //
+    // 증식 사용 후에도 Enemy 턴이 유지되므로
+    // 다른 기물의 이동이나 공격을 이어갈 수 있다.
+    private const float JelluMultiplyUseChance =
+        0.95f;
+
+    // <변경부분> 안전한 상황에서 증식을 높은 우선순위로
+    // 평가하기 위한 기본 점수
+    //
+    // Pawn, Knight, Bishop 일반 공격보다 높지만
+    // Rook, Queen, King 처치 같은 중요한 공격보다 낮게 설정한다.
+    private const float JelluMultiplyBaseScore =
+        420f;
+
+    // <변경부분> 현재 최고 일반 행동보다
+    // 증식이 조금 더 높은 점수를 갖도록 추가하는 우선 보너스
+    private const float JelluMultiplyPriorityBonus =
+        80f;
+
+    // <변경부분> Defence 상태의 공격 대상을 앞에 둔 젤루 룩이
+    // 뿔 박치기를 먼저 사용하도록 부여하는 최소 점수
+    private const float HornHeadbuttBaseScore =
+        650f;
+
+    // <변경부분> 현재 최고 일반 행동보다 뿔 박치기를
+    // 우선 선택하도록 추가하는 점수
+    private const float HornHeadbuttPriorityBonus =
+        120f;
 
     // <변경부분> Player King과 거리가 한 칸 가까워질 때마다
     // 추가하는 전진 압박 점수
@@ -211,10 +278,15 @@ public class BattleAIActionEvaluator
 
 
     // <변경부분> 전달받은 모든 AI 행동 후보의 점수를 계산한다.
+    //
+    // 처리 순서:
+    // 1. 퇴화와 증식을 제외한 일반 행동 및 다른 스킬 평가
+    // 2. 현재 최고 이동·공격 행동 확인
+    // 3. 퇴화의 위험 대응 가치 평가
+    // 4. 증식의 안전한 전력 확장 가치 평가
     public void EvaluateActions(
         List<BattleAIAction> actions)
     {
-        // 행동 목록이 없으면 평가할 수 없다.
         if (actions == null)
         {
             Debug.LogWarning(
@@ -224,23 +296,204 @@ public class BattleAIActionEvaluator
             return;
         }
 
-        // 모든 행동 후보를 한 번씩 평가한다.
-        for (int i = 0; i < actions.Count; i++)
+        // <변경부분> 퇴화와 증식은
+        // 최고 일반 행동이 무엇인지 확인한 뒤 평가해야 한다.
+        for (int i = 0;
+             i < actions.Count;
+             i++)
         {
-            BattleAIAction action = actions[i];
+            BattleAIAction action =
+                actions[i];
 
-            // 비어 있는 행동 후보는 건너뛴다.
             if (action == null)
             {
                 continue;
             }
 
+            if (IsJelluDegenerationAction(
+         action) ||
+     IsJelluMultiplyAction(
+         action) ||
+     IsHornHeadbuttAction(
+         action))
+            {
+                action.Score =
+                    float.MinValue;
+
+                continue;
+            }
+
             action.Score =
-                EvaluateAction(action);
+                EvaluateAction(
+                    action
+                );
+        }
+
+        BattleAIAction bestNormalAction =
+            FindBestNormalAction(
+                actions
+            );
+
+        // <변경부분> 일반 행동 평가가 끝난 뒤
+        // 퇴화와 증식을 각각 전용 조건으로 평가한다.
+        for (int i = 0;
+             i < actions.Count;
+             i++)
+        {
+            BattleAIAction action =
+                actions[i];
+
+            if (action == null)
+            {
+                continue;
+            }
+
+            if (IsJelluDegenerationAction(
+                    action))
+            {
+                action.Score =
+                    EvaluateJelluDegenerationAction(
+                        action,
+                        actions,
+                        bestNormalAction
+                    );
+
+                continue;
+            }
+
+            if (IsJelluMultiplyAction(
+        action))
+            {
+                action.Score =
+                    EvaluateJelluMultiplyAction(
+                        action,
+                        bestNormalAction
+                    );
+
+                continue;
+            }
+
+            if (IsHornHeadbuttAction(
+                    action))
+            {
+                action.Score =
+                    EvaluateHornHeadbuttAction(
+                        action,
+                        bestNormalAction
+                    );
+            }
         }
     }
 
-    // <변경부분> 행동 하나의 최종 점수를 계산한다.
+    // <변경부분> 전달받은 행동이
+    // 젤루 퇴화 고유스킬 후보인지 확인한다.
+    private bool IsJelluDegenerationAction(
+        BattleAIAction action)
+    {
+        if (action == null)
+        {
+            return false;
+        }
+
+        return
+            action.ActionType ==
+                BattleAIActionType.UniqueSkill &&
+            action.UniqueSkillType ==
+                UniqueSkillType.JelluDegeneration;
+    }
+
+    // <변경부분> 전달받은 행동이
+    // 젤루 킹의 증식 고유스킬 후보인지 확인한다.
+    private bool IsJelluMultiplyAction(
+        BattleAIAction action)
+    {
+        if (action == null)
+        {
+            return false;
+        }
+
+        return
+            action.ActionType ==
+                BattleAIActionType.UniqueSkill &&
+            action.UniqueSkillType ==
+                UniqueSkillType.JelluMultiply;
+    }
+
+    // <변경부분> 전달받은 행동이
+    // 젤루 룩의 뿔 박치기 고유스킬 후보인지 확인한다.
+    private bool IsHornHeadbuttAction(
+        BattleAIAction action)
+    {
+        if (action == null)
+        {
+            return false;
+        }
+
+        return
+            action.ActionType ==
+                BattleAIActionType.UniqueSkill &&
+            action.UniqueSkillType ==
+                UniqueSkillType.HornHeadbutt;
+    }
+
+    // <변경부분> 현재 후보 중 이동 또는 공격 행동만 비교해
+    // AI가 실제로 선택할 가능성이 가장 높은 일반 행동을 반환한다.
+    //
+    // 고유스킬은 제외한다.
+    // 따라서 합성이나 다른 고유스킬 점수 때문에
+    // 퇴화 필요 여부가 왜곡되지 않는다.
+    private BattleAIAction FindBestNormalAction(
+        List<BattleAIAction> actions)
+    {
+        if (actions == null ||
+            actions.Count == 0)
+        {
+            return null;
+        }
+
+        BattleAIAction bestNormalAction =
+            null;
+
+        float highestNormalScore =
+            float.MinValue;
+
+        for (int i = 0;
+             i < actions.Count;
+             i++)
+        {
+            BattleAIAction action =
+                actions[i];
+
+            if (action == null)
+            {
+                continue;
+            }
+
+            // 퇴화는 Knight가 실제로 이동하거나 공격하려는 상황에만
+            // 필요하므로 이동과 공격 후보만 비교한다.
+            if (action.ActionType !=
+                    BattleAIActionType.Move &&
+                action.ActionType !=
+                    BattleAIActionType.Attack)
+            {
+                continue;
+            }
+
+            if (bestNormalAction == null ||
+                action.Score >
+                highestNormalScore)
+            {
+                bestNormalAction =
+                    action;
+
+                highestNormalScore =
+                    action.Score;
+            }
+        }
+
+        return bestNormalAction;
+    }
+
     // <변경부분> 행동 하나의 최종 점수를 계산한다.
     private float EvaluateAction(
         BattleAIAction action)
@@ -310,8 +563,7 @@ public class BattleAIActionEvaluator
         }
 
         // <변경부분> King이 아닌 일반 행동 기물이
-        // 행동 후 상대 공격 범위에 들어가면
-        // 해당 기물의 기본 가치만큼 감점한다.
+        // 행동 후 상대 공격 범위에 들어가는지 검사한다.
         if (action.ActingPiece != null &&
             action.ActingPiece.PieceType != PieceType.King &&
             battleManager != null &&
@@ -319,12 +571,32 @@ public class BattleAIActionEvaluator
                 action
             ))
         {
-            float actingPieceValue =
-                GetPieceValue(
-                    action.ActingPiece.PieceType
-                );
+            Piece actingPiece =
+                action.ActingPiece;
 
-            score -= actingPieceValue;
+            // <변경부분> 퇴화 상태의 젤루 Knight는
+            // 사망 시 Pawn을 남기는 전략적 가치가 있으므로
+            // 일반 기물보다 피격 위험 감점을 크게 완화한다.
+            if (actingPiece.PieceType ==
+                    PieceType.Knight &&
+                actingPiece.HasSpeciesTag(
+                    PieceSpeciesTag.Jellu) &&
+                actingPiece.HasStatusEffect(
+                    StatusEffectType.Degeneration))
+            {
+                score +=
+                    DegenerationThreatenedActionPenalty;
+            }
+            else
+            {
+                float actingPieceValue =
+                    GetPieceValue(
+                        actingPiece.PieceType
+                    );
+
+                score -=
+                    actingPieceValue;
+            }
         }
 
         // 같은 기물이 직전 행동을 정확하게 되돌리는
@@ -517,9 +789,18 @@ public class BattleAIActionEvaluator
                 );
 
             case UniqueSkillType.JelluDegeneration:
-                return EvaluateJelluDegenerationAction(
-                    action
-                );
+                // 퇴화는 일반 행동 평가가 끝난 뒤
+                // 위험한 Knight 행동과 함께 별도로 계산한다.
+                return float.MinValue;
+
+            case UniqueSkillType.JelluMultiply:
+                // <변경부분> 증식은 일반 행동 평가가 끝난 뒤
+                // King 안전과 긴급 회피 행동을 확인하고 별도로 계산한다.
+                return float.MinValue;
+            case UniqueSkillType.HornHeadbutt:
+                // <변경부분> 뿔 박치기는 Defence 공격 대상과
+                // 현재 최고 일반 행동을 확인한 뒤 별도로 계산한다.
+                return float.MinValue;
         }
 
         // 아직 AI 평가가 구현되지 않은 고유스킬은
@@ -527,146 +808,279 @@ public class BattleAIActionEvaluator
         return float.MinValue;
     }
 
-    // <변경부분> 젤루 Knight가 퇴화를 지금 사용할 필요가 있는지 평가한다.
+    // <변경부분> 젤루 룩의 뿔 박치기를 지금 사용할지 평가한다.
     //
-    // 해당 Knight가 현재 실행할 수 있는 이동·공격 후보를 검사하여:
-    // 1. 모든 행동 후 공격받음 → 높은 우선순위
-    // 2. 일부 행동만 공격받음 → 낮은 보조 점수
-    // 3. 모든 행동 후 안전함 → 불필요한 사용으로 감점
+    // 후보 생성 단계에서 이미 다음 조건을 확인한다.
+    // 1. 시전자가 HornHeadbutt를 보유한 Rook
+    // 2. 현재 타일이 Water 또는 Swamp
+    // 3. 현재 공격 가능한 대상 중 Defence 보유자가 존재
     //
-    // 퇴화 사용 후에는 Enemy 턴을 종료하지 않고
-    // AI가 다시 행동을 평가하므로,
-    // 상태를 얻은 Knight가 같은 턴에 이동 또는 공격할 수 있다.
-    private float EvaluateJelluDegenerationAction(
-        BattleAIAction action)
+    // 스킬 사용 후 Enemy 턴이 유지되므로
+    // Breakthrough를 얻은 뒤 공격 후보를 다시 평가한다.
+    private float EvaluateHornHeadbuttAction(
+        BattleAIAction hornHeadbuttAction,
+        BattleAIAction bestNormalAction)
     {
-        if (action == null ||
-            action.ActingPiece == null ||
+        if (hornHeadbuttAction == null ||
+            hornHeadbuttAction.ActingPiece == null)
+        {
+            return float.MinValue;
+        }
+
+        Piece jelluRook =
+            hornHeadbuttAction.ActingPiece;
+
+        if (jelluRook.PieceType !=
+                PieceType.Rook ||
+            jelluRook.UniqueSkill !=
+                UniqueSkillType.HornHeadbutt)
+        {
+            return float.MinValue;
+        }
+
+        float bestNormalScore =
+            bestNormalAction == null
+                ? 0f
+                : bestNormalAction.Score;
+
+        // Defence 대상 공격보다 스킬을 먼저 사용하도록
+        // 현재 최고 일반 행동보다 확실히 높은 점수를 준다.
+        return Mathf.Max(
+            HornHeadbuttBaseScore,
+            bestNormalScore +
+            HornHeadbuttPriorityBonus
+        );
+    }
+
+    // <변경부분> 젤루 킹의 증식을 지금 사용할지 평가한다.
+    //
+    // 증식 사용 조건:
+    // 1. 시전자가 Jellu King이어야 한다.
+    // 2. 증식 가능한 인접 빈칸이 있어 후보가 생성되어야 한다.
+    // 3. 고유스킬 쿨타임 및 턴당 사용 조건을 충족해야 한다.
+    // 4. 위 조건을 만족하면 높은 확률로 증식을 먼저 사용한다.
+    //
+    // 증식 사용 후 Enemy 턴은 종료되지 않으므로
+    // Pawn 생성 후 이동, 공격 또는 King 회피 행동을 이어갈 수 있다.
+    private float EvaluateJelluMultiplyAction(
+        BattleAIAction multiplyAction,
+        BattleAIAction bestNormalAction)
+    {
+        if (multiplyAction == null ||
+            multiplyAction.ActingPiece == null ||
             battleManager == null ||
             battleMoveValidator == null)
         {
             return float.MinValue;
         }
 
-        Piece actingPiece =
-            action.ActingPiece;
+        Piece jelluKing =
+            multiplyAction.ActingPiece;
+        // <변경부분> 증식 평가는 King 타입과
+        // 실제 보유 고유스킬 JelluMultiply를 기준으로 검증한다.
+        //
+        // 후보 생성과 실제 스킬 실행 기준을 동일하게 맞춰,
+        // 종족 태그 누락만으로 증식 점수가 제외되지 않도록 한다.
+        if (jelluKing.PieceType !=
+                PieceType.King ||
+            jelluKing.UniqueSkill !=
+                UniqueSkillType.JelluMultiply)
+        {
+            return float.MinValue;
+        }
+
+        // <변경부분> 증식은 사용 후 Enemy 턴을 종료하지 않는다.
+        //
+        // 따라서 King이 현재 위험하거나 이동해야 하는 상황이어도
+        // 증식을 먼저 사용한 뒤 같은 턴에 King 이동,
+        // 공격자 제거 또는 다른 회피 행동을 이어갈 수 있다.
+        //
+        // 증식 후보 생성 조건과 고유스킬 사용 가능 조건만 충족하면
+        // 킹의 현재 위험 여부와 관계없이 확률 평가를 진행한다.
+
+        // 조건을 만족하면 높은 확률로 증식을 먼저 사용한다.
+        if (Random.value >
+            JelluMultiplyUseChance)
+        {
+            return float.MinValue;
+        }
+
+        float bestNormalScore =
+            bestNormalAction == null
+                ? 0f
+                : bestNormalAction.Score;
+
+        // 일반 행동보다 높은 점수를 부여하여
+        // 증식을 먼저 사용한 뒤 행동 후보를 다시 평가한다.
+        return Mathf.Max(
+            JelluMultiplyBaseScore,
+            bestNormalScore +
+            JelluMultiplyPriorityBonus
+        );
+    }
+
+    // <변경부분> 퇴화를 사용하면 실행할 가치가 생기는
+    // 젤루 Knight의 위험한 이동·공격 행동을 찾는다.
+    //
+    // 기존 최종 점수는 Knight 사망 위험으로 -300이 적용되어 있으므로,
+    // 가상 퇴화 평가에서는 그 감점을 다시 복원하여
+    // 행동 자체의 공격 가치와 전진 가치를 비교한다.
+    //
+    // 퇴화를 사용해도 가치 없는 무의미한 위험 이동이라면
+    // 스킬을 사용하지 않는다.
+    private float EvaluateJelluDegenerationAction(
+        BattleAIAction degenerationAction,
+        List<BattleAIAction> allActions,
+        BattleAIAction bestNormalAction)
+    {
+        if (degenerationAction == null ||
+            degenerationAction.ActingPiece == null ||
+            allActions == null ||
+            battleManager == null)
+        {
+            return float.MinValue;
+        }
+
+        Piece degenerationKnight =
+            degenerationAction.ActingPiece;
 
         // 퇴화는 젤루 Knight 전용이다.
-        if (actingPiece.PieceType !=
+        if (degenerationKnight.PieceType !=
                 PieceType.Knight ||
-            actingPiece.HasSpeciesTag(
+            degenerationKnight.HasSpeciesTag(
                 PieceSpeciesTag.Jellu) ==
             false)
         {
             return float.MinValue;
         }
 
-        // 이미 퇴화 상태라면 다시 사용할 필요가 없다.
-        if (actingPiece.HasStatusEffect(
+        // 이미 퇴화 상태라면 다시 사용하지 않는다.
+        if (degenerationKnight.HasStatusEffect(
                 StatusEffectType.Degeneration))
         {
             return float.MinValue;
         }
 
-        List<Vector2Int> selectablePositions =
-            battleMoveValidator
-                .GetSelectablePositions(
-                    actingPiece
+        // <변경부분> Knight가 현재 위치에서 이미 공격받을 수 있고,
+        // 이번 턴 최고 일반 행동은 다른 기물을 사용하는 행동이라면
+        // Knight를 움직이지 않는 동안의 사망 위험에 대비해
+        // 높은 확률로 퇴화를 먼저 사용한다.
+        bool isCurrentlyThreatened =
+            battleManager
+                .IsPieceCurrentlyThreatened(
+                    degenerationKnight
                 );
 
-        // 이동이나 공격이 불가능한 Knight라면
-        // 현재 퇴화를 사용해도 이어서 행동할 수 없으므로 제외한다.
-        if (selectablePositions == null ||
-            selectablePositions.Count == 0)
+        bool bestActionUsesAnotherPiece =
+            bestNormalAction != null &&
+            bestNormalAction.ActingPiece !=
+                degenerationKnight;
+
+        if (isCurrentlyThreatened &&
+            bestActionUsesAnotherPiece &&
+            Random.value <=
+                DegenerationCurrentThreatUseChance)
         {
-            return float.MinValue;
+            return Mathf.Max(
+                DegenerationOpportunityBaseScore,
+                bestNormalAction.Score +
+                DegenerationCurrentThreatPriorityBonus
+            );
         }
 
-        int threatenedActionCount =
-            0;
+        float bestRiskyKnightStrategicScore =
+            float.MinValue;
 
-        int safeActionCount =
-            0;
+        bool foundValuableRiskyAction =
+            false;
 
-        Vector2Int sourcePosition =
-            new Vector2Int(
-                actingPiece.X,
-                actingPiece.Y
-            );
-
+        // <변경부분> 이 Knight가 실행할 수 있는
+        // 모든 이동과 공격 행동을 검사한다.
         for (int i = 0;
-             i < selectablePositions.Count;
+             i < allActions.Count;
              i++)
         {
-            Vector2Int targetPosition =
-                selectablePositions[i];
+            BattleAIAction candidateAction =
+                allActions[i];
 
-            Piece targetPiece =
-         battleMoveValidator.GetPieceAt(targetPosition);
-
-            BattleAIAction simulatedAction;
-
-            // 목표 위치에 적대 기물이 있으면
-            // 공격 후 해당 위치에 있는 상황으로 평가한다.
-            if (targetPiece != null &&
-                actingPiece.IsEnemyOf(
-                    targetPiece))
+            if (candidateAction == null ||
+                candidateAction.ActingPiece !=
+                    degenerationKnight)
             {
-                simulatedAction =
-                    BattleAIAction.CreateAttack(
-                        actingPiece,
-                        sourcePosition,
-                        targetPosition,
-                        targetPiece
-                    );
+                continue;
             }
-            else
+
+            if (candidateAction.ActionType !=
+                    BattleAIActionType.Move &&
+                candidateAction.ActionType !=
+                    BattleAIActionType.Attack)
             {
-                simulatedAction =
-                    BattleAIAction.CreateMove(
-                        actingPiece,
-                        sourcePosition,
-                        targetPosition
-                    );
+                continue;
             }
 
             bool isThreatened =
                 battleManager
                     .IsActingPieceThreatenedAfterAIAction(
-                        simulatedAction
+                        candidateAction
                     );
 
-            if (isThreatened)
+            // 안전한 행동은 퇴화 사용 이유가 아니다.
+            if (isThreatened == false)
             {
-                threatenedActionCount++;
+                continue;
             }
-            else
+
+            // 기존 평가에서는 Knight 사망 위험으로
+            // Knight 가치 300점이 감점되어 있다.
+            //
+            // 퇴화 사용 가능성을 평가할 때는 이 감점을 복원하여
+            // 행동 자체의 전략적 가치를 확인한다.
+            float strategicScoreWithDegeneration =
+                candidateAction.Score +
+                GetPieceValue(
+                    PieceType.Knight
+                ) +
+                DegenerationThreatenedActionPenalty;
+
+            if (foundValuableRiskyAction == false ||
+                strategicScoreWithDegeneration >
+                bestRiskyKnightStrategicScore)
             {
-                safeActionCount++;
+                foundValuableRiskyAction =
+                    true;
+
+                bestRiskyKnightStrategicScore =
+                    strategicScoreWithDegeneration;
             }
         }
 
-        // 이동 가능한 모든 위치에서 공격받는다면
-        // 죽을 가능성이 높은 Knight이므로 퇴화를 적극 사용한다.
-        if (threatenedActionCount > 0 &&
-            safeActionCount == 0)
+        // 위험한 Knight 행동이 없다면
+        // 퇴화를 사용할 필요가 없다.
+        if (foundValuableRiskyAction == false)
         {
-            return
-                DegenerationAllMovesThreatenedScore;
+            return float.MinValue;
         }
 
-        // 위험한 행동과 안전한 행동이 함께 있다면
-        // 퇴화보다 안전한 이동을 선택할 가능성을 높인다.
-        if (threatenedActionCount > 0)
+        float bestNormalScore =
+            bestNormalAction == null
+                ? float.MinValue
+                : bestNormalAction.Score;
+
+        // <변경부분> 퇴화를 사용해도 위험 행동의 전략적 점수가
+        // 현재 안전한 최고 행동보다 낮다면 스킬을 낭비하지 않는다.
+        if (bestRiskyKnightStrategicScore <
+            bestNormalScore)
         {
-            return
-                DegenerationSomeMovesThreatenedScore;
+            return float.MinValue;
         }
 
-        // 모든 행동 후 안전하다면
-        // 지금 퇴화를 사용할 이유가 적다.
-        return
-            DegenerationNoThreatPenalty;
+        // 퇴화 기회 점수가 현재 일반 행동보다 높도록 만들어
+        // 먼저 퇴화를 사용한 뒤 보드를 다시 평가하게 한다.
+        return Mathf.Max(
+            DegenerationOpportunityBaseScore,
+            bestRiskyKnightStrategicScore +
+            DegenerationOpportunityPriorityBonus
+        );
     }
 
     // <변경부분> 젤루 합성을 지금 사용하는 것이 유리한지 평가한다.
@@ -1151,21 +1565,89 @@ public class BattleAIActionEvaluator
 
     // <변경부분> 공격 대상 기물의 기본 가치에 따라
     // 해당 공격 행동의 점수를 계산한다.
+    //
+    // Neutral Jellu Special은 일반 적 기물과 다르게 처리한다.
+    //
+    // 1. 현재 진영에 JelluSynthesis 사용자가 존재함
+    //    → 합성 재료로 보존하기 위해 공격 점수를 감점한다.
+    //
+    // 2. 합성 사용자가 존재하지 않음
+    //    → 공격은 허용하지만 전투 기물보다 낮은 점수를 부여한다.
     private float EvaluateAttackAction(
         BattleAIAction action)
     {
-        // 공격 행동인데 대상 기물이 없다면
-        // 잘못 생성된 후보이므로 선택되지 않도록 처리한다.
         if (action == null ||
+            action.ActingPiece == null ||
             action.TargetPiece == null)
         {
             return float.MinValue;
         }
 
-        // 공격 대상의 기물 타입에 따른
-        // 기본 전략 가치를 공격 점수로 사용한다.
+        Piece targetPiece =
+            action.TargetPiece;
+
+        // <변경부분> 비숍의 젤루 벽 또는
+        // 퇴화 사망 효과로 생성된 중립 젤루인지 확인한다.
+        bool isNeutralJelluSpecial =
+            targetPiece.Team ==
+                PieceTeam.Neutral &&
+            targetPiece.PieceType ==
+                PieceType.Special &&
+            targetPiece.HasSpeciesTag(
+                PieceSpeciesTag.Jellu
+            );
+
+        if (isNeutralJelluSpecial)
+        {
+            PieceTeam actingTeam =
+                action.ActingPiece.Team;
+
+            bool hasSynthesisUser =
+                battleMoveValidator != null &&
+                battleMoveValidator
+                    .HasJelluSynthesisUser(
+                        actingTeam
+                    );
+
+            // <변경부분> 해당 진영에 합성 사용자가 있다면
+            // 중립 젤루를 미래 또는 현재 합성 재료로 보존한다.
+            if (hasSynthesisUser)
+            {
+                float score =
+                    NeutralJelluAttackPenaltyWithSynthesis;
+
+                // 현재 합성 Pawn 바로 옆에 있는 중립 젤루는
+                // 즉시 사용할 수 있는 실제 합성 재료이므로
+                // 추가 감점을 적용해 더욱 강하게 보존한다.
+                bool isImmediatelyUsableMaterial =
+                    battleMoveValidator
+                        .IsNeutralJelluImmediatelyUsableForSynthesis(
+                            targetPiece,
+                            actingTeam
+                        );
+
+                if (isImmediatelyUsableMaterial)
+                {
+                    score +=
+                        ImmediatelyUsableNeutralJelluPenalty;
+                }
+
+                return score;
+            }
+
+            // <변경부분> 합성 기물이 없는 조합에서는
+            // 중립 젤루를 공격하는 행동 자체는 허용한다.
+            //
+            // 다만 중립 Special은 이동하거나 직접 공격하지 않으므로
+            // Pawn, Knight, Bishop, Rook 등의 실질적인 위협보다
+            // 우선해서 제거하지 않도록 낮은 점수만 부여한다.
+            return
+                NeutralJelluAttackScoreWithoutSynthesis;
+        }
+
+        // 일반 Player 기물 공격은 기존 기물 가치 기준을 유지한다.
         return GetPieceValue(
-            action.TargetPiece.PieceType
+            targetPiece.PieceType
         );
     }
 

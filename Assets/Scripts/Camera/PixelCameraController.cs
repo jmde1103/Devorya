@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -44,6 +45,38 @@ public class PixelCameraController : MonoBehaviour
     // 목표 월드 확대 배율
     private float targetWorldScale = 1f;
 
+    [Header("Battle Start Zoom Animation")]
+    // <변경부분> 배틀 시작 시 WorldRoot 확대 연출을 사용할지 여부
+    [SerializeField] private bool playStartZoomAnimation = true;
+
+    // <변경부분> 시작 확대 연출 전 잠깐 대기할 시간
+    [SerializeField] private float startZoomDelay = 0.1f;
+
+    // <변경부분> 배틀 화면이 처음 표시될 때 사용할 시작 배율
+    [SerializeField] private float startZoomScale = 1f;
+
+    // <변경부분> 시작 확대 연출이 끝난 뒤 유지할 최종 배율
+    [SerializeField] private float startZoomTargetScale = 1.2f;
+
+    // <변경부분> 시작 배율에서 최종 배율까지 확대되는 시간
+    [SerializeField] private float startZoomDuration = 0.8f;
+
+    // <변경부분> 시작 확대 속도 곡선
+    // 초반에 확대되고 마지막에 부드럽게 멈추도록 설정한다.
+    [SerializeField]
+    private AnimationCurve startZoomCurve =
+        new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 2f),
+            new Keyframe(1f, 1f, 0f, 0f)
+        );
+
+    // <변경부분> 시작 확대 애니메이션이 진행 중인지 확인한다.
+    // 연출 중에는 휠과 핀치 입력이 목표 배율을 바꾸지 않도록 사용한다.
+    private bool isPlayingStartZoomAnimation = false;
+
+    // <변경부분> 현재 실행 중인 시작 확대 코루틴
+    private Coroutine startZoomCoroutine;
+
     [Header("Move")]
     // 마우스 드래그 이동 속도
     public float mouseDragSpeed = 0.3f;
@@ -75,10 +108,6 @@ public class PixelCameraController : MonoBehaviour
         // 카메라를 Orthographic 모드로 설정
         cam.orthographic = true;
 
-        // 시작 월드 확대 배율 초기화
-        currentWorldScale = minWorldScale;
-        targetWorldScale = minWorldScale;
-
         // 시작 위치 적용
         transform.position = new Vector3(
             startPosition.x,
@@ -89,15 +118,188 @@ public class PixelCameraController : MonoBehaviour
         // 최소 줌 기준 카메라 위치 저장
         baseCameraPosition = transform.position;
 
-        // 시작 월드 확대 적용
+        if (playStartZoomAnimation)
+        {
+            // <변경부분> 시작 확대 연출을 사용할 때는
+            // WorldRoot를 시작 배율로 먼저 표시한다.
+            currentWorldScale =
+                Mathf.Clamp(
+                    startZoomScale,
+                    minWorldScale,
+                    maxWorldScale
+                );
+
+            targetWorldScale =
+                currentWorldScale;
+
+            ApplyWorldZoom();
+            ClampCameraByZoom();
+
+            startZoomCoroutine =
+                StartCoroutine(
+                    PlayStartZoomAnimationRoutine()
+                );
+
+            return;
+        }
+
+        // 시작 연출을 사용하지 않으면 기존 최소 줌으로 초기화
+        currentWorldScale =
+            minWorldScale;
+
+        targetWorldScale =
+            minWorldScale;
+
         ApplyWorldZoom();
 
         // 시작 시 최소 줌 위치로 고정
         ClampCameraByZoom();
     }
 
+    // <변경부분> 배틀 시작 시 WorldRoot를
+    // 시작 배율에서 X/Y 1.2까지 부드럽게 확대한다.
+    //
+    // 연출 종료 시 currentWorldScale과 targetWorldScale을
+    // 모두 최종 배율로 저장하므로 다음 프레임에
+    // 기존 최소 배율로 되돌아가지 않는다.
+    private IEnumerator PlayStartZoomAnimationRoutine()
+    {
+        isPlayingStartZoomAnimation =
+            true;
+
+        if (startZoomDelay > 0f)
+        {
+            yield return new WaitForSeconds(
+                startZoomDelay
+            );
+        }
+
+        float animationStartScale =
+            Mathf.Clamp(
+                startZoomScale,
+                minWorldScale,
+                maxWorldScale
+            );
+
+        float animationTargetScale =
+            Mathf.Clamp(
+                startZoomTargetScale,
+                minWorldScale,
+                maxWorldScale
+            );
+
+        currentWorldScale =
+            animationStartScale;
+
+        targetWorldScale =
+            animationStartScale;
+
+        ApplyWorldZoom();
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                startZoomDuration
+            );
+
+        if (safeDuration <= 0f)
+        {
+            currentWorldScale =
+                animationTargetScale;
+
+            targetWorldScale =
+                animationTargetScale;
+
+            ApplyWorldZoom();
+
+            isPlayingStartZoomAnimation =
+                false;
+
+            startZoomCoroutine =
+                null;
+
+            yield break;
+        }
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               safeDuration)
+        {
+            elapsedTime +=
+                Time.deltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    safeDuration
+                );
+
+            float curvedTime =
+                startZoomCurve == null
+                    ? Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        normalizedTime
+                    )
+                    : startZoomCurve.Evaluate(
+                        normalizedTime
+                    );
+
+            currentWorldScale =
+                Mathf.LerpUnclamped(
+                    animationStartScale,
+                    animationTargetScale,
+                    curvedTime
+                );
+
+            // 연출 도중에도 내부 목표 배율을 현재 값으로 맞춰
+            // 다른 처리에서 이전 배율을 다시 사용하지 않도록 한다.
+            targetWorldScale =
+                currentWorldScale;
+
+            ApplyWorldZoom();
+            ClampCameraByZoom();
+
+            yield return null;
+        }
+
+        // <변경부분> 연출이 끝난 후 최종 배율을
+        // 현재 배율과 목표 배율 양쪽에 모두 저장한다.
+        //
+        // 이후 UpdateWorldZoom()이 실행돼도
+        // 1.2에서 1.0으로 되돌아가지 않는다.
+        currentWorldScale =
+            animationTargetScale;
+
+        targetWorldScale =
+            animationTargetScale;
+
+        ApplyWorldZoom();
+        ClampCameraByZoom();
+
+        isPlayingStartZoomAnimation =
+            false;
+
+        startZoomCoroutine =
+            null;
+    }
+
     private void Update()
     {
+        // <변경부분> 시작 확대 애니메이션이 진행 중일 때는
+        // 코루틴이 WorldRoot 배율을 직접 제어한다.
+        //
+        // 이 시간 동안 일반 줌 갱신을 실행하면
+        // 기존 targetWorldScale이 연출 값을 덮어쓸 수 있으므로
+        // 사용자 줌 및 드래그 입력을 잠시 막는다.
+        if (isPlayingStartZoomAnimation)
+        {
+            ClampCameraByZoom();
+            return;
+        }
+
         // PC 마우스 휠 확대/축소 처리
         HandleMouseZoom();
 
@@ -110,7 +312,7 @@ public class PixelCameraController : MonoBehaviour
         // PC 우클릭 드래그 이동
         HandlePCDrag();
 
-        // <변경부분> 모바일 두 손가락 드래그 이동
+        // 모바일 두 손가락 드래그 이동
         HandleMobileDrag();
 
         // 현재 줌 배율에 맞게 카메라 이동 범위 제한

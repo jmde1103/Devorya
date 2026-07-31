@@ -149,6 +149,71 @@ public class BattleAIAction
         );
     }
 
+    // <변경부분> 젤루 킹의 증식 고유스킬 AI 행동 후보를 생성한다.
+    //
+    // 증식은 별도의 대상을 선택하지 않고
+    // 젤루 킹 주변 빈칸 중 하나에 젤루 Pawn을 생성하므로,
+    // 시작 좌표와 목표 좌표는 현재 킹 위치로 저장한다.
+    //
+    // 실제 생성 위치는 플레이어 사용과 동일하게
+    // BattleSkillManager가 발동 순간 무작위로 선택한다.
+    public static BattleAIAction CreateJelluMultiply(
+        Piece actingPiece)
+    {
+        if (actingPiece == null)
+        {
+            return null;
+        }
+
+        return new BattleAIAction(
+            BattleAIActionType.UniqueSkill,
+            actingPiece,
+            new Vector2Int(
+                actingPiece.X,
+                actingPiece.Y
+            ),
+            new Vector2Int(
+                actingPiece.X,
+                actingPiece.Y
+            ),
+            null,
+            UniqueSkillType.JelluMultiply,
+            null,
+            null
+        );
+    }
+
+    // <변경부분> 젤루 룩의 뿔 박치기 고유스킬 AI 행동 후보를 생성한다.
+    //
+    // 뿔 박치기는 별도의 대상을 직접 선택하지 않고
+    // 룩 자신에게 Breakthrough 상태를 부여한다.
+    // 실제 공격 대상은 스킬 사용 후 보드를 다시 평가해 선택한다.
+    public static BattleAIAction CreateHornHeadbutt(
+        Piece actingPiece)
+    {
+        if (actingPiece == null)
+        {
+            return null;
+        }
+
+        return new BattleAIAction(
+            BattleAIActionType.UniqueSkill,
+            actingPiece,
+            new Vector2Int(
+                actingPiece.X,
+                actingPiece.Y
+            ),
+            new Vector2Int(
+                actingPiece.X,
+                actingPiece.Y
+            ),
+            null,
+            UniqueSkillType.HornHeadbutt,
+            null,
+            null
+        );
+    }
+
     // <변경부분> 잘못된 형태로 행동 데이터가 생성되지 않도록
     // 외부에서는 각 Create 함수를 사용한다.
     private BattleAIAction(

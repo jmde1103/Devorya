@@ -214,6 +214,20 @@ public class BattleAIActionGenerator
                     results
                 );
                 break;
+
+            case UniqueSkillType.JelluMultiply:
+                AddJelluMultiplyActions(
+                    actingPiece,
+                    results
+                );
+                break;
+
+            case UniqueSkillType.HornHeadbutt:
+                AddHornHeadbuttActions(
+                    actingPiece,
+                    results
+                );
+                break;
         }
     }
 
@@ -409,6 +423,220 @@ public class BattleAIActionGenerator
 
         results.Add(
             degenerationAction
+        );
+    }
+
+    // <변경부분> 젤루 킹이 현재 증식을 사용할 수 있다면
+    // 자신에게 적용하는 고유스킬 행동 후보를 하나 생성한다.
+    //
+    // 실제 사용 우선도는 평가기에서 다음 기준으로 결정한다.
+    // 1. Enemy King 현재 안전 여부
+    // 2. 다른 Enemy 기물의 즉시 회피 필요 여부
+    // 3. 증식 사용 확률
+    private void AddJelluMultiplyActions(
+        Piece actingPiece,
+        List<BattleAIAction> results)
+    {
+        if (actingPiece == null ||
+            results == null ||
+            pieceManager == null)
+        {
+            return;
+        }
+
+        // <변경부분> 증식 AI 후보는 King 타입과
+        // 실제 보유 고유스킬 JelluMultiply를 기준으로 생성한다.
+        //
+        // 수동 스킬 실행은 Jellu 종족 태그를 별도로 요구하지 않으므로,
+        // AI만 추가 태그를 검사해 후보가 누락되지 않도록 한다.
+        if (actingPiece.PieceType !=
+                PieceType.King ||
+            actingPiece.UniqueSkill !=
+                UniqueSkillType.JelluMultiply)
+        {
+            return;
+        }
+
+        // Enemy 또는 Player 소속의 실제 전투 기물만 사용한다.
+        if (actingPiece.Team ==
+            PieceTeam.Neutral)
+        {
+            return;
+        }
+
+        bool hasAdjacentEmptyPosition =
+            false;
+
+        // 실제 증식 스킬과 동일하게
+        // 킹 주변 8칸에 빈칸이 하나라도 있는지 검사한다.
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
+        {
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
+            {
+                if (offsetX == 0 &&
+                    offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX =
+                    actingPiece.X +
+                    offsetX;
+
+                int targetY =
+                    actingPiece.Y +
+                    offsetY;
+
+                if (IsInsideBoard(
+                        targetX,
+                        targetY) ==
+                    false)
+                {
+                    continue;
+                }
+
+                if (pieceManager.IsEmpty(
+                        targetX,
+                        targetY))
+                {
+                    hasAdjacentEmptyPosition =
+                        true;
+
+                    break;
+                }
+            }
+
+            if (hasAdjacentEmptyPosition)
+            {
+                break;
+            }
+        }
+
+        // 생성 가능한 인접 빈칸이 없다면
+        // 실제 스킬도 실패하므로 후보를 만들지 않는다.
+        if (hasAdjacentEmptyPosition ==
+            false)
+        {
+            return;
+        }
+
+        BattleAIAction multiplyAction =
+            BattleAIAction.CreateJelluMultiply(
+                actingPiece
+            );
+
+        if (multiplyAction == null)
+        {
+            return;
+        }
+
+        results.Add(
+            multiplyAction
+        );
+    }
+
+    // <변경부분> 젤루 룩이 Water 또는 Swamp 위에 있고,
+    // 현재 공격 가능한 대상 중 Defence 상태효과 보유자가 있다면
+    // 뿔 박치기 고유스킬 후보를 생성한다.
+    //
+    // 스킬 사용 후 같은 Enemy 턴에 행동 후보를 다시 평가하므로,
+    // Breakthrough를 얻은 뒤 해당 방어 기물을 공격하게 된다.
+    private void AddHornHeadbuttActions(
+        Piece actingPiece,
+        List<BattleAIAction> results)
+    {
+        if (actingPiece == null ||
+            results == null ||
+            pieceManager == null ||
+            battleMoveValidator == null)
+        {
+            return;
+        }
+
+        // 실제 보유 스킬과 Rook 타입을 기준으로 검사한다.
+        if (actingPiece.PieceType !=
+                PieceType.Rook ||
+            actingPiece.UniqueSkill !=
+                UniqueSkillType.HornHeadbutt)
+        {
+            return;
+        }
+
+        // 실제 스킬과 동일하게 Water 또는 Swamp 위에서만 사용 가능하다.
+        if (actingPiece.CurrentTile == null ||
+            (actingPiece.CurrentTile.TileType != TileType.Water &&
+             actingPiece.CurrentTile.TileType != TileType.Swamp))
+        {
+            return;
+        }
+
+        // 이미 Breakthrough 상태라면 같은 효과를 다시 사용할 필요가 없다.
+        if (actingPiece.HasStatusEffect(
+                StatusEffectType.Breakthrough))
+        {
+            return;
+        }
+
+        List<Vector2Int> selectablePositions =
+            battleMoveValidator.GetSelectablePositions(
+                actingPiece
+            );
+
+        bool hasDefendedAttackTarget =
+            false;
+
+        for (int i = 0;
+             i < selectablePositions.Count;
+             i++)
+        {
+            Vector2Int targetPosition =
+                selectablePositions[i];
+
+            Piece targetPiece =
+                pieceManager.GetPieceAt(
+                    targetPosition.x,
+                    targetPosition.y
+                );
+
+            if (targetPiece == null ||
+                actingPiece.IsEnemyOf(
+                    targetPiece) == false)
+            {
+                continue;
+            }
+
+            if (targetPiece.HasStatusEffect(
+                    StatusEffectType.Defence))
+            {
+                hasDefendedAttackTarget =
+                    true;
+
+                break;
+            }
+        }
+
+        // 지금 공격 가능한 Defence 대상이 없으면 스킬을 아낀다.
+        if (hasDefendedAttackTarget == false)
+        {
+            return;
+        }
+
+        BattleAIAction hornHeadbuttAction =
+            BattleAIAction.CreateHornHeadbutt(
+                actingPiece
+            );
+
+        if (hornHeadbuttAction == null)
+        {
+            return;
+        }
+
+        results.Add(
+            hornHeadbuttAction
         );
     }
 

@@ -22,10 +22,13 @@ MonoBehaviour:
     sectionTitle: "\uD1F4\uD654"
     sectionCategory: "\uC0C1\uD0DC\uD6A8\uACFC"
     sectionDescription: "\uAE30\uBB3C\uC774 \uC8FD\uC73C\uBA74 \n\uC778\uC811\uD55C
-      \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 '\uD3F0'\uC744 \uC0DD\uC131\uD55C\uB2E4"
+      \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 \uC911\uB9BD \uAE30\uBB3C\uC744
+      \uC0DD\uC131\uD55C\uB2E4"
     sectionIcon: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
     sectionColor: {r: 0, g: 0, b: 0, a: 0}
   cooldownTurn: 2
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
+  conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
+    \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."

@@ -278,6 +278,154 @@ public class BattleMoveValidator : MonoBehaviour
 
         return attackPositions;
     }
+
+    // <변경부분> 지정한 진영에 젤루 합성 스킬을 가진
+    // Jellu Pawn이 하나라도 존재하는지 확인한다.
+    //
+    // 현재 쿨타임이 남아 있더라도 조합 자체에는
+    // 중립 젤루를 합성 재료로 활용하는 전략이 존재하므로,
+    // 중립 기물 보존 판단에서는 스킬 보유 여부를 기준으로 한다.
+    public bool HasJelluSynthesisUser(
+        PieceTeam team)
+    {
+        if (boardManager == null ||
+            pieceManager == null)
+        {
+            return false;
+        }
+
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
+                if (piece == null ||
+                    piece.Team != team)
+                {
+                    continue;
+                }
+
+                // 젤루 합성은 Jellu Pawn 전용이다.
+                if (piece.PieceType !=
+                        PieceType.Pawn ||
+                    piece.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu) ==
+                    false)
+                {
+                    continue;
+                }
+
+                if (piece.UniqueSkill ==
+                    UniqueSkillType.JelluSynthesis)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // <변경부분> 지정한 중립 젤루 Special이
+    // 현재 해당 진영의 JelluSynthesis Pawn 인접 8칸에 있어
+    // 즉시 합성 재료로 사용할 수 있는지 확인한다.
+    public bool IsNeutralJelluImmediatelyUsableForSynthesis(
+        Piece neutralJelluPiece,
+        PieceTeam synthesisTeam)
+    {
+        if (neutralJelluPiece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return false;
+        }
+
+        // 실제 중립 젤루 Special만 검사한다.
+        if (neutralJelluPiece.Team !=
+                PieceTeam.Neutral ||
+            neutralJelluPiece.PieceType !=
+                PieceType.Special ||
+            neutralJelluPiece.HasSpeciesTag(
+                PieceSpeciesTag.Jellu) ==
+            false)
+        {
+            return false;
+        }
+
+        // 중립 기물 주변 8칸에
+        // 해당 진영의 합성 Pawn이 있는지 확인한다.
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
+        {
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
+            {
+                if (offsetX == 0 &&
+                    offsetY == 0)
+                {
+                    continue;
+                }
+
+                int checkX =
+                    neutralJelluPiece.X +
+                    offsetX;
+
+                int checkY =
+                    neutralJelluPiece.Y +
+                    offsetY;
+
+                if (IsInsideBoard(
+                        checkX,
+                        checkY) ==
+                    false)
+                {
+                    continue;
+                }
+
+                Piece candidatePawn =
+                    pieceManager.GetPieceAt(
+                        checkX,
+                        checkY
+                    );
+
+                if (candidatePawn == null ||
+                    candidatePawn.Team !=
+                        synthesisTeam)
+                {
+                    continue;
+                }
+
+                if (candidatePawn.PieceType !=
+                        PieceType.Pawn ||
+                    candidatePawn.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu) ==
+                    false)
+                {
+                    continue;
+                }
+
+                if (candidatePawn.UniqueSkill ==
+                    UniqueSkillType.JelluSynthesis)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     // <변경부분> 지정한 젤루 합성 Pawn 주변에서
     // 현재 실제 합성 재료로 사용할 수 있는 모든 기물을 반환한다.
     //
@@ -747,6 +895,90 @@ public class BattleMoveValidator : MonoBehaviour
                         attackerPosition,
                         kingPosition,
                         action))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // <변경부분> 지정한 기물이 현재 위치에서
+    // 상대 기본 공격 범위에 노출되어 있는지 검사한다.
+    //
+    // 가상 이동을 만들지 않고 실제 보드 상태를 그대로 사용하므로,
+    // 퇴화 AI가 현재 이미 공격받을 위치에 있는지 판단할 때 사용한다.
+    public bool IsPieceCurrentlyThreatened(
+        Piece targetPiece)
+    {
+        if (targetPiece == null)
+        {
+            return false;
+        }
+
+        if (boardManager == null ||
+            pieceManager == null)
+        {
+            Debug.LogWarning(
+                "현재 기물 위험도 판정 실패: " +
+                "BattleMoveValidator가 초기화되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        Vector2Int targetPosition =
+            new Vector2Int(
+                targetPiece.X,
+                targetPiece.Y
+            );
+
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece attacker =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
+                if (attacker == null ||
+                    attacker == targetPiece)
+                {
+                    continue;
+                }
+
+                // 이동 불가능한 중립 벽과 Special은
+                // 현재 전투 규칙상 공격 위협으로 계산하지 않는다.
+                if (attacker.CanMove == false)
+                {
+                    continue;
+                }
+
+                if (attacker.IsEnemyOf(
+                        targetPiece) ==
+                    false)
+                {
+                    continue;
+                }
+
+                Vector2Int attackerPosition =
+                    new Vector2Int(
+                        attacker.X,
+                        attacker.Y
+                    );
+
+                if (CanPieceAttackPositionInVirtualBoard(
+                        attacker,
+                        attackerPosition,
+                        targetPosition,
+                        null))
                 {
                     return true;
                 }

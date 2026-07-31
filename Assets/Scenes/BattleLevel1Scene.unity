@@ -32739,6 +32739,35 @@ MonoBehaviour:
   mouseZoomSpeed: 0.15
   pinchZoomSpeed: 0.0025
   zoomSmoothSpeed: 10
+  playStartZoomAnimation: 1
+  startZoomDelay: 0.1
+  startZoomScale: 0.8
+  startZoomTargetScale: 1.3
+  startZoomDuration: 0.8
+  startZoomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   mouseDragSpeed: 0.3
   touchDragSpeed: 0.005
   minZoomMoveThreshold: 0.01
@@ -56497,7 +56526,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87dc8cfc1004eea4f8afb1e2799f49ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetupManager
-  stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+  level1StageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+  level2StageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
+  battleLevel: 1
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
   battleManager: {fileID: 52600099}
@@ -105268,7 +105299,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleEndFlowController
   moveToMapSceneImmediatelyOnWin: 0
   mapSceneName: RoguelikeMapScene
-  reloadCurrentBattleSceneForTest: 1
+  moveToNextBattleSceneAfterReward: 1
+  nextBattleSceneName: BattleLevel2Scene
   battleRewardPopupUI: {fileID: 337650159}
   maxPlayerPieceCount: 10
   devoryaPawnRewardPercent: 90

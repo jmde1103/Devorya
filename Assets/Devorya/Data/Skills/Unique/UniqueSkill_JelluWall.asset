@@ -16,7 +16,10 @@ MonoBehaviour:
   skillName: "\uC824\uB8E8 \uBCBD"
   iconSprite: {fileID: 21300000, guid: fbd7c12a2f0ea354c90fcf177131d596, type: 3}
   description: "\uAE30\uBB3C \uC55E\uC5D0 \uC824\uB8E8 \uBCBD 1\uAC1C\uB97C \uC0DD\uC131\uD55C\uB2E4."
-  cooldownTurn: 3
+  tooltipSections: []
+  cooldownTurn: 5
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
+  conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
+    \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."

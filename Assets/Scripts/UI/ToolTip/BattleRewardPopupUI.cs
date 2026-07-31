@@ -456,7 +456,8 @@ public class BattleRewardPopupUI : MonoBehaviour
         }
     }
 
-    // <변경부분> 확인 버튼 클릭 시 보상창을 닫고 맵 씬으로 이동
+    // <변경부분> 확인 버튼 클릭 시 보상창을 닫고
+    // BattleEndFlowController가 설정한 다음 전투 씬 또는 맵 씬으로 이동
     private void OnClickConfirm()
     {
         if (battleEndFlowController == null)

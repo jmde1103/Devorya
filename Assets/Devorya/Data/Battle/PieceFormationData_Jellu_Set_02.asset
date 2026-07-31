@@ -15,7 +15,7 @@ MonoBehaviour:
   formationName: "\uC824\uB8E8 \uC7A1\uBAB9"
   description: "\uC824\uB8E8 \uC7A1\uBAB9 \uAD6C\uC131"
   spawnDataList:
-  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+  - pieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
     team: 1
     x: 0
     y: 5
@@ -24,35 +24,35 @@ MonoBehaviour:
     isAbsorbedPlayerVisual: 0
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 1
-    x: 1
-    y: 5
-    overrideCanMove: 0
-    canMove: 0
-    isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
-    team: 1
     x: 2
-    y: 5
+    y: 4
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 1
     x: 3
-    y: 5
+    y: 4
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 1
     x: 4
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: a450123fb22e0a742a57cb8300707e0c, type: 2}
+    team: 1
+    x: 4
     y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+  - pieceData: {fileID: 11400000, guid: 6ff441806ed07dc4b8e4fed0add136e7, type: 2}
     team: 1
-    x: 5
+    x: 2
     y: 5
     overrideCanMove: 0
     canMove: 0

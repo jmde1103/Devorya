@@ -6,8 +6,18 @@ using UnityEngine;
 public class BattleSetupManager : MonoBehaviour
 {
     [Header("Stage Data")]
-    // <변경부분> 현재 전투에 사용할 스테이지 데이터
-    [SerializeField] private StageBattleData stageBattleData;
+    // <변경부분> 1번 레벨 전투에서 사용할 스테이지 데이터
+    [SerializeField] private StageBattleData level1StageBattleData;
+
+    // <변경부분> 2번 레벨 전투에서 사용할 스테이지 데이터
+    [SerializeField] private StageBattleData level2StageBattleData;
+
+    // <변경부분> 현재 전투 씬에서 사용할 레벨 번호
+    // 1번 전투 씬은 1, 2번 전투 씬은 2로 설정한다.
+    [SerializeField, Min(1)] private int battleLevel = 1;
+
+    // <변경부분> 현재 레벨 번호에 따라 실제 전투 구성에 사용할 데이터
+    private StageBattleData stageBattleData;
 
     [Header("Managers")]
     [SerializeField] private BoardManager boardManager;
@@ -29,9 +39,18 @@ public class BattleSetupManager : MonoBehaviour
     // <변경부분> 현재 StageBattleData 기준으로 전투를 구성하는 함수
     public void SetupBattle()
     {
+        // <변경부분> 현재 전투 씬의 레벨 번호에 맞는
+        // StageBattleData를 선택한 뒤 기존 전투 구성 흐름을 실행한다.
+        stageBattleData =
+            GetStageBattleDataForCurrentLevel();
+
         if (stageBattleData == null)
         {
-            Debug.LogError("BattleSetupManager 실패: StageBattleData가 연결되지 않았습니다.");
+            Debug.LogError(
+                "BattleSetupManager 실패: " +
+                "현재 레벨에 사용할 StageBattleData가 연결되지 않았습니다."
+            );
+
             return;
         }
 
@@ -80,6 +99,27 @@ public class BattleSetupManager : MonoBehaviour
         ApplyEnemyGeneralSkillGrantRules();
 
         Debug.Log($"전투 세팅 완료: {stageBattleData.stageName}");
+    }
+
+    // <변경부분> BattleSetupManager에 연결된 1번·2번 스테이지 데이터 중
+    // 현재 전투 씬의 battleLevel과 일치하는 데이터를 반환한다.
+    private StageBattleData GetStageBattleDataForCurrentLevel()
+    {
+        switch (battleLevel)
+        {
+            case 1:
+                return level1StageBattleData;
+
+            case 2:
+                return level2StageBattleData;
+        }
+
+        Debug.LogError(
+            $"BattleSetupManager 실패: " +
+            $"지원하지 않는 battleLevel입니다. / {battleLevel}"
+        );
+
+        return null;
     }
 
     // <변경부분> 현재 StageBattleData가 전투 세팅에 사용할 수 있는 상태인지 확인하는 함수

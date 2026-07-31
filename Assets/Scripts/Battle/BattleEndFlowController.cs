@@ -13,10 +13,12 @@ public class BattleEndFlowController : MonoBehaviour
     // <변경부분> 전투 승리 후 돌아갈 로그라이크 맵 씬 이름
     [SerializeField] private string mapSceneName = "RoguelikeMapScene";
 
-    // <변경부분> 로그라이크 맵 씬 연결 전 테스트 옵션
-    // 승리 보상 확인 후 런 데이터를 유지한 채 현재 전투 씬을 다시 불러온다.
-    // 패배 시에는 이 옵션과 관계없이 런 데이터를 초기화하고 현재 씬을 재시작한다.
-    [SerializeField] private bool reloadCurrentBattleSceneForTest = true;
+    // <변경부분> 보상 확인 후 맵으로 돌아가기 전에
+    // 다음 레벨 전투 씬으로 이동할지 여부
+    [SerializeField] private bool moveToNextBattleSceneAfterReward = true;
+
+    // <변경부분> 1번 레벨 전투 승리 후 이동할 2번 레벨 전투 씬 이름
+    [SerializeField] private string nextBattleSceneName = "BattleLevel2Scene";
 
 
 
@@ -525,21 +527,22 @@ public class BattleEndFlowController : MonoBehaviour
     }
 
     // <변경부분> 보상 확인 완료 후 다음 씬으로 이동하는 함수
-    // 테스트 중에는 현재 전투 씬을 새로 불러오고,
-    // 실제 맵 씬 연결 후에는 기존 mapSceneName을 사용한다.
+    //
+    // 1번 레벨 전투에서는 nextBattleSceneName으로 이동하고,
+    // 마지막 전투처럼 다음 전투가 없는 경우에는 mapSceneName으로 이동한다.
+    //
+    // 씬 이동 전 RunStateManager를 초기화하지 않으므로
+    // 플레이어 기물, 금화, 아이템, 유물 상태가 다음 전투에 유지된다.
     public void MoveToMapScene()
     {
-        // <변경부분> 맵 씬 연결 전 런 상태 복원 테스트
-        if (reloadCurrentBattleSceneForTest)
+        if (moveToNextBattleSceneAfterReward)
         {
-            Scene currentScene =
-                SceneManager.GetActiveScene();
-
-            if (string.IsNullOrEmpty(currentScene.name))
+            if (string.IsNullOrEmpty(
+                    nextBattleSceneName))
             {
                 Debug.LogWarning(
-                    "전투 씬 재로드 실패: " +
-                    "현재 활성 씬 이름을 가져오지 못했습니다."
+                    "다음 전투 씬 이동 실패: " +
+                    "nextBattleSceneName이 비어 있습니다."
                 );
 
                 return;
@@ -547,19 +550,21 @@ public class BattleEndFlowController : MonoBehaviour
 
             Debug.Log(
                 $"리워드 확인 완료: " +
-                $"런 상태를 유지한 채 현재 전투 씬을 다시 불러옵니다. / " +
-                $"{currentScene.name}"
+                $"런 상태를 유지한 채 다음 전투 씬으로 이동합니다. / " +
+                $"{nextBattleSceneName}"
             );
 
             SceneManager.LoadScene(
-                currentScene.name
+                nextBattleSceneName
             );
 
             return;
         }
 
-        // <변경부분> 실제 게임에서는 로그라이크 맵 씬으로 이동
-        if (string.IsNullOrEmpty(mapSceneName))
+        // 다음 전투가 없는 마지막 스테이지에서는
+        // 로그라이크 맵 씬으로 이동한다.
+        if (string.IsNullOrEmpty(
+                mapSceneName))
         {
             Debug.LogWarning(
                 "맵 씬 이동 실패: " +
@@ -589,6 +594,9 @@ public class BattleEndFlowController : MonoBehaviour
 
 // <변경부분> 전투 종료 시 실제 복구된 기물 종류와 수량을
 // 보상 결과 UI에 전달하기 위한 런타임 데이터
+//
+// BattleRewardPopupUI에서도 사용하는 공용 데이터이므로
+// BattleEndFlowController 클래스 바깥에 public 클래스로 선언한다.
 [System.Serializable]
 public class BattleRecoveryRewardRuntimeData
 {
@@ -603,11 +611,18 @@ public class BattleRecoveryRewardRuntimeData
         PieceData pieceData,
         int amount)
     {
-        this.pieceData = pieceData;
-        this.amount = Mathf.Max(0, amount);
+        this.pieceData =
+            pieceData;
+
+        this.amount =
+            Mathf.Max(
+                0,
+                amount
+            );
     }
 
-    // <변경부분> 외부에서 원본 결과를 직접 수정하지 못하도록 복사본 생성
+    // <변경부분> 외부 UI가 원본 결과 데이터를
+    // 직접 수정하지 못하도록 복사본을 생성한다.
     public BattleRecoveryRewardRuntimeData Clone()
     {
         return new BattleRecoveryRewardRuntimeData(
@@ -616,3 +631,4 @@ public class BattleRecoveryRewardRuntimeData
         );
     }
 }
+
