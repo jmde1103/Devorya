@@ -81,8 +81,9 @@ public class BattleSetupManager : MonoBehaviour
         // <변경부분> 저장된 런 상태가 있으면 저장된 플레이어 기물을 사용하고, 없으면 기본 편성을 사용
         SpawnPlayerPieces();
 
-        // <변경부분> StageBattleData의 적 편성 데이터를 기준으로 적 기물 생성
-        pieceManager.SpawnPiecesFromDataList(stageBattleData.enemyFormationData.spawnDataList);
+        // <변경부분> PieceFormationData의 배치 방식에 따라
+        // 수동 좌표 배치 또는 상대 시작 10칸 랜덤 배치를 생성한다.
+        SpawnEnemyPieces();
 
         // <변경부분> StageBattleData의 승패 조건을 BattleManager에 전달
         battleManager.SetBattleEndCondition(
@@ -194,6 +195,189 @@ public class BattleSetupManager : MonoBehaviour
         );
 
         Debug.Log($"StageBattleData 기본 플레이어 편성 배치 완료: {stageBattleData.playerFormationData.formationName}");
+    }
+
+    // <변경부분> 현재 적 PieceFormationData의 배치 방식에 따라
+    // 기존 수동 좌표 배치 또는 상대 시작 진영 랜덤 배치를 실행한다.
+    private void SpawnEnemyPieces()
+    {
+        PieceFormationData enemyFormationData =
+            stageBattleData.enemyFormationData;
+
+        if (enemyFormationData == null)
+        {
+            Debug.LogWarning(
+                "적 기물 배치 실패: enemyFormationData가 없습니다."
+            );
+
+            return;
+        }
+
+        if (enemyFormationData.spawnMode ==
+            PieceFormationSpawnMode.Manual)
+        {
+            // 기존 PieceFormationData의 좌표를 그대로 사용하는 수동 배치
+            pieceManager.SpawnPiecesFromDataList(
+                enemyFormationData.spawnDataList
+            );
+
+            Debug.Log(
+                $"적 수동 편성 배치 완료: " +
+                $"{enemyFormationData.formationName}"
+            );
+
+            return;
+        }
+
+        SpawnRandomEnemyStartFormation(
+            enemyFormationData
+        );
+    }
+
+    // <변경부분> 보드 상단 2줄을 상대 시작 진영 10칸으로 사용하고,
+    // PieceFormationData에 등록된 PieceData를 설정 비율대로 뽑아
+    // 서로 다른 무작위 빈칸에 Enemy 기물로 생성한다.
+    //
+    // 5x6 보드 기준 사용 좌표:
+    // y = Height - 2, Height - 1 / 각 줄 x = 0 ~ Width - 1
+    private void SpawnRandomEnemyStartFormation(
+        PieceFormationData formationData)
+    {
+        if (formationData == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return;
+        }
+
+        List<Vector2Int> availablePositions =
+            new List<Vector2Int>();
+
+        int firstEnemyRowY =
+            Mathf.Max(
+                0,
+                boardManager.Height - 2
+            );
+
+        // 상대 시작 영역의 빈칸만 후보로 수집한다.
+        for (int y = firstEnemyRowY;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                if (pieceManager.IsEmpty(
+                        x,
+                        y) == false)
+                {
+                    continue;
+                }
+
+                availablePositions.Add(
+                    new Vector2Int(x, y)
+                );
+            }
+        }
+
+        if (availablePositions.Count == 0)
+        {
+            Debug.LogWarning(
+                "적 랜덤 편성 배치 실패: " +
+                "상대 시작 영역에 빈칸이 없습니다."
+            );
+
+            return;
+        }
+
+        // 위치 목록을 먼저 섞어 같은 좌표가 중복 선택되지 않게 한다.
+        ShufflePositions(
+            availablePositions
+        );
+
+        int spawnCount =
+            Mathf.Clamp(
+                formationData.randomPieceCount,
+                1,
+                availablePositions.Count
+            );
+
+        int spawnedCount = 0;
+
+        for (int i = 0;
+             i < spawnCount;
+             i++)
+        {
+            PieceData selectedPieceData =
+                formationData.RollRandomPieceData();
+
+            if (selectedPieceData == null)
+            {
+                Debug.LogWarning(
+                    "적 랜덤 편성 배치 중단: " +
+                    "비율 추첨 가능한 PieceData가 없습니다."
+                );
+
+                break;
+            }
+
+            Vector2Int spawnPosition =
+                availablePositions[i];
+
+            // 기존 PieceManager의 PieceData 직접 생성 함수를 사용한다.
+            // 이 함수는 PieceData의 외형, 고유스킬, 기본 일반스킬까지 적용한다.
+            Piece spawnedPiece =
+                pieceManager.SpawnPieceFromData(
+                    selectedPieceData,
+                    PieceTeam.Enemy,
+                    spawnPosition.x,
+                    spawnPosition.y,
+                    true,
+                    false
+                );
+
+            if (spawnedPiece != null)
+            {
+                spawnedCount++;
+            }
+        }
+
+        Debug.Log(
+            $"적 랜덤 편성 배치 완료: " +
+            $"{formationData.formationName} / " +
+            $"요청 {spawnCount}개 / 생성 {spawnedCount}개"
+        );
+    }
+
+    // <변경부분> 상대 시작 위치 후보를 Fisher-Yates 방식으로 섞는다.
+    private void ShufflePositions(
+        List<Vector2Int> positions)
+    {
+        if (positions == null)
+        {
+            return;
+        }
+
+        for (int i = positions.Count - 1;
+             i > 0;
+             i--)
+        {
+            int randomIndex =
+                Random.Range(
+                    0,
+                    i + 1
+                );
+
+            Vector2Int temporaryPosition =
+                positions[i];
+
+            positions[i] =
+                positions[randomIndex];
+
+            positions[randomIndex] =
+                temporaryPosition;
+        }
     }
 
     // <변경부분> StageBattleData에 등록된 규칙을 기준으로 적 기물에게 일반스킬을 랜덤 부여
