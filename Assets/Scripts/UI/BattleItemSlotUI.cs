@@ -51,36 +51,58 @@ public class BattleItemSlotUI : MonoBehaviour
         }
     }
 
-    // <변경부분> 현재 슬롯에 들어있는 아이템 데이터에 맞게 아이콘을 갱신하는 함수
+    // <변경부분> 현재 슬롯에 들어있는 아이템 데이터에 맞게
+    // 아이콘, 버튼 클릭 가능 여부, Tooltip을 갱신한다.
+    //
+    // 개별 슬롯 오브젝트는 숨기지 않는다.
+    // 아이템 바 전체 표시 여부는 BattleUIController에서 별도로 처리한다.
     public void Refresh(BattleItemData itemData)
     {
-        // 아이템 데이터가 있고, 아이템 타입이 None이 아니면 아이템이 있는 상태
-        bool hasItem = itemData != null && itemData.itemType != BattleItemType.None;
+        // 아이템 데이터가 있고 아이템 타입이 None이 아니면
+        // 실제 아이템이 들어 있는 슬롯이다.
+        bool hasItem =
+            itemData != null &&
+            itemData.itemType != BattleItemType.None;
+
+        // <변경부분> 이전 갱신에서 슬롯 오브젝트가 비활성화됐을 수 있으므로
+        // 모든 슬롯은 항상 다시 활성화한다.
+        if (gameObject.activeSelf == false)
+        {
+            gameObject.SetActive(
+                true
+            );
+        }
 
         // 아이템 아이콘 이미지 갱신
         if (itemIconImage != null)
         {
-            itemIconImage.sprite = hasItem ? itemData.iconSprite : null;
-            itemIconImage.enabled = hasItem && itemData.iconSprite != null;
+            itemIconImage.sprite =
+                hasItem
+                    ? itemData.iconSprite
+                    : null;
+
+            itemIconImage.enabled =
+                hasItem &&
+                itemData.iconSprite != null;
         }
 
-        // 아이템이 있는 슬롯만 클릭 가능하게 처리
+        // 아이템이 들어 있는 슬롯만 클릭 가능하게 처리
         if (slotButton != null)
         {
-            slotButton.interactable = hasItem;
+            slotButton.interactable =
+                hasItem;
         }
 
-        // 아이템이 있는 슬롯만 클릭 가능하게 처리
-        if (slotButton != null)
-        {
-            slotButton.interactable = hasItem;
-        }
-
-        // <변경부분> 아이템이 있는 슬롯에는 아이템 데이터 기반 Tooltip을 연결하고, 빈 슬롯은 Tooltip을 제거
+        // <변경부분> 아이템이 있는 슬롯에는 Tooltip을 연결하고
+        // 빈 슬롯에서는 기존 Tooltip 데이터를 제거한다.
         if (tooltipTrigger != null)
         {
             tooltipTrigger.SetTooltipViewData(
-                hasItem ? TooltipViewData.FromBattleItemData(itemData) : null
+                hasItem
+                    ? TooltipViewData.FromBattleItemData(
+                        itemData
+                    )
+                    : null
             );
         }
     }

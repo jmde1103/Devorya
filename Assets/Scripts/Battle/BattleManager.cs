@@ -54,6 +54,23 @@ public class BattleManager : MonoBehaviour
     // 현재 선택된 기물
     private Piece selectedPiece;
 
+    [Header("Player Deployment")]
+    // <변경부분> 전투 시작 전에 플레이어 기물의 위치를 정하는
+    // 초기 배치 단계를 사용할지 여부
+    [SerializeField]
+    private bool usePlayerDeploymentPhase = true;
+
+    // <변경부분> 플레이어 배치에 사용할 시작 구역의 세로 칸 수
+    // 5x6 보드에서는 아래쪽 2줄인 Y = 0, 1을 사용한다.
+    [SerializeField, Min(1)]
+    private int playerDeploymentRowCount = 2;
+
+    // <변경부분> 현재 플레이어 초기 배치 단계가 진행 중인지 확인
+    private bool isPlayerDeploymentPhase = false;
+
+    // <변경부분> 초기 배치 단계에서 현재 선택한 플레이어 기물
+    private Piece selectedDeploymentPiece = null;
+
     // <변경부분> 이동 또는 공격 실행 전에
     // 첫 번째 클릭으로 확인한 타일
     private Tile pendingActionTile = null;
@@ -146,6 +163,13 @@ public class BattleManager : MonoBehaviour
     public bool IsActionAnimating
     {
         get { return isActionAnimating; }
+    }
+
+    // <변경부분> BattleUIController가 흡수 버튼을
+    // 배치 완료 체크 버튼으로 사용할지 확인할 수 있도록 공개한다.
+    public bool IsPlayerDeploymentPhase
+    {
+        get { return isPlayerDeploymentPhase; }
     }
 
     // <변경부분> 현재 ChanceAttack 추가 행동을 받아
@@ -257,19 +281,24 @@ public class BattleManager : MonoBehaviour
             battleItemEffectHandler.Initialize(pieceManager);
         }
 
-        // <변경부분> 전투 시작 시 현재 턴 정보를 AI 매니저에 전달한다.
-        // 현재 턴이 Player라면 AI는 아무 행동도 하지 않는다.
-        if (battleAIManager != null)
-        {
-            battleAIManager.HandleTurnStarted(
-                currentTurn
-            );
-        }
+        // <변경부분> BattleSetupManager의 기물 생성이 끝난 다음 프레임에
+        // 플레이어 초기 배치 단계를 시작한다.
+        //
+        // 배치 단계를 사용하지 않는 경우에는
+        // 기존처럼 정상 전투 턴을 바로 시작한다.
+        StartCoroutine(
+            BeginPlayerDeploymentAfterSetupRoutine()
+        );
     }
 
     private void Update()
     {
-
+        // <변경부분> 플레이어 초기 배치 단계에서는
+        // 턴 종료, 흡수, 고유스킬 등의 전투 단축키를 받지 않는다.
+        if (isPlayerDeploymentPhase)
+        {
+            return;
+        }
 
         // Space 키를 누르면 턴 종료
         if (Input.GetKeyDown(KeyCode.Space))
@@ -315,6 +344,17 @@ public class BattleManager : MonoBehaviour
         // 전투가 종료되었다면 더 이상 선택 불가
         if (isBattleEnded)
         {
+            return;
+        }
+
+        // <변경부분> 초기 배치 단계의 기물 선택은
+        // 일반 전투 선택 로직과 완전히 분리한다.
+        if (isPlayerDeploymentPhase)
+        {
+            HandleDeploymentPieceSelection(
+                piece
+            );
+
             return;
         }
 
@@ -484,6 +524,17 @@ public class BattleManager : MonoBehaviour
         // 클릭한 타일이 없으면 처리할 수 없다.
         if (tile == null)
         {
+            return;
+        }
+
+        // <변경부분> 초기 배치 단계에서는 일반 이동·공격 판정을 하지 않고
+        // 플레이어 기물 선택, 빈칸 이동, 기물 위치 교환만 처리한다.
+        if (isPlayerDeploymentPhase)
+        {
+            HandleDeploymentTileSelection(
+                tile
+            );
+
             return;
         }
 
@@ -692,12 +743,420 @@ public class BattleManager : MonoBehaviour
         RefreshTypeIconVisuals();
     }
 
+    // <변경부분> BattleSetupManager의 Start에서 보드와 기물 생성이 끝날 때까지
+    // 한 프레임 기다린 뒤 플레이어 초기 배치 또는 정상 전투를 시작한다.
+    private IEnumerator BeginPlayerDeploymentAfterSetupRoutine()
+    {
+        yield return null;
+
+        if (usePlayerDeploymentPhase)
+        {
+            BeginPlayerDeploymentPhase();
+            yield break;
+        }
+
+        StartNormalBattleTurn();
+    }
+
+    // <변경부분> 플레이어 초기 배치 단계를 시작한다.
+    private void BeginPlayerDeploymentPhase()
+    {
+        isPlayerDeploymentPhase =
+            true;
+
+        selectedDeploymentPiece =
+            null;
+
+        selectedPiece =
+            null;
+
+        pendingActionTile =
+            null;
+
+        pendingAttackTargetPiece =
+            null;
+
+        ClearHighlights();
+        RefreshTypeIconVisuals();
+
+        // <변경부분> 흡수 버튼을 체크 버튼으로 변경하고
+        // 고유스킬 버튼은 배치 종료 전까지 숨긴다.
+        if (battleUIController != null)
+        {
+            battleUIController.SetPlayerDeploymentMode(
+                true
+            );
+
+            // <변경부분> 기존 SkillFailurePopup을 재사용하여
+            // 전투 시작 전 플레이어 기물 배치 방법을 안내한다.
+            battleUIController.ShowUniqueSkillFailureMessage(
+                "기물 자리 배치를 진행하고\n 체크 버튼을 누르세요."
+            );
+        }
+
+        Debug.Log(
+            "플레이어 초기 배치 시작: " +
+            "Pawn / Knight / Rook / Bishop의 위치를 정한 뒤 " +
+            "체크 버튼을 누르세요."
+        );
+    }
+
+    // <변경부분> 배치 단계에서 기물을 직접 클릭했을 때
+    // 해당 기물을 배치 대상으로 선택한다.
+    private void HandleDeploymentPieceSelection(
+        Piece piece)
+    {
+        if (piece == null)
+        {
+            ClearDeploymentSelection();
+            return;
+        }
+
+        if (CanSelectPieceForDeployment(piece) == false)
+        {
+            Debug.Log(
+                "배치 선택 불가: " +
+                "Player 진영의 Pawn / Knight / Rook / Bishop만 옮길 수 있습니다."
+            );
+
+            return;
+        }
+
+        SelectDeploymentPiece(
+            piece
+        );
+    }
+
+    // <변경부분> 배치 단계의 타일 클릭을 처리한다.
+    //
+    // 선택된 기물이 없는 경우:
+    // 클릭한 플레이어 기물을 선택
+    //
+    // 선택된 기물이 있는 경우:
+    // 빈칸으로 이동하거나 다른 일반 플레이어 기물과 자리를 교환
+    private void HandleDeploymentTileSelection(
+        Tile tile)
+    {
+        if (tile == null ||
+            pieceManager == null)
+        {
+            return;
+        }
+
+        Piece clickedPiece =
+            pieceManager.GetPieceAt(
+                tile.X,
+                tile.Y
+            );
+
+        // 아직 배치 기물을 선택하지 않은 상태라면
+        // 클릭한 일반 플레이어 기물을 선택한다.
+        if (selectedDeploymentPiece == null)
+        {
+            if (clickedPiece != null)
+            {
+                HandleDeploymentPieceSelection(
+                    clickedPiece
+                );
+            }
+
+            return;
+        }
+
+        // 현재 선택한 기물을 다시 클릭하면 선택을 해제한다.
+        if (clickedPiece ==
+            selectedDeploymentPiece)
+        {
+            ClearDeploymentSelection();
+            return;
+        }
+
+        // 플레이어 시작 구역 밖에는 배치할 수 없다.
+        if (IsInsidePlayerDeploymentArea(
+                tile.X,
+                tile.Y) == false)
+        {
+            Debug.Log(
+                $"배치 이동 불가: " +
+                $"({tile.X}, {tile.Y})는 플레이어 시작 구역이 아닙니다."
+            );
+
+            return;
+        }
+
+        // 목표 칸에 King, Enemy, Neutral 등이 있으면
+        // 해당 기물과 자리를 교환하지 않는다.
+        if (clickedPiece != null &&
+            CanSelectPieceForDeployment(
+                clickedPiece) == false)
+        {
+            Debug.Log(
+                "배치 이동 불가: " +
+                "King 또는 다른 진영 기물과는 자리를 교체할 수 없습니다."
+            );
+
+            return;
+        }
+
+        Piece movingPiece =
+            selectedDeploymentPiece;
+
+        bool moved =
+            pieceManager.TryMoveOrSwapPlayerDeploymentPiece(
+                movingPiece,
+                tile.X,
+                tile.Y
+            );
+
+        if (moved == false)
+        {
+            return;
+        }
+
+        ClearDeploymentSelection();
+
+        Debug.Log(
+            $"플레이어 배치 변경 완료: " +
+            $"{movingPiece.PieceType} → ({tile.X}, {tile.Y})"
+        );
+    }
+
+    // <변경부분> 배치 단계에서 위치를 옮길 수 있는 기물인지 확인한다.
+    //
+    // Player 진영의 Pawn, Knight, Rook, Bishop만 허용하고
+    // King, Queen, Special, Enemy, Neutral은 제외한다.
+    private bool CanSelectPieceForDeployment(
+        Piece piece)
+    {
+        if (piece == null ||
+            piece.Team != PieceTeam.Player)
+        {
+            return false;
+        }
+
+        switch (piece.PieceType)
+        {
+            case PieceType.Pawn:
+            case PieceType.Knight:
+            case PieceType.Rook:
+            case PieceType.Bishop:
+                return true;
+        }
+
+        return false;
+    }
+
+    // <변경부분> 플레이어 초기 배치에서 사용할 시작 구역인지 검사한다.
+    // 기본값 2에서는 보드 아래쪽 Y = 0, 1만 허용한다.
+    private bool IsInsidePlayerDeploymentArea(
+        int x,
+        int y)
+    {
+        if (boardManager == null)
+        {
+            return false;
+        }
+
+        if (x < 0 ||
+            x >= boardManager.Width)
+        {
+            return false;
+        }
+
+        int deploymentRowCount =
+            Mathf.Clamp(
+                playerDeploymentRowCount,
+                1,
+                boardManager.Height
+            );
+
+        return
+            y >= 0 &&
+            y < deploymentRowCount;
+    }
+
+    // <변경부분> 배치 단계에서 위치를 옮길 플레이어 기물을 선택한다.
+    private void SelectDeploymentPiece(
+        Piece piece)
+    {
+        if (piece == null)
+        {
+            return;
+        }
+
+        // 이전에 선택한 다른 기물이 있다면
+        // 선택 해제 애니메이션을 재생한다.
+        if (selectedDeploymentPiece != null &&
+            selectedDeploymentPiece != piece)
+        {
+            pieceManager.PlayPieceDeselectAnimation(
+                selectedDeploymentPiece
+            );
+        }
+
+        selectedDeploymentPiece =
+            piece;
+
+        selectedPiece =
+            piece;
+
+        pendingAttackTargetPiece =
+            null;
+
+        pieceManager.PlayPieceSelectAnimation(
+            selectedDeploymentPiece
+        );
+
+        ClearHighlights();
+
+        // <변경부분> 플레이어 시작 구역의 이동·교환 가능한 칸을 표시한다.
+        ShowPlayerDeploymentTiles();
+
+        RefreshTypeIconVisuals();
+
+        Debug.Log(
+            $"배치 기물 선택: " +
+            $"{piece.PieceType} / ({piece.X}, {piece.Y})"
+        );
+    }
+
+    // <변경부분> 현재 배치 기물 선택과 하이라이트를 해제한다.
+    private void ClearDeploymentSelection()
+    {
+        if (selectedDeploymentPiece != null)
+        {
+            pieceManager.PlayPieceDeselectAnimation(
+                selectedDeploymentPiece
+            );
+        }
+
+        selectedDeploymentPiece =
+            null;
+
+        selectedPiece =
+            null;
+
+        pendingAttackTargetPiece =
+            null;
+
+        ClearHighlights();
+        RefreshTypeIconVisuals();
+
+        // 배치 중에는 기물 선택이 해제되어도
+        // 체크 버튼은 계속 표시되어야 한다.
+        if (battleUIController != null)
+        {
+            battleUIController.SetPlayerDeploymentMode(
+                true
+            );
+        }
+    }
+
+    // <변경부분> 플레이어 시작 구역에서
+    // 빈칸 또는 교환 가능한 일반 플레이어 기물 칸을 하이라이트한다.
+    private void ShowPlayerDeploymentTiles()
+    {
+        if (selectedDeploymentPiece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return;
+        }
+
+        int deploymentRows =
+            Mathf.Clamp(
+                playerDeploymentRowCount,
+                1,
+                boardManager.Height
+            );
+
+        for (int y = 0;
+             y < deploymentRows;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece targetPiece =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
+                // King, Enemy, Neutral 등이 있는 칸은 표시하지 않는다.
+                if (targetPiece != null &&
+                    CanSelectPieceForDeployment(
+                        targetPiece) == false)
+                {
+                    continue;
+                }
+
+                HighlightTile(
+                    x,
+                    y
+                );
+            }
+        }
+    }
+
+    // <변경부분> 우측 체크 버튼에서 호출하는
+    // 플레이어 초기 배치 완료 함수
+    public void ConfirmPlayerDeployment()
+    {
+        if (isPlayerDeploymentPhase == false)
+        {
+            return;
+        }
+
+        ClearDeploymentSelection();
+
+        isPlayerDeploymentPhase =
+            false;
+
+        // <변경부분> 체크 아이콘을 기존 흡수 아이콘으로 복구하고
+        // 정상 전투 UI 상태로 전환한다.
+        if (battleUIController != null)
+        {
+            battleUIController.SetPlayerDeploymentMode(
+                false
+            );
+
+            battleUIController.HideActionButtons();
+        }
+
+        Debug.Log(
+            "플레이어 초기 배치 완료: 전투를 시작합니다."
+        );
+
+        StartNormalBattleTurn();
+    }
+
+    // <변경부분> 배치 종료 후 현재 턴을
+    // 기존 BattleAIManager 전투 흐름에 전달한다.
+    private void StartNormalBattleTurn()
+    {
+        if (battleAIManager != null)
+        {
+            battleAIManager.HandleTurnStarted(
+                currentTurn
+            );
+        }
+    }
+
     // <변경부분> 사람과 AI가 공통으로 사용하는 전투 행동 실행 진입점
     // 행동 기물과 목표 좌표를 직접 전달받아 selectedPiece 의존성을 제거한다.
     public bool TryExecuteBattleAction(
         Piece actingPiece,
         Vector2Int targetPosition)
     {
+        // <변경부분> 초기 배치 단계에서는
+        // 일반 이동 및 공격 행동을 실행하지 않는다.
+        if (isPlayerDeploymentPhase)
+        {
+            return false;
+        }
+
         // 전투가 종료된 상태에서는 행동을 실행할 수 없다.
         if (isBattleEnded)
         {
@@ -883,15 +1342,16 @@ public class BattleManager : MonoBehaviour
 
         bool skillUsed = false;
 
-        // 실제 고유스킬 효과가 모두 끝날 때까지 기다린다.
+        // <변경부분> UniqueSkillData의 아이콘을 함께 전달하여
+        // 실제 고유스킬보다 아이콘이 먼저 재생되도록 한다.
         yield return
             battleSkillManager
                 .TryUseUniqueSkillRoutine(
                     skillPiece,
+                    skillData.iconSprite,
                     result =>
                         skillUsed = result
                 );
-
         if (skillUsed == false)
         {
             Debug.LogWarning(
@@ -923,6 +1383,7 @@ public class BattleManager : MonoBehaviour
         skillPiece.MarkUniqueSkillUsed(
             skillData.cooldownTurn
         );
+
 
         // AI 행동에는 플레이어 클릭 확인 상태가 필요하지 않으므로 초기화한다.
         pendingActionTile = null;
@@ -1113,6 +1574,15 @@ public class BattleManager : MonoBehaviour
 
                 if (isDefenseCanceledByInsight)
                 {
+                    // <변경부분> 실제 방어 무효화 흐름을 계속 진행하기 전에
+                    // Insight 아이콘의 확대 연출을 먼저 재생한다.
+                    yield return
+                        battleSkillManager
+                            .PlayGeneralSkillActivationBeforeEffectRoutine(
+                                actingPiece,
+                                GeneralSkillType.Insight
+                            );
+
                     Debug.Log(
                         $"Insight 발동: " +
                         $"{actingPiece.Team} {actingPiece.PieceType}이 " +
@@ -1342,11 +1812,20 @@ public class BattleManager : MonoBehaviour
         // Defence 상태효과로 공격이 막힌 경우:
         // 실제 타일 이동이 없으므로 판정하지 않음
         if (didCompleteMove &&
-            battleSkillManager != null)
+    battleSkillManager != null)
         {
-            battleSkillManager.TryGrantDefenceAfterMove(
-                actingPiece
-            );
+            bool defenceGranted =
+                false;
+
+            // <변경부분> Defense가 발동하면
+            // 아이콘을 먼저 보여준 뒤 실제 상태효과가 적용될 때까지 기다린다.
+            yield return
+                battleSkillManager
+                    .TryGrantDefenceAfterMoveRoutine(
+                        actingPiece,
+                        result =>
+                            defenceGranted = result
+                    );
         }
 
         // <변경부분> 이동 또는 공격이 실행되었으므로
@@ -1414,8 +1893,9 @@ public class BattleManager : MonoBehaviour
         }
 
         // 적대 기물을 처치했을 때
-        // 행동 시작 전 ChanceAttack 레벨 기준으로 발동 판정
-        if (killedEnemyPiece &&
+        // 행동 시작 전 ChanceAttack 보유 상태를 기준으로 발동 판정
+        bool isChanceAttackActivated =
+            killedEnemyPiece &&
             battleSkillManager != null &&
             battleMoveValidator != null &&
             battleMoveValidator.HasAnySelectableTile(
@@ -1425,12 +1905,24 @@ public class BattleManager : MonoBehaviour
                 actingPiece,
                 chanceAttackDataBeforeAction,
                 chanceAttackContinuousCount
-            ))
+            );
+
+        if (isChanceAttackActivated)
         {
-            // 일반 ChanceAttack 연속 발동 횟수 증가
+            // <변경부분> 추가 행동 상태를 적용하기 전에
+            // ChanceAttack 아이콘의 확대 연출을 먼저 재생한다.
+            yield return
+                battleSkillManager
+                    .PlayGeneralSkillActivationBeforeEffectRoutine(
+                        actingPiece,
+                        GeneralSkillType.ChanceAttack
+                    );
+
+            // 아이콘 연출 후 연속 발동 횟수 증가
             chanceAttackContinuousCount++;
 
-            // 추가 행동 상태 적용
+            // <변경부분> 아이콘이 먼저 뜬 뒤
+            // 실제 추가 행동 상태를 적용한다.
             ActivateChanceAttackBonus(
                 actingPiece
             );
@@ -1482,6 +1974,14 @@ public class BattleManager : MonoBehaviour
 
     public void ToggleAbsorbMode()
     {
+
+        // <변경부분> 초기 배치 중에는 흡수 버튼을
+        // 체크 버튼으로 사용하므로 흡수 모드를 켜지 않는다.
+        if (isPlayerDeploymentPhase)
+        {
+            return;
+        }
+
         if (currentTurn != BattleTurn.Player)
         {
             Debug.Log("흡수는 플레이어 턴에만 사용할 수 있습니다.");
@@ -1528,6 +2028,13 @@ public class BattleManager : MonoBehaviour
     // 현재 선택된 기물의 고유 스킬을 사용하는 함수
     public void UseSelectedPieceSkill()
     {
+        // <변경부분> 초기 배치가 끝나기 전에는
+        // 고유스킬을 사용할 수 없다.
+        if (isPlayerDeploymentPhase)
+        {
+            return;
+        }
+
         // 전투가 끝났으면 스킬 사용 불가
         if (isBattleEnded)
         {
@@ -1626,8 +2133,15 @@ public class BattleManager : MonoBehaviour
 
         bool skillUsed = false;
 
-        // <변경부분> 실제 고유스킬 실행이 끝날 때까지 대기
-        yield return battleSkillManager.TryUseUniqueSkillRoutine(skillPiece, result => skillUsed = result);
+        // <변경부분> 고유스킬 데이터 아이콘을 전달하여
+        // 실제 효과보다 아이콘 연출이 먼저 실행되도록 한다.
+        yield return
+            battleSkillManager.TryUseUniqueSkillRoutine(
+                skillPiece,
+                skillData.iconSprite,
+                result =>
+                    skillUsed = result
+            );
 
         // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
         if (skillUsed)
@@ -1834,6 +2348,13 @@ public class BattleManager : MonoBehaviour
     // <변경부분> BattleItemManager가 아이템 사용 가능 상태인지 확인할 때 호출하는 함수
     public bool CanUseBattleItem()
     {
+        // <변경부분> 초기 배치가 끝나기 전에는
+        // 전투 아이템을 사용할 수 없다.
+        if (isPlayerDeploymentPhase)
+        {
+            return false;
+        }
+
         // 전투가 끝났으면 아이템 사용 불가
         if (isBattleEnded)
         {

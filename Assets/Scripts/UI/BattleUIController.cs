@@ -28,9 +28,16 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private PieceStatusUIController enemyStatusUIController;
 
     [Header("Absorb Icon")]
+    // <변경부분> 정상 전투 중 흡수 OFF / ON 아이콘을 표시하는 Image
     [SerializeField] private Image absorbIconImage;
+
     [SerializeField] private Sprite absorbOffSprite;
     [SerializeField] private Sprite absorbOnSprite;
+
+    // <변경부분> 초기 배치 단계에서만 표시할 별도의 체크 아이콘 Image
+    // 별도 RectTransform을 사용하므로 Inspector에서 크기를 독립적으로 설정한다.
+    [SerializeField] private Image deploymentConfirmIconImage;
+
 
     [Header("Icon Pixel Burst Effect")]
     // <변경부분> 흡수/고유스킬 아이콘 클릭 시 생성할 검은 픽셀 파티클 프리팹
@@ -106,6 +113,10 @@ public class BattleUIController : MonoBehaviour
     [Header("Item Slots")]
     [SerializeField] private BattleItemSlotUI[] itemSlotUIs;
 
+    // <변경부분> 아이템 슬롯 전체를 감싸는 바 루트 오브젝트
+    // 보유 아이템이 하나도 없으면 숨기고, 1개 이상이면 표시한다.
+    [SerializeField] private GameObject itemSlotBarRoot;
+
     [Header("Relic Slots")]
     // <변경부분> 전투 중 보유한 유물을 표시하는 유물 슬롯 UI 목록
     [SerializeField] private BattleRelicSlotUI[] relicSlotUIs;
@@ -151,6 +162,15 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 흡수/고유스킬 아이콘 노이즈 애니메이터 자동 연결
         AutoBindButtonIconNoiseAnimators();
 
+        // <변경부분> 게임 시작 시 배치 완료 체크 아이콘은 숨긴다.
+        // 실제 배치 단계가 시작되면 SetPlayerDeploymentMode(true)에서 표시한다.
+        if (deploymentConfirmIconImage != null)
+        {
+            deploymentConfirmIconImage.gameObject.SetActive(
+                false
+            );
+        }
+
         // <변경부분> 고유스킬 실패 메시지 팝업 오픈 애니메이터 자동 연결
         AutoBindUniqueSkillFailurePopupAnimator();
 
@@ -161,19 +181,61 @@ public class BattleUIController : MonoBehaviour
         HideActionButtons();
     }
 
-    // <변경부분> 흡수 버튼 클릭 시 BattleManager의 흡수 모드 전환 호출
+    // <변경부분> 흡수 버튼 클릭 시
+    // 초기 배치 중에는 배치 완료,
+    // 정상 전투 중에는 기존 흡수 모드를 실행한다.
     private void OnClickAbsorbButton()
     {
         if (battleManager == null)
         {
-            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "BattleManager가 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        // <변경부분> 흡수 아이콘 클릭 위치에서 검은 픽셀 파티클 재생
-        PlayIconPixelBurst(absorbIconPixelBurstAnchor);
+        // 흡수 또는 체크 아이콘 위치에서
+        // 기존 픽셀 파티클 연출 재생
+        PlayIconPixelBurst(
+            absorbIconPixelBurstAnchor
+        );
 
+        // <변경부분> 초기 배치 단계에서는
+        // 현재 클릭 이벤트와 버튼 노이즈 애니메이션 호출이 모두 끝난 뒤
+        // 다음 프레임에 배치 완료 처리를 실행한다.
+        //
+        // 같은 클릭 프레임 안에서 Absorb Button을 비활성화하면
+        // UIButtonNoiseAnimator가 비활성 오브젝트에서 코루틴을 시작하려 해
+        // Coroutine couldn't be started 오류가 발생한다.
+        if (battleManager.IsPlayerDeploymentPhase)
+        {
+            StartCoroutine(
+                ConfirmPlayerDeploymentAfterClickRoutine()
+            );
+
+            return;
+        }
+
+        // 초기 배치가 끝난 뒤에는 기존 흡수 버튼으로 동작한다.
         battleManager.ToggleAbsorbMode();
+    }
+
+    // <변경부분> 체크 버튼 클릭과 UIButtonNoiseAnimator 호출이
+    // 모두 처리된 다음 프레임에 초기 배치를 완료한다.
+    private IEnumerator ConfirmPlayerDeploymentAfterClickRoutine()
+    {
+        // 현재 클릭 이벤트가 완전히 끝날 때까지 한 프레임 대기
+        yield return null;
+
+        // 대기 중 참조가 사라졌거나 이미 배치가 종료됐다면 중복 실행하지 않는다.
+        if (battleManager == null ||
+            battleManager.IsPlayerDeploymentPhase == false)
+        {
+            yield break;
+        }
+
+        battleManager.ConfirmPlayerDeployment();
     }
 
     // <변경부분> 고유 스킬 버튼 클릭 시 BattleManager의 고유 스킬 사용 호출
@@ -320,14 +382,48 @@ public class BattleUIController : MonoBehaviour
         battleManager.UseItemAtSlot(slotIndex);
     }
 
-    // <변경부분> 아이템 슬롯 UI 전체를 현재 아이템 목록에 맞게 갱신
+    // <변경부분> 아이템 슬롯 UI 전체를 현재 아이템 목록에 맞게 갱신하고,
+    // 보유 아이템이 하나도 없으면 아이템 슬롯 바 전체를 숨긴다.
     public void RefreshItemSlots(BattleItemData[] itemSlots)
     {
+        bool hasAnyItem = false;
+
+        // <변경부분> 실제 보유 아이템이 하나라도 있는지 먼저 검사한다.
+        if (itemSlots != null)
+        {
+            for (int i = 0; i < itemSlots.Length; i++)
+            {
+                BattleItemData itemData =
+                    itemSlots[i];
+
+                if (itemData == null ||
+                    itemData.itemType ==
+                        BattleItemType.None)
+                {
+                    continue;
+                }
+
+                hasAnyItem = true;
+                break;
+            }
+        }
+
+        // <변경부분> 아이템이 0개면 바 전체를 숨기고,
+        // 하나라도 있으면 다시 표시한다.
+        if (itemSlotBarRoot != null)
+        {
+            itemSlotBarRoot.SetActive(
+                hasAnyItem
+            );
+        }
+
         if (itemSlotUIs == null)
         {
             return;
         }
 
+        // 개별 슬롯은 기존 방식대로
+        // 아이콘과 클릭 가능 여부만 갱신한다.
         for (int i = 0; i < itemSlotUIs.Length; i++)
         {
             if (itemSlotUIs[i] == null)
@@ -337,12 +433,16 @@ public class BattleUIController : MonoBehaviour
 
             BattleItemData itemData = null;
 
-            if (itemSlots != null && i < itemSlots.Length)
+            if (itemSlots != null &&
+                i < itemSlots.Length)
             {
-                itemData = itemSlots[i];
+                itemData =
+                    itemSlots[i];
             }
 
-            itemSlotUIs[i].Refresh(itemData);
+            itemSlotUIs[i].Refresh(
+                itemData
+            );
         }
     }
 
@@ -440,6 +540,96 @@ public class BattleUIController : MonoBehaviour
         if (enemyStatusUIController != null)
         {
             enemyStatusUIController.Clear();
+        }
+    }
+
+    // <변경부분> 플레이어 초기 배치 단계의 액션 버튼 상태를 적용한다.
+    //
+    // 배치 중:
+    // 기존 흡수 아이콘 숨김
+    // 별도 체크 아이콘 표시
+    // 고유스킬 버튼 숨김
+    //
+    // 배치 종료:
+    // 체크 아이콘 숨김
+    // 기존 흡수 아이콘 복구
+    public void SetPlayerDeploymentMode(
+        bool isDeploymentMode)
+    {
+        if (isDeploymentMode)
+        {
+            // 배치 완료 체크 버튼으로 사용할
+            // 기존 Absorb Button 루트는 계속 표시한다.
+            SetAbsorbButtonVisible(
+                true
+            );
+
+            SetUniqueSkillButtonVisible(
+                false
+            );
+
+            // <변경부분> 기존 흡수 아이콘은 숨긴다.
+            if (absorbIconImage != null)
+            {
+                absorbIconImage.gameObject.SetActive(
+                    false
+                );
+            }
+
+            // <변경부분> 별도의 체크 아이콘 Image를 표시한다.
+            // 별도 RectTransform이므로 Inspector에서 원하는 크기로 설정할 수 있다.
+            if (deploymentConfirmIconImage != null)
+            {
+                deploymentConfirmIconImage.gameObject.SetActive(
+                    true
+                );
+
+                deploymentConfirmIconImage.enabled =
+                    true;
+            }
+
+            // 배치 중에는 체크 버튼이므로
+            // 기존 흡수 Tooltip을 표시하지 않는다.
+            if (absorbTooltipTrigger != null)
+            {
+                absorbTooltipTrigger.SetTooltipData(
+                    null
+                );
+            }
+
+            return;
+        }
+
+        // <변경부분> 배치 종료 후 체크 아이콘을 숨긴다.
+        if (deploymentConfirmIconImage != null)
+        {
+            deploymentConfirmIconImage.gameObject.SetActive(
+                false
+            );
+        }
+
+        // <변경부분> 정상 전투용 흡수 아이콘을 다시 표시한다.
+        if (absorbIconImage != null)
+        {
+            absorbIconImage.gameObject.SetActive(
+                true
+            );
+
+            absorbIconImage.enabled =
+                true;
+        }
+
+        // 기존 흡수 OFF 아이콘 복구
+        SetAbsorbModeIcon(
+            false
+        );
+
+        // 기존 흡수 Tooltip 복구
+        if (absorbTooltipTrigger != null)
+        {
+            absorbTooltipTrigger.SetTooltipData(
+                absorbTooltipData
+            );
         }
     }
 
@@ -607,6 +797,28 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 액션 버튼 전체 숨김
     public void HideActionButtons()
     {
+        // <변경부분> 초기 배치 중에는 우측 체크 버튼을 유지하고
+        // 고유스킬 버튼과 스테이터스 UI만 숨긴다.
+        if (battleManager != null &&
+            battleManager.IsPlayerDeploymentPhase)
+        {
+            SetPlayerDeploymentMode(
+                true
+            );
+
+            if (playerStatusUIController != null)
+            {
+                playerStatusUIController.Clear();
+            }
+
+            if (enemyStatusUIController != null)
+            {
+                enemyStatusUIController.Clear();
+            }
+
+            return;
+        }
+
         SetAbsorbButtonVisible(false);
         SetUniqueSkillButtonVisible(false);
 

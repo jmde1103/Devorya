@@ -28,6 +28,12 @@ public class Piece : MonoBehaviour
     [SerializeField]
     private PieceFieldStatusEffectUI fieldStatusEffectUI;
 
+    [Header("Skill Activation Icon")]
+    // <변경부분> 일반스킬 또는 고유스킬 발동 시
+    // 기물 위에 스킬 아이콘 연출을 재생하는 컴포넌트
+    [SerializeField]
+    private PieceSkillActivationIcon skillActivationIcon;
+
     // 현재 기물이 보유한 고유 스킬
     public UniqueSkillType UniqueSkill { get; private set; }
 
@@ -191,6 +197,16 @@ public class Piece : MonoBehaviour
         {
             fieldStatusEffectUI =
                 GetComponentInChildren<PieceFieldStatusEffectUI>(
+                    true
+                );
+        }
+
+        // <변경부분> 스킬 발동 아이콘 연출이 Inspector에 연결되지 않았다면
+        // 비활성화된 자식 오브젝트까지 포함해 자동으로 찾는다.
+        if (skillActivationIcon == null)
+        {
+            skillActivationIcon =
+                GetComponentInChildren<PieceSkillActivationIcon>(
                     true
                 );
         }
@@ -1330,6 +1346,84 @@ public class Piece : MonoBehaviour
         }
 
         return null;
+    }
+
+    // <변경부분> 일반스킬 또는 고유스킬 발동 시
+    // 데이터에서 받은 아이콘을 기물 위 연출 컴포넌트에 전달한다.
+    public void PlaySkillActivationIcon(
+        Sprite skillIcon)
+    {
+        if (skillIcon == null)
+        {
+            return;
+        }
+
+        // Inspector 연결이 빠졌다면
+        // 비활성화된 자식까지 포함해 다시 자동 탐색한다.
+        if (skillActivationIcon == null)
+        {
+            skillActivationIcon =
+                GetComponentInChildren<PieceSkillActivationIcon>(
+                    true
+                );
+        }
+
+        if (skillActivationIcon == null)
+        {
+            Debug.LogWarning(
+                $"스킬 발동 아이콘 연출 실패: " +
+                $"{Team} {PieceType}에 " +
+                $"PieceSkillActivationIcon이 없습니다."
+            );
+
+            return;
+        }
+
+        skillActivationIcon.Play(
+            skillIcon
+        );
+    }
+
+    // <변경부분> 스킬 아이콘의 확대 등장과
+    // 기본 크기 복귀가 끝날 때까지 기다린다.
+    //
+    // 이 코루틴이 끝난 뒤 실제 스킬 효과를 실행하면
+    // 아이콘이 먼저 뜨고 스킬이 발동하는 순서를 만들 수 있다.
+    public IEnumerator PlaySkillActivationIconBeforeEffectRoutine(
+        Sprite skillIcon)
+    {
+        if (skillIcon == null)
+        {
+            yield break;
+        }
+
+        // Inspector 연결이 비어 있다면
+        // 비활성화된 자식 오브젝트까지 포함해 다시 찾는다.
+        if (skillActivationIcon == null)
+        {
+            skillActivationIcon =
+                GetComponentInChildren<PieceSkillActivationIcon>(
+                    true
+                );
+        }
+
+        if (skillActivationIcon == null)
+        {
+            Debug.LogWarning(
+                $"스킬 선행 아이콘 연출 실패: " +
+                $"{Team} {PieceType}에 " +
+                $"PieceSkillActivationIcon이 없습니다."
+            );
+
+            yield break;
+        }
+
+        // 아이콘의 선행 확대 연출이 끝날 때까지 대기
+        yield return
+            skillActivationIcon
+                .PlayBeforeEffectRoutine(
+                    skillIcon
+                );
     }
 
     // <변경부분> 특정 일반스킬을 가지고 있는지 확인하는 함수

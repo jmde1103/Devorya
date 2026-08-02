@@ -868,6 +868,172 @@ public class PieceManager : MonoBehaviour
         return GetPieceAt(x, y) == null;
     }
 
+    // <변경부분> 전투 시작 전 플레이어 초기 배치 단계에서
+    // 선택한 일반 플레이어 기물을 빈칸으로 이동하거나
+    // 다른 일반 플레이어 기물과 자리를 교환한다.
+    //
+    // 단순 Transform 이동만 하지 않고
+    // pieces 배열, Piece 좌표, CurrentTile, 정렬 순서를 함께 갱신한다.
+    public bool TryMoveOrSwapPlayerDeploymentPiece(
+        Piece movingPiece,
+        int targetX,
+        int targetY)
+    {
+        if (movingPiece == null ||
+            pieces == null ||
+            boardManager == null)
+        {
+            return false;
+        }
+
+        // 플레이어 일반 기물만 배치할 수 있다.
+        if (movingPiece.Team != PieceTeam.Player ||
+            movingPiece.PieceType == PieceType.King)
+        {
+            Debug.LogWarning(
+                "플레이어 배치 실패: " +
+                "Player 진영의 비-King 기물만 이동할 수 있습니다."
+            );
+
+            return false;
+        }
+
+        Tile targetTile =
+            boardManager.GetTile(
+                targetX,
+                targetY
+            );
+
+        // 장애물이나 이동 불가 지형에는 배치할 수 없다.
+        if (targetTile == null ||
+            targetTile.IsWalkable == false ||
+            targetTile.HasObstacle)
+        {
+            Debug.LogWarning(
+                $"플레이어 배치 실패: " +
+                $"({targetX}, {targetY}) 타일을 사용할 수 없습니다."
+            );
+
+            return false;
+        }
+
+        int sourceX =
+            movingPiece.X;
+
+        int sourceY =
+            movingPiece.Y;
+
+        // 같은 칸을 선택한 경우 위치 변경 없이 성공 처리한다.
+        if (sourceX == targetX &&
+            sourceY == targetY)
+        {
+            return true;
+        }
+
+        Piece targetPiece =
+            GetPieceAt(
+                targetX,
+                targetY
+            );
+
+        // 목표 칸에 기물이 있다면
+        // 같은 Player 진영의 일반 기물과만 교환할 수 있다.
+        if (targetPiece != null &&
+            (
+                targetPiece.Team != PieceTeam.Player ||
+                targetPiece.PieceType == PieceType.King
+            ))
+        {
+            Debug.LogWarning(
+                "플레이어 배치 실패: " +
+                "King 또는 다른 진영 기물과는 자리를 교체할 수 없습니다."
+            );
+
+            return false;
+        }
+
+        Tile sourceTile =
+            boardManager.GetTile(
+                sourceX,
+                sourceY
+            );
+
+        if (sourceTile == null)
+        {
+            return false;
+        }
+
+        // 현재 배열 좌표를 먼저 비운다.
+        pieces[sourceX, sourceY] =
+            null;
+
+        pieces[targetX, targetY] =
+            null;
+
+        // <변경부분> 목표 칸에 기존 플레이어 기물이 있었다면
+        // 선택한 기물의 기존 위치로 이동시킨다.
+        if (targetPiece != null)
+        {
+            Vector3 targetPieceWorldPosition =
+                GetPieceWorldPosition(
+                    sourceTile
+                );
+
+            targetPiece.transform.position =
+                targetPieceWorldPosition;
+
+            targetPiece.SetPosition(
+                sourceX,
+                sourceY,
+                sourceTile
+            );
+
+            pieces[sourceX, sourceY] =
+                targetPiece;
+
+            SetPieceSortingOrder(
+                targetPiece.gameObject,
+                sourceX,
+                sourceY
+            );
+        }
+
+        // 선택한 기물을 목표 위치로 이동시킨다.
+        Vector3 movingPieceWorldPosition =
+            GetPieceWorldPosition(
+                targetTile
+            );
+
+        movingPiece.transform.position =
+            movingPieceWorldPosition;
+
+        movingPiece.SetPosition(
+            targetX,
+            targetY,
+            targetTile
+        );
+
+        pieces[targetX, targetY] =
+            movingPiece;
+
+        SetPieceSortingOrder(
+            movingPiece.gameObject,
+            targetX,
+            targetY
+        );
+
+        Debug.Log(
+            targetPiece == null
+                ? $"초기 배치 이동 완료: " +
+                  $"{movingPiece.PieceType} " +
+                  $"({sourceX}, {sourceY}) → ({targetX}, {targetY})"
+                : $"초기 배치 교환 완료: " +
+                  $"{movingPiece.PieceType} ↔ {targetPiece.PieceType}"
+        );
+
+        return true;
+    }
+
     // 기물을 특정 좌표로 이동시키는 함수
     // 기존 외부 호출 호환용 함수
     public void MovePiece(Piece piece, int targetX, int targetY)

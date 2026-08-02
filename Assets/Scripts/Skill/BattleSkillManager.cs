@@ -110,37 +110,41 @@ public class BattleSkillManager : MonoBehaviour
             finalChancePercent;
 
         Debug.Log(
-            $"ChanceAttack 판정: " +
-            $"기본확률 {baseChancePercent}% / " +
-            $"연속횟수 {chanceAttackContinuousCount} / " +
-            $"감소배율 {penaltyMultiplier:F3} / " +
-            $"최종확률 {finalChancePercent:F1}% / " +
-            $"랜덤 {randomValue:F1} / " +
-            $"결과 {isActivated}"
-        );
+    $"ChanceAttack 판정: " +
+    $"기본확률 {baseChancePercent}% / " +
+    $"연속횟수 {chanceAttackContinuousCount} / " +
+    $"감소배율 {penaltyMultiplier:F3} / " +
+    $"최종확률 {finalChancePercent:F1}% / " +
+    $"랜덤 {randomValue:F1} / " +
+    $"결과 {isActivated}"
+);
 
+        // <변경부분> 이 함수에서는 확률 판정 결과만 반환한다.
+        // 아이콘 선행 연출과 실제 추가 행동 적용은
+        // BattleManager 전투 코루틴에서 순서대로 처리한다.
         return isActivated;
     }
 
-    // <변경부분> 실제 이동을 완료한 기물이
-    // Defense 일반스킬을 보유한 경우 Defence 상태효과 부여를 판정한다.
-    //
-    // 빈칸 이동과 공격 성공 이동이 모두 끝난 뒤 호출해야 한다.
-    // 공격이 방어되어 원래 위치로 돌아온 경우에는 호출하지 않는다.
-    public bool TryGrantDefenceAfterMove(
-        Piece movedPiece)
+    // <변경부분> 실제 이동을 완료한 기물의 Defense 발동을 판정하고,
+    // 성공하면 아이콘 확대 연출을 먼저 보여준 뒤
+    // 실제 Defence 상태효과를 부여한다.
+    public IEnumerator TryGrantDefenceAfterMoveRoutine(
+        Piece movedPiece,
+        Action<bool> onComplete)
     {
         if (movedPiece == null)
         {
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         // Defense 일반스킬이 없는 기물은 판정하지 않는다.
         if (movedPiece.HasGeneralSkill(
-            GeneralSkillType.Defense
-        ) == false)
+                GeneralSkillType.Defense
+            ) == false)
         {
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         if (generalSkillDatabase == null)
@@ -150,7 +154,8 @@ public class BattleSkillManager : MonoBehaviour
                 "Defense 일반스킬을 판정할 수 없습니다."
             );
 
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         GeneralSkillData defenseData =
@@ -165,16 +170,17 @@ public class BattleSkillManager : MonoBehaviour
                 "Defense 데이터를 찾을 수 없습니다."
             );
 
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         int defenseGrantChancePercent =
-            defenseData
-                .GetDefenseGrantChancePercent();
+            defenseData.GetDefenseGrantChancePercent();
 
         if (defenseGrantChancePercent <= 0)
         {
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         float randomValue =
@@ -196,7 +202,8 @@ public class BattleSkillManager : MonoBehaviour
 
         if (isActivated == false)
         {
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
         if (statusEffectDatabase == null)
@@ -206,11 +213,10 @@ public class BattleSkillManager : MonoBehaviour
                 "Defence 상태효과를 부여할 수 없습니다."
             );
 
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
-        // 기존 아이템 방어 효과와 동일한
-        // Defence 상태효과 데이터를 사용한다.
         StatusEffectData defenceStatusEffectData =
             statusEffectDatabase.GetData(
                 StatusEffectType.Defence
@@ -223,9 +229,19 @@ public class BattleSkillManager : MonoBehaviour
                 "Defence 상태효과 데이터를 찾을 수 없습니다."
             );
 
-            return false;
+            onComplete?.Invoke(false);
+            yield break;
         }
 
+        // <변경부분> 실제 상태효과를 부여하기 전에
+        // Defense 아이콘의 확대 등장 연출을 먼저 재생한다.
+        yield return
+            movedPiece
+                .PlaySkillActivationIconBeforeEffectRoutine(
+                    defenseData.iconSprite
+                );
+
+        // 아이콘이 먼저 뜬 뒤 실제 Defence 상태효과 적용
         movedPiece.AddStatusEffect(
             defenceStatusEffectData
         );
@@ -236,7 +252,7 @@ public class BattleSkillManager : MonoBehaviour
             $"Defence 상태효과를 부여했습니다."
         );
 
-        return true;
+        onComplete?.Invoke(true);
     }
 
     // <변경부분> Insight 발동 여부를
@@ -313,14 +329,253 @@ public class BattleSkillManager : MonoBehaviour
             insightChancePercent;
 
         Debug.Log(
-            $"Insight 판정: " +
-            $"대상 {targetCanceledSkillType} / " +
-            $"확률 {insightChancePercent}% / " +
-            $"랜덤 {randomValue:F1} / " +
-            $"결과 {isActivated}"
-        );
+     $"Insight 판정: " +
+     $"대상 {targetCanceledSkillType} / " +
+     $"확률 {insightChancePercent}% / " +
+     $"랜덤 {randomValue:F1} / " +
+     $"결과 {isActivated}"
+ );
 
+        // <변경부분> 이 함수에서는 Insight 확률 판정 결과만 반환한다.
+        // 아이콘 연출 후 실제 방어 무효화 흐름은
+        // BattleManager 전투 코루틴에서 처리한다.
         return isActivated;
+    }
+
+    // <변경부분> 일반스킬 데이터베이스에서 아이콘을 가져와
+    // 실제 효과가 적용되기 전에 확대 등장 연출을 재생한다.
+    public IEnumerator PlayGeneralSkillActivationBeforeEffectRoutine(
+        Piece piece,
+        GeneralSkillType skillType)
+    {
+        if (piece == null ||
+            skillType == GeneralSkillType.None ||
+            generalSkillDatabase == null)
+        {
+            yield break;
+        }
+
+        GeneralSkillData skillData =
+            generalSkillDatabase.GetData(
+                skillType
+            );
+
+        if (skillData == null)
+        {
+            yield break;
+        }
+
+        yield return
+            piece
+                .PlaySkillActivationIconBeforeEffectRoutine(
+                    skillData.iconSprite
+                );
+    }
+
+    // <변경부분> 고유스킬 아이콘 표시 전에
+    // 실제 스킬 사용에 필요한 필수 조건을 미리 검사한다.
+    //
+    // 이 함수에서는 기물 생성, 상태이상 부여,
+    // 이동 타입 변경 등의 실제 효과는 실행하지 않는다.
+    private bool CanUseUniqueSkillEffect(
+        Piece piece)
+    {
+        if (piece == null)
+        {
+            return false;
+        }
+
+        switch (piece.UniqueSkill)
+        {
+            case UniqueSkillType.JelluClone:
+            case UniqueSkillType.JelluMultiply:
+                if (boardManager == null ||
+                    pieceManager == null)
+                {
+                    return false;
+                }
+
+                // 인접한 빈칸이 하나 이상 있어야 한다.
+                for (int offsetY = -1;
+                     offsetY <= 1;
+                     offsetY++)
+                {
+                    for (int offsetX = -1;
+                         offsetX <= 1;
+                         offsetX++)
+                    {
+                        if (offsetX == 0 &&
+                            offsetY == 0)
+                        {
+                            continue;
+                        }
+
+                        int targetX =
+                            piece.X +
+                            offsetX;
+
+                        int targetY =
+                            piece.Y +
+                            offsetY;
+
+                        if (IsInsideBoard(
+                                targetX,
+                                targetY) &&
+                            pieceManager.IsEmpty(
+                                targetX,
+                                targetY))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+
+            case UniqueSkillType.KingQueenMove:
+                return
+                    piece.PieceType ==
+                    PieceType.King;
+
+            case UniqueSkillType.JelluSynthesis:
+                if (boardManager == null ||
+                    pieceManager == null ||
+                    piece.PieceType != PieceType.Pawn ||
+                    piece.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu
+                    ) == false)
+                {
+                    return false;
+                }
+
+                int synthesisCandidateCount =
+                    0;
+
+                for (int offsetY = -1;
+                     offsetY <= 1;
+                     offsetY++)
+                {
+                    for (int offsetX = -1;
+                         offsetX <= 1;
+                         offsetX++)
+                    {
+                        if (offsetX == 0 &&
+                            offsetY == 0)
+                        {
+                            continue;
+                        }
+
+                        int targetX =
+                            piece.X +
+                            offsetX;
+
+                        int targetY =
+                            piece.Y +
+                            offsetY;
+
+                        if (IsInsideBoard(
+                                targetX,
+                                targetY) == false)
+                        {
+                            continue;
+                        }
+
+                        Piece candidatePiece =
+                            pieceManager.GetPieceAt(
+                                targetX,
+                                targetY
+                            );
+
+                        if (candidatePiece == null ||
+                            candidatePiece.PieceType ==
+                                PieceType.King ||
+                            candidatePiece.HasSpeciesTag(
+                                PieceSpeciesTag.Jellu
+                            ) == false)
+                        {
+                            continue;
+                        }
+
+                        if (candidatePiece.Team !=
+                                piece.Team &&
+                            candidatePiece.Team !=
+                                PieceTeam.Neutral)
+                        {
+                            continue;
+                        }
+
+                        synthesisCandidateCount++;
+                    }
+                }
+
+                return
+                    synthesisCandidateCount >= 2;
+
+            case UniqueSkillType.JelluWall:
+                if (boardManager == null ||
+                    pieceManager == null ||
+                    piece.Team ==
+                        PieceTeam.Neutral ||
+                    piece.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu
+                    ) == false)
+                {
+                    return false;
+                }
+
+                int directionY =
+                    piece.Team ==
+                    PieceTeam.Player
+                        ? 1
+                        : -1;
+
+                int targetWallX =
+                    piece.X;
+
+                int targetWallY =
+                    piece.Y +
+                    directionY;
+
+                return
+                    IsInsideBoard(
+                        targetWallX,
+                        targetWallY
+                    ) &&
+                    pieceManager.IsEmpty(
+                        targetWallX,
+                        targetWallY
+                    );
+
+            case UniqueSkillType.JelluDegeneration:
+                return
+                    piece.PieceType ==
+                        PieceType.Knight &&
+                    piece.Team !=
+                        PieceTeam.Neutral &&
+                    piece.HasSpeciesTag(
+                        PieceSpeciesTag.Jellu
+                    ) &&
+                    statusEffectDatabase != null &&
+                    statusEffectDatabase.GetData(
+                        StatusEffectType.Degeneration
+                    ) != null;
+
+            case UniqueSkillType.HornHeadbutt:
+                return
+                    piece.CurrentTile != null &&
+                    (
+                        piece.CurrentTile.TileType ==
+                            TileType.Water ||
+                        piece.CurrentTile.TileType ==
+                            TileType.Swamp
+                    ) &&
+                    statusEffectDatabase != null &&
+                    statusEffectDatabase.GetData(
+                        StatusEffectType.Breakthrough
+                    ) != null;
+        }
+
+        return false;
     }
 
     // <변경부분> 고유스킬 종류에 따라 실제 효과를 실행하는 함수
@@ -363,14 +618,33 @@ public class BattleSkillManager : MonoBehaviour
 
     // <변경부분> 고유스킬을 코루틴으로 실행하는 함수
     // 합성처럼 애니메이션 종료 후 실제 효과가 적용되어야 하는 스킬을 처리하기 위해 사용
-    public IEnumerator TryUseUniqueSkillRoutine(Piece piece, Action<bool> onComplete)
+    public IEnumerator TryUseUniqueSkillRoutine(
+    Piece piece,
+    Sprite skillIcon,
+    Action<bool> onComplete)
     {
-        // 스킬을 사용할 기물이 없으면 실패 처리
         if (piece == null)
         {
             onComplete?.Invoke(false);
             yield break;
         }
+
+        // <변경부분> 실패하는 고유스킬에는
+        // 아이콘이 먼저 뜨지 않도록 내부 조건부터 검사한다.
+        if (CanUseUniqueSkillEffect(
+                piece) == false)
+        {
+            onComplete?.Invoke(false);
+            yield break;
+        }
+
+        // <변경부분> 실제 고유스킬 효과보다 먼저
+        // 아이콘의 확대 등장과 기본 크기 복귀를 재생한다.
+        yield return
+            piece
+                .PlaySkillActivationIconBeforeEffectRoutine(
+                    skillIcon
+                );
 
         bool skillUsed = false;
 
