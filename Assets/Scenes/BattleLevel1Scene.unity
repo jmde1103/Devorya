@@ -5171,7 +5171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c4a76cf9966fd47b47e3db615b5fe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleAIManager
-  controlEnemyWithAI: 0
+  controlEnemyWithAI: 1
   decisionDelay: 0.5
   maxActionsPerEnemyTurn: 10
   battleMoveValidator: {fileID: 1035375297}
@@ -171003,7 +171003,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1146.79, y: -205}
+  m_AnchoredPosition: {x: 0.00012207, y: -205}
   m_SizeDelta: {x: 600, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1814115443
