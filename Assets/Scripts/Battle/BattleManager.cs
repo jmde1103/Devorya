@@ -40,7 +40,13 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private BattleMoveValidator battleMoveValidator;
 
     // <변경부분> Enemy 턴의 AI 진행과 행동 선택을 관리하는 컴포넌트
-    [SerializeField] private BattleAIManager battleAIManager;
+    [SerializeField]
+    private BattleAIManager battleAIManager;
+
+    // <변경부분> 기물 선택 포커스와
+    // 마지막 기물 공격 연출을 담당하는 카메라 컨트롤러
+    [SerializeField]
+    private PixelCameraController pixelCameraController;
 
     // <변경부분> AI의 합법적인 이동 및 공격 후보를 생성하는 클래스
     // 일반 C# 클래스이므로 GameObject에 부착하지 않고 BattleManager가 직접 생성한다.
@@ -205,7 +211,17 @@ public class BattleManager : MonoBehaviour
         // 기물 타입 아이콘 버튼 연결
         if (typeIconButton != null)
         {
-            typeIconButton.onClick.AddListener(ToggleTypeIcons);
+            typeIconButton.onClick.AddListener(
+                ToggleTypeIcons
+            );
+        }
+
+        // <변경부분> 카메라 컨트롤러가 Inspector에 연결되지 않았다면
+        // 현재 씬의 PixelCameraController를 자동으로 찾는다.
+        if (pixelCameraController == null)
+        {
+            pixelCameraController =
+                FindObjectOfType<PixelCameraController>();
         }
 
         // <변경부분> 게임 시작 시 액션 버튼 숨김
@@ -347,6 +363,29 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> 기물을 클릭하면 기물 Transform이 아니라
+        // 현재 기물이 올라가 있는 타일 중심으로 카메라를 이동시킨다.
+        //
+        // Select, 점프, 공격 애니메이션으로 기물 높이가 변해도
+        // 카메라 중심은 고정된 타일 좌표를 유지한다.
+        if (piece != null &&
+            pixelCameraController != null &&
+            boardManager != null)
+        {
+            Tile pieceTile =
+                boardManager.GetTile(
+                    piece.X,
+                    piece.Y
+                );
+
+            if (pieceTile != null)
+            {
+                pixelCameraController.FocusOnTile(
+                    pieceTile.transform
+                );
+            }
+        }
+
         // <변경부분> 초기 배치 단계의 기물 선택은
         // 일반 전투 선택 로직과 완전히 분리한다.
         if (isPlayerDeploymentPhase)
@@ -355,16 +394,6 @@ public class BattleManager : MonoBehaviour
                 piece
             );
 
-            return;
-        }
-
-        // <변경부분> Enemy 진영을 AI가 조작하는 모드에서는
-        // Enemy 턴에 사람의 기물 선택 입력을 받지 않는다.
-        // AI가 꺼져 있으면 기존 2인 수동 조작이 그대로 유지된다.
-        if (currentTurn == BattleTurn.Enemy &&
-            battleAIManager != null &&
-            battleAIManager.IsEnemyControlledByAI())
-        {
             return;
         }
 
@@ -1136,6 +1165,10 @@ public class BattleManager : MonoBehaviour
     // 기존 BattleAIManager 전투 흐름에 전달한다.
     private void StartNormalBattleTurn()
     {
+        // <변경부분> 정상 전투 시작 시 현재 보드 상태를 기준으로
+        // 마지막 Enemy 1기 강제 흡수 버튼 표시 여부를 갱신한다.
+        RefreshLastEnemyAbsorbOpportunity();
+
         if (battleAIManager != null)
         {
             battleAIManager.HandleTurnStarted(
@@ -1428,6 +1461,8 @@ public class BattleManager : MonoBehaviour
 
         isActionAnimating = true;
 
+
+
         // 해당 타일에 있는 기물을 확인한다.
         Piece targetPiece =
             pieceManager.GetPieceAt(
@@ -1435,10 +1470,43 @@ public class BattleManager : MonoBehaviour
                 tile.Y
             );
 
-        // 흡수/레벨업이 적용되기 전 ChanceAttack 보유 정보만을 복사해서 저장
+        // <변경부분> 이번 공격 대상이 현재 보드의
+        // 마지막 Enemy 1기인지 행동 시작 전에 저장한다.
+        //
+        // 빈칸 이동과 중립 기물 공격에는
+        // 마지막 공격 카메라 연출을 적용하지 않는다.
+        bool isLastEnemyAttackTarget =
+            targetPiece != null &&
+            targetPiece.Team == PieceTeam.Enemy &&
+            FindSingleRemainingEnemyPiece() ==
+                targetPiece;
+
+        // <변경부분> 현재 행동에서 마지막 기물 공격
+        // 카메라 연출을 시작했는지 확인한다.
+        bool isPlayingLastEnemyAttackCinematic =
+            false;
+
+        // <변경부분> 현재 행동에서 선택 기물의
+        // 일반 이동·공격 카메라 추적을 시작했는지 확인한다.
+        bool isFollowingActingPiece =
+            false;
+
+        // 흡수/레벨업이 적용되기 전
+        // ChanceAttack 보유 정보만 복사해서 저장한다.
         OwnedGeneralSkillData chanceAttackDataBeforeAction =
             actingPiece.GetGeneralSkillDataCopy(
                 GeneralSkillType.ChanceAttack
+            );
+
+        // <변경부분> 행동 시작 시점의 Defense 보유 정보를 복사한다.
+        // 이번 이동 또는 흡수로 새로 얻은 Defense는
+        // 같은 행동에서 즉시 발동하지 않도록 한다.
+        //
+        // 행동 시작 전부터 Defense를 가지고 있었다면
+        // 흡수 행동이어도 기존 Defense는 정상적으로 발동할 수 있다.
+        OwnedGeneralSkillData defenseDataBeforeAction =
+            actingPiece.GetGeneralSkillDataCopy(
+                GeneralSkillType.Defense
             );
 
         // <변경부분> 공격 시작 시점의 Insight 보유 정보 저장
@@ -1448,6 +1516,7 @@ public class BattleManager : MonoBehaviour
             actingPiece.GetGeneralSkillDataCopy(
                 GeneralSkillType.Insight
             );
+
 
         // 이번 행동으로 적대 기물을 처치했는지 확인
         bool killedEnemyPiece = false;
@@ -1513,7 +1582,7 @@ public class BattleManager : MonoBehaviour
             Vector3 degenerationSourceWorldPosition =
                 targetPiece.transform.position;
 
-            
+
 
             // <변경부분> 공격 시작 시점에 대상이
             // 확정 방어용 Defence 상태효과를 보유하고 있는지 저장한다.
@@ -1596,6 +1665,42 @@ public class BattleManager : MonoBehaviour
             Vector3 targetWorldPosition =
                 targetPiece.transform.position;
 
+            if (isLastEnemyAttackTarget &&
+     pixelCameraController != null)
+            {
+                // <변경부분> 마지막 적 기물 Transform이 아니라
+                // 실제 공격 대상 타일의 고정된 중심 좌표를 전달한다.
+                yield return
+                    pixelCameraController
+                        .PrepareLastPieceAttackCinematicRoutine(
+                            tile.transform
+                        );
+
+                // 공격 시작과 동시에 확대 및 슬로우 모션을 적용한다.
+                pixelCameraController
+                    .StartLastPieceAttackSlowMotion();
+
+                isPlayingLastEnemyAttackCinematic =
+                    true;
+            }
+
+
+            // <변경부분> 마지막 적 공격이 아닌 일반 공격에서는
+            // 플레이어가 직접 선택한 공격 기물을 카메라가 따라간다.
+            else if (pixelCameraController != null &&
+          actingPiece == selectedPiece)
+            {
+                // <변경부분> 공격 기물의 점프 Transform을 따라가지 않고
+                // 공격 목표 타일 중심으로 카메라를 이동시킨다.
+                pixelCameraController
+                    .StartFollowingMovingTile(
+                        tile.transform
+                    );
+
+                isFollowingActingPiece =
+                    true;
+            }
+
             // Defense가 성공했고 Insight로 무효화되지 않은 경우
             if (isDefenseActivated &&
                 isDefenseCanceledByInsight == false)
@@ -1610,7 +1715,8 @@ public class BattleManager : MonoBehaviour
                 // 흡수 공격이 방어되었다면 흡수 모드 해제
                 if (isAbsorbAction)
                 {
-                    isAbsorbMode = false;
+                    isAbsorbMode =
+                        false;
 
                     if (battleUIController != null)
                     {
@@ -1621,44 +1727,45 @@ public class BattleManager : MonoBehaviour
                 }
 
                 // 방어 성공 시 타겟 제거 및 흡수 처리 없음
-                killedEnemyPiece = false;
-                absorbedEnemyPiece = false;
+                killedEnemyPiece =
+                    false;
+
+                absorbedEnemyPiece =
+                    false;
 
                 Debug.Log(
-                $"Defence 상태효과 발동: " +
-                $"{targetPiece.Team} {targetPiece.PieceType}이 " +
-                $"공격을 방어했습니다."
-            );
+                    $"Defence 상태효과 발동: " +
+                    $"{targetPiece.Team} {targetPiece.PieceType}이 " +
+                    $"공격을 방어했습니다."
+                );
             }
             else
             {
-                // <변경부분> Defense가 실패했거나 Insight로 무효화되면 공격 연출 실행
-                // 흡수 공격에서는 내려찍기 충격과 화면 흔들림이 시작되는 순간
-                // 상대 기물을 화면에서 즉시 숨긴다.
-                // 실제 흡수 데이터 복사와 RemovePiece는 Down_Absorb 종료 후 아래에서 처리한다.
-                yield return pieceManager.PlayPieceAttackMoveAnimation(
-                    actingPiece,
-                    targetWorldPosition,
-                    isAbsorbAction,
-                    () =>
-                    {
-                        // 일반 공격은 기존 제거 시점을 그대로 유지한다.
-                        if (isAbsorbAction == false)
+                // <변경부분> 방어가 없거나 Insight로 무효화됐다면
+                // 기존 일반 공격·흡수 공격 연출을 실행한다.
+                yield return
+                    pieceManager.PlayPieceAttackMoveAnimation(
+                        actingPiece,
+                        targetWorldPosition,
+                        isAbsorbAction,
+                        () =>
                         {
-                            return;
-                        }
+                            if (isAbsorbAction == false)
+                            {
+                                return;
+                            }
 
-                        // 흡수 대상이 이미 사라졌다면 처리하지 않는다.
-                        if (targetPiece == null)
-                        {
-                            return;
-                        }
+                            if (targetPiece == null)
+                            {
+                                return;
+                            }
 
-                        // <변경부분> 충격 순간에는 화면에서만 숨긴다.
-                        // 비활성화된 Piece 데이터는 Down_Absorb 종료 후 흡수 처리에 계속 사용한다.
-                        targetPiece.gameObject.SetActive(false);
-                    }
-                );
+                            // 흡수 충격 순간 대상만 화면에서 숨긴다.
+                            targetPiece.gameObject.SetActive(
+                                false
+                            );
+                        }
+                    );
 
                 // 실제 흡수 공격인 경우
                 if (isAbsorbAction)
@@ -1783,46 +1890,77 @@ public class BattleManager : MonoBehaviour
         }
         else
         {
+            // <변경부분> 플레이어가 직접 선택한 기물이 빈칸으로 이동할 때
+            // 기물의 점프 높이가 아니라 최종 이동 타일 중심으로 카메라를 이동시킨다.
+            if (pixelCameraController != null &&
+                actingPiece == selectedPiece)
+            {
+                pixelCameraController
+                    .StartFollowingMovingTile(
+                        tile.transform
+                    );
+
+                isFollowingActingPiece =
+                    true;
+            }
+
             // 빈칸 이동은 기존 점프 이동 연출 실행
-            yield return pieceManager.MovePieceRoutine(
-                actingPiece,
-                tile.X,
-                tile.Y,
-                true
-            );
+            yield return
+                pieceManager.MovePieceRoutine(
+                    actingPiece,
+                    tile.X,
+                    tile.Y,
+                    true
+                );
 
             // <변경부분> 빈칸 이동 애니메이션과
             // 좌표 갱신이 모두 완료됐다.
-            didCompleteMove = true;
+            didCompleteMove =
+                true;
+        }
+
+
+
+        // <변경부분> 일반 이동·공격 추적이 끝났다면
+        // 최종 기물 위치를 유지한 채 자동 추적을 종료한다.
+        if (isFollowingActingPiece &&
+     pixelCameraController != null)
+        {
+            pixelCameraController
+                .StopFollowingMovingTile(
+                    true
+                );
+        }
+
+        // <변경부분> 마지막 Enemy 공격 연출이 끝났다면
+        // 이전 카메라 위치, 줌, 시간 배율로 복구한다.
+        if (isPlayingLastEnemyAttackCinematic &&
+            pixelCameraController != null)
+        {
+            yield return
+                pixelCameraController
+                    .RestoreAfterLastPieceAttackCinematicRoutine();
         }
 
         // <변경부분> 실제 이동을 완료한 경우에만
-        // Defense 일반스킬의 Defence 상태효과 부여를 판정한다.
-        //
-        // 빈칸 이동:
-        // 점프 이동 애니메이션과 좌표 갱신 종료 후 판정
-        //
-        // 일반 공격:
-        // 공격 연출, 대상 제거, 목표 칸 이동 종료 후 판정
-        //
-        // 흡수 공격:
-        // 흡수 연출, 대상 제거, 목표 칸 이동,
-        // 외형 변경 후 Born 애니메이션까지 끝난 뒤 판정
-        //
-        // Defence 상태효과로 공격이 막힌 경우:
-        // 실제 타일 이동이 없으므로 판정하지 않음
+        // 행동 시작 전부터 보유했던 Defense의
+        // Defence 상태효과 부여를 판정한다.
         if (didCompleteMove &&
-    battleSkillManager != null)
+            battleSkillManager != null)
         {
             bool defenceGranted =
                 false;
 
-            // <변경부분> Defense가 발동하면
-            // 아이콘을 먼저 보여준 뒤 실제 상태효과가 적용될 때까지 기다린다.
+            // <변경부분> 행동 시작 전에 저장한 Defense 데이터를 전달한다.
+            //
+            // 이번 흡수로 새로 얻은 Defense는
+            // defenseDataBeforeAction에 존재하지 않으므로
+            // 같은 흡수 행동에서는 발동하지 않는다.
             yield return
                 battleSkillManager
                     .TryGrantDefenceAfterMoveRoutine(
                         actingPiece,
+                        defenseDataBeforeAction,
                         result =>
                             defenceGranted = result
                     );
@@ -1970,6 +2108,359 @@ public class BattleManager : MonoBehaviour
         EndBattle(BattleResult.Lose);
 
         Debug.Log("기권: 일반 전투 패배 / 보상 없음 / 받은 피해와 사망 상태 유지");
+    }
+
+    // <변경부분> 현재 마지막 Enemy 1기 강제 흡수가 가능한지 검사한다.
+    //
+    // Player 턴이며 다른 행동이 진행 중이지 않고,
+    // Player King과 Enemy 기물이 정확히 1기씩 존재해야 한다.
+    public bool CanUseLastEnemyAbsorb()
+    {
+        if (isPlayerDeploymentPhase ||
+            isBattleEnded ||
+            isActionAnimating ||
+            currentTurn != BattleTurn.Player ||
+            pieceManager == null ||
+            boardManager == null)
+        {
+            return false;
+        }
+
+        return
+            FindPlayerKing() != null &&
+            FindSingleRemainingEnemyPiece() != null;
+    }
+
+    // <변경부분> 흡수 버튼 클릭 시 마지막 Enemy 1기 강제 흡수를 시도한다.
+    //
+    // 조건이 맞으면 전용 코루틴을 시작하고 true,
+    // 조건이 아니면 기존 흡수 모드가 실행될 수 있도록 false를 반환한다.
+    public bool TryStartLastEnemyAbsorb()
+    {
+        if (CanUseLastEnemyAbsorb() == false)
+        {
+            return false;
+        }
+
+        Piece playerKing =
+            FindPlayerKing();
+
+        Piece lastEnemyPiece =
+            FindSingleRemainingEnemyPiece();
+
+        if (playerKing == null ||
+            lastEnemyPiece == null)
+        {
+            RefreshLastEnemyAbsorbOpportunity();
+            return false;
+        }
+
+        StartCoroutine(
+            ExecuteLastEnemyKingAbsorbRoutine(
+                playerKing,
+                lastEnemyPiece
+            )
+        );
+
+        return true;
+    }
+
+    // <변경부분> 마지막 Enemy 1기 상태에 맞춰
+    // 흡수 버튼 강조 표시를 BattleUIController에 반영한다.
+    private void RefreshLastEnemyAbsorbOpportunity()
+    {
+        if (battleUIController == null)
+        {
+            return;
+        }
+
+        battleUIController.SetLastEnemyAbsorbMode(
+            CanUseLastEnemyAbsorb()
+        );
+    }
+
+    // <변경부분> 보드 전체에서 Player King을 찾는다.
+    private Piece FindPlayerKing()
+    {
+        if (pieceManager == null ||
+            boardManager == null)
+        {
+            return null;
+        }
+
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
+                if (piece != null &&
+                    piece.Team == PieceTeam.Player &&
+                    piece.PieceType == PieceType.King)
+                {
+                    return piece;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // <변경부분> Enemy 기물이 정확히 1기 남았을 때만
+    // 해당 기물을 반환한다. 0기 또는 2기 이상이면 null을 반환한다.
+    private Piece FindSingleRemainingEnemyPiece()
+    {
+        if (pieceManager == null ||
+            boardManager == null)
+        {
+            return null;
+        }
+
+        Piece foundEnemyPiece =
+            null;
+
+        for (int y = 0;
+             y < boardManager.Height;
+             y++)
+        {
+            for (int x = 0;
+                 x < boardManager.Width;
+                 x++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(
+                        x,
+                        y
+                    );
+
+                if (piece == null ||
+                    piece.Team != PieceTeam.Enemy)
+                {
+                    continue;
+                }
+
+                // 두 번째 Enemy 기물을 찾으면
+                // 마지막 1기 상태가 아니므로 즉시 실패 처리한다.
+                if (foundEnemyPiece != null)
+                {
+                    return null;
+                }
+
+                foundEnemyPiece =
+                    piece;
+            }
+        }
+
+        return foundEnemyPiece;
+    }
+
+    // <변경부분> Player King이 현재 위치와 이동 규칙을 무시하고
+    // 마지막 Enemy 기물 위치로 이동해 즉시 흡수 공격하는 전용 코루틴이다.
+    //
+    // 일반 흡수와 달리 마지막 Enemy가 King이어도 마무리 흡수가 가능하며,
+    // Player King은 기존 규칙대로 타입·외형·고유스킬을 유지하고
+    // 대상의 일반스킬만 흡수한다.
+    private IEnumerator ExecuteLastEnemyKingAbsorbRoutine(
+        Piece playerKing,
+        Piece targetPiece)
+    {
+        if (playerKing == null ||
+            targetPiece == null ||
+            CanUseLastEnemyAbsorb() == false)
+        {
+            RefreshLastEnemyAbsorbOpportunity();
+            yield break;
+        }
+
+        // 클릭 직후 중복 입력과 일반 전투 행동을 차단한다.
+        isActionAnimating =
+            true;
+
+        isAbsorbMode =
+            false;
+
+        selectedPiece =
+            null;
+
+        pendingActionTile =
+            null;
+
+        pendingAttackTargetPiece =
+            null;
+
+        ClearHighlights();
+        RefreshTypeIconVisuals();
+
+        if (battleUIController != null)
+        {
+            battleUIController.SetLastEnemyAbsorbMode(
+                false
+            );
+
+            battleUIController.SetAbsorbModeIcon(
+                false
+            );
+        }
+
+        int targetX =
+            targetPiece.X;
+
+        int targetY =
+            targetPiece.Y;
+
+        Tile targetTile =
+            boardManager.GetTile(
+                targetX,
+                targetY
+            );
+
+        if (targetTile == null)
+        {
+            isActionAnimating =
+                false;
+
+            RefreshLastEnemyAbsorbOpportunity();
+            yield break;
+        }
+
+        Vector3 targetWorldPosition =
+            targetPiece.transform.position;
+
+        PieceTeam deadPieceTeam =
+            targetPiece.Team;
+
+        bool shouldTriggerDegeneration =
+            targetPiece.HasStatusEffect(
+                StatusEffectType.Degeneration
+            );
+
+        PieceTeam degenerationDeadPieceTeam =
+            targetPiece.Team;
+
+        PieceType degenerationDeadPieceType =
+            targetPiece.PieceType;
+
+        Vector3 degenerationSourceWorldPosition =
+            targetPiece.transform.position;
+
+        // <변경부분> 마무리 흡수 공격 전에
+        // 카메라를 마지막 적 위치로 빠르게 이동한다.
+        if (pixelCameraController != null)
+        {
+            // <변경부분> 마지막 적 기물 Transform이 아니라
+            // 마지막 적이 위치한 고정 타일 중심을 카메라 기준으로 사용한다.
+            yield return
+                pixelCameraController
+                    .PrepareLastPieceAttackCinematicRoutine(
+                        targetTile.transform
+                    );
+
+            // 실제 흡수 공격과 동시에
+            // 확대와 슬로우 모션을 시작한다.
+            pixelCameraController
+                .StartLastPieceAttackSlowMotion();
+        }
+
+        // <변경부분> 기존 흡수 공격의 이동, Absorb, Down_Absorb,
+        // 충격 픽셀 이펙트와 화면 흔들림을 그대로 재사용한다.
+        yield return
+            pieceManager.PlayPieceAttackMoveAnimation(
+                playerKing,
+                targetWorldPosition,
+                true,
+                () =>
+                {
+                    if (targetPiece != null)
+                    {
+                        targetPiece.gameObject.SetActive(
+                            false
+                        );
+                    }
+                }
+            );
+
+        if (playerKing == null ||
+            targetPiece == null)
+        {
+            isActionAnimating =
+                false;
+
+            RefreshLastEnemyAbsorbOpportunity();
+            yield break;
+        }
+
+        // Player King은 마지막 적의 일반스킬만 흡수한다.
+        pieceManager.AbsorbGeneralSkillsOnly(
+            playerKing,
+            targetPiece
+        );
+
+        playerAbsorbCountThisBattle++;
+
+        pieceManager.RemovePiece(
+            targetPiece
+        );
+
+        TryTriggerDegenerationOnDeath(
+            shouldTriggerDegeneration,
+            degenerationDeadPieceTeam,
+            degenerationDeadPieceType,
+            targetX,
+            targetY,
+            degenerationSourceWorldPosition
+        );
+
+        AddDeathStackForUniqueSkill(
+            deadPieceTeam
+        );
+
+        // 공격 연출로 도착한 위치를 논리 좌표와 pieces 배열에 확정한다.
+        yield return
+            pieceManager.MovePieceRoutine(
+                playerKing,
+                targetX,
+                targetY,
+                false
+            );
+
+        // <변경부분> 마무리 흡수 공격이 끝난 뒤
+        // 공격 전 카메라 위치와 줌, 시간 배율로 복구한다.
+        if (pixelCameraController != null)
+        {
+            yield return
+                pixelCameraController
+                    .RestoreAfterLastPieceAttackCinematicRoutine();
+        }
+
+        Debug.Log(
+            $"마지막 적 강제 흡수 완료: " +
+            $"Player King → ({targetX}, {targetY}) / " +
+            $"누적 흡수 {playerAbsorbCountThisBattle}"
+        );
+
+        CheckBattleEnd();
+
+        if (isBattleEnded)
+        {
+            isActionAnimating =
+                false;
+
+            yield break;
+        }
+
+        // 예외적으로 전투가 계속된다면 강제 흡수 행동 후 턴을 종료한다.
+        isActionAnimating =
+            false;
+
+        EndTurn();
     }
 
     public void ToggleAbsorbMode()
@@ -3402,7 +3893,11 @@ public class BattleManager : MonoBehaviour
             turnInfoUIController.RefreshTurnInfo(turnCount, currentTurn);
         }
 
-        Debug.Log( $"턴 변경: Turn {turnCount} / {currentTurn}");
+        Debug.Log($"턴 변경: Turn {turnCount} / {currentTurn}");
+
+        // <변경부분> 새 턴의 주체와 현재 Enemy 기물 수를 기준으로
+        // 마지막 적 강제 흡수 버튼 표시 여부를 갱신한다.
+        RefreshLastEnemyAbsorbOpportunity();
 
         // <변경부분> 턴 상태 갱신이 모두 끝난 뒤
         // 새 턴 주체를 AI 매니저에 전달한다.
@@ -3654,6 +4149,10 @@ public class BattleManager : MonoBehaviour
             EndBattle(BattleResult.Win);
             return;
         }
+
+        // <변경부분> 전투가 끝나지 않았다면
+        // 현재 Enemy 기물 수에 맞춰 마지막 적 흡수 UI를 갱신한다.
+        RefreshLastEnemyAbsorbOpportunity();
     }
 
     // <변경부분> 지정한 진영이 설정된 패배 조건 중 하나라도 만족했는지 확인하는 함수
@@ -3774,9 +4273,14 @@ public class BattleManager : MonoBehaviour
         // 선택 해제
         selectedPiece = null;
 
-        // <변경부분> 선택된 기물이 없으므로 액션 버튼 숨김
+        // <변경부분> 전투 종료 시 마지막 적 흡수 강조 연출을 먼저 중단하고
+        // 모든 액션 버튼을 숨긴다.
         if (battleUIController != null)
         {
+            battleUIController.SetLastEnemyAbsorbMode(
+                false
+            );
+
             battleUIController.HideActionButtons();
         }
 

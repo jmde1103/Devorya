@@ -77,6 +77,110 @@ public class PixelCameraController : MonoBehaviour
     // <변경부분> 현재 실행 중인 시작 확대 코루틴
     private Coroutine startZoomCoroutine;
 
+    [Header("Piece Selection Focus")]
+    // <변경부분> 기물을 클릭했을 때 카메라 중심을 기물 위치로 이동할지 여부
+    [SerializeField]
+    private bool focusCameraOnPieceSelection =
+        true;
+
+    // <변경부분> 기물 선택 위치까지 카메라가 이동하는 시간
+    [SerializeField, Min(0f)]
+    private float pieceFocusMoveDuration =
+        0.22f;
+
+    // <변경부분> 기물 중심에서 카메라를 보정할 월드 좌표 오프셋
+    [SerializeField]
+    private Vector2 pieceFocusWorldOffset =
+        Vector2.zero;
+
+    // <변경부분> 현재 실행 중인 기물 선택 포커스 코루틴
+    private Coroutine pieceFocusCoroutine;
+
+    [Header("Moving Tile Follow")]
+    // <변경부분> 선택한 기물이 이동·공격할 때
+    // 기물 Transform 대신 목표 타일 중심으로 카메라를 이동할지 여부
+    [SerializeField]
+    private bool followTargetTileWhileMoving =
+      true;
+
+    // <변경부분> 목표 타일 중심까지 카메라가 이동하는 시간
+    [SerializeField, Min(0f)]
+    private float movingTileFollowDuration =
+        0.22f;
+
+    // <변경부분> 이동·공격 중 목표 타일 중심에 적용할 월드 좌표 오프셋
+    [SerializeField]
+    private Vector2 movingTileFollowWorldOffset =
+        Vector2.zero;
+
+    // <변경부분> 현재 실행 중인 목표 타일 이동 코루틴
+    private Coroutine movingTileFollowCoroutine;
+
+    // <변경부분> 이동 종료 시 유지할 마지막 목표 타일
+    private Transform movingTileFollowTarget;
+
+    [Header("Last Piece Attack Cinematic")]
+
+    [Header("Last Piece Attack Cinematic")]
+    // <변경부분> 마지막 Enemy 기물 공격 시 카메라 연출을 사용할지 여부
+    [SerializeField]
+    private bool useLastPieceAttackCinematic =
+        true;
+
+    // <변경부분> 공격 지점으로 빠르게 카메라가 이동하는 시간
+    [SerializeField, Min(0f)]
+    private float lastPieceFocusMoveDuration =
+        0.16f;
+
+    // <변경부분> 마지막 공격에서 사용할 WorldRoot 고정 확대 배율
+    [SerializeField, Min(0.01f)]
+    private float lastPieceAttackWorldScale =
+        1.65f;
+
+    // <변경부분> 공격 시작과 동시에 현재 배율에서
+    // 고정 확대 배율까지 변화하는 시간
+    [SerializeField, Min(0f)]
+    private float lastPieceAttackZoomDuration =
+        0.28f;
+
+    // <변경부분> 마지막 공격 중 적용할 슬로우 모션 배율
+    [SerializeField, Range(0.01f, 1f)]
+    private float lastPieceAttackTimeScale =
+        0.25f;
+
+    // <변경부분> 공격 종료 후 이전 위치와 줌으로 복귀하는 시간
+    [SerializeField, Min(0f)]
+    private float lastPieceAttackRestoreDuration =
+        0.35f;
+
+    // <변경부분> 마지막 공격 연출 중 사용자 드래그와 줌 입력을 잠근다.
+    private bool isPlayingLastPieceAttackCinematic =
+        false;
+
+    // <변경부분> 마지막 공격 중 확대를 진행하는 코루틴
+    private Coroutine lastPieceAttackZoomCoroutine;
+
+    // <변경부분> 마지막 공격 시작 전 카메라 상태 저장
+    private Vector3 savedCameraPositionBeforeCinematic;
+
+    private float savedWorldScaleBeforeCinematic =
+        1f;
+
+    private float savedTargetWorldScaleBeforeCinematic =
+        1f;
+
+    private float savedTimeScaleBeforeCinematic =
+        1f;
+
+    private float savedFixedDeltaTimeBeforeCinematic =
+        0.02f;
+
+    // <변경부분> 연출 중 대상이 제거돼도
+    // 마지막 공격 위치를 유지하기 위한 값
+    private Transform lastPieceAttackTarget;
+
+    private Vector3 lastPieceAttackTargetWorldPosition;
+
     [Header("Move")]
     // 마우스 드래그 이동 속도
     public float mouseDragSpeed = 0.3f;
@@ -300,6 +404,14 @@ public class PixelCameraController : MonoBehaviour
             return;
         }
 
+        // <변경부분> 마지막 기물 공격 카메라 연출 중에는
+        // 코루틴이 위치와 줌을 직접 제어하므로 사용자 입력을 막는다.
+        if (isPlayingLastPieceAttackCinematic)
+        {
+            return;
+        }
+
+
         // PC 마우스 휠 확대/축소 처리
         HandleMouseZoom();
 
@@ -317,6 +429,752 @@ public class PixelCameraController : MonoBehaviour
 
         // 현재 줌 배율에 맞게 카메라 이동 범위 제한
         ClampCameraByZoom();
+    }
+
+    // <변경부분> 선택한 기물의 이동·공격 동안
+    // 목표 타일 중심으로 카메라 이동을 시작한다.
+    //
+    // 기물 Transform을 직접 추적하지 않으므로
+    // 점프, 내려찍기, 반동 애니메이션의 높이 변화는 따라가지 않는다.
+    public void StartFollowingMovingTile(
+        Transform tileTransform)
+    {
+        if (followTargetTileWhileMoving == false ||
+            tileTransform == null ||
+            isPlayingLastPieceAttackCinematic)
+        {
+            return;
+        }
+
+        if (pieceFocusCoroutine != null)
+        {
+            StopCoroutine(
+                pieceFocusCoroutine
+            );
+
+            pieceFocusCoroutine =
+                null;
+        }
+
+        if (movingTileFollowCoroutine != null)
+        {
+            StopCoroutine(
+                movingTileFollowCoroutine
+            );
+        }
+
+        movingTileFollowTarget =
+            tileTransform;
+
+        movingTileFollowCoroutine =
+            StartCoroutine(
+                FocusOnMovingTileRoutine(
+                    tileTransform
+                )
+            );
+    }
+
+    // <변경부분> 목표 타일 중심 이동을 종료한다.
+    //
+    // keepFinalFocus가 true면 목표 타일 중심을
+    // 현재 카메라 위치로 확정한다.
+    public void StopFollowingMovingTile(
+        bool keepFinalFocus)
+    {
+        if (movingTileFollowCoroutine != null)
+        {
+            StopCoroutine(
+                movingTileFollowCoroutine
+            );
+
+            movingTileFollowCoroutine =
+                null;
+        }
+
+        if (keepFinalFocus &&
+            movingTileFollowTarget != null &&
+            isPlayingLastPieceAttackCinematic == false)
+        {
+            Vector3 requestedPosition =
+                new Vector3(
+                    movingTileFollowTarget.position.x +
+                        movingTileFollowWorldOffset.x,
+                    movingTileFollowTarget.position.y +
+                        movingTileFollowWorldOffset.y,
+                    cameraZPosition
+                );
+
+            transform.position =
+                GetClampedCameraPosition(
+                    requestedPosition,
+                    currentWorldScale
+                );
+        }
+
+        movingTileFollowTarget =
+            null;
+    }
+
+    // <변경부분> 현재 카메라 위치에서 목표 타일 중심까지
+    // 부드럽게 이동한다.
+    private IEnumerator FocusOnMovingTileRoutine(
+        Transform tileTransform)
+    {
+        Vector3 startCameraPosition =
+            transform.position;
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                movingTileFollowDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime < safeDuration &&
+               tileTransform != null &&
+               isPlayingLastPieceAttackCinematic == false)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                safeDuration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        elapsedTime /
+                        safeDuration
+                    );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            Vector3 requestedPosition =
+                new Vector3(
+                    tileTransform.position.x +
+                        movingTileFollowWorldOffset.x,
+                    tileTransform.position.y +
+                        movingTileFollowWorldOffset.y,
+                    cameraZPosition
+                );
+
+            Vector3 targetCameraPosition =
+                GetClampedCameraPosition(
+                    requestedPosition,
+                    currentWorldScale
+                );
+
+            transform.position =
+                Vector3.Lerp(
+                    startCameraPosition,
+                    targetCameraPosition,
+                    smoothTime
+                );
+
+            yield return null;
+        }
+
+        if (tileTransform != null &&
+            isPlayingLastPieceAttackCinematic == false)
+        {
+            Vector3 requestedPosition =
+                new Vector3(
+                    tileTransform.position.x +
+                        movingTileFollowWorldOffset.x,
+                    tileTransform.position.y +
+                        movingTileFollowWorldOffset.y,
+                    cameraZPosition
+                );
+
+            transform.position =
+                GetClampedCameraPosition(
+                    requestedPosition,
+                    currentWorldScale
+                );
+        }
+
+        movingTileFollowCoroutine =
+            null;
+    }
+
+    // <변경부분> 클릭한 기물이 올라가 있는 타일을
+    // 현재 화면의 중심으로 부드럽게 이동시킨다.
+    //
+    // 기물 Transform이 아니라 Tile Transform을 사용하므로
+    // Select 애니메이션이나 기물 높이 변화에 영향을 받지 않는다.
+    public void FocusOnTile(
+        Transform tileTransform)
+    {
+        if (focusCameraOnPieceSelection == false ||
+            tileTransform == null ||
+            isPlayingStartZoomAnimation ||
+            isPlayingLastPieceAttackCinematic)
+        {
+            return;
+        }
+
+        // 이전 클릭 포커스가 진행 중이라면 중단하고
+        // 새로 클릭한 타일을 기준으로 다시 이동한다.
+        if (pieceFocusCoroutine != null)
+        {
+            StopCoroutine(
+                pieceFocusCoroutine
+            );
+
+            pieceFocusCoroutine =
+                null;
+        }
+
+        pieceFocusCoroutine =
+            StartCoroutine(
+                FocusOnTileRoutine(
+                    tileTransform
+                )
+            );
+    }
+
+    // <변경부분> 현재 카메라 위치에서
+    // 선택된 기물이 올라가 있는 타일 중심까지 부드럽게 이동한다.
+    private IEnumerator FocusOnTileRoutine(
+        Transform tileTransform)
+    {
+        Vector3 startCameraPosition =
+            transform.position;
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                pieceFocusMoveDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime < safeDuration &&
+               tileTransform != null &&
+               isPlayingLastPieceAttackCinematic == false)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                safeDuration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        elapsedTime /
+                        safeDuration
+                    );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            // <변경부분> 기물 위치가 아니라
+            // 고정된 타일 월드 위치를 카메라 중심으로 사용한다.
+            Vector3 requestedPosition =
+                new Vector3(
+                    tileTransform.position.x +
+                        pieceFocusWorldOffset.x,
+                    tileTransform.position.y +
+                        pieceFocusWorldOffset.y,
+                    cameraZPosition
+                );
+
+            Vector3 targetCameraPosition =
+                GetClampedCameraPosition(
+                    requestedPosition,
+                    currentWorldScale
+                );
+
+            transform.position =
+                Vector3.Lerp(
+                    startCameraPosition,
+                    targetCameraPosition,
+                    smoothTime
+                );
+
+            yield return null;
+        }
+
+        // 코루틴이 정상 종료됐다면
+        // 타일 중심 위치를 정확하게 한 번 더 적용한다.
+        if (tileTransform != null &&
+            isPlayingLastPieceAttackCinematic == false)
+        {
+            Vector3 requestedPosition =
+                new Vector3(
+                    tileTransform.position.x +
+                        pieceFocusWorldOffset.x,
+                    tileTransform.position.y +
+                        pieceFocusWorldOffset.y,
+                    cameraZPosition
+                );
+
+            transform.position =
+                GetClampedCameraPosition(
+                    requestedPosition,
+                    currentWorldScale
+                );
+        }
+
+        pieceFocusCoroutine =
+            null;
+    }
+
+    // <변경부분> 마지막 Enemy 공격 전에
+    // 기존 카메라 상태를 저장하고 공격 대상 타일 중심으로 빠르게 이동한다.
+    //
+    // 기물 Transform이 아닌 Tile Transform을 받으므로
+    // 공격 애니메이션, 점프, 내려찍기와 무관하게 중심이 고정된다.
+    public IEnumerator PrepareLastPieceAttackCinematicRoutine(
+        Transform targetTileTransform)
+    {
+        if (useLastPieceAttackCinematic == false ||
+            targetTileTransform == null)
+        {
+            yield break;
+        }
+
+        // 일반 목표 타일 이동 코루틴이 남아 있다면 중단한다.
+        if (movingTileFollowCoroutine != null)
+        {
+            StopCoroutine(
+                movingTileFollowCoroutine
+            );
+
+            movingTileFollowCoroutine =
+                null;
+        }
+
+        movingTileFollowTarget =
+            null;
+
+        // 기물 선택 포커스가 진행 중이라면 중단한다.
+        if (pieceFocusCoroutine != null)
+        {
+            StopCoroutine(
+                pieceFocusCoroutine
+            );
+
+            pieceFocusCoroutine =
+                null;
+        }
+
+        // 전투 시작 줌이 아직 진행 중이면
+        // 마지막 공격 연출이 우선하도록 중단한다.
+        if (startZoomCoroutine != null)
+        {
+            StopCoroutine(
+                startZoomCoroutine
+            );
+
+            startZoomCoroutine =
+                null;
+
+            isPlayingStartZoomAnimation =
+                false;
+        }
+
+        isPlayingLastPieceAttackCinematic =
+            true;
+
+        // <변경부분> 마지막 공격 시작 전
+        // 카메라 위치와 현재 줌 상태를 저장한다.
+        savedCameraPositionBeforeCinematic =
+            transform.position;
+
+        savedWorldScaleBeforeCinematic =
+            currentWorldScale;
+
+        savedTargetWorldScaleBeforeCinematic =
+            targetWorldScale;
+
+        // <변경부분> 기존 시간 배율과 물리 갱신 간격도 저장한다.
+        savedTimeScaleBeforeCinematic =
+            Time.timeScale;
+
+        savedFixedDeltaTimeBeforeCinematic =
+            Time.fixedDeltaTime;
+
+        // <변경부분> 마지막 공격 카메라 기준을
+        // 기물이 아닌 고정 타일 Transform으로 저장한다.
+        lastPieceAttackTarget =
+            targetTileTransform;
+
+        lastPieceAttackTargetWorldPosition =
+            targetTileTransform.position;
+
+        Vector3 startCameraPosition =
+            transform.position;
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                lastPieceFocusMoveDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        // <변경부분> 실제 공격 시작 전에
+        // 현재 위치에서 마지막 적 타일 중심으로 빠르게 이동한다.
+        while (elapsedTime < safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            // WorldRoot 확대 상태에 따라 타일의 월드 위치가 달라질 수 있으므로
+            // 현재 프레임의 타일 위치를 계속 갱신한다.
+            UpdateLastPieceAttackTargetPosition();
+
+            float normalizedTime =
+                safeDuration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        elapsedTime /
+                        safeDuration
+                    );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            Vector3 targetCameraPosition =
+                new Vector3(
+                    lastPieceAttackTargetWorldPosition.x,
+                    lastPieceAttackTargetWorldPosition.y,
+                    cameraZPosition
+                );
+
+            transform.position =
+                Vector3.Lerp(
+                    startCameraPosition,
+                    targetCameraPosition,
+                    smoothTime
+                );
+
+            yield return null;
+        }
+
+        UpdateLastPieceAttackTargetPosition();
+
+        // 이동 완료 후 타일 중심 위치를 정확히 확정한다.
+        transform.position =
+            new Vector3(
+                lastPieceAttackTargetWorldPosition.x,
+                lastPieceAttackTargetWorldPosition.y,
+                cameraZPosition
+            );
+    }
+
+    // <변경부분> 실제 공격 시작과 동시에 슬로우 모션과
+    // 고정 확대 배율까지의 부드러운 줌을 시작한다.
+    public void StartLastPieceAttackSlowMotion()
+    {
+        if (isPlayingLastPieceAttackCinematic == false)
+        {
+            return;
+        }
+
+        float safeTimeScale =
+            Mathf.Clamp(
+                lastPieceAttackTimeScale,
+                0.01f,
+                1f
+            );
+
+        Time.timeScale =
+            safeTimeScale;
+
+        // 물리 업데이트 간격도 시간 배율에 맞춰 조정한다.
+        Time.fixedDeltaTime =
+            savedFixedDeltaTimeBeforeCinematic *
+            safeTimeScale;
+
+        if (lastPieceAttackZoomCoroutine != null)
+        {
+            StopCoroutine(
+                lastPieceAttackZoomCoroutine
+            );
+        }
+
+        lastPieceAttackZoomCoroutine =
+            StartCoroutine(
+                PlayLastPieceAttackZoomRoutine()
+            );
+    }
+
+    // <변경부분> 공격 중 대상 위치를 계속 중심에 두면서
+    // 현재 줌에서 마지막 공격용 줌까지 확대한다.
+    private IEnumerator PlayLastPieceAttackZoomRoutine()
+    {
+        float startScale =
+            currentWorldScale;
+
+        float targetScale =
+            Mathf.Clamp(
+                lastPieceAttackWorldScale,
+                minWorldScale,
+                maxWorldScale
+            );
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                lastPieceAttackZoomDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime < safeDuration &&
+               isPlayingLastPieceAttackCinematic)
+        {
+            // 슬로우 모션과 관계없이 카메라 줌은 원래 속도로 진행한다.
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            UpdateLastPieceAttackTargetPosition();
+
+            float normalizedTime =
+                safeDuration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        elapsedTime /
+                        safeDuration
+                    );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            currentWorldScale =
+                Mathf.Lerp(
+                    startScale,
+                    targetScale,
+                    smoothTime
+                );
+
+            targetWorldScale =
+                currentWorldScale;
+
+            ApplyWorldZoom();
+
+            // 확대 중에도 공격 위치를 계속 화면 중심에 유지한다.
+            transform.position =
+                new Vector3(
+                    lastPieceAttackTargetWorldPosition.x,
+                    lastPieceAttackTargetWorldPosition.y,
+                    cameraZPosition
+                );
+
+            yield return null;
+        }
+
+        if (isPlayingLastPieceAttackCinematic)
+        {
+            currentWorldScale =
+                targetScale;
+
+            targetWorldScale =
+                targetScale;
+
+            ApplyWorldZoom();
+        }
+
+        lastPieceAttackZoomCoroutine =
+            null;
+    }
+
+    // <변경부분> 마지막 공격이 끝난 뒤
+    // 시간 배율을 정상화하고 이전 카메라 위치와 줌으로 복구한다.
+    public IEnumerator RestoreAfterLastPieceAttackCinematicRoutine()
+    {
+        if (isPlayingLastPieceAttackCinematic == false)
+        {
+            yield break;
+        }
+
+        if (lastPieceAttackZoomCoroutine != null)
+        {
+            StopCoroutine(
+                lastPieceAttackZoomCoroutine
+            );
+
+            lastPieceAttackZoomCoroutine =
+                null;
+        }
+
+        // <변경부분> 공격 애니메이션이 끝났으므로
+        // 기존 시간 배율과 물리 업데이트 간격을 먼저 복구한다.
+        Time.timeScale =
+            savedTimeScaleBeforeCinematic;
+
+        Time.fixedDeltaTime =
+            savedFixedDeltaTimeBeforeCinematic;
+
+        Vector3 restoreStartPosition =
+            transform.position;
+
+        float restoreStartScale =
+            currentWorldScale;
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                lastPieceAttackRestoreDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime < safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                safeDuration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        elapsedTime /
+                        safeDuration
+                    );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            transform.position =
+                Vector3.Lerp(
+                    restoreStartPosition,
+                    savedCameraPositionBeforeCinematic,
+                    smoothTime
+                );
+
+            currentWorldScale =
+                Mathf.Lerp(
+                    restoreStartScale,
+                    savedWorldScaleBeforeCinematic,
+                    smoothTime
+                );
+
+            targetWorldScale =
+                currentWorldScale;
+
+            ApplyWorldZoom();
+
+            yield return null;
+        }
+
+        // <변경부분> 오차 없이 원래 위치와 배율 확정
+        transform.position =
+            savedCameraPositionBeforeCinematic;
+
+        currentWorldScale =
+            savedWorldScaleBeforeCinematic;
+
+        targetWorldScale =
+            savedTargetWorldScaleBeforeCinematic;
+
+        ApplyWorldZoom();
+        ClampCameraByZoom();
+
+        lastPieceAttackTarget =
+            null;
+
+        isPlayingLastPieceAttackCinematic =
+            false;
+    }
+
+    // <변경부분> 대상이 살아 있는 동안 현재 월드 위치를 갱신하고,
+    // 제거된 뒤에는 마지막으로 저장한 공격 위치를 유지한다.
+    private void UpdateLastPieceAttackTargetPosition()
+    {
+        if (lastPieceAttackTarget != null)
+        {
+            lastPieceAttackTargetWorldPosition =
+                lastPieceAttackTarget.position;
+        }
+    }
+
+    // <변경부분> 현재 줌 배율에 맞는 이동 가능 범위 안에서
+    // 요청받은 카메라 위치를 반환한다.
+    private Vector3 GetClampedCameraPosition(
+        Vector3 requestedPosition,
+        float worldScale)
+    {
+        if (worldScale <=
+            minWorldScale +
+            minZoomMoveThreshold)
+        {
+            return new Vector3(
+                baseCameraPosition.x,
+                baseCameraPosition.y,
+                cameraZPosition
+            );
+        }
+
+        float zoomMoveRate =
+            (worldScale / minWorldScale) -
+            1f;
+
+        float allowedX =
+            (maxBounds.x - minBounds.x) *
+            zoomMoveRate *
+            0.5f;
+
+        float allowedY =
+            (maxBounds.y - minBounds.y) *
+            zoomMoveRate *
+            0.5f;
+
+        float minX =
+            baseCameraPosition.x -
+            allowedX;
+
+        float maxX =
+            baseCameraPosition.x +
+            allowedX;
+
+        float minY =
+            baseCameraPosition.y -
+            allowedY;
+
+        float maxY =
+            baseCameraPosition.y +
+            allowedY;
+
+        return new Vector3(
+            Mathf.Clamp(
+                requestedPosition.x,
+                minX,
+                maxX
+            ),
+            Mathf.Clamp(
+                requestedPosition.y,
+                minY,
+                maxY
+            ),
+            cameraZPosition
+        );
     }
 
     // PC 마우스 휠 확대/축소 처리

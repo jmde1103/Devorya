@@ -66,6 +66,57 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 액션 버튼 표시 직후 노이즈 애니메이션을 한 프레임 뒤 재생하기 위한 코루틴
     private Coroutine actionButtonNoiseCoroutine;
 
+    [Header("Last Enemy Absorb Highlight")]
+    // <변경부분> 마지막 Enemy 1기 강제 흡수가 가능할 때
+    // 흡수 버튼 위치에 생성해 반복 재생할 ParticleSystem 프리팹
+    [SerializeField]
+    private ParticleSystem lastEnemyAbsorbParticlePrefab;
+
+    // <변경부분> 파티클 생성 위치와 부모로 사용할 Transform
+    // 비워두면 Absorb Button의 RectTransform을 자동 사용한다.
+    [SerializeField]
+    private Transform lastEnemyAbsorbParticleParent;
+
+    // <변경부분> 생성된 파티클 프리팹에 적용할 로컬 위치 보정
+    [SerializeField]
+    private Vector3 lastEnemyAbsorbParticleLocalPosition =
+        Vector3.zero;
+
+    // <변경부분> 생성된 파티클 프리팹에 적용할 로컬 스케일
+    [SerializeField]
+    private Vector3 lastEnemyAbsorbParticleLocalScale =
+        Vector3.one;
+
+    // <변경부분> 흡수 버튼 확대·축소에 사용할 RectTransform
+    [SerializeField]
+    private RectTransform absorbButtonRectTransform;
+
+    // <변경부분> 마지막 적 흡수 안내 중 버튼이 커지는 최대 배율
+    [SerializeField, Min(1f)]
+    private float lastEnemyAbsorbPulseScale =
+        1.08f;
+
+    // <변경부분> 확대 → 축소 한 사이클에 걸리는 시간
+    [SerializeField, Min(0.1f)]
+    private float lastEnemyAbsorbPulseDuration =
+        1.2f;
+
+    // <변경부분> 현재 마지막 적 강제 흡수 안내 모드인지 확인
+    private bool isLastEnemyAbsorbMode =
+        false;
+
+    // <변경부분> 흡수 버튼 확대·축소 코루틴
+    private Coroutine lastEnemyAbsorbPulseCoroutine;
+
+    // <변경부분> 현재 생성되어 재생 중인
+    // 마지막 적 흡수 파티클 인스턴스
+    private ParticleSystem lastEnemyAbsorbParticleInstance;
+
+    // <변경부분> 강조 연출 종료 후 복구할
+    // 흡수 버튼의 원래 스케일
+    private Vector3 defaultAbsorbButtonScale =
+        Vector3.one;
+
     [Header("Unique Skill Icon")]
     [SerializeField] private Image uniqueSkillIconImage;
     // <변경부분> 고유스킬 쿨타임 숫자 뒤에 표시할 검정 배경 이미지
@@ -162,6 +213,25 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 흡수/고유스킬 아이콘 노이즈 애니메이터 자동 연결
         AutoBindButtonIconNoiseAnimators();
 
+        // <변경부분> 마지막 적 강제 흡수 강조에 사용할
+        // 흡수 버튼 RectTransform과 원래 스케일을 저장한다.
+        if (absorbButtonRectTransform == null &&
+            absorbButton != null)
+        {
+            absorbButtonRectTransform =
+                absorbButton.GetComponent<RectTransform>();
+        }
+
+        if (absorbButtonRectTransform != null)
+        {
+            defaultAbsorbButtonScale =
+                absorbButtonRectTransform.localScale;
+        }
+
+        SetLastEnemyAbsorbMode(
+            false
+        );
+
         // <변경부분> 게임 시작 시 배치 완료 체크 아이콘은 숨긴다.
         // 실제 배치 단계가 시작되면 SetPlayerDeploymentMode(true)에서 표시한다.
         if (deploymentConfirmIconImage != null)
@@ -217,7 +287,15 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
-        // 초기 배치가 끝난 뒤에는 기존 흡수 버튼으로 동작한다.
+        // <변경부분> 마지막 Enemy 1기 강제 흡수가 가능한 상태라면
+        // 일반 흡수 모드 대신 Player King의 즉시 흡수 공격을 실행한다.
+        if (battleManager.TryStartLastEnemyAbsorb())
+        {
+            return;
+        }
+
+        // 마지막 적 강제 흡수 조건이 아니라면
+        // 기존 흡수 버튼처럼 흡수 모드를 ON/OFF 한다.
         battleManager.ToggleAbsorbMode();
     }
 
@@ -633,15 +711,276 @@ public class BattleUIController : MonoBehaviour
         }
     }
 
-    // <변경부분> 흡수 버튼 표시/숨김
-    public void SetAbsorbButtonVisible(bool isVisible)
+    // <변경부분> 마지막 Enemy 1기 강제 흡수 가능 상태를 UI에 적용한다.
+    //
+    // 활성화:
+    // 흡수 버튼을 선택 여부와 관계없이 표시하고,
+    // ParticleSystem 프리팹과 확대·축소 코루틴을 시작한다.
+    //
+    // 비활성화:
+    // 코루틴과 파티클을 중단하고
+    // 버튼 스케일을 원래 상태로 복구한다.
+    public void SetLastEnemyAbsorbMode(
+        bool isActive)
     {
-        if (absorbButton == null)
+        if (isLastEnemyAbsorbMode ==
+            isActive)
+        {
+            // 시작 상태처럼 이미 false인 경우에도
+            // 남아 있을 수 있는 파티클과
+            // 버튼 스케일을 확실히 정리한다.
+            if (isActive == false)
+            {
+                StopLastEnemyAbsorbHighlight();
+            }
+
+            return;
+        }
+
+        isLastEnemyAbsorbMode =
+            isActive;
+
+        if (isActive)
+        {
+            SetAbsorbButtonVisible(
+                true
+            );
+
+            SetAbsorbModeIcon(
+                false
+            );
+
+            // <변경부분> 마지막 Enemy 1기 상태가 처음 활성화되는 순간
+            // 기존 SkillFailurePopup을 재사용해 마무리 흡수 사용법을 안내한다.
+            //
+            // SetLastEnemyAbsorbMode가 false → true로 바뀔 때만 이 분기로 들어오므로
+            // 보드 상태를 반복 갱신해도 안내 문구가 계속 중복 출력되지 않는다.
+            ShowUniqueSkillFailureMessage(
+                "흡수 버튼을 눌러 \n마무리 흡수를 사용하세요."
+            );
+
+            // <변경부분> 파티클 프리팹 생성 및 재생
+            PlayLastEnemyAbsorbParticle();
+
+            if (lastEnemyAbsorbPulseCoroutine !=
+                null)
+            {
+                StopCoroutine(
+                    lastEnemyAbsorbPulseCoroutine
+                );
+            }
+
+            lastEnemyAbsorbPulseCoroutine =
+                StartCoroutine(
+                    PlayLastEnemyAbsorbPulseRoutine()
+                );
+
+            return;
+        }
+
+        StopLastEnemyAbsorbHighlight();
+    }
+
+    // <변경부분> 마지막 적 강제 흡수 안내용
+    // ParticleSystem 프리팹을 흡수 버튼 위치에 생성하고 재생한다.
+    private void PlayLastEnemyAbsorbParticle()
+    {
+        // 기존 생성 인스턴스가 남아 있다면 먼저 정리한다.
+        StopLastEnemyAbsorbParticle();
+
+        if (lastEnemyAbsorbParticlePrefab ==
+            null)
         {
             return;
         }
 
-        absorbButton.gameObject.SetActive(isVisible);
+        Transform particleParent =
+            lastEnemyAbsorbParticleParent;
+
+        // 별도 부모를 지정하지 않았다면
+        // 흡수 버튼 RectTransform을 부모로 사용한다.
+        if (particleParent == null &&
+            absorbButtonRectTransform != null)
+        {
+            particleParent =
+                absorbButtonRectTransform;
+        }
+
+        if (particleParent == null &&
+            absorbButton != null)
+        {
+            particleParent =
+                absorbButton.transform;
+        }
+
+        if (particleParent != null)
+        {
+            // <변경부분> 흡수 버튼 자식으로 파티클 생성
+            lastEnemyAbsorbParticleInstance =
+                Instantiate(
+                    lastEnemyAbsorbParticlePrefab,
+                    particleParent
+                );
+
+            Transform particleTransform =
+                lastEnemyAbsorbParticleInstance
+                    .transform;
+
+            particleTransform.localPosition =
+                lastEnemyAbsorbParticleLocalPosition;
+
+            particleTransform.localRotation =
+                Quaternion.identity;
+
+            particleTransform.localScale =
+                lastEnemyAbsorbParticleLocalScale;
+        }
+        else
+        {
+            // 부모를 찾지 못한 경우 월드에 생성
+            lastEnemyAbsorbParticleInstance =
+                Instantiate(
+                    lastEnemyAbsorbParticlePrefab
+                );
+
+            if (absorbButtonRectTransform != null)
+            {
+                lastEnemyAbsorbParticleInstance
+                    .transform.position =
+                    absorbButtonRectTransform.position;
+            }
+        }
+
+        // 루트와 자식 ParticleSystem을 함께 재생한다.
+        lastEnemyAbsorbParticleInstance.Play(
+            true
+        );
+    }
+
+    // <변경부분> 생성된 마지막 적 흡수 파티클을
+    // 즉시 정지하고 인스턴스를 제거한다.
+    private void StopLastEnemyAbsorbParticle()
+    {
+        if (lastEnemyAbsorbParticleInstance ==
+            null)
+        {
+            return;
+        }
+
+        lastEnemyAbsorbParticleInstance.Stop(
+            true,
+            ParticleSystemStopBehavior
+                .StopEmittingAndClear
+        );
+
+        Destroy(
+            lastEnemyAbsorbParticleInstance.gameObject
+        );
+
+        lastEnemyAbsorbParticleInstance =
+            null;
+    }
+
+    // <변경부분> 마지막 적 강제 흡수 버튼을
+    // 천천히 확대·축소하는 연출을 반복한다.
+    private IEnumerator PlayLastEnemyAbsorbPulseRoutine()
+    {
+        if (absorbButtonRectTransform == null &&
+            absorbButton != null)
+        {
+            absorbButtonRectTransform =
+                absorbButton.GetComponent<RectTransform>();
+        }
+
+        if (absorbButtonRectTransform != null)
+        {
+            defaultAbsorbButtonScale =
+                absorbButtonRectTransform.localScale;
+        }
+
+        float safeDuration =
+            Mathf.Max(
+                0.1f,
+                lastEnemyAbsorbPulseDuration
+            );
+
+        while (isLastEnemyAbsorbMode)
+        {
+            float elapsedTime =
+                0f;
+
+            while (elapsedTime < safeDuration &&
+                   isLastEnemyAbsorbMode)
+            {
+                elapsedTime +=
+                    Time.unscaledDeltaTime;
+
+                float normalizedTime =
+                    Mathf.Clamp01(
+                        elapsedTime /
+                        safeDuration
+                    );
+
+                // 0 → 1 → 0으로 천천히 반복되는 값
+                float pulseValue =
+                    (
+                        Mathf.Sin(
+                            normalizedTime *
+                            Mathf.PI *
+                            2f -
+                            Mathf.PI *
+                            0.5f
+                        ) +
+                        1f
+                    ) *
+                    0.5f;
+
+                float scaleMultiplier =
+                    Mathf.Lerp(
+                        1f,
+                        Mathf.Max(
+                            1f,
+                            lastEnemyAbsorbPulseScale
+                        ),
+                        pulseValue
+                    );
+
+                if (absorbButtonRectTransform != null)
+                {
+                    absorbButtonRectTransform.localScale =
+                        defaultAbsorbButtonScale *
+                        scaleMultiplier;
+                }
+
+                yield return null;
+            }
+        }
+
+        lastEnemyAbsorbPulseCoroutine =
+            null;
+    }
+
+    // <변경부분> 마지막 적 흡수 강조 연출을 즉시 중단하고
+    // 흡수 버튼과 파티클을 기본 상태로 복구한다.
+    private void StopLastEnemyAbsorbHighlight()
+    {
+        if (lastEnemyAbsorbPulseCoroutine != null)
+        {
+            StopCoroutine(
+                lastEnemyAbsorbPulseCoroutine
+            );
+
+            lastEnemyAbsorbPulseCoroutine =
+                null;
+        }
+
+        if (absorbButtonRectTransform != null)
+        {
+            absorbButtonRectTransform.localScale =
+                defaultAbsorbButtonScale;
+        }
+
+        StopLastEnemyAbsorbParticle();
     }
 
     // <변경부분> 흡수 모드 상태에 따라 버튼 위 아이콘만 변경
@@ -777,6 +1116,25 @@ public class BattleUIController : MonoBehaviour
     }
 
 
+
+    // <변경부분> 흡수 버튼 루트 오브젝트의 표시 여부를 변경한다.
+    //
+    // 초기 배치 체크 버튼, 일반 흡수 버튼,
+    // 마지막 적 마무리 흡수 버튼이 같은 루트를 사용하므로
+    // 모든 표시/숨김 처리를 이 함수에서 공통으로 담당한다.
+    public void SetAbsorbButtonVisible(
+        bool isVisible)
+    {
+        if (absorbButton == null)
+        {
+            return;
+        }
+
+        absorbButton.gameObject.SetActive(
+            isVisible
+        );
+    }
+
     // <변경부분> 고유 스킬 버튼 표시/숨김
     public void SetUniqueSkillButtonVisible(bool isVisible)
     {
@@ -804,6 +1162,31 @@ public class BattleUIController : MonoBehaviour
         {
             SetPlayerDeploymentMode(
                 true
+            );
+
+            if (playerStatusUIController != null)
+            {
+                playerStatusUIController.Clear();
+            }
+
+            if (enemyStatusUIController != null)
+            {
+                enemyStatusUIController.Clear();
+            }
+
+            return;
+        }
+
+        // <변경부분> 마지막 Enemy 1기 강제 흡수 가능 상태에서는
+        // 선택 기물이 없어도 흡수 버튼과 강조 연출을 유지한다.
+        if (isLastEnemyAbsorbMode)
+        {
+            SetAbsorbButtonVisible(
+                true
+            );
+
+            SetUniqueSkillButtonVisible(
+                false
             );
 
             if (playerStatusUIController != null)

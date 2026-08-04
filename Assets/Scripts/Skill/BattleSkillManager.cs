@@ -128,8 +128,12 @@ public class BattleSkillManager : MonoBehaviour
     // <변경부분> 실제 이동을 완료한 기물의 Defense 발동을 판정하고,
     // 성공하면 아이콘 확대 연출을 먼저 보여준 뒤
     // 실제 Defence 상태효과를 부여한다.
+    //
+    // Defense 보유 여부는 이동 완료 후 현재 상태가 아니라
+    // 행동 시작 전에 복사한 데이터를 기준으로 판정한다.
     public IEnumerator TryGrantDefenceAfterMoveRoutine(
         Piece movedPiece,
+        OwnedGeneralSkillData defenseDataBeforeAction,
         Action<bool> onComplete)
     {
         if (movedPiece == null)
@@ -138,11 +142,20 @@ public class BattleSkillManager : MonoBehaviour
             yield break;
         }
 
-        // Defense 일반스킬이 없는 기물은 판정하지 않는다.
-        if (movedPiece.HasGeneralSkill(
-                GeneralSkillType.Defense
-            ) == false)
+        // <변경부분> 행동 시작 시점에 Defense를 보유하지 않았다면
+        // 이번 행동에서는 Defense를 판정하지 않는다.
+        //
+        // 이번 이동이나 흡수 과정에서 새로 획득한 Defense는
+        // 다음 행동부터 발동할 수 있다.
+        if (defenseDataBeforeAction == null ||
+            defenseDataBeforeAction.skillType !=
+                GeneralSkillType.Defense)
         {
+            Debug.Log(
+                "Defense 판정 생략: " +
+                "이번 행동 시작 시점에는 Defense가 없었습니다."
+            );
+
             onComplete?.Invoke(false);
             yield break;
         }
