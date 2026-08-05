@@ -142,7 +142,7 @@ public class BattleManager : MonoBehaviour
 
     // <변경부분> 이번 전투에서 플레이어가 흡수에 성공한 적 기물 수
     private int playerAbsorbCountThisBattle = 0;
-
+    
     [Header("UI")]
     [SerializeField] private BattleUIController battleUIController;
     [SerializeField] private Button surrenderButton;
@@ -251,6 +251,8 @@ public class BattleManager : MonoBehaviour
             );
         }
 
+
+        
         // <변경부분> 공용 이동 판정기 초기화가 끝난 뒤
         // AI 행동 후보 생성기를 일반 C# 객체로 생성한다.
         if (boardManager != null &&
@@ -348,6 +350,7 @@ public class BattleManager : MonoBehaviour
             DebugGenerateEnemyAIActions();
         }
     }
+
 
 
 
