@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 // 월드맵에 실제로 생성된 노드의 표시와 클릭을 관리한다.
 [RequireComponent(typeof(SpriteRenderer))]
@@ -182,7 +181,10 @@ public class MapNodeRuntime : MonoBehaviour
         EnterNode();
     }
 
-    // 현재 노드에 연결된 스테이지 씬으로 이동한다.
+    // 현재 노드 진입을 월드맵 진행 컨트롤러에 요청한다.
+    //
+    // 씬을 즉시 불러오지 않고,
+    // 검은 구체가 노드까지 이동한 뒤 전투 씬에 진입한다.
     public void EnterNode()
     {
         if (isUnlocked == false)
@@ -206,15 +208,22 @@ public class MapNodeRuntime : MonoBehaviour
             return;
         }
 
-        Debug.Log(
-            $"맵 노드 진입: " +
-            $"{nodeDisplayName} → {targetSceneName}"
-        );
+        if (WorldMapProgressController.Instance == null)
+        {
+            Debug.LogWarning(
+                "맵 노드 진입 실패: " +
+                "WorldMapProgressController가 씬에 없습니다."
+            );
 
-        // 지정된 전투 또는 이벤트 씬으로 이동한다.
-        SceneManager.LoadScene(
-            targetSceneName
-        );
+            return;
+        }
+
+        // 실제 이동 경로 검사, 검은 구체 이동,
+        // 전투 씬 전환은 진행 컨트롤러가 담당한다.
+        WorldMapProgressController.Instance
+            .TryMoveToNode(
+                this
+            );
     }
 
     // 외부 진행 시스템에서 노드 해금 상태를 변경한다.
@@ -238,6 +247,31 @@ public class MapNodeRuntime : MonoBehaviour
     {
         return nodeId;
     }
+
+    // Inspector와 로그에 표시할 노드 이름을 반환한다.
+    public string GetNodeDisplayName()
+    {
+        return nodeDisplayName;
+    }
+
+    // 노드에 연결된 전투 또는 이벤트 씬 이름을 반환한다.
+    public string GetTargetSceneName()
+    {
+        return targetSceneName;
+    }
+
+    // 현재 노드가 해금 상태인지 반환한다.
+    public bool IsUnlocked()
+    {
+        return isUnlocked;
+    }
+
+    // 현재 노드가 클리어 상태인지 반환한다.
+    public bool IsCleared()
+    {
+        return isCleared;
+    }
+
 
 
     // 현재 노드 종류를 반환한다.

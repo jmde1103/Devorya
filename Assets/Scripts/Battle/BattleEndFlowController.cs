@@ -548,14 +548,25 @@ public class BattleEndFlowController : MonoBehaviour
                 return;
             }
 
+            // <변경부분> 월드맵으로 돌아가기 전에
+            // 현재 진입했던 전투 노드를 승리 상태로 기록한다.
+            //
+            // 월드맵 씬이 다시 시작되면
+            // 해당 노드를 클리어 처리하고 다음 연결 노드를 해금한다.
+            if (lastBattleResult ==
+                BattleResult.Win)
+            {
+                WorldMapRuntimeState.MarkBattleWon();
+            }
+
             Debug.Log(
                 $"리워드 확인 완료: " +
-                $"런 상태를 유지한 채 다음 전투 씬으로 이동합니다. / " +
-                $"{nextBattleSceneName}"
+                $"로그라이크 맵 씬으로 이동합니다. / " +
+                $"{mapSceneName}"
             );
 
             SceneManager.LoadScene(
-                nextBattleSceneName
+                mapSceneName
             );
 
             return;
