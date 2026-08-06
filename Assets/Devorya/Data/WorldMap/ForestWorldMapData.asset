@@ -30,7 +30,7 @@ MonoBehaviour:
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_02
     nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 22, y: 14}
+    gridPosition: {x: 23, y: 14}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: 
@@ -40,7 +40,7 @@ MonoBehaviour:
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_03
     nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 13, y: 14}
+    gridPosition: {x: 28, y: 14}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: 
@@ -48,29 +48,9 @@ MonoBehaviour:
     initiallyCleared: 0
     connectedNodeIds: []
     revealRadius: 2
-  - nodeId: ForestMap_01_Event_01
-    nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 19, y: 11}
-    nodeType: 2
-    nodeStyleData: {fileID: 11400000, guid: ca1d7159da3d76b4cb26be4415084675, type: 2}
-    targetSceneName: 
-    initiallyUnlocked: 0
-    initiallyCleared: 0
-    connectedNodeIds: []
-    revealRadius: 2
-  - nodeId: ForestMap_01_RuinsEvent_01
-    nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 17, y: 12}
-    nodeType: 3
-    nodeStyleData: {fileID: 11400000, guid: 348de8add6495f7418525c62714542d7, type: 2}
-    targetSceneName: 
-    initiallyUnlocked: 0
-    initiallyCleared: 0
-    connectedNodeIds: []
-    revealRadius: 2
   - nodeId: ForestMap_01_Cleared_01
     nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 24, y: 12}
+    gridPosition: {x: 19, y: 12}
     nodeType: 4
     nodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
     targetSceneName: 
