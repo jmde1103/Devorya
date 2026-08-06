@@ -1614,14 +1614,28 @@ public class BattleManager : MonoBehaviour
 
             // <변경부분> 피격 순간에는 Defence 상태효과만 방어를 발동한다.
             //
+            // 단, 현재 보드의 마지막 Enemy 1기를 공격하는
+            // 마지막 일격은 Defence 상태효과를 완전히 무시한다.
+            //
             // Defense 일반스킬 자체는 공격을 직접 방어하지 않으며,
             // 이동 완료 후 일정 확률로 Defence 상태효과를 부여하는 역할만 한다.
             bool isDefenseActivated =
+                isLastEnemyAttackTarget == false &&
                 shouldIgnoreDefenseByBreakthrough == false &&
                 hasDefenceStatusEffect;
 
-            if (isDefenseActivated &&
+            // <변경부분> 마지막 Enemy를 향한 마지막 일격이라면
+            // Defence 상태효과가 남아 있어도 공격을 막지 않는다.
+            if (isLastEnemyAttackTarget &&
                 hasDefenceStatusEffect)
+            {
+                Debug.Log(
+                    $"마지막 일격 발동: " +
+                    $"{targetPiece.Team} {targetPiece.PieceType}의 " +
+                    $"Defence 상태효과를 무시합니다."
+                );
+            }
+            else if (isDefenseActivated)
             {
                 Debug.Log(
                     $"Defence 상태효과 발동: " +
@@ -1668,20 +1682,20 @@ public class BattleManager : MonoBehaviour
             Vector3 targetWorldPosition =
                 targetPiece.transform.position;
 
+            // <변경부분> 마지막 Enemy 1기를 공격하는 경우
+            // 공격 시작 전에는 카메라 위치만 목표 타일 중심으로 이동시킨다.
+            //
+            // 이 시점에는 줌과 슬로우 모션을 시작하지 않는다.
+            // 공격 기물이 정상 좌표와 정상 속도로 목표 위치까지 이동한 뒤,
+            // 실제 내려찍기·타격 순간에 확대와 슬로우 모션을 시작한다.
             if (isLastEnemyAttackTarget &&
-     pixelCameraController != null)
+                pixelCameraController != null)
             {
-                // <변경부분> 마지막 적 기물 Transform이 아니라
-                // 실제 공격 대상 타일의 고정된 중심 좌표를 전달한다.
                 yield return
                     pixelCameraController
                         .PrepareLastPieceAttackCinematicRoutine(
                             tile.transform
                         );
-
-                // 공격 시작과 동시에 확대 및 슬로우 모션을 적용한다.
-                pixelCameraController
-                    .StartLastPieceAttackSlowMotion();
 
                 isPlayingLastEnemyAttackCinematic =
                     true;
@@ -1747,28 +1761,43 @@ public class BattleManager : MonoBehaviour
                 // <변경부분> 방어가 없거나 Insight로 무효화됐다면
                 // 기존 일반 공격·흡수 공격 연출을 실행한다.
                 yield return
-                    pieceManager.PlayPieceAttackMoveAnimation(
-                        actingPiece,
-                        targetWorldPosition,
-                        isAbsorbAction,
-                        () =>
-                        {
-                            if (isAbsorbAction == false)
-                            {
-                                return;
-                            }
+     pieceManager.PlayPieceAttackMoveAnimation(
+         actingPiece,
+         targetWorldPosition,
+         isAbsorbAction,
+         () =>
+         {
+             // <변경부분> 마지막 Enemy 공격에서는
+             // 기물이 목표 위치까지 이동하고 실제 타격 콜백이 실행되는 순간
+             // 확대와 슬로우 모션을 시작한다.
+             //
+             // 이동 중에는 기존 줌과 정상 속도를 유지하므로
+             // WorldRoot 확대에 의해 기물 이동 좌표가 어긋나는 현상을 방지한다.
+             if (isLastEnemyAttackTarget &&
+                 pixelCameraController != null)
+             {
+                 pixelCameraController
+                     .StartLastPieceAttackSlowMotion();
+             }
 
-                            if (targetPiece == null)
-                            {
-                                return;
-                            }
+             // 일반 공격은 대상 숨김 처리가 필요하지 않으므로
+             // 아래부터는 흡수 공격일 때만 처리한다.
+             if (isAbsorbAction == false)
+             {
+                 return;
+             }
 
-                            // 흡수 충격 순간 대상만 화면에서 숨긴다.
-                            targetPiece.gameObject.SetActive(
-                                false
-                            );
-                        }
-                    );
+             if (targetPiece == null)
+             {
+                 return;
+             }
+
+             // 흡수 충격 순간 대상만 화면에서 숨긴다.
+             targetPiece.gameObject.SetActive(
+                 false
+             );
+         }
+     );
 
                 // 실제 흡수 공격인 경우
                 if (isAbsorbAction)
@@ -2354,41 +2383,48 @@ public class BattleManager : MonoBehaviour
         Vector3 degenerationSourceWorldPosition =
             targetPiece.transform.position;
 
-        // <변경부분> 마무리 흡수 공격 전에
-        // 카메라를 마지막 적 위치로 빠르게 이동한다.
+        // <변경부분> 마무리 흡수 공격 전에는
+        // 마지막 적 타일 중심으로 카메라 위치만 먼저 이동시킨다.
+        //
+        // King이 목표 위치까지 이동하는 동안에는
+        // 줌과 시간 배율을 변경하지 않는다.
         if (pixelCameraController != null)
         {
-            // <변경부분> 마지막 적 기물 Transform이 아니라
-            // 마지막 적이 위치한 고정 타일 중심을 카메라 기준으로 사용한다.
             yield return
                 pixelCameraController
                     .PrepareLastPieceAttackCinematicRoutine(
                         targetTile.transform
                     );
-
-            // 실제 흡수 공격과 동시에
-            // 확대와 슬로우 모션을 시작한다.
-            pixelCameraController
-                .StartLastPieceAttackSlowMotion();
         }
 
         // <변경부분> 기존 흡수 공격의 이동, Absorb, Down_Absorb,
         // 충격 픽셀 이펙트와 화면 흔들림을 그대로 재사용한다.
         yield return
-            pieceManager.PlayPieceAttackMoveAnimation(
-                playerKing,
-                targetWorldPosition,
-                true,
-                () =>
-                {
-                    if (targetPiece != null)
-                    {
-                        targetPiece.gameObject.SetActive(
-                            false
-                        );
-                    }
-                }
-            );
+    pieceManager.PlayPieceAttackMoveAnimation(
+        playerKing,
+        targetWorldPosition,
+        true,
+        () =>
+        {
+            // <변경부분> King이 마지막 적 위치까지 이동한 뒤
+            // 내려찍기·흡수 충격 순간에 확대와 슬로우 모션을 시작한다.
+            //
+            // 이동 중에는 WorldRoot 배율을 바꾸지 않으므로
+            // King의 이동 위치가 타일 중심에서 어긋나는 현상을 방지한다.
+            if (pixelCameraController != null)
+            {
+                pixelCameraController
+                    .StartLastPieceAttackSlowMotion();
+            }
+
+            if (targetPiece != null)
+            {
+                targetPiece.gameObject.SetActive(
+                    false
+                );
+            }
+        }
+    );
 
         if (playerKing == null ||
             targetPiece == null)
