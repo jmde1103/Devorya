@@ -644,6 +644,18 @@ public class WorldMapNodeEditorWindow : EditorWindow
         Event currentEvent =
             Event.current;
 
+        // 마우스가 실제로 움직였을 때만
+        // Scene View와 에디터 창을 다시 그린다.
+        //
+        // 매 OnSceneGUI 호출마다 Repaint하면
+        // Scene View가 무한 갱신되어 에디터가 심하게 느려진다.
+        if (currentEvent.type ==
+            EventType.MouseMove)
+        {
+            sceneView.Repaint();
+            Repaint();
+        }
+
         // Scene View 마우스 위치에서
         // Z=0 평면상의 월드 좌표를 계산한다.
         Ray mouseRay =
@@ -708,7 +720,6 @@ public class WorldMapNodeEditorWindow : EditorWindow
 
         if (hasValidHoveredCell == false)
         {
-            sceneView.Repaint();
             return;
         }
 
@@ -725,6 +736,12 @@ public class WorldMapNodeEditorWindow : EditorWindow
             );
 
             currentEvent.Use();
+
+            // 노드 생성 또는 선택 결과를 즉시 표시한다.
+            sceneView.Repaint();
+            Repaint();
+
+            return;
         }
 
         // 오른쪽 마우스 버튼을 눌렀을 때
@@ -739,10 +756,11 @@ public class WorldMapNodeEditorWindow : EditorWindow
             );
 
             currentEvent.Use();
-        }
 
-        sceneView.Repaint();
-        Repaint();
+            // 노드 삭제 결과를 즉시 표시한다.
+            sceneView.Repaint();
+            Repaint();
+        }
     }
 
     // 배치 모드에서 Scene View의 왼쪽 클릭을 처리한다.

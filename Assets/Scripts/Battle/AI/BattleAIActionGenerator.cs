@@ -464,6 +464,15 @@ public class BattleAIActionGenerator
             return;
         }
 
+        // <변경부분> 증식은 같은 진영의 젤루 Pawn을 새로 생성한다.
+        // 이미 진영 최대 기물 수에 도달했다면 실제 스킬이 실패하므로
+        // AI 행동 후보 자체를 만들지 않는다.
+        if (pieceManager.CanCreatePieceForTeam(
+                actingPiece.Team) == false)
+        {
+            return;
+        }
+
         bool hasAdjacentEmptyPosition =
             false;
 

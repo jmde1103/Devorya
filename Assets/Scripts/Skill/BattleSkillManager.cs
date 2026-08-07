@@ -385,6 +385,55 @@ public class BattleSkillManager : MonoBehaviour
                 );
     }
 
+    // <변경부분> 지정한 기물 주변 8칸에
+    // 실제 생성에 사용할 수 있는 빈칸이 있는지 확인한다.
+    private bool HasAdjacentEmptyPosition(
+        Piece piece)
+    {
+        if (piece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return false;
+        }
+
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
+        {
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
+            {
+                if (offsetX == 0 &&
+                    offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX =
+                    piece.X +
+                    offsetX;
+
+                int targetY =
+                    piece.Y +
+                    offsetY;
+
+                if (IsInsideBoard(
+                        targetX,
+                        targetY) &&
+                    pieceManager.IsEmpty(
+                        targetX,
+                        targetY))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     // <변경부분> 고유스킬 아이콘 표시 전에
     // 실제 스킬 사용에 필요한 필수 조건을 미리 검사한다.
     //
@@ -401,6 +450,24 @@ public class BattleSkillManager : MonoBehaviour
         switch (piece.UniqueSkill)
         {
             case UniqueSkillType.JelluClone:
+                if (boardManager == null ||
+                    pieceManager == null)
+                {
+                    return false;
+                }
+
+                // 복제할 진영이 최대 기물 수에 도달했다면
+                // 실제 생성도 실패하므로 아이콘 재생 전에 사용 불가 처리한다.
+                if (pieceManager.CanCreatePieceForTeam(
+                        piece.Team) == false)
+                {
+                    return false;
+                }
+
+                return HasAdjacentEmptyPosition(
+                    piece
+                );
+
             case UniqueSkillType.JelluMultiply:
                 if (boardManager == null ||
                     pieceManager == null)
@@ -408,42 +475,18 @@ public class BattleSkillManager : MonoBehaviour
                     return false;
                 }
 
-                // 인접한 빈칸이 하나 이상 있어야 한다.
-                for (int offsetY = -1;
-                     offsetY <= 1;
-                     offsetY++)
+                // 증식은 새 젤루 Pawn 한 기를 생성한다.
+                // 진영 최대 기물 수에 도달한 상태라면
+                // AI가 실패할 스킬을 반복 선택하지 않도록 미리 차단한다.
+                if (pieceManager.CanCreatePieceForTeam(
+                        piece.Team) == false)
                 {
-                    for (int offsetX = -1;
-                         offsetX <= 1;
-                         offsetX++)
-                    {
-                        if (offsetX == 0 &&
-                            offsetY == 0)
-                        {
-                            continue;
-                        }
-
-                        int targetX =
-                            piece.X +
-                            offsetX;
-
-                        int targetY =
-                            piece.Y +
-                            offsetY;
-
-                        if (IsInsideBoard(
-                                targetX,
-                                targetY) &&
-                            pieceManager.IsEmpty(
-                                targetX,
-                                targetY))
-                        {
-                            return true;
-                        }
-                    }
+                    return false;
                 }
 
-                return false;
+                return HasAdjacentEmptyPosition(
+                    piece
+                );
 
             case UniqueSkillType.KingQueenMove:
                 return
@@ -693,7 +736,20 @@ public class BattleSkillManager : MonoBehaviour
             return false;
         }
 
-        List<Vector2Int> emptyPositions = new List<Vector2Int>();
+        // <변경부분> 진영 최대 기물 수에 도달했다면
+        // 빈칸이 있더라도 젤루 Pawn을 생성할 수 없으므로 즉시 실패 처리한다.
+        if (pieceManager.CanCreatePieceForTeam(
+                piece.Team) == false)
+        {
+            Debug.Log(
+                $"증식 실패: {piece.Team} 진영이 최대 기물 수에 도달했습니다."
+            );
+
+            return false;
+        }
+
+        List<Vector2Int> emptyPositions =
+            new List<Vector2Int>();
 
         for (int offsetY = -1; offsetY <= 1; offsetY++)
         {

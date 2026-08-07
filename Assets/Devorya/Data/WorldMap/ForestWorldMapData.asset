@@ -18,43 +18,35 @@ MonoBehaviour:
   gridWidth: 50
   gridHeight: 30
   nodePlacements:
-  - nodeId: Forest_Start
-    nodeDisplayName: "\uD0D0\uC0AC \uC2DC\uC791 \uC9C0\uC810"
-    gridPosition: {x: 5, y: 4}
-    nodeType: 4
-    nodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
-    targetSceneName: 
-    initiallyUnlocked: 1
-    initiallyCleared: 1
-    connectedNodeIds: []
-    revealRadius: 2
-  - nodeId: ForestMap_01_Battle_02
-    nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 23, y: 14}
-    nodeType: 0
-    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: 
-    initiallyUnlocked: 0
-    initiallyCleared: 0
-    connectedNodeIds: []
-    revealRadius: 2
-  - nodeId: ForestMap_01_Battle_03
-    nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
-    gridPosition: {x: 28, y: 14}
-    nodeType: 0
-    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: 
-    initiallyUnlocked: 0
-    initiallyCleared: 0
-    connectedNodeIds: []
-    revealRadius: 2
-  - nodeId: ForestMap_01_Cleared_01
-    nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C1"
+  - nodeId: MapNode_ForestMap_01_Cleared_01_(19,12)
+    nodeDisplayName: Cleared
     gridPosition: {x: 19, y: 12}
     nodeType: 4
     nodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
     targetSceneName: 
     initiallyUnlocked: 1
     initiallyCleared: 1
+    connectedNodeIds:
+    - MapNode_ForestMap_01_Battle_01_(23,14)
+    revealRadius: 0
+  - nodeId: MapNode_ForestMap_01_Battle_01_(23,14)
+    nodeDisplayName: Battle1
+    gridPosition: {x: 23, y: 14}
+    nodeType: 0
+    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
+    targetSceneName: BattleLevel1Scene
+    initiallyUnlocked: 0
+    initiallyCleared: 0
+    connectedNodeIds:
+    - MapNode_ForestMap_01_Battle_02_(28,14)
+    revealRadius: 0
+  - nodeId: MapNode_ForestMap_01_Battle_02_(28,14)
+    nodeDisplayName: Battle2
+    gridPosition: {x: 28, y: 14}
+    nodeType: 0
+    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
+    targetSceneName: BattleLevel2Scene
+    initiallyUnlocked: 0
+    initiallyCleared: 0
     connectedNodeIds: []
-    revealRadius: 2
+    revealRadius: 0

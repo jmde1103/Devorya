@@ -11,7 +11,7 @@ public class BattleEndFlowController : MonoBehaviour
     [SerializeField] private bool moveToMapSceneImmediatelyOnWin = false;
 
     // <변경부분> 전투 승리 후 돌아갈 로그라이크 맵 씬 이름
-    [SerializeField] private string mapSceneName = "RoguelikeMapScene";
+    [SerializeField] private string mapSceneName = "WorldMapScene";
 
     // <변경부분> 보상 확인 후 맵으로 돌아가기 전에
     // 다음 레벨 전투 씬으로 이동할지 여부
@@ -526,54 +526,15 @@ public class BattleEndFlowController : MonoBehaviour
         );
     }
 
-    // <변경부분> 보상 확인 완료 후 다음 씬으로 이동하는 함수
+    // <변경부분> 전투 보상 확인 후 월드맵으로 복귀한다.
     //
-    // 1번 레벨 전투에서는 nextBattleSceneName으로 이동하고,
-    // 마지막 전투처럼 다음 전투가 없는 경우에는 mapSceneName으로 이동한다.
+    // 승리한 전투 노드를 먼저 런타임 진행도에 기록한 뒤
+    // 월드맵 씬을 불러온다.
     //
-    // 씬 이동 전 RunStateManager를 초기화하지 않으므로
-    // 플레이어 기물, 금화, 아이템, 유물 상태가 다음 전투에 유지된다.
+    // 월드맵이 다시 시작되면 해당 노드가 클리어 처리되고,
+    // 연결된 다음 노드가 자동으로 해금된다.
     public void MoveToMapScene()
     {
-        if (moveToNextBattleSceneAfterReward)
-        {
-            if (string.IsNullOrEmpty(
-                    nextBattleSceneName))
-            {
-                Debug.LogWarning(
-                    "다음 전투 씬 이동 실패: " +
-                    "nextBattleSceneName이 비어 있습니다."
-                );
-
-                return;
-            }
-
-            // <변경부분> 월드맵으로 돌아가기 전에
-            // 현재 진입했던 전투 노드를 승리 상태로 기록한다.
-            //
-            // 월드맵 씬이 다시 시작되면
-            // 해당 노드를 클리어 처리하고 다음 연결 노드를 해금한다.
-            if (lastBattleResult ==
-                BattleResult.Win)
-            {
-                WorldMapRuntimeState.MarkBattleWon();
-            }
-
-            Debug.Log(
-                $"리워드 확인 완료: " +
-                $"로그라이크 맵 씬으로 이동합니다. / " +
-                $"{mapSceneName}"
-            );
-
-            SceneManager.LoadScene(
-                mapSceneName
-            );
-
-            return;
-        }
-
-        // 다음 전투가 없는 마지막 스테이지에서는
-        // 로그라이크 맵 씬으로 이동한다.
         if (string.IsNullOrEmpty(
                 mapSceneName))
         {
@@ -583,6 +544,19 @@ public class BattleEndFlowController : MonoBehaviour
             );
 
             return;
+        }
+
+        // <변경부분> 어떤 맵 복귀 설정을 사용하더라도
+        // 승리 결과는 반드시 월드맵 진행도에 기록한다.
+        if (lastBattleResult ==
+            BattleResult.Win)
+        {
+            WorldMapRuntimeState.MarkBattleWon();
+
+            Debug.Log(
+                "월드맵 진행도 기록 완료: " +
+                "현재 전투 노드를 클리어 예정 상태로 저장했습니다."
+            );
         }
 
         Debug.Log(

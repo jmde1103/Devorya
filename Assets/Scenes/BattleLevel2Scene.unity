@@ -5138,6 +5138,7 @@ MonoBehaviour:
   battleRelicEffectHandler: {fileID: 212060306}
   battleMoveValidator: {fileID: 1035375297}
   battleAIManager: {fileID: 52600101}
+  pixelCameraController: {fileID: 0}
   usePlayerDeploymentPhase: 1
   playerDeploymentRowCount: 2
   currentTurn: 0
@@ -32770,6 +32771,18 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  focusCameraOnPieceSelection: 1
+  pieceFocusMoveDuration: 0.22
+  pieceFocusWorldOffset: {x: 0, y: 0}
+  followTargetTileWhileMoving: 1
+  movingTileFollowDuration: 0.22
+  movingTileFollowWorldOffset: {x: 0, y: 0}
+  useLastPieceAttackCinematic: 1
+  lastPieceFocusMoveDuration: 0.16
+  lastPieceAttackWorldScale: 1.65
+  lastPieceAttackZoomDuration: 0.28
+  lastPieceAttackTimeScale: 0.25
+  lastPieceAttackRestoreDuration: 0.35
   mouseDragSpeed: 0.3
   touchDragSpeed: 0.005
   minZoomMoveThreshold: 0.01
@@ -56605,7 +56618,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetupManager
   level1StageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
   level2StageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
-  battleLevel: 1
+  battleLevel: 2
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
   battleManager: {fileID: 52600099}
@@ -97031,6 +97044,13 @@ MonoBehaviour:
   absorbIconNoiseAnimator: {fileID: 670389594}
   uniqueSkillIconNoiseAnimator: {fileID: 2053653647}
   playActionIconNoiseOnShow: 1
+  lastEnemyAbsorbParticlePrefab: {fileID: 0}
+  lastEnemyAbsorbParticleParent: {fileID: 0}
+  lastEnemyAbsorbParticleLocalPosition: {x: 0, y: 0, z: 0}
+  lastEnemyAbsorbParticleLocalScale: {x: 1, y: 1, z: 1}
+  absorbButtonRectTransform: {fileID: 0}
+  lastEnemyAbsorbPulseScale: 1.08
+  lastEnemyAbsorbPulseDuration: 1.2
   uniqueSkillIconImage: {fileID: 2053653645}
   uniqueSkillCooldownImageObject: {fileID: 1721691223}
   uniqueSkillCooldownText: {fileID: 1884554128}
@@ -105377,9 +105397,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af00f3556eb11a24a8d5ccdf083db8b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleEndFlowController
-  moveToMapSceneImmediatelyOnWin: 0
-  mapSceneName: RoguelikeMapScene
-  moveToNextBattleSceneAfterReward: 1
+  moveToMapSceneImmediatelyOnWin: 1
+  mapSceneName: WorldMapScene
+  moveToNextBattleSceneAfterReward: 0
   nextBattleSceneName: BattleLevel2Scene
   battleRewardPopupUI: {fileID: 337650159}
   maxPlayerPieceCount: 10

@@ -234,7 +234,8 @@ public class MapNodeRuntime : MonoBehaviour
             unlocked;
     }
 
-    // 외부 진행 시스템에서 노드 클리어 상태를 변경한다.
+    // 기존 WorldMapBuilder의 1개 인자 호출과 호환을 유지한다.
+    // 초기 생성 단계에서는 클리어 상태만 먼저 저장한다.
     public void SetCleared(
         bool cleared)
     {
@@ -242,6 +243,42 @@ public class MapNodeRuntime : MonoBehaviour
             cleared;
     }
 
+    // 외부 진행 시스템에서 노드 클리어 상태를 변경한다.
+    //
+    // 노드가 클리어 상태가 됐다면
+    // 전달받은 Cleared 전용 스타일로 Sprite와 Collider를 변경한다.
+    public void SetCleared(
+        bool cleared,
+        MapNodeStyleData clearedStyleData)
+    {
+        isCleared =
+            cleared;
+
+        if (isCleared == false)
+        {
+            return;
+        }
+
+        if (clearedStyleData == null)
+        {
+            Debug.LogWarning(
+                $"클리어 노드 스타일 적용 실패: " +
+                $"{nodeDisplayName} 노드에 사용할 " +
+                $"Cleared Style Data가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        // 기존 전투·이벤트 스타일을
+        // Cleared 전용 스타일로 교체한다.
+        nodeStyleData =
+            clearedStyleData;
+
+        // 변경된 Cleared Sprite, 색상,
+        // Collider 설정을 실제 노드에 즉시 반영한다.
+        ApplyStyle();
+    }
     // 맵 진행도 저장에 사용할 노드 ID를 반환한다.
     public string GetNodeId()
     {

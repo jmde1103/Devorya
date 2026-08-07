@@ -834,7 +834,7 @@ public class BattleManager : MonoBehaviour
     }
 
     // <변경부분> 배치 단계에서 기물을 직접 클릭했을 때
-    // 해당 기물을 배치 대상으로 선택한다.
+    // 기물 정보 표시와 배치 선택을 처리한다.
     private void HandleDeploymentPieceSelection(
         Piece piece)
     {
@@ -844,7 +844,28 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        if (CanSelectPieceForDeployment(piece) == false)
+        // <변경부분> 배치 단계에서도 Player 기물을 클릭하면
+        // 왼쪽 플레이어 스테이터스 UI에 해당 기물 정보를 표시한다.
+        //
+        // King처럼 배치 이동은 불가능한 기물도
+        // 정보 확인 자체는 가능하게 유지한다.
+        if (piece.Team ==
+            PieceTeam.Player)
+        {
+            if (battleUIController != null)
+            {
+                battleUIController.RefreshPlayerStatusOnly(
+                    piece
+                );
+
+                // 플레이어 기물을 확인할 때
+                // 이전에 표시된 상대 스테이터스는 닫는다.
+                battleUIController.ClearEnemyStatus();
+            }
+        }
+
+        if (CanSelectPieceForDeployment(
+                piece) == false)
         {
             Debug.Log(
                 "배치 선택 불가: " +
@@ -1007,17 +1028,11 @@ public class BattleManager : MonoBehaviour
             y < deploymentRowCount;
     }
 
-    // <변경부분> 배치 단계에서 위치를 옮길 플레이어 기물을 선택한다.
+    // <변경부분> 배치할 기물을 선택하고
+    // 플레이어 스테이터스와 이동 가능한 시작 구역을 표시한다.
     private void SelectDeploymentPiece(
         Piece piece)
     {
-        if (piece == null)
-        {
-            return;
-        }
-
-        // 이전에 선택한 다른 기물이 있다면
-        // 선택 해제 애니메이션을 재생한다.
         if (selectedDeploymentPiece != null &&
             selectedDeploymentPiece != piece)
         {
@@ -1032,30 +1047,35 @@ public class BattleManager : MonoBehaviour
         selectedPiece =
             piece;
 
-        pendingAttackTargetPiece =
-            null;
-
         pieceManager.PlayPieceSelectAnimation(
-            selectedDeploymentPiece
+            piece
         );
+
+        // <변경부분> 일반 전투 선택 처리로 들어가지 않는
+        // 배치 단계에서도 선택한 기물의 스테이터스를 표시한다.
+        //
+        // 액션 버튼은 건드리지 않으므로
+        // 배치 체크 버튼 상태는 그대로 유지된다.
+        if (battleUIController != null)
+        {
+            battleUIController.RefreshPlayerStatusOnly(
+                piece
+            );
+
+            battleUIController.ClearEnemyStatus();
+        }
 
         ClearHighlights();
-
-        // <변경부분> 플레이어 시작 구역의 이동·교환 가능한 칸을 표시한다.
         ShowPlayerDeploymentTiles();
-
         RefreshTypeIconVisuals();
-
-        Debug.Log(
-            $"배치 기물 선택: " +
-            $"{piece.PieceType} / ({piece.X}, {piece.Y})"
-        );
     }
 
-    // <변경부분> 현재 배치 기물 선택과 하이라이트를 해제한다.
+    // <변경부분> 현재 선택된 배치 기물을 해제하고
+    // 플레이어 스테이터스와 하이라이트를 정리한다.
     private void ClearDeploymentSelection()
     {
-        if (selectedDeploymentPiece != null)
+        if (selectedDeploymentPiece != null &&
+            pieceManager != null)
         {
             pieceManager.PlayPieceDeselectAnimation(
                 selectedDeploymentPiece
@@ -1068,20 +1088,16 @@ public class BattleManager : MonoBehaviour
         selectedPiece =
             null;
 
-        pendingAttackTargetPiece =
-            null;
+        // <변경부분> 빈 타일 클릭, 같은 기물 재클릭,
+        // 배치 완료 등으로 선택이 해제되면
+        // 플레이어 스테이터스 UI도 함께 닫는다.
+        if (battleUIController != null)
+        {
+            battleUIController.ClearPlayerStatusOnly();
+        }
 
         ClearHighlights();
         RefreshTypeIconVisuals();
-
-        // 배치 중에는 기물 선택이 해제되어도
-        // 체크 버튼은 계속 표시되어야 한다.
-        if (battleUIController != null)
-        {
-            battleUIController.SetPlayerDeploymentMode(
-                true
-            );
-        }
     }
 
     // <변경부분> 플레이어 시작 구역에서

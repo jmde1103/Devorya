@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Spine;
+using Spine.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,9 +21,44 @@ public class WorldMapProgressController : MonoBehaviour
     [SerializeField]
     private WorldMapBuilder worldMapBuilder;
 
-    // 맵 위에서 이동하는 검은 구체 Spine 오브젝트
+    // <변경부분> 전투를 완료한 노드에 적용할
+    // Cleared 타입 전용 스타일 데이터
+    [SerializeField]
+    private MapNodeStyleData clearedNodeStyleData;
+
+    // 맵 위에서 이동하는 검은 구체의 이동 기준 부모 Transform
+    //
+    // 실제 위치 이동은 PlayerMarkerRoot가 담당하고,
+    // 시각적 위치 보정은 자식 Spine 오브젝트의 Local Position으로 처리한다.
     [SerializeField]
     private Transform playerMarker;
+
+    [Header("Player Marker Animation")]
+    // 검은 구체 애니메이션을 재생하는 Spine SkeletonAnimation
+    //
+    // PlayerMarkerRoot의 자식인 실제 Spine 오브젝트를 연결한다.
+    [SerializeField]
+    private SkeletonAnimation playerMarkerSkeletonAnimation;
+
+    // 노드 도착 직후 재생할 선택 애니메이션
+    [SerializeField]
+    private string markerSelectAnimationName =
+        "Select";
+
+    // Select 다음에 재생할 흡수 애니메이션
+    [SerializeField]
+    private string markerAbsorbAnimationName =
+        "Absorb";
+
+    // Absorb 다음에 재생할 마무리 애니메이션
+    [SerializeField]
+    private string markerDownAbsorbAnimationName =
+        "Down_Absorb";
+
+    // 각 애니메이션 사이에 추가할 짧은 대기시간
+    [SerializeField, Min(0f)]
+    private float markerAnimationInterval =
+        0.05f;
 
     [Header("Route")]
     // 발표용 노드 사이 이동 경로 목록
@@ -175,6 +212,17 @@ public class WorldMapProgressController : MonoBehaviour
             return false;
         }
 
+        // <변경부분> 클리어 노드 표시용 스타일이 빠졌다면
+        // 진행은 계속하되 화면 스타일 변경이 되지 않음을 알린다.
+        if (clearedNodeStyleData == null)
+        {
+            Debug.LogWarning(
+                "월드맵 Cleared 스타일 연결 경고: " +
+                "Cleared Node Style Data가 연결되지 않았습니다. " +
+                "노드 해금은 진행되지만 클리어 Sprite는 변경되지 않습니다."
+            );
+        }
+
         if (playerMarker == null)
         {
             Debug.LogWarning(
@@ -183,6 +231,25 @@ public class WorldMapProgressController : MonoBehaviour
             );
 
             return false;
+        }
+
+        // PlayerMarkerRoot만 Inspector에 연결된 경우,
+        // 자식에서 실제 Spine SkeletonAnimation을 자동으로 찾는다.
+        if (playerMarkerSkeletonAnimation == null)
+        {
+            playerMarkerSkeletonAnimation =
+                playerMarker.GetComponentInChildren<SkeletonAnimation>(
+                    true
+                );
+        }
+
+        if (playerMarkerSkeletonAnimation == null)
+        {
+            Debug.LogWarning(
+                "Player Marker 애니메이션 연결 경고: " +
+                "PlayerMarkerRoot 자식에서 SkeletonAnimation을 찾지 못했습니다. " +
+                "노드 이동은 실행되지만 도착 애니메이션은 생략됩니다."
+            );
         }
 
         return true;
@@ -260,11 +327,17 @@ public class WorldMapProgressController : MonoBehaviour
                     );
 
             runtimeNode.SetUnlocked(
-                isUnlocked
-            );
+    isUnlocked
+);
 
+            // <변경부분> 런타임 클리어 상태와 함께
+            // Cleared 전용 스타일 데이터도 노드에 전달한다.
+            //
+            // 클리어된 전투 노드는 기존 전투 노드 Sprite 대신
+            // Cleared 노드 Sprite와 색상으로 즉시 변경된다.
             runtimeNode.SetCleared(
-                isCleared
+                isCleared,
+                clearedNodeStyleData
             );
         }
     }
@@ -481,12 +554,20 @@ public class WorldMapProgressController : MonoBehaviour
             targetNode.GetTargetSceneName();
 
         WorldMapRuntimeState.SetCurrentNode(
-            targetNodeId
-        );
+    targetNodeId
+);
 
         WorldMapRuntimeState.BeginBattleNode(
             targetNodeId
         );
+
+        // 검은 구체가 목적지 노드에 도착한 뒤
+        // Select → Absorb → Down_Absorb 순서로 재생한다.
+        //
+        // 모든 애니메이션 재생이 끝난 후에만
+        // 실제 전투 씬으로 이동한다.
+        yield return
+            PlayMarkerNodeEnterAnimationRoutine();
 
         if (waitBeforeSceneMove >
             0f)
@@ -521,6 +602,146 @@ public class WorldMapProgressController : MonoBehaviour
         SceneManager.LoadScene(
             targetSceneName
         );
+    }
+
+    // 검은 구체가 전투 노드에 도착했을 때
+    // Select → Absorb → Down_Absorb 순서로 애니메이션을 재생한다.
+    //
+    // 모든 애니메이션은 루프 없이 1회 재생하며,
+    // 마지막 Down_Absorb가 끝난 다음 전투 씬으로 이동한다.
+    private IEnumerator PlayMarkerNodeEnterAnimationRoutine()
+    {
+        if (playerMarkerSkeletonAnimation == null)
+        {
+            Debug.LogWarning(
+                "Player Marker 도착 애니메이션 생략: " +
+                "SkeletonAnimation이 연결되지 않았습니다."
+            );
+
+            yield break;
+        }
+
+        // 이전에 재생 중인 트랙과 대기 애니메이션을 제거하여
+        // 도착 연출이 기존 애니메이션과 겹치지 않도록 한다.
+        playerMarkerSkeletonAnimation.AnimationState
+            .ClearTrack(
+                0
+            );
+
+        // 목적지 노드를 선택하는 연출
+        yield return
+            PlayMarkerAnimationOnceRoutine(
+                markerSelectAnimationName
+            );
+
+        if (markerAnimationInterval >
+            0f)
+        {
+            yield return
+                new WaitForSeconds(
+                    markerAnimationInterval
+                );
+        }
+
+        // 노드 또는 스테이지를 흡수하는 연출
+        yield return
+            PlayMarkerAnimationOnceRoutine(
+                markerAbsorbAnimationName
+            );
+
+        if (markerAnimationInterval >
+            0f)
+        {
+            yield return
+                new WaitForSeconds(
+                    markerAnimationInterval
+                );
+        }
+
+        // 스테이지 진입 직전 마무리 흡수 연출
+        yield return
+            PlayMarkerAnimationOnceRoutine(
+                markerDownAbsorbAnimationName
+            );
+
+        Debug.Log(
+            "Player Marker 노드 도착 애니메이션 완료: " +
+            $"{markerSelectAnimationName} → " +
+            $"{markerAbsorbAnimationName} → " +
+            $"{markerDownAbsorbAnimationName}"
+        );
+    }
+
+    // 지정한 Spine 애니메이션을 0번 트랙에서
+    // 루프 없이 한 번 재생하고 종료될 때까지 기다린다.
+    private IEnumerator PlayMarkerAnimationOnceRoutine(
+        string animationName)
+    {
+        if (playerMarkerSkeletonAnimation == null ||
+            string.IsNullOrWhiteSpace(
+                animationName))
+        {
+            yield break;
+        }
+
+        Spine.Animation animation =
+            playerMarkerSkeletonAnimation
+                .SkeletonDataAsset
+                .GetSkeletonData(
+                    true
+                )
+                .FindAnimation(
+                    animationName
+                );
+
+        if (animation == null)
+        {
+            Debug.LogWarning(
+                $"Player Marker 애니메이션 재생 실패: " +
+                $"{animationName} 애니메이션을 찾지 못했습니다."
+            );
+
+            yield break;
+        }
+
+        TrackEntry trackEntry =
+            playerMarkerSkeletonAnimation
+                .AnimationState
+                .SetAnimation(
+                    0,
+                    animationName,
+                    false
+                );
+
+        if (trackEntry == null)
+        {
+            Debug.LogWarning(
+                $"Player Marker 애니메이션 재생 실패: " +
+                $"{animationName} TrackEntry를 생성하지 못했습니다."
+            );
+
+            yield break;
+        }
+
+        // Spine 애니메이션의 실제 길이를 기준으로 기다리므로
+        // 애니메이션 길이가 달라져도 코드 시간을 다시 수정할 필요가 없다.
+        float animationDuration =
+            Mathf.Max(
+                0f,
+                animation.Duration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               animationDuration)
+        {
+            elapsedTime +=
+                Time.deltaTime;
+
+            yield return null;
+        }
     }
 
     // 검은 구체를 지정한 월드 위치까지

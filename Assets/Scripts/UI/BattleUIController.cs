@@ -553,15 +553,58 @@ public class BattleUIController : MonoBehaviour
         }
     }
 
+    // <변경부분> 액션 버튼 상태는 변경하지 않고
+    // 플레이어 기물 스테이터스 UI만 표시한다.
+    //
+    // 전투 시작 전 기물 배치 단계처럼
+    // 흡수·고유스킬 버튼을 사용할 수 없는 상태에서 사용한다.
+    public void RefreshPlayerStatusOnly(
+        Piece playerPiece)
+    {
+        if (playerStatusUIController == null)
+        {
+            Debug.LogWarning(
+                "플레이어 스테이터스 표시 실패: " +
+                "Player Status UI Controller가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        if (playerPiece == null)
+        {
+            playerStatusUIController.Clear();
+            return;
+        }
+
+        playerStatusUIController.Refresh(
+            playerPiece
+        );
+    }
+
+    // <변경부분> 플레이어 스테이터스 UI만 닫는다.
+    //
+    // 배치 단계의 체크 버튼이나 다른 전투 UI는
+    // 변경하지 않고 선택 정보만 제거한다.
+    public void ClearPlayerStatusOnly()
+    {
+        if (playerStatusUIController == null)
+        {
+            return;
+        }
+
+        playerStatusUIController.Clear();
+    }
 
     // 선택된 기물 상태에 따라 버튼 표시 갱신
-    public void RefreshSelectedPieceButtons(Piece selectedPiece)
+    public void RefreshSelectedPieceButtons(
+        Piece selectedPiece)
     {
-        // <변경부분> 선택한 플레이어 기물 정보를 왼쪽 하단 스테이터스 UI에 표시
-        if (playerStatusUIController != null)
-        {
-            playerStatusUIController.Refresh(selectedPiece);
-        }
+        // <변경부분> 선택한 플레이어 기물 정보를
+        // 왼쪽 하단 스테이터스 UI에 표시한다.
+        RefreshPlayerStatusOnly(
+            selectedPiece
+        );
 
         // 선택된 기물이 없으면 버튼 숨김
         if (selectedPiece == null)
