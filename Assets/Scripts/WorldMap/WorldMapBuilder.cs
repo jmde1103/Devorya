@@ -67,6 +67,15 @@ public class WorldMapBuilder : MonoBehaviour
         get { return baseMapRenderer; }
     }
 
+    private void Awake()
+    {
+        // 모바일에서도 목표 프레임을 60FPS로 설정한다.
+        Application.targetFrameRate = 60;
+
+        // 모바일에서는 VSync 대신 targetFrameRate를 사용한다.
+        QualitySettings.vSyncCount = 0;
+    }
+
     private void Start()
     {
         // 자동 생성 옵션이 켜져 있으면
