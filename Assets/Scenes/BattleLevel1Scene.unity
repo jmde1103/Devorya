@@ -32647,7 +32647,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2.8125
+  orthographic size: 3.125
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -105397,7 +105397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af00f3556eb11a24a8d5ccdf083db8b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleEndFlowController
-  moveToMapSceneImmediatelyOnWin: 1
+  moveToMapSceneImmediatelyOnWin: 0
   mapSceneName: WorldMapScene
   moveToNextBattleSceneAfterReward: 0
   nextBattleSceneName: BattleLevel2Scene
@@ -147411,7 +147411,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0.5
+  m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
