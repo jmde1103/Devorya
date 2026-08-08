@@ -32,11 +32,15 @@ public class WorldMapProgressController : MonoBehaviour
     // 시각적 위치 보정은 자식 Spine 오브젝트의 Local Position으로 처리한다.
     [SerializeField]
     private Transform playerMarker;
-
     // 마커가 지나간 셀의 탐사 처리와
     // 현재 노드에서 이어지는 다음 노드·길 Preview를 관리한다.
     [SerializeField]
     private WorldMapFogController worldMapFogController;
+
+    // 마커 이동 중 줌·드래그 입력을 잠그고
+    // 카메라가 Player Marker를 따라가게 하는 컨트롤러
+    [SerializeField]
+    private WorldMapCameraController worldMapCameraController;
 
     [Header("Player Marker Animation")]
     // 검은 구체 애니메이션을 재생하는 Spine SkeletonAnimation
@@ -191,6 +195,18 @@ public class WorldMapProgressController : MonoBehaviour
         // 현재 탐사 완료 노드 주변을 완전히 밝히고,
         // 해당 노드와 연결된 미탐사 노드·길을 Preview 상태로 표시한다.
         RefreshFogForCurrentNode();
+
+        // 노드·마커·포그 초기화가 모두 완료된 다음,
+        // 카메라를 현재 Player Marker 중심에 맞추고
+        // 1배율에서 2배율까지 부드럽게 확대한다.
+        if (worldMapCameraController != null)
+        {
+            yield return
+                worldMapCameraController
+                    .PlayMapStartZoomRoutine(
+                        playerMarker
+                    );
+        }
     }
 
     // 월드맵 진행 기능에 필요한 참조를 검사한다.
@@ -251,6 +267,24 @@ public class WorldMapProgressController : MonoBehaviour
                 "월드맵 포그 연결 경고: " +
                 "World Map Fog Controller가 연결되지 않았습니다. " +
                 "노드 진행은 작동하지만 포그 탐사는 갱신되지 않습니다."
+            );
+        }
+
+        // Inspector에서 카메라 컨트롤러 연결이 빠졌다면
+        // 현재 씬의 Main Camera에서 자동으로 찾는다.
+        if (worldMapCameraController == null &&
+            Camera.main != null)
+        {
+            worldMapCameraController =
+                Camera.main.GetComponent<WorldMapCameraController>();
+        }
+
+        if (worldMapCameraController == null)
+        {
+            Debug.LogWarning(
+                "월드맵 카메라 연결 경고: " +
+                "World Map Camera Controller가 연결되지 않았습니다. " +
+                "마커 이동은 가능하지만 줌 잠금과 카메라 추적은 실행되지 않습니다."
             );
         }
 
@@ -605,12 +639,23 @@ public class WorldMapProgressController : MonoBehaviour
     // 미클리어 노드에 도착하면 기존처럼 전투 씬으로 진입하고,
     // 이미 클리어된 노드에 도착하면 위치만 변경한 뒤 월드맵에 남는다.
     private IEnumerator MoveMarkerToNodeRoutine(
-        MapNodeRuntime targetNode,
-        WorldMapRouteData route,
-        bool useReverseWaypoints)
+      MapNodeRuntime targetNode,
+      WorldMapRouteData route,
+      bool useReverseWaypoints)
     {
         isMovingMarker =
             true;
+
+        // 마커가 경로 이동을 시작하는 순간부터
+        // 현재 확대 배율을 잠그고 카메라가 마커를 따라가게 한다.
+        if (worldMapCameraController != null)
+        {
+            worldMapCameraController
+                .SetMarkerFollow(
+                    playerMarker,
+                    true
+                );
+        }
 
         if (route.waypoints != null)
         {
@@ -721,6 +766,17 @@ public class WorldMapProgressController : MonoBehaviour
             isMovingMarker =
                 false;
 
+            // 클리어된 노드에 도착해 월드맵에 계속 남는 경우
+            // 카메라 추적을 종료하고 줌·드래그 조작을 다시 허용한다.
+            if (worldMapCameraController != null)
+            {
+                worldMapCameraController
+                    .SetMarkerFollow(
+                        null,
+                        false
+                    );
+            }
+
             // 클리어된 노드로 이동한 경우
             // 해당 노드를 기준으로 새로 연결된 미탐사 노드와 길을 표시한다.
             RefreshFogForCurrentNode();
@@ -759,7 +815,7 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
         if (string.IsNullOrWhiteSpace(
-         targetSceneName))
+        targetSceneName))
         {
             Debug.LogWarning(
                 $"전투 씬 이동 실패: " +
@@ -769,6 +825,17 @@ public class WorldMapProgressController : MonoBehaviour
 
             isMovingMarker =
                 false;
+
+            // 씬 이동이 취소되어 월드맵에 남으므로
+            // 카메라 추적과 입력 잠금을 반드시 해제한다.
+            if (worldMapCameraController != null)
+            {
+                worldMapCameraController
+                    .SetMarkerFollow(
+                        null,
+                        false
+                    );
+            }
 
             yield break;
         }

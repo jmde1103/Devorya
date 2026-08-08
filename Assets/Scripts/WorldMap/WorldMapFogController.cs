@@ -797,8 +797,12 @@ public class WorldMapFogController : MonoBehaviour
         );
     }
 
-    public IEnumerator PlaySceneCloseTransition(
-    Vector3 centerWorldPosition)
+    // 왼쪽 위에서 오른쪽 아래 방향으로
+    // 흰색 포그를 덮은 뒤 같은 방향으로 검은색 포그를 덮는다.
+    //
+    // 기존 탐사 상태와 상관없이 FogTilemap의 셀 색상을 직접 바꾸므로,
+    // 맵 대부분이 미탐사 상태여도 전환 효과가 화면 전체에 표시된다.
+    public IEnumerator PlaySceneCloseTransition()
     {
         if (isInitialized == false ||
             isSceneTransitionPlaying)
@@ -806,12 +810,9 @@ public class WorldMapFogController : MonoBehaviour
             yield break;
         }
 
-        Grid mapGrid =
-            GetMapGrid();
-
-        if (mapGrid == null ||
-            worldMapBuilder == null ||
-            worldMapBuilder.WorldMapData == null)
+        if (worldMapBuilder == null ||
+            worldMapBuilder.WorldMapData == null ||
+            fogTilemap == null)
         {
             yield break;
         }
@@ -819,6 +820,8 @@ public class WorldMapFogController : MonoBehaviour
         isSceneTransitionPlaying =
             true;
 
+        // 탐사 포그의 기존 Alpha 애니메이션이 씬 전환 색상에
+        // 개입하지 않도록 현재 실행 중인 애니메이션을 중단한다.
         if (fogAnimationCoroutine != null)
         {
             StopCoroutine(
@@ -831,120 +834,107 @@ public class WorldMapFogController : MonoBehaviour
 
         animatingCells.Clear();
         completedAnimationCells.Clear();
-
-        Vector3Int centerCell =
-            mapGrid.WorldToCell(
-                centerWorldPosition
-            );
-
-        centerCell.z =
-            0;
+        sceneTransitionStartColors.Clear();
 
         WorldMapData mapData =
             worldMapBuilder.WorldMapData;
 
-        int distanceToLeft =
-            Mathf.Abs(
-                centerCell.x
-            );
-
-        int distanceToRight =
-            Mathf.Abs(
-                mapData.gridWidth -
-                1 -
-                centerCell.x
-            );
-
-        int distanceToBottom =
-            Mathf.Abs(
-                centerCell.y
-            );
-
-        int distanceToTop =
-            Mathf.Abs(
-                mapData.gridHeight -
-                1 -
-                centerCell.y
-            );
-
-        int maximumDistance =
-            Mathf.Max(
-                distanceToLeft,
-                distanceToRight,
-                distanceToBottom,
-                distanceToTop
-            );
-
-        for (int distance = 0;
-             distance <= maximumDistance;
-             distance++)
+        // 흰색 전환 전 현재 셀별 포그 색상을 저장한다.
+        //
+        // 탐사 완료, Preview, 미탐사 영역의 서로 다른 Alpha도
+        // 모두 현재 화면 그대로 시작 색상으로 사용한다.
+        for (int y = 0;
+             y < mapData.gridHeight;
+             y++)
         {
-            for (int y = 0;
-                 y < mapData.gridHeight;
-                 y++)
+            for (int x = 0;
+                 x < mapData.gridWidth;
+                 x++)
             {
-                for (int x = 0;
-                     x < mapData.gridWidth;
-                     x++)
-                {
-                    int horizontalDistance =
-                        Mathf.Abs(
-                            x -
-                            centerCell.x
-                        );
-
-                    int verticalDistance =
-                        Mathf.Abs(
-                            y -
-                            centerCell.y
-                        );
-
-                    int squareDistance =
-                        Mathf.Max(
-                            horizontalDistance,
-                            verticalDistance
-                        );
-
-                    if (squareDistance !=
-                        distance)
-                    {
-                        continue;
-                    }
-
-                    Vector3Int cellPosition =
-                        new Vector3Int(
-                            x,
-                            y,
-                            0
-                        );
-
-                    currentAlphaByCell[cellPosition] =
-                        1f;
-
-                    targetAlphaByCell[cellPosition] =
-                        1f;
-
-                    ApplyCellColor(
-                        cellPosition,
-                        1f
+                Vector3Int cellPosition =
+                    new Vector3Int(
+                        x,
+                        y,
+                        0
                     );
-                }
-            }
 
-            if (sceneCloseStepInterval >
-                0f)
-            {
-                yield return
-                    new WaitForSecondsRealtime(
-                        sceneCloseStepInterval
+                sceneTransitionStartColors[cellPosition] =
+                    fogTilemap.GetColor(
+                        cellPosition
                     );
-            }
-            else
-            {
-                yield return null;
             }
         }
 
+        // 왼쪽 위의 진행값은 0,
+        // 오른쪽 아래의 진행값은 최대값이 되도록 계산한다.
+        int maximumDiagonalIndex =
+            Mathf.Max(
+                1,
+                mapData.gridWidth -
+                1 +
+                mapData.gridHeight -
+                1
+            );
+
+        // 현재 포그 상태에서 불투명한 흰색까지
+        // 왼쪽 위 → 오른쪽 아래 방향으로 전환한다.
+        yield return
+            PlayDiagonalColorSweepRoutine(
+                mapData,
+                maximumDiagonalIndex,
+                sceneTransitionStartColors,
+                Color.white,
+                sceneWhiteSweepDuration
+            );
+
+        // 전체 화면이 흰색으로 완성된 상태를
+        // 지정한 시간 동안 짧게 유지한다.
+        if (sceneWhiteHoldDuration >
+            0f)
+        {
+            yield return
+                new WaitForSecondsRealtime(
+                    sceneWhiteHoldDuration
+                );
+        }
+
+        // 검은색 전환의 시작 색상은
+        // 모든 셀이 불투명한 흰색인 상태로 고정한다.
+        sceneTransitionStartColors.Clear();
+
+        for (int y = 0;
+             y < mapData.gridHeight;
+             y++)
+        {
+            for (int x = 0;
+                 x < mapData.gridWidth;
+                 x++)
+            {
+                Vector3Int cellPosition =
+                    new Vector3Int(
+                        x,
+                        y,
+                        0
+                    );
+
+                sceneTransitionStartColors[cellPosition] =
+                    Color.white;
+            }
+        }
+
+        // 흰색 화면에서 불투명한 검은색까지
+        // 다시 왼쪽 위 → 오른쪽 아래 방향으로 전환한다.
+        yield return
+            PlayDiagonalColorSweepRoutine(
+                mapData,
+                maximumDiagonalIndex,
+                sceneTransitionStartColors,
+                Color.black,
+                sceneBlackSweepDuration
+            );
+
+        // 마지막 프레임의 계산 오차와 셀 누락을 방지하기 위해
+        // 모든 포그 셀을 완전한 검은색으로 확정한다.
         for (int y = 0;
              y < mapData.gridHeight;
              y++)
@@ -966,13 +956,17 @@ public class WorldMapFogController : MonoBehaviour
                 targetAlphaByCell[cellPosition] =
                     1f;
 
-                ApplyCellColor(
+                fogTilemap.SetColor(
                     cellPosition,
-                    1f
+                    Color.black
                 );
             }
         }
 
+        sceneTransitionStartColors.Clear();
+
+        // 화면 전체가 완전히 검어진 상태를 유지한 뒤
+        // WorldMapProgressController가 다음 씬을 불러오게 한다.
         if (sceneCloseHoldDuration >
             0f)
         {

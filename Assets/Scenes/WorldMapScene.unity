@@ -552,7 +552,10 @@ MonoBehaviour:
   nodeAreaRadius: 1
   fogFadeSpeed: 1.2
   revealOnlyExistingPathTiles: 1
-  sceneCloseStepInterval: 0.025
+  sceneWhiteSweepDuration: 0.45
+  sceneWhiteHoldDuration: 0.06
+  sceneBlackSweepDuration: 0.45
+  sceneSweepGradientWidth: 0.06
   sceneCloseHoldDuration: 0.08
 --- !u!1 &485377065
 GameObject:
@@ -815,6 +818,7 @@ MonoBehaviour:
   clearedNodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
   playerMarker: {fileID: 1041329572}
   worldMapFogController: {fileID: 395157155}
+  worldMapCameraController: {fileID: 0}
   playerMarkerSkeletonAnimation: {fileID: 0}
   markerSelectAnimationName: Select
   markerAbsorbAnimationName: Absorb
@@ -1544,6 +1548,10 @@ MonoBehaviour:
   zoomSmoothSpeed: 7
   mouseDragSpeed: 1
   touchDragSpeed: 0.01
+  mapStartZoomFrom: 1
+  mapStartZoomTo: 1.5
+  mapStartZoomDuration: 1
+  markerFollowSmoothSpeed: 8
   mapMinBounds: {x: -25, y: -15}
   mapMaxBounds: {x: 25, y: 15}
 --- !u!114 &1337671632
