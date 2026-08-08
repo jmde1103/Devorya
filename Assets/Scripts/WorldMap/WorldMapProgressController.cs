@@ -255,8 +255,6 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
         // PlayerMarkerRoot만 Inspector에 연결된 경우,
-
-        // PlayerMarkerRoot만 Inspector에 연결된 경우,
         // 자식에서 실제 Spine SkeletonAnimation을 자동으로 찾는다.
         if (playerMarkerSkeletonAnimation == null)
         {
@@ -761,7 +759,7 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
         if (string.IsNullOrWhiteSpace(
-                targetSceneName))
+         targetSceneName))
         {
             Debug.LogWarning(
                 $"전투 씬 이동 실패: " +
@@ -774,6 +772,33 @@ public class WorldMapProgressController : MonoBehaviour
 
             yield break;
         }
+
+        // Player Marker는 FogTilemap보다 높은 Sorting Order를 사용하므로,
+        // 흰색·검은색 전환 위에 남지 않도록 효과 시작 전에 숨긴다.
+        //
+        // 노드 도착 애니메이션은 이미 모두 끝난 상태이므로
+        // 전환 직전 비활성화해도 기존 연출에는 영향을 주지 않는다.
+        if (playerMarker != null)
+        {
+            playerMarker.gameObject.SetActive(
+                false
+            );
+        }
+
+        // 현재 탐사 포그 상태와 관계없이
+        // 왼쪽 위부터 오른쪽 아래로 흰색 포그를 덮고,
+        // 같은 방향으로 다시 검은색 포그를 덮는다.
+        //
+        // 화면 전체가 완전히 검어진 뒤에만
+        // 실제 전투 씬을 불러오도록 순서를 보장한다.
+        if (worldMapFogController != null)
+        {
+            yield return
+                worldMapFogController
+                    .PlaySceneCloseTransition();
+        }
+
+        yield return null;
 
         Debug.Log(
             $"월드맵 노드 도착: " +

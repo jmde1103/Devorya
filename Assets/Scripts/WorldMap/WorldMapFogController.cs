@@ -57,11 +57,14 @@ public class WorldMapFogController : MonoBehaviour
     private int exploredGradientRadius =
         3;
 
-    // 다음 탐사 후보 길 주변에 적용할
+    // 다음 탐사 후보 노드와 길 주변에 적용할
     // 옅은 Preview 그라데이션 반경
+    //
+    // 중심 Preview 영역 바깥으로 두 셀까지 점차 어두워져
+    // 완전 미탐사 포그와 자연스럽게 연결되도록 한다.
     [SerializeField, Min(0)]
     private int previewGradientRadius =
-        1;
+        2;
 
     // 노드 중심 주변에서 함께 밝힐 셀 반경
     [SerializeField, Min(0)]
@@ -82,7 +85,49 @@ public class WorldMapFogController : MonoBehaviour
     // Preview 영역에서 제외할지 여부
     [SerializeField]
     private bool revealOnlyExistingPathTiles =
-        true;
+     true;
+
+    [Header("Scene Transition")]
+    // 왼쪽 위에서 오른쪽 아래까지
+    // 흰색 포그가 화면을 덮는 데 걸리는 시간
+    [SerializeField, Min(0.01f)]
+    private float sceneWhiteSweepDuration =
+    0.45f;
+
+    // 흰색 화면이 완성된 뒤
+    // 검은색 전환을 시작하기 전 유지할 시간
+    [SerializeField, Min(0f)]
+    private float sceneWhiteHoldDuration =
+        0.06f;
+
+    // 왼쪽 위에서 오른쪽 아래까지
+    // 검은색 포그가 화면을 덮는 데 걸리는 시간
+    [SerializeField, Min(0.01f)]
+    private float sceneBlackSweepDuration =
+        0.45f;
+
+    // 대각선 전환 경계의 부드러운 그라데이션 폭
+    //
+    // 값이 작으면 타일 경계가 선명하고,
+    // 값이 크면 여러 타일에 걸쳐 부드럽게 섞인다.
+    [SerializeField, Range(0.001f, 0.25f)]
+    private float sceneSweepGradientWidth =
+        0.06f;
+
+    // 모든 포그가 검은색으로 닫힌 뒤
+    // 씬을 전환하기 전 잠시 유지할 시간
+    [SerializeField, Min(0f)]
+    private float sceneCloseHoldDuration =
+        0.08f;
+
+    // 현재 포그 씬 전환 효과가 실행 중인지 확인한다.
+    private bool isSceneTransitionPlaying;
+
+    // 흰색 전환 시작 전
+    // 각 셀에 적용되어 있던 실제 색상을 임시 보관한다.
+    private readonly Dictionary<Vector3Int, Color>
+        sceneTransitionStartColors =
+            new Dictionary<Vector3Int, Color>();
 
     // 현재 각 셀에 실제 적용된 Alpha
     private readonly Dictionary<Vector3Int, float>
@@ -404,14 +449,35 @@ public class WorldMapFogController : MonoBehaviour
         }
 
         lastMarkerCell =
-            markerCell;
+     markerCell;
 
         hasLastMarkerCell =
             true;
 
-        RevealExploredCell(
-            markerCell
-        );
+        // 마커가 새로운 셀에 진입할 때마다
+        // 노드 탐사 영역과 동일한 사각형 범위를 완전히 밝힌다.
+        //
+        // Node Area Radius가 1이면 마커 중심의 3×3 셀이
+        // 완전 탐사 상태가 되고, 각 셀 바깥쪽은
+        // Explored Gradient Radius만큼 점차 어두워진다.
+        for (int y = -nodeAreaRadius;
+             y <= nodeAreaRadius;
+             y++)
+        {
+            for (int x = -nodeAreaRadius;
+                 x <= nodeAreaRadius;
+                 x++)
+            {
+                RevealExploredCell(
+                    markerCell +
+                    new Vector3Int(
+                        x,
+                        y,
+                        0
+                    )
+                );
+            }
+        }
     }
 
     // 노드 중심과 주변 셀을 완전 탐사 상태로 전환한다.
@@ -439,6 +505,11 @@ public class WorldMapFogController : MonoBehaviour
         centerCell.z =
             0;
 
+        // 노드 중심의 완전 탐사 영역은
+        // 대각선 셀까지 포함한 사각형 형태로 밝힌다.
+        //
+        // Node Area Radius가 1이면
+        // 중심을 포함한 3×3 셀이 완전히 밝아진다.
         for (int y = -nodeAreaRadius;
              y <= nodeAreaRadius;
              y++)
@@ -447,16 +518,6 @@ public class WorldMapFogController : MonoBehaviour
                  x <= nodeAreaRadius;
                  x++)
             {
-                if (
-                    x * x +
-                    y * y >
-                    nodeAreaRadius *
-                    nodeAreaRadius
-                )
-                {
-                    continue;
-                }
-
                 RevealExploredCell(
                     centerCell +
                     new Vector3Int(
@@ -495,6 +556,11 @@ public class WorldMapFogController : MonoBehaviour
         centerCell.z =
             0;
 
+        // 다음 탐사 후보 노드도 대각선 셀까지 포함하여
+        // 사각형 형태의 Preview 중심 영역을 만든다.
+        //
+        // 중심 영역 바깥쪽은 Preview Gradient Radius에 따라
+        // 완전 미탐사 포그까지 점차 어두워진다.
         for (int y = -nodeAreaRadius;
              y <= nodeAreaRadius;
              y++)
@@ -503,16 +569,6 @@ public class WorldMapFogController : MonoBehaviour
                  x <= nodeAreaRadius;
                  x++)
             {
-                if (
-                    x * x +
-                    y * y >
-                    nodeAreaRadius *
-                    nodeAreaRadius
-                )
-                {
-                    continue;
-                }
-
                 RevealPreviewCell(
                     centerCell +
                     new Vector3Int(
@@ -739,6 +795,343 @@ public class WorldMapFogController : MonoBehaviour
             true,
             true
         );
+    }
+
+    public IEnumerator PlaySceneCloseTransition(
+    Vector3 centerWorldPosition)
+    {
+        if (isInitialized == false ||
+            isSceneTransitionPlaying)
+        {
+            yield break;
+        }
+
+        Grid mapGrid =
+            GetMapGrid();
+
+        if (mapGrid == null ||
+            worldMapBuilder == null ||
+            worldMapBuilder.WorldMapData == null)
+        {
+            yield break;
+        }
+
+        isSceneTransitionPlaying =
+            true;
+
+        if (fogAnimationCoroutine != null)
+        {
+            StopCoroutine(
+                fogAnimationCoroutine
+            );
+
+            fogAnimationCoroutine =
+                null;
+        }
+
+        animatingCells.Clear();
+        completedAnimationCells.Clear();
+
+        Vector3Int centerCell =
+            mapGrid.WorldToCell(
+                centerWorldPosition
+            );
+
+        centerCell.z =
+            0;
+
+        WorldMapData mapData =
+            worldMapBuilder.WorldMapData;
+
+        int distanceToLeft =
+            Mathf.Abs(
+                centerCell.x
+            );
+
+        int distanceToRight =
+            Mathf.Abs(
+                mapData.gridWidth -
+                1 -
+                centerCell.x
+            );
+
+        int distanceToBottom =
+            Mathf.Abs(
+                centerCell.y
+            );
+
+        int distanceToTop =
+            Mathf.Abs(
+                mapData.gridHeight -
+                1 -
+                centerCell.y
+            );
+
+        int maximumDistance =
+            Mathf.Max(
+                distanceToLeft,
+                distanceToRight,
+                distanceToBottom,
+                distanceToTop
+            );
+
+        for (int distance = 0;
+             distance <= maximumDistance;
+             distance++)
+        {
+            for (int y = 0;
+                 y < mapData.gridHeight;
+                 y++)
+            {
+                for (int x = 0;
+                     x < mapData.gridWidth;
+                     x++)
+                {
+                    int horizontalDistance =
+                        Mathf.Abs(
+                            x -
+                            centerCell.x
+                        );
+
+                    int verticalDistance =
+                        Mathf.Abs(
+                            y -
+                            centerCell.y
+                        );
+
+                    int squareDistance =
+                        Mathf.Max(
+                            horizontalDistance,
+                            verticalDistance
+                        );
+
+                    if (squareDistance !=
+                        distance)
+                    {
+                        continue;
+                    }
+
+                    Vector3Int cellPosition =
+                        new Vector3Int(
+                            x,
+                            y,
+                            0
+                        );
+
+                    currentAlphaByCell[cellPosition] =
+                        1f;
+
+                    targetAlphaByCell[cellPosition] =
+                        1f;
+
+                    ApplyCellColor(
+                        cellPosition,
+                        1f
+                    );
+                }
+            }
+
+            if (sceneCloseStepInterval >
+                0f)
+            {
+                yield return
+                    new WaitForSecondsRealtime(
+                        sceneCloseStepInterval
+                    );
+            }
+            else
+            {
+                yield return null;
+            }
+        }
+
+        for (int y = 0;
+             y < mapData.gridHeight;
+             y++)
+        {
+            for (int x = 0;
+                 x < mapData.gridWidth;
+                 x++)
+            {
+                Vector3Int cellPosition =
+                    new Vector3Int(
+                        x,
+                        y,
+                        0
+                    );
+
+                currentAlphaByCell[cellPosition] =
+                    1f;
+
+                targetAlphaByCell[cellPosition] =
+                    1f;
+
+                ApplyCellColor(
+                    cellPosition,
+                    1f
+                );
+            }
+        }
+
+        if (sceneCloseHoldDuration >
+            0f)
+        {
+            yield return
+                new WaitForSecondsRealtime(
+                    sceneCloseHoldDuration
+                );
+        }
+
+        isSceneTransitionPlaying =
+            false;
+    }
+
+    // 맵의 왼쪽 위에서 오른쪽 아래 방향으로
+    // 각 셀을 목표 색상까지 부드럽게 전환한다.
+    //
+    // 대각선 경계 앞뒤의 여러 셀을 동시에 보간하여
+    // 한 줄씩 딱딱하게 바뀌지 않고 그라데이션처럼 흐르게 만든다.
+    private IEnumerator PlayDiagonalColorSweepRoutine(
+        WorldMapData mapData,
+        int maximumDiagonalIndex,
+        Dictionary<Vector3Int, Color> startColors,
+        Color targetColor,
+        float duration)
+    {
+        float elapsedTime =
+            0f;
+
+        float safeDuration =
+            Mathf.Max(
+                0.01f,
+                duration
+            );
+
+        while (elapsedTime <
+               safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    safeDuration
+                );
+
+            // 시작 단계에서는 첫 번째 셀도 아직 변하지 않고,
+            // 마지막 단계에서는 오른쪽 아래 셀까지 완전히 변하도록
+            // 전환 경계를 그라데이션 폭만큼 앞뒤로 확장한다.
+            float sweepEdge =
+                Mathf.Lerp(
+                    -sceneSweepGradientWidth,
+                    1f +
+                    sceneSweepGradientWidth,
+                    normalizedTime
+                );
+
+            for (int y = 0;
+                 y < mapData.gridHeight;
+                 y++)
+            {
+                for (int x = 0;
+                     x < mapData.gridWidth;
+                     x++)
+                {
+                    Vector3Int cellPosition =
+                        new Vector3Int(
+                            x,
+                            y,
+                            0
+                        );
+
+                    // Grid의 Y 좌표는 아래에서 위로 증가하므로
+                    // 왼쪽 위를 시작점으로 만들기 위해 Y 좌표를 반전한다.
+                    int diagonalIndex =
+                        x +
+                        (
+                            mapData.gridHeight -
+                            1 -
+                            y
+                        );
+
+                    float cellDiagonalPosition =
+                        diagonalIndex /
+                        (float)maximumDiagonalIndex;
+
+                    // 전환 경계 안쪽은 목표 색상에 가까워지고,
+                    // 경계 바깥쪽은 시작 색상을 유지한다.
+                    float colorBlend =
+                        Mathf.InverseLerp(
+                            sweepEdge +
+                            sceneSweepGradientWidth,
+                            sweepEdge -
+                            sceneSweepGradientWidth,
+                            cellDiagonalPosition
+                        );
+
+                    colorBlend =
+                        Mathf.SmoothStep(
+                            0f,
+                            1f,
+                            colorBlend
+                        );
+
+                    Color startColor;
+
+                    if (startColors.TryGetValue(
+                            cellPosition,
+                            out startColor) ==
+                        false)
+                    {
+                        startColor =
+                            fogTilemap.GetColor(
+                                cellPosition
+                            );
+                    }
+
+                    // 흰색과 검은색 전환 모두
+                    // 최종 Alpha는 1이 되도록 목표 색상을 불투명하게 유지한다.
+                    Color appliedColor =
+                        Color.Lerp(
+                            startColor,
+                            targetColor,
+                            colorBlend
+                        );
+
+                    fogTilemap.SetColor(
+                        cellPosition,
+                        appliedColor
+                    );
+                }
+            }
+
+            yield return null;
+        }
+
+        // 시간 오차와 마지막 프레임 누락을 방지하기 위해
+        // 모든 셀을 목표 색상으로 정확히 보정한다.
+        for (int y = 0;
+             y < mapData.gridHeight;
+             y++)
+        {
+            for (int x = 0;
+                 x < mapData.gridWidth;
+                 x++)
+            {
+                Vector3Int cellPosition =
+                    new Vector3Int(
+                        x,
+                        y,
+                        0
+                    );
+
+                fogTilemap.SetColor(
+                    cellPosition,
+                    targetColor
+                );
+            }
+        }
     }
 
     // 지정한 셀을 다음 탐사 후보 상태로 등록한다.

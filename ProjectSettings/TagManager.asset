@@ -44,6 +44,9 @@ TagManager:
   - name: New Layer 1
     uniqueID: 1125793717
     locked: 0
+  - name: WorldMap
+    uniqueID: 4040597893
+    locked: 0
   m_RenderingLayers:
   - Default
   - Light Layer 1

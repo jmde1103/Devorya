@@ -20,6 +20,14 @@ public static class WorldMapRuntimeState
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
     private static bool hasPendingBattleWin;
 
+    // 런타임에서 클리어한 노드 ID 목록
+    //
+    // 시작 노드와 전투에서 승리한 노드를 저장하여
+    // 월드맵 복귀 후에도 클리어 상태를 유지한다.
+    private static readonly HashSet<string>
+        clearedNodeIds =
+            new HashSet<string>();
+
     // 런타임에서 해금된 노드 ID 목록
     private static readonly HashSet<string>
         unlockedNodeIds =

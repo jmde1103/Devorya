@@ -197,8 +197,8 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -254369403
+  m_SortingLayer: 2
   m_SortingOrder: 10
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
@@ -505,6 +505,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 395157154}
+  - component: {fileID: 395157155}
   m_Layer: 0
   m_Name: WorldMapFogController
   m_TagString: Untagged
@@ -527,6 +528,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &395157155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395157153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41709acac2c30ed45a8eb34fde939d4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldMapFogController
+  worldMapBuilder: {fileID: 755633546}
+  pathTilemap: {fileID: 176691322}
+  fogTilemap: {fileID: 1235227762}
+  fogTile: {fileID: 11400000, guid: 231014536c0b23c4193eef2ed6c1df39, type: 2}
+  fogColor: {r: 0, g: 0, b: 0, a: 1}
+  hiddenAlpha: 1
+  previewAlpha: 0.55
+  exploredGradientRadius: 4
+  previewGradientRadius: 2
+  nodeAreaRadius: 1
+  fogFadeSpeed: 1.2
+  revealOnlyExistingPathTiles: 1
+  sceneCloseStepInterval: 0.025
+  sceneCloseHoldDuration: 0.08
 --- !u!1 &485377065
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,6 +814,7 @@ MonoBehaviour:
   worldMapBuilder: {fileID: 755633546}
   clearedNodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
   playerMarker: {fileID: 1041329572}
+  worldMapFogController: {fileID: 395157155}
   playerMarkerSkeletonAnimation: {fileID: 0}
   markerSelectAnimationName: Select
   markerAbsorbAnimationName: Absorb
@@ -871,7 +899,7 @@ Transform:
   m_GameObject: {fileID: 1235227759}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 25, y: 15, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -922,9 +950,9 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -254369403
+  m_SortingLayer: 2
+  m_SortingOrder: 30
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -1510,7 +1538,7 @@ MonoBehaviour:
   worldMapRoot: {fileID: 485377066}
   minWorldScale: 1
   maxWorldScale: 3
-  startWorldScale: 2
+  startWorldScale: 1
   mouseZoomSpeed: 0.5
   pinchZoomSpeed: 0.005
   zoomSmoothSpeed: 7
@@ -1571,6 +1599,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1349086980}
+  - component: {fileID: 1349086981}
   m_Layer: 0
   m_Name: Point_00
   m_TagString: Untagged
@@ -1593,6 +1622,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1792980646}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1349086981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349086979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d29410efde2aec64aaa95d23f3a824e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldMapRoutePoint
+  mapGrid: {fileID: 2006133484}
+  snapToGridCenter: 1
+  fixedZPosition: 0
+  currentGridPosition: {x: 20, y: 13}
 --- !u!1 &1384028879
 GameObject:
   m_ObjectHideFlags: 0
@@ -2036,6 +2081,18 @@ PrefabInstance:
     - target: {fileID: 4062674819445387286, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
       propertyPath: m_Mesh
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4536059186859050415, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
+      propertyPath: m_SortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4536059186859050415, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
+      propertyPath: m_SortingOrder
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4536059186859050415, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -254369403
       objectReference: {fileID: 0}
     - target: {fileID: 5208984418240304707, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
       propertyPath: m_LocalPosition.x
