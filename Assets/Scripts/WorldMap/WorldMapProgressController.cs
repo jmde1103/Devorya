@@ -33,6 +33,11 @@ public class WorldMapProgressController : MonoBehaviour
     [SerializeField]
     private Transform playerMarker;
 
+    // 마커가 지나간 셀의 탐사 처리와
+    // 현재 노드에서 이어지는 다음 노드·길 Preview를 관리한다.
+    [SerializeField]
+    private WorldMapFogController worldMapFogController;
+
     [Header("Player Marker Animation")]
     // 검은 구체 애니메이션을 재생하는 Spine SkeletonAnimation
     //
@@ -182,6 +187,10 @@ public class WorldMapProgressController : MonoBehaviour
         // Player Marker의 시작 위치를 적용한다.
         ApplyRuntimeNodeStates();
         PlaceMarkerAtCurrentNode();
+
+        // 현재 탐사 완료 노드 주변을 완전히 밝히고,
+        // 해당 노드와 연결된 미탐사 노드·길을 Preview 상태로 표시한다.
+        RefreshFogForCurrentNode();
     }
 
     // 월드맵 진행 기능에 필요한 참조를 검사한다.
@@ -227,6 +236,25 @@ public class WorldMapProgressController : MonoBehaviour
 
             return false;
         }
+
+        // WorldMapFogController가 같은 GameObject에 있다면
+        // Inspector 연결이 빠져 있어도 자동으로 찾는다.
+        if (worldMapFogController == null)
+        {
+            worldMapFogController =
+                GetComponent<WorldMapFogController>();
+        }
+
+        if (worldMapFogController == null)
+        {
+            Debug.LogWarning(
+                "월드맵 포그 연결 경고: " +
+                "World Map Fog Controller가 연결되지 않았습니다. " +
+                "노드 진행은 작동하지만 포그 탐사는 갱신되지 않습니다."
+            );
+        }
+
+        // PlayerMarkerRoot만 Inspector에 연결된 경우,
 
         // PlayerMarkerRoot만 Inspector에 연결된 경우,
         // 자식에서 실제 Spine SkeletonAnimation을 자동으로 찾는다.
@@ -637,9 +665,19 @@ public class WorldMapProgressController : MonoBehaviour
         // 마지막 Waypoint 위치와 관계없이
         // 최종적으로 목적지 노드 중심에 정확히 배치한다.
         yield return
-            MoveMarkerToPositionRoutine(
-                targetNode.transform.position
-            );
+      MoveMarkerToPositionRoutine(
+          targetNode.transform.position
+      );
+
+        // 목적지 노드에 실제로 도착했으므로
+        // 노드 중심과 주변 셀을 완전 탐사 상태로 전환한다.
+        if (worldMapFogController != null)
+        {
+            worldMapFogController
+                .RevealExploredNodeArea(
+                    targetNode.transform.position
+                );
+        }
 
         string targetNodeId =
             targetNode.GetNodeId();
@@ -684,6 +722,10 @@ public class WorldMapProgressController : MonoBehaviour
         {
             isMovingMarker =
                 false;
+
+            // 클리어된 노드로 이동한 경우
+            // 해당 노드를 기준으로 새로 연결된 미탐사 노드와 길을 표시한다.
+            RefreshFogForCurrentNode();
 
             Debug.Log(
                 $"클리어 노드 이동 완료: " +
@@ -886,6 +928,9 @@ public class WorldMapProgressController : MonoBehaviour
 
     // 검은 구체를 지정한 월드 위치까지
     // 일정한 속도로 부드럽게 이동한다.
+    //
+    // 이동 중 새 Grid 셀을 지날 때마다
+    // 해당 셀과 주변 포그를 영구 탐사 상태로 전환한다.
     private IEnumerator MoveMarkerToPositionRoutine(
         Vector3 targetPosition)
     {
@@ -902,11 +947,166 @@ public class WorldMapProgressController : MonoBehaviour
                     Time.deltaTime
                 );
 
+            if (worldMapFogController != null)
+            {
+                worldMapFogController
+                    .TrackMarkerWorldPosition(
+                        playerMarker.position
+                    );
+            }
+
             yield return null;
         }
 
         playerMarker.position =
             targetPosition;
+
+        // 마지막 위치도 정확하게 탐사 처리하여
+        // 프레임 이동량 때문에 목적지 셀이 빠지지 않도록 한다.
+        if (worldMapFogController != null)
+        {
+            worldMapFogController
+                .TrackMarkerWorldPosition(
+                    playerMarker.position
+                );
+        }
+    }
+
+    // 현재 탐사 완료 노드를 중심으로
+    // 연결된 미탐사 노드와 해당 Route 길을 Preview 상태로 표시한다.
+    private void RefreshFogForCurrentNode()
+    {
+        if (worldMapFogController == null)
+        {
+            return;
+        }
+
+        string currentNodeId =
+            WorldMapRuntimeState.CurrentNodeId;
+
+        if (string.IsNullOrWhiteSpace(
+                currentNodeId))
+        {
+            return;
+        }
+
+        MapNodeRuntime currentNode =
+            worldMapBuilder.GetGeneratedNode(
+                currentNodeId
+            );
+
+        if (currentNode == null)
+        {
+            return;
+        }
+
+        // 현재 위치한 노드 주변은
+        // 항상 완전히 탐사된 영역으로 처리한다.
+        worldMapFogController
+            .RevealExploredNodeArea(
+                currentNode.transform.position
+            );
+
+        MapNodePlacementData currentPlacement =
+            FindPlacementById(
+                currentNodeId
+            );
+
+        if (currentPlacement == null)
+        {
+            return;
+        }
+
+        // 아직 클리어되지 않은 노드에서는
+        // 연결된 다음 노드 Preview를 열지 않는다.
+        bool isCurrentNodeCleared =
+            currentNode.IsCleared() ||
+            currentPlacement.initiallyCleared ||
+            WorldMapRuntimeState.IsNodeCleared(
+                currentNodeId
+            );
+
+        if (isCurrentNodeCleared == false ||
+            currentPlacement.connectedNodeIds ==
+                null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i <
+             currentPlacement.connectedNodeIds.Count;
+             i++)
+        {
+            string connectedNodeId =
+                currentPlacement
+                    .connectedNodeIds[i];
+
+            MapNodeRuntime connectedNode =
+                worldMapBuilder.GetGeneratedNode(
+                    connectedNodeId
+                );
+
+            if (connectedNode == null)
+            {
+                continue;
+            }
+
+            // 이미 탐사 완료된 노드는
+            // 기존 완전 탐사 포그 상태를 그대로 유지한다.
+            if (connectedNode.IsCleared() ||
+                WorldMapRuntimeState.IsNodeCleared(
+                    connectedNodeId))
+            {
+                continue;
+            }
+
+            // 현재 진행도에서 해금되지 않은 먼 노드는
+            // Preview 상태로도 공개하지 않는다.
+            if (connectedNode.IsUnlocked() ==
+                false)
+            {
+                continue;
+            }
+
+            WorldMapRouteData route;
+
+            bool useReverseWaypoints;
+
+            if (TryFindRoute(
+                    currentNodeId,
+                    connectedNodeId,
+                    out route,
+                    out useReverseWaypoints))
+            {
+                // 현재 노드에서 연결된 미탐사 노드까지
+                // 실제 Route와 PathTilemap 길을 옅게 표시한다.
+                worldMapFogController
+                    .RevealPreviewRoute(
+                        currentNode,
+                        connectedNode,
+                        route,
+                        useReverseWaypoints
+                    );
+            }
+            else
+            {
+                // Route 데이터가 빠져 있더라도
+                // 연결된 목적지 노드의 위치는 Preview로 표시한다.
+                worldMapFogController
+                    .RevealPreviewNodeArea(
+                        connectedNode
+                            .transform
+                            .position
+                    );
+
+                Debug.LogWarning(
+                    $"포그 Route Preview 생략: " +
+                    $"{currentNodeId} ↔ {connectedNodeId} " +
+                    $"경로 데이터가 없습니다."
+                );
+            }
+        }
     }
 
     // 클리어한 노드에 연결된 다음 노드들을

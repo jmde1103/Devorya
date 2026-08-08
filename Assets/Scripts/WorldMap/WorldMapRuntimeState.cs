@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 // 씬을 이동하는 동안 유지되어야 하는
 // 월드맵의 간단한 런타임 진행 상태를 저장한다.
@@ -19,15 +20,34 @@ public static class WorldMapRuntimeState
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
     private static bool hasPendingBattleWin;
 
-    // 런타임에서 클리어한 노드 ID 목록
-    private static readonly HashSet<string>
-        clearedNodeIds =
-            new HashSet<string>();
-
     // 런타임에서 해금된 노드 ID 목록
     private static readonly HashSet<string>
         unlockedNodeIds =
             new HashSet<string>();
+
+    // 맵 ID별로 완전히 탐사된 포그 중심 셀을 저장한다.
+    //
+    // 실제 그라데이션 셀 전체를 저장하지 않고,
+    // 탐사 중심 셀만 저장한 뒤 월드맵 복귀 시 주변 그라데이션을 재생성한다.
+    private static readonly Dictionary<
+        string,
+        HashSet<Vector2Int>>
+        exploredFogCellsByMapId =
+            new Dictionary<
+                string,
+                HashSet<Vector2Int>
+            >();
+
+    // 맵 ID별로 다음 탐사 후보로 발견된
+    // 노드와 길의 Preview 중심 셀을 저장한다.
+    private static readonly Dictionary<
+        string,
+        HashSet<Vector2Int>>
+        previewFogCellsByMapId =
+            new Dictionary<
+                string,
+                HashSet<Vector2Int>
+            >();
 
     // 현재 위치한 노드 ID를 반환한다.
     public static string CurrentNodeId
@@ -199,6 +219,172 @@ public static class WorldMapRuntimeState
             nodeId;
     }
 
+    // 지정한 맵의 셀을 완전 탐사 상태로 저장한다.
+    //
+    // 완전 탐사된 셀은 Preview 목록에서 제거하며,
+    // 이후 다시 어두운 상태로 내려가지 않는다.
+    public static void RegisterExploredFogCell(
+        string mapId,
+        Vector2Int cellPosition)
+    {
+        if (string.IsNullOrWhiteSpace(
+                mapId))
+        {
+            return;
+        }
+
+        HashSet<Vector2Int> exploredCells =
+            GetOrCreateFogCellSet(
+                exploredFogCellsByMapId,
+                mapId
+            );
+
+        exploredCells.Add(
+            cellPosition
+        );
+
+        HashSet<Vector2Int> previewCells;
+
+        if (previewFogCellsByMapId.TryGetValue(
+                mapId,
+                out previewCells))
+        {
+            previewCells.Remove(
+                cellPosition
+            );
+        }
+    }
+
+    // 지정한 맵의 셀을 다음 탐사 후보 Preview 상태로 저장한다.
+    //
+    // 이미 완전히 탐사된 셀은 Preview 상태로 되돌리지 않는다.
+    public static void RegisterPreviewFogCell(
+        string mapId,
+        Vector2Int cellPosition)
+    {
+        if (string.IsNullOrWhiteSpace(
+                mapId))
+        {
+            return;
+        }
+
+        HashSet<Vector2Int> exploredCells;
+
+        if (
+            exploredFogCellsByMapId.TryGetValue(
+                mapId,
+                out exploredCells) &&
+            exploredCells.Contains(
+                cellPosition
+            )
+        )
+        {
+            return;
+        }
+
+        HashSet<Vector2Int> previewCells =
+            GetOrCreateFogCellSet(
+                previewFogCellsByMapId,
+                mapId
+            );
+
+        previewCells.Add(
+            cellPosition
+        );
+    }
+
+    // 지정한 맵의 완전 탐사 셀을
+    // 전달받은 목록에 복사한다.
+    public static void CopyExploredFogCells(
+        string mapId,
+        List<Vector2Int> result)
+    {
+        if (result == null)
+        {
+            return;
+        }
+
+        result.Clear();
+
+        if (string.IsNullOrWhiteSpace(
+                mapId))
+        {
+            return;
+        }
+
+        HashSet<Vector2Int> exploredCells;
+
+        if (exploredFogCellsByMapId.TryGetValue(
+                mapId,
+                out exploredCells))
+        {
+            result.AddRange(
+                exploredCells
+            );
+        }
+    }
+
+    // 지정한 맵의 Preview 셀을
+    // 전달받은 목록에 복사한다.
+    public static void CopyPreviewFogCells(
+        string mapId,
+        List<Vector2Int> result)
+    {
+        if (result == null)
+        {
+            return;
+        }
+
+        result.Clear();
+
+        if (string.IsNullOrWhiteSpace(
+                mapId))
+        {
+            return;
+        }
+
+        HashSet<Vector2Int> previewCells;
+
+        if (previewFogCellsByMapId.TryGetValue(
+                mapId,
+                out previewCells))
+        {
+            result.AddRange(
+                previewCells
+            );
+        }
+    }
+
+    // 지정한 맵 ID의 포그 셀 목록을 가져오거나
+    // 아직 없다면 새 목록을 생성한다.
+    private static HashSet<Vector2Int>
+        GetOrCreateFogCellSet(
+            Dictionary<
+                string,
+                HashSet<Vector2Int>>
+                fogCellsByMapId,
+            string mapId)
+    {
+        HashSet<Vector2Int> fogCells;
+
+        if (fogCellsByMapId.TryGetValue(
+                mapId,
+                out fogCells))
+        {
+            return fogCells;
+        }
+
+        fogCells =
+            new HashSet<Vector2Int>();
+
+        fogCellsByMapId.Add(
+            mapId,
+            fogCells
+        );
+
+        return fogCells;
+    }
+
     // 새 런을 시작할 때 월드맵 진행 상태를 전부 초기화한다.
     public static void Clear()
     {
@@ -213,5 +399,10 @@ public static class WorldMapRuntimeState
 
         clearedNodeIds.Clear();
         unlockedNodeIds.Clear();
+
+        // 새 런에서는 이전 월드맵에서 탐사한
+        // 포그 영역과 Preview 영역도 모두 초기화한다.
+        exploredFogCellsByMapId.Clear();
+        previewFogCellsByMapId.Clear();
     }
 }
