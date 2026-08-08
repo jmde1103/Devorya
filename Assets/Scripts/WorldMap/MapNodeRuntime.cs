@@ -148,16 +148,6 @@ public class MapNodeRuntime : MonoBehaviour
         ApplyStyle();
     }
 
-    // 노드가 클릭 가능한 상태인지 반환한다.
-    public bool CanEnterNode()
-    {
-        return
-            isUnlocked &&
-            string.IsNullOrWhiteSpace(
-                targetSceneName
-            ) == false;
-    }
-
     private void OnMouseDown()
     {
         // 포인터가 노드 위에서 눌렸음을 저장한다.
@@ -184,25 +174,20 @@ public class MapNodeRuntime : MonoBehaviour
     // 현재 노드 진입을 월드맵 진행 컨트롤러에 요청한다.
     //
     // 씬을 즉시 불러오지 않고,
-    // 검은 구체가 노드까지 이동한 뒤 전투 씬에 진입한다.
+    // 검은 구체가 노드까지 이동한 뒤
+    // 미클리어 노드만 전투 또는 이벤트 씬으로 진입한다.
     public void EnterNode()
     {
-        if (isUnlocked == false)
+        // 잠긴 미클리어 노드는 이동할 수 없다.
+        //
+        // 클리어 노드는 과거에 방문한 지역이므로
+        // 현재 해금값과 관계없이 되돌아갈 수 있도록 허용한다.
+        if (isUnlocked == false &&
+            isCleared == false)
         {
             Debug.Log(
                 $"맵 노드 진입 불가: " +
                 $"{nodeDisplayName} 노드는 아직 잠겨 있습니다."
-            );
-
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(
-                targetSceneName))
-        {
-            Debug.LogWarning(
-                $"맵 노드 진입 실패: " +
-                $"{nodeDisplayName} 노드의 Target Scene Name이 비어 있습니다."
             );
 
             return;
@@ -218,8 +203,26 @@ public class MapNodeRuntime : MonoBehaviour
             return;
         }
 
-        // 실제 이동 경로 검사, 검은 구체 이동,
-        // 전투 씬 전환은 진행 컨트롤러가 담당한다.
+        // 미클리어 노드는 실제 씬 진입 대상이므로
+        // Target Scene Name이 반드시 필요하다.
+        //
+        // 이미 클리어된 노드는 마커 위치만 이동하므로
+        // Target Scene Name이 비어 있어도 정상 처리한다.
+        if (isCleared == false &&
+            string.IsNullOrWhiteSpace(
+                targetSceneName))
+        {
+            Debug.LogWarning(
+                $"맵 노드 진입 실패: " +
+                $"{nodeDisplayName} 노드의 Target Scene Name이 비어 있습니다."
+            );
+
+            return;
+        }
+
+        // 실제 연결 관계 검사, 마커 이동,
+        // 클리어 노드 재방문 또는 신규 노드 씬 전환은
+        // WorldMapProgressController가 담당한다.
         WorldMapProgressController.Instance
             .TryMoveToNode(
                 this

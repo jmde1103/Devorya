@@ -71,9 +71,12 @@ public class WorldMapProgressController : MonoBehaviour
 
     [Header("Movement")]
     // 검은 구체가 경로를 따라 이동하는 속도
+    //
+    // 기존 3보다 빠른 5를 기본값으로 사용하여
+    // 노드 사이 이동이 지나치게 느리지 않도록 한다.
     [SerializeField, Min(0.01f)]
     private float markerMoveSpeed =
-        3f;
+    5f;
 
     // 목적지에 도착한 뒤 전투 씬으로 이동하기 전 대기 시간
     [SerializeField, Min(0f)]
@@ -82,9 +85,6 @@ public class WorldMapProgressController : MonoBehaviour
 
     // 현재 검은 구체가 이동 중인지 확인한다.
     private bool isMovingMarker;
-
-    // 월드맵 초기화 코루틴
-    private Coroutine initializeCoroutine;
 
     private void Awake()
     {
@@ -105,12 +105,11 @@ public class WorldMapProgressController : MonoBehaviour
     private void Start()
     {
         // WorldMapBuilder의 Start에서 노드가 생성된 다음
-        // 진행도와 검은 구체 위치를 적용해야 하므로
-        // 한 프레임 기다린 뒤 초기화한다.
-        initializeCoroutine =
-            StartCoroutine(
-                InitializeWorldMapRoutine()
-            );
+        // 진행도와 Player Marker 위치를 적용하기 위해
+        // 초기화 코루틴을 실행한다.
+        StartCoroutine(
+            InitializeWorldMapRoutine()
+        );
     }
 
     private void OnDestroy()
@@ -133,9 +132,6 @@ public class WorldMapProgressController : MonoBehaviour
         {
             yield break;
         }
-
-        WorldMapData mapData =
-            worldMapBuilder.WorldMapData;
 
         // 전투 승리 후 맵으로 돌아온 상태라면
         // 방금 완료한 전투 노드를 클리어 처리한다.
@@ -182,11 +178,10 @@ public class WorldMapProgressController : MonoBehaviour
             );
         }
 
+        // 런타임 진행도에 맞춰 노드 상태와
+        // Player Marker의 시작 위치를 적용한다.
         ApplyRuntimeNodeStates();
         PlaceMarkerAtCurrentNode();
-
-        initializeCoroutine =
-            null;
     }
 
     // 월드맵 진행 기능에 필요한 참조를 검사한다.
@@ -312,13 +307,8 @@ public class WorldMapProgressController : MonoBehaviour
                 continue;
             }
 
-            bool isUnlocked =
-                placement.initiallyUnlocked ||
-                WorldMapRuntimeState
-                    .IsNodeUnlocked(
-                        placement.nodeId
-                    );
-
+            // 현재 노드가 처음부터 클리어 상태인지,
+            // 또는 런타임에서 전투를 완료한 노드인지 먼저 확인한다.
             bool isCleared =
                 placement.initiallyCleared ||
                 WorldMapRuntimeState
@@ -326,11 +316,21 @@ public class WorldMapProgressController : MonoBehaviour
                         placement.nodeId
                     );
 
-            runtimeNode.SetUnlocked(
-    isUnlocked
-);
+            // 클리어된 노드는 이미 플레이어가 방문한 구역이므로
+            // 별도의 Unlock 기록이 없어도 항상 이동 가능 상태로 처리한다.
+            bool isUnlocked =
+                placement.initiallyUnlocked ||
+                WorldMapRuntimeState
+                    .IsNodeUnlocked(
+                        placement.nodeId
+                    ) ||
+                isCleared;
 
-            // <변경부분> 런타임 클리어 상태와 함께
+            runtimeNode.SetUnlocked(
+                isUnlocked
+            );
+
+            // 런타임 클리어 상태와 함께
             // Cleared 전용 스타일 데이터도 노드에 전달한다.
             //
             // 클리어된 전투 노드는 기존 전투 노드 Sprite 대신
@@ -382,8 +382,12 @@ public class WorldMapProgressController : MonoBehaviour
             return;
         }
 
-        if (targetNode.IsUnlocked() ==
-            false)
+        // 잠긴 미클리어 노드만 이동을 차단한다.
+        //
+        // 이미 클리어된 노드는 과거에 방문한 구역이므로
+        // 현재 Unlock 값과 관계없이 다시 이동할 수 있다.
+        if (targetNode.IsUnlocked() == false &&
+            targetNode.IsCleared() == false)
         {
             Debug.Log(
                 $"노드 이동 불가: " +
@@ -432,17 +436,24 @@ public class WorldMapProgressController : MonoBehaviour
             return;
         }
 
-        WorldMapRouteData route =
-            FindRoute(
-                currentNodeId,
-                targetNodeId
-            );
+        WorldMapRouteData route;
 
-        if (route == null)
+        bool useReverseWaypoints;
+
+        // 현재 이동 방향과 일치하는 Route를 찾는다.
+        //
+        // 역방향 이동이라면 기존 Route의 Waypoint를
+        // 마지막부터 처음 순서로 사용한다.
+        if (TryFindRoute(
+                currentNodeId,
+                targetNodeId,
+                out route,
+                out useReverseWaypoints) ==
+            false)
         {
             Debug.LogWarning(
                 $"노드 이동 실패: " +
-                $"{currentNodeId} → {targetNodeId} 경로 데이터가 없습니다."
+                $"{currentNodeId} ↔ {targetNodeId} 경로 데이터가 없습니다."
             );
 
             return;
@@ -451,13 +462,16 @@ public class WorldMapProgressController : MonoBehaviour
         StartCoroutine(
             MoveMarkerToNodeRoutine(
                 targetNode,
-                route
+                route,
+                useReverseWaypoints
             )
         );
     }
 
-    // 현재 노드 데이터에서 목적지 노드가
-    // 연결 목록에 등록되어 있는지 검사한다.
+    // 두 노드 사이에 연결된 길이 존재하는지 검사한다.
+    //
+    // 월드맵의 Connected Node IDs는 진행 방향 기준으로
+    // 한쪽 노드에만 등록되어 있어도 실제 길은 양방향으로 사용한다.
     private bool IsConnectedNode(
         string fromNodeId,
         string toNodeId)
@@ -467,25 +481,51 @@ public class WorldMapProgressController : MonoBehaviour
                 fromNodeId
             );
 
-        if (fromPlacement == null ||
-            fromPlacement.connectedNodeIds == null)
+        MapNodePlacementData toPlacement =
+            FindPlacementById(
+                toNodeId
+            );
+
+        // 현재 노드에서 목적지 노드로 직접 연결되어 있다면
+        // 기존 진행 방향 이동을 허용한다.
+        bool hasForwardConnection =
+            fromPlacement != null &&
+            fromPlacement.connectedNodeIds != null &&
+            fromPlacement.connectedNodeIds.Contains(
+                toNodeId
+            );
+
+        if (hasForwardConnection)
         {
-            return false;
+            return true;
         }
 
-        return
-            fromPlacement.connectedNodeIds
-                .Contains(
-                    toNodeId
-                );
+        // 목적지 노드 쪽에서 현재 노드로 연결되어 있다면
+        // 같은 길을 역방향으로 돌아가는 이동을 허용한다.
+        bool hasReverseConnection =
+            toPlacement != null &&
+            toPlacement.connectedNodeIds != null &&
+            toPlacement.connectedNodeIds.Contains(
+                fromNodeId
+            );
+
+        return hasReverseConnection;
     }
 
-    // 지정한 출발 노드와 도착 노드에 해당하는
-    // 발표용 Waypoint 경로를 찾는다.
-    private WorldMapRouteData FindRoute(
+    // 지정한 두 노드 사이의 Route를 찾고,
+    // Waypoint를 정방향으로 사용할지 역방향으로 사용할지 반환한다.
+    private bool TryFindRoute(
         string fromNodeId,
-        string toNodeId)
+        string toNodeId,
+        out WorldMapRouteData foundRoute,
+        out bool useReverseWaypoints)
     {
+        foundRoute =
+            null;
+
+        useReverseWaypoints =
+            false;
+
         for (int i = 0;
              i < routes.Count;
              i++)
@@ -498,50 +538,104 @@ public class WorldMapProgressController : MonoBehaviour
                 continue;
             }
 
+            // Route 데이터에 등록된 정방향 이동
             if (route.fromNodeId ==
                     fromNodeId &&
                 route.toNodeId ==
                     toNodeId)
             {
-                return route;
+                foundRoute =
+                    route;
+
+                useReverseWaypoints =
+                    false;
+
+                return true;
+            }
+
+            // 기존 Route의 출발·도착이 반대라면
+            // Waypoint 순서를 뒤집어 같은 길을 역방향으로 사용한다.
+            if (route.fromNodeId ==
+                    toNodeId &&
+                route.toNodeId ==
+                    fromNodeId)
+            {
+                foundRoute =
+                    route;
+
+                useReverseWaypoints =
+                    true;
+
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     // 검은 구체가 Waypoint를 순서대로 지나
-    // 목적지 노드에 도착한 뒤 전투 씬으로 이동한다.
+    // 목적지 노드까지 이동한다.
+    //
+    // 미클리어 노드에 도착하면 기존처럼 전투 씬으로 진입하고,
+    // 이미 클리어된 노드에 도착하면 위치만 변경한 뒤 월드맵에 남는다.
     private IEnumerator MoveMarkerToNodeRoutine(
         MapNodeRuntime targetNode,
-        WorldMapRouteData route)
+        WorldMapRouteData route,
+        bool useReverseWaypoints)
     {
         isMovingMarker =
             true;
 
         if (route.waypoints != null)
         {
-            for (int i = 0;
-                 i < route.waypoints.Count;
-                 i++)
+            if (useReverseWaypoints)
             {
-                Transform waypoint =
-                    route.waypoints[i];
-
-                if (waypoint == null)
+                // 이전 클리어 노드로 돌아갈 때는
+                // 기존 Waypoint 목록을 마지막부터 처음 순서로 따라간다.
+                for (int i = route.waypoints.Count - 1;
+                     i >= 0;
+                     i--)
                 {
-                    continue;
-                }
+                    Transform waypoint =
+                        route.waypoints[i];
 
-                yield return
-                    MoveMarkerToPositionRoutine(
-                        waypoint.position
-                    );
+                    if (waypoint == null)
+                    {
+                        continue;
+                    }
+
+                    yield return
+                        MoveMarkerToPositionRoutine(
+                            waypoint.position
+                        );
+                }
+            }
+            else
+            {
+                // 새로운 노드 방향으로 이동할 때는
+                // 기존 Waypoint 순서를 그대로 사용한다.
+                for (int i = 0;
+                     i < route.waypoints.Count;
+                     i++)
+                {
+                    Transform waypoint =
+                        route.waypoints[i];
+
+                    if (waypoint == null)
+                    {
+                        continue;
+                    }
+
+                    yield return
+                        MoveMarkerToPositionRoutine(
+                            waypoint.position
+                        );
+                }
             }
         }
 
-        // 마지막 Waypoint가 노드 중심과 정확히 일치하지 않더라도
-        // 최종적으로 목적지 노드 중심에 검은 구체를 배치한다.
+        // 마지막 Waypoint 위치와 관계없이
+        // 최종적으로 목적지 노드 중심에 정확히 배치한다.
         yield return
             MoveMarkerToPositionRoutine(
                 targetNode.transform.position
@@ -550,22 +644,68 @@ public class WorldMapProgressController : MonoBehaviour
         string targetNodeId =
             targetNode.GetNodeId();
 
+        // 목적지 노드의 원본 배치 데이터를 가져온다.
+        //
+        // 화면에 적용된 Sprite나 MapNodeRuntime 내부 표시 상태가 아니라,
+        // WorldMapData와 런타임 진행도를 기준으로 실제 클리어 여부를 판단한다.
+        MapNodePlacementData targetPlacement =
+     FindPlacementById(
+         targetNodeId
+     );
+
+        // 목적지 노드의 클리어 여부를 세 가지 기준으로 확인한다.
+        //
+        // 1. MapNodeRuntime에 실제 적용된 클리어 상태
+        // 2. 전투 완료 후 저장된 런타임 클리어 기록
+        // 3. WorldMapData에서 처음부터 클리어된 시작 노드 설정
+        //
+        // 시작 노드처럼 Target Scene Name이 없는 노드도
+        // 하나의 기준이라도 클리어 상태라면 전투 씬 검사 없이 이동을 완료한다.
+        bool isTargetNodeCleared =
+    targetNode.IsCleared() ||
+    WorldMapRuntimeState.IsNodeCleared(
+        targetNodeId
+    ) ||
+    (
+        targetPlacement != null &&
+        targetPlacement.initiallyCleared
+    );
+
+        // 현재 월드맵 위치를 목적지 노드로 갱신한다.
+        WorldMapRuntimeState.SetCurrentNode(
+            targetNodeId
+        );
+
+        // 이미 클리어된 노드는 Target Scene Name이 없어도 정상 이동한다.
+        //
+        // 전투 씬에 다시 들어가지 않고,
+        // 마커 위치만 변경한 뒤 월드맵에서 계속 조작할 수 있도록 한다.
+        if (isTargetNodeCleared)
+        {
+            isMovingMarker =
+                false;
+
+            Debug.Log(
+                $"클리어 노드 이동 완료: " +
+                $"{targetNode.GetNodeDisplayName()}"
+            );
+
+            yield break;
+        }
+
+        // 미클리어 노드에 진입할 때만
+        // 전투 씬 이름을 가져오고 유효성을 검사한다.
         string targetSceneName =
             targetNode.GetTargetSceneName();
 
-        WorldMapRuntimeState.SetCurrentNode(
-    targetNodeId
-);
-
+        // 아직 클리어하지 않은 노드만
+        // 현재 전투 대상 노드로 등록한다.
         WorldMapRuntimeState.BeginBattleNode(
             targetNodeId
         );
 
-        // 검은 구체가 목적지 노드에 도착한 뒤
-        // Select → Absorb → Down_Absorb 순서로 재생한다.
-        //
-        // 모든 애니메이션 재생이 끝난 후에만
-        // 실제 전투 씬으로 이동한다.
+        // 새로운 노드에 도착했을 때만
+        // Select → Absorb → Down_Absorb 애니메이션을 재생한다.
         yield return
             PlayMarkerNodeEnterAnimationRoutine();
 
@@ -811,6 +951,18 @@ public class WorldMapProgressController : MonoBehaviour
             return null;
         }
 
+        if (worldMapBuilder == null ||
+            worldMapBuilder.WorldMapData == null ||
+            worldMapBuilder.WorldMapData.nodePlacements == null)
+        {
+            return null;
+        }
+
+        // Inspector나 데이터 입력 중 들어간 앞뒤 공백 때문에
+        // 같은 Node ID를 다른 값으로 인식하지 않도록 정리한다.
+        string normalizedNodeId =
+            nodeId.Trim();
+
         WorldMapData mapData =
             worldMapBuilder.WorldMapData;
 
@@ -821,9 +973,22 @@ public class WorldMapProgressController : MonoBehaviour
             MapNodePlacementData placement =
                 mapData.nodePlacements[i];
 
-            if (placement != null &&
-                placement.nodeId ==
-                nodeId)
+            if (placement == null ||
+                string.IsNullOrWhiteSpace(
+                    placement.nodeId))
+            {
+                continue;
+            }
+
+            string normalizedPlacementNodeId =
+                placement.nodeId.Trim();
+
+            // 대소문자는 구분하되,
+            // 앞뒤 공백을 제거한 실제 Node ID끼리 비교한다.
+            if (string.Equals(
+                    normalizedPlacementNodeId,
+                    normalizedNodeId,
+                    StringComparison.Ordinal))
             {
                 return placement;
             }

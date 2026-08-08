@@ -1207,6 +1207,7 @@ GameObject:
   - component: {fileID: 1337671628}
   - component: {fileID: 1337671627}
   - component: {fileID: 1337671630}
+  - component: {fileID: 1337671631}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1256,8 +1257,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1282,7 +1283,7 @@ Transform:
   m_GameObject: {fileID: 1337671626}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1332,6 +1333,30 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &1337671631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337671626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9daf3d2e67961246aa54ff56b81d999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldMapCameraController
+  startPosition: {x: 0, y: 0}
+  cameraZPosition: -10
+  maxOrthographicSize: 15
+  minOrthographicSize: 7.5
+  startOrthographicSize: 15
+  mouseZoomSpeed: 1.5
+  pinchZoomSpeed: 0.01
+  zoomSmoothSpeed: 10
+  mouseDragSpeed: 0.3
+  touchDragSpeed: 0.01
+  mapMinBounds: {x: -25, y: -15}
+  mapMaxBounds: {x: 25, y: 15}
 --- !u!1 &1349086979
 GameObject:
   m_ObjectHideFlags: 0
