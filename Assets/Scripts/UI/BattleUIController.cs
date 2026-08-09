@@ -210,6 +210,8 @@ public class BattleUIController : MonoBehaviour
         // <변경부분> 흡수/고유스킬 버튼 Tooltip 초기화
         InitializeActionButtonTooltips();
 
+
+
         // <변경부분> 흡수/고유스킬 아이콘 노이즈 애니메이터 자동 연결
         AutoBindButtonIconNoiseAnimators();
 
@@ -368,6 +370,31 @@ public class BattleUIController : MonoBehaviour
         }
     }
 
+    // 기물 프리팹마다 존재하는 필드 흡수 버튼에
+    // 기존 하단 흡수 버튼의 공통 설정을 전달한다.
+    //
+    // FieldAbsorbButton 인스턴스는 여러 개이므로
+    // BattleUIController Inspector에 특정 한 개의 TooltipTrigger를
+    // 직접 연결하는 방식은 사용할 수 없다.
+    //
+    // 대신 BattleUIController가 소유한 기존 TooltipData와
+    // OFF / ON 스프라이트를 각 버튼에 동일하게 전달한다.
+    public void ConfigureFieldAbsorbButton(
+        FieldAbsorbButton fieldAbsorbButton)
+    {
+        if (fieldAbsorbButton == null)
+        {
+            return;
+        }
+
+        fieldAbsorbButton.Initialize(
+            this,
+            absorbTooltipData,
+            absorbOffSprite,
+            absorbOnSprite
+        );
+    }
+
     // <변경부분> 흡수/고유스킬 아이콘에 붙은 UIButtonNoiseAnimator를 자동으로 찾는 함수
     private void AutoBindButtonIconNoiseAnimators()
     {
@@ -422,30 +449,60 @@ public class BattleUIController : MonoBehaviour
         actionButtonNoiseCoroutine = null;
     }
 
-    // <변경부분> 외부 컨트롤러에서 특정 UI 위치에 검은 픽셀 파티클을 재생할 때 사용하는 함수
-    public void PlayIconPixelBurstAt(RectTransform targetAnchor)
+    // 기존 화면 UI 버튼 위치에서 픽셀 파티클을 재생한다.
+    public void PlayIconPixelBurstAt(
+        RectTransform targetAnchor)
     {
-        PlayIconPixelBurst(targetAnchor);
+        PlayIconPixelBurst(
+            targetAnchor,
+            null
+        );
     }
 
-    // <변경부분> 지정한 UI 아이콘 위치에서 검은 픽셀 파티클을 생성하고 재생
-    private void PlayIconPixelBurst(RectTransform targetAnchor)
+    // World Space Canvas에 있는 필드 흡수 버튼 위치에서
+    // 기존과 같은 PixelBurstEffect를 재생한다.
+    //
+    // 별도의 World Space 부모가 연결돼 있으면
+    // 기존 화면 UI 부모보다 우선해서 사용한다.
+    public void PlayFieldAbsorbPixelBurstAt(
+        RectTransform targetAnchor,
+        Transform fieldEffectParent)
     {
-        if (iconPixelBurstEffectPrefab == null)
+        PlayIconPixelBurst(
+            targetAnchor,
+            fieldEffectParent
+        );
+    }
+
+    // 지정한 위치에서 기존 검은 픽셀 파티클을 생성한다.
+    private void PlayIconPixelBurst(
+        RectTransform targetAnchor,
+        Transform overrideEffectParent = null)
+    {
+        if (iconPixelBurstEffectPrefab == null ||
+            targetAnchor == null)
         {
             return;
         }
 
-        if (targetAnchor == null)
-        {
-            return;
-        }
+        Transform effectParent =
+            overrideEffectParent != null
+                ? overrideEffectParent
+                : iconPixelBurstEffectParent;
 
-        PixelBurstEffect effect = iconPixelBurstEffectParent != null
-            ? Instantiate(iconPixelBurstEffectPrefab, iconPixelBurstEffectParent)
-            : Instantiate(iconPixelBurstEffectPrefab);
+        PixelBurstEffect effect =
+            effectParent != null
+                ? Instantiate(
+                    iconPixelBurstEffectPrefab,
+                    effectParent
+                )
+                : Instantiate(
+                    iconPixelBurstEffectPrefab
+                );
 
-        effect.PlayAtPositionAndDestroy(targetAnchor.position);
+        effect.PlayAtPositionAndDestroy(
+            targetAnchor.position
+        );
     }
 
     // <변경부분> 아이템 슬롯 클릭 시 BattleManager에 아이템 사용 요청

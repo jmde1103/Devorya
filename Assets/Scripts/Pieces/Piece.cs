@@ -242,6 +242,11 @@ public class Piece : MonoBehaviour
                 );
         }
 
+        // 부모 World Space Canvas는 항상 활성화 상태로 유지하고,
+        // 실제 FieldAbsorbButtonRoot만 숨긴다.
+        //
+        // 부모와 자식을 동시에 활성화·비활성화할 때 발생하던
+        // 첫 표시 활성화 순서 충돌을 방지한다.
         if (fieldAbsorbButton != null)
         {
             fieldAbsorbButton.Hide();
@@ -859,12 +864,20 @@ public class Piece : MonoBehaviour
     public void SetTypeIconVisible(
     bool isVisible)
     {
-        // BattleManager가 요청한 표시 상태를 저장한다.
-        //
-        // 필드 흡수 버튼이 닫힐 때
-        // 이 값을 기준으로 타입 아이콘을 복원한다.
+        // BattleManager가 요청한
+        // 원래 타입 아이콘 표시 상태를 저장한다.
         requestedTypeIconVisible =
             isVisible;
+
+        // 필드 흡수 상태가 아니라면
+        // 실제 버튼 루트만 명시적으로 숨긴다.
+        //
+        // 부모 World Space Canvas는 활성화 상태를 유지한다.
+        if (isFieldAbsorbButtonVisible == false &&
+            fieldAbsorbButton != null)
+        {
+            fieldAbsorbButton.Hide();
+        }
 
         if (typeIconRoot == null)
         {
@@ -872,23 +885,29 @@ public class Piece : MonoBehaviour
         }
 
         // 필드 흡수 버튼이 표시 중이면
-        // 타입 아이콘을 다시 켜지 않는다.
-        bool shouldShowTypeIcon =
+        // TypeIconRoot를 유지하여 기존 선택 상승 애니메이션을 공유한다.
+        bool shouldKeepTypeIconRootActive =
+            isVisible ||
+            isFieldAbsorbButtonVisible;
+
+        typeIconRoot.SetActive(
+            shouldKeepTypeIconRootActive
+        );
+
+        // 필드 흡수 버튼이 표시 중이면
+        // 타입 아이콘과 박스 SpriteRenderer만 숨긴다.
+        bool shouldShowTypeIconRenderers =
             isVisible &&
             isFieldAbsorbButtonVisible == false;
 
-        typeIconRoot.SetActive(
-            shouldShowTypeIcon
+        SetTypeIconRenderersEnabled(
+            shouldShowTypeIconRenderers
         );
 
-        if (shouldShowTypeIcon)
+        if (shouldShowTypeIconRenderers)
         {
-            // 타입 아이콘을 켤 때
-            // 현재 기물 타입에 맞는 이미지를 적용한다.
             UpdateTypeIconSprite();
 
-            // 선택된 기물이라면 표시가 다시 켜졌을 때
-            // 기존 위치와 정렬 순서를 재적용한다.
             if (isTypeIconSelected)
             {
                 ApplySelectedTypeIconSortingOrder();
@@ -897,10 +916,12 @@ public class Piece : MonoBehaviour
         }
     }
 
-    // 공격 가능한 상대 기물로 선택됐을 때
-    // 타입 아이콘을 페이드아웃하고 같은 위치에 흡수 버튼을 표시한다.
+    // 공격 가능한 상대 기물을 선택했을 때
+    // 타입 아이콘을 페이드아웃하고
+    // 같은 TypeIconRoot 안의 흡수 버튼을 표시한다.
     public void ShowFieldAbsorbButton(
-        System.Action onClickAction)
+        System.Action<bool> onAbsorbModeChanged,
+        BattleUIController battleUIController)
     {
         if (fieldAbsorbButton == null)
         {
@@ -917,18 +938,35 @@ public class Piece : MonoBehaviour
         fieldAbsorbVisualCoroutine =
             StartCoroutine(
                 ShowFieldAbsorbButtonRoutine(
-                    onClickAction
+                    onAbsorbModeChanged,
+                    battleUIController
                 )
             );
     }
 
-    // 타입 아이콘을 사라지게 한 뒤
-    // 필드 흡수 버튼의 오픈 애니메이션을 실행한다.
+    // 타입 아이콘 이미지와 박스만 사라지게 한 뒤
+    // 필드 흡수 버튼을 OFF 상태로 표시한다.
     private IEnumerator ShowFieldAbsorbButtonRoutine(
-        System.Action onClickAction)
+        System.Action<bool> onAbsorbModeChanged,
+        BattleUIController battleUIController)
     {
         isFieldAbsorbButtonVisible =
             true;
+
+        // FieldAbsorbButton이 TypeIconRoot 아래에 있으므로
+        // 부모 루트는 절대로 끄지 않는다.
+        if (typeIconRoot != null)
+        {
+            typeIconRoot.SetActive(
+                true
+            );
+        }
+
+        // 현재 아이콘이 꺼져 있었다면
+        // 페이드 시작을 위해 렌더러만 임시 활성화한다.
+        SetTypeIconRenderersEnabled(
+            true
+        );
 
         float duration =
             Mathf.Max(
@@ -939,12 +977,12 @@ public class Piece : MonoBehaviour
         Color iconStartColor =
             typeIconRenderer != null
                 ? typeIconRenderer.color
-                : Color.white;
+                : typeIconBaseColor;
 
         Color boxStartColor =
             typeIconBoxRenderer != null
                 ? typeIconBoxRenderer.color
-                : Color.white;
+                : typeIconBoxBaseColor;
 
         float elapsedTime =
             0f;
@@ -1004,26 +1042,28 @@ public class Piece : MonoBehaviour
 
             yield return null;
         }
+        // 부모 TypeIconRoot는 유지하고
+        // 타입 아이콘 SpriteRenderer 두 개만 숨긴다.
+        SetTypeIconRenderersEnabled(
+            false
+        );
 
-        if (typeIconRoot != null)
-        {
-            typeIconRoot.SetActive(
-                false
-            );
-        }
-
-        // 타입 아이콘이 완전히 사라진 뒤
-        // 같은 위치에 필드 흡수 버튼을 표시한다.
+        // 부모 World Space Canvas는 항상 활성화 상태이므로
+        // 실제 FieldAbsorbButtonRoot만 활성화한다.
+        //
+        // 부모·자식 활성화 순서 충돌 없이
+        // 첫 번째 선택부터 오픈 노이즈 코루틴을 실행할 수 있다.
         fieldAbsorbButton.Show(
-            onClickAction
+            onAbsorbModeChanged,
+            battleUIController
         );
 
         fieldAbsorbVisualCoroutine =
             null;
     }
 
-    // 다른 기물이나 타일을 선택했을 때
-    // 필드 흡수 버튼을 숨기고 타입 아이콘을 원래 상태로 복구한다.
+    // 다른 기물 또는 타일을 선택하면
+    // 필드 흡수 버튼을 숨기고 타입 아이콘 상태를 복원한다.
     public void HideFieldAbsorbButton()
     {
         StopFieldAbsorbVisualCoroutine();
@@ -1031,20 +1071,29 @@ public class Piece : MonoBehaviour
         isFieldAbsorbButtonVisible =
             false;
 
+        // 부모 Canvas는 유지하고
+        // 실제 필드 흡수 버튼 루트만 숨긴다.
         if (fieldAbsorbButton != null)
         {
             fieldAbsorbButton.Hide();
         }
 
-        // 페이드로 변경했던 아이콘과 박스 색상을 복구한다.
         RestoreTypeIconColor();
 
-        if (typeIconRoot != null)
+        if (typeIconRoot == null)
         {
-            typeIconRoot.SetActive(
-                requestedTypeIconVisible
-            );
+            return;
         }
+
+        // 기존 BattleManager가 요청했던
+        // 타입 아이콘 표시 상태로 복원한다.
+        typeIconRoot.SetActive(
+            requestedTypeIconVisible
+        );
+
+        SetTypeIconRenderersEnabled(
+            requestedTypeIconVisible
+        );
 
         if (requestedTypeIconVisible)
         {
@@ -1058,7 +1107,25 @@ public class Piece : MonoBehaviour
         }
     }
 
-    // 현재 실행 중인 타입 아이콘/흡수 버튼 전환 코루틴을 중단한다.
+    // TypeIconRoot는 유지한 채
+    // 실제 아이콘과 박스 렌더러만 표시하거나 숨긴다.
+    private void SetTypeIconRenderersEnabled(
+        bool isEnabled)
+    {
+        if (typeIconRenderer != null)
+        {
+            typeIconRenderer.enabled =
+                isEnabled;
+        }
+
+        if (typeIconBoxRenderer != null)
+        {
+            typeIconBoxRenderer.enabled =
+                isEnabled;
+        }
+    }
+
+    // 현재 실행 중인 타입 아이콘 페이드 전환을 중단한다.
     private void StopFieldAbsorbVisualCoroutine()
     {
         if (fieldAbsorbVisualCoroutine ==

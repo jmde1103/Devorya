@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 3156654140925980861}
   - component: {fileID: 5576549135929242600}
   - component: {fileID: 8179558532153592560}
+  - component: {fileID: 7512688049666711973}
+  - component: {fileID: 6235562842398385085}
   m_Layer: 5
   m_Name: AbsorbButton
   m_TagString: Untagged
@@ -26,13 +28,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 175413355572862167}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6839496913857566547}
-  m_Father: {fileID: 3793617391350840048}
+  m_Father: {fileID: 4695936833563791941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -121,6 +123,41 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7512688049666711973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175413355572862167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
+  tooltipData: {fileID: 0}
+  holdDelay: 0.3
+  positionMode: 0
+  customPositionOffset: {x: 0, y: 0}
+  fixedCanvasPosition: {x: 0, y: 0}
+  sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetYPerSection: 0
+--- !u!114 &6235562842398385085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175413355572862167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f1d860270573546b5df18c7a8036a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIButtonNoiseAnimator
+  noiseAnimationData: {fileID: 11400000, guid: f41247a89529ca848b2eeceb086356ba, type: 2}
+  targetButton: {fileID: 8179558532153592560}
+  targetRect: {fileID: 0}
+  targetGraphic: {fileID: 0}
 --- !u!1 &772785999616725961
 GameObject:
   m_ObjectHideFlags: 0
@@ -916,7 +953,6 @@ Transform:
   - {fileID: 2537530555151445295}
   - {fileID: 9103688298665231445}
   - {fileID: 8229966354292219684}
-  - {fileID: 3793617391350840048}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7671137728747154121
@@ -1015,7 +1051,7 @@ MonoBehaviour:
   typeIconRoot: {fileID: 7219982343684944320}
   typeIconRenderer: {fileID: 5395350070109059578}
   typeIconBoxRenderer: {fileID: 489738459504172832}
-  fieldAbsorbButton: {fileID: 0}
+  fieldAbsorbButton: {fileID: 8406400170467343146}
   fieldAbsorbTypeIconFadeDuration: 0.12
   selectedTypeIconRaiseAmount: 0.1
   unselectedTypeIconAlpha: 0.45
@@ -1099,16 +1135,14 @@ GameObject:
   - component: {fileID: 3793617391350840048}
   - component: {fileID: 3368877700353998796}
   - component: {fileID: 4971688630632475746}
-  - component: {fileID: 6789716538211874857}
   - component: {fileID: 4727093712503537295}
-  - component: {fileID: 8735550917705176574}
   m_Layer: 5
   m_Name: FieldAbsorbCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3793617391350840048
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1121,12 +1155,12 @@ RectTransform:
   m_LocalScale: {x: 0.005787037, y: 0.005787037, z: 0.005787037}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7699297713486448808}
-  m_Father: {fileID: 6469059003001286801}
+  - {fileID: 4695936833563791941}
+  m_Father: {fileID: 1784796996259473930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -2.48, y: -0.24000001}
+  m_AnchoredPosition: {x: -2.83, y: -0.4000001}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3368877700353998796
@@ -1176,21 +1210,6 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 1
---- !u!114 &6789716538211874857
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5935639536477846555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2218b9a7a7fdaa74191cead0c85e6b84, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FieldAbsorbButton
-  absorbButton: {fileID: 8179558532153592560}
-  popupOpenAnimator: {fileID: 0}
-  buttonNoiseAnimator: {fileID: 0}
 --- !u!114 &4727093712503537295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1208,25 +1227,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &8735550917705176574
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5935639536477846555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da4119e48989b2e4289e7283bf3c6b96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
-  tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  positionMode: 0
-  customPositionOffset: {x: 0, y: 0}
-  fixedCanvasPosition: {x: 0, y: 0}
-  sectionPositionOffset: {x: 0, y: 0}
-  popupOffsetYPerSection: 0
 --- !u!1 &6395501603441085261
 GameObject:
   m_ObjectHideFlags: 0
@@ -1345,6 +1345,61 @@ MonoBehaviour:
   m_FlexibleWidth: 0
   m_FlexibleHeight: 0
   m_LayoutPriority: 3
+--- !u!1 &6579573383305359440
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4695936833563791941}
+  - component: {fileID: 8406400170467343146}
+  m_Layer: 5
+  m_Name: FieldAbsorbButtonRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &4695936833563791941
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6579573383305359440}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7699297713486448808}
+  m_Father: {fileID: 3793617391350840048}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8406400170467343146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6579573383305359440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2218b9a7a7fdaa74191cead0c85e6b84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldAbsorbButton
+  absorbButton: {fileID: 8179558532153592560}
+  absorbIconImage: {fileID: 2726759431389562983}
+  absorbTooltipTrigger: {fileID: 7512688049666711973}
+  absorbIconNoiseAnimator: {fileID: 6235562842398385085}
+  pixelBurstAnchor: {fileID: 7699297713486448808}
+  pixelBurstEffectParent: {fileID: 3793617391350840048}
 --- !u!1 &7023221375921924997
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,6 +1522,7 @@ Transform:
   m_Children:
   - {fileID: 6511155076180939293}
   - {fileID: 4993122643647665965}
+  - {fileID: 3793617391350840048}
   m_Father: {fileID: 6469059003001286801}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7355139403593852512
