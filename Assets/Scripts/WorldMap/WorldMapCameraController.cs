@@ -104,6 +104,21 @@ public class WorldMapCameraController : MonoBehaviour
     // 맵 시작 카메라 연출이 실행 중인지 확인한다.
     private bool isPlayingMapStartZoom;
 
+    [Header("Map Close Zoom")]
+    // 전투 씬으로 이동하기 전에
+    // 현재 확대 상태에서 축소할 최종 배율
+    [SerializeField, Min(0.01f)]
+    private float mapCloseZoomTo =
+        1f;
+
+    // 맵 종료 축소 연출에 걸리는 시간
+    [SerializeField, Min(0.01f)]
+    private float mapCloseZoomDuration =
+        0.65f;
+
+    // 맵 종료 축소 연출이 실행 중인지 확인한다.
+    private bool isPlayingMapCloseZoom;
+
     [Header("Marker Follow")]
     // 마커 이동 중 카메라가
     // 마커 위치를 따라가는 속도
@@ -229,9 +244,10 @@ public class WorldMapCameraController : MonoBehaviour
 
     private void Update()
     {
-        // 맵 시작 확대 연출 또는 마커 이동 추적 중에는
-        // 사용자의 확대·축소 및 드래그 입력을 모두 차단한다.
+        // 맵 시작 확대, 맵 종료 축소 또는 마커 추적 중에는
+        // 사용자의 줌과 드래그 입력을 모두 차단한다.
         if (isPlayingMapStartZoom ||
+            isPlayingMapCloseZoom ||
             isFollowingMarker)
         {
             return;
@@ -583,6 +599,111 @@ public class WorldMapCameraController : MonoBehaviour
             false;
     }
 
+    // 전투 씬으로 이동하기 전에
+    // 현재 확대 배율에서 1배율까지 축소한다.
+    //
+    // 축소 중에도 Player Marker가 화면 중심에 유지되도록
+    // 매 프레임 카메라 위치를 다시 맞춘다.
+    public IEnumerator PlayMapCloseZoomRoutine(
+        Transform playerMarker,
+        float requestedDuration = -1f)
+    {
+        if (playerMarker == null ||
+            worldMapRoot == null)
+        {
+            yield break;
+        }
+
+        isPlayingMapCloseZoom =
+            true;
+
+        markerFollowTarget =
+            null;
+
+        isFollowingMarker =
+            false;
+
+        float startScale =
+            currentWorldScale;
+
+        float targetScale =
+            Mathf.Clamp(
+                mapCloseZoomTo,
+                minWorldScale,
+                maxWorldScale
+            );
+
+        float safeDuration =
+            requestedDuration > 0f
+                ? requestedDuration
+                : mapCloseZoomDuration;
+
+        safeDuration =
+            Mathf.Max(
+                0.01f,
+                safeDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    safeDuration
+                );
+
+            // 시작은 부드럽고 마지막에는 천천히 멈추도록 처리한다.
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            currentWorldScale =
+                Mathf.Lerp(
+                    startScale,
+                    targetScale,
+                    smoothTime
+                );
+
+            targetWorldScale =
+                currentWorldScale;
+
+            // WorldMapRoot 축소 후 달라진 마커 월드 좌표를 기준으로
+            // 카메라를 계속 마커 중심에 유지한다.
+            ApplyWorldScale();
+
+            CenterCameraOnMarker(
+                playerMarker
+            );
+
+            yield return null;
+        }
+
+        currentWorldScale =
+            targetScale;
+
+        targetWorldScale =
+            targetScale;
+
+        ApplyWorldScale();
+
+        CenterCameraOnMarker(
+            playerMarker
+        );
+
+        isPlayingMapCloseZoom =
+            false;
+    }
+
     // 지정한 Player Marker가 화면 중심에 오도록
     // 카메라의 X·Y 위치를 즉시 맞춘다.
     private void CenterCameraOnMarker(
@@ -860,8 +981,16 @@ public class WorldMapCameraController : MonoBehaviour
             );
 
         mapStartZoomTo =
+    Mathf.Clamp(
+        mapStartZoomTo,
+        minWorldScale,
+        maxWorldScale
+    );
+
+        // 맵 종료 축소 배율도 현재 최소·최대 범위 안으로 제한한다.
+        mapCloseZoomTo =
             Mathf.Clamp(
-                mapStartZoomTo,
+                mapCloseZoomTo,
                 minWorldScale,
                 maxWorldScale
             );

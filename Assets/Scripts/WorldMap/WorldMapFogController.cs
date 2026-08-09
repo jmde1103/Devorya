@@ -88,37 +88,39 @@ public class WorldMapFogController : MonoBehaviour
      true;
 
     [Header("Scene Transition")]
-    // 왼쪽 위에서 오른쪽 아래까지
-    // 흰색 포그가 화면을 덮는 데 걸리는 시간
+    // 현재 열린 포그 영역이 마커 중심으로
+    // 다시 수축하여 닫히는 데 걸리는 시간
     [SerializeField, Min(0.01f)]
-    private float sceneWhiteSweepDuration =
-    0.45f;
+    private float sceneFogCloseDuration =
+    0.9f;
 
-    // 흰색 화면이 완성된 뒤
-    // 검은색 전환을 시작하기 전 유지할 시간
-    [SerializeField, Min(0f)]
-    private float sceneWhiteHoldDuration =
-        0.06f;
-
-    // 왼쪽 위에서 오른쪽 아래까지
-    // 검은색 포그가 화면을 덮는 데 걸리는 시간
-    [SerializeField, Min(0.01f)]
-    private float sceneBlackSweepDuration =
-        0.45f;
-
-    // 대각선 전환 경계의 부드러운 그라데이션 폭
+    // 포그가 닫히는 원형 경계의 부드러운 폭
     //
-    // 값이 작으면 타일 경계가 선명하고,
-    // 값이 크면 여러 타일에 걸쳐 부드럽게 섞인다.
-    [SerializeField, Range(0.001f, 0.25f)]
-    private float sceneSweepGradientWidth =
-        0.06f;
+    // 값이 작으면 타일 단위로 선명하게 닫히고,
+    // 값이 크면 여러 셀에 걸쳐 부드럽게 어두워진다.
+    [SerializeField, Range(0.01f, 10f)]
+    private float sceneFogCloseEdgeWidth =
+        3.5f;
 
-    // 모든 포그가 검은색으로 닫힌 뒤
-    // 씬을 전환하기 전 잠시 유지할 시간
+    // 종료 연출 전체 진행 중
+    // 화면 전체 검은색 페이드를 시작할 시점
+    //
+    // 0이면 연출 시작과 동시에 전체 화면이 서서히 어두워지고,
+    // 0.3이면 전체 진행도의 30% 이후부터 페이드가 시작된다.
+    [SerializeField, Range(0f, 0.9f)]
+    private float sceneFogGlobalFadeStart =
+        0.15f;
+
+    // 최종적으로 포그 전체에 적용할 검은색 Alpha
+    [SerializeField, Range(0f, 1f)]
+    private float sceneFinalFogAlpha =
+        1f;
+
+    // 전체 포그가 닫힌 뒤
+    // 씬을 전환하기 전 유지할 시간
     [SerializeField, Min(0f)]
     private float sceneCloseHoldDuration =
-        0.08f;
+        0.1f;
 
     // 현재 포그 씬 전환 효과가 실행 중인지 확인한다.
     private bool isSceneTransitionPlaying;
@@ -797,12 +799,14 @@ public class WorldMapFogController : MonoBehaviour
         );
     }
 
-    // 왼쪽 위에서 오른쪽 아래 방향으로
-    // 흰색 포그를 덮은 뒤 같은 방향으로 검은색 포그를 덮는다.
+    // 맵 시작 연출을 반대로 재생하는 느낌으로,
+    // 마커 주변의 열린 포그 영역을 바깥쪽부터 다시 닫는다.
     //
-    // 기존 탐사 상태와 상관없이 FogTilemap의 셀 색상을 직접 바꾸므로,
-    // 맵 대부분이 미탐사 상태여도 전환 효과가 화면 전체에 표시된다.
-    public IEnumerator PlaySceneCloseTransition()
+    // 카메라 축소와 같은 시간 동안 실행되며,
+    // 마지막에는 모든 셀이 완전한 검은 포그로 덮인다.
+    public IEnumerator PlaySceneCloseTransition(
+        Vector3 centerWorldPosition,
+        float requestedDuration = -1f)
     {
         if (isInitialized == false ||
             isSceneTransitionPlaying)
@@ -817,11 +821,18 @@ public class WorldMapFogController : MonoBehaviour
             yield break;
         }
 
+        Grid mapGrid =
+            GetMapGrid();
+
+        if (mapGrid == null)
+        {
+            yield break;
+        }
+
         isSceneTransitionPlaying =
             true;
 
-        // 탐사 포그의 기존 Alpha 애니메이션이 씬 전환 색상에
-        // 개입하지 않도록 현재 실행 중인 애니메이션을 중단한다.
+        // 일반 탐사 포그 애니메이션이 종료 연출에 개입하지 않도록 중단한다.
         if (fogAnimationCoroutine != null)
         {
             StopCoroutine(
@@ -839,10 +850,18 @@ public class WorldMapFogController : MonoBehaviour
         WorldMapData mapData =
             worldMapBuilder.WorldMapData;
 
-        // 흰색 전환 전 현재 셀별 포그 색상을 저장한다.
+        Vector3Int centerCell =
+            mapGrid.WorldToCell(
+                centerWorldPosition
+            );
+
+        centerCell.z =
+            0;
+
+        // 종료 연출이 시작되는 순간의 셀별 색상을 저장한다.
         //
-        // 탐사 완료, Preview, 미탐사 영역의 서로 다른 Alpha도
-        // 모두 현재 화면 그대로 시작 색상으로 사용한다.
+        // 탐사 완료, Preview, 미탐사 상태를 그대로 보존한 채
+        // 바깥쪽 셀부터 검정으로 닫기 위해 사용한다.
         for (int y = 0;
              y < mapData.gridHeight;
              y++)
@@ -865,141 +884,33 @@ public class WorldMapFogController : MonoBehaviour
             }
         }
 
-        // 왼쪽 위의 진행값은 0,
-        // 오른쪽 아래의 진행값은 최대값이 되도록 계산한다.
-        int maximumDiagonalIndex =
-            Mathf.Max(
-                1,
-                mapData.gridWidth -
-                1 +
-                mapData.gridHeight -
-                1
-            );
-
-        // 현재 포그 상태에서 불투명한 흰색까지
-        // 왼쪽 위 → 오른쪽 아래 방향으로 전환한다.
-        yield return
-            PlayDiagonalColorSweepRoutine(
+        float maximumRadius =
+            GetMaximumRadiusFromCenterCell(
                 mapData,
-                maximumDiagonalIndex,
-                sceneTransitionStartColors,
-                Color.white,
-                sceneWhiteSweepDuration
+                centerCell
             );
-
-        // 전체 화면이 흰색으로 완성된 상태를
-        // 지정한 시간 동안 짧게 유지한다.
-        if (sceneWhiteHoldDuration >
-            0f)
-        {
-            yield return
-                new WaitForSecondsRealtime(
-                    sceneWhiteHoldDuration
-                );
-        }
-
-        // 검은색 전환의 시작 색상은
-        // 모든 셀이 불투명한 흰색인 상태로 고정한다.
-        sceneTransitionStartColors.Clear();
-
-        for (int y = 0;
-             y < mapData.gridHeight;
-             y++)
-        {
-            for (int x = 0;
-                 x < mapData.gridWidth;
-                 x++)
-            {
-                Vector3Int cellPosition =
-                    new Vector3Int(
-                        x,
-                        y,
-                        0
-                    );
-
-                sceneTransitionStartColors[cellPosition] =
-                    Color.white;
-            }
-        }
-
-        // 흰색 화면에서 불투명한 검은색까지
-        // 다시 왼쪽 위 → 오른쪽 아래 방향으로 전환한다.
-        yield return
-            PlayDiagonalColorSweepRoutine(
-                mapData,
-                maximumDiagonalIndex,
-                sceneTransitionStartColors,
-                Color.black,
-                sceneBlackSweepDuration
-            );
-
-        // 마지막 프레임의 계산 오차와 셀 누락을 방지하기 위해
-        // 모든 포그 셀을 완전한 검은색으로 확정한다.
-        for (int y = 0;
-             y < mapData.gridHeight;
-             y++)
-        {
-            for (int x = 0;
-                 x < mapData.gridWidth;
-                 x++)
-            {
-                Vector3Int cellPosition =
-                    new Vector3Int(
-                        x,
-                        y,
-                        0
-                    );
-
-                currentAlphaByCell[cellPosition] =
-                    1f;
-
-                targetAlphaByCell[cellPosition] =
-                    1f;
-
-                fogTilemap.SetColor(
-                    cellPosition,
-                    Color.black
-                );
-            }
-        }
-
-        sceneTransitionStartColors.Clear();
-
-        // 화면 전체가 완전히 검어진 상태를 유지한 뒤
-        // WorldMapProgressController가 다음 씬을 불러오게 한다.
-        if (sceneCloseHoldDuration >
-            0f)
-        {
-            yield return
-                new WaitForSecondsRealtime(
-                    sceneCloseHoldDuration
-                );
-        }
-
-        isSceneTransitionPlaying =
-            false;
-    }
-
-    // 맵의 왼쪽 위에서 오른쪽 아래 방향으로
-    // 각 셀을 목표 색상까지 부드럽게 전환한다.
-    //
-    // 대각선 경계 앞뒤의 여러 셀을 동시에 보간하여
-    // 한 줄씩 딱딱하게 바뀌지 않고 그라데이션처럼 흐르게 만든다.
-    private IEnumerator PlayDiagonalColorSweepRoutine(
-        WorldMapData mapData,
-        int maximumDiagonalIndex,
-        Dictionary<Vector3Int, Color> startColors,
-        Color targetColor,
-        float duration)
-    {
-        float elapsedTime =
-            0f;
 
         float safeDuration =
+            requestedDuration > 0f
+                ? requestedDuration
+                : sceneFogCloseDuration;
+
+        safeDuration =
             Mathf.Max(
                 0.01f,
-                duration
+                safeDuration
             );
+
+        Color finalFogColor =
+            fogColor;
+
+        finalFogColor.a =
+            Mathf.Clamp01(
+                sceneFinalFogAlpha
+            );
+
+        float elapsedTime =
+            0f;
 
         while (elapsedTime <
                safeDuration)
@@ -1013,15 +924,21 @@ public class WorldMapFogController : MonoBehaviour
                     safeDuration
                 );
 
-            // 시작 단계에서는 첫 번째 셀도 아직 변하지 않고,
-            // 마지막 단계에서는 오른쪽 아래 셀까지 완전히 변하도록
-            // 전환 경계를 그라데이션 폭만큼 앞뒤로 확장한다.
-            float sweepEdge =
-                Mathf.Lerp(
-                    -sceneSweepGradientWidth,
-                    1f +
-                    sceneSweepGradientWidth,
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
                     normalizedTime
+                );
+
+            // 시작 시에는 전체 반경이 열려 있고,
+            // 시간이 지날수록 열린 반경이 마커 중심으로 줄어든다.
+            float openRadius =
+                Mathf.Lerp(
+                    maximumRadius +
+                    sceneFogCloseEdgeWidth,
+                    -sceneFogCloseEdgeWidth,
+                    smoothTime
                 );
 
             for (int y = 0;
@@ -1039,41 +956,75 @@ public class WorldMapFogController : MonoBehaviour
                             0
                         );
 
-                    // Grid의 Y 좌표는 아래에서 위로 증가하므로
-                    // 왼쪽 위를 시작점으로 만들기 위해 Y 좌표를 반전한다.
-                    int diagonalIndex =
-                        x +
-                        (
-                            mapData.gridHeight -
-                            1 -
-                            y
+                    float distanceFromCenter =
+                        Vector2.Distance(
+                            new Vector2(
+                                x,
+                                y
+                            ),
+                            new Vector2(
+                                centerCell.x,
+                                centerCell.y
+                            )
                         );
 
-                    float cellDiagonalPosition =
-                        diagonalIndex /
-                        (float)maximumDiagonalIndex;
-
-                    // 전환 경계 안쪽은 목표 색상에 가까워지고,
-                    // 경계 바깥쪽은 시작 색상을 유지한다.
-                    float colorBlend =
+                    // 열린 반경보다 바깥쪽 셀부터 검은 포그로 닫힌다.
+                    //
+                    // Edge Width 범위에서는 시작 색상과 검은색을 보간하여
+                    // 경계가 계단처럼 갑자기 닫히지 않도록 한다.
+                    float radialCloseBlend =
                         Mathf.InverseLerp(
-                            sweepEdge +
-                            sceneSweepGradientWidth,
-                            sweepEdge -
-                            sceneSweepGradientWidth,
-                            cellDiagonalPosition
+                            openRadius -
+                            sceneFogCloseEdgeWidth,
+                            openRadius +
+                            sceneFogCloseEdgeWidth,
+                            distanceFromCenter
                         );
 
-                    colorBlend =
+                    radialCloseBlend =
                         Mathf.SmoothStep(
                             0f,
                             1f,
-                            colorBlend
+                            radialCloseBlend
+                        );
+
+                    // 원형 포그 수축과 별개로 화면 전체도 천천히 검게 페이드한다.
+                    //
+                    // 전체 진행도가 Scene Fog Global Fade Start에 도달하기 전에는
+                    // 기존 화면 밝기를 유지하고, 그 이후부터 종료 시점까지
+                    // 모든 셀이 단계적으로 최종 검은색에 가까워진다.
+                    float globalFadeProgress =
+                        Mathf.InverseLerp(
+                            sceneFogGlobalFadeStart,
+                            1f,
+                            smoothTime
+                        );
+
+                    float globalFadeBlend =
+                        Mathf.SmoothStep(
+                            0f,
+                            1f,
+                            globalFadeProgress
+                        );
+
+                    // 원형 수축과 전체 화면 페이드를 결합한다.
+                    //
+                    // 이미 원형 경계 바깥으로 닫힌 셀은 검은색을 유지하고,
+                    // 아직 열린 중심 영역도 시간이 지날수록 천천히 어두워진다.
+                    float combinedCloseBlend =
+                        1f -
+                        (
+                            1f -
+                            radialCloseBlend
+                        ) *
+                        (
+                            1f -
+                            globalFadeBlend
                         );
 
                     Color startColor;
 
-                    if (startColors.TryGetValue(
+                    if (sceneTransitionStartColors.TryGetValue(
                             cellPosition,
                             out startColor) ==
                         false)
@@ -1084,13 +1035,13 @@ public class WorldMapFogController : MonoBehaviour
                             );
                     }
 
-                    // 흰색과 검은색 전환 모두
-                    // 최종 Alpha는 1이 되도록 목표 색상을 불투명하게 유지한다.
+                    // 셀의 시작 색상에서 최종 검은색까지
+                    // 결합된 진행값을 사용해 부드럽게 페이드한다.
                     Color appliedColor =
                         Color.Lerp(
                             startColor,
-                            targetColor,
-                            colorBlend
+                            finalFogColor,
+                            combinedCloseBlend
                         );
 
                     fogTilemap.SetColor(
@@ -1103,8 +1054,7 @@ public class WorldMapFogController : MonoBehaviour
             yield return null;
         }
 
-        // 시간 오차와 마지막 프레임 누락을 방지하기 위해
-        // 모든 셀을 목표 색상으로 정확히 보정한다.
+        // 마지막에는 모든 셀을 완전한 검은 포그로 고정한다.
         for (int y = 0;
              y < mapData.gridHeight;
              y++)
@@ -1120,12 +1070,88 @@ public class WorldMapFogController : MonoBehaviour
                         0
                     );
 
+                currentAlphaByCell[cellPosition] =
+                    finalFogColor.a;
+
+                targetAlphaByCell[cellPosition] =
+                    finalFogColor.a;
+
                 fogTilemap.SetColor(
                     cellPosition,
-                    targetColor
+                    finalFogColor
                 );
             }
         }
+
+        sceneTransitionStartColors.Clear();
+
+        if (sceneCloseHoldDuration >
+            0f)
+        {
+            yield return
+                new WaitForSecondsRealtime(
+                    sceneCloseHoldDuration
+                );
+        }
+
+        isSceneTransitionPlaying =
+            false;
+    }
+
+    // 중심 셀에서 맵 네 모서리까지의 거리 중
+    // 가장 큰 값을 반환한다.
+    //
+    // 전환이 마지막에 맵 전체를 완전히 덮도록
+    // 외곽 최대 반경을 기준으로 사용한다.
+    private float GetMaximumRadiusFromCenterCell(
+        WorldMapData mapData,
+        Vector3Int centerCell)
+    {
+        Vector2[] cornerPositions =
+        {
+        new Vector2(
+            0f,
+            0f
+        ),
+        new Vector2(
+            mapData.gridWidth - 1,
+            0f
+        ),
+        new Vector2(
+            0f,
+            mapData.gridHeight - 1
+        ),
+        new Vector2(
+            mapData.gridWidth - 1,
+            mapData.gridHeight - 1
+        )
+    };
+
+        float maximumRadius =
+            0f;
+
+        for (int i = 0;
+             i < cornerPositions.Length;
+             i++)
+        {
+            float distance =
+                Vector2.Distance(
+                    new Vector2(
+                        centerCell.x,
+                        centerCell.y
+                    ),
+                    cornerPositions[i]
+                );
+
+            if (distance >
+                maximumRadius)
+            {
+                maximumRadius =
+                    distance;
+            }
+        }
+
+        return maximumRadius;
     }
 
     // 지정한 셀을 다음 탐사 후보 상태로 등록한다.

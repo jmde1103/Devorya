@@ -840,6 +840,14 @@ public class WorldMapProgressController : MonoBehaviour
             yield break;
         }
 
+        // 이번 씬 전환은 Player Marker가 마지막으로 내려찍은 위치를
+        // 중심으로 둥글게 소용돌이치며 퍼져 나가야 하므로,
+        // 마커를 숨기기 전에 중심 좌표를 먼저 저장한다.
+        Vector3 sceneTransitionCenterWorldPosition =
+            playerMarker != null
+                ? playerMarker.position
+                : targetNode.transform.position;
+
         // Player Marker는 FogTilemap보다 높은 Sorting Order를 사용하므로,
         // 흰색·검은색 전환 위에 남지 않도록 효과 시작 전에 숨긴다.
         //
@@ -852,17 +860,53 @@ public class WorldMapProgressController : MonoBehaviour
             );
         }
 
-        // 현재 탐사 포그 상태와 관계없이
-        // 왼쪽 위부터 오른쪽 아래로 흰색 포그를 덮고,
-        // 같은 방향으로 다시 검은색 포그를 덮는다.
-        //
-        // 화면 전체가 완전히 검어진 뒤에만
-        // 실제 전투 씬을 불러오도록 순서를 보장한다.
+        // 맵 시작 연출의 역재생처럼 보이도록
+        // 카메라 축소와 포그 수축을 같은 시간에 동시에 실행한다.
+        float sceneCloseDuration =
+            0.65f;
+
+        Coroutine cameraCloseCoroutine =
+            null;
+
+        Coroutine fogCloseCoroutine =
+            null;
+
+        if (worldMapCameraController != null &&
+            playerMarker != null)
+        {
+            cameraCloseCoroutine =
+                StartCoroutine(
+                    worldMapCameraController
+                        .PlayMapCloseZoomRoutine(
+                            playerMarker,
+                            sceneCloseDuration
+                        )
+                );
+        }
+
         if (worldMapFogController != null)
         {
+            fogCloseCoroutine =
+                StartCoroutine(
+                    worldMapFogController
+                        .PlaySceneCloseTransition(
+                            sceneTransitionCenterWorldPosition,
+                            sceneCloseDuration
+                        )
+                );
+        }
+
+        // 두 연출이 모두 끝난 다음에만 전투 씬을 불러온다.
+        if (cameraCloseCoroutine != null)
+        {
             yield return
-                worldMapFogController
-                    .PlaySceneCloseTransition();
+                cameraCloseCoroutine;
+        }
+
+        if (fogCloseCoroutine != null)
+        {
+            yield return
+                fogCloseCoroutine;
         }
 
         yield return null;

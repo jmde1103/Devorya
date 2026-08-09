@@ -543,7 +543,7 @@ MonoBehaviour:
   worldMapBuilder: {fileID: 755633546}
   pathTilemap: {fileID: 176691322}
   fogTilemap: {fileID: 1235227762}
-  fogTile: {fileID: 11400000, guid: 231014536c0b23c4193eef2ed6c1df39, type: 2}
+  fogTile: {fileID: 11400000, guid: 4e4b766b20dc0c8418653ee4dfa3666f, type: 2}
   fogColor: {r: 0, g: 0, b: 0, a: 1}
   hiddenAlpha: 1
   previewAlpha: 0.55
@@ -552,10 +552,10 @@ MonoBehaviour:
   nodeAreaRadius: 1
   fogFadeSpeed: 1.2
   revealOnlyExistingPathTiles: 1
-  sceneWhiteSweepDuration: 0.45
-  sceneWhiteHoldDuration: 0.06
-  sceneBlackSweepDuration: 0.45
-  sceneSweepGradientWidth: 0.06
+  sceneFogCloseDuration: 0.65
+  sceneFogCloseEdgeWidth: 1.5
+  sceneFogGlobalFadeStart: 0.3
+  sceneFinalFogAlpha: 1
   sceneCloseHoldDuration: 0.08
 --- !u!1 &485377065
 GameObject:
@@ -1551,6 +1551,8 @@ MonoBehaviour:
   mapStartZoomFrom: 1
   mapStartZoomTo: 1.5
   mapStartZoomDuration: 1
+  mapCloseZoomTo: 1
+  mapCloseZoomDuration: 0.65
   markerFollowSmoothSpeed: 8
   mapMinBounds: {x: -25, y: -15}
   mapMaxBounds: {x: 25, y: 15}
