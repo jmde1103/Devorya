@@ -549,11 +549,13 @@ MonoBehaviour:
   previewAlpha: 0.55
   exploredGradientRadius: 4
   previewGradientRadius: 2
+  markerAreaRadius: 2
   nodeAreaRadius: 1
   fogFadeSpeed: 1.2
   revealOnlyExistingPathTiles: 1
   sceneFogCloseDuration: 0.65
   sceneFogCloseEdgeWidth: 1.5
+  sceneFogCenterClearRadius: 1
   sceneFogGlobalFadeStart: 0.3
   sceneFinalFogAlpha: 1
   sceneCloseHoldDuration: 0.08
@@ -594,6 +596,22 @@ Transform:
   - {fileID: 1313373024}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &562236443 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3782669674534295734, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
+  m_PrefabInstance: {fileID: 840174842873078105}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonAnimation
+--- !u!23 &562236445 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4536059186859050415, guid: f7052be4ac3acf3459939e3174f58d1e, type: 3}
+  m_PrefabInstance: {fileID: 840174842873078105}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &566252437
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,7 +837,8 @@ MonoBehaviour:
   playerMarker: {fileID: 1041329572}
   worldMapFogController: {fileID: 395157155}
   worldMapCameraController: {fileID: 0}
-  playerMarkerSkeletonAnimation: {fileID: 0}
+  playerMarkerSkeletonAnimation: {fileID: 562236443}
+  playerMarkerRenderer: {fileID: 562236445}
   markerSelectAnimationName: Select
   markerAbsorbAnimationName: Absorb
   markerDownAbsorbAnimationName: Down_Absorb
@@ -1450,7 +1469,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 8.4375
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

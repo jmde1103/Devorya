@@ -49,6 +49,24 @@ public class WorldMapProgressController : MonoBehaviour
     [SerializeField]
     private SkeletonAnimation playerMarkerSkeletonAnimation;
 
+    // Player Marker의 실제 화면 정렬을 담당하는 Renderer
+    //
+    // Spine SkeletonAnimation 오브젝트에 연결된
+    // MeshRenderer를 지정한다.
+    [SerializeField]
+    private Renderer playerMarkerRenderer;
+
+    // 포그 전환이 끝난 뒤 복원할
+    // Player Marker의 원래 Sorting Layer ID
+    private int originalMarkerSortingLayerId;
+
+    // 포그 전환이 끝난 뒤 복원할
+    // Player Marker의 원래 Order in Layer
+    private int originalMarkerSortingOrder;
+
+    // Player Marker의 기존 정렬값을 저장했는지 확인한다.
+    private bool hasStoredOriginalMarkerSorting;
+
     // 노드 도착 직후 재생할 선택 애니메이션
     [SerializeField]
     private string markerSelectAnimationName =
@@ -192,9 +210,23 @@ public class WorldMapProgressController : MonoBehaviour
         ApplyRuntimeNodeStates();
         PlaceMarkerAtCurrentNode();
 
-        // 현재 탐사 완료 노드 주변을 완전히 밝히고,
+        // 현재 탐사 완료 노드 주변을 밝히고,
         // 해당 노드와 연결된 미탐사 노드·길을 Preview 상태로 표시한다.
         RefreshFogForCurrentNode();
+
+        // 맵이 시작될 때도 이동 중과 동일하게
+        // Player Marker 전용 밝기 반경을 즉시 적용한다.
+        //
+        // 기존에는 시작 노드의 Node Area Radius만 적용되어
+        // 이동 중보다 밝은 영역이 좁게 표시되고 있었다.
+        if (worldMapFogController != null &&
+            playerMarker != null)
+        {
+            worldMapFogController
+                .RevealExploredMarkerArea(
+                    playerMarker.position
+                );
+        }
 
         // 노드·마커·포그 초기화가 모두 완료된 다음,
         // 카메라를 현재 Player Marker 중심에 맞추고
@@ -304,6 +336,26 @@ public class WorldMapProgressController : MonoBehaviour
                 "Player Marker 애니메이션 연결 경고: " +
                 "PlayerMarkerRoot 자식에서 SkeletonAnimation을 찾지 못했습니다. " +
                 "노드 이동은 실행되지만 도착 애니메이션은 생략됩니다."
+            );
+        }
+
+        // Inspector에서 Player Marker Renderer 연결이 빠졌다면
+        // PlayerMarkerRoot 자식에서 Spine MeshRenderer를 자동으로 찾는다.
+        if (playerMarkerRenderer == null &&
+            playerMarker != null)
+        {
+            playerMarkerRenderer =
+                playerMarker.GetComponentInChildren<Renderer>(
+                    true
+                );
+        }
+
+        if (playerMarkerRenderer == null)
+        {
+            Debug.LogWarning(
+                "Player Marker Renderer 연결 경고: " +
+                "PlayerMarkerRoot 자식에서 Renderer를 찾지 못했습니다. " +
+                "포그 전환 중 마커를 포그 위로 올리는 처리는 생략됩니다."
             );
         }
 
@@ -848,22 +900,17 @@ public class WorldMapProgressController : MonoBehaviour
                 ? playerMarker.position
                 : targetNode.transform.position;
 
-        // Player Marker는 FogTilemap보다 높은 Sorting Order를 사용하므로,
-        // 흰색·검은색 전환 위에 남지 않도록 효과 시작 전에 숨긴다.
+        // 포그가 아직 완전한 검정이 아닌 동안에는
+        // Player Marker가 포그 아래로 가려지지 않도록
+        // Fog Tilemap보다 Order in Layer를 1 높게 설정한다.
         //
-        // 노드 도착 애니메이션은 이미 모두 끝난 상태이므로
-        // 전환 직전 비활성화해도 기존 연출에는 영향을 주지 않는다.
-        if (playerMarker != null)
-        {
-            playerMarker.gameObject.SetActive(
-                false
-            );
-        }
+        // 마커는 포그가 완전히 닫힌 뒤에만 비활성화한다.
+        SetPlayerMarkerAboveFog();
 
         // 맵 시작 연출의 역재생처럼 보이도록
         // 카메라 축소와 포그 수축을 같은 시간에 동시에 실행한다.
         float sceneCloseDuration =
-            0.65f;
+            0.9f;
 
         Coroutine cameraCloseCoroutine =
             null;
@@ -897,17 +944,27 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
         // 두 연출이 모두 끝난 다음에만 전투 씬을 불러온다.
-        if (cameraCloseCoroutine != null)
-        {
-            yield return
-                cameraCloseCoroutine;
-        }
-
         if (fogCloseCoroutine != null)
         {
             yield return
                 fogCloseCoroutine;
         }
+
+        // 포그가 완전히 검게 닫힌 다음에만
+        // Player Marker를 숨긴다.
+        //
+        // 전환 중에는 마커가 포그 위에 보이고,
+        // 완전한 검은 화면이 된 뒤 자연스럽게 사라진다.
+        if (playerMarker != null)
+        {
+            playerMarker.gameObject.SetActive(
+                false
+            );
+        }
+
+        // 씬 전환이 취소되거나 현재 오브젝트가 유지될 가능성에 대비해
+        // 변경했던 Sorting Layer와 Order 값을 원래 상태로 복원한다.
+        RestorePlayerMarkerSorting();
 
         yield return null;
 
@@ -920,6 +977,65 @@ public class WorldMapProgressController : MonoBehaviour
         SceneManager.LoadScene(
             targetSceneName
         );
+    }
+
+    // 포그 전환이 진행되는 동안
+    // Player Marker를 Fog Tilemap보다 위에 표시한다.
+    //
+    // 포그와 동일한 Sorting Layer를 사용하고,
+    // Order in Layer만 포그보다 1 높게 적용한다.
+    private void SetPlayerMarkerAboveFog()
+    {
+        if (playerMarkerRenderer == null ||
+            worldMapFogController == null)
+        {
+            return;
+        }
+
+        // 최초 한 번만 기존 정렬값을 저장하여
+        // 전환이 끝난 뒤 원래 상태로 되돌릴 수 있게 한다.
+        if (hasStoredOriginalMarkerSorting ==
+            false)
+        {
+            originalMarkerSortingLayerId =
+                playerMarkerRenderer.sortingLayerID;
+
+            originalMarkerSortingOrder =
+                playerMarkerRenderer.sortingOrder;
+
+            hasStoredOriginalMarkerSorting =
+                true;
+        }
+
+        playerMarkerRenderer.sortingLayerID =
+            worldMapFogController
+                .GetFogSortingLayerId();
+
+        playerMarkerRenderer.sortingOrder =
+            worldMapFogController
+                .GetFogSortingOrder() +
+            1;
+    }
+
+    // 포그 전환이 끝난 뒤
+    // Player Marker의 원래 Sorting Layer와 Order를 복원한다.
+    private void RestorePlayerMarkerSorting()
+    {
+        if (playerMarkerRenderer == null ||
+            hasStoredOriginalMarkerSorting ==
+            false)
+        {
+            return;
+        }
+
+        playerMarkerRenderer.sortingLayerID =
+            originalMarkerSortingLayerId;
+
+        playerMarkerRenderer.sortingOrder =
+            originalMarkerSortingOrder;
+
+        hasStoredOriginalMarkerSorting =
+            false;
     }
 
     // 검은 구체가 전투 노드에 도착했을 때

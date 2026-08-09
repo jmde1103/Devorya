@@ -66,7 +66,19 @@ public class WorldMapFogController : MonoBehaviour
     private int previewGradientRadius =
         2;
 
+    // Player Marker 주변에서
+    // 완전히 밝게 탐사 처리할 셀 반경
+    //
+    // 값이 2이면 마커 중심 기준 5×5 영역이
+    // 완전 탐사 상태로 유지된다.
+    [SerializeField, Min(0)]
+    private int markerAreaRadius =
+        2;
+
     // 노드 중심 주변에서 함께 밝힐 셀 반경
+    //
+    // 일반 노드와 Preview 노드 영역은
+    // 기존 3×3 범위를 유지한다.
     [SerializeField, Min(0)]
     private int nodeAreaRadius =
         1;
@@ -101,6 +113,15 @@ public class WorldMapFogController : MonoBehaviour
     [SerializeField, Range(0.01f, 10f)]
     private float sceneFogCloseEdgeWidth =
         3.5f;
+
+    // 포그 종료 전환 중 마커 주변에서
+    // 가장 밝게 유지할 추가 셀 반경
+    //
+    // 1이면 마커 중심뿐 아니라 주변 한 칸까지
+    // 같은 밝은 중심 영역으로 취급한다.
+    [SerializeField, Range(0f, 5f)]
+    private float sceneFogCenterClearRadius =
+        1f;
 
     // 종료 연출 전체 진행 중
     // 화면 전체 검은색 페이드를 시작할 시점
@@ -173,6 +194,53 @@ public class WorldMapFogController : MonoBehaviour
         // 노드와 마커가 본격적으로 초기화되기 전에
         // 전체 포그 Tilemap을 먼저 생성한다.
         InitializeFog();
+    }
+
+    // 현재 포그 Tilemap Renderer가 사용하는
+    // Sorting Layer ID를 반환한다.
+    //
+    // Player Marker를 포그 위에 표시할 때
+    // 동일한 Sorting Layer를 사용하기 위한 값이다.
+    public int GetFogSortingLayerId()
+    {
+        if (fogTilemap == null)
+        {
+            return 0;
+        }
+
+        TilemapRenderer fogTilemapRenderer =
+            fogTilemap.GetComponent<TilemapRenderer>();
+
+        if (fogTilemapRenderer == null)
+        {
+            return 0;
+        }
+
+        return
+            fogTilemapRenderer.sortingLayerID;
+    }
+
+    // 현재 포그 Tilemap Renderer가 사용하는
+    // Order in Layer 값을 반환한다.
+    //
+    // Player Marker는 전환 중 이 값보다 1 높은 순서로 표시한다.
+    public int GetFogSortingOrder()
+    {
+        if (fogTilemap == null)
+        {
+            return 0;
+        }
+
+        TilemapRenderer fogTilemapRenderer =
+            fogTilemap.GetComponent<TilemapRenderer>();
+
+        if (fogTilemapRenderer == null)
+        {
+            return 0;
+        }
+
+        return
+            fogTilemapRenderer.sortingOrder;
     }
 
     // 현재 맵에서 사용하는 Grid를 반환한다.
@@ -417,6 +485,79 @@ public class WorldMapFogController : MonoBehaviour
         }
     }
 
+    // Player Marker의 현재 위치를 중심으로
+    // 마커 전용 반경만큼 완전 탐사 영역을 적용한다.
+    //
+    // 맵 시작 배치와 실제 이동 중 탐사에
+    // 동일한 밝기 범위를 사용하기 위한 공통 함수다.
+    public void RevealExploredMarkerArea(
+        Vector3 markerWorldPosition)
+    {
+        if (isInitialized == false)
+        {
+            return;
+        }
+
+        Grid mapGrid =
+            GetMapGrid();
+
+        if (mapGrid == null)
+        {
+            return;
+        }
+
+        Vector3Int markerCell =
+            mapGrid.WorldToCell(
+                markerWorldPosition
+            );
+
+        markerCell.z =
+            0;
+
+        // 마커 중심에서 원형 반경 안에 포함되는 셀만
+        // 완전 탐사 영역으로 처리한다.
+        //
+        // Marker Area Radius가 2일 때 5×5 범위를 검사하지만,
+        // 중심에서 반경 2를 초과하는 모서리 셀은 제외하여
+        // 가장 밝은 영역이 사각형으로 보이지 않게 한다.
+        for (int y = -markerAreaRadius;
+     y <= markerAreaRadius;
+     y++)
+        {
+            for (int x = -markerAreaRadius;
+                 x <= markerAreaRadius;
+                 x++)
+            {
+                // 가장 밝은 영역은 원형이 아니라
+                // "사각형에서 4개 꼭짓점만 뺀 형태"로 처리한다.
+                //
+                // Marker Area Radius가 2일 때 결과는:
+                //
+                // · ■ ■ ■ ·
+                // ■ ■ ■ ■ ■
+                // ■ ■ ■ ■ ■
+                // ■ ■ ■ ■ ■
+                // · ■ ■ ■ ·
+                //
+                // 즉 바깥 4개 꼭짓점만 제외한다.
+                if (Mathf.Abs(x) == markerAreaRadius &&
+                    Mathf.Abs(y) == markerAreaRadius)
+                {
+                    continue;
+                }
+
+                RevealExploredCell(
+                    markerCell +
+                    new Vector3Int(
+                        x,
+                        y,
+                        0
+                    )
+                );
+            }
+        }
+    }
+
     // Player Marker의 현재 월드 위치를 확인하고,
     // 새로운 Grid 셀에 진입했을 때만 탐사 처리한다.
     public void TrackMarkerWorldPosition(
@@ -457,29 +598,10 @@ public class WorldMapFogController : MonoBehaviour
             true;
 
         // 마커가 새로운 셀에 진입할 때마다
-        // 노드 탐사 영역과 동일한 사각형 범위를 완전히 밝힌다.
-        //
-        // Node Area Radius가 1이면 마커 중심의 3×3 셀이
-        // 완전 탐사 상태가 되고, 각 셀 바깥쪽은
-        // Explored Gradient Radius만큼 점차 어두워진다.
-        for (int y = -nodeAreaRadius;
-             y <= nodeAreaRadius;
-             y++)
-        {
-            for (int x = -nodeAreaRadius;
-                 x <= nodeAreaRadius;
-                 x++)
-            {
-                RevealExploredCell(
-                    markerCell +
-                    new Vector3Int(
-                        x,
-                        y,
-                        0
-                    )
-                );
-            }
-        }
+        // 마커 전용 밝기 반경을 적용한다.
+        RevealExploredMarkerArea(
+            markerWorldPosition
+        );
     }
 
     // 노드 중심과 주변 셀을 완전 탐사 상태로 전환한다.
@@ -956,7 +1078,9 @@ public class WorldMapFogController : MonoBehaviour
                             0
                         );
 
-                    float distanceFromCenter =
+                    // 현재 셀이 Player Marker 중심에서
+                    // 실제로 얼마나 떨어져 있는지 계산한다.
+                    float rawDistanceFromCenter =
                         Vector2.Distance(
                             new Vector2(
                                 x,
@@ -966,6 +1090,19 @@ public class WorldMapFogController : MonoBehaviour
                                 centerCell.x,
                                 centerCell.y
                             )
+                        );
+
+                    // 마커 중심 주변의 지정 반경은
+                    // 모두 중심과 동일한 거리 0으로 취급한다.
+                    //
+                    // Scene Fog Center Clear Radius가 1이면
+                    // 마커 주변 한 칸까지 가장 밝은 중심 영역으로 유지되고,
+                    // 그 바깥쪽부터 포그 수축 그라데이션이 시작된다.
+                    float distanceFromCenter =
+                        Mathf.Max(
+                            0f,
+                            rawDistanceFromCenter -
+                            sceneFogCenterClearRadius
                         );
 
                     // 열린 반경보다 바깥쪽 셀부터 검은 포그로 닫힌다.

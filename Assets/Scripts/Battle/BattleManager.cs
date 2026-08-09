@@ -83,7 +83,13 @@ public class BattleManager : MonoBehaviour
 
     // <변경부분> 공격 전에 한 번 확인한 상대 기물
     // 타입 아이콘과 상대 스테이터스 UI 표시에도 사용한다.
-    private Piece pendingAttackTargetPiece = null;
+    private Piece pendingAttackTargetPiece =
+        null;
+
+    // 타입 아이콘 위치에 필드 흡수 버튼이
+    // 현재 표시되어 있는 상대 기물
+    private Piece fieldAbsorbTargetPiece =
+        null;
 
     // 현재 전투 턴 주체
     [SerializeField] private BattleTurn currentTurn = BattleTurn.Player;
@@ -324,12 +330,6 @@ public class BattleManager : MonoBehaviour
             EndTurn();
         }
 
-        // A 키를 누르면 흡수 모드 ON/OFF
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            ToggleAbsorbMode();
-        }
-
         // Q 키를 누르면 기권
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -355,10 +355,15 @@ public class BattleManager : MonoBehaviour
 
 
     // 기물을 선택하는 함수
-    public void SelectPiece(Piece piece)
+       public void SelectPiece(Piece piece)
     {
         // <변경부분> 새 선택 처리 전에 기존 선택 기물을 저장
-        Piece previousSelectedPiece = selectedPiece;
+        Piece previousSelectedPiece =
+            selectedPiece;
+
+        // 다른 기물을 선택하거나 선택을 해제하면
+        // 기존 상대 기물 위 흡수 버튼을 즉시 초기화한다.
+        ClearFieldAbsorbOpportunity();
 
         // 전투가 종료되었다면 더 이상 선택 불가
         if (isBattleEnded)
@@ -542,6 +547,144 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"선택됨: {piece.Team} / {piece.PieceType} / ({piece.X}, {piece.Y})");
     }
 
+    // 공격 가능한 상대 기물 위에
+    // 필드 흡수 버튼을 표시한다.
+    private void ShowFieldAbsorbOpportunity(
+        Piece targetPiece)
+    {
+        // 이전 대상과 같은 기물이더라도
+        // 남아 있는 전환 상태를 먼저 정리한다.
+        ClearFieldAbsorbOpportunity();
+
+        if (targetPiece == null)
+        {
+            return;
+        }
+
+        fieldAbsorbTargetPiece =
+            targetPiece;
+
+        targetPiece.ShowFieldAbsorbButton(
+            TryExecuteFieldAbsorb
+        );
+    }
+
+    // 현재 표시 중인 필드 흡수 버튼을 숨기고
+    // 대상 참조를 초기화한다.
+    private void ClearFieldAbsorbOpportunity()
+    {
+        if (fieldAbsorbTargetPiece != null)
+        {
+            fieldAbsorbTargetPiece
+                .HideFieldAbsorbButton();
+        }
+
+        fieldAbsorbTargetPiece =
+            null;
+    }
+
+    // 상대 기물 위 흡수 버튼을 눌렀을 때
+    // 기존 공격 실행 흐름에 흡수 모드를 적용해 바로 실행한다.
+    private void TryExecuteFieldAbsorb()
+    {
+        Piece actingPiece =
+            selectedPiece;
+
+        Piece targetPiece =
+            fieldAbsorbTargetPiece;
+
+        Tile targetTile =
+            pendingActionTile;
+
+        // 버튼을 연 뒤 선택 상태가 바뀌었거나
+        // 대상 기물이 제거됐다면 실행하지 않는다.
+        if (actingPiece == null ||
+            targetPiece == null ||
+            targetTile == null)
+        {
+            ClearFieldAbsorbOpportunity();
+            return;
+        }
+
+        if (isBattleEnded ||
+            isActionAnimating ||
+            isPlayerDeploymentPhase ||
+            currentTurn != BattleTurn.Player)
+        {
+            ClearFieldAbsorbOpportunity();
+            return;
+        }
+
+        // 현재 공격 확인 대상과 버튼 대상이
+        // 같은 기물인지 다시 검증한다.
+        if (pendingAttackTargetPiece !=
+            targetPiece)
+        {
+            ClearFieldAbsorbOpportunity();
+            return;
+        }
+
+        // 버튼이 열린 뒤 보드 상태가 바뀌었는지 확인한다.
+        Piece currentTargetPiece =
+            pieceManager.GetPieceAt(
+                targetTile.X,
+                targetTile.Y
+            );
+
+        if (currentTargetPiece !=
+            targetPiece)
+        {
+            ClearFieldAbsorbOpportunity();
+            return;
+        }
+
+        // 공격 가능한 타일이 아니게 됐다면 실행하지 않는다.
+        if (selectableTiles.Contains(
+                targetTile) ==
+            false)
+        {
+            ClearFieldAbsorbOpportunity();
+            return;
+        }
+
+        // 기존 공격 코루틴에서 흡수 공격으로 처리하도록
+        // 행동 실행 직전에 흡수 모드를 켠다.
+        isAbsorbMode =
+            true;
+
+        ClearFieldAbsorbOpportunity();
+
+        // 실행할 타일 외의 하이라이트를 제거한다.
+        ClearHighlightsExcept(
+            targetTile
+        );
+
+        bool actionStarted =
+            TryExecuteBattleAction(
+                actingPiece,
+                new Vector2Int(
+                    targetTile.X,
+                    targetTile.Y
+                )
+            );
+
+        if (actionStarted ==
+            false)
+        {
+            isAbsorbMode =
+                false;
+
+            pendingActionTile =
+                null;
+
+            pendingAttackTargetPiece =
+                null;
+
+            ClearHighlights();
+            RefreshTypeIconVisuals();
+        }
+    }
+
     // <변경부분> 타일을 선택했을 때 호출되는 함수
     // 이동과 공격 모두 첫 클릭은 확인,
     // 같은 타일 두 번째 클릭은 실제 행동 실행으로 처리한다.
@@ -625,11 +768,14 @@ public class BattleManager : MonoBehaviour
         // 기존 선택 기물과 이동 가능 타일 하이라이트는 유지하므로,
         // 상대 정보를 확인한 뒤 다시 이동 또는 공격을 이어갈 수 있다.
         if (clickedPiece != null &&
-            clickedPiece.Team !=
-                selectedPiece.Team &&
-            selectableTiles.Contains(tile) ==
-                false)
+    clickedPiece.Team !=
+        selectedPiece.Team &&
+    selectableTiles.Contains(tile) ==
+        false)
         {
+            // 공격 범위 밖 상대는 정보 확인만 가능하므로
+            // 기존 필드 흡수 버튼을 닫는다.
+            ClearFieldAbsorbOpportunity();
             // 이전에 이동 또는 공격 타일을 한 번 확인 중이었다면
             // 확인 전용 색상을 일반 이동 가능 색상으로 되돌린다.
             if (pendingActionTile != null)
@@ -673,8 +819,12 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 빈칸이거나 상대 기물이 없는 타일이면서
         // 실제 이동·공격 가능 타일도 아니라면 아무 행동도 하지 않는다.
         if (selectableTiles.Contains(tile) ==
-            false)
+       false)
         {
+            // 빈 타일이나 다른 위치를 클릭하면
+            // 기존 필드 흡수 버튼을 초기화한다.
+            ClearFieldAbsorbOpportunity();
+
             return;
         }
 
@@ -682,6 +832,10 @@ public class BattleManager : MonoBehaviour
         // 두 번째 클릭이므로 실제 이동 또는 공격을 실행한다.
         if (pendingActionTile == tile)
         {
+
+            // 타일을 다시 눌렀다면 기존 일반 공격으로 처리하므로
+            // 필드 흡수 버튼은 먼저 닫는다.
+            ClearFieldAbsorbOpportunity();
             // 실행할 타일만 남기고
             // 나머지 이동 가능 하이라이트를 제거한다.
             ClearHighlightsExcept(
@@ -733,11 +887,17 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 상대 또는 중립 기물이 있는 타일이라면
         // 공격 확인 대상으로 저장하고 상대 정보를 표시한다.
         if (clickedPiece != null &&
-            clickedPiece.Team !=
-            selectedPiece.Team)
+    clickedPiece.Team !=
+    selectedPiece.Team)
         {
             pendingAttackTargetPiece =
                 clickedPiece;
+
+            // 공격 가능한 상대 기물의 타입 아이콘을 숨기고
+            // 같은 위치에 필드 흡수 버튼을 표시한다.
+            ShowFieldAbsorbOpportunity(
+                clickedPiece
+            );
 
             // 상대 스테이터스 UI 표시
             if (battleUIController != null)
@@ -749,11 +909,17 @@ public class BattleManager : MonoBehaviour
             }
 
             Debug.Log(
-                "공격 타일 확인: 같은 타일을 한 번 더 클릭하면 공격합니다."
+                "공격 타일 확인: " +
+                "같은 타일을 다시 누르면 일반 공격, " +
+                "기물 위 흡수 버튼을 누르면 흡수 공격을 실행합니다."
             );
         }
         else
         {
+            // 빈칸 이동을 확인하면
+            // 기존 상대 기물 위 흡수 버튼을 닫는다.
+            ClearFieldAbsorbOpportunity();
+
             // <변경부분> 빈칸 이동을 확인하는 경우에는
             // 이전 상대 공격 확인 대상을 해제한다.
             pendingAttackTargetPiece =
@@ -3885,6 +4051,11 @@ public class BattleManager : MonoBehaviour
 
     private void EndTurn()
     {
+
+        // 턴이 바뀌면 현재 상대 기물 위에 표시된
+        // 필드 흡수 버튼을 즉시 초기화한다.
+        ClearFieldAbsorbOpportunity();
+
         // 턴 종료 시 이동·공격 가능 타일과
         // 첫 번째 클릭 확인 상태 제거
         ClearHighlights();

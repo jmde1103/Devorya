@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Tile : MonoBehaviour
 {
@@ -249,6 +250,14 @@ public class Tile : MonoBehaviour
 
     private void OnMouseDown()
     {
+        // World Space Canvas의 필드 흡수 버튼이나
+        // 다른 UI 위를 클릭한 경우 뒤쪽 타일 입력은 받지 않는다.
+        if (EventSystem.current != null &&
+            EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         // BattleManager가 없으면 종료
         if (BattleManager.Instance == null)
         {
@@ -258,6 +267,8 @@ public class Tile : MonoBehaviour
         // <변경부분> 타일 클릭을 BattleManager에 전달
         // 타일 위에 기물이 있으면 기물 선택/정보 표시/공격 확인 처리
         // 타일 위에 기물이 없으면 이동 처리
-        BattleManager.Instance.SelectTile(this);
+        BattleManager.Instance.SelectTile(
+            this
+        );
     }
 }

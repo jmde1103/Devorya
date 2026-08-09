@@ -613,13 +613,29 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
-        // 플레이어 기물을 선택하면 흡수 버튼 표시
-        SetAbsorbButtonVisible(true);
+        // 정상 전투 중 하단 흡수 버튼은 표시하지 않는다.
+        //
+        // 기존 하단 버튼은:
+        // 초기 배치 체크 버튼
+        // 마지막 Enemy 1기 마무리 흡수 버튼
+        // 두 용도로만 사용한다.
+        if (isLastEnemyAbsorbMode ==
+            false)
+        {
+            SetAbsorbButtonVisible(
+                false
+            );
+        }
 
-        // <변경부분> 기물을 새로 선택할 때 흡수 아이콘은 기본 OFF 상태로 표시
-        SetAbsorbModeIcon(false);
+        // 보이지 않는 흡수 버튼에 이전 ON 상태가 남지 않도록
+        // 아이콘 상태는 기본 OFF로 초기화한다.
+        SetAbsorbModeIcon(
+            false
+        );
 
-        bool hasUniqueSkill = selectedPiece.UniqueSkill != UniqueSkillType.None;
+        bool hasUniqueSkill =
+            selectedPiece.UniqueSkill !=
+            UniqueSkillType.None;
         SetUniqueSkillButtonVisible(hasUniqueSkill);
 
         // <변경부분> 고유스킬 버튼이 켜지는 순간 Prefab 기본 상태로 켜진 Cooldown UI를 먼저 초기화
