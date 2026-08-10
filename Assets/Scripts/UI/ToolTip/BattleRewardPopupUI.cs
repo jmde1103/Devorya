@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 // <변경부분> 전투 종료 후 실제 획득한 기물 복구,
 // 금화, 아이템, 유물 보상을 슬롯 형태로 표시하는 팝업 UI
@@ -30,12 +32,35 @@ public class BattleRewardPopupUI : MonoBehaviour
     // 별도의 goldIconSprite는 사용하지 않는다.
     [SerializeField] private TooltipData goldTooltipData;
 
-    [SerializeField] private Button confirmButton;
+    // <변경부분> 팝업 전체 클릭 영역으로 사용할 버튼
+    // 새 UI에서는 별도의 작은 확인 버튼이 아니라
+    // 팝업 페이지 전체를 덮는 투명 Button을 연결한다.
+    [SerializeField]
+    private Button confirmButton;
+
+    [Header("Continue Text Animation")]
+    // <변경부분> 팝업 하단의 "Click to continue" 안내 문구
+    [SerializeField]
+    private TMP_Text continueText;
+
+    // <변경부분> 안내 문구가 가장 흐려졌을 때의 알파값
+    // 완전히 사라지지 않도록 기본값은 0.25로 사용한다.
+    [SerializeField, Range(0f, 1f)]
+    private float continueTextMinAlpha = 0.25f;
+
+    // <변경부분> 최대 알파 → 최소 알파 또는
+    // 최소 알파 → 최대 알파로 이동하는 시간
+    [SerializeField, Min(0.01f)]
+    private float continueTextFadeDuration = 0.8f;
+
+    // <변경부분> 현재 실행 중인
+    // Click to continue 반복 애니메이션 코루틴
+    private Coroutine continueTextBlinkCoroutine;
+
     [Header("Open Animation")]
     // <변경부분> 기존 코루틴 팝업 오픈 애니메이터
     [SerializeField]
     private PopupOpenAnimator popupOpenAnimator;
-
 
     [Header("Slot Layout")]
     // <변경부분> RecoverySlotParent 또는 DropSlotParent에
@@ -86,6 +111,14 @@ public class BattleRewardPopupUI : MonoBehaviour
         );
 
         popupRoot.SetActive(false);
+    }
+
+    // <변경부분> 씬 전환이나 외부 처리로
+    // 팝업이 비활성화되는 경우에도
+    // Click to continue 애니메이션을 안전하게 정리한다.
+    private void OnDisable()
+    {
+        StopContinueTextBlink();
     }
 
     // <변경부분> 전투 종료 컨트롤러가 보상 계산을 끝낸 뒤 호출
@@ -155,6 +188,11 @@ public class BattleRewardPopupUI : MonoBehaviour
         {
             popupOpenAnimator.PlayOpen();
         }
+
+        // <변경부분> 보상 팝업이 완전히 표시되면
+        // "Click to continue" 안내 문구의
+        // 부드러운 반복 페이드 애니메이션을 시작한다.
+        StartContinueTextBlink();
 
         Debug.Log(
             $"전투 보상 팝업 표시: " +
@@ -431,6 +469,159 @@ public class BattleRewardPopupUI : MonoBehaviour
         }
     }
 
+    // <변경부분> "Click to continue" 텍스트의
+    // 반복 페이드 애니메이션을 시작한다.
+    private void StartContinueTextBlink()
+    {
+        // 이전에 실행 중이던 코루틴이 있다면
+        // 중복 실행되지 않도록 먼저 종료한다.
+        StopContinueTextBlink();
+
+        if (continueText == null)
+        {
+            return;
+        }
+
+        // 팝업이 열릴 때는 항상
+        // 완전히 보이는 상태에서 시작한다.
+        SetContinueTextAlpha(
+            1f
+        );
+
+        continueTextBlinkCoroutine =
+            StartCoroutine(
+                ContinueTextBlinkRoutine()
+            );
+    }
+
+    // <변경부분> "Click to continue" 문구를
+    // 최대 알파와 최소 알파 사이에서
+    // 부드럽게 계속 왕복시키는 코루틴
+    private IEnumerator ContinueTextBlinkRoutine()
+    {
+        while (true)
+        {
+            // 완전히 보이는 상태에서
+            // 지정한 최소 알파까지 천천히 흐려진다.
+            yield return
+                FadeContinueTextAlphaRoutine(
+                    1f,
+                    continueTextMinAlpha
+                );
+
+            // 최소 알파 상태에서
+            // 다시 완전히 보이는 상태까지 밝아진다.
+            yield return
+                FadeContinueTextAlphaRoutine(
+                    continueTextMinAlpha,
+                    1f
+                );
+        }
+    }
+
+    // <변경부분> 지정한 두 알파값 사이를
+    // 일정 시간 동안 부드럽게 보간한다.
+    //
+    // UI 안내 애니메이션이므로
+    // Time.timeScale 영향을 받지 않는
+    // unscaledDeltaTime을 사용한다.
+    private IEnumerator FadeContinueTextAlphaRoutine(
+        float startAlpha,
+        float endAlpha)
+    {
+        float elapsedTime =
+            0f;
+
+        float duration =
+            Mathf.Max(
+                0.01f,
+                continueTextFadeDuration
+            );
+
+        while (elapsedTime < duration)
+        {
+            if (continueText == null)
+            {
+                yield break;
+            }
+
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    duration
+                );
+
+            // 시작과 끝에서 속도가 자연스럽게 줄어드는
+            // SmoothStep 곡선을 사용한다.
+            float smoothProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            float currentAlpha =
+                Mathf.Lerp(
+                    startAlpha,
+                    endAlpha,
+                    smoothProgress
+                );
+
+            SetContinueTextAlpha(
+                currentAlpha
+            );
+
+            yield return null;
+        }
+
+        SetContinueTextAlpha(
+            endAlpha
+        );
+    }
+
+    // <변경부분> TMP 텍스트의 기존 RGB 색상은 유지하고
+    // 알파값만 변경한다.
+    private void SetContinueTextAlpha(
+        float alpha)
+    {
+        if (continueText == null)
+        {
+            return;
+        }
+
+        Color textColor =
+            continueText.color;
+
+        textColor.a =
+            Mathf.Clamp01(
+                alpha
+            );
+
+        continueText.color =
+            textColor;
+    }
+
+    // <변경부분> 실행 중인 안내 문구 코루틴을 종료하고
+    // 텍스트를 정상 알파값으로 복구한다.
+    private void StopContinueTextBlink()
+    {
+        if (continueTextBlinkCoroutine != null)
+        {
+            StopCoroutine(
+                continueTextBlinkCoroutine
+            );
+
+            continueTextBlinkCoroutine =
+                null;
+        }
+
+        SetContinueTextAlpha(
+            1f
+        );
+    }
 
     // <변경부분> 이전에 동적으로 생성한 보상 슬롯 제거
     private void ClearCreatedSlots(
@@ -455,9 +646,9 @@ public class BattleRewardPopupUI : MonoBehaviour
             Destroy(childObject);
         }
     }
-
-    // <변경부분> 확인 버튼 클릭 시 보상창을 닫고
-    // BattleEndFlowController가 설정한 다음 전투 씬 또는 맵 씬으로 이동
+    // <변경부분> 보상 팝업 전체 클릭 시
+    // 안내 문구 애니메이션을 종료하고
+    // BattleEndFlowController가 설정한 맵 씬으로 이동한다.
     private void OnClickConfirm()
     {
         if (battleEndFlowController == null)
@@ -470,9 +661,15 @@ public class BattleRewardPopupUI : MonoBehaviour
             return;
         }
 
+        // 팝업이 닫히기 전에
+        // Click to continue 반복 애니메이션을 정리한다.
+        StopContinueTextBlink();
+
         if (popupRoot != null)
         {
-            popupRoot.SetActive(false);
+            popupRoot.SetActive(
+                false
+            );
         }
 
         battleEndFlowController.MoveToMapScene();

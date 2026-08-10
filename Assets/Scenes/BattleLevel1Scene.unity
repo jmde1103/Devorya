@@ -33329,6 +33329,9 @@ MonoBehaviour:
   rewardSlotPrefab: {fileID: 2537777922694835768, guid: 6de50ff11416da142a0ecbc7d7041993, type: 3}
   goldTooltipData: {fileID: 11400000, guid: d06b053ccb5386d46b1d32785551123b, type: 2}
   confirmButton: {fileID: 553583809}
+  continueText: {fileID: 522063335}
+  continueTextMinAlpha: 0.25
+  continueTextFadeDuration: 0.8
   popupOpenAnimator: {fileID: 337650158}
   addHorizontalLayoutWhenMissing: 1
   automaticSlotSpacing: 12
@@ -51889,7 +51892,7 @@ GameObject:
   - component: {fileID: 522063336}
   - component: {fileID: 522063335}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: continueText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
