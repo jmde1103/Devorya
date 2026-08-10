@@ -550,11 +550,14 @@ public class BattleManager : MonoBehaviour
     // 현재 선택 상태에서
     // 필드 흡수 버튼을 표시할 수 있는 대상인지 확인한다.
     //
-    // 실제 기존 흡수 처리 조건과 동일하게:
-    // Player 기물이
-    // Enemy 진영의 비-King 기물을 공격할 때만 허용한다.
+    // Player 기물 → 일반 Enemy:
+    // 기존처럼 흡수 가능.
     //
-    // Neutral과 Enemy King에는 버튼을 표시하지 않는다.
+    // Player King → Enemy King:
+    // King끼리일 때만 Enemy King 흡수를 허용한다.
+    //
+    // 일반 Player 기물 → Enemy King:
+    // 기존처럼 흡수할 수 없다.
     private bool CanShowFieldAbsorbOpportunity(
         Piece targetPiece)
     {
@@ -576,10 +579,13 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
+        // Enemy King은 Player King만 흡수할 수 있다.
         if (targetPiece.PieceType ==
             PieceType.King)
         {
-            return false;
+            return
+                selectedPiece.PieceType ==
+                PieceType.King;
         }
 
         return true;
@@ -1770,13 +1776,20 @@ public class BattleManager : MonoBehaviour
                 yield break;
             }
 
-            // <변경부분> 흡수 모드이고 플레이어 기물이 적 기물을 잡는 경우
-            // 단, 상대 King은 흡수 대상에서 제외한다.
+            // 흡수 모드이고 Player 기물이 Enemy 기물을 공격하는 경우
+            // 기본적으로 흡수 공격을 허용한다.
+            //
+            // 단 Enemy King은 예외적으로
+            // Player King이 공격할 때만 흡수할 수 있다.
+            bool canAbsorbTarget =
+                targetPiece.PieceType != PieceType.King ||
+                actingPiece.PieceType == PieceType.King;
+
             bool isAbsorbAction =
                 isAbsorbMode &&
                 actingPiece.Team == PieceTeam.Player &&
                 targetPiece.Team == PieceTeam.Enemy &&
-                targetPiece.PieceType != PieceType.King;
+                canAbsorbTarget;
 
             // 제거될 기물의 소속을 미리 저장
             PieceTeam deadPieceTeam = targetPiece.Team;
@@ -2023,34 +2036,63 @@ public class BattleManager : MonoBehaviour
                 {
                     PieceType absorbedType =
                         targetPiece.PieceType;
-
-                    // Player King은 타입/외형/고유스킬을 유지하고
-                    // 일반스킬만 흡수한다.
+                   
                     if (actingPiece.PieceType ==
                         PieceType.King)
                     {
-                        pieceManager.AbsorbGeneralSkillsOnly(
-                            actingPiece,
-                            targetPiece
-                        );
+                        if (targetPiece.PieceType ==
+                            PieceType.King)
+                        {
+                            // King → King 완전 흡수
+                            //
+                            // AbsorbPiece는 대상의 PieceData / 타입 / 고유스킬 /
+                            // 종족 태그 / 일반스킬을 모두 복사한다.
+                            //
+                            // Team은 변경하지 않으므로 Player 소속은 그대로 유지된다.
+                            pieceManager.AbsorbPiece(
+                                actingPiece,
+                                targetPiece
+                            );
 
-                        Debug.Log(
-                            $"King 흡수 성공: " +
-                            $"{absorbedType}의 일반스킬만 흡수했습니다."
-                        );
+                            // 외형이 Enemy King 기준으로 변경되므로
+                            // 최종 위치에서 Born 애니메이션을 재생한다.
+                            shouldPlayAbsorbBornAnimation =
+                                true;
+
+                            Debug.Log(
+                                $"King 완전 흡수 성공: " +
+                                $"{absorbedType}의 외형, 고유스킬, 일반스킬을 모두 흡수했습니다."
+                            );
+                        }
+                        else
+                        {
+                            // King → 일반 Enemy는 기존 규칙 유지
+                            //
+                            // King의 외형/타입/고유스킬은 유지하고
+                            // 일반스킬만 흡수한다.
+                            pieceManager.AbsorbGeneralSkillsOnly(
+                                actingPiece,
+                                targetPiece
+                            );
+
+                            Debug.Log(
+                                $"King 일반 흡수 성공: " +
+                                $"{absorbedType}의 일반스킬만 흡수했습니다."
+                            );
+                        }
                     }
                     else
                     {
-                        // 일반 기물은 대상의 타입, 고유스킬,
-                        // 외형, 일반스킬을 흡수한다.
+                        // 일반 기물은 기존처럼
+                        // 대상의 타입, 고유스킬, 외형, 일반스킬을 모두 흡수한다.
                         pieceManager.AbsorbPiece(
                             actingPiece,
                             targetPiece
                         );
 
-                        // 외형이 변경된 일반 기물은
-                        // 최종 위치 확정 후 Born을 재생한다.
-                        shouldPlayAbsorbBornAnimation = true;
+                        // 외형 변경 후 최종 위치에서 Born 애니메이션 재생
+                        shouldPlayAbsorbBornAnimation =
+                            true;
 
                         Debug.Log(
                             $"흡수 성공: " +
@@ -2682,11 +2724,40 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
-        // Player King은 마지막 적의 일반스킬만 흡수한다.
-        pieceManager.AbsorbGeneralSkillsOnly(
-            playerKing,
-            targetPiece
-        );
+        // 마지막 Enemy가 King이면
+        // Player King도 일반 기물의 완전 흡수와 동일하게
+        // 대상 King의 외형 / PieceData / 고유스킬 / 일반스킬을 모두 흡수한다.
+        //
+        // 마지막 Enemy가 일반 기물이면
+        // 기존 Player King 규칙대로 일반스킬만 흡수한다.
+        bool absorbedEnemyKing =
+            targetPiece.PieceType ==
+            PieceType.King;
+
+        if (absorbedEnemyKing)
+        {
+            pieceManager.AbsorbPiece(
+                playerKing,
+                targetPiece
+            );
+
+            Debug.Log(
+                "마지막 Enemy King 완전 흡수: " +
+                "외형 / 고유스킬 / 일반스킬을 모두 흡수했습니다."
+            );
+        }
+        else
+        {
+            pieceManager.AbsorbGeneralSkillsOnly(
+                playerKing,
+                targetPiece
+            );
+
+            Debug.Log(
+                $"마지막 Enemy 일반 흡수: " +
+                $"{targetPiece.PieceType}의 일반스킬만 흡수했습니다."
+            );
+        }
 
         playerAbsorbCountThisBattle++;
 
@@ -2707,7 +2778,8 @@ public class BattleManager : MonoBehaviour
             deadPieceTeam
         );
 
-        // 공격 연출로 도착한 위치를 논리 좌표와 pieces 배열에 확정한다.
+        // 공격 연출로 도착한 위치를
+        // 논리 좌표와 pieces 배열에 확정한다.
         yield return
             pieceManager.MovePieceRoutine(
                 playerKing,
@@ -2716,7 +2788,17 @@ public class BattleManager : MonoBehaviour
                 false
             );
 
-        // <변경부분> 마무리 흡수 공격이 끝난 뒤
+        // Enemy King을 완전 흡수해 외형이 변경된 경우
+        // 일반 흡수와 동일하게 최종 위치에서 Born을 재생한다.
+        if (absorbedEnemyKing)
+        {
+            yield return
+                pieceManager.PlayPieceBornAnimation(
+                    playerKing
+                );
+        }
+
+        // 마무리 흡수 공격이 끝난 뒤
         // 공격 전 카메라 위치와 줌, 시간 배율로 복구한다.
         if (pixelCameraController != null)
         {
@@ -2770,8 +2852,11 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> Player King도 흡수 모드를 사용할 수 있음
-        // 단, 실제 흡수 처리에서는 외형/타입/고유스킬을 복사하지 않고 일반스킬만 흡수함
+        // Player King도 흡수 모드를 사용할 수 있다.
+        //
+        // 일반 Enemy를 흡수하면 일반스킬만 획득하고,
+        // Enemy King을 흡수하면 King끼리의 완전 흡수로
+        // 외형 / PieceData / 고유스킬 / 일반스킬을 모두 획득한다.
 
         // 흡수 모드 상태 반전
         isAbsorbMode = !isAbsorbMode;
@@ -4465,8 +4550,17 @@ public class BattleManager : MonoBehaviour
             return true;
         }
 
-        if (defeatConditions.HasFlag(BattleDefeatConditionType.AllNonKingPiecesDead) &&
-            pieceManager.HasAnyNonKingPiece(team) == false)
+        // "King을 제외한 모든 기물이 사망하면 패배" 조건은
+        // Player 진영에게만 적용한다.
+        //
+        // Enemy는 King 한 기만 남더라도 전투를 계속해서
+        // Player King의 마지막 일격 / King 흡수까지 진행할 수 있다.
+        if (team == PieceTeam.Player &&
+            defeatConditions.HasFlag(
+                BattleDefeatConditionType.AllNonKingPiecesDead) &&
+            pieceManager.HasAnyNonKingPiece(
+                PieceTeam.Player) ==
+                false)
         {
             return true;
         }

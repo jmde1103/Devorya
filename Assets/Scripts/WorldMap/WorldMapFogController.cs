@@ -705,18 +705,26 @@ public class WorldMapFogController : MonoBehaviour
         }
     }
 
-    // 두 노드 사이의 Route와 실제 PathTilemap을 기준으로
-    // 다음 탐사 후보 길을 옅게 표시한다.
+    // 두 노드 사이의 Connection Route Grid 좌표와
+    // 실제 PathTilemap을 기준으로 다음 탐사 후보 길을 표시한다.
     public void RevealPreviewRoute(
         MapNodeRuntime fromNode,
         MapNodeRuntime toNode,
-        WorldMapRouteData route,
-        bool useReverseWaypoints)
+        MapNodeConnectionData connection,
+        bool useReverseRoute)
     {
         if (isInitialized == false ||
             fromNode == null ||
             toNode == null ||
-            route == null)
+            connection == null)
+        {
+            return;
+        }
+
+        Grid mapGrid =
+            GetMapGrid();
+
+        if (mapGrid == null)
         {
             return;
         }
@@ -724,54 +732,67 @@ public class WorldMapFogController : MonoBehaviour
         List<Vector3> routePoints =
             new List<Vector3>();
 
+        // 출발 노드 중심을 Route 첫 지점으로 사용한다.
         routePoints.Add(
             fromNode.transform.position
         );
 
-        if (route.waypoints != null)
+        if (connection.routeGridPositions !=
+            null)
         {
-            if (useReverseWaypoints)
+            if (useReverseRoute)
             {
-                for (int i = route.waypoints.Count - 1;
+                // 역방향 Preview에서는 Route 좌표를 뒤에서부터 사용한다.
+                for (int i =
+                         connection.routeGridPositions.Count - 1;
                      i >= 0;
                      i--)
                 {
-                    Transform waypoint =
-                        route.waypoints[i];
+                    Vector2Int routeGridPosition =
+                        connection.routeGridPositions[i];
 
-                    if (waypoint != null)
-                    {
-                        routePoints.Add(
-                            waypoint.position
-                        );
-                    }
+                    routePoints.Add(
+                        mapGrid.GetCellCenterWorld(
+                            new Vector3Int(
+                                routeGridPosition.x,
+                                routeGridPosition.y,
+                                0
+                            )
+                        )
+                    );
                 }
             }
             else
             {
+                // 정방향 Preview에서는 저장된 순서를 그대로 사용한다.
                 for (int i = 0;
-                     i < route.waypoints.Count;
+                     i <
+                     connection.routeGridPositions.Count;
                      i++)
                 {
-                    Transform waypoint =
-                        route.waypoints[i];
+                    Vector2Int routeGridPosition =
+                        connection.routeGridPositions[i];
 
-                    if (waypoint != null)
-                    {
-                        routePoints.Add(
-                            waypoint.position
-                        );
-                    }
+                    routePoints.Add(
+                        mapGrid.GetCellCenterWorld(
+                            new Vector3Int(
+                                routeGridPosition.x,
+                                routeGridPosition.y,
+                                0
+                            )
+                        )
+                    );
                 }
             }
         }
 
+        // 마지막에는 목적지 노드 중심까지 연결한다.
         routePoints.Add(
             toNode.transform.position
         );
 
-        // 출발 노드, Waypoint, 목적지 노드 사이를
-        // Grid 셀 선으로 연결하여 실제 길 타일만 Preview 처리한다.
+        // 각 Route 지점 사이를 Grid 선으로 연결하여
+        // 실제 Path Tile이 있는 셀만 Preview 처리한다.
         for (int i = 0;
              i < routePoints.Count - 1;
              i++)
@@ -782,8 +803,6 @@ public class WorldMapFogController : MonoBehaviour
             );
         }
 
-        // 길뿐 아니라 목적지 노드 주변도
-        // 옅은 포그 상태로 위치를 표시한다.
         RevealPreviewNodeArea(
             toNode.transform.position
         );

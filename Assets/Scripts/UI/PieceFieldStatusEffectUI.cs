@@ -21,6 +21,13 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
     private StatusEffectDatabase statusEffectDatabase;
 
     [Header("Display")]
+    // 필드 상태효과 UI 전체를 감싸는 Canvas 루트
+    //
+    // 프리팹에서는 기본 OFF 상태로 두고,
+    // 상태효과가 하나 이상 존재할 때만 활성화한다.
+    [SerializeField]
+    private GameObject fieldStatusEffectCanvas;
+
     // 상태효과가 하나 이상 있을 때만 활성화할 말풍선 루트
     [SerializeField]
     private GameObject contentRoot;
@@ -69,12 +76,15 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
         // 시작 시 모든 슬롯과 말풍선을 숨긴다.
         Clear();
     }
-
     private void OnEnable()
     {
-        // 기물이 다시 활성화되면
-        // 현재 상태효과를 기준으로 표시를 다시 갱신한다.
-        Refresh();
+        // FieldStatusEffectCanvas 자체를 표시하기 위해
+        // SetActive(true)된 경우에는 Piece 쪽 Refresh 호출에서
+        // 이미 상태효과 데이터를 갱신하고 있으므로
+        // 여기서는 소유 기물과 Transform 연결 상태만 보정한다.
+        AutoBindOwnerPiece();
+        AutoBindDisplayRoots();
+        ApplyFieldTransform();
     }
 
     // <변경부분> 현재 기물이 보유한 상태효과를
@@ -305,18 +315,55 @@ public class PieceFieldStatusEffectUI : MonoBehaviour
         );
     }
 
-    // 말풍선 전체 표시 여부 변경
+    // 필드 상태효과 UI 전체 표시 여부를 변경한다.
+    //
+    // 상태효과가 하나 이상 있으면
+    // FieldStatusEffectCanvas와 ContentRoot를 함께 활성화한다.
+    //
+    // 상태효과가 모두 사라지면
+    // ContentRoot를 먼저 숨긴 뒤 Canvas 전체도 다시 비활성화한다.
     private void SetContentVisible(
         bool isVisible)
     {
-        if (contentRoot == null)
+        if (isVisible)
         {
+            // 프리팹에서 기본 비활성화된
+            // FieldStatusEffectCanvas를 먼저 활성화해야
+            // 그 아래 말풍선과 슬롯이 실제 화면에 표시될 수 있다.
+            if (fieldStatusEffectCanvas != null &&
+                fieldStatusEffectCanvas.activeSelf == false)
+            {
+                fieldStatusEffectCanvas.SetActive(
+                    true
+                );
+            }
+
+            if (contentRoot != null)
+            {
+                contentRoot.SetActive(
+                    true
+                );
+            }
+
             return;
         }
 
-        contentRoot.SetActive(
-            isVisible
-        );
+        // 상태효과가 없으면 내부 말풍선을 먼저 숨긴다.
+        if (contentRoot != null)
+        {
+            contentRoot.SetActive(
+                false
+            );
+        }
+
+        // 필드 상태효과 UI 전체도 다시 비활성화하여
+        // 기존 프리팹의 기본 OFF 구조를 유지한다.
+        if (fieldStatusEffectCanvas != null)
+        {
+            fieldStatusEffectCanvas.SetActive(
+                false
+            );
+        }
     }
 
     // PieceData에서 전달받은 기물별 위치와

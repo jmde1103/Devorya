@@ -1043,8 +1043,8 @@ MonoBehaviour:
   generalSkills: []
   speciesTags: 
   statusEffects: []
-  fieldStatusEffectUI: {fileID: 0}
-  skillActivationIcon: {fileID: 0}
+  fieldStatusEffectUI: {fileID: 2308755989219370503}
+  skillActivationIcon: {fileID: 8551879412161423565}
   uniqueSkillCooldown: 0
   uniqueSkillMaxCooldown: 1
   hasUsedUniqueSkillThisTurn: 0
@@ -1085,6 +1085,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceFieldStatusEffectUI
   ownerPiece: {fileID: 8909022500806026355}
   statusEffectDatabase: {fileID: 11400000, guid: f26ee5cc41fb04141a7cbc718f41c71f, type: 2}
+  fieldStatusEffectCanvas: {fileID: 1801068037993200748}
   contentRoot: {fileID: 4467440929546863325}
   bubbleRoot: {fileID: 4386011548134183902}
   statusEffectSlots:

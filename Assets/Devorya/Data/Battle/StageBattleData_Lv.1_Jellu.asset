@@ -18,10 +18,11 @@ MonoBehaviour:
   checkerTileTypeA: 0
   checkerTileTypeB: 1
   playerDefeatCondition: -1
-  enemyDefeatCondition: 2
+  enemyDefeatCondition: 10
   playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
   enemyFormationData: {fileID: 11400000, guid: 3e0186fc63322cb42b30def2eff14fc4, type: 2}
   battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
+  enemyUniqueSkillUseChance: 0
   enemyGeneralSkillGrantRules:
   - skillType: 1
     grantChancePercent: 30

@@ -16,16 +16,16 @@ MonoBehaviour:
   pieceType: 4
   uniqueSkill: 2
   canMove: 1
-  speciesTags: 
+  speciesTags: 01000000
   defaultGeneralSkills: []
   playerSprite: {fileID: 21300000, guid: 5b46de2e04bd6ae4dadbbb5f1eda3787, type: 3}
   enemySprite: {fileID: 21300000, guid: b8202c0c5def56c49a3211f3710ba995, type: 3}
   neutralSprite: {fileID: 0}
   absorbedPlayerBackSprite: {fileID: 21300000, guid: 5b46de2e04bd6ae4dadbbb5f1eda3787, type: 3}
-  playerSpineVisualPrefab: {fileID: 7882748522035567101, guid: 64ce6199f8cfba44a987746df2e1a7e4, type: 3}
+  playerSpineVisualPrefab: {fileID: 1705451011556856011, guid: f020606e926b56f47923693f89900373, type: 3}
   enemySpineVisualPrefab: {fileID: 6682378676729921298, guid: 988bec5a6b0f8944cb131a5498e38302, type: 3}
   neutralSpineVisualPrefab: {fileID: 0}
-  absorbedPlayerBackSpineVisualPrefab: {fileID: 7882748522035567101, guid: 64ce6199f8cfba44a987746df2e1a7e4, type: 3}
+  absorbedPlayerBackSpineVisualPrefab: {fileID: 1705451011556856011, guid: f020606e926b56f47923693f89900373, type: 3}
   playerStatusSprite: {fileID: 21300000, guid: b8202c0c5def56c49a3211f3710ba995, type: 3}
   enemyStatusSprite: {fileID: 21300000, guid: b8202c0c5def56c49a3211f3710ba995, type: 3}
   neutralStatusSprite: {fileID: 0}

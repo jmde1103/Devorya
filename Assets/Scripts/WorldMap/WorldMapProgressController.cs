@@ -87,15 +87,6 @@ public class WorldMapProgressController : MonoBehaviour
     private float markerAnimationInterval =
         0.05f;
 
-    [Header("Route")]
-    // 발표용 노드 사이 이동 경로 목록
-    //
-    // 각 경로는 출발 노드, 도착 노드,
-    // 실제로 따라갈 Waypoint Transform 목록으로 구성한다.
-    [SerializeField]
-    private List<WorldMapRouteData> routes =
-        new List<WorldMapRouteData>();
-
     [Header("Movement")]
     // 검은 구체가 경로를 따라 이동하는 속도
     //
@@ -533,39 +524,29 @@ public class WorldMapProgressController : MonoBehaviour
             return;
         }
 
-        // 현재 노드의 Connected Node IDs에
-        // 목적지 노드가 등록되어 있는지 확인한다.
-        if (IsConnectedNode(
+        MapNodeConnectionData connection;
+
+        bool useReverseRoute;
+
+        // 현재 노드 또는 목적지 노드에 저장된 Connection을 찾는다.
+        //
+        // 정방향:
+        // Current → Target Connection 사용
+        //
+        // 역방향:
+        // Target → Current Connection을 찾아
+        // Route Grid Positions를 역순으로 사용한다.
+        if (TryFindConnection(
                 currentNodeId,
-                targetNodeId) ==
+                targetNodeId,
+                out connection,
+                out useReverseRoute) ==
             false)
         {
             Debug.Log(
                 $"노드 이동 불가: " +
-                $"{currentNodeId}에서 {targetNodeId}로 연결된 길이 없습니다."
-            );
-
-            return;
-        }
-
-        WorldMapRouteData route;
-
-        bool useReverseWaypoints;
-
-        // 현재 이동 방향과 일치하는 Route를 찾는다.
-        //
-        // 역방향 이동이라면 기존 Route의 Waypoint를
-        // 마지막부터 처음 순서로 사용한다.
-        if (TryFindRoute(
-                currentNodeId,
-                targetNodeId,
-                out route,
-                out useReverseWaypoints) ==
-            false)
-        {
-            Debug.LogWarning(
-                $"노드 이동 실패: " +
-                $"{currentNodeId} ↔ {targetNodeId} 경로 데이터가 없습니다."
+                $"{currentNodeId} ↔ {targetNodeId} 사이에 " +
+                $"Connection이 없습니다."
             );
 
             return;
@@ -574,20 +555,31 @@ public class WorldMapProgressController : MonoBehaviour
         StartCoroutine(
             MoveMarkerToNodeRoutine(
                 targetNode,
-                route,
-                useReverseWaypoints
+                connection,
+                useReverseRoute
             )
         );
     }
 
-    // 두 노드 사이에 연결된 길이 존재하는지 검사한다.
+    // 두 노드 사이의 Connection을 찾는다.
     //
-    // 월드맵의 Connected Node IDs는 진행 방향 기준으로
-    // 한쪽 노드에만 등록되어 있어도 실제 길은 양방향으로 사용한다.
-    private bool IsConnectedNode(
+    // Connection은 한쪽 노드에만 등록되어 있어도
+    // 실제 이동에서는 양방향으로 사용할 수 있다.
+    //
+    // 역방향 Connection을 사용하면
+    // Route Grid Positions를 반대 순서로 이동한다.
+    private bool TryFindConnection(
         string fromNodeId,
-        string toNodeId)
+        string toNodeId,
+        out MapNodeConnectionData foundConnection,
+        out bool useReverseRoute)
     {
+        foundConnection =
+            null;
+
+        useReverseRoute =
+            false;
+
         MapNodePlacementData fromPlacement =
             FindPlacementById(
                 fromNodeId
@@ -598,87 +590,68 @@ public class WorldMapProgressController : MonoBehaviour
                 toNodeId
             );
 
-        // 현재 노드에서 목적지 노드로 직접 연결되어 있다면
-        // 기존 진행 방향 이동을 허용한다.
-        bool hasForwardConnection =
-            fromPlacement != null &&
-            fromPlacement.connectedNodeIds != null &&
-            fromPlacement.connectedNodeIds.Contains(
-                toNodeId
-            );
-
-        if (hasForwardConnection)
+        // 현재 노드 → 목적지 방향 Connection을 먼저 찾는다.
+        if (fromPlacement != null &&
+            fromPlacement.connections != null)
         {
-            return true;
+            for (int i = 0;
+                 i < fromPlacement.connections.Count;
+                 i++)
+            {
+                MapNodeConnectionData connection =
+                    fromPlacement.connections[i];
+
+                if (connection == null ||
+                    string.IsNullOrWhiteSpace(
+                        connection.targetNodeId))
+                {
+                    continue;
+                }
+
+                if (connection.targetNodeId.Trim() ==
+                    toNodeId.Trim())
+                {
+                    foundConnection =
+                        connection;
+
+                    useReverseRoute =
+                        false;
+
+                    return true;
+                }
+            }
         }
 
-        // 목적지 노드 쪽에서 현재 노드로 연결되어 있다면
-        // 같은 길을 역방향으로 돌아가는 이동을 허용한다.
-        bool hasReverseConnection =
-            toPlacement != null &&
-            toPlacement.connectedNodeIds != null &&
-            toPlacement.connectedNodeIds.Contains(
-                fromNodeId
-            );
-
-        return hasReverseConnection;
-    }
-
-    // 지정한 두 노드 사이의 Route를 찾고,
-    // Waypoint를 정방향으로 사용할지 역방향으로 사용할지 반환한다.
-    private bool TryFindRoute(
-        string fromNodeId,
-        string toNodeId,
-        out WorldMapRouteData foundRoute,
-        out bool useReverseWaypoints)
-    {
-        foundRoute =
-            null;
-
-        useReverseWaypoints =
-            false;
-
-        for (int i = 0;
-             i < routes.Count;
-             i++)
+        // 반대편 노드에 목적지 → 현재 Connection이 있다면
+        // 같은 Route를 역방향으로 사용할 수 있다.
+        if (toPlacement != null &&
+            toPlacement.connections != null)
         {
-            WorldMapRouteData route =
-                routes[i];
-
-            if (route == null)
+            for (int i = 0;
+                 i < toPlacement.connections.Count;
+                 i++)
             {
-                continue;
-            }
+                MapNodeConnectionData connection =
+                    toPlacement.connections[i];
 
-            // Route 데이터에 등록된 정방향 이동
-            if (route.fromNodeId ==
-                    fromNodeId &&
-                route.toNodeId ==
-                    toNodeId)
-            {
-                foundRoute =
-                    route;
+                if (connection == null ||
+                    string.IsNullOrWhiteSpace(
+                        connection.targetNodeId))
+                {
+                    continue;
+                }
 
-                useReverseWaypoints =
-                    false;
+                if (connection.targetNodeId.Trim() ==
+                    fromNodeId.Trim())
+                {
+                    foundConnection =
+                        connection;
 
-                return true;
-            }
+                    useReverseRoute =
+                        true;
 
-            // 기존 Route의 출발·도착이 반대라면
-            // Waypoint 순서를 뒤집어 같은 길을 역방향으로 사용한다.
-            if (route.fromNodeId ==
-                    toNodeId &&
-                route.toNodeId ==
-                    fromNodeId)
-            {
-                foundRoute =
-                    route;
-
-                useReverseWaypoints =
-                    true;
-
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -691,9 +664,9 @@ public class WorldMapProgressController : MonoBehaviour
     // 미클리어 노드에 도착하면 기존처럼 전투 씬으로 진입하고,
     // 이미 클리어된 노드에 도착하면 위치만 변경한 뒤 월드맵에 남는다.
     private IEnumerator MoveMarkerToNodeRoutine(
-      MapNodeRuntime targetNode,
-      WorldMapRouteData route,
-      bool useReverseWaypoints)
+    MapNodeRuntime targetNode,
+    MapNodeConnectionData connection,
+    bool useReverseRoute)
     {
         isMovingMarker =
             true;
@@ -709,50 +682,69 @@ public class WorldMapProgressController : MonoBehaviour
                 );
         }
 
-        if (route.waypoints != null)
+        // 현재 Connection에 저장된 Grid Route 좌표를
+        // 실제 월드 위치로 변환해 순서대로 이동한다.
+        if (connection != null &&
+            connection.routeGridPositions != null)
         {
-            if (useReverseWaypoints)
+            Grid mapGrid =
+                worldMapBuilder.MapGrid;
+
+            if (mapGrid != null)
             {
-                // 이전 클리어 노드로 돌아갈 때는
-                // 기존 Waypoint 목록을 마지막부터 처음 순서로 따라간다.
-                for (int i = route.waypoints.Count - 1;
-                     i >= 0;
-                     i--)
+                if (useReverseRoute)
                 {
-                    Transform waypoint =
-                        route.waypoints[i];
-
-                    if (waypoint == null)
+                    // 과거 노드로 돌아갈 때는
+                    // 저장된 Route Grid 좌표를 역순으로 따라간다.
+                    for (int i =
+                             connection.routeGridPositions.Count - 1;
+                         i >= 0;
+                         i--)
                     {
-                        continue;
-                    }
+                        Vector2Int routeGridPosition =
+                            connection.routeGridPositions[i];
 
-                    yield return
-                        MoveMarkerToPositionRoutine(
-                            waypoint.position
-                        );
+                        Vector3 routeWorldPosition =
+                            mapGrid.GetCellCenterWorld(
+                                new Vector3Int(
+                                    routeGridPosition.x,
+                                    routeGridPosition.y,
+                                    0
+                                )
+                            );
+
+                        yield return
+                            MoveMarkerToPositionRoutine(
+                                routeWorldPosition
+                            );
+                    }
                 }
-            }
-            else
-            {
-                // 새로운 노드 방향으로 이동할 때는
-                // 기존 Waypoint 순서를 그대로 사용한다.
-                for (int i = 0;
-                     i < route.waypoints.Count;
-                     i++)
+                else
                 {
-                    Transform waypoint =
-                        route.waypoints[i];
-
-                    if (waypoint == null)
+                    // 새로운 노드 방향으로 이동할 때는
+                    // 저장된 Route Grid 좌표 순서를 그대로 따른다.
+                    for (int i = 0;
+                         i <
+                         connection.routeGridPositions.Count;
+                         i++)
                     {
-                        continue;
-                    }
+                        Vector2Int routeGridPosition =
+                            connection.routeGridPositions[i];
 
-                    yield return
-                        MoveMarkerToPositionRoutine(
-                            waypoint.position
-                        );
+                        Vector3 routeWorldPosition =
+                            mapGrid.GetCellCenterWorld(
+                                new Vector3Int(
+                                    routeGridPosition.x,
+                                    routeGridPosition.y,
+                                    0
+                                )
+                            );
+
+                        yield return
+                            MoveMarkerToPositionRoutine(
+                                routeWorldPosition
+                            );
+                    }
                 }
             }
         }
@@ -841,15 +833,56 @@ public class WorldMapProgressController : MonoBehaviour
             yield break;
         }
 
-        // 미클리어 노드에 진입할 때만
-        // 전투 씬 이름을 가져오고 유효성을 검사한다.
+        // 미클리어 노드에 진입할 때
+        // 이동할 Scene과 해당 노드의 StageBattleData를 함께 가져온다.
         string targetSceneName =
             targetNode.GetTargetSceneName();
 
-        // 아직 클리어하지 않은 노드만
-        // 현재 전투 대상 노드로 등록한다.
+        StageBattleData targetStageBattleData =
+            targetNode.GetStageBattleData();
+
+        // Battle / BossBattle 노드는
+        // 실제 전투 StageBattleData가 반드시 필요하다.
+        //
+        // Event / Shop 등은 StageBattleData 없이
+        // 기존 Scene 이동만 사용할 수 있다.
+        MapNodeType targetNodeType =
+            targetNode.GetNodeType();
+
+        bool requiresBattleStageData =
+            targetNodeType == MapNodeType.Battle ||
+            targetNodeType == MapNodeType.BossBattle;
+
+        if (requiresBattleStageData &&
+            targetStageBattleData == null)
+        {
+            Debug.LogWarning(
+                $"전투 노드 진입 실패: " +
+                $"{targetNode.GetNodeDisplayName()} 노드에 " +
+                $"Stage Battle Data가 연결되지 않았습니다."
+            );
+
+            isMovingMarker =
+                false;
+
+            if (worldMapCameraController != null)
+            {
+                worldMapCameraController
+                    .SetMarkerFollow(
+                        null,
+                        false
+                    );
+            }
+
+            yield break;
+        }
+
+        // 아직 클리어하지 않은 노드의 ID와
+        // 해당 노드에서 사용할 StageBattleData를
+        // 다음 씬에서 사용할 런타임 상태로 저장한다.
         WorldMapRuntimeState.BeginBattleNode(
-            targetNodeId
+            targetNodeId,
+            targetStageBattleData
         );
 
         // 새로운 노드에 도착했을 때만
@@ -1225,7 +1258,8 @@ public class WorldMapProgressController : MonoBehaviour
     }
 
     // 현재 탐사 완료 노드를 중심으로
-    // 연결된 미탐사 노드와 해당 Route 길을 Preview 상태로 표시한다.
+    // Connections에 등록된 미탐사 노드와
+    // 해당 Route Grid 길을 Preview 상태로 표시한다.
     private void RefreshFogForCurrentNode()
     {
         if (worldMapFogController == null)
@@ -1252,8 +1286,6 @@ public class WorldMapProgressController : MonoBehaviour
             return;
         }
 
-        // 현재 위치한 노드 주변은
-        // 항상 완전히 탐사된 영역으로 처리한다.
         worldMapFogController
             .RevealExploredNodeArea(
                 currentNode.transform.position
@@ -1269,8 +1301,6 @@ public class WorldMapProgressController : MonoBehaviour
             return;
         }
 
-        // 아직 클리어되지 않은 노드에서는
-        // 연결된 다음 노드 Preview를 열지 않는다.
         bool isCurrentNodeCleared =
             currentNode.IsCleared() ||
             currentPlacement.initiallyCleared ||
@@ -1279,20 +1309,27 @@ public class WorldMapProgressController : MonoBehaviour
             );
 
         if (isCurrentNodeCleared == false ||
-            currentPlacement.connectedNodeIds ==
-                null)
+            currentPlacement.connections == null)
         {
             return;
         }
 
         for (int i = 0;
-             i <
-             currentPlacement.connectedNodeIds.Count;
+             i < currentPlacement.connections.Count;
              i++)
         {
+            MapNodeConnectionData connection =
+                currentPlacement.connections[i];
+
+            if (connection == null ||
+                string.IsNullOrWhiteSpace(
+                    connection.targetNodeId))
+            {
+                continue;
+            }
+
             string connectedNodeId =
-                currentPlacement
-                    .connectedNodeIds[i];
+                connection.targetNodeId.Trim();
 
             MapNodeRuntime connectedNode =
                 worldMapBuilder.GetGeneratedNode(
@@ -1304,8 +1341,6 @@ public class WorldMapProgressController : MonoBehaviour
                 continue;
             }
 
-            // 이미 탐사 완료된 노드는
-            // 기존 완전 탐사 포그 상태를 그대로 유지한다.
             if (connectedNode.IsCleared() ||
                 WorldMapRuntimeState.IsNodeCleared(
                     connectedNodeId))
@@ -1313,56 +1348,26 @@ public class WorldMapProgressController : MonoBehaviour
                 continue;
             }
 
-            // 현재 진행도에서 해금되지 않은 먼 노드는
-            // Preview 상태로도 공개하지 않는다.
             if (connectedNode.IsUnlocked() ==
                 false)
             {
                 continue;
             }
 
-            WorldMapRouteData route;
-
-            bool useReverseWaypoints;
-
-            if (TryFindRoute(
-                    currentNodeId,
-                    connectedNodeId,
-                    out route,
-                    out useReverseWaypoints))
-            {
-                // 현재 노드에서 연결된 미탐사 노드까지
-                // 실제 Route와 PathTilemap 길을 옅게 표시한다.
-                worldMapFogController
-                    .RevealPreviewRoute(
-                        currentNode,
-                        connectedNode,
-                        route,
-                        useReverseWaypoints
-                    );
-            }
-            else
-            {
-                // Route 데이터가 빠져 있더라도
-                // 연결된 목적지 노드의 위치는 Preview로 표시한다.
-                worldMapFogController
-                    .RevealPreviewNodeArea(
-                        connectedNode
-                            .transform
-                            .position
-                    );
-
-                Debug.LogWarning(
-                    $"포그 Route Preview 생략: " +
-                    $"{currentNodeId} ↔ {connectedNodeId} " +
-                    $"경로 데이터가 없습니다."
+            // Connection 자체에 저장된 Route Grid 좌표를 사용해
+            // 다음 탐사 후보 길과 목적지 노드를 Preview 처리한다.
+            worldMapFogController
+                .RevealPreviewRoute(
+                    currentNode,
+                    connectedNode,
+                    connection,
+                    false
                 );
-            }
         }
     }
 
-    // 클리어한 노드에 연결된 다음 노드들을
-    // 모두 런타임 해금 상태로 등록한다.
+    // 클리어한 노드의 Connections에 등록된
+    // 다음 목적지 노드들을 모두 해금한다.
     private void UnlockConnectedNodes(
         string clearedNodeId)
     {
@@ -1372,22 +1377,27 @@ public class WorldMapProgressController : MonoBehaviour
             );
 
         if (clearedPlacement == null ||
-            clearedPlacement.connectedNodeIds == null)
+            clearedPlacement.connections == null)
         {
             return;
         }
 
         for (int i = 0;
-             i <
-             clearedPlacement.connectedNodeIds.Count;
+             i < clearedPlacement.connections.Count;
              i++)
         {
-            string connectedNodeId =
-                clearedPlacement
-                    .connectedNodeIds[i];
+            MapNodeConnectionData connection =
+                clearedPlacement.connections[i];
+
+            if (connection == null ||
+                string.IsNullOrWhiteSpace(
+                    connection.targetNodeId))
+            {
+                continue;
+            }
 
             WorldMapRuntimeState.UnlockNode(
-                connectedNodeId
+                connection.targetNodeId.Trim()
             );
         }
     }
@@ -1448,22 +1458,4 @@ public class WorldMapProgressController : MonoBehaviour
 
         return null;
     }
-}
-
-// 발표용 노드 사이 이동 경로 데이터
-//
-// PathTilemap을 직접 길 찾기하지 않고
-// Scene에 배치한 Waypoint를 순서대로 따라간다.
-[Serializable]
-public class WorldMapRouteData
-{
-    // 경로가 시작되는 노드 ID
-    public string fromNodeId;
-
-    // 경로가 끝나는 노드 ID
-    public string toNodeId;
-
-    // 검은 구체가 순서대로 통과할 경유점 목록
-    public List<Transform> waypoints =
-        new List<Transform>();
 }

@@ -50,6 +50,12 @@ public class WorldMapNodeEditorWindow : EditorWindow
     private string newTargetSceneName =
         string.Empty;
 
+    // 새로 생성하는 전투 노드에서 사용할 StageBattleData
+    //
+    // Battle / BossBattle 노드에서는 실제 전투 구성을 결정한다.
+    [SerializeField]
+    private StageBattleData newStageBattleData;
+
     // 새 노드의 초기 해금 상태
     [SerializeField]
     private bool newNodeInitiallyUnlocked;
@@ -83,6 +89,9 @@ public class WorldMapNodeEditorWindow : EditorWindow
 
     // 선택된 노드의 이동 대상 씬 이름을 수정하기 위한 임시 값
     private string editTargetSceneName;
+
+    // 선택된 노드의 StageBattleData를 수정하기 위한 임시 값
+    private StageBattleData editStageBattleData;
 
     // 선택된 노드의 초기 해금 상태를 수정하기 위한 임시 값
     private bool editInitiallyUnlocked;
@@ -329,14 +338,24 @@ public class WorldMapNodeEditorWindow : EditorWindow
             );
 
         newTargetSceneName =
-            EditorGUILayout.TextField(
-                "Target Scene Name",
-                newTargetSceneName
+    EditorGUILayout.TextField(
+        "Target Scene Name",
+        newTargetSceneName
+    );
+
+        // Battle / BossBattle 노드에서 사용할
+        // 실제 StageBattleData를 직접 선택한다.
+        newStageBattleData =
+            (StageBattleData)EditorGUILayout.ObjectField(
+                "Stage Battle Data",
+                newStageBattleData,
+                typeof(StageBattleData),
+                false
             );
 
         newNodeInitiallyUnlocked =
             EditorGUILayout.Toggle(
-                "Initially Unlocked",
+                        "Initially Unlocked",
                 newNodeInitiallyUnlocked
             );
 
@@ -485,14 +504,24 @@ public class WorldMapNodeEditorWindow : EditorWindow
             );
 
         editTargetSceneName =
-            EditorGUILayout.TextField(
-                "Target Scene Name",
-                editTargetSceneName
+    EditorGUILayout.TextField(
+        "Target Scene Name",
+        editTargetSceneName
+    );
+
+        // 현재 선택된 전투 노드에 연결할
+        // StageBattleData를 변경한다.
+        editStageBattleData =
+            (StageBattleData)EditorGUILayout.ObjectField(
+                "Stage Battle Data",
+                editStageBattleData,
+                typeof(StageBattleData),
+                false
             );
 
         editInitiallyUnlocked =
             EditorGUILayout.Toggle(
-                "Initially Unlocked",
+                        "Initially Unlocked",
                 editInitiallyUnlocked
             );
 
@@ -503,17 +532,20 @@ public class WorldMapNodeEditorWindow : EditorWindow
             );
 
         editRevealRadius =
-            EditorGUILayout.IntField(
-                "Reveal Radius",
-                editRevealRadius
-            );
+    EditorGUILayout.IntField(
+        "Reveal Radius",
+        editRevealRadius
+    );
 
-        // 포그 공개 반경에는 음수가 들어가지 않도록 제한한다.
-        editRevealRadius =
-            Mathf.Max(
-                0,
-                editRevealRadius
-            );
+        EditorGUILayout.Space(6f);
+
+        // 노드 연결과 Route는 이제 생성된 MapNodeRuntime Inspector에서
+        // Target Node ID + Route Grid Positions를 한 세트로 관리한다.
+        EditorGUILayout.HelpBox(
+            "노드 연결과 Route는 생성된 MapNodeRuntime의 " +
+            "Connections에서 설정합니다.",
+            MessageType.Info
+        );
 
         if (editNodeType ==
             MapNodeType.Cleared)
@@ -966,7 +998,14 @@ public class WorldMapNodeEditorWindow : EditorWindow
             selectedStyle;
 
         newPlacement.targetSceneName =
-            newTargetSceneName;
+    newTargetSceneName;
+
+        // 새 노드에 선택한 StageBattleData를 저장한다.
+        //
+        // 전투 노드는 이 데이터가 BattleScene까지 전달되며,
+        // 전투가 아닌 노드는 null 상태도 허용한다.
+        newPlacement.stageBattleData =
+            newStageBattleData;
 
         // 클리어 노드는 시작 지점으로 사용할 수 있도록
         // 처음부터 해금·클리어 상태로 저장한다.
@@ -1072,7 +1111,7 @@ public class WorldMapNodeEditorWindow : EditorWindow
     }
 
     // 삭제되는 Node ID를 다른 노드들의
-    // Connected Node IDs 목록에서도 제거한다.
+    // Connection 목록에서도 함께 제거한다.
     private void RemoveNodeIdFromConnections(
         string removedNodeId)
     {
@@ -1094,15 +1133,16 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 placements[i];
 
             if (placement == null ||
-                placement.connectedNodeIds == null)
+                placement.connections == null)
             {
                 continue;
             }
 
-            placement.connectedNodeIds.RemoveAll(
-                connectedNodeId =>
-                    connectedNodeId ==
-                    removedNodeId
+            placement.connections.RemoveAll(
+                connection =>
+                    connection != null &&
+                    connection.targetNodeId ==
+                        removedNodeId
             );
         }
     }
@@ -1140,7 +1180,12 @@ public class WorldMapNodeEditorWindow : EditorWindow
             selectedPlacement.gridPosition;
 
         editTargetSceneName =
-            selectedPlacement.targetSceneName;
+     selectedPlacement.targetSceneName;
+
+        // 선택된 노드의 기존 StageBattleData를
+        // 수정용 임시 값에 복사한다.
+        editStageBattleData =
+            selectedPlacement.stageBattleData;
 
         editInitiallyUnlocked =
             selectedPlacement.initiallyUnlocked;
@@ -1149,7 +1194,9 @@ public class WorldMapNodeEditorWindow : EditorWindow
             selectedPlacement.initiallyCleared;
 
         editRevealRadius =
-            selectedPlacement.revealRadius;
+     selectedPlacement.revealRadius;
+
+       
     }
 
     // 현재 노드 선택과 수정용 임시 값을 초기화한다.
@@ -1168,7 +1215,12 @@ public class WorldMapNodeEditorWindow : EditorWindow
             Vector2Int.zero;
 
         editTargetSceneName =
-            string.Empty;
+     string.Empty;
+
+        // 이전에 선택했던 노드의
+        // StageBattleData 참조가 새 선택에 남지 않도록 초기화한다.
+        editStageBattleData =
+            null;
 
         editInitiallyUnlocked =
             false;
@@ -1177,7 +1229,7 @@ public class WorldMapNodeEditorWindow : EditorWindow
             false;
 
         editRevealRadius =
-            2;
+     2;
 
         Repaint();
     }
@@ -1268,7 +1320,12 @@ public class WorldMapNodeEditorWindow : EditorWindow
             editGridPosition;
 
         selectedPlacement.targetSceneName =
-            editTargetSceneName;
+     editTargetSceneName;
+
+        // 수정 UI에서 선택한 StageBattleData를
+        // 실제 MapNodePlacementData에 저장한다.
+        selectedPlacement.stageBattleData =
+            editStageBattleData;
 
         bool isClearedNode =
             editNodeType ==
@@ -1285,10 +1342,14 @@ public class WorldMapNodeEditorWindow : EditorWindow
             editInitiallyCleared;
 
         selectedPlacement.revealRadius =
-            Mathf.Max(
-                0,
-                editRevealRadius
-            );
+    Mathf.Max(
+        0,
+        editRevealRadius
+    );
+
+        // Connection과 Route는 MapNodeRuntime Inspector에서
+        // 별도로 수정하고 WorldMapData에 적용하므로
+        // 월드맵 노드 에디터에서는 건드리지 않는다.
 
         EditorUtility.SetDirty(
             mapData

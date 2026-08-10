@@ -11,11 +11,18 @@ public static class WorldMapRuntimeState
     // 현재 검은 구체가 위치한 노드 ID
     private static string currentNodeId;
 
-    // 현재 진입한 전투 노드 ID
+    /// 현재 진입한 전투 노드 ID
     //
     // 전투 승리 후 월드맵으로 돌아왔을 때
     // 어떤 노드를 클리어해야 하는지 확인할 때 사용한다.
     private static string enteredBattleNodeId;
+
+    // 맵 노드에서 선택되어
+    // 다음 BattleScene에서 사용할 StageBattleData.
+    //
+    // ScriptableObject 참조는 씬이 변경되어도
+    // 이 static 런타임 상태를 통해 유지된다.
+    private static StageBattleData pendingStageBattleData;
 
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
     private static bool hasPendingBattleWin;
@@ -69,6 +76,15 @@ public static class WorldMapRuntimeState
         get { return enteredBattleNodeId; }
     }
 
+    // 현재 맵에서 BattleScene으로 전달한
+    // StageBattleData를 반환한다.
+    //
+    // BattleSetupManager가 전투 시작 시 이 값을 사용한다.
+    public static StageBattleData PendingStageBattleData
+    {
+        get { return pendingStageBattleData; }
+    }
+
     // 월드맵을 처음 열었거나 런타임 상태가 비어 있을 때
     // 시작 노드의 초기 상태를 등록한다.
     public static void InitializeStartNode(
@@ -103,7 +119,8 @@ public static class WorldMapRuntimeState
     // 맵에서 전투 노드로 이동하기 직전에
     // 현재 목적지 노드 정보를 저장한다.
     public static void BeginBattleNode(
-        string battleNodeId)
+     string battleNodeId,
+     StageBattleData stageBattleData)
     {
         if (string.IsNullOrWhiteSpace(
                 battleNodeId))
@@ -111,8 +128,17 @@ public static class WorldMapRuntimeState
             return;
         }
 
+        // 전투 종료 후 어떤 맵 노드를
+        // 클리어 처리할지 저장한다.
         enteredBattleNodeId =
             battleNodeId;
+
+        // 현재 노드에서 선택된 실제 StageBattleData를 저장한다.
+        //
+        // 다음 BattleScene의 BattleSetupManager가
+        // 이 데이터를 직접 가져와 전투를 구성한다.
+        pendingStageBattleData =
+            stageBattleData;
 
         hasPendingBattleWin =
             false;
@@ -158,6 +184,11 @@ public static class WorldMapRuntimeState
         );
 
         enteredBattleNodeId =
+     null;
+
+        // 전투가 끝나고 월드맵에 복귀했으므로
+        // 이전 BattleScene에 전달했던 StageBattleData 참조도 제거한다.
+        pendingStageBattleData =
             null;
 
         hasPendingBattleWin =
@@ -400,6 +431,11 @@ public static class WorldMapRuntimeState
             null;
 
         enteredBattleNodeId =
+            null;
+
+        // 새 런 시작 시 이전에 전달했던
+        // 전투 StageBattleData 참조도 완전히 제거한다.
+        pendingStageBattleData =
             null;
 
         hasPendingBattleWin =

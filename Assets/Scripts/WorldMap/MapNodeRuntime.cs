@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // 월드맵에 실제로 생성된 노드의 표시와 클릭을 관리한다.
@@ -23,6 +24,24 @@ public class MapNodeRuntime : MonoBehaviour
     // 노드를 클릭했을 때 이동할 씬 이름
     [SerializeField]
     private string targetSceneName;
+
+    [Header("Battle Stage Data")]
+    // 현재 전투 노드에 연결된 실제 StageBattleData.
+    //
+    // WorldMapBuilder가 MapNodePlacementData의 값을
+    // 런타임 노드 생성 시 전달한다.
+    [SerializeField]
+    private StageBattleData stageBattleData;
+
+    [Header("Node Connection")]
+    // 현재 노드에서 연결되는 목적지와
+    // 해당 목적지까지 이동할 Route Grid 좌표를 함께 보관한다.
+    //
+    // WorldMapData의 MapNodePlacementData.connections를
+    // WorldMapBuilder가 생성 시 복사하여 전달한다.
+    [SerializeField]
+    private List<MapNodeConnectionData> connections =
+     new List<MapNodeConnectionData>();
 
     [Header("Node State")]
     // 현재 노드가 해금되어 클릭 가능한지 여부
@@ -124,11 +143,13 @@ public class MapNodeRuntime : MonoBehaviour
     // 맵 에디터가 노드를 생성할 때
     // 노드의 기본 정보를 한 번에 설정한다.
     public void Initialize(
-        string newNodeId,
-        string newDisplayName,
-        MapNodeStyleData newStyleData,
-        string newTargetSceneName,
-        bool unlocked)
+    string newNodeId,
+    string newDisplayName,
+    MapNodeStyleData newStyleData,
+    string newTargetSceneName,
+    StageBattleData newStageBattleData,
+    List<MapNodeConnectionData> newConnections,
+    bool unlocked)
     {
         nodeId =
             newNodeId;
@@ -142,10 +163,71 @@ public class MapNodeRuntime : MonoBehaviour
         targetSceneName =
             newTargetSceneName;
 
+        // 전투 노드에서 사용할 StageBattleData를
+        // 원본 MapNodePlacementData에서 전달받아 저장한다.
+        stageBattleData =
+            newStageBattleData;
+
+        // 노드 연결 정보와 Route 좌표를
+        // 원본 데이터와 별개의 새 객체로 복사한다.
+        //
+        // Inspector에서 수정해도 Apply 버튼을 누르기 전에는
+        // WorldMapData 원본이 바로 변경되지 않도록 한다.
+        connections =
+            CopyConnections(
+                newConnections
+            );
+
         isUnlocked =
             unlocked;
 
         ApplyStyle();
+    }
+
+    // 원본 MapNodeConnectionData 목록을
+    // 런타임 노드용 독립 복사본으로 생성한다.
+    private List<MapNodeConnectionData> CopyConnections(
+        List<MapNodeConnectionData> sourceConnections)
+    {
+        List<MapNodeConnectionData> copiedConnections =
+            new List<MapNodeConnectionData>();
+
+        if (sourceConnections == null)
+        {
+            return copiedConnections;
+        }
+
+        for (int i = 0;
+             i < sourceConnections.Count;
+             i++)
+        {
+            MapNodeConnectionData sourceConnection =
+                sourceConnections[i];
+
+            if (sourceConnection == null)
+            {
+                continue;
+            }
+
+            MapNodeConnectionData copiedConnection =
+                new MapNodeConnectionData();
+
+            copiedConnection.targetNodeId =
+                sourceConnection.targetNodeId;
+
+            copiedConnection.routeGridPositions =
+                sourceConnection.routeGridPositions != null
+                    ? new List<Vector2Int>(
+                        sourceConnection.routeGridPositions
+                    )
+                    : new List<Vector2Int>();
+
+            copiedConnections.Add(
+                copiedConnection
+            );
+        }
+
+        return copiedConnections;
     }
 
     private void OnMouseDown()
@@ -209,12 +291,36 @@ public class MapNodeRuntime : MonoBehaviour
         // 이미 클리어된 노드는 마커 위치만 이동하므로
         // Target Scene Name이 비어 있어도 정상 처리한다.
         if (isCleared == false &&
-            string.IsNullOrWhiteSpace(
-                targetSceneName))
+    string.IsNullOrWhiteSpace(
+        targetSceneName))
         {
             Debug.LogWarning(
                 $"맵 노드 진입 실패: " +
                 $"{nodeDisplayName} 노드의 Target Scene Name이 비어 있습니다."
+            );
+
+            return;
+        }
+
+        // Battle / BossBattle 노드는
+        // BattleScene과 함께 실제 StageBattleData가 반드시 필요하다.
+        //
+        // Event, Shop 등 전투가 아닌 노드는
+        // StageBattleData가 없어도 정상 진입할 수 있다.
+        MapNodeType currentNodeType =
+            GetNodeType();
+
+        bool requiresBattleStageData =
+            currentNodeType == MapNodeType.Battle ||
+            currentNodeType == MapNodeType.BossBattle;
+
+        if (isCleared == false &&
+            requiresBattleStageData &&
+            stageBattleData == null)
+        {
+            Debug.LogWarning(
+                $"맵 노드 진입 실패: " +
+                $"{nodeDisplayName} 노드에 Stage Battle Data가 연결되지 않았습니다."
             );
 
             return;
@@ -294,10 +400,69 @@ public class MapNodeRuntime : MonoBehaviour
         return nodeDisplayName;
     }
 
-    // 노드에 연결된 전투 또는 이벤트 씬 이름을 반환한다.
     public string GetTargetSceneName()
     {
         return targetSceneName;
+    }
+
+    // 현재 노드에 연결된 전투 스테이지 데이터를 반환한다.
+    //
+    // Battle / BossBattle 노드에서는
+    // BattleSetupManager로 전달될 실제 전투 데이터다.
+    public StageBattleData GetStageBattleData()
+    {
+        return stageBattleData;
+    }
+
+    // 현재 노드에 설정된
+    // 연결 대상 Node ID와 Route 데이터를 반환한다.
+    //
+    // 원본 런타임 리스트가 외부에서 직접 수정되지 않도록
+    // Connection과 Route 좌표를 모두 복사해서 반환한다.
+    public List<MapNodeConnectionData> GetConnectionsCopy()
+    {
+        return CopyConnections(
+            connections
+        );
+    }
+
+    // 현재 노드에서 지정한 목적지 노드로 이어지는
+    // Connection 데이터를 찾는다.
+    public MapNodeConnectionData GetConnectionToNode(
+        string targetNodeId)
+    {
+        if (connections == null ||
+            string.IsNullOrWhiteSpace(
+                targetNodeId))
+        {
+            return null;
+        }
+
+        string normalizedTargetNodeId =
+            targetNodeId.Trim();
+
+        for (int i = 0;
+             i < connections.Count;
+             i++)
+        {
+            MapNodeConnectionData connection =
+                connections[i];
+
+            if (connection == null ||
+                string.IsNullOrWhiteSpace(
+                    connection.targetNodeId))
+            {
+                continue;
+            }
+
+            if (connection.targetNodeId.Trim() ==
+                normalizedTargetNodeId)
+            {
+                return connection;
+            }
+        }
+
+        return null;
     }
 
     // 현재 노드가 해금 상태인지 반환한다.

@@ -276,15 +276,23 @@ public class WorldMapBuilder : MonoBehaviour
             $"({placementData.gridPosition.x}," +
             $"{placementData.gridPosition.y})";
 
-        // 배치 데이터의 ID, 표시 이름, 스타일, 씬 이름,
+        // 배치 데이터의 ID, 표시 이름, 스타일,
+        // 이동할 씬 이름, 실제 전투 StageBattleData,
+        // 연결된 다음 Node ID 목록,
         // 초기 해금 상태를 런타임 노드에 전달한다.
         createdNode.Initialize(
-            placementData.nodeId,
-            placementData.nodeDisplayName,
-            placementData.nodeStyleData,
-            placementData.targetSceneName,
-            placementData.initiallyUnlocked
-        );
+    placementData.nodeId,
+    placementData.nodeDisplayName,
+    placementData.nodeStyleData,
+    placementData.targetSceneName,
+    placementData.stageBattleData,
+
+    // 연결 대상 Node ID와 Route Grid 좌표를
+    // 한 세트로 런타임 노드에 전달한다.
+    placementData.connections,
+
+    placementData.initiallyUnlocked
+);
 
         // 시작 지점처럼 처음부터 클리어된 노드는
         // 배치 데이터의 초기 상태를 그대로 적용한다.
@@ -381,5 +389,191 @@ public class WorldMapBuilder : MonoBehaviour
         }
 
         return null;
+    }
+
+    // MapNodeRuntime Inspector에서 수정한
+    // 연결 대상 Node ID와 Route Grid 좌표를
+    // 같은 Node ID를 가진 원본 WorldMapData에 함께 저장한다.
+    //
+    // 해금·클리어 같은 런타임 진행 상태는
+    // 원본 데이터에 저장하지 않는다.
+    public bool ApplyConnectionsFromRuntime(
+        MapNodeRuntime runtimeNode)
+    {
+        if (runtimeNode == null)
+        {
+            Debug.LogWarning(
+                "노드 연결 정보 적용 실패: " +
+                "MapNodeRuntime이 없습니다."
+            );
+
+            return false;
+        }
+
+        if (worldMapData == null ||
+            worldMapData.nodePlacements == null)
+        {
+            Debug.LogWarning(
+                "노드 연결 정보 적용 실패: " +
+                "WorldMapData가 연결되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        string targetNodeId =
+            runtimeNode.GetNodeId();
+
+        if (string.IsNullOrWhiteSpace(
+                targetNodeId))
+        {
+            Debug.LogWarning(
+                "노드 연결 정보 적용 실패: " +
+                "Node ID가 비어 있습니다."
+            );
+
+            return false;
+        }
+
+        MapNodePlacementData foundPlacement =
+            null;
+
+        // 같은 Node ID를 가진 원본 노드 데이터를 찾는다.
+        for (int i = 0;
+             i < worldMapData.nodePlacements.Count;
+             i++)
+        {
+            MapNodePlacementData placement =
+                worldMapData.nodePlacements[i];
+
+            if (placement == null ||
+                string.IsNullOrWhiteSpace(
+                    placement.nodeId))
+            {
+                continue;
+            }
+
+            if (placement.nodeId.Trim() !=
+                targetNodeId.Trim())
+            {
+                continue;
+            }
+
+            foundPlacement =
+                placement;
+
+            break;
+        }
+
+        if (foundPlacement == null)
+        {
+            Debug.LogWarning(
+                $"노드 연결 정보 적용 실패: " +
+                $"{targetNodeId}에 해당하는 " +
+                $"MapNodePlacementData를 찾지 못했습니다."
+            );
+
+            return false;
+        }
+
+        List<MapNodeConnectionData> runtimeConnections =
+            runtimeNode.GetConnectionsCopy();
+
+        // 기존 Connection 목록을 새 데이터로 교체한다.
+        foundPlacement.connections =
+            new List<MapNodeConnectionData>();
+
+        for (int i = 0;
+             i < runtimeConnections.Count;
+             i++)
+        {
+            MapNodeConnectionData runtimeConnection =
+                runtimeConnections[i];
+
+            if (runtimeConnection == null ||
+                string.IsNullOrWhiteSpace(
+                    runtimeConnection.targetNodeId))
+            {
+                continue;
+            }
+
+            string normalizedConnectedNodeId =
+                runtimeConnection.targetNodeId.Trim();
+
+            // 자기 자신으로 연결되는 Connection은 저장하지 않는다.
+            if (normalizedConnectedNodeId ==
+                targetNodeId.Trim())
+            {
+                Debug.LogWarning(
+                    $"노드 자기 연결 제외: " +
+                    $"{targetNodeId}"
+                );
+
+                continue;
+            }
+
+            // 같은 목적지 Connection이 중복 저장되지 않도록 검사한다.
+            bool alreadyAdded =
+                false;
+
+            for (int j = 0;
+                 j < foundPlacement.connections.Count;
+                 j++)
+            {
+                MapNodeConnectionData existingConnection =
+                    foundPlacement.connections[j];
+
+                if (existingConnection != null &&
+                    existingConnection.targetNodeId ==
+                        normalizedConnectedNodeId)
+                {
+                    alreadyAdded =
+                        true;
+
+                    break;
+                }
+            }
+
+            if (alreadyAdded)
+            {
+                continue;
+            }
+
+            MapNodeConnectionData savedConnection =
+                new MapNodeConnectionData();
+
+            savedConnection.targetNodeId =
+                normalizedConnectedNodeId;
+
+            // Route Grid 좌표도 원본과 별도의 List로 복사한다.
+            savedConnection.routeGridPositions =
+                runtimeConnection.routeGridPositions != null
+                    ? new List<Vector2Int>(
+                        runtimeConnection.routeGridPositions
+                    )
+                    : new List<Vector2Int>();
+
+            foundPlacement.connections.Add(
+                savedConnection
+            );
+        }
+
+#if UNITY_EDITOR
+        // 에디터에서 변경한 WorldMapData를
+        // 실제 ScriptableObject 에셋에 저장한다.
+        UnityEditor.EditorUtility.SetDirty(
+            worldMapData
+        );
+
+        UnityEditor.AssetDatabase.SaveAssets();
+#endif
+
+        Debug.Log(
+            $"노드 연결/Route 적용 완료: " +
+            $"{targetNodeId} / " +
+            $"Connection {foundPlacement.connections.Count}개"
+        );
+
+        return true;
     }
 }
