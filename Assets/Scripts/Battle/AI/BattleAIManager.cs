@@ -17,6 +17,22 @@ public class BattleAIManager : MonoBehaviour
     [SerializeField, Min(1)]
     private int maxActionsPerEnemyTurn = 10;
 
+    // <변경부분> 현재 StageBattleData에서 전달받은
+    // Enemy AI 고유스킬 사용 허용 확률.
+    //
+    // 기본값 100%는 기존 AI 동작을 그대로 유지한다.
+    private float uniqueSkillUseChance =
+        100f;
+
+    // <변경부분> 현재 Enemy 턴에서
+    // 고유스킬 후보를 사용할 수 있는지 저장한다.
+    //
+    // Enemy 턴 시작 시 확률을 딱 한 번만 판정하며,
+    // 고유스킬 사용 후 재평가나 ChanceAttack 추가 행동에서도
+    // 같은 결과를 계속 사용한다.
+    private bool allowUniqueSkillThisEnemyTurn =
+        true;
+
     // 실제 전투 규칙과 행동 실행을 담당하는 매니저
     private BattleManager battleManager;
 
@@ -47,6 +63,27 @@ public class BattleAIManager : MonoBehaviour
 
     // 같은 Enemy 턴에 AI 코루틴이 중복 실행되는 것을 방지한다.
     private Coroutine enemyTurnRoutine;
+
+    // <변경부분> 현재 스테이지에서 사용할
+    // Enemy AI 고유스킬 사용 확률을 적용한다.
+    //
+    // StageBattleData → BattleSetupManager
+    // → BattleManager → BattleAIManager 순서로 전달된다.
+    public void SetUniqueSkillUseChance(
+        float chancePercent)
+    {
+        uniqueSkillUseChance =
+            Mathf.Clamp(
+                chancePercent,
+                0f,
+                100f
+            );
+
+        Debug.Log(
+            $"Enemy AI 고유스킬 사용 확률 적용: " +
+            $"{uniqueSkillUseChance}%"
+        );
+    }
 
     // <변경부분> BattleManager가 전투 시작 시 한 번 호출하는 초기화 함수
     public void Initialize(BattleManager manager)
@@ -92,16 +129,20 @@ public class BattleAIManager : MonoBehaviour
             );
     }
 
+
+
     // <변경부분> 턴이 시작될 때 BattleManager가 호출한다.
     // Enemy AI가 비활성화되어 있으면 기존 수동 조작을 그대로 유지한다.
-    public void HandleTurnStarted(BattleTurn startedTurn)
+    public void HandleTurnStarted(
+    BattleTurn startedTurn)
     {
         if (controlEnemyWithAI == false)
         {
             return;
         }
 
-        if (startedTurn != BattleTurn.Enemy)
+        if (startedTurn !=
+            BattleTurn.Enemy)
         {
             return;
         }
@@ -114,11 +155,100 @@ public class BattleAIManager : MonoBehaviour
 
         if (enemyTurnRoutine != null)
         {
-            StopCoroutine(enemyTurnRoutine);
+            StopCoroutine(
+                enemyTurnRoutine
+            );
         }
 
+        // <변경부분> Enemy 턴이 시작되는 순간
+        // StageBattleData에서 받은 확률을 한 번만 판정한다.
+        //
+        // 같은 Enemy 턴 안에서 고유스킬 사용 후 재평가하거나
+        // ChanceAttack 추가 행동이 발생해도 다시 랜덤을 굴리지 않는다.
+        allowUniqueSkillThisEnemyTurn =
+            RollUniqueSkillUseForCurrentEnemyTurn();
+
+        Debug.Log(
+            $"Enemy AI 이번 턴 고유스킬 사용 여부: " +
+            $"{allowUniqueSkillThisEnemyTurn} / " +
+            $"스테이지 확률 {uniqueSkillUseChance}%"
+        );
+
         enemyTurnRoutine =
-            StartCoroutine(ExecuteEnemyTurnRoutine());
+            StartCoroutine(
+                ExecuteEnemyTurnRoutine()
+            );
+    }
+
+    // <변경부분> 현재 Enemy 턴에
+    // 고유스킬을 사용할 수 있을지 한 번만 추첨한다.
+    private bool RollUniqueSkillUseForCurrentEnemyTurn()
+    {
+        // 0%는 랜덤 호출 없이 확실하게 차단한다.
+        if (uniqueSkillUseChance <= 0f)
+        {
+            return false;
+        }
+
+        // 100%는 랜덤 호출 없이 기존 AI를 그대로 허용한다.
+        if (uniqueSkillUseChance >= 100f)
+        {
+            return true;
+        }
+
+        float rolledValue =
+            Random.Range(
+                0f,
+                100f
+            );
+
+        return
+            rolledValue <
+            uniqueSkillUseChance;
+    }
+
+    // <변경부분> 이번 Enemy 턴에서 고유스킬 사용이 허용되지 않았다면
+    // 생성된 행동 후보 중 UniqueSkill만 제거한다.
+    //
+    // 일반 이동과 공격 후보는 그대로 유지한다.
+    private void RemoveUniqueSkillActionsForCurrentTurn(
+        List<BattleAIAction> actions)
+    {
+        if (allowUniqueSkillThisEnemyTurn)
+        {
+            return;
+        }
+
+        if (actions == null ||
+            actions.Count == 0)
+        {
+            return;
+        }
+
+        // 뒤에서부터 제거하여
+        // List 인덱스 변경 문제를 방지한다.
+        for (int i = actions.Count - 1;
+             i >= 0;
+             i--)
+        {
+            BattleAIAction action =
+                actions[i];
+
+            if (action == null)
+            {
+                continue;
+            }
+
+            if (action.ActionType !=
+                BattleAIActionType.UniqueSkill)
+            {
+                continue;
+            }
+
+            actions.RemoveAt(
+                i
+            );
+        }
     }
 
     // <변경부분> 현재 Enemy 진영을 AI가 조작하는지 반환한다.
@@ -190,6 +320,15 @@ public class BattleAIManager : MonoBehaviour
                     actionCandidates
                 );
             }
+
+            // <변경부분> 이번 Enemy 턴의
+            // 스테이지 고유스킬 사용 확률 판정에 실패했다면
+            // 고유스킬 후보만 제거한다.
+            //
+            // 이동과 공격 후보는 기존 AI 그대로 유지한다.
+            RemoveUniqueSkillActionsForCurrentTurn(
+                actionCandidates
+            );
 
             // 행동 가능한 후보가 없다면 현재 상황에 따라 처리한다.
             if (actionCandidates.Count == 0)

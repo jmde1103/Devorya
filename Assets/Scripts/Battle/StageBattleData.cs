@@ -48,6 +48,22 @@ public class StageBattleData : ScriptableObject
     // 여러 StageBattleData가 같은 BattleRewardData를 공유할 수 있다.
     public BattleRewardData battleRewardData;
 
+    [Header("Enemy AI")]
+    // <변경부분> Enemy AI가 자신의 턴에
+    // 고유스킬 사용을 고려할 확률.
+    //
+    // 0%:
+    // 이 스테이지에서는 Enemy AI가 고유스킬을 전혀 사용하지 않는다.
+    //
+    // 100%:
+    // 기존 AI와 동일하게 고유스킬 후보를 정상적으로 평가한다.
+    //
+    // 실제 스킬의 전술적 사용 여부와 개별 확률은
+    // BattleAIActionEvaluator의 기존 판단을 그대로 사용한다.
+    [Range(0f, 100f)]
+    public float enemyUniqueSkillUseChance =
+        100f;
+
     [Header("Enemy General Skill Grant Rules")]
     // <변경부분> 스테이지 시작 시 적 기물에게 랜덤으로 부여할 일반스킬 규칙 목록
     // BattleSetupManager가 이 배열을 읽어서 Enemy 기물에게만 적용한다.

@@ -2337,13 +2337,40 @@ public class BattleManager : MonoBehaviour
     }
     // <변경부분> StageBattleData에서 받은 진영별 패배 조건을 적용하는 함수
     public void SetBattleEndCondition(
-        BattleDefeatConditionType playerCondition,
-        BattleDefeatConditionType enemyCondition)
+     BattleDefeatConditionType playerCondition,
+     BattleDefeatConditionType enemyCondition)
     {
-        playerDefeatCondition = playerCondition;
-        enemyDefeatCondition = enemyCondition;
+        playerDefeatCondition =
+            playerCondition;
 
-        Debug.Log($"승패 조건 적용: Player={playerDefeatCondition} / Enemy={enemyDefeatCondition}");
+        enemyDefeatCondition =
+            enemyCondition;
+
+        Debug.Log(
+            $"승패 조건 적용: " +
+            $"Player={playerDefeatCondition} / " +
+            $"Enemy={enemyDefeatCondition}"
+        );
+    }
+
+    // <변경부분> StageBattleData에서 설정한
+    // Enemy AI 고유스킬 사용 확률을 AI 매니저에 전달한다.
+    public void SetEnemyAIUniqueSkillUseChance(
+        float chancePercent)
+    {
+        if (battleAIManager == null)
+        {
+            Debug.LogWarning(
+                "Enemy AI 고유스킬 사용 확률 적용 실패: " +
+                "BattleAIManager가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        battleAIManager.SetUniqueSkillUseChance(
+            chancePercent
+        );
     }
 
     // 일반 전투에서 기권하는 함수

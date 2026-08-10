@@ -91,6 +91,15 @@ public class BattleSetupManager : MonoBehaviour
             stageBattleData.enemyDefeatCondition
         );
 
+        // <변경부분> 현재 스테이지에서 Enemy AI가
+        // 고유스킬 사용을 고려할 확률을 BattleManager를 통해 전달한다.
+        //
+        // 0%면 Enemy AI는 고유스킬을 전혀 사용하지 않고,
+        // 100%면 기존 AI 판단을 그대로 사용한다.
+        battleManager.SetEnemyAIUniqueSkillUseChance(
+            stageBattleData.enemyUniqueSkillUseChance
+        );
+
         // <변경부분> 현재 스테이지의 전투 보상 데이터를 BattleEndFlowController에 전달
         battleEndFlowController.SetBattleRewardData(
             stageBattleData.battleRewardData
