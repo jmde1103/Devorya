@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4c737e0e26ace341a044c02977ba682, type: 3}
+  m_Name: TileData_Metal Dark
+  m_EditorClassIdentifier: Assembly-CSharp::TileData
+  tileType: 5
+  tileSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  isWalkable: 1
+  hasObstacle: 0
+  defaultTileEffects: 

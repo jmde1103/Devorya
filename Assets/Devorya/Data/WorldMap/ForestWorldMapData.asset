@@ -24,7 +24,7 @@ MonoBehaviour:
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleLevel1Scene
-    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+    stageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
