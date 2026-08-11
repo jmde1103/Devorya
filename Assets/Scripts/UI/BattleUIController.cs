@@ -9,6 +9,15 @@ public class BattleUIController : MonoBehaviour
     [Header("Manager")]
     [SerializeField] private BattleManager battleManager;
 
+    [Header("Event Sequence")]
+    // <변경부분> 튜토리얼 / 이벤트에서
+    // 특정 전투 UI 버튼만 허용하기 위한 별도 컨트롤러
+    //
+    // 연결하지 않거나 Event Sequence가 실행되지 않으면
+    // 기존 Battle UI에는 아무 영향도 주지 않는다.
+    [SerializeField]
+    private EventSequenceController eventSequenceController;
+
     [Header("Action Buttons")]
     [SerializeField] private Button absorbButton;
     [SerializeField] private Button uniqueSkillButton;
@@ -174,6 +183,17 @@ public class BattleUIController : MonoBehaviour
 
     private void Start()
     {
+        // <변경부분> Inspector 연결이 비어 있는 경우
+        // 현재 씬의 EventSequenceController를 자동으로 찾는다.
+        //
+        // 일반 전투씬처럼 Controller가 존재하지 않아도
+        // null 상태로 그대로 진행하므로 기존 Battle에는 영향이 없다.
+        if (eventSequenceController == null)
+        {
+            eventSequenceController =
+                FindObjectOfType<EventSequenceController>();
+        }
+
         // 흡수 버튼 클릭 이벤트 연결
         if (absorbButton != null)
         {
@@ -267,19 +287,32 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
-        // 흡수 또는 체크 아이콘 위치에서
-        // 기존 픽셀 파티클 연출 재생
+        // <변경부분> 같은 Absorb Button이라도
+        // 초기 배치 중에는 DeploymentConfirm,
+        // 그 외에는 Absorb 입력으로 구분한다.
+        EventSequenceButtonType currentButtonType =
+            battleManager.IsPlayerDeploymentPhase
+                ? EventSequenceButtonType.DeploymentConfirm
+                : EventSequenceButtonType.Absorb;
+
+        // <변경부분> ForceButton이 진행 중이라면
+        // 현재 Step에서 허용한 버튼이 아닌 경우
+        // 파티클 / 노이즈 / Battle 기능까지 모두 실행하지 않는다.
+        if (eventSequenceController != null &&
+            eventSequenceController.CanPressButton(
+                currentButtonType) ==
+            false)
+        {
+            return;
+        }
+
+        // 허용된 버튼 입력에서만 기존 픽셀 파티클 연출 재생
         PlayIconPixelBurst(
             absorbIconPixelBurstAnchor
         );
 
-        // <변경부분> 초기 배치 단계에서는
-        // 현재 클릭 이벤트와 버튼 노이즈 애니메이션 호출이 모두 끝난 뒤
-        // 다음 프레임에 배치 완료 처리를 실행한다.
-        //
-        // 같은 클릭 프레임 안에서 Absorb Button을 비활성화하면
-        // UIButtonNoiseAnimator가 비활성 오브젝트에서 코루틴을 시작하려 해
-        // Coroutine couldn't be started 오류가 발생한다.
+        // 초기 배치 단계에서는
+        // 실제 Confirm이 끝난 뒤 ForceButton 완료를 통지한다.
         if (battleManager.IsPlayerDeploymentPhase)
         {
             StartCoroutine(
@@ -289,16 +322,32 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
-        // <변경부분> 마지막 Enemy 1기 강제 흡수가 가능한 상태라면
-        // 일반 흡수 모드 대신 Player King의 즉시 흡수 공격을 실행한다.
+        // 마지막 Enemy 1기 강제 흡수
         if (battleManager.TryStartLastEnemyAbsorb())
         {
+            // <변경부분> 실제 마무리 흡수 요청이 시작됐으므로
+            // Absorb ForceButton 입력 완료를 통지한다.
+            if (eventSequenceController != null)
+            {
+                eventSequenceController.NotifyButtonPressed(
+                    EventSequenceButtonType.Absorb
+                );
+            }
+
             return;
         }
 
-        // 마지막 적 강제 흡수 조건이 아니라면
-        // 기존 흡수 버튼처럼 흡수 모드를 ON/OFF 한다.
+        // 기존 하단 흡수 모드 처리
         battleManager.ToggleAbsorbMode();
+
+        // <변경부분> 허용된 Absorb 버튼 클릭을 처리했으므로
+        // ForceButton Step 완료를 통지한다.
+        if (eventSequenceController != null)
+        {
+            eventSequenceController.NotifyButtonPressed(
+                EventSequenceButtonType.Absorb
+            );
+        }
     }
 
     // <변경부분> 체크 버튼 클릭과 UIButtonNoiseAnimator 호출이
@@ -316,6 +365,15 @@ public class BattleUIController : MonoBehaviour
         }
 
         battleManager.ConfirmPlayerDeployment();
+
+        // <변경부분> 실제 초기 배치 완료 처리가 실행된 뒤에만
+        // DeploymentConfirm ForceButton Step을 완료한다.
+        if (eventSequenceController != null)
+        {
+            eventSequenceController.NotifyButtonPressed(
+                EventSequenceButtonType.DeploymentConfirm
+            );
+        }
     }
 
     // <변경부분> 고유 스킬 버튼 클릭 시 BattleManager의 고유 스킬 사용 호출
@@ -323,14 +381,39 @@ public class BattleUIController : MonoBehaviour
     {
         if (battleManager == null)
         {
-            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "BattleManager가 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        // <변경부분> 고유스킬 아이콘 클릭 위치에서 검은 픽셀 파티클 재생
-        PlayIconPixelBurst(uniqueSkillIconPixelBurstAnchor);
+        // <변경부분> ForceButton 중에는
+        // UniqueSkill이 현재 허용된 버튼일 때만 실행한다.
+        if (eventSequenceController != null &&
+            eventSequenceController.CanPressButton(
+                EventSequenceButtonType.UniqueSkill) ==
+            false)
+        {
+            return;
+        }
 
+        // 허용된 클릭에서만 기존 픽셀 파티클 연출 실행
+        PlayIconPixelBurst(
+            uniqueSkillIconPixelBurstAnchor
+        );
+
+        // 기존 Battle 고유스킬 사용 흐름 유지
         battleManager.UseSelectedPieceSkill();
+
+        // <변경부분> 지정된 고유스킬 버튼을 눌렀으므로
+        // ForceButton Step 완료를 통지한다.
+        if (eventSequenceController != null)
+        {
+            eventSequenceController.NotifyButtonPressed(
+                EventSequenceButtonType.UniqueSkill
+            );
+        }
     }
 
     // <변경부분> 아이템 슬롯 UI를 초기화하는 함수
@@ -380,7 +463,7 @@ public class BattleUIController : MonoBehaviour
     // 대신 BattleUIController가 소유한 기존 TooltipData와
     // OFF / ON 스프라이트를 각 버튼에 동일하게 전달한다.
     public void ConfigureFieldAbsorbButton(
-        FieldAbsorbButton fieldAbsorbButton)
+    FieldAbsorbButton fieldAbsorbButton)
     {
         if (fieldAbsorbButton == null)
         {
@@ -393,6 +476,130 @@ public class BattleUIController : MonoBehaviour
             absorbOffSprite,
             absorbOnSprite
         );
+    }
+
+    // <변경부분> 필드 흡수 버튼처럼 BattleUIController 외부에서
+    // 실행되는 전투 UI가 현재 Event Sequence에서
+    // 해당 버튼 입력을 사용할 수 있는지 확인한다.
+    //
+    // EventSequenceController가 없으면
+    // 일반 전투와 동일하게 항상 허용한다.
+    public bool CanPressEventButton(
+        EventSequenceButtonType buttonType)
+    {
+        if (eventSequenceController == null)
+        {
+            return true;
+        }
+
+        return
+            eventSequenceController.CanPressButton(
+                buttonType
+            );
+    }
+
+    // <변경부분> BattleUIController 외부의 UI가
+    // 지정된 Event 버튼 입력을 정상 처리한 뒤
+    // ForceButton Step 완료를 Event Sequence에 전달한다.
+    public void NotifyEventButtonPressed(
+     EventSequenceButtonType buttonType)
+    {
+        if (eventSequenceController == null)
+        {
+            return;
+        }
+
+        eventSequenceController.NotifyButtonPressed(
+            buttonType
+        );
+    }
+
+    // <변경부분> EventMarkerUI가 ForceButton의
+    // 실제 화면 위치를 찾을 때 사용하는 공용 조회 함수
+    //
+    // EventSequenceData에는 scene GameObject 참조를 저장하지 않고
+    // 논리적인 ButtonType만 저장하므로,
+    // 실제 RectTransform 해석은 BattleUIController가 담당한다.
+    public RectTransform GetEventButtonMarkerTarget(
+        EventSequenceButtonType buttonType)
+    {
+        switch (buttonType)
+        {
+            case EventSequenceButtonType.Absorb:
+                // <변경부분> 필드 흡수 버튼이 현재 표시 중이라면
+                // 하단 버튼보다 필드 버튼을 우선해서 가리킨다.
+                //
+                // 일반 흡수 튜토리얼에서는 실제로 눌러야 할 버튼이
+                // 상대 기물 위 FieldAbsorbButton이기 때문이다.
+                FieldAbsorbButton[] fieldAbsorbButtons =
+                    FindObjectsOfType<FieldAbsorbButton>(
+                        true
+                    );
+
+                for (int i = 0;
+                     i < fieldAbsorbButtons.Length;
+                     i++)
+                {
+                    FieldAbsorbButton fieldButton =
+                        fieldAbsorbButtons[i];
+
+                    if (fieldButton == null ||
+                        fieldButton.IsVisible == false)
+                    {
+                        continue;
+                    }
+
+                    RectTransform fieldTarget =
+                        fieldButton
+                            .GetMarkerTarget();
+
+                    if (fieldTarget != null)
+                    {
+                        return fieldTarget;
+                    }
+                }
+
+                // 필드 흡수 버튼이 없으면
+                // 배치 이후 마무리 흡수 등에서 사용하는
+                // 기존 하단 Absorb Button을 가리킨다.
+                if (absorbButton != null)
+                {
+                    return
+                        absorbButton
+                            .GetComponent<RectTransform>();
+                }
+
+                return null;
+
+            case EventSequenceButtonType.UniqueSkill:
+                if (uniqueSkillButton != null)
+                {
+                    return
+                        uniqueSkillButton
+                            .GetComponent<RectTransform>();
+                }
+
+                return null;
+
+            case EventSequenceButtonType.DeploymentConfirm:
+                // 배치 확인도 기존 Absorb Button 루트를 재사용한다.
+                if (absorbButton != null)
+                {
+                    return
+                        absorbButton
+                            .GetComponent<RectTransform>();
+                }
+
+                return null;
+
+            case EventSequenceButtonType.EndTurn:
+                // 현재 BattleUIController에는 별도의
+                // 실제 EndTurn UI Button 참조가 존재하지 않는다.
+                // 키보드 Space 입력만 있으므로 아직 마커 대상 없음.
+                return null;
+        }
+
+        return null;
     }
 
     // <변경부분> 흡수/고유스킬 아이콘에 붙은 UIButtonNoiseAnimator를 자동으로 찾는 함수
@@ -510,11 +717,25 @@ public class BattleUIController : MonoBehaviour
     {
         if (battleManager == null)
         {
-            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "BattleManager가 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        battleManager.UseItemAtSlot(slotIndex);
+        // <변경부분> 현재 Event Sequence가
+        // 특정 Battle 버튼 하나를 강제하고 있다면
+        // 아직 지원하지 않는 Item Slot 입력으로 우회하지 못하게 한다.
+        if (eventSequenceController != null &&
+            eventSequenceController.IsForcedBattleInputActive)
+        {
+            return;
+        }
+
+        battleManager.UseItemAtSlot(
+            slotIndex
+        );
     }
 
     // <변경부분> 아이템 슬롯 UI 전체를 현재 아이템 목록에 맞게 갱신하고,

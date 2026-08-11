@@ -9,9 +9,18 @@ public class BattleSetupManager : MonoBehaviour
     // <변경부분> 현재 맵 노드에서 전달받아
     // 이번 BattleScene에서 실제로 사용할 StageBattleData.
     //
-    // Inspector에서 직접 지정하지 않고,
-    // WorldMapRuntimeState.PendingStageBattleData를 통해 전달받는다.
+    // 일반 게임 진행에서는
+    // WorldMapRuntimeState.PendingStageBattleData를 우선 사용한다.
     private StageBattleData stageBattleData;
+
+    [Header("Direct Scene Test")]
+    // <변경부분> BattleScene을 월드맵을 거치지 않고
+    // Unity Editor에서 직접 Play할 때 사용할 테스트용 StageBattleData.
+    //
+    // 일반 게임에서는 사용되지 않으며,
+    // WorldMapRuntimeState.PendingStageBattleData가 없는 경우에만 사용한다.
+    [SerializeField]
+    private StageBattleData directTestStageBattleData;
 
     [Header("Managers")]
     [SerializeField] private BoardManager boardManager;
@@ -33,21 +42,35 @@ public class BattleSetupManager : MonoBehaviour
     // <변경부분> 현재 StageBattleData 기준으로 전투를 구성하는 함수
     public void SetupBattle()
     {
-        // <변경부분> 월드맵에서 현재 전투 노드에 연결해 전달한
-        // StageBattleData를 가져온다.
-        //
-        // BattleSetupManager Inspector에서 스테이지를 직접 선택하거나
-        // battleLevel로 분기하지 않는다.
+        // <변경부분> 일반 게임 진행에서는
+        // 월드맵 전투 노드가 전달한 StageBattleData를 최우선으로 사용한다.
         stageBattleData =
             WorldMapRuntimeState
                 .PendingStageBattleData;
+
+        // <변경부분> 월드맵을 거치지 않고
+        // BattleScene을 직접 Play한 테스트 상황이라면
+        // Inspector에 연결된 테스트용 StageBattleData를 대신 사용한다.
+        if (stageBattleData == null)
+        {
+            stageBattleData =
+                directTestStageBattleData;
+
+            if (stageBattleData != null)
+            {
+                Debug.Log(
+                    $"BattleSetupManager 직접 씬 테스트: " +
+                    $"{stageBattleData.name} 사용"
+                );
+            }
+        }
 
         if (stageBattleData == null)
         {
             Debug.LogError(
                 "BattleSetupManager 실패: " +
-                "월드맵에서 전달된 StageBattleData가 없습니다. " +
-                "전투 노드의 Stage Battle Data 연결을 확인하세요."
+                "월드맵에서 전달된 StageBattleData도 없고 " +
+                "Direct Test Stage Battle Data도 연결되지 않았습니다."
             );
 
             return;

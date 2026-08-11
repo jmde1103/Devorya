@@ -15,6 +15,13 @@ MonoBehaviour:
   formationName: "\uD29C\uD1A0\uB9AC\uC5BC"
   description: 
   spawnMode: 0
-  spawnDataList: []
+  spawnDataList:
+  - pieceData: {fileID: 0}
+    team: 0
+    x: 0
+    y: 0
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
   randomPieceCount: 5
   randomPieceEntries: []

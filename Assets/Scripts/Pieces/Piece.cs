@@ -435,8 +435,35 @@ public class Piece : MonoBehaviour
         return uniqueSkillCooldown;
     }
 
+    // <변경부분> 튜토리얼 / 이벤트에서 생성한 기물의
+    // 고유스킬만 별도로 변경할 때 사용하는 전용 진입점
+    //
+    // PieceData, PieceType, Team, 외형은 변경하지 않고
+    // 현재 기물이 사용할 고유스킬만 교체한다.
+    public void SetUniqueSkillForEvent(
+        UniqueSkillType uniqueSkill)
+    {
+        UniqueSkill =
+            uniqueSkill;
 
-    public Vector2Int GetGridPosition() // 현재 보드 좌표 반환
+        // 이벤트에서 새로 지정한 고유스킬은
+        // 즉시 정상적인 초기 상태로 사용할 수 있도록
+        // 기존 쿨타임과 턴 사용 상태를 초기화한다.
+        uniqueSkillCooldown =
+            0;
+
+        hasUsedUniqueSkillThisTurn =
+            false;
+
+        Debug.Log(
+            $"이벤트 고유스킬 적용: " +
+            $"{Team} {PieceType} / " +
+            $"{UniqueSkill}"
+        );
+    }
+
+
+    public Vector2Int GetGridPosition()
     {
         return new Vector2Int(X, Y);
     }

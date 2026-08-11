@@ -18,8 +18,8 @@ MonoBehaviour:
   checkerTileTypeB: 5
   playerDefeatCondition: 2
   enemyDefeatCondition: 3
-  playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
-  enemyFormationData: {fileID: 11400000, guid: 597d51eee876daa4d9df5c354eba66c7, type: 2}
+  playerFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
+  enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   battleRewardData: {fileID: 0}
   enemyUniqueSkillUseChance: 0
   enemyGeneralSkillGrantRules: []

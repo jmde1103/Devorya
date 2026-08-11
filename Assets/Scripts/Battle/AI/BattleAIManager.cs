@@ -270,6 +270,34 @@ public class BattleAIManager : MonoBehaviour
                battleManager.CurrentTurn ==
                BattleTurn.Enemy)
         {
+            // <변경부분> Event Sequence가 Enemy AI 일시정지를
+            // 요청하고 있는 동안에는 AI 행동 후보를 생성하지 않고 기다린다.
+            //
+            // 코루틴 자체는 종료하지 않으므로
+            // Event Sequence가 끝난 뒤 현재 Enemy 턴에서
+            // 기존 AI 행동을 그대로 이어서 실행할 수 있다.
+            while (battleManager != null &&
+                   battleManager.IsBattleEnded == false &&
+                   battleManager.CurrentTurn ==
+                       BattleTurn.Enemy &&
+                   battleManager.ShouldPauseEnemyAIForEvent)
+            {
+                yield return null;
+            }
+
+            // 대기 중 전투가 종료됐거나
+            // 다른 진영 턴으로 변경됐다면 AI 코루틴 종료
+            if (battleManager == null ||
+                battleManager.IsBattleEnded ||
+                battleManager.CurrentTurn !=
+                    BattleTurn.Enemy)
+            {
+                enemyTurnRoutine =
+                    null;
+
+                yield break;
+            }
+
             // 첫 행동과 추가 행동 사이에 판단 지연을 둔다.
             if (decisionDelay > 0f)
             {
@@ -277,6 +305,17 @@ public class BattleAIManager : MonoBehaviour
                     new WaitForSeconds(
                         decisionDelay
                     );
+            }
+
+            // <변경부분> 판단 대기 시간 중 Event Sequence가 시작됐을 수도 있으므로
+            // 실제 행동 후보 생성 직전에 다시 AI 일시정지 상태를 확인한다.
+            while (battleManager != null &&
+                   battleManager.IsBattleEnded == false &&
+                   battleManager.CurrentTurn ==
+                       BattleTurn.Enemy &&
+                   battleManager.ShouldPauseEnemyAIForEvent)
+            {
+                yield return null;
             }
 
             // 이전 이동, 공격 또는 스킬 연출이

@@ -48,6 +48,15 @@ public class BattleManager : MonoBehaviour
     [SerializeField]
     private PixelCameraController pixelCameraController;
 
+    [Header("Event Sequence")]
+    // <변경부분> 튜토리얼 / 이벤트가 활성화된 경우에만
+    // 기존 Battle 입력을 제한하기 위한 별도 이벤트 컨트롤러
+    //
+    // 연결하지 않거나 컴포넌트를 비활성화하면
+    // 기존 일반 전투에는 아무 영향도 주지 않는다.
+    [SerializeField]
+    private EventSequenceController eventSequenceController;
+
     // <변경부분> AI의 합법적인 이동 및 공격 후보를 생성하는 클래스
     // 일반 C# 클래스이므로 GameObject에 부착하지 않고 BattleManager가 직접 생성한다.
     private BattleAIActionGenerator battleAIActionGenerator;
@@ -177,6 +186,21 @@ public class BattleManager : MonoBehaviour
         get { return isActionAnimating; }
     }
 
+    // <변경부분> Enemy AI가 현재 Event Sequence 때문에
+    // 자동 행동을 잠시 멈춰야 하는지 반환한다.
+    //
+    // EventSequenceController가 없거나,
+    // 현재 Sequence가 AI 정지를 사용하지 않으면 false다.
+    public bool ShouldPauseEnemyAIForEvent
+    {
+        get
+        {
+            return
+                eventSequenceController != null &&
+                eventSequenceController.ShouldPauseEnemyAI;
+        }
+    }
+
     // <변경부분> BattleUIController가 흡수 버튼을
     // 배치 완료 체크 버튼으로 사용할지 확인할 수 있도록 공개한다.
     public bool IsPlayerDeploymentPhase
@@ -201,6 +225,17 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+        // <변경부분> EventSequenceController가 Inspector에
+        // 연결되지 않은 경우 현재 씬에서 한 번 자동으로 찾는다.
+        //
+        // 일반 Battle Scene처럼 EventSequenceController가 없으면
+        // null 상태로 유지되어 기존 Battle 흐름에 영향이 없다.
+        if (eventSequenceController == null)
+        {
+            eventSequenceController =
+                FindObjectOfType<EventSequenceController>();
+        }
+
         // <변경부분> 게임 시작 시 스테이지명과 턴 정보 표시
         if (turnInfoUIController != null)
         {
@@ -317,6 +352,21 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        // <변경부분> Dialogue 진행 중이거나
+        // ForcePieceSelect / ForceTileSelect가 진행 중일 때는
+        // 튜토리얼에서 요구하지 않은 Space / Q / S 등의
+        // Battle 단축키 입력을 받지 않는다.
+        if (eventSequenceController != null &&
+            (
+                eventSequenceController
+                    .IsDialogueBlockingBattleInput ||
+                eventSequenceController
+                    .IsForcedBattleInputActive
+            ))
+        {
+            return;
+        }
+
         // <변경부분> 플레이어 초기 배치 단계에서는
         // 턴 종료, 흡수, 고유스킬 등의 전투 단축키를 받지 않는다.
         if (isPlayerDeploymentPhase)
@@ -355,8 +405,22 @@ public class BattleManager : MonoBehaviour
 
 
     // 기물을 선택하는 함수
-       public void SelectPiece(Piece piece)
+    public void SelectPiece(Piece piece)
     {
+        // <변경부분> 튜토리얼 / 이벤트가 특정 기물 선택을
+        // 강제하고 있다면 허용된 기물 외의 클릭은
+        // 기존 Battle 선택 로직에 전달하지 않는다.
+        //
+        // EventSequenceController가 없거나
+        // 현재 선택 제한 단계가 아니라면 기존과 동일하게 통과한다.
+        if (eventSequenceController != null &&
+            eventSequenceController.CanSelectPiece(
+                piece) ==
+            false)
+        {
+            return;
+        }
+
         // <변경부분> 새 선택 처리 전에 기존 선택 기물을 저장
         Piece previousSelectedPiece =
             selectedPiece;
@@ -541,10 +605,27 @@ public class BattleManager : MonoBehaviour
         RefreshTypeIconVisuals();
 
         // 이동 가능 타일 표시
-        ShowMovableTiles(selectedPiece);
+        ShowMovableTiles(
+            selectedPiece
+        );
+
+        // <변경부분> 이벤트 시스템이 특정 기물 선택을
+        // 기다리고 있었다면 실제 Battle 선택이 성공한 뒤
+        // 해당 ForcePieceSelect Step 완료를 통지한다.
+        if (eventSequenceController != null)
+        {
+            eventSequenceController.NotifyPieceSelected(
+                selectedPiece
+            );
+        }
 
         // 선택 확인용 로그
-        Debug.Log($"선택됨: {piece.Team} / {piece.PieceType} / ({piece.X}, {piece.Y})");
+        Debug.Log(
+            $"선택됨: " +
+            $"{piece.Team} / " +
+            $"{piece.PieceType} / " +
+            $"({piece.X}, {piece.Y})"
+        );
     }
 
     // 현재 선택 상태에서
@@ -724,11 +805,22 @@ public class BattleManager : MonoBehaviour
         );
     }
 
-    // <변경부분> 타일을 선택했을 때 호출되는 함수
-    // 이동과 공격 모두 첫 클릭은 확인,
-    // 같은 타일 두 번째 클릭은 실제 행동 실행으로 처리한다.
     public void SelectTile(Tile tile)
     {
+        // <변경부분> 튜토리얼 / 이벤트가 특정 타일 입력을
+        // 강제하고 있다면 지정 타일 외의 클릭은
+        // 기존 Battle 로직에 전달하지 않는다.
+        //
+        // ForcePieceSelect 중에도 타일 클릭을 차단하여
+        // 지정 기물 선택 외의 행동이 발생하지 않도록 한다.
+        if (eventSequenceController != null &&
+            eventSequenceController.CanSelectTile(
+                tile) ==
+            false)
+        {
+            return;
+        }
+
         // 전투가 끝났으면 타일 선택 불가
         if (isBattleEnded)
         {
@@ -883,13 +975,24 @@ public class BattleManager : MonoBehaviour
             );
 
             bool actionStarted =
-                TryExecuteBattleAction(
-                    selectedPiece,
-                    new Vector2Int(
-                        tile.X,
-                        tile.Y
-                    )
+     TryExecuteBattleAction(
+         selectedPiece,
+         new Vector2Int(
+             tile.X,
+             tile.Y
+         )
+     );
+
+            // <변경부분> ForceTileSelect가 같은 타일의
+            // 두 번째 확인 클릭을 기다리고 있었다면,
+            // 실제 Battle 행동 시작이 승인된 경우에만 Step을 완료한다.
+            if (actionStarted &&
+                eventSequenceController != null)
+            {
+                eventSequenceController.NotifyTileSelected(
+                    tile
                 );
+            }
 
             if (actionStarted == false)
             {
@@ -926,6 +1029,16 @@ public class BattleManager : MonoBehaviour
         // 새 확인 타일을 전용 확인 색상으로 변경
         pendingActionTile
             .ShowActionConfirmHighlight();
+
+        // <변경부분> ForceTileSelect가 현재 이 좌표의
+        // 첫 번째 확인 클릭을 기다리고 있었다면
+        // 실제 Battle 타일 확인까지 성공한 시점에서 Step 완료를 통지한다.
+        if (eventSequenceController != null)
+        {
+            eventSequenceController.NotifyTileSelected(
+                tile
+            );
+        }
 
         // <변경부분> 상대 또는 중립 기물이 있는 타일이라면
         // 공격 확인 대상으로 저장하고 상대 정보를 표시한다.
@@ -988,8 +1101,42 @@ public class BattleManager : MonoBehaviour
     // 한 프레임 기다린 뒤 플레이어 초기 배치 또는 정상 전투를 시작한다.
     private IEnumerator BeginPlayerDeploymentAfterSetupRoutine()
     {
+        // BattleSetupManager와 EventSequenceController의
+        // Start 초기화가 모두 끝날 수 있도록 한 프레임 기다린다.
         yield return null;
 
+        // <변경부분> 현재 Event Sequence가
+        // 일반 플레이어 초기 배치를 사용하지 않도록 설정했다면
+        // 기존 배치 UI를 시작하지 않는다.
+        //
+        // Event Sequence가 직접 Dialogue / ForcePiece / ForceTile 등을
+        // 제어하므로 여기서는 정상 전투 턴 상태만 준비한다.
+        if (eventSequenceController != null &&
+            eventSequenceController.ShouldSkipNormalPlayerDeployment)
+        {
+            isPlayerDeploymentPhase =
+                false;
+
+            if (battleUIController != null)
+            {
+                battleUIController.SetPlayerDeploymentMode(
+                    false
+                );
+
+                battleUIController.HideActionButtons();
+            }
+
+            StartNormalBattleTurn();
+
+            Debug.Log(
+                "Event Sequence 활성화: " +
+                "기존 플레이어 초기 배치를 건너뜁니다."
+            );
+
+            yield break;
+        }
+
+        // 일반 Battle에서는 기존 초기 배치 설정을 그대로 사용한다.
         if (usePlayerDeploymentPhase)
         {
             BeginPlayerDeploymentPhase();
@@ -4496,6 +4643,19 @@ public class BattleManager : MonoBehaviour
     {
         // 이미 전투가 끝났으면 중복 체크 방지
         if (isBattleEnded)
+        {
+            return;
+        }
+
+        // <변경부분> 현재 Event Sequence에서
+        // 일반 Battle 승패 판정을 사용하지 않도록 설정했다면
+        // King 사망 / 전체 기물 사망 / 행동 불가 등의
+        // 기존 승패 조건을 전부 무시한다.
+        //
+        // 이벤트 완료 여부는 EventSequenceController의
+        // CompleteSequence Step에서 별도로 결정한다.
+        if (eventSequenceController != null &&
+            eventSequenceController.ShouldIgnoreNormalBattleEnd)
         {
             return;
         }

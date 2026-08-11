@@ -98,6 +98,28 @@ public class FieldAbsorbButton : MonoBehaviour
         }
     }
 
+    // <변경부분> EventMarkerUI가 현재 필드 흡수 버튼의
+    // 실제 화면 위치를 추적할 때 사용할 RectTransform을 반환한다.
+    public RectTransform GetMarkerTarget()
+    {
+        AutoBindReferences();
+
+        if (absorbButton != null)
+        {
+            RectTransform buttonRectTransform =
+                absorbButton
+                    .GetComponent<RectTransform>();
+
+            if (buttonRectTransform != null)
+            {
+                return buttonRectTransform;
+            }
+        }
+
+        return
+            transform as RectTransform;
+    }
+
     private void Awake()
     {
         AutoBindReferences();
@@ -315,7 +337,22 @@ public class FieldAbsorbButton : MonoBehaviour
     // OFF / ON 상태만 반전한다.
     private void HandleButtonClicked()
     {
-        // 기존 흡수 버튼과 같은 픽셀 파티클을 재생한다.
+        // <변경부분> 튜토리얼 / 이벤트에서
+        // 현재 Absorb 버튼 입력이 허용되지 않았다면
+        // 필드 흡수 버튼의 모든 동작을 차단한다.
+        //
+        // BattleUIController 또는 EventSequenceController가 없으면
+        // 기존 일반 전투와 동일하게 그대로 실행된다.
+        if (battleUIController != null &&
+            battleUIController.CanPressEventButton(
+                EventSequenceButtonType.Absorb) ==
+            false)
+        {
+            return;
+        }
+
+        // 허용된 흡수 버튼 입력에서만
+        // 기존 픽셀 파티클을 재생한다.
         if (battleUIController != null)
         {
             battleUIController
@@ -338,6 +375,19 @@ public class FieldAbsorbButton : MonoBehaviour
         absorbModeChangedAction?.Invoke(
             isAbsorbMode
         );
+
+        // <변경부분> 필드 흡수 버튼 입력이 실제로 처리됐으므로
+        // ForceButton = Absorb Step의 완료를 통지한다.
+        //
+        // 여기서는 흡수 공격 자체를 완료한 것이 아니라
+        // "흡수 버튼을 눌러 흡수 모드를 선택했다"는
+        // 사용자 입력 완료만 의미한다.
+        if (battleUIController != null)
+        {
+            battleUIController.NotifyEventButtonPressed(
+                EventSequenceButtonType.Absorb
+            );
+        }
 
         // UIButtonNoiseAnimator는 자기 OnEnable에서
         // Button.onClick에 PlayNoise를 이미 등록한다.
