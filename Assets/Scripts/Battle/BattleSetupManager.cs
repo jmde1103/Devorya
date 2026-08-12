@@ -82,14 +82,28 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        if (boardManager == null || pieceManager == null || battleManager == null || battleEndFlowController == null)
+        if (boardManager == null ||
+     pieceManager == null ||
+     battleManager == null ||
+     battleEndFlowController == null)
         {
             Debug.LogError(
-                "BattleSetupManager 실패: BoardManager / PieceManager / BattleManager / BattleEndFlowController 연결을 확인하세요."
+                "BattleSetupManager 실패: " +
+                "BoardManager / PieceManager / BattleManager / " +
+                "BattleEndFlowController 연결을 확인하세요."
             );
 
             return;
         }
+
+        // <변경부분> 현재 StageBattleData의 스테이지 이름을
+        // 좌측 상단 TurnInfo UI에 표시하도록 BattleManager에 전달한다.
+        //
+        // 스테이지가 바뀌면 동일한 BattleScene을 사용하더라도
+        // 각 StageBattleData의 stageName이 자동으로 표시된다.
+        battleManager.SetStageName(
+            stageBattleData.stageName
+        );
 
         // <변경부분> StageBattleData의 TileType A/B를 BoardManager에 전달해 보드를 재생성
         boardManager.RebuildBoardByTileType(

@@ -28,6 +28,16 @@ public class EventGuideUI : MonoBehaviour
     [SerializeField]
     private Button continueButton;
 
+    [Header("Open Animation")]
+    // <변경부분> DialoguePanel이 활성화될 때
+    // 기존 PopupOpenAnimationData를 사용해
+    // 공용 팝업 오픈 애니메이션을 재생한다.
+    //
+    // DialoguePanel 오브젝트에 PopupOpenAnimator를 붙이고
+    // 이 필드에 연결한다.
+    [SerializeField]
+    private PopupOpenAnimator popupOpenAnimator;
+
     [Header("Text")]
     // 실제 Dialogue 문장을 표시할 TMP Text
     [SerializeField]
@@ -92,7 +102,53 @@ public class EventGuideUI : MonoBehaviour
                 gameObject;
         }
 
+        // <변경부분> PopupOpenAnimator가 Inspector에
+        // 직접 연결되지 않은 경우 Dialogue UI 자식에서 자동으로 찾는다.
+        //
+        // DialoguePanel에 PopupOpenAnimator를 붙여두면
+        // GuideRoot 구조가 바뀌어도 재사용할 수 있다.
+        if (popupOpenAnimator == null &&
+            guideRoot != null)
+        {
+            popupOpenAnimator =
+                guideRoot.GetComponentInChildren<
+                    PopupOpenAnimator
+                >(
+                    true
+                );
+        }
+
         // <변경부분> continueButton은 뒤쪽 Battle UI 입력을
+        // 차단하기 위한 용도로만 유지한다.
+        //
+        // Dialogue 페이지 진행은 EventGuideUI.Update()에서
+        // 직접 입력을 감지하므로 Button OnClick은 사용하지 않는다.
+        if (continueButton != null)
+        {
+            continueButton.onClick.RemoveAllListeners();
+        }
+
+        // <변경부분> 여기서는 ResetDialogueState()를 호출하지 않는다.
+        //
+        // GuideRoot가 기본 OFF인 경우,
+        // PlayDialogueRoutine()이 먼저 실행된 뒤
+        // guideRoot.SetActive(true) 시점에 Awake()가 최초 호출될 수 있다.
+        //
+        // 그 상황에서 상태를 초기화하면
+        // 이미 시작한 Dialogue의 isDialoguePlaying이 false로 바뀌면서
+        // Element 0 출력 직후 Dialogue Step이 강제로 종료된다.
+        //
+        // 런타임 필드 자체가 이미 기본값으로 초기화되어 있으므로
+        // Awake에서 별도의 상태 초기화는 필요하지 않다.
+
+        if (guideText != null)
+        {
+            guideText.text =
+                string.Empty;
+
+            guideText.maxVisibleCharacters =
+                int.MaxValue;
+        }
         // 차단하기 위한 용도로만 유지한다.
         //
         // Dialogue 페이지 진행은 EventGuideUI.Update()에서
@@ -227,6 +283,18 @@ public class EventGuideUI : MonoBehaviour
             guideRoot.SetActive(
                 true
             );
+        }
+
+        // <변경부분> GuideRoot가 활성화되고
+        // DialoguePanel의 PopupOpenAnimator가 사용 가능한 상태가 된 뒤
+        // 기존 PopupOpenAnimationData 기반 오픈 애니메이션을 실행한다.
+        //
+        // Dialogue Step 하나가 시작될 때 한 번만 재생되며,
+        // 같은 Step 안에서 다음 페이지로 넘길 때마다
+        // 다시 재생하지는 않는다.
+        if (popupOpenAnimator != null)
+        {
+            popupOpenAnimator.PlayOpen();
         }
 
         // <변경부분> GuideRoot 활성화 및 Awake가 모두 끝난 뒤

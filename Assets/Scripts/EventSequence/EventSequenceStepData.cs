@@ -52,6 +52,25 @@ public enum EventSequenceButtonType
     EndTurn
 }
 
+// <변경부분> Event Step의 마커를
+// 월드 오브젝트로 표시할지,
+// Canvas UI로 표시할지 결정한다.
+//
+// World:
+// - 기물 / 타일 등 월드 대상용
+// - SpriteRenderer 사용
+// - 카메라 Zoom에 따라 기물과 함께 확대 / 축소
+//
+// UI:
+// - 전투 버튼 등 Canvas 대상용
+// - Image / RectTransform 사용
+// - 화면 UI 크기를 그대로 유지
+public enum EventMarkerDisplayType
+{
+    World,
+    UI
+}
+
 // <변경부분> 이벤트에서 기물을 생성할 때
 // PieceData의 기본 설정을 덮어쓸지 여부와
 // 덮어쓸 값을 저장한다.
@@ -137,6 +156,31 @@ public class EventSequenceStepData
     // 현재 단계에서 목표 위치에
     // 튜토리얼 마커를 표시할지 여부
     public bool showMarker = true;
+
+    // <변경부분> 현재 Step에서 사용할 마커 표시 방식.
+    //
+    // World:
+    // 기물 / 타일처럼 월드 공간에 존재하는 대상을 가리킬 때 사용.
+    //
+    // UI:
+    // 전투 버튼처럼 Canvas에 존재하는 대상을 가리킬 때 사용.
+    public EventMarkerDisplayType markerDisplayType =
+        EventMarkerDisplayType.World;
+
+    // <변경부분> 현재 Step에서만 적용할 마커 위치 Offset.
+    //
+    // World Marker일 경우:
+    // 월드 좌표 단위.
+    // 예: (0, 0.35)
+    //
+    // UI Marker일 경우:
+    // Canvas 화면 좌표 단위.
+    // 예: (0, 50)
+    //
+    // 각 기물 / 타일 / 버튼마다 마커 높이를
+    // 독립적으로 조절할 수 있다.
+    public Vector2 markerPositionOffset =
+        Vector2.zero;
 
     [Header("Spawn Piece")]
     // SpawnPiece 단계에서 생성할 PieceData

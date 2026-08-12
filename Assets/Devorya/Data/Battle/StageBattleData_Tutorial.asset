@@ -20,6 +20,6 @@ MonoBehaviour:
   enemyDefeatCondition: 3
   playerFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
-  battleRewardData: {fileID: 0}
+  battleRewardData: {fileID: 11400000, guid: 14a8e5fabe1ccae43aef36c3ccc3dc4a, type: 2}
   enemyUniqueSkillUseChance: 0
   enemyGeneralSkillGrantRules: []

@@ -20,6 +20,11 @@ public class EventSequenceController : MonoBehaviour
     [SerializeField]
     private PieceManager pieceManager;
 
+    // <변경부분> Event Sequence 완료 타입이 BattleWin일 때
+    // 기존 Battle 승리 / 보상 흐름으로 연결하기 위한 BattleManager.
+    [SerializeField]
+    private BattleManager battleManager;
+
     [Header("Dialogue")]
     // 다음 단계에서 제작할 텍스트 UI 컨트롤러
     //
@@ -455,6 +460,15 @@ public class EventSequenceController : MonoBehaviour
     // Sequence가 이미 실행 중인 것으로 판단되는 문제를 방지한다.
     private void Awake()
     {
+        // <변경부분> Inspector 연결이 빠진 경우에도
+        // Event Sequence의 BattleWin 완료 처리가 가능하도록
+        // 현재 씬의 BattleManager를 자동으로 찾는다.
+        if (battleManager == null)
+        {
+            battleManager =
+                FindObjectOfType<BattleManager>();
+        }
+
         isSequenceActive =
             false;
 
@@ -784,11 +798,15 @@ public class EventSequenceController : MonoBehaviour
         // <변경부분> Step에서 Show Marker를 켠 경우
         // 현재 강제 선택 대상 기물을 자동으로 가리킨다.
         if (step.showMarker &&
-            eventMarkerUI != null)
+     eventMarkerUI != null)
         {
+            // <변경부분> 현재 Step에서 지정한
+            // World / UI 마커 방식과 위치 Offset을 함께 전달한다.
             eventMarkerUI.ShowForPiece(
                 requiredPiecePosition,
-                requiredPieceTeam
+                requiredPieceTeam,
+                step.markerDisplayType,
+                step.markerPositionOffset
             );
         }
 
@@ -839,10 +857,14 @@ public class EventSequenceController : MonoBehaviour
         // <변경부분> Show Marker가 켜진 ForceTileSelect라면
         // 지정된 보드 타일을 자동으로 가리킨다.
         if (step.showMarker &&
-            eventMarkerUI != null)
+    eventMarkerUI != null)
         {
+            // <변경부분> 타일 마커도
+            // 현재 Step의 표시 방식과 위치를 그대로 사용한다.
             eventMarkerUI.ShowForTile(
-                requiredTilePosition
+                requiredTilePosition,
+                step.markerDisplayType,
+                step.markerPositionOffset
             );
         }
 
@@ -902,10 +924,14 @@ public class EventSequenceController : MonoBehaviour
         // <변경부분> 현재 ForceButton Step의 Show Marker가 켜져 있다면
         // ButtonType을 실제 UI 위치로 해석하여 자동으로 가리킨다.
         if (step.showMarker &&
-            eventMarkerUI != null)
+    eventMarkerUI != null)
         {
+            // <변경부분> UI Button의 마커 표시 방식과
+            // 화면 위치 Offset을 Event Step 데이터에서 전달한다.
             eventMarkerUI.ShowForButton(
-                requiredButtonType
+                requiredButtonType,
+                step.markerDisplayType,
+                step.markerPositionOffset
             );
         }
 
@@ -1281,12 +1307,33 @@ public class EventSequenceController : MonoBehaviour
                 return;
 
             case EventSequenceCompletionType.BattleWin:
-                // 기존 Battle 승리 흐름 연결은
-                // 일반 승패 잠금 기능을 추가할 때 함께 처리한다.
+                // <변경부분> Event Sequence가 정상 완료되면
+                // 일반 Battle의 승리 처리 흐름으로 연결한다.
+                //
+                // 이 경로를 사용하면 기존 전투와 동일하게:
+                // 플레이어 기물 상태 저장
+                // → BattleEndFlowController
+                // → StageBattleData 보상 정산
+                // → BattleRewardPopupUI 표시
+                // 순서로 진행된다.
+                if (battleManager == null)
+                {
+                    Debug.LogWarning(
+                        "이벤트 BattleWin 완료 실패: " +
+                        "BattleManager가 연결되지 않았습니다."
+                    );
+
+                    return;
+                }
+
+                battleManager
+                    .CompleteBattleWinFromEvent();
+
                 Debug.Log(
-                    "이벤트 BattleWin 완료 요청: " +
-                    "다음 Battle 연동 단계에서 연결합니다."
+                    "이벤트 BattleWin 완료: " +
+                    "일반 전투 승리 / 보상 흐름으로 전달했습니다."
                 );
+
                 return;
         }
     }

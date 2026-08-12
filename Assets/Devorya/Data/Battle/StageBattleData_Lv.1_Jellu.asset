@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
   m_Name: StageBattleData_Lv.1_Jellu
   m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
-  stageName: "\uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0"
+  stageName: "\uC824\uB8E8\uC758 \uC232"
   description: "\uC824\uB8E8\uC138\uD2B8\uB97C \uB123\uC5B4 \uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0\uB97C
     \uC9C4\uD589\uD55C\uB2E4."
   checkerTileTypeA: 0

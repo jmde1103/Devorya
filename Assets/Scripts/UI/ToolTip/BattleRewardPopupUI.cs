@@ -103,14 +103,38 @@ public class BattleRewardPopupUI : MonoBehaviour
         // <변경부분> 슬롯 부모에 LayoutGroup이 빠져 있어도
         // 생성된 슬롯들이 같은 위치에 겹치지 않도록 자동 보정한다.
         EnsureSlotParentLayout(
-            recoverySlotParent
-        );
+     recoverySlotParent
+ );
 
         EnsureSlotParentLayout(
             dropSlotParent
         );
 
-        popupRoot.SetActive(false);
+        // <변경부분> BattleRewardPopupUI와 PopupOpenAnimator가
+        // 붙어 있는 Controller GameObject 자체는 비활성화하지 않는다.
+        //
+        // 이 오브젝트가 비활성화되면
+        // PopupOpenAnimator.PlayOpen()과
+        // Click to continue 반복 애니메이션의
+        // StartCoroutine()을 실행할 수 없다.
+        //
+        // 실제 화면 표시 / 숨김은 별도의 popupRoot 자식 오브젝트가 담당한다.
+        if (popupRoot != null &&
+            popupRoot != gameObject)
+        {
+            popupRoot.SetActive(
+                false
+            );
+        }
+        else if (popupRoot == gameObject)
+        {
+            Debug.LogWarning(
+                "BattleRewardPopupUI 설정 경고: " +
+                "Popup Root가 BattleRewardPopupUI가 붙은 " +
+                "GameObject 자체로 연결되어 있습니다. " +
+                "실제 팝업 표시용 자식 Root를 별도로 연결하세요."
+            );
+        }
     }
 
     // <변경부분> 씬 전환이나 외부 처리로
@@ -139,7 +163,26 @@ public class BattleRewardPopupUI : MonoBehaviour
             return;
         }
 
-        popupRoot.SetActive(true);
+        // <변경부분> 코루틴을 실행하는 BattleRewardPopupUI가
+        // 비활성화된 상태에서는 PopupOpenAnimator와
+        // Continue Text 애니메이션을 시작할 수 없다.
+        //
+        // 정상 구조에서는 이 GameObject는 항상 Active이고,
+        // 실제 시각적 팝업 Root만 ON / OFF 한다.
+        if (gameObject.activeInHierarchy == false)
+        {
+            Debug.LogWarning(
+                "보상 팝업 표시 실패: " +
+                "BattleRewardPopupUI GameObject가 비활성화되어 있습니다."
+            );
+
+            return;
+        }
+
+        // 실제 팝업 표시 Root만 활성화한다.
+        popupRoot.SetActive(
+            true
+        );
 
         // <변경부분> 이전 전투에서 생성된 슬롯 제거
         ClearCreatedSlots(recoverySlotParent);

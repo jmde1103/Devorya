@@ -31,6 +31,8 @@ MonoBehaviour:
     targetTilePosition: {x: 0, y: 0}
     targetButton: 0
     showMarker: 0
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
     spawnPieceData: {fileID: 0}
     spawnPieceTeam: 0
     spawnPosition: {x: 0, y: 0}
@@ -54,6 +56,8 @@ MonoBehaviour:
     targetTilePosition: {x: 0, y: 0}
     targetButton: 0
     showMarker: 0
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}
@@ -80,6 +84,8 @@ MonoBehaviour:
     targetTilePosition: {x: 0, y: 0}
     targetButton: 0
     showMarker: 0
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}
@@ -106,11 +112,13 @@ MonoBehaviour:
     targetTilePosition: {x: 2, y: 1}
     targetButton: 0
     showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.72}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
-    spawnPosition: {x: 2, y: 1}
+    spawnPosition: {x: 0, y: 0}
     spawnOverride:
-      overrideCanMove: 1
+      overrideCanMove: 0
       canMove: 1
       overrideUniqueSkill: 0
       uniqueSkill: 0
@@ -131,6 +139,8 @@ MonoBehaviour:
     targetTilePosition: {x: 0, y: 0}
     targetButton: 0
     showMarker: 0
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}
@@ -156,6 +166,8 @@ MonoBehaviour:
     targetTilePosition: {x: 2, y: 2}
     targetButton: 0
     showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.32}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}
@@ -181,6 +193,8 @@ MonoBehaviour:
     targetTilePosition: {x: 2, y: 2}
     targetButton: 0
     showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.32}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}
@@ -206,6 +220,8 @@ MonoBehaviour:
     targetTilePosition: {x: 2, y: 2}
     targetButton: 0
     showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}
@@ -231,6 +247,8 @@ MonoBehaviour:
     targetTilePosition: {x: 2, y: 2}
     targetButton: 0
     showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
     spawnPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnPieceTeam: 0
     spawnPosition: {x: 2, y: 1}

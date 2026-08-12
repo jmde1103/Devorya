@@ -236,11 +236,17 @@ public class BattleManager : MonoBehaviour
                 FindObjectOfType<EventSequenceController>();
         }
 
-        // <변경부분> 게임 시작 시 스테이지명과 턴 정보 표시
+        // <변경부분> 게임 시작 시에는 턴 정보만 초기화한다.
+        //
+        // 스테이지 이름은 BattleSetupManager가
+        // 실제 StageBattleData를 확인한 뒤 SetStageName()으로 전달한다.
+        // 따라서 BattleManager 내부에는 스테이지명을 하드코딩하지 않는다.
         if (turnInfoUIController != null)
         {
-            turnInfoUIController.SetStageName("젤루의 숲 입구 #1");
-            turnInfoUIController.RefreshTurnInfo(turnCount, currentTurn);
+            turnInfoUIController.RefreshTurnInfo(
+                turnCount,
+                currentTurn
+            );
         }
 
         // 기권 버튼 연결
@@ -2183,7 +2189,7 @@ public class BattleManager : MonoBehaviour
                 {
                     PieceType absorbedType =
                         targetPiece.PieceType;
-                   
+
                     if (actingPiece.PieceType ==
                         PieceType.King)
                     {
@@ -2524,6 +2530,42 @@ public class BattleManager : MonoBehaviour
         // 이동 또는 공격 완료 후 턴 종료
         EndTurn();
     }
+
+    // <변경부분> StageBattleData에서 전달받은
+    // 현재 스테이지 이름을 TurnInfo UI에 표시한다.
+    //
+    // BattleManager가 StageBattleData 자체를 직접 참조하지 않고,
+    // 실제 데이터 소유자인 BattleSetupManager가 이름만 전달한다.
+    public void SetStageName(
+        string stageName)
+    {
+        if (turnInfoUIController == null)
+        {
+            Debug.LogWarning(
+                "스테이지 이름 표시 실패: " +
+                "TurnInfoUIController가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        // <변경부분> 데이터의 Stage Name이 비어 있는 경우
+        // 빈 문자열로 안전하게 표시한다.
+        string safeStageName =
+            string.IsNullOrWhiteSpace(stageName)
+                ? string.Empty
+                : stageName;
+
+        turnInfoUIController.SetStageName(
+            safeStageName
+        );
+
+        Debug.Log(
+            $"전투 스테이지 이름 적용: " +
+            $"{safeStageName}"
+        );
+    }
+
     // <변경부분> StageBattleData에서 받은 진영별 패배 조건을 적용하는 함수
     public void SetBattleEndCondition(
      BattleDefeatConditionType playerCondition,
@@ -4807,6 +4849,33 @@ public class BattleManager : MonoBehaviour
     }
 
 
+
+    // <변경부분> Event Sequence가 정상 완료된 뒤
+    // 일반 Battle 승리 흐름으로 연결할 때 사용하는 공개 진입점.
+    //
+    // 일반 승리와 동일하게:
+    // 플레이어 기물 저장
+    // → BattleEndFlowController
+    // → 보상 정산
+    // → BattleRewardPopupUI
+    // 흐름을 그대로 사용한다.
+    public void CompleteBattleWinFromEvent()
+    {
+        if (isBattleEnded)
+        {
+            return;
+        }
+
+        Debug.Log(
+            "Event Sequence 완료: " +
+            "일반 Battle 승리 흐름으로 연결합니다."
+        );
+
+        EndBattle(
+            BattleResult.Win
+        );
+    }
+
     // 전투를 종료하는 함수
     private void EndBattle(BattleResult result)
     {
@@ -4837,17 +4906,26 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 전투 승리 시 현재 플레이어 기물 상태를 런 상태에 저장
             SavePlayerPiecesToRunState();
 
-            Debug.Log("전투 승리: 적 진영 패배 조건 충족 / 플레이어 기물 상태 저장 완료");
+            Debug.Log(
+                "전투 승리: 적 진영 패배 조건 충족 / " +
+                "플레이어 기물 상태 저장 완료"
+            );
 
             // <변경부분> 저장 완료 후 보상 정산 / 맵 복귀 흐름으로 전달
-            NotifyBattleEndFlow(battleResult);
+            NotifyBattleEndFlow(
+                battleResult
+            );
         }
         else if (battleResult == BattleResult.Lose)
         {
-            Debug.Log("전투 패배: 플레이어 진영 패배 조건 충족");
+            Debug.Log(
+                "전투 패배: 플레이어 진영 패배 조건 충족"
+            );
 
             // <변경부분> 패배 결과를 전투 종료 흐름으로 전달
-            NotifyBattleEndFlow(battleResult);
+            NotifyBattleEndFlow(
+                battleResult
+            );
         }
     }
 
