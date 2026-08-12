@@ -1,0 +1,10 @@
+Title.png
+size:353,92
+filter:Linear,Linear
+pma:true
+레이어 1
+bounds:45,2,306,88
+offsets:1,1,308,90
+레이어 2
+bounds:2,49,41,41
+offsets:1,1,43,43
