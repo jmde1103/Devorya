@@ -1786,6 +1786,93 @@ MonoBehaviour:
     checkRemovePieceTeam: 0
     removePieceTeam: 0
     waitDuration: 1
+  - stepName: "\uD0B9 \uD761\uC218 \uC124\uBA85"
+    stepType: 1
+    dialoguePages:
+    - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
+      \uC788\uB294 \uAE30\uBB3C\uC740 \uAC19\uC740 \uD0B9\uBFD0\uC785\uB2C8\uB2E4."
+    - "\uC801 \uD0B9\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    targetPiecePosition: {x: 3, y: 2}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 2, y: 3}
+    targetButton: 3
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.5}
+    spawnPieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 2, y: 3}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 0
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 3, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    waitDuration: 1
+  - stepName: "\uD0B9\uD761\uC218"
+    stepType: 4
+    dialoguePages:
+    - "\uC804\uD22C \uC911 \uD761\uC218\uD55C \uC0C1\uB300 \uC0DD\uBA85\uCCB4 \uC218\uC758
+      \uC808\uBC18\uB9CC\uD07C \uB370\uBCF4\uB9AC\uC544\uC758 \uAE30\uBB3C\uC774
+      \uBCF5\uAD6C\uB429\uB2C8\uB2E4."
+    - "\uB2E8, \uBCF4\uC720 \uAC00\uB2A5\uD55C \uCD5C\uB300 \uAE30\uBB3C \uC218\uC778
+      10\uAC1C\uB97C \uCD08\uACFC\uD558\uC5EC \uBCF5\uAD6C\uD560 \uC218\uB294 \uC5C6\uC2B5\uB2C8\uB2E4."
+    targetPiecePosition: {x: 3, y: 2}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 2, y: 3}
+    targetButton: 1
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.5}
+    spawnPieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 2, y: 3}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 0
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 3, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    waitDuration: 1
+  - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
+    stepType: 3
+    dialoguePages:
+    - "\uB9C8\uC9C0\uB9C9 \uD14C\uC2A4\uD2B8\uB294 \uC2B9\uB9AC \uC870\uAC74 \uC785\uB2C8\uB2E4."
+    - "\uC0C1\uB300\uC758 \uC6B0\uB450\uBA38\uB9AC\uC778 \uD0B9\uC744 \uC81C\uAC70\uD558\uAC70\uB098,
+      \uC0C1\uB300\uC758 \uBAA8\uB4E0 \uAE30\uBB3C\uC744 \uC81C\uAC70\uD558\uBA74
+      \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD569\uB2C8\uB2E4."
+    targetPiecePosition: {x: 3, y: 2}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 2, y: 3}
+    targetButton: 3
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.5}
+    spawnPieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 2, y: 3}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 0
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 3, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    waitDuration: 1
   - stepName: "\uC804\uD22C\uC2B9\uB9AC \uBCF4\uC0C1"
     stepType: 1
     dialoguePages:
@@ -1816,12 +1903,14 @@ MonoBehaviour:
     checkRemovePieceTeam: 0
     removePieceTeam: 0
     waitDuration: 1
-  - stepName: "\uD0B9 \uD761\uC218 \uC124\uBA85"
+  - stepName: "\uC624\uB958 \uBC1C\uC0DD"
     stepType: 1
     dialoguePages:
-    - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
-      \uC788\uB294 \uAE30\uBB3C\uC740 \uAC19\uC740 \uD0B9\uBFD0\uC785\uB2C8\uB2E4."
-    - "\uC801 \uD0B9\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    - "\uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uAC00 \uC644\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+    - "\uB2E4\uC74C \uD14C\uC2A4\uD2B8\uB97C\u2026\u2026 \uC2DC\u2026\u2026\uC791\u2026\u2026
+      \uD558\uACA0\u2026\u2026\uC2B5\u2026\u2026 \uB2C8\u2026\u2026 \u2026\u2026
+      \uC9C0\uC9C0\uC9C1\u2026\u2026 \uAE30\u2026\u2026\uBCF8\u2026\u2026 \uD14C\uC2A4\u2026\u2026\uD2B8\u2026\u2026
+      \uC774\u2026\u2026\uC81C\u2026\u2026 \uC774\u2026\u2026\uC81C\u2026\u2026\u3148\u2026\u2026"
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1872,36 +1961,6 @@ MonoBehaviour:
     checkRemovePieceTeam: 0
     removePieceTeam: 0
     waitDuration: 1
-  - stepName: "\uC804\uD22C\uC2B9\uB9AC \uBCF4\uC0C1"
-    stepType: 1
-    dialoguePages:
-    - "\uC804\uD22C \uC911 \uD761\uC218\uD55C \uC0C1\uB300 \uC0DD\uBA85\uCCB4 \uC218\uC758
-      \uC808\uBC18\uB9CC\uD07C \uB370\uBCF4\uB9AC\uC544\uC758 \uAE30\uBB3C\uC774
-      \uBCF5\uAD6C\uB429\uB2C8\uB2E4."
-    - "\uB2E8, \uBCF4\uC720 \uAC00\uB2A5\uD55C \uCD5C\uB300 \uAE30\uBB3C \uC218\uC778
-      10\uAC1C\uB97C \uCD08\uACFC\uD558\uC5EC \uBCF5\uAD6C\uD560 \uC218\uB294 \uC5C6\uC2B5\uB2C8\uB2E4."
-    targetPiecePosition: {x: 3, y: 2}
-    targetPieceTeam: 0
-    targetTilePosition: {x: 2, y: 3}
-    targetButton: 3
-    showMarker: 1
-    markerDisplayType: 0
-    markerPositionOffset: {x: 0, y: 0.5}
-    spawnPieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
-    spawnPieceTeam: 1
-    spawnPosition: {x: 2, y: 3}
-    spawnOverride:
-      overrideCanMove: 0
-      canMove: 0
-      overrideUniqueSkill: 0
-      uniqueSkill: 0
-      overrideGeneralSkills: 0
-      generalSkills: 
-      useAbsorbedPlayerVisual: 0
-    removePiecePosition: {x: 3, y: 0}
-    checkRemovePieceTeam: 0
-    removePieceTeam: 0
-    waitDuration: 1
-  completionType: 3
+  completionType: 2
   completionSceneName: TextCutsceneScene
   completionCutsceneData: {fileID: 11400000, guid: c42389642b1dd724f98315c23aa69760, type: 2}

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
+  m_Name: StageBattleData_Lv.3_Jellu
+  m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
+  stageName: "\uC824\uB8E8\uC758 \uC232"
+  description: "\uC824\uB8E8\uC138\uD2B8\uB97C \uB123\uC5B4 \uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0\uB97C
+    \uC9C4\uD589\uD55C\uB2E4."
+  eventSequenceData: {fileID: 0}
+  backgroundMapData: {fileID: 11400000, guid: 922f0a17035f5af4b8aa0e08eb1a39e8, type: 2}
+  checkerTileTypeA: 0
+  checkerTileTypeB: 1
+  playerDefeatCondition: -1
+  enemyDefeatCondition: 10
+  playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
+  useRunStatePlayerPieces: 1
+  savePlayerPiecesToRunState: 1
+  enemyFormationData: {fileID: 11400000, guid: b7df25faa6415dd42b375a3f7a216136, type: 2}
+  battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
+  enemyUniqueSkillUseChance: 15
+  enemyGeneralSkillGrantRules:
+  - skillType: 1
+    grantChancePercent: 30
+    allowKing: 0
+  - skillType: 2
+    grantChancePercent: 30
+    allowKing: 0
+  - skillType: 3
+    grantChancePercent: 30
+    allowKing: 0

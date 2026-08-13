@@ -41,7 +41,7 @@ MonoBehaviour:
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+    stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -71,7 +71,7 @@ MonoBehaviour:
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
+    stageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections: []

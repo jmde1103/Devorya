@@ -88,6 +88,16 @@ public class TitleMenuController : MonoBehaviour
     private string playSceneName;
 
 
+    [Header("Setting Destination")]
+    // <변경부분> Setting 버튼을 두 번째 클릭했을 때
+    // 이동할 PVP 전투 Scene 이름.
+    //
+    // 기본값은 현재 PVP Scene인 BattleScenePVP를 사용한다.
+    [SerializeField]
+    private string settingSceneName =
+        "BattleScenePVP";
+
+
     // 현재 선택된 메뉴
     private TitleMenuType selectedMenu =
         TitleMenuType.None;
@@ -353,15 +363,75 @@ public class TitleMenuController : MonoBehaviour
     }
 
 
-    // Setting 두 번째 클릭
     private void ConfirmSetting()
     {
-        // Setting 실제 기능은 아직 구현하지 않는다.
-        Debug.Log(
-            "타이틀 SETTING: " +
-            "현재 Setting 기능은 미구현 상태입니다."
+        // <변경부분> 이동할 PVP Scene 이름이
+        // 비어 있으면 Scene 전환을 실행하지 않는다.
+        if (string.IsNullOrWhiteSpace(
+                settingSceneName))
+        {
+            Debug.LogError(
+                "타이틀 SETTING 실행 실패: " +
+                "Setting Scene Name이 비어 있습니다."
+            );
+
+            return;
+        }
+
+        // <변경부분> Scene 전환이 이미 시작됐다면
+        // 중복 클릭으로 Coroutine이 여러 번 실행되지 않도록 막는다.
+        if (isLoadingScene)
+        {
+            return;
+        }
+
+        isLoadingScene =
+            true;
+
+        // <변경부분> Setting 두 번째 클릭 시
+        // 바로 Scene을 바꾸지 않고
+        // 기존 Play 버튼과 동일한
+        // 확대 + Black Fade 전환 연출부터 실행한다.
+        StartCoroutine(
+            SettingSceneTransitionRoutine()
         );
     }
+
+
+    // =========================================================
+    // SETTING SCENE TRANSITION
+    // =========================================================
+
+    // <변경부분> Setting 두 번째 클릭 이후
+    // 기존 타이틀 화면 전환 효과를 끝까지 재생한 뒤
+    // BattleScenePVP로 이동한다.
+    private IEnumerator SettingSceneTransitionRoutine()
+    {
+        // <변경부분> Play에서 사용하던 것과 동일한
+        // 화면 전체 확대 + Black Fade 효과를 재사용한다.
+        if (sceneTransitionController != null)
+        {
+            yield return
+                sceneTransitionController
+                    .PlayTransition();
+        }
+
+        Debug.Log(
+            $"타이틀 SETTING 씬 이동: " +
+            $"{settingSceneName}"
+        );
+
+        // <변경부분> 화면 전환 연출이 끝난 뒤
+        // PVP Battle Scene으로 이동한다.
+        SceneManager.LoadScene(
+            settingSceneName
+        );
+    }
+
+
+    // =========================================================
+    // BACKGROUND
+    // =========================================================
 
 
     // =========================================================

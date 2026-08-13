@@ -687,7 +687,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2140616609}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &296537058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1903,6 +1915,7 @@ MonoBehaviour:
   floatingPixelEffect: {fileID: 780048083}
   playStageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
   playSceneName: TextCutsceneScene
+  settingSceneName: BattleScenePVP
 --- !u!114 &774431158
 MonoBehaviour:
   m_ObjectHideFlags: 0
