@@ -410,28 +410,76 @@ public class BackgroundManager : MonoBehaviour
         spriteRenderer.color = darkBackgroundColor;
     }
 
+    // <변경부분> BackgroundManager에서 생성한 오브젝트를
+    // Edit Mode와 Play Mode 모두에서 안전하게 제거한다.
+    //
+    // Edit Mode:
+    // 즉시 Scene 편집 결과에 반영해야 하므로 DestroyImmediate 사용.
+    //
+    // Play Mode:
+    // Unity 런타임 규칙에 맞게 Destroy를 사용하고,
+    // 같은 프레임에 새 맵이 생성될 때 기존 오브젝트가
+    // 잠시 겹쳐 보이지 않도록 먼저 비활성화한다.
+    private void DestroyBackgroundObject(
+        GameObject targetObject)
+    {
+        if (targetObject == null)
+        {
+            return;
+        }
+
+        if (Application.isPlaying)
+        {
+            targetObject.SetActive(
+                false
+            );
+
+            Destroy(
+                targetObject
+            );
+
+            return;
+        }
+
+        DestroyImmediate(
+            targetObject
+        );
+    }
+
     // 기존에 생성된 배경 타일 전체 제거
     public void ClearBackground()
     {
-        // <변경부분> 플레이 모드 중에는 에디터용 배경 삭제 기능을 실행하지 않음
-        if (Application.isPlaying)
-        {
-            Debug.LogWarning("플레이 모드 중에는 배경 타일을 삭제할 수 없습니다.");
-            return;
-        }
-
         if (backgroundTileParent == null)
         {
+            backgroundTiles =
+                null;
+
             return;
         }
 
-        for (int i = backgroundTileParent.childCount - 1; i >= 0; i--)
+        // <변경부분> Editor 제작 작업뿐 아니라
+        // 실제 BattleScene 런타임에서도 기존 배경을 제거할 수 있게 한다.
+        //
+        // StageBattleData의 BackgroundMapData를 새로 불러오기 전에
+        // Scene에 저장되어 있던 기존 배경을 먼저 정리한다.
+        for (int i =
+                 backgroundTileParent.childCount - 1;
+             i >= 0;
+             i--)
         {
-            DestroyImmediate(backgroundTileParent.GetChild(i).gameObject);
+            GameObject backgroundObject =
+                backgroundTileParent
+                    .GetChild(i)
+                    .gameObject;
+
+            DestroyBackgroundObject(
+                backgroundObject
+            );
         }
 
-        // <변경부분> 배경 타일 삭제 후 배열 정보도 초기화
-        backgroundTiles = null;
+        // 배경 타일 삭제 후 배열 정보도 초기화한다.
+        backgroundTiles =
+            null;
     }
 
     // <변경부분> 지정 좌표에 이미 존재하는 배경 타일 하나를 씬 오브젝트 기준으로 찾음
@@ -483,12 +531,16 @@ public class BackgroundManager : MonoBehaviour
                 continue;
             }
 
-            if (tileToKeep != null && tile == tileToKeep)
+            if (tileToKeep != null &&
+    tile == tileToKeep)
             {
                 continue;
             }
 
-            DestroyImmediate(child.gameObject);
+            // <변경부분> Editor / Runtime 공용 삭제 함수를 사용한다.
+            DestroyBackgroundObject(
+                child.gameObject
+            );
         }
     }
     // 지정한 좌표의 배경 타일을 선택한 타입으로 교체
@@ -851,9 +903,14 @@ public class BackgroundManager : MonoBehaviour
             }
 
             // 같은 좌표에 존재하는 장식물은 모두 제거
-            if (decoration.X == x && decoration.Y == y)
+            if (decoration.X == x &&
+    decoration.Y == y)
             {
-                DestroyImmediate(child.gameObject);
+                // <변경부분> Play Mode에서도 안전하게
+                // 기존 장식물을 제거할 수 있도록 공용 삭제 함수를 사용한다.
+                DestroyBackgroundObject(
+                    child.gameObject
+                );
             }
         }
     }
@@ -861,15 +918,27 @@ public class BackgroundManager : MonoBehaviour
     // <변경부분> 생성된 장식물 전체를 제거
     public void ClearDecorations()
     {
-        // 장식물 부모가 없으면 제거 중단
         if (decorationParent == null)
         {
             return;
         }
 
-        for (int i = decorationParent.childCount - 1; i >= 0; i--)
+        // <변경부분> Editor 제작 상태뿐 아니라
+        // StageBattleData에서 다른 BackgroundMapData를
+        // 런타임에 불러올 때도 기존 장식물을 안전하게 제거한다.
+        for (int i =
+                 decorationParent.childCount - 1;
+             i >= 0;
+             i--)
         {
-            DestroyImmediate(decorationParent.GetChild(i).gameObject);
+            GameObject decorationObject =
+                decorationParent
+                    .GetChild(i)
+                    .gameObject;
+
+            DestroyBackgroundObject(
+                decorationObject
+            );
         }
     }
 
@@ -1063,7 +1132,33 @@ public class BackgroundManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 연결된 맵 데이터에서 배경 타일과 장식물을 다시 생성
+    // <변경부분> StageBattleData에서 전달받은
+    // BackgroundMapData를 현재 맵 데이터로 적용하고 즉시 불러온다.
+    //
+    // 기존 Inspector의 Current Map Data는
+    // 배경 제작 / 저장 / 에디터 테스트용으로 계속 사용할 수 있고,
+    // 실제 BattleScene에서는 현재 StageBattleData가 전달한 값으로 교체된다.
+    public void LoadMapFromData(
+        BackgroundMapData mapData)
+    {
+        if (mapData == null)
+        {
+            Debug.LogWarning(
+                "배경 맵 데이터 적용 실패: " +
+                "전달된 BackgroundMapData가 없습니다."
+            );
+
+            return;
+        }
+
+        currentMapData =
+            mapData;
+
+        LoadMapFromData();
+    }
+
+    // <변경부분> 연결된 맵 데이터에서
+    // 배경 타일과 장식물을 다시 생성
     public void LoadMapFromData()
     {
         if (currentMapData == null)

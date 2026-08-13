@@ -14,11 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
   stageName: "\uD29C\uD1A0\uB9AC\uC5BC"
   description: "\uD29C\uD1A0\uB9AC\uC5BC \uB9F5"
+  eventSequenceData: {fileID: 11400000, guid: c04729b24f0810447b51551ad62b7c4a, type: 2}
+  backgroundMapData: {fileID: 11400000, guid: 9d3487eb836a20b4db4dab527cb2b6be, type: 2}
   checkerTileTypeA: 4
   checkerTileTypeB: 5
   playerDefeatCondition: 2
   enemyDefeatCondition: 3
   playerFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
+  useRunStatePlayerPieces: 0
+  savePlayerPiecesToRunState: 0
   enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   battleRewardData: {fileID: 11400000, guid: 14a8e5fabe1ccae43aef36c3ccc3dc4a, type: 2}
   enemyUniqueSkillUseChance: 0

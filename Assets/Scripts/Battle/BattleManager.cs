@@ -117,7 +117,17 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 현재 전투에서 사용할 적 진영 패배 조건
     // StageBattleData가 없는 테스트 상황을 대비한 기본값만 유지한다.
     private BattleDefeatConditionType enemyDefeatCondition =
-        BattleDefeatConditionType.AllPiecesDead | BattleDefeatConditionType.NoActionablePieces;
+     BattleDefeatConditionType.AllPiecesDead |
+     BattleDefeatConditionType.NoActionablePieces;
+
+    // <변경부분> 현재 StageBattleData가
+    // 전투 종료 후 플레이어 기물 상태를
+    // RunStateManager에 저장할지 여부.
+    //
+    // 일반 스테이지는 true,
+    // 튜토리얼 / 독립 이벤트는 false를 사용한다.
+    private bool savePlayerPiecesToRunState =
+        true;
 
 
 
@@ -2566,6 +2576,20 @@ public class BattleManager : MonoBehaviour
         );
     }
 
+    // <변경부분> 현재 StageBattleData에서 지정한
+    // 플레이어 기물 RunState 저장 여부를 적용한다.
+    public void SetSavePlayerPiecesToRunState(
+        bool shouldSave)
+    {
+        savePlayerPiecesToRunState =
+            shouldSave;
+
+        Debug.Log(
+            $"플레이어 기물 RunState 저장 설정: " +
+            $"{savePlayerPiecesToRunState}"
+        );
+    }
+
     // <변경부분> StageBattleData에서 받은 진영별 패배 조건을 적용하는 함수
     public void SetBattleEndCondition(
      BattleDefeatConditionType playerCondition,
@@ -4815,25 +4839,52 @@ public class BattleManager : MonoBehaviour
         return true;
     }
 
-   
+
     // <변경부분> 전투 종료 후 플레이어 기물 상태를 RunStateManager에 저장하는 함수
     private void SavePlayerPiecesToRunState()
     {
+        // <변경부분> 튜토리얼 / 독립 이벤트처럼
+        // StageBattleData에서 RunState 저장을 금지한 경우
+        // 현재 전투의 플레이어 기물 상태를 저장하지 않는다.
+        //
+        // 따라서 튜토리얼에서 생성, 제거, 흡수,
+        // 스킬 변경된 기물이 실제 런 데이터에 영향을 주지 않는다.
+        if (savePlayerPiecesToRunState == false)
+        {
+            Debug.Log(
+                "플레이어 기물 RunState 저장 생략: " +
+                "현재 스테이지는 독립 기물 상태를 사용합니다."
+            );
+
+            return;
+        }
+
         if (pieceManager == null)
         {
-            Debug.LogWarning("플레이어 기물 상태 저장 실패: PieceManager가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "플레이어 기물 상태 저장 실패: " +
+                "PieceManager가 연결되지 않았습니다."
+            );
+
             return;
         }
 
         if (RunStateManager.Instance == null)
         {
-            Debug.LogWarning("플레이어 기물 상태 저장 실패: RunStateManager가 씬에 없습니다.");
+            Debug.LogWarning(
+                "플레이어 기물 상태 저장 실패: " +
+                "RunStateManager가 씬에 없습니다."
+            );
+
             return;
         }
 
-        List<PlayerPieceRuntimeData> runtimeDataList = pieceManager.CapturePlayerPieceRuntimeData();
+        List<PlayerPieceRuntimeData> runtimeDataList =
+            pieceManager.CapturePlayerPieceRuntimeData();
 
-        RunStateManager.Instance.SavePlayerPieces(runtimeDataList);
+        RunStateManager.Instance.SavePlayerPieces(
+            runtimeDataList
+        );
     }
 
     // <변경부분> 전투 종료 후 보상 정산 / 맵 복귀 흐름을 BattleEndFlowController에 전달하는 함수

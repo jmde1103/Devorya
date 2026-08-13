@@ -10,9 +10,14 @@ using UnityEngine.SceneManagement;
 // 비활성화하거나 데이터가 없으면 기존 Battle 시스템에는 전혀 관여하지 않는다.
 public class EventSequenceController : MonoBehaviour
 {
-    [Header("Sequence")]
-    // 현재 씬에서 실행할 이벤트 시퀀스 데이터
-    [SerializeField]
+    // <변경부분> 현재 스테이지에서 실행할 EventSequenceData.
+    //
+    // 더 이상 BattleScene Inspector에서 직접 고정하지 않는다.
+    // BattleSetupManager가 현재 StageBattleData를 읽은 뒤
+    // SetSequenceData()를 통해 전달한다.
+    //
+    // 따라서 같은 BattleScene을 사용하는 일반 스테이지에서
+    // 이전 튜토리얼 Sequence가 자동 실행되는 문제를 방지한다.
     private EventSequenceData sequenceData;
 
     [Header("Managers")]
@@ -111,7 +116,47 @@ public class EventSequenceController : MonoBehaviour
         }
     }
 
+    // <변경부분> BattleSetupManager가
+    // 현재 StageBattleData의 EventSequenceData를 전달할 때 사용한다.
+    //
+    // 데이터 연결과 실제 실행을 분리하여
+    // EventSequenceData의 Play Automatically 설정을
+    // BattleSetupManager가 판단할 수 있도록 한다.
+    //
+    // null을 전달하면 현재 Battle은
+    // Event Sequence가 없는 일반 스테이지로 동작한다.
+    public void SetSequenceData(
+        EventSequenceData newSequenceData)
+    {
+        // 혹시 기존 Sequence가 실행 중이라면
+        // 새 데이터를 적용하기 전에 안전하게 종료한다.
+        if (isSequenceActive)
+        {
+            StopSequence();
+        }
+
+        sequenceData =
+            newSequenceData;
+
+        if (sequenceData == null)
+        {
+            Debug.Log(
+                "Event Sequence Data 해제: " +
+                "현재 스테이지에서는 이벤트를 실행하지 않습니다."
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            $"Event Sequence Data 적용: " +
+            $"{sequenceData.name} / " +
+            $"PlayAutomatically={sequenceData.playAutomatically}"
+        );
+    }
+
     // <변경부분> 현재 Event Sequence가 활성화되어 있고
+    // 데이터에서 일반 Battle 승패 무시가 설정되어 있는지 반환한다.
     // 데이터에서 일반 Battle 승패 무시가 설정되어 있는지 반환한다.
     //
     // BattleManager는 이 값만 확인하면 되므로
@@ -500,46 +545,7 @@ public class EventSequenceController : MonoBehaviour
             EventSequenceButtonType.None;
     }
 
-    private void Start()
-    {
-        // <변경부분> Event Sequence 시작 상태를
-        // 처음부터 Console에서 확인할 수 있도록 진단 로그를 출력한다.
-        Debug.Log(
-            $"EventSequenceController Start / " +
-            $"Data={(sequenceData != null ? sequenceData.name : "NULL")}"
-        );
-
-        // 데이터가 없으면 일반 씬으로 간주하고 아무것도 하지 않는다.
-        if (sequenceData == null)
-        {
-            Debug.LogWarning(
-                "Event Sequence 자동 시작 안 함: " +
-                "Sequence Data가 연결되지 않았습니다."
-            );
-
-            return;
-        }
-
-        Debug.Log(
-            $"Event Sequence 데이터 확인 / " +
-            $"PlayAutomatically={sequenceData.playAutomatically} / " +
-            $"Steps={(sequenceData.steps != null ? sequenceData.steps.Count : -1)} / " +
-            $"IsValid={sequenceData.IsValid()}"
-        );
-
-        // 자동 시작 옵션이 켜진 이벤트만 시작한다.
-        if (sequenceData.playAutomatically)
-        {
-            StartSequence();
-        }
-        else
-        {
-            Debug.Log(
-                "Event Sequence 자동 시작 안 함: " +
-                "Play Automatically가 꺼져 있습니다."
-            );
-        }
-    }
+   
 
     // <변경부분> 현재 연결된 EventSequenceData를 처음부터 실행한다.
     public void StartSequence()

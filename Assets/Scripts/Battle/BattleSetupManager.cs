@@ -27,12 +27,22 @@ public class BattleSetupManager : MonoBehaviour
     [SerializeField] private PieceManager pieceManager;
     [SerializeField] private BattleManager battleManager;
 
-    // <변경부분> StageBattleData의 보상 데이터를 전달할 전투 종료 흐름 컨트롤러
-    [SerializeField] private BattleEndFlowController battleEndFlowController;
+    // <변경부분> StageBattleData에 연결된 BackgroundMapData를
+    // 실제 BattleScene 배경으로 불러올 BackgroundManager.
+    [SerializeField]
+    private BackgroundManager backgroundManager;
 
-    [Header("Run State")]
-    // <변경부분> 저장된 플레이어 기물 상태가 있으면 StageBattleData의 playerFormationData 대신 사용할지 여부
-    [SerializeField] private bool useRunStatePlayerPieces = true;
+    // <변경부분> 현재 StageBattleData에 연결된
+    // EventSequenceData를 실제 실행할 공용 이벤트 컨트롤러.
+    //
+    // 일반 스테이지에서는 Sequence Data가 null이므로
+    // Controller가 존재해도 아무 이벤트도 실행하지 않는다.
+    [SerializeField]
+    private EventSequenceController eventSequenceController;
+
+    // <변경부분> StageBattleData의 보상 데이터를 전달할 전투 종료 흐름 컨트롤러
+    [SerializeField]
+    private BattleEndFlowController battleEndFlowController;
 
     private void Start()
     {
@@ -83,14 +93,15 @@ public class BattleSetupManager : MonoBehaviour
         }
 
         if (boardManager == null ||
-     pieceManager == null ||
-     battleManager == null ||
-     battleEndFlowController == null)
+    pieceManager == null ||
+    battleManager == null ||
+    backgroundManager == null ||
+    battleEndFlowController == null)
         {
             Debug.LogError(
                 "BattleSetupManager 실패: " +
                 "BoardManager / PieceManager / BattleManager / " +
-                "BattleEndFlowController 연결을 확인하세요."
+                "BackgroundManager / BattleEndFlowController 연결을 확인하세요."
             );
 
             return;
@@ -102,10 +113,21 @@ public class BattleSetupManager : MonoBehaviour
         // 스테이지가 바뀌면 동일한 BattleScene을 사용하더라도
         // 각 StageBattleData의 stageName이 자동으로 표시된다.
         battleManager.SetStageName(
-            stageBattleData.stageName
+    stageBattleData.stageName
+);
+
+        // <변경부분> 현재 StageBattleData에 연결된
+        // BackgroundMapData를 BattleScene 배경으로 불러온다.
+        //
+        // 이전에 Scene에 저장되어 있던 고정 배경은 제거하고,
+        // 현재 스테이지 데이터의 배경 타일 / 장식물 / 위치 정보를
+        // BackgroundManager가 다시 생성한다.
+        backgroundManager.LoadMapFromData(
+            stageBattleData.backgroundMapData
         );
 
-        // <변경부분> StageBattleData의 TileType A/B를 BoardManager에 전달해 보드를 재생성
+        // <변경부분> StageBattleData의 TileType A/B를
+        // BoardManager에 전달해 전투 보드를 재생성한다.
         boardManager.RebuildBoardByTileType(
             stageBattleData.checkerTileTypeA,
             stageBattleData.checkerTileTypeB
@@ -123,15 +145,21 @@ public class BattleSetupManager : MonoBehaviour
 
         // <변경부분> StageBattleData의 승패 조건을 BattleManager에 전달
         battleManager.SetBattleEndCondition(
-            stageBattleData.playerDefeatCondition,
-            stageBattleData.enemyDefeatCondition
+    stageBattleData.playerDefeatCondition,
+    stageBattleData.enemyDefeatCondition
+);
+
+        // <변경부분> 현재 스테이지가 종료될 때
+        // 플레이어 기물 상태를 RunState에 저장할지
+        // StageBattleData 설정을 BattleManager에 전달한다.
+        //
+        // 튜토리얼에서는 false로 설정하여
+        // 튜토리얼 SpawnPiece 및 전투 결과가
+        // 실제 런 기물 상태를 덮어쓰지 않도록 한다.
+        battleManager.SetSavePlayerPiecesToRunState(
+            stageBattleData.savePlayerPiecesToRunState
         );
 
-        // <변경부분> 현재 스테이지에서 Enemy AI가
-        // 고유스킬 사용을 고려할 확률을 BattleManager를 통해 전달한다.
-        //
-        // 0%면 Enemy AI는 고유스킬을 전혀 사용하지 않고,
-        // 100%면 기존 AI 판단을 그대로 사용한다.
         battleManager.SetEnemyAIUniqueSkillUseChance(
             stageBattleData.enemyUniqueSkillUseChance
         );
@@ -144,11 +172,92 @@ public class BattleSetupManager : MonoBehaviour
         // <변경부분> 스테이지별 적 일반스킬 랜덤 부여 규칙 적용
         ApplyEnemyGeneralSkillGrantRules();
 
-        Debug.Log($"전투 세팅 완료: {stageBattleData.stageName}");
+        // <변경부분> 보드 / 기물 / 승패 조건 / 보상 / AI 세팅이
+        // 모두 완료된 뒤 현재 StageBattleData의 Event Sequence를 적용한다.
+        //
+        // EventSequenceData가 null인 일반 스테이지에서는
+        // EventSequenceController가 존재하더라도 아무 이벤트도 실행하지 않는다.
+        //
+        // 튜토리얼이나 이벤트 스테이지에서는
+        // 해당 StageBattleData에 연결된 Sequence만 실행한다.
+        SetupEventSequence();
+
+        Debug.Log(
+    $"전투 세팅 완료: " +
+    $"{stageBattleData.stageName}"
+);
+    }
+
+    // <변경부분> 현재 StageBattleData에 연결된
+    // EventSequenceData를 EventSequenceController에 전달한다.
+    //
+    // 일반 스테이지:
+    // eventSequenceData == null
+    // → Sequence를 비우고 실행하지 않는다.
+    //
+    // 튜토리얼 / 이벤트 스테이지:
+    // eventSequenceData != null
+    // → 해당 데이터만 연결하고,
+    //   Play Automatically 설정에 따라 실행한다.
+    private void SetupEventSequence()
+    {
+        // Event Sequence Controller 자체가 없는 BattleScene이라면
+        // 이벤트 데이터가 없는 일반 전투에서는 그냥 통과한다.
+        if (eventSequenceController == null)
+        {
+            if (stageBattleData.eventSequenceData != null)
+            {
+                Debug.LogWarning(
+                    "Event Sequence 적용 실패: " +
+                    "StageBattleData에는 EventSequenceData가 있지만 " +
+                    "BattleSetupManager의 EventSequenceController가 연결되지 않았습니다."
+                );
+            }
+
+            return;
+        }
+
+        // <변경부분> 이전 Scene Inspector 설정이나
+        // 다른 테스트 데이터에 의존하지 않고,
+        // 현재 StageBattleData의 데이터로 Sequence를 완전히 교체한다.
+        eventSequenceController.SetSequenceData(
+            stageBattleData.eventSequenceData
+        );
+
+        // 일반 스테이지는 여기서 종료한다.
+        if (stageBattleData.eventSequenceData == null)
+        {
+            Debug.Log(
+                "Event Sequence 없음: " +
+                "현재 스테이지는 일반 Battle로 진행합니다."
+            );
+
+            return;
+        }
+
+        // EventSequenceData가 자동 실행을 사용하지 않는 경우
+        // 데이터만 연결하고 외부 호출을 기다린다.
+        if (stageBattleData.eventSequenceData.playAutomatically == false)
+        {
+            Debug.Log(
+                $"Event Sequence 자동 시작 안 함: " +
+                $"{stageBattleData.eventSequenceData.name}"
+            );
+
+            return;
+        }
+
+        // <변경부분> 모든 Battle Setup 완료 이후
+        // 현재 스테이지의 Event Sequence를 명시적으로 시작한다.
+        eventSequenceController.StartSequence();
+
+        Debug.Log(
+            $"Stage Event Sequence 시작: " +
+            $"{stageBattleData.eventSequenceData.name}"
+        );
     }
 
     // <변경부분> 현재 StageBattleData가 전투 세팅에 사용할 수 있는 상태인지 확인하는 함수
-    // RunStateManager에 저장된 플레이어 기물이 있으면 playerFormationData가 없어도 플레이어 배치를 진행할 수 있다.
     private bool IsStageBattleDataValidForSetup()
     {
         if (stageBattleData == null)
@@ -156,8 +265,30 @@ public class BattleSetupManager : MonoBehaviour
             return false;
         }
 
+        // <변경부분> 현재 스테이지에서 사용할
+        // BackgroundMapData가 반드시 연결되어 있어야 한다.
+        //
+        // 데이터가 없는데 Scene의 기존 배경을 그대로 사용하는 것을 막아
+        // 스테이지와 배경 데이터가 항상 1:1로 명확하게 연결되도록 한다.
+        if (stageBattleData.backgroundMapData == null)
+        {
+            Debug.LogWarning(
+                $"StageBattleData 배경 데이터 없음: " +
+                $"{stageBattleData.name}"
+            );
+
+            return false;
+        }
+
+        // <변경부분> 현재 StageBattleData가
+        // RunState 플레이어 기물 사용을 허용하는 경우에만
+        // 저장된 플레이어 기물을 유효한 시작 편성으로 인정한다.
+        //
+        // 튜토리얼처럼 false인 스테이지는
+        // 기존 런 기물이 존재하더라도 무조건
+        // StageBattleData의 playerFormationData를 사용한다.
         bool hasRunStatePlayerPieces =
-            useRunStatePlayerPieces &&
+            stageBattleData.useRunStatePlayerPieces &&
             RunStateManager.Instance != null &&
             RunStateManager.Instance.HasPlayerPieceRuntimeData;
 
@@ -189,10 +320,12 @@ public class BattleSetupManager : MonoBehaviour
         return true;
     }
 
-    // <변경부분> 저장된 플레이어 기물이 있으면 런 저장 데이터를 사용하고, 없으면 StageBattleData 기본 편성을 사용
     private void SpawnPlayerPieces()
     {
-        if (useRunStatePlayerPieces &&
+        // <변경부분> 현재 StageBattleData가
+        // RunState 기물 사용을 허용한 경우에만
+        // 이전 스테이지에서 저장된 플레이어 기물을 불러온다.
+        if (stageBattleData.useRunStatePlayerPieces &&
             RunStateManager.Instance != null &&
             RunStateManager.Instance.HasPlayerPieceRuntimeData)
         {
@@ -204,13 +337,24 @@ public class BattleSetupManager : MonoBehaviour
                 false
             );
 
-            Debug.Log($"저장된 런 상태 플레이어 기물 배치 완료: {playerRuntimePieces.Count}개");
+            Debug.Log(
+                $"저장된 런 상태 플레이어 기물 배치 완료: " +
+                $"{playerRuntimePieces.Count}개"
+            );
+
             return;
         }
 
+        // <변경부분> RunState를 사용하지 않는 스테이지는
+        // 기존 런 상태와 무관하게
+        // StageBattleData의 독립 플레이어 편성을 사용한다.
         if (stageBattleData.playerFormationData == null)
         {
-            Debug.LogWarning("플레이어 기본 편성 배치 실패: playerFormationData가 없습니다.");
+            Debug.LogWarning(
+                "플레이어 기본 편성 배치 실패: " +
+                "playerFormationData가 없습니다."
+            );
+
             return;
         }
 
@@ -218,7 +362,10 @@ public class BattleSetupManager : MonoBehaviour
             stageBattleData.playerFormationData.spawnDataList
         );
 
-        Debug.Log($"StageBattleData 기본 플레이어 편성 배치 완료: {stageBattleData.playerFormationData.formationName}");
+        Debug.Log(
+            $"StageBattleData 기본 플레이어 편성 배치 완료: " +
+            $"{stageBattleData.playerFormationData.formationName}"
+        );
     }
 
     // <변경부분> 현재 적 PieceFormationData의 배치 방식에 따라

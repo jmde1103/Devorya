@@ -13,6 +13,31 @@ public class StageBattleData : ScriptableObject
     // <변경부분> 인스펙터에서만 확인하는 메모용 설명
     public string description;
 
+    [Header("Event Sequence")]
+    // <변경부분> 이 스테이지에서 실행할
+    // 튜토리얼 / 전투 이벤트 / 스토리 이벤트 데이터.
+    //
+    // 일반 전투:
+    // None
+    //
+    // 튜토리얼 / 이벤트 전투:
+    // 사용할 EventSequenceData 연결
+    //
+    // BattleScene 자체에는 특정 튜토리얼 데이터를 고정하지 않고,
+    // 현재 StageBattleData가 필요한 Sequence를 결정한다.
+    public EventSequenceData eventSequenceData;
+
+    [Header("Background Map")]
+    // <변경부분> 이 스테이지에서 사용할 배경 맵 데이터.
+    //
+    // BackgroundManager에서 제작 후 저장한 BackgroundMapData를 연결한다.
+    // BattleSetupManager가 BattleScene 진입 시 이 데이터를
+    // BackgroundManager에 전달하여 실제 배경과 장식물을 다시 생성한다.
+    //
+    // 따라서 같은 BattleScene을 사용하더라도
+    // StageBattleData마다 서로 다른 배경 맵을 사용할 수 있다.
+    public BackgroundMapData backgroundMapData;
+
     [Header("Checker Tile Type")]
     // <변경부분> 체크무늬 A칸에 사용할 타일 타입
     // 실제 TileData는 BoardManager가 TileDatabase에서 찾아서 적용한다.
@@ -34,9 +59,35 @@ public class StageBattleData : ScriptableObject
         BattleDefeatConditionType.AllPiecesDead | BattleDefeatConditionType.NoActionablePieces;
 
     [Header("Player Formation")]
-    // <변경부분> 현재 테스트 전투에서 사용할 플레이어 기물 편성 데이터
-    // 나중에 PlayerPartyData가 생기면 이 필드는 테스트용 또는 초기 편성용으로 축소된다.
+    // <변경부분> 저장된 런 기물을 사용하지 않는 스테이지에서
+    // 기본적으로 생성할 플레이어 기물 편성 데이터
     public PieceFormationData playerFormationData;
+
+    [Header("Player Run State")]
+    // <변경부분> 이 스테이지에 진입할 때
+    // RunStateManager에 저장된 플레이어 기물 상태를 불러올지 여부.
+    //
+    // 일반 전투:
+    // true
+    //
+    // 튜토리얼 / 독립 이벤트 전투:
+    // false
+    public bool useRunStatePlayerPieces =
+        true;
+
+    // <변경부분> 이 스테이지에서 승리했을 때
+    // 현재 플레이어 기물 상태를 RunStateManager에 저장할지 여부.
+    //
+    // 일반 전투:
+    // true
+    //
+    // 튜토리얼 / 독립 이벤트 전투:
+    // false
+    //
+    // false인 스테이지에서는 튜토리얼용 SpawnPiece,
+    // 흡수, 사망, 스킬 변화 등이 기존 런의 기물 상태를 덮어쓰지 않는다.
+    public bool savePlayerPiecesToRunState =
+        true;
 
     [Header("Enemy Formation")]
     // <변경부분> 이 스테이지에서 사용할 적 기물 편성 데이터
@@ -72,6 +123,13 @@ public class StageBattleData : ScriptableObject
     // <변경부분> 스테이지 데이터가 최소 실행 가능한 상태인지 확인
     public bool IsValid()
     {
+        // <변경부분> 모든 전투 스테이지는
+        // 자신이 사용할 BackgroundMapData를 가지고 있어야 한다.
+        if (backgroundMapData == null)
+        {
+            return false;
+        }
+
         if (playerFormationData == null)
         {
             return false;

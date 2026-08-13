@@ -19,6 +19,22 @@ public class PopupOpenAnimator : MonoBehaviour
     // 현재 실행 중인 애니메이션 코루틴
     private Coroutine openCoroutine;
 
+    // <변경부분> 외부 컨트롤러가
+    // PopupOpenAnimator의 애니메이션 종료를 기다릴 수 있도록
+    // 현재 실행 여부를 공개한다.
+    //
+    // TextCutsceneController에서는 마지막 노이즈 소멸이
+    // 완전히 끝난 뒤 다음 Scene으로 이동하는 데 사용한다.
+    public bool IsPlaying
+    {
+        get
+        {
+            return openCoroutine != null;
+        }
+    }
+
+    // <변경부분> 현재 오픈 애니메이션에서 사용할 기준 위치
+
     // <변경부분> 현재 오픈 애니메이션에서 사용할 기준 위치
     // TooltipPopupUI가 위치를 먼저 설정한 뒤 PlayOpen()을 호출하므로
     // 매 오픈마다 정상적인 현재 위치를 새 기준으로 저장한다.

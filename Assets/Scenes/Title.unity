@@ -1902,7 +1902,7 @@ MonoBehaviour:
     - {fileID: 1794148009}
   floatingPixelEffect: {fileID: 780048083}
   playStageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
-  playSceneName: BattleLevel1Scene
+  playSceneName: TextCutsceneScene
 --- !u!114 &774431158
 MonoBehaviour:
   m_ObjectHideFlags: 0

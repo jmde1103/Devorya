@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d259d185b174c341acb010065fee5ff, type: 3}
+  m_Name: AfterTutorial_Error
+  m_EditorClassIdentifier: Assembly-CSharp::TextCutsceneData
+  cutsceneName: "\uC5D0\uB7EC\uCC3D"
+  description: "\uD29C\uD1A0\uB9AC\uC5BC \uD6C4 \uC2E4\uD589"
+  textPages:
+  - "\uC608\uAE30\uCE58 \uBABB\uD55C \uC2DC\uC2A4\uD15C \uC624\uB958\uB85C \uC778\uD574
+    \uB9AC\uBD80\uD2B8\uB418\uC5C8\uC2B5\uB2C8\uB2E4.<glitch=0.08><wait=0.5>\\n\\n\n\uC2DC\uC2A4\uD15C
+    \uC0C1\uD0DC\uB97C \uD655\uC778\uD569\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.4>\\n\\n\\n\n\uC778\uACA9
+    \uB370\uC774\uD130 \uB3D9\uAE30\uD654\uB97C \uC2DC\uB3C4\uD569\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.7>\\n\n\uB3D9\uAE30\uD654
+    \uC2E4\uD328.<glitch=0.18><wait=0.4>\\n\n\uC720\uD6A8\uD55C \uC778\uACA9 \uB370\uC774\uD130\uB97C
+    \uD655\uC778\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.<glitch=0.08><wait=0.5>\\n\\n\\n\nAI
+    \uB2E8\uB3C5 \uC6B4\uC6A9 \uBAA8\uB4DC\uB85C \uC804\uD658\uD569\uB2C8\uB2E4.<glitch=0.12><wait=0.6>\\n\\n\\n"
+  - "SOUL DEVOURER PROJECT<glitch=0.08>\\n\n\uC790\uB3D9 \uC2E4\uD589 \uD504\uB85C\uD1A0\uCF5C\uC744
+    \uC7AC\uAC1C\uD569\uB2C8\uB2E4.<wait=0.6>\\n\\n\\n\n\uD604\uC7AC \uC704\uCE58
+    \uB370\uC774\uD130\uB97C \uD655\uC778\uD569\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.5>\\n\n\uD604\uC7AC
+    \uC704\uCE58\uB97C \uD655\uC778\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.<glitch=0.18><wait=0.6>\\n\\n\n\uC8FC\uBCC0
+    \uD658\uACBD \uC2A4\uCE94\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.5>\\n\n\uD658\uACBD
+    \uB370\uC774\uD130\uB97C \uC218\uC9D1 \uC911\uC785\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.4>\\n\n\uC218\uC9D1\uB41C
+    \uD658\uACBD \uB370\uC774\uD130\uB97C \uC804\uC1A1\uD569\uB2C8\uB2E4.<glitch=0.08><wait=0.5>\\n\\n\\n\nLOADING<wait=0.3>.<wait=0.3>.<wait=0.3>."
+  characterInterval: 0.01
+  pageHoldDuration: 1.2
+  betweenPageDelay: 0.2
+  finalHoldDuration: 0.4
+  useUnscaledTime: 1
+  useTypingCursor: 1
+  cursorCharacter: _
+  cursorBlinkInterval: 0.35
+  useInlineGlitch: 1
+  glitchPositionJitter: {x: 40, y: 2}
+  glitchScaleXRange: {x: 0.55, y: 1.65}
+  glitchScaleYRange: {x: 0.9, y: 1.12}
+  glitchRotationRange: 1.5
+  glitchFrameInterval: 0.025
+  normalTextColor: {r: 1, g: 1, b: 1, a: 1}
+  useGlitchColorFlicker: 1
+  glitchColorA: {r: 1, g: 0, b: 0.7166244, a: 1}
+  glitchColorB: {r: 0, g: 0.46102333, b: 1, a: 1}
+  includeNormalColorInGlitch: 0
+  useGlitchAlphaFlicker: 0
+  glitchMinAlpha: 0.35
+  endAnimationData: {fileID: 11400000, guid: 989c18b1ea0b65749b25430910daa3d9, type: 2}
+  nextSceneName: WorldMapScene
+  nextStageBattleData: {fileID: 0}
+  battleNodeId: 
