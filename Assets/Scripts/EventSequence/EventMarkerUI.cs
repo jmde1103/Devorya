@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // <변경부분> 튜토리얼 / 이벤트에서
@@ -68,6 +69,33 @@ public class EventMarkerUI : MonoBehaviour
     // 비워두면 Camera.main 사용.
     [SerializeField]
     private Camera worldCamera;
+
+    [Header("Fade Animation")]
+    // <변경부분> World / UI Event Marker가
+    // 화면에 나타날 때 사용할 공통 페이드 인 시간.
+    [SerializeField, Min(0f)]
+    private float fadeInDuration =
+     0.15f;
+
+    // <변경부분> ForcePiece / ForceTile / ForceButton 완료 후
+    // Marker가 사라질 때 사용할 공통 페이드 아웃 시간.
+    [SerializeField, Min(0f)]
+    private float fadeOutDuration =
+        0.15f;
+
+    // <변경부분> World Marker의 알파값을 조절할 SpriteRenderer.
+    // Inspector 연결이 비어 있으면 World Marker에서 자동으로 찾는다.
+    [SerializeField]
+    private SpriteRenderer worldMarkerRenderer;
+
+    // <변경부분> UI Marker 전체 알파값을 조절할 CanvasGroup.
+    // Inspector 연결이 비어 있으면 자동으로 찾거나 생성한다.
+    [SerializeField]
+    private CanvasGroup uiMarkerCanvasGroup;
+
+    // <변경부분> 현재 실행 중인 Marker Fade 코루틴.
+    // 새 Marker가 표시되거나 즉시 Hide될 때 기존 Fade를 중단한다.
+    private Coroutine markerFadeCoroutine;
 
     [Header("Float Animation")]
     // <변경부분> World Marker의 상하 부유 거리.
@@ -366,11 +394,14 @@ public class EventMarkerUI : MonoBehaviour
 
         if (targetRectTransform == null)
         {
-            Debug.LogWarning(
-                $"이벤트 버튼 마커 표시 실패: " +
-                $"{buttonType}의 UI 대상을 찾지 못했습니다."
-            );
-
+            // <변경부분> FieldAbsorbButton처럼
+            // 이전 Battle 입력 직후 약간 늦게 활성화되는
+            // 동적 UI가 존재할 수 있다.
+            //
+            // 여기서는 실패 로그를 반복 출력하지 않고
+            // false만 반환한다.
+            // EventSequenceController가 잠시 재시도한 뒤
+            // 최종적으로 실패했을 때 한 번만 Warning을 출력한다.
             Hide();
 
             return false;
@@ -462,6 +493,10 @@ public class EventMarkerUI : MonoBehaviour
             );
         }
 
+        // <변경부분> 이전 Marker Fade가 남아 있다면
+        // 새 Marker 표시 전에 중단한다.
+        StopMarkerFadeCoroutine();
+
         // UI Marker가 표시 중이었다면 먼저 숨긴다.
         if (uiMarkerRectTransform != null)
         {
@@ -479,6 +514,21 @@ public class EventMarkerUI : MonoBehaviour
         ApplyWorldMarkerPosition(
             0f
         );
+
+        // <변경부분> World Marker는 투명 상태에서 시작해
+        // Fade In으로 자연스럽게 나타난다.
+        SetWorldMarkerAlpha(
+            0f
+        );
+
+        markerFadeCoroutine =
+            StartCoroutine(
+                FadeWorldMarkerRoutine(
+                    0f,
+                    1f,
+                    fadeInDuration
+                )
+            );
 
         Debug.Log(
             $"이벤트 World Marker 표시 시작: " +
@@ -548,6 +598,10 @@ public class EventMarkerUI : MonoBehaviour
             );
         }
 
+        // <변경부분> 이전 Marker Fade가 남아 있다면
+        // 새 Marker 표시 전에 중단한다.
+        StopMarkerFadeCoroutine();
+
         // 다른 UI에 가려지지 않도록
         // UI Marker를 MarkerLayer의 마지막으로 이동한다.
         uiMarkerRectTransform.SetAsLastSibling();
@@ -561,6 +615,21 @@ public class EventMarkerUI : MonoBehaviour
         ApplyUIMarkerPosition(
             0f
         );
+
+        // <변경부분> UI Marker는 투명 상태에서 시작해
+        // CanvasGroup Alpha로 자연스럽게 나타난다.
+        SetUIMarkerAlpha(
+            0f
+        );
+
+        markerFadeCoroutine =
+            StartCoroutine(
+                FadeUIMarkerRoutine(
+                    0f,
+                    1f,
+                    fadeInDuration
+                )
+            );
 
         Debug.Log(
             $"이벤트 UI Marker 표시 시작: " +
@@ -702,9 +771,15 @@ public class EventMarkerUI : MonoBehaviour
         );
     }
 
-    // <변경부분> UI Marker는
-    // World 대상이면 WorldToScreenPoint,
-    // UI 대상이면 RectTransform 화면 좌표를 사용한다.
+    // <변경부분> UI Marker의 대상 위치를 먼저
+    // UI Marker Parent의 로컬 Canvas 좌표로 변환한 뒤,
+    // Event Step의 Marker Position Offset을
+    // Canvas 좌표 단위로 직접 적용한다.
+    //
+    // 기존에는 Offset을 Screen Pixel 좌표에 먼저 더한 뒤
+    // Canvas 좌표로 변환하고 있었기 때문에
+    // CanvasScaler / 해상도 설정에 따라
+    // Inspector Offset이 의도대로 적용되지 않았다.
     private void ApplyUIMarkerPosition(
         float floatOffset)
     {
@@ -716,6 +791,8 @@ public class EventMarkerUI : MonoBehaviour
 
         Vector2 targetScreenPosition;
 
+        // <변경부분> World 대상을 UI Marker로 가리키는 경우
+        // 먼저 대상 World Position을 Screen Position으로 변환한다.
         if (worldTarget != null)
         {
             Camera targetCamera =
@@ -735,23 +812,63 @@ public class EventMarkerUI : MonoBehaviour
         }
         else
         {
+            // <변경부분> 실제 UI Button 대상은
+            // 해당 RectTransform의 중심 Screen Position을 사용한다.
             targetScreenPosition =
                 GetUIScreenPosition(
                     uiTarget
                 );
         }
 
-        Vector2 finalScreenPosition =
-            targetScreenPosition +
+        Camera markerUICamera =
+            null;
+
+        if (uiMarkerCanvas != null &&
+            uiMarkerCanvas.renderMode !=
+                RenderMode.ScreenSpaceOverlay)
+        {
+            markerUICamera =
+                uiMarkerCanvas.worldCamera;
+        }
+
+        Vector2 targetLocalPosition;
+
+        // <변경부분> 대상 Screen Position만
+        // Marker Parent의 로컬 Canvas 좌표로 변환한다.
+        bool converted =
+            RectTransformUtility
+                .ScreenPointToLocalPointInRectangle(
+                    uiMarkerParent,
+                    targetScreenPosition,
+                    markerUICamera,
+                    out targetLocalPosition
+                );
+
+        if (converted == false)
+        {
+            return;
+        }
+
+        // <변경부분> 변환이 끝난 Canvas 좌표에
+        // Event Step의 Position Offset과
+        // UI 부유 애니메이션을 직접 더한다.
+        //
+        // 이제 Inspector에서:
+        //
+        // X = 100
+        // → 마커가 Canvas 기준 오른쪽 100 이동
+        //
+        // Y = 50
+        // → 마커가 Canvas 기준 위쪽 50 이동
+        //
+        // 으로 일관되게 작동한다.
+        uiMarkerRectTransform.anchoredPosition =
+            targetLocalPosition +
             currentPositionOffset +
             new Vector2(
                 0f,
                 floatOffset
             );
-
-        ApplyUIScreenPosition(
-            finalScreenPosition
-        );
     }
 
     // UI RectTransform의 중심 위치를
@@ -826,6 +943,269 @@ public class EventMarkerUI : MonoBehaviour
 
         uiMarkerRectTransform.anchoredPosition =
             localPosition;
+    }
+
+    // <변경부분> 현재 표시 중인 Event Marker를
+    // 자연스럽게 페이드 아웃한 뒤 숨긴다.
+    //
+    // 정상적인 ForcePiece / ForceTile / ForceButton 완료 시 사용한다.
+    // 오류 처리나 Scene 종료처럼 즉시 제거가 필요한 경우에는
+    // 기존 Hide()를 그대로 사용한다.
+    public IEnumerator HideWithFadeRoutine()
+    {
+        StopMarkerFadeCoroutine();
+
+        if (currentDisplayType ==
+            EventMarkerDisplayType.World)
+        {
+            if (worldMarkerTransform != null &&
+                worldMarkerTransform.gameObject.activeSelf)
+            {
+                float startAlpha =
+                    GetWorldMarkerAlpha();
+
+                yield return
+                    FadeWorldMarkerRoutine(
+                        startAlpha,
+                        0f,
+                        fadeOutDuration
+                    );
+            }
+        }
+        else
+        {
+            if (uiMarkerRectTransform != null &&
+                uiMarkerRectTransform.gameObject.activeSelf)
+            {
+                float startAlpha =
+                    GetUIMarkerAlpha();
+
+                yield return
+                    FadeUIMarkerRoutine(
+                        startAlpha,
+                        0f,
+                        fadeOutDuration
+                    );
+            }
+        }
+
+        // <변경부분> Fade가 완전히 끝난 뒤에만
+        // Target 참조와 실제 Marker GameObject를 정리한다.
+        Hide();
+    }
+
+    // <변경부분> World Marker SpriteRenderer의
+    // 현재 Alpha 값을 반환한다.
+    private float GetWorldMarkerAlpha()
+    {
+        if (worldMarkerRenderer == null)
+        {
+            return 1f;
+        }
+
+        return
+            worldMarkerRenderer.color.a;
+    }
+
+    // <변경부분> World Marker의 RGB는 유지하고
+    // Alpha 값만 변경한다.
+    private void SetWorldMarkerAlpha(
+        float alpha)
+    {
+        if (worldMarkerRenderer == null)
+        {
+            return;
+        }
+
+        Color markerColor =
+            worldMarkerRenderer.color;
+
+        markerColor.a =
+            Mathf.Clamp01(
+                alpha
+            );
+
+        worldMarkerRenderer.color =
+            markerColor;
+    }
+
+    // <변경부분> UI Marker CanvasGroup의
+    // 현재 Alpha 값을 반환한다.
+    private float GetUIMarkerAlpha()
+    {
+        if (uiMarkerCanvasGroup == null)
+        {
+            return 1f;
+        }
+
+        return
+            uiMarkerCanvasGroup.alpha;
+    }
+
+    // <변경부분> UI Marker 전체의 Alpha 값을 변경한다.
+    private void SetUIMarkerAlpha(
+        float alpha)
+    {
+        if (uiMarkerCanvasGroup == null)
+        {
+            return;
+        }
+
+        uiMarkerCanvasGroup.alpha =
+            Mathf.Clamp01(
+                alpha
+            );
+    }
+
+    // <변경부분> World Marker Fade 코루틴.
+    // Event 연출은 TimeScale에 영향받지 않도록
+    // unscaledDeltaTime을 사용한다.
+    private IEnumerator FadeWorldMarkerRoutine(
+        float startAlpha,
+        float targetAlpha,
+        float duration)
+    {
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                duration
+            );
+
+        if (safeDuration <= 0f)
+        {
+            SetWorldMarkerAlpha(
+                targetAlpha
+            );
+
+            markerFadeCoroutine =
+                null;
+
+            yield break;
+        }
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    safeDuration
+                );
+
+            float easedTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            SetWorldMarkerAlpha(
+                Mathf.Lerp(
+                    startAlpha,
+                    targetAlpha,
+                    easedTime
+                )
+            );
+
+            yield return null;
+        }
+
+        SetWorldMarkerAlpha(
+            targetAlpha
+        );
+
+        markerFadeCoroutine =
+            null;
+    }
+
+    // <변경부분> UI Marker Fade 코루틴.
+    // CanvasGroup Alpha만 변경하므로
+    // 기존 위치 추적과 Float Animation은 그대로 유지된다.
+    private IEnumerator FadeUIMarkerRoutine(
+        float startAlpha,
+        float targetAlpha,
+        float duration)
+    {
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                duration
+            );
+
+        if (safeDuration <= 0f)
+        {
+            SetUIMarkerAlpha(
+                targetAlpha
+            );
+
+            markerFadeCoroutine =
+                null;
+
+            yield break;
+        }
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    safeDuration
+                );
+
+            float easedTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            SetUIMarkerAlpha(
+                Mathf.Lerp(
+                    startAlpha,
+                    targetAlpha,
+                    easedTime
+                )
+            );
+
+            yield return null;
+        }
+
+        SetUIMarkerAlpha(
+            targetAlpha
+        );
+
+        markerFadeCoroutine =
+            null;
+    }
+
+    // <변경부분> 새 Marker 표시 또는 즉시 Hide 시
+    // 기존 Fade 코루틴을 안전하게 중단한다.
+    private void StopMarkerFadeCoroutine()
+    {
+        if (markerFadeCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(
+            markerFadeCoroutine
+        );
+
+        markerFadeCoroutine =
+            null;
     }
 
     // <변경부분> EventMarkerUI가 비활성 상태에서 시작했더라도
@@ -904,12 +1284,55 @@ public class EventMarkerUI : MonoBehaviour
             worldCamera =
                 Camera.main;
         }
+
+        // <변경부분> World Marker의 SpriteRenderer가
+        // Inspector에 연결되지 않았다면 자동으로 찾는다.
+        if (worldMarkerRenderer == null &&
+            worldMarkerTransform != null)
+        {
+            worldMarkerRenderer =
+                worldMarkerTransform
+                    .GetComponent<SpriteRenderer>();
+
+            if (worldMarkerRenderer == null)
+            {
+                worldMarkerRenderer =
+                    worldMarkerTransform
+                        .GetComponentInChildren<SpriteRenderer>(
+                            true
+                        );
+            }
+        }
+
+        // <변경부분> UI Marker CanvasGroup이 없으면
+        // Marker Root에 자동으로 추가한다.
+        //
+        // Image 하나뿐 아니라 자식 Graphic까지
+        // 전체 Marker가 함께 Fade되도록 CanvasGroup을 사용한다.
+        if (uiMarkerCanvasGroup == null &&
+            uiMarkerRectTransform != null)
+        {
+            uiMarkerCanvasGroup =
+                uiMarkerRectTransform
+                    .GetComponent<CanvasGroup>();
+
+            if (uiMarkerCanvasGroup == null)
+            {
+                uiMarkerCanvasGroup =
+                    uiMarkerRectTransform.gameObject
+                        .AddComponent<CanvasGroup>();
+            }
+        }
     }
 
     // <변경부분> 현재 World / UI 마커와
     // 모든 추적 상태를 한 번에 초기화한다.
     public void Hide()
     {
+        // <변경부분> 강제 Hide가 호출되면
+        // 진행 중인 Fade 연출부터 안전하게 중단한다.
+        StopMarkerFadeCoroutine();
+
         worldTarget =
             null;
 
@@ -921,6 +1344,16 @@ public class EventMarkerUI : MonoBehaviour
 
         currentPositionOffset =
             Vector2.zero;
+
+        // <변경부분> 다음 Show에서 항상
+        // 정상 Alpha 기준으로 시작할 수 있도록 복구한다.
+        SetWorldMarkerAlpha(
+            1f
+        );
+
+        SetUIMarkerAlpha(
+            1f
+        );
 
         if (worldMarkerTransform != null)
         {

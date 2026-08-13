@@ -23,8 +23,8 @@ MonoBehaviour:
     gridPosition: {x: 23, y: 14}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: BattleLevel1Scene
-    stageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
+    targetSceneName: BattleScene
+    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -40,7 +40,7 @@ MonoBehaviour:
     gridPosition: {x: 28, y: 14}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: BattleLevel1Scene
+    targetSceneName: BattleScene
     stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
     gridPosition: {x: 29, y: 8}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: BattleLevel1Scene
+    targetSceneName: BattleScene
     stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0

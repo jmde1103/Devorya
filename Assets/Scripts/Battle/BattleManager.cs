@@ -2537,7 +2537,48 @@ public class BattleManager : MonoBehaviour
 
         isActionAnimating = false;
 
-        // 이동 또는 공격 완료 후 턴 종료
+        // <변경부분> 현재 Event Sequence가
+        // Enemy AI를 정지한 상태로 전투 행동을 직접 제어하고 있다면
+        // 일반 Battle의 자동 EndTurn을 실행하지 않는다.
+        //
+        // 튜토리얼에서는:
+        // ForcePieceSelect
+        // → ForceTileSelect
+        // → Absorb
+        // → 다시 ForcePieceSelect
+        //
+        // 처럼 여러 행동을 같은 Player Turn 안에서
+        // 연속으로 진행해야 하므로 턴을 유지한다.
+        //
+        // Event Sequence가 없거나
+        // Pause Enemy AI While Sequence Active가 OFF라면
+        // 기존 일반 전투처럼 아래 EndTurn()으로 진행한다.
+        if (eventSequenceController != null &&
+            eventSequenceController
+                .ShouldHoldBattleTurnForSequence)
+        {
+            // <변경부분> 일반 전투에서는 EndTurn()이
+            // 마지막 행동 타일을 포함한 모든 하이라이트를 정리한다.
+            //
+            // Event Sequence에서는 턴을 유지하기 위해
+            // EndTurn() 자체를 건너뛰므로,
+            // 행동이 끝난 시점에 하이라이트만 별도로 정리한다.
+            //
+            // 따라서 공격 / 흡수 확정 타일에 남아 있던
+            // ShowActionConfirmHighlight 색상이
+            // 다음 Event Step 입력을 기다리지 않고 즉시 원래 색으로 돌아간다.
+            ClearHighlights();
+
+            Debug.Log(
+                "Event Sequence 전투 행동 완료: " +
+                "행동 타일을 정리하고 현재 Player Turn을 유지합니다."
+            );
+
+            yield break;
+        }
+
+        // 일반 전투에서는 기존대로
+        // 이동 또는 공격 완료 후 턴을 종료한다.
         EndTurn();
     }
 
@@ -3581,21 +3622,58 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 모든 기물 타입 아이콘 표시 상태 전환
+    // <변경부분> 모든 기물 타입 아이콘 표시 상태 전환.
+    //
+    // 일반 전투에서는 기존처럼 자유롭게 사용할 수 있고,
+    // Event Sequence의 ForceButton에서 TypeInfo를 기다리는 경우에는
+    // 해당 버튼이 허용된 상태에서만 실행한다.
     public void ToggleTypeIcons()
     {
-        // 기물 타입 아이콘 표시 버튼 위치에서
-        // 검은 픽셀 파티클 재생
+        // <변경부분> 현재 Event Sequence가
+        // 다른 특정 버튼 입력을 강제하고 있다면
+        // TypeInfo 버튼 기능 자체를 실행하지 않는다.
+        if (eventSequenceController != null &&
+            eventSequenceController.CanPressButton(
+                EventSequenceButtonType.TypeInfo) ==
+            false)
+        {
+            return;
+        }
+
         PlayTypeIconButtonPixelBurst();
 
-        // 전체 타입 아이콘 토글 상태 반전
         isTypeIconVisible =
             !isTypeIconVisible;
 
-        // <변경부분> 선택 상태와 상대 정보 확인 상태까지 포함해
-        // 전체 보드의 타입 아이콘 표시를 다시 계산한다.
         RefreshTypeIconVisuals();
+
+        // <변경부분> 타입 정보 버튼 기능이 정상 실행된 뒤
+        // 현재 ForceButton Step 완료를 통지한다.
+        if (eventSequenceController != null)
+        {
+            eventSequenceController.NotifyButtonPressed(
+                EventSequenceButtonType.TypeInfo
+            );
+        }
     }
+
+    // <변경부분> EventMarkerUI가 TypeInfo ForceButton의
+    // 실제 UI 위치를 찾을 수 있도록
+    // 현재 Type Icon Button의 RectTransform을 반환한다.
+    //
+    // BattleUIController에 같은 Button 참조를
+    // 중복으로 연결하지 않기 위해 BattleManager가 위치를 제공한다.
+    public RectTransform GetTypeInfoButtonMarkerTarget()
+    {
+        if (typeIconButton == null)
+        {
+            return null;
+        }
+
+        return
+            typeIconButton.GetComponent<RectTransform>();
+    }
+
 
     // <변경부분> 기물 타입 아이콘 표시 버튼 위치에서 검은 픽셀 파티클을 재생하는 함수
     private void PlayTypeIconButtonPixelBurst()

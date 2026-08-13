@@ -48,6 +48,15 @@ public enum EventSequenceButtonType
 
     Absorb,
     UniqueSkill,
+
+    // <변경부분> 보드 위 기물들의
+    // 타입 정보 아이콘 표시 / 숨김 버튼.
+    //
+    // 튜토리얼 ForceButton에서
+    // 플레이어에게 타입 정보 확인 버튼을
+    // 직접 누르도록 강제할 때 사용한다.
+    TypeInfo,
+
     DeploymentConfirm,
     EndTurn
 }

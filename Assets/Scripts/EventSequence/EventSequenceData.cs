@@ -98,10 +98,23 @@ public class EventSequenceData : ScriptableObject
     [Header("Completion")]
     // 모든 Step이 끝났을 때 실행할 종료 방식
     public EventSequenceCompletionType completionType =
-        EventSequenceCompletionType.None;
+    EventSequenceCompletionType.None;
 
     // completionType이 LoadScene일 때 사용할 씬 이름
     public string completionSceneName;
+
+    // <변경부분> Completion에서 다른 TextCutsceneScene으로 이동할 때
+    // 다음 컷씬에서 실행할 TextCutsceneData.
+    //
+    // None:
+    // 별도의 컷씬 데이터를 전달하지 않는다.
+    // TextCutsceneScene으로 이동하더라도
+    // 해당 Scene의 Inspector 기본 데이터가 그대로 사용된다.
+    //
+    // Data 지정:
+    // Scene 이동 직전에 TextCutsceneRuntimeState에 등록하여
+    // 다음 TextCutsceneScene이 이 데이터를 우선 실행한다.
+    public TextCutsceneData completionCutsceneData;
 
     // <변경부분> 최소한 실행 가능한 데이터인지 확인한다.
     public bool IsValid()

@@ -581,6 +581,20 @@ public class BattleUIController : MonoBehaviour
 
                 return null;
 
+            case EventSequenceButtonType.TypeInfo:
+                // <변경부분> TypeInfo 버튼은
+                // 현재 BattleManager가 실제 Button 참조를 소유하고 있으므로
+                // 중복 Inspector 연결 없이 BattleManager에서
+                // 해당 RectTransform을 받아온다.
+                if (battleManager != null)
+                {
+                    return
+                        battleManager
+                            .GetTypeInfoButtonMarkerTarget();
+                }
+
+                return null;
+
             case EventSequenceButtonType.DeploymentConfirm:
                 // 배치 확인도 기존 Absorb Button 루트를 재사용한다.
                 if (absorbButton != null)

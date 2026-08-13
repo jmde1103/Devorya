@@ -188,11 +188,30 @@ public class EventSequenceController : MonoBehaviour
         }
     }
 
+    // <변경부분> 현재 Event Sequence가
+    // Enemy AI를 정지한 상태로 전투 입력을 직접 진행하고 있다면
+    // 일반 이동 / 공격 / 흡수 행동이 끝나도
+    // BattleManager가 자동으로 턴을 넘기지 않도록 한다.
+    //
+    // 튜토리얼에서는 여러 ForcePiece / ForceTile / ForceButton Step을
+    // 같은 Player Turn 안에서 연속으로 실행해야 하므로 사용한다.
+    //
+    // Event Sequence가 없거나
+    // Pause Enemy AI While Sequence Active가 꺼져 있으면 false이므로
+    // 일반 전투의 기존 EndTurn 흐름에는 영향을 주지 않는다.
+    public bool ShouldHoldBattleTurnForSequence
+    {
+        get
+        {
+            return
+                isSequenceActive &&
+                sequenceData != null &&
+                sequenceData.pauseEnemyAIWhileSequenceActive;
+        }
+    }
+
     // <변경부분> 현재 자동 실행 중인 Event Sequence가
     // 기존 플레이어 초기 배치를 건너뛰어야 하는지 반환한다.
-    //
-    // Sequence가 실행 중이지 않으면 항상 false이므로
-    // 일반 Battle Scene에는 영향을 주지 않는다.
     public bool ShouldSkipNormalPlayerDeployment
     {
         get
@@ -804,10 +823,10 @@ public class EventSequenceController : MonoBehaviour
         // <변경부분> Step에서 Show Marker를 켠 경우
         // 현재 강제 선택 대상 기물을 자동으로 가리킨다.
         if (step.showMarker &&
-     eventMarkerUI != null)
+            eventMarkerUI != null)
         {
-            // <변경부분> 현재 Step에서 지정한
-            // World / UI 마커 방식과 위치 Offset을 함께 전달한다.
+            // <변경부분> ForcePieceSelect는
+            // 기존 기물 좌표 + Team을 기준으로 마커를 표시한다.
             eventMarkerUI.ShowForPiece(
                 requiredPiecePosition,
                 requiredPieceTeam,
@@ -832,11 +851,14 @@ public class EventSequenceController : MonoBehaviour
             yield return null;
         }
 
-        // <변경부분> 지정 기물 선택이 끝났으므로
-        // 현재 Step에서 사용하던 마커를 숨긴다.
+        // <변경부분> 지정 타일 클릭 완료 후
+        // World / UI Marker가 부드럽게 사라진 뒤
+        // 다음 Event Step으로 진행한다.
         if (eventMarkerUI != null)
         {
-            eventMarkerUI.Hide();
+            yield return
+                eventMarkerUI
+                    .HideWithFadeRoutine();
         }
 
         Debug.Log(
@@ -928,17 +950,18 @@ public class EventSequenceController : MonoBehaviour
             true;
 
         // <변경부분> 현재 ForceButton Step의 Show Marker가 켜져 있다면
-        // ButtonType을 실제 UI 위치로 해석하여 자동으로 가리킨다.
+        // 실제 버튼이 활성화될 때까지 잠시 기다리며 Marker 표시를 재시도한다.
+        //
+        // FieldAbsorbButton은 이전 공격 타일 선택 직후
+        // 타입 아이콘 전환 연출을 거친 뒤 늦게 활성화될 수 있으므로,
+        // Step 시작 프레임에 한 번만 찾고 포기하지 않는다.
         if (step.showMarker &&
-    eventMarkerUI != null)
+            eventMarkerUI != null)
         {
-            // <변경부분> UI Button의 마커 표시 방식과
-            // 화면 위치 Offset을 Event Step 데이터에서 전달한다.
-            eventMarkerUI.ShowForButton(
-                requiredButtonType,
-                step.markerDisplayType,
-                step.markerPositionOffset
-            );
+            yield return
+                ShowForceButtonMarkerWhenReadyRoutine(
+                    step
+                );
         }
 
         Debug.Log(
@@ -956,16 +979,81 @@ public class EventSequenceController : MonoBehaviour
             yield return null;
         }
 
-        // <변경부분> 지정 버튼 입력이 끝났으므로
-        // 현재 UI 마커를 숨긴다.
+        // <변경부분> 지정 버튼 입력 완료 후
+        // UI Marker Fade Out이 끝날 때까지 기다린 뒤
+        // 다음 Step으로 넘어간다.
         if (eventMarkerUI != null)
         {
-            eventMarkerUI.Hide();
+            yield return
+                eventMarkerUI
+                    .HideWithFadeRoutine();
         }
 
         Debug.Log(
             $"이벤트 버튼 입력 대기 종료: " +
             $"{step.targetButton}"
+        );
+    }
+
+    // <변경부분> ForceButton 대상 UI가 실제로 활성화될 때까지
+    // 짧은 시간 동안 Marker 표시를 반복 시도한다.
+    //
+    // FieldAbsorbButton은 공격 타일 선택 직후
+    // 타입 아이콘 Fade 전환을 거친 뒤 표시되기 때문에
+    // 다음 Event Step 시작 순간에는 아직 IsVisible == false일 수 있다.
+    //
+    // 일반 버튼은 첫 시도에서 바로 성공하고,
+    // 늦게 나타나는 동적 UI만 잠시 기다린다.
+    private IEnumerator ShowForceButtonMarkerWhenReadyRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null ||
+            eventMarkerUI == null)
+        {
+            yield break;
+        }
+
+        const float markerTargetWaitTimeout =
+            1f;
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               markerTargetWaitTimeout)
+        {
+            // <변경부분> 기다리는 사이 사용자가
+            // 실제 버튼을 먼저 눌러 Step이 완료됐다면
+            // 더 이상 Marker를 표시하지 않는다.
+            if (isSequenceActive == false ||
+                isWaitingForButtonInput == false)
+            {
+                yield break;
+            }
+
+            bool markerShown =
+                eventMarkerUI.ShowForButton(
+                    requiredButtonType,
+                    step.markerDisplayType,
+                    step.markerPositionOffset
+                );
+
+            if (markerShown)
+            {
+                // 실제 버튼을 찾아 Marker 표시가 성공했으므로 종료한다.
+                yield break;
+            }
+
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            yield return null;
+        }
+
+        Debug.LogWarning(
+            $"ForceButton Marker 표시 실패: " +
+            $"{requiredButtonType}의 실제 UI 대상을 " +
+            $"{markerTargetWaitTimeout}초 동안 찾지 못했습니다."
         );
     }
 
@@ -1306,10 +1394,33 @@ public class EventSequenceController : MonoBehaviour
                     return;
                 }
 
+                // <변경부분> EventSequenceData에
+                // 다음 TextCutsceneData가 지정되어 있는 경우에만
+                // Scene 이동 직전에 Pending Cutscene Data로 등록한다.
+                //
+                // null이면 아무것도 하지 않으므로
+                // 기존 EventSequenceData와 일반 Scene 이동에는
+                // 전혀 영향을 주지 않는다.
+                if (sequenceData.completionCutsceneData != null)
+                {
+                    TextCutsceneRuntimeState
+                        .SetPendingCutsceneData(
+                            sequenceData.completionCutsceneData
+                        );
+
+                    Debug.Log(
+                        $"이벤트 완료 컷씬 데이터 전달: " +
+                        $"{sequenceData.completionCutsceneData.name}"
+                    );
+                }
+
+                // <변경부분> CutsceneData 등록이 필요한 경우
+                // 반드시 등록을 먼저 끝낸 뒤 Scene을 이동한다.
                 SceneManager.LoadScene(
                     sequenceData
                         .completionSceneName
                 );
+
                 return;
 
             case EventSequenceCompletionType.BattleWin:
