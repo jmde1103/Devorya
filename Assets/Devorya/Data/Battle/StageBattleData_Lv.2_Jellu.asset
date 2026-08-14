@@ -20,7 +20,7 @@ MonoBehaviour:
   checkerTileTypeA: 0
   checkerTileTypeB: 1
   playerDefeatCondition: -1
-  enemyDefeatCondition: 9
+  enemyDefeatCondition: 10
   playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
   useRunStatePlayerPieces: 1
   savePlayerPiecesToRunState: 1

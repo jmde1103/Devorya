@@ -98,6 +98,16 @@ public class EventSequenceController : MonoBehaviour
     private EventSequenceButtonType requiredButtonType =
         EventSequenceButtonType.None;
 
+    // <변경부분> Force Step 하나가 완료된 뒤
+    // 다음 Event Step의 입력 상태가 준비될 때까지
+    // 기물 / 타일 / 버튼의 추가 입력을 막는다.
+    //
+    // 빠르게 연속 클릭했을 때
+    // 이전 Step 종료와 다음 Step 시작 사이의 짧은 공백으로
+    // 일반 Battle 입력이 통과하는 것을 방지한다.
+    private bool isStepTransitionInputLocked =
+        false;
+
     // 외부 Battle 시스템이
     // 이벤트 진행 여부를 확인할 때 사용할 공개 프로퍼티
     public bool IsSequenceActive
@@ -248,6 +258,11 @@ public class EventSequenceController : MonoBehaviour
             return
                 isSequenceActive &&
                 (
+                    // <변경부분> Dialogue / SpawnPiece / Wait 등
+                    // 자동 Event Step 진행 중의 입력 잠금도
+                    // BattleManager의 키보드 입력 차단 대상에 포함한다.
+                    isStepTransitionInputLocked ||
+
                     isWaitingForPieceSelection ||
                     isWaitingForTileSelection ||
                     isWaitingForButtonInput
@@ -266,6 +281,14 @@ public class EventSequenceController : MonoBehaviour
         if (isSequenceActive == false)
         {
             return true;
+        }
+
+        // <변경부분> 이전 Force Step이 완료되고
+        // 다음 Step 입력 준비가 끝나기 전이라면
+        // 빠른 연속 클릭으로 기물이 선택되지 않도록 막는다.
+        if (isStepTransitionInputLocked)
+        {
+            return false;
         }
 
         // Dialogue 중에는 전투 기물 선택을 전부 막는다.
@@ -336,8 +359,14 @@ public class EventSequenceController : MonoBehaviour
             return;
         }
 
+        // <변경부분> 현재 ForcePieceSelect는 완료하지만
+        // 다음 Step의 입력 상태가 준비될 때까지
+        // 추가 Battle 입력은 잠근다.
         isWaitingForPieceSelection =
             false;
+
+        isStepTransitionInputLocked =
+            true;
     }
 
     // <변경부분> BattleManager가 타일 입력을 처리하기 전에
@@ -352,6 +381,16 @@ public class EventSequenceController : MonoBehaviour
         if (isSequenceActive == false)
         {
             return true;
+        }
+
+        // <변경부분> Event Step이 넘어가는 짧은 시간에는
+        // 보드 타일 입력 전체를 차단한다.
+        //
+        // 이전 Step에서 빠르게 두 번 클릭한 입력이
+        // 다음 Battle 행동으로 이어지는 것을 방지한다.
+        if (isStepTransitionInputLocked)
+        {
+            return false;
         }
 
         // Dialogue가 표시되는 동안에는
@@ -434,8 +473,14 @@ public class EventSequenceController : MonoBehaviour
             return;
         }
 
+        // <변경부분> 현재 ForceTileSelect 완료 직후
+        // 다음 Event Step이 준비되기 전까지
+        // 연속 타일 입력을 차단한다.
         isWaitingForTileSelection =
             false;
+
+        isStepTransitionInputLocked =
+            true;
     }
 
     // <변경부분> Battle UI가 실제 버튼 기능을 실행하기 전에
@@ -450,6 +495,16 @@ public class EventSequenceController : MonoBehaviour
         if (isSequenceActive == false)
         {
             return true;
+        }
+
+        // <변경부분> 이전 Force Step 완료 직후에는
+        // 다음 Step이 준비될 때까지 모든 Battle UI 버튼을 막는다.
+        //
+        // 더블 클릭이나 빠른 연타가
+        // 다음 Event Step의 버튼 입력으로 잘못 처리되는 것을 방지한다.
+        if (isStepTransitionInputLocked)
+        {
+            return false;
         }
 
         // Dialogue 중에는 전투 UI 버튼을 모두 막는다.
@@ -510,11 +565,17 @@ public class EventSequenceController : MonoBehaviour
             $"{buttonType}"
         );
 
+        // <변경부분> 현재 ForceButton 완료 직후
+        // 다음 Event Step 준비 전까지
+        // 더블 클릭 / 빠른 버튼 연타를 차단한다.
         isWaitingForButtonInput =
             false;
 
         requiredButtonType =
             EventSequenceButtonType.None;
+
+        isStepTransitionInputLocked =
+            true;
     }
 
     // <변경부분> Event Sequence의 모든 실행 상태를
@@ -558,13 +619,21 @@ public class EventSequenceController : MonoBehaviour
             Vector2Int.zero;
 
         isWaitingForButtonInput =
-            false;
+    false;
 
         requiredButtonType =
             EventSequenceButtonType.None;
+
+        // <변경부분> Scene 시작 시
+        // Event Step 입력 잠금 상태를 명시적으로 초기화한다.
+        //
+        // 실제 Sequence가 시작되면
+        // RunSequenceRoutine()에서 즉시 true로 전환한다.
+        isStepTransitionInputLocked =
+            false;
     }
 
-   
+
 
     // <변경부분> 현재 연결된 EventSequenceData를 처음부터 실행한다.
     public void StartSequence()
@@ -642,6 +711,20 @@ public class EventSequenceController : MonoBehaviour
         currentStepIndex =
             -1;
 
+        // <변경부분> Event Sequence가 시작되는 순간부터
+        // 기본 Battle 입력을 잠근다.
+        //
+        // 튜토리얼 초반의
+        // Dialogue → SpawnPiece → Born → 다음 Step
+        // 구간에서는 아직 Force Step이 한 번도 완료되지 않았기 때문에
+        // 기존 Step 전환 잠금이 활성화되지 않는 문제가 있었다.
+        //
+        // 이제 Sequence 전체는 기본 LOCK 상태로 시작하고,
+        // 실제 ForcePiece / ForceTile / ForceButton이
+        // 입력 준비를 끝낸 순간에만 잠금을 해제한다.
+        isStepTransitionInputLocked =
+            true;
+
         Debug.Log(
             $"이벤트 시퀀스 시작: " +
             $"{sequenceData.sequenceName}"
@@ -681,10 +764,24 @@ public class EventSequenceController : MonoBehaviour
             }
 
             EventSequenceStepData step =
-                steps[i];
+    steps[i];
 
             currentStepIndex =
                 i;
+
+            // <변경부분> 새로운 Event Step이 시작될 때마다
+            // Battle 입력을 우선 잠근 상태로 만든다.
+            //
+            // Dialogue / SpawnPiece / RemovePiece / Wait처럼
+            // 플레이어 입력을 요구하지 않는 자동 Step 동안에는
+            // 이 LOCK이 계속 유지된다.
+            //
+            // ForcePiece / ForceTile / ForceButton Step은
+            // 각 함수 내부에서 목표 데이터 세팅이 완료된 뒤에만
+            // isStepTransitionInputLocked = false로 바꾸므로
+            // 정확히 입력 가능한 순간에만 조작이 허용된다.
+            isStepTransitionInputLocked =
+                true;
 
             if (step == null)
             {
@@ -812,13 +909,19 @@ public class EventSequenceController : MonoBehaviour
         EventSequenceStepData step)
     {
         requiredPiecePosition =
-            step.targetPiecePosition;
+    step.targetPiecePosition;
 
         requiredPieceTeam =
-    step.targetPieceTeam;
+            step.targetPieceTeam;
 
         isWaitingForPieceSelection =
             true;
+
+        // <변경부분> 다음 ForcePieceSelect의
+        // 대상 좌표와 Team, 대기 상태가 모두 준비됐으므로
+        // 이제 플레이어 입력을 다시 허용한다.
+        isStepTransitionInputLocked =
+            false;
 
         // <변경부분> Step에서 Show Marker를 켠 경우
         // 현재 강제 선택 대상 기물을 자동으로 가리킨다.
@@ -877,10 +980,16 @@ public class EventSequenceController : MonoBehaviour
         EventSequenceStepData step)
     {
         requiredTilePosition =
-    step.targetTilePosition;
+     step.targetTilePosition;
 
         isWaitingForTileSelection =
             true;
+
+        // <변경부분> 다음 ForceTileSelect의
+        // 목표 좌표와 입력 대기가 준비되었으므로
+        // 타일 입력 잠금을 해제한다.
+        isStepTransitionInputLocked =
+            false;
 
         // <변경부분> Show Marker가 켜진 ForceTileSelect라면
         // 지정된 보드 타일을 자동으로 가리킨다.
@@ -948,6 +1057,17 @@ public class EventSequenceController : MonoBehaviour
 
         isWaitingForButtonInput =
             true;
+
+        // <변경부분> 다음 ForceButton의 대상 버튼과
+        // 대기 상태가 완전히 준비되었으므로
+        // 버튼 입력 잠금을 해제한다.
+        //
+        // 이후에는 기존 CanPressButton()이
+        // requiredButtonType 하나만 허용한다.
+        isStepTransitionInputLocked =
+            false;
+
+        // <변경부분> 현재 ForceButton Step의 Show Marker가 켜져 있다면
 
         // <변경부분> 현재 ForceButton Step의 Show Marker가 켜져 있다면
         // 실제 버튼이 활성화될 때까지 잠시 기다리며 Marker 표시를 재시도한다.
@@ -1351,6 +1471,11 @@ public class EventSequenceController : MonoBehaviour
         }
 
         isSequenceActive =
+    false;
+
+        // <변경부분> Event Sequence가 정상 종료되면
+        // 남아 있던 Step 전환 입력 잠금도 해제한다.
+        isStepTransitionInputLocked =
             false;
 
         Debug.Log(
@@ -1360,6 +1485,33 @@ public class EventSequenceController : MonoBehaviour
 
         HandleSequenceCompletion();
     }
+
+    // <변경부분> Event Sequence에서 Scene을 변경하기 전에
+    // 전역 시간 배율을 반드시 정상 상태로 복구한다.
+    //
+    // 마지막 보스 공격의 슬로우 모션 도중
+    // Sequence가 먼저 완료되어 Scene이 변경되면,
+    // PixelCameraController의 정상 복구 코루틴이 끝나기 전에
+    // 기존 Scene이 제거될 수 있다.
+    //
+    // Time.timeScale과 Time.fixedDeltaTime은
+    // Scene이 변경되어도 전역 값으로 유지되므로
+    // 다음 Scene 전체가 느려지는 현상을 방지하기 위해
+    // Scene Load 직전에 강제로 정상화한다.
+    private void RestoreGlobalTimeScaleBeforeSceneChange()
+    {
+        Time.timeScale =
+            1f;
+
+        Time.fixedDeltaTime =
+            0.02f;
+
+        Debug.Log(
+            "Event Sequence Scene 전환 준비: " +
+            "TimeScale / FixedDeltaTime을 정상 상태로 복구했습니다."
+        );
+    }
+
 
     // <변경부분> EventSequenceData의 Completion 설정에 따라
     // 시퀀스 종료 후 이동 경로를 처리한다.
@@ -1376,9 +1528,16 @@ public class EventSequenceController : MonoBehaviour
                 return;
 
             case EventSequenceCompletionType.WorldMap:
+
+                // <변경부분> 마지막 공격 슬로우 모션이
+                // 아직 복구되지 않은 상태에서도
+                // 다음 Scene이 정상 속도로 시작하도록 한다.
+                RestoreGlobalTimeScaleBeforeSceneChange();
+
                 SceneManager.LoadScene(
                     "WorldMapScene"
                 );
+
                 return;
 
             case EventSequenceCompletionType.LoadScene:
@@ -1416,6 +1575,13 @@ public class EventSequenceController : MonoBehaviour
 
                 // <변경부분> CutsceneData 등록이 필요한 경우
                 // 반드시 등록을 먼저 끝낸 뒤 Scene을 이동한다.
+
+                // <변경부분> 보스 마지막 공격의 슬로우 모션이
+                // 아직 진행 중이어도 다음 Scene에는
+                // 변경된 TimeScale이 전달되지 않도록
+                // Scene Load 직전에 전역 시간을 정상화한다.
+                RestoreGlobalTimeScaleBeforeSceneChange();
+
                 SceneManager.LoadScene(
                     sequenceData
                         .completionSceneName
@@ -1485,10 +1651,15 @@ public class EventSequenceController : MonoBehaviour
         // <변경부분> 진행 중이던 ForceButton 입력 제한도
         // Sequence 종료와 함께 즉시 해제한다.
         isWaitingForButtonInput =
-            false;
+    false;
 
         requiredButtonType =
-            EventSequenceButtonType.None;
+    EventSequenceButtonType.None;
+
+        // <변경부분> 이벤트를 강제로 종료하는 경우에도
+        // Step 전환 입력 잠금이 남지 않도록 초기화한다.
+        isStepTransitionInputLocked =
+            false;
 
         StopSequenceCoroutine();
 
@@ -1560,7 +1731,12 @@ public class EventSequenceController : MonoBehaviour
             false;
 
         requiredButtonType =
-     EventSequenceButtonType.None;
+    EventSequenceButtonType.None;
+
+        // <변경부분> Controller 비활성화 시에도
+        // Step 전환 입력 잠금 상태를 완전히 초기화한다.
+        isStepTransitionInputLocked =
+            false;
 
         // <변경부분> 씬 종료 또는 Controller 비활성화 시
         // 마커가 화면에 남지 않도록 함께 정리한다.
@@ -1568,5 +1744,14 @@ public class EventSequenceController : MonoBehaviour
         {
             eventMarkerUI.Hide();
         }
+
+        // <변경부분> Scene이 예상하지 못한 경로로 종료되더라도
+        // 마지막 공격 슬로우 모션의 전역 TimeScale이
+        // 다음 Scene까지 남지 않도록 최종 안전 복구한다.
+        //
+        // 일반적인 정상 종료에서는 이미
+        // HandleSequenceCompletion()에서 한 번 복구되므로
+        // 같은 값을 다시 적용해도 부작용은 없다.
+        RestoreGlobalTimeScaleBeforeSceneChange();
     }
 }
