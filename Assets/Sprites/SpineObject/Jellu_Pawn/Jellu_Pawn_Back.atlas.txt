@@ -1,4 +1,4 @@
-Jellu_Pawn_Back
+Jellu_pawn_Back
 size:169,108
 filter:Linear,Linear
 pma:true
