@@ -86,9 +86,23 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        if (IsStageBattleDataValidForSetup() == false)
+        // 이번 전투에서 실제 RunState Player 기물을
+        // 시작 편성으로 사용할 수 있는지 먼저 확정한다.
+        bool useRunStatePlayerPiecesForSetup =
+            ShouldUseRunStatePlayerPieces();
+
+        // StageBattleData의 단일 Validation 규칙에
+        // 현재 Runtime 상황만 전달하여 전투 실행 가능 여부를 검사한다.
+        if (stageBattleData.IsValid(
+                useRunStatePlayerPiecesForSetup
+            ) == false)
         {
-            Debug.LogError($"BattleSetupManager 실패: StageBattleData가 유효하지 않습니다. {stageBattleData.name}");
+            Debug.LogError(
+                $"BattleSetupManager 실패: " +
+                $"StageBattleData가 현재 전투 조건에서 유효하지 않습니다. " +
+                $"{stageBattleData.name}"
+            );
+
             return;
         }
 
@@ -257,80 +271,48 @@ public class BattleSetupManager : MonoBehaviour
         );
     }
 
-    // <변경부분> 현재 StageBattleData가 전투 세팅에 사용할 수 있는 상태인지 확인하는 함수
-    private bool IsStageBattleDataValidForSetup()
+    // 현재 StageBattleData가 실제 RunState Player 기물을
+    // 이번 전투의 시작 편성으로 사용할 수 있는지 확인한다.
+    //
+    // Validation과 실제 Spawn이 동일한 조건을 사용하도록
+    // RunState 사용 여부 판단을 이 함수 한 곳에서 관리한다.
+    private bool ShouldUseRunStatePlayerPieces()
     {
         if (stageBattleData == null)
         {
             return false;
         }
 
-        // <변경부분> 현재 스테이지에서 사용할
-        // BackgroundMapData가 반드시 연결되어 있어야 한다.
-        //
-        // 데이터가 없는데 Scene의 기존 배경을 그대로 사용하는 것을 막아
-        // 스테이지와 배경 데이터가 항상 1:1로 명확하게 연결되도록 한다.
-        if (stageBattleData.backgroundMapData == null)
-        {
-            Debug.LogWarning(
-                $"StageBattleData 배경 데이터 없음: " +
-                $"{stageBattleData.name}"
-            );
-
-            return false;
-        }
-
-        // <변경부분> 현재 StageBattleData가
-        // RunState 플레이어 기물 사용을 허용하는 경우에만
-        // 저장된 플레이어 기물을 유효한 시작 편성으로 인정한다.
-        //
-        // 튜토리얼처럼 false인 스테이지는
-        // 기존 런 기물이 존재하더라도 무조건
-        // StageBattleData의 playerFormationData를 사용한다.
-        bool hasRunStatePlayerPieces =
-            stageBattleData.useRunStatePlayerPieces &&
-            RunStateManager.Instance != null &&
-            RunStateManager.Instance.HasPlayerPieceRuntimeData;
-
-        // <변경부분> 저장된 플레이어 기물이 없을 때만 기본 플레이어 편성 데이터가 필수
-        if (hasRunStatePlayerPieces == false)
-        {
-            if (stageBattleData.playerFormationData == null)
-            {
-                return false;
-            }
-
-            if (stageBattleData.playerFormationData.IsValid() == false)
-            {
-                return false;
-            }
-        }
-
-        // <변경부분> 적 편성은 모든 전투에서 필수
-        if (stageBattleData.enemyFormationData == null)
+        // 이 Stage가 RunState Player 기물 사용을 허용하지 않으면
+        // 저장된 데이터가 존재하더라도 사용하지 않는다.
+        if (stageBattleData.useRunStatePlayerPieces == false)
         {
             return false;
         }
 
-        if (stageBattleData.enemyFormationData.IsValid() == false)
+        // RunStateManager가 없는 경우 저장된 기물을 사용할 수 없다.
+        if (RunStateManager.Instance == null)
         {
             return false;
         }
 
-        return true;
+        // 실제 Player Runtime Piece 데이터가 있을 때만 사용한다.
+        return
+            RunStateManager.Instance
+                .HasPlayerPieceRuntimeData;
     }
 
+    // 현재 Stage 설정과 RunState 상태에 따라
+    // Player 기물을 RunState 또는 기본 Formation에서 생성한다.
     private void SpawnPlayerPieces()
     {
-        // <변경부분> 현재 StageBattleData가
-        // RunState 기물 사용을 허용한 경우에만
-        // 이전 스테이지에서 저장된 플레이어 기물을 불러온다.
-        if (stageBattleData.useRunStatePlayerPieces &&
-            RunStateManager.Instance != null &&
-            RunStateManager.Instance.HasPlayerPieceRuntimeData)
+        // Validation과 동일한 단일 조건을 사용하여
+        // 실제 RunState Player 기물을 사용할지 결정한다.
+        if (ShouldUseRunStatePlayerPieces())
         {
             List<PlayerPieceRuntimeData> playerRuntimePieces =
-                RunStateManager.Instance.GetPlayerPiecesCopy();
+                RunStateManager.Instance
+                    .GetPlayerPiecesCopy();
 
             pieceManager.SpawnPlayerPiecesFromRuntimeData(
                 playerRuntimePieces,
@@ -345,9 +327,11 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> RunState를 사용하지 않는 스테이지는
-        // 기존 런 상태와 무관하게
-        // StageBattleData의 독립 플레이어 편성을 사용한다.
+        // RunState를 사용할 수 없다면
+        // StageBattleData의 기본 Player Formation을 사용한다.
+        //
+        // SetupBattle의 StageBattleData.IsValid()에서 이미
+        // 유효성을 확인했지만 Runtime 방어를 위해 null 검사를 유지한다.
         if (stageBattleData.playerFormationData == null)
         {
             Debug.LogWarning(
@@ -359,7 +343,9 @@ public class BattleSetupManager : MonoBehaviour
         }
 
         pieceManager.SpawnPiecesFromDataList(
-            stageBattleData.playerFormationData.spawnDataList
+            stageBattleData
+                .playerFormationData
+                .spawnDataList
         );
 
         Debug.Log(

@@ -194,20 +194,7 @@ public class TooltipPopupUI : MonoBehaviour
      popupOffsetYPerSection
  );
 
-        // <변경부분> PopupRoot 레이아웃 계산이 모두 끝난 뒤
-        // SectionParent에만 Trigger별 위치 보정값을 적용한다.
-        //
-        // 이 순서로 적용해야 LayoutGroup이 Section 위치를
-        // 다시 원래 위치로 덮어쓰지 않는다.
-        // <변경부분> TooltipTrigger에서 Section Offset이
-        // 실제로 전달되는지 확인하기 위한 임시 로그
-        Debug.Log(
-            $"[Tooltip Section Offset] " +
-            $"Title: {tooltipViewData.title}, " +
-            $"Offset: {sectionPositionOffset}"
-        );
-
-        // <변경부분> 오픈 애니메이션에서 초기 RectTransform 상태를
+        // 오픈 애니메이션에서 초기 RectTransform 상태를
         // 먼저 적용하도록 애니메이션을 선행 실행한다.
         if (popupOpenAnimator != null)
         {
@@ -234,7 +221,11 @@ public class TooltipPopupUI : MonoBehaviour
         }
     }
 
-    // <변경부분> 하단 추가 설명 블록을 sections 순서대로 다시 생성
+    // 하단 추가 설명 블록을 sections 순서대로 다시 생성한다.
+    //
+    // 기존 Section은 Destroy 예약만 해두면 현재 프레임 동안
+    // Hierarchy와 Layout 계산에 남을 수 있으므로,
+    // 먼저 비활성화한 뒤 Destroy하여 새 Section과 겹쳐 계산되지 않게 한다.
     private void RefreshSections(
         List<TooltipSectionData> sections)
     {
@@ -243,15 +234,26 @@ public class TooltipPopupUI : MonoBehaviour
             return;
         }
 
-        // 기존에 생성되어 있던 Section 블록 제거
+        // 기존에 생성되어 있던 Section 블록을 정리한다.
+        //
+        // Unity의 Destroy는 실제 삭제가 프레임 종료 시점에 처리되므로
+        // 먼저 SetActive(false)를 적용하여 현재 프레임의
+        // LayoutGroup / ContentSizeFitter 계산에서 즉시 제외한다.
         for (int i = sectionParent.childCount - 1;
              i >= 0;
              i--)
         {
-            Destroy(
+            GameObject sectionObject =
                 sectionParent
                     .GetChild(i)
-                    .gameObject
+                    .gameObject;
+
+            sectionObject.SetActive(
+                false
+            );
+
+            Destroy(
+                sectionObject
             );
         }
 
@@ -260,7 +262,8 @@ public class TooltipPopupUI : MonoBehaviour
             return;
         }
 
-        // TooltipData에 들어있는 순서대로 Section 블록 생성
+        // TooltipData에 들어있는 순서대로
+        // 새로운 Section 블록을 생성한다.
         for (int i = 0;
              i < sections.Count;
              i++)
@@ -273,7 +276,7 @@ public class TooltipPopupUI : MonoBehaviour
                 continue;
             }
 
-            // SectionType에 맞는 프리팹 선택
+            // SectionType에 맞는 프리팹을 선택한다.
             TooltipSectionItemUI sectionPrefab =
                 GetSectionPrefab(
                     sectionData.sectionType
@@ -289,8 +292,7 @@ public class TooltipPopupUI : MonoBehaviour
                 continue;
             }
 
-            // <변경부분> 기존처럼 프리팹과
-            // SectionParent의 Layout 설정을 그대로 사용한다.
+            // 새 Section을 현재 SectionParent 아래에 생성한다.
             TooltipSectionItemUI itemUI =
                 Instantiate(
                     sectionPrefab,
@@ -301,6 +303,14 @@ public class TooltipPopupUI : MonoBehaviour
                 sectionData
             );
         }
+
+        // 새로 생성된 Section의 Layout을 먼저 확정한다.
+        //
+        // 이후 SetPopupPosition()에서 popupRoot 전체 Layout을 다시 계산하므로
+        // SectionParent → PopupRoot 순서로 크기가 안정적으로 반영된다.
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            sectionParent
+        );
     }
 
     // <변경부분> 실제로 생성 가능한 Section 데이터 개수를 반환한다.

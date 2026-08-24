@@ -441,15 +441,33 @@ public class BattleAIManager : MonoBehaviour
 
             if (selectedAction == null)
             {
+                // <변경부분>
+                // 후보 목록 자체는 존재하지만 모든 후보가 float.MinValue 등으로
+                // 실행 불가 판정을 받은 경우에도 이 경로로 들어올 수 있다.
+                //
+                // 단순히 AI 코루틴만 종료하면 CurrentTurn이 Enemy인 상태로
+                // 남을 수 있으므로 현재 행동 형태에 맞게 턴 상태까지 정리한다.
                 Debug.LogWarning(
                     "Enemy AI 행동 선택 실패: " +
-                    "최고 점수 행동을 선택하지 못했습니다."
+                    "실행 가능한 최고 점수 행동이 없습니다."
                 );
 
                 if (bonusActionPiece != null)
                 {
+                    // ChanceAttack 추가 행동 중 실행 가능한 행동이 사라졌다면
+                    // 다른 Enemy 기물로 행동을 넘기지 않고 추가 행동 상태를 종료한다.
                     battleManager
                         .FinishEnemyAIChanceAttackTurn();
+                }
+                else
+                {
+                    // 일반 Enemy 행동에서 모든 후보가 실행 불가라면
+                    // 기존 '후보가 0개인 경우'와 동일한 경로로 처리하여
+                    // Enemy 턴이 멈춘 채 남는 것을 방지한다.
+                    battleManager
+                        .ResolveNoActionableTurn(
+                            PieceTeam.Enemy
+                        );
                 }
 
                 enemyTurnRoutine = null;

@@ -9,7 +9,7 @@ public enum BattleAIActionType
     // 적대 기물이 있는 타일을 공격
     Attack,
 
-    // <변경부분> 기물의 고유스킬 사용
+    // 기물의 고유스킬 사용
     UniqueSkill
 }
 
@@ -37,16 +37,10 @@ public class BattleAIAction
     // 이동 및 공격 행동에서는 None이다.
     public UniqueSkillType UniqueSkillType { get; }
 
-    // <변경부분> 고유스킬의 첫 번째 선택 대상
-    public Piece SkillTargetPieceA { get; }
-
-    // <변경부분> 고유스킬의 두 번째 선택 대상
-    public Piece SkillTargetPieceB { get; }
-
     // AI 평가 시스템이 계산한 행동 점수
     public float Score { get; set; }
 
-    // <변경부분> 빈 타일 이동 행동을 생성하는 함수
+    // <변경부분> 빈 타일 이동 행동을 생성한다.
     public static BattleAIAction CreateMove(
         Piece actingPiece,
         Vector2Int sourcePosition,
@@ -58,13 +52,11 @@ public class BattleAIAction
             sourcePosition,
             targetPosition,
             null,
-            UniqueSkillType.None,
-            null,
-            null
+            UniqueSkillType.None
         );
     }
 
-    // <변경부분> 적대 기물 공격 행동을 생성하는 함수
+    // <변경부분> 적대 기물 공격 행동을 생성한다.
     public static BattleAIAction CreateAttack(
         Piece actingPiece,
         Vector2Int sourcePosition,
@@ -77,19 +69,17 @@ public class BattleAIAction
             sourcePosition,
             targetPosition,
             targetPiece,
-            UniqueSkillType.None,
-            null,
-            null
+            UniqueSkillType.None
         );
     }
 
-    // <변경부분> 젤루 합성 고유스킬 행동 후보를 생성한다.
+    // <변경부분> 젤루 합성 고유스킬 AI 행동 후보를 생성한다.
     //
-    // AI는 특정 합성 재료를 선택하지 않고
+    // AI는 특정 합성 재료를 행동 데이터에 저장하지 않고
     // 현재 위치에서 합성을 사용할지만 판단한다.
     //
-    // 실제 합성 재료 두 개는 플레이어 사용과 동일하게
-    // BattleSkillManager가 발동 순간 무작위로 선택한다.
+    // 실제 합성 재료 두 개는
+    // BattleSkillManager가 스킬 발동 순간 무작위로 선택한다.
     public static BattleAIAction CreateJelluSynthesis(
         Piece actingPiece)
     {
@@ -110,15 +100,11 @@ public class BattleAIAction
                 actingPiece.Y
             ),
             null,
-            UniqueSkillType.JelluSynthesis,
-
-            // 특정 재료를 AI 행동 데이터에 저장하지 않는다.
-            null,
-            null
+            UniqueSkillType.JelluSynthesis
         );
     }
 
-    // <변경부분> 젤루 퇴화 고유스킬의 AI 행동 후보를 생성한다.
+    // <변경부분> 젤루 퇴화 고유스킬 AI 행동 후보를 생성한다.
     //
     // 퇴화는 별도의 대상 없이
     // Knight 자신에게 Degeneration 상태를 부여하므로
@@ -143,20 +129,17 @@ public class BattleAIAction
                 actingPiece.Y
             ),
             null,
-            UniqueSkillType.JelluDegeneration,
-            null,
-            null
+            UniqueSkillType.JelluDegeneration
         );
     }
 
     // <변경부분> 젤루 킹의 증식 고유스킬 AI 행동 후보를 생성한다.
     //
-    // 증식은 별도의 대상을 선택하지 않고
-    // 젤루 킹 주변 빈칸 중 하나에 젤루 Pawn을 생성하므로,
-    // 시작 좌표와 목표 좌표는 현재 킹 위치로 저장한다.
+    // 증식은 별도의 대상을 직접 선택하지 않고
+    // 젤루 킹 주변 빈칸 중 하나에 젤루 Pawn을 생성한다.
     //
-    // 실제 생성 위치는 플레이어 사용과 동일하게
-    // BattleSkillManager가 발동 순간 무작위로 선택한다.
+    // 실제 생성 위치는 BattleSkillManager가
+    // 스킬 발동 순간 무작위로 선택한다.
     public static BattleAIAction CreateJelluMultiply(
         Piece actingPiece)
     {
@@ -177,17 +160,17 @@ public class BattleAIAction
                 actingPiece.Y
             ),
             null,
-            UniqueSkillType.JelluMultiply,
-            null,
-            null
+            UniqueSkillType.JelluMultiply
         );
     }
 
     // <변경부분> 젤루 룩의 뿔 박치기 고유스킬 AI 행동 후보를 생성한다.
     //
-    // 뿔 박치기는 별도의 대상을 직접 선택하지 않고
-    // 룩 자신에게 Breakthrough 상태를 부여한다.
-    // 실제 공격 대상은 스킬 사용 후 보드를 다시 평가해 선택한다.
+    // 뿔 박치기는 별도의 공격 대상을 직접 저장하지 않고
+    // Rook 자신에게 Breakthrough 상태를 부여한다.
+    //
+    // 실제 공격 대상은 스킬 사용 후
+    // AI가 변경된 보드를 다시 평가하여 선택한다.
     public static BattleAIAction CreateHornHeadbutt(
         Piece actingPiece)
     {
@@ -208,34 +191,43 @@ public class BattleAIAction
                 actingPiece.Y
             ),
             null,
-            UniqueSkillType.HornHeadbutt,
-            null,
-            null
+            UniqueSkillType.HornHeadbutt
         );
     }
 
-    // <변경부분> 잘못된 형태로 행동 데이터가 생성되지 않도록
-    // 외부에서는 각 Create 함수를 사용한다.
+    // <변경부분>
+    // 잘못된 형태로 행동 데이터가 생성되지 않도록
+    // 외부에서는 위의 각 Create 함수를 통해서만 행동을 생성한다.
+    //
+    // 과거 젤루 합성 AI가 재료 A/B를 직접 결정하던 구조에서 사용하던
+    // SkillTargetPieceA/B는 현재 사용되지 않으므로 생성자에서도 제거했다.
     private BattleAIAction(
         BattleAIActionType actionType,
         Piece actingPiece,
         Vector2Int sourcePosition,
         Vector2Int targetPosition,
         Piece targetPiece,
-        UniqueSkillType uniqueSkillType,
-        Piece skillTargetPieceA,
-        Piece skillTargetPieceB)
+        UniqueSkillType uniqueSkillType)
     {
-        ActionType = actionType;
-        ActingPiece = actingPiece;
-        SourcePosition = sourcePosition;
-        TargetPosition = targetPosition;
-        TargetPiece = targetPiece;
+        ActionType =
+            actionType;
 
-        UniqueSkillType = uniqueSkillType;
-        SkillTargetPieceA = skillTargetPieceA;
-        SkillTargetPieceB = skillTargetPieceB;
+        ActingPiece =
+            actingPiece;
 
-        Score = 0f;
+        SourcePosition =
+            sourcePosition;
+
+        TargetPosition =
+            targetPosition;
+
+        TargetPiece =
+            targetPiece;
+
+        UniqueSkillType =
+            uniqueSkillType;
+
+        Score =
+            0f;
     }
 }

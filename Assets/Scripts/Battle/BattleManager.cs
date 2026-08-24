@@ -344,10 +344,18 @@ public class BattleManager : MonoBehaviour
             );
         }
 
-        // < 변경부분 > 게임 시작 시 스킬 매니저 초기화
+        // <변경부분> 게임 시작 시 스킬 매니저 초기화
+        //
+        // AI와 실제 스킬이 젤루 합성 재료 판정을
+        // 동일한 BattleMoveValidator에서 사용하도록
+        // 공용 이동/합성 판정기도 함께 전달한다.
         if (battleSkillManager != null)
         {
-            battleSkillManager.Initialize(boardManager, pieceManager);
+            battleSkillManager.Initialize(
+                boardManager,
+                pieceManager,
+                battleMoveValidator
+            );
         }
 
         // <변경부분> 게임 시작 시 아이템 효과 핸들러 초기화
@@ -2398,16 +2406,17 @@ public class BattleManager : MonoBehaviour
                     .RestoreAfterLastPieceAttackCinematicRoutine();
         }
 
-        // <변경부분> 실제 이동을 완료한 경우에만
+        // 실제 이동을 완료한 경우에만
         // 행동 시작 전부터 보유했던 Defense의
         // Defence 상태효과 부여를 판정한다.
         if (didCompleteMove &&
             battleSkillManager != null)
         {
-            bool defenceGranted =
-                false;
-
-            // <변경부분> 행동 시작 전에 저장한 Defense 데이터를 전달한다.
+            // BattleManager는 Defence 부여 성공 여부를
+            // 이후 전투 흐름에서 별도로 사용하지 않는다.
+            //
+            // 따라서 불필요한 결과 저장 변수와 람다를 만들지 않고
+            // Defense 판정 및 연출이 끝날 때까지만 기다린다.
             //
             // 이번 흡수로 새로 얻은 Defense는
             // defenseDataBeforeAction에 존재하지 않으므로
@@ -2417,8 +2426,7 @@ public class BattleManager : MonoBehaviour
                     .TryGrantDefenceAfterMoveRoutine(
                         actingPiece,
                         defenseDataBeforeAction,
-                        result =>
-                            defenceGranted = result
+                        null
                     );
         }
 
@@ -2969,12 +2977,22 @@ public class BattleManager : MonoBehaviour
     );
 
         if (playerKing == null ||
-            targetPiece == null)
+    targetPiece == null)
         {
+            // 마지막 적 공격 시네마틱의 Slow Motion이 이미 시작된 뒤
+            // 기물이 예외적으로 제거된 경우에도
+            // 낮아진 Time.timeScale과 카메라 상태를 즉시 복구한다.
+            if (pixelCameraController != null)
+            {
+                pixelCameraController
+                    .RestoreLastPieceAttackCinematicImmediately();
+            }
+
             isActionAnimating =
                 false;
 
             RefreshLastEnemyAbsorbOpportunity();
+
             yield break;
         }
 

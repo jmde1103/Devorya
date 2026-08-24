@@ -232,126 +232,42 @@ public class BattleAIActionGenerator
     }
 
     // <변경부분> 현재 기물이 젤루 합성을 사용할 수 있다면
-    // 해당 기물에 대한 합성 행동 후보를 하나만 생성한다.
+    // 해당 기물에 대한 합성 AI 행동 후보를 하나 생성한다.
     //
-    // AI는 특정 재료 조합을 선택하지 않는다.
-    // 주변에 유효한 재료가 2개 이상 있는지만 확인하고,
-    // 실제 재료 선택은 스킬 발동 순간 무작위로 처리한다.
+    // 실제 합성 재료 조건은 BattleMoveValidator의
+    // FillJelluSynthesisMaterialCandidates()를 단일 기준으로 사용한다.
+    //
+    // AI는 특정 재료 조합을 직접 선택하지 않는다.
+    // 실제 재료 2개는 스킬 발동 순간 BattleSkillManager에서 랜덤 선택한다.
     private void AddJelluSynthesisActions(
         Piece actingPiece,
         List<BattleAIAction> results)
     {
         if (actingPiece == null ||
-            results == null)
+            results == null ||
+            battleMoveValidator == null)
         {
             return;
         }
 
-        // 젤루 합성은 Pawn 타입만 사용할 수 있다.
-        if (actingPiece.PieceType !=
-            PieceType.Pawn)
+        // <변경부분>
+        // 합성 재료 판정을 직접 반복하지 않고
+        // 공용 BattleMoveValidator의 단일 판정 규칙을 사용한다.
+        //
+        // 기존 List를 재사용하므로 AI 후보 생성마다
+        // 새로운 List를 할당하지 않는다.
+        battleMoveValidator
+            .FillJelluSynthesisMaterialCandidates(
+                actingPiece,
+                synthesisMaterialCandidates
+            );
+
+        // 합성에는 서로 다른 유효 재료가 최소 2개 필요하다.
+        if (synthesisMaterialCandidates.Count < 2)
         {
             return;
         }
 
-        // 스킬 사용자도 Jellu 태그를 보유해야 한다.
-        if (actingPiece.HasSpeciesTag(
-                PieceSpeciesTag.Jellu) ==
-            false)
-        {
-            return;
-        }
-
-        // 이전 기물 검사에서 남은 재료 목록을 제거한다.
-        synthesisMaterialCandidates.Clear();
-
-        // 합성 Pawn 주변 8칸에서
-        // 현재 사용할 수 있는 모든 재료를 수집한다.
-        for (int offsetY = -1;
-             offsetY <= 1;
-             offsetY++)
-        {
-            for (int offsetX = -1;
-                 offsetX <= 1;
-                 offsetX++)
-            {
-                // 스킬 사용자 자신의 위치는 제외한다.
-                if (offsetX == 0 &&
-                    offsetY == 0)
-                {
-                    continue;
-                }
-
-                int targetX =
-                    actingPiece.X +
-                    offsetX;
-
-                int targetY =
-                    actingPiece.Y +
-                    offsetY;
-
-                // 보드 밖 좌표는 검사하지 않는다.
-                if (IsInsideBoard(
-                        targetX,
-                        targetY) ==
-                    false)
-                {
-                    continue;
-                }
-
-                Piece candidatePiece =
-                    pieceManager.GetPieceAt(
-                        targetX,
-                        targetY
-                    );
-
-                if (candidatePiece == null)
-                {
-                    continue;
-                }
-
-                // Jellu 태그가 없는 기물은
-                // 합성 재료가 될 수 없다.
-                if (candidatePiece.HasSpeciesTag(
-                        PieceSpeciesTag.Jellu) ==
-                    false)
-                {
-                    continue;
-                }
-
-                // King은 승패 조건 보호를 위해
-                // 합성 재료에서 제외한다.
-                if (candidatePiece.PieceType ==
-                    PieceType.King)
-                {
-                    continue;
-                }
-
-                // 시전자와 같은 팀 또는 Neutral Jellu만
-                // 합성 재료로 사용할 수 있다.
-                if (candidatePiece.Team !=
-                        actingPiece.Team &&
-                    candidatePiece.Team !=
-                        PieceTeam.Neutral)
-                {
-                    continue;
-                }
-
-                synthesisMaterialCandidates.Add(
-                    candidatePiece
-                );
-            }
-        }
-
-        // 합성에는 서로 다른 유효 재료가 두 개 필요하다.
-        if (synthesisMaterialCandidates.Count <
-            2)
-        {
-            return;
-        }
-
-        // AI는 특정 재료를 선택하지 않고
-        // 현재 Pawn이 합성을 사용할지 여부만 판단한다.
         BattleAIAction synthesisAction =
             BattleAIAction.CreateJelluSynthesis(
                 actingPiece
@@ -426,29 +342,25 @@ public class BattleAIActionGenerator
         );
     }
 
-    // <변경부분> 젤루 킹이 현재 증식을 사용할 수 있다면
-    // 자신에게 적용하는 고유스킬 행동 후보를 하나 생성한다.
+    // <변경부분> 현재 기물이 젤루 증식을 사용할 수 있다면
+    // 증식 AI 행동 후보를 하나 생성한다.
     //
-    // 실제 사용 우선도는 평가기에서 다음 기준으로 결정한다.
-    // 1. Enemy King 현재 안전 여부
-    // 2. 다른 Enemy 기물의 즉시 회피 필요 여부
-    // 3. 증식 사용 확률
+    // 실제 주변 빈칸 판정은 BattleMoveValidator의
+    // 공용 규칙을 사용하여 실제 스킬과 AI 조건을 일치시킨다.
     private void AddJelluMultiplyActions(
         Piece actingPiece,
         List<BattleAIAction> results)
     {
         if (actingPiece == null ||
             results == null ||
-            pieceManager == null)
+            pieceManager == null ||
+            battleMoveValidator == null)
         {
             return;
         }
 
-        // <변경부분> 증식 AI 후보는 King 타입과
+        // 증식 AI 후보는 King 타입과
         // 실제 보유 고유스킬 JelluMultiply를 기준으로 생성한다.
-        //
-        // 수동 스킬 실행은 Jellu 종족 태그를 별도로 요구하지 않으므로,
-        // AI만 추가 태그를 검사해 후보가 누락되지 않도록 한다.
         if (actingPiece.PieceType !=
                 PieceType.King ||
             actingPiece.UniqueSkill !=
@@ -457,78 +369,30 @@ public class BattleAIActionGenerator
             return;
         }
 
-        // Enemy 또는 Player 소속의 실제 전투 기물만 사용한다.
+        // Neutral은 실제 전투 행동 주체가 아니다.
         if (actingPiece.Team ==
             PieceTeam.Neutral)
         {
             return;
         }
 
-        // <변경부분> 증식은 같은 진영의 젤루 Pawn을 새로 생성한다.
-        // 이미 진영 최대 기물 수에 도달했다면 실제 스킬이 실패하므로
-        // AI 행동 후보 자체를 만들지 않는다.
+        // 진영 최대 기물 수에 도달했다면
+        // 실제 증식도 실패하므로 AI 후보를 생성하지 않는다.
         if (pieceManager.CanCreatePieceForTeam(
                 actingPiece.Team) == false)
         {
             return;
         }
 
-        bool hasAdjacentEmptyPosition =
-            false;
-
-        // 실제 증식 스킬과 동일하게
-        // 킹 주변 8칸에 빈칸이 하나라도 있는지 검사한다.
-        for (int offsetY = -1;
-             offsetY <= 1;
-             offsetY++)
-        {
-            for (int offsetX = -1;
-                 offsetX <= 1;
-                 offsetX++)
-            {
-                if (offsetX == 0 &&
-                    offsetY == 0)
-                {
-                    continue;
-                }
-
-                int targetX =
-                    actingPiece.X +
-                    offsetX;
-
-                int targetY =
-                    actingPiece.Y +
-                    offsetY;
-
-                if (IsInsideBoard(
-                        targetX,
-                        targetY) ==
-                    false)
-                {
-                    continue;
-                }
-
-                if (pieceManager.IsEmpty(
-                        targetX,
-                        targetY))
-                {
-                    hasAdjacentEmptyPosition =
-                        true;
-
-                    break;
-                }
-            }
-
-            if (hasAdjacentEmptyPosition)
-            {
-                break;
-            }
-        }
-
-        // 생성 가능한 인접 빈칸이 없다면
-        // 실제 스킬도 실패하므로 후보를 만들지 않는다.
-        if (hasAdjacentEmptyPosition ==
-            false)
+        // <변경부분>
+        // 기존 AI 내부의 주변 8칸 직접 탐색을 제거하고
+        // 실제 스킬과 동일한 BattleMoveValidator 판정을 사용한다.
+        //
+        // 존재 여부만 검사하므로 List 할당도 발생하지 않는다.
+        if (battleMoveValidator
+                .HasAdjacentEmptyPosition(
+                    actingPiece
+                ) == false)
         {
             return;
         }
@@ -647,23 +511,6 @@ public class BattleAIActionGenerator
         results.Add(
             hornHeadbuttAction
         );
-    }
-
-    // <변경부분> 지정한 좌표가 현재 보드 범위 안인지 확인한다.
-    private bool IsInsideBoard(
-        int x,
-        int y)
-    {
-        if (boardManager == null)
-        {
-            return false;
-        }
-
-        return
-            x >= 0 &&
-            x < boardManager.Width &&
-            y >= 0 &&
-            y < boardManager.Height;
     }
 
     // <변경부분> 개발 중 생성된 후보 수와 내용을 Console에서 확인하는 함수

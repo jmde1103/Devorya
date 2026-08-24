@@ -1042,8 +1042,13 @@ public class PieceManager : MonoBehaviour
         StartCoroutine(MovePieceRoutine(piece, targetX, targetY, true));
     }
 
-    // <변경부분> 기물을 특정 좌표로 이동시키고, 호출한 쪽에서 연출 종료까지 기다릴 수 있는 코루틴
-    public IEnumerator MovePieceRoutine(Piece piece, int targetX, int targetY, bool playAnimation)
+    //// 기물을 특정 좌표로 이동시키고,
+    // 호출한 쪽에서 이동 연출 종료까지 기다릴 수 있는 코루틴
+    public IEnumerator MovePieceRoutine(
+        Piece piece,
+        int targetX,
+        int targetY,
+        bool playAnimation)
     {
         // 이동할 기물이 없으면 종료
         if (piece == null)
@@ -1051,50 +1056,88 @@ public class PieceManager : MonoBehaviour
             yield break;
         }
 
-        // 기존 좌표의 기물 정보를 비워 이동 전 상태를 정리
-        pieces[piece.X, piece.Y] = null;
+        // 목표 좌표의 Tile을 먼저 확인한다.
+        //
+        // 기존에는 pieces 배열의 원래 좌표를 먼저 비운 뒤
+        // Tile을 검사했기 때문에 잘못된 목표 좌표가 들어오면
+        // 기물이 pieces 배열에서 사라질 수 있었다.
+        Tile targetTile = boardManager.GetTile(
+            targetX,
+            targetY
+        );
 
-        // 이동할 좌표의 타일 정보를 가져와 실제 이동 위치 계산에 사용
-        Tile targetTile = boardManager.GetTile(targetX, targetY);
-
-        // 이동할 타일이 없으면 이동 처리 중단
+        // 유효하지 않은 목표 Tile이면
+        // 기존 기물 상태를 건드리지 않고 이동을 취소한다.
         if (targetTile == null)
         {
+            Debug.LogWarning(
+                $"기물 이동 실패: " +
+                $"({targetX}, {targetY}) 좌표에 Tile이 없습니다."
+            );
+
             yield break;
         }
 
-        // 현재 WorldRoot 확대 상태가 반영된 타일 위치 기준으로 최종 이동 위치 계산
-        Vector3 targetPosition = GetPieceWorldPosition(targetTile);
+        // 목표 Tile 검증이 끝난 뒤에만
+        // 기존 좌표의 기물 정보를 비운다.
+        pieces[piece.X, piece.Y] = null;
 
-        // <변경부분> playAnimation이 true면 목표 위치까지 점프 이동 연출을 기다림
+        // 현재 WorldRoot 확대 상태가 반영된
+        // 실제 Tile 위치를 기준으로 최종 기물 위치를 계산한다.
+        Vector3 targetPosition =
+            GetPieceWorldPosition(
+                targetTile
+            );
+
+        // 이동 연출을 사용하는 경우
         if (playAnimation)
         {
-            PieceAnimationManager animationManager = GetPieceAnimationManager();
+            PieceAnimationManager animationManager =
+                GetPieceAnimationManager();
 
             if (animationManager != null)
             {
-                yield return animationManager.PlayPieceJumpMoveAnimation(piece, targetPosition);
+                // 점프 이동 애니메이션이 끝날 때까지 기다린다.
+                yield return
+                    animationManager.PlayPieceJumpMoveAnimation(
+                        piece,
+                        targetPosition
+                    );
             }
             else
             {
-                // <변경부분> 애니메이션 매니저가 없으면 연출 없이 즉시 위치 보정
-                piece.transform.position = targetPosition;
+                // 애니메이션 매니저가 없으면
+                // 연출 없이 즉시 목표 위치로 이동한다.
+                piece.transform.position =
+                    targetPosition;
             }
         }
         else
         {
-            // <변경부분> 이미 공격 연출로 목표 위치에 도착한 경우 즉시 위치 보정만 처리
-            piece.transform.position = targetPosition;
+            // 공격 연출 등으로 이미 이동 처리가 진행된 경우
+            // 최종 위치만 정확하게 보정한다.
+            piece.transform.position =
+                targetPosition;
         }
 
-        // 기물의 논리 좌표와 현재 타일 정보를 갱신
-        piece.SetPosition(targetX, targetY, targetTile);
+        // 기물의 논리 좌표와 현재 Tile 정보를 갱신한다.
+        piece.SetPosition(
+            targetX,
+            targetY,
+            targetTile
+        );
 
-        // 이동한 좌표에 기물 정보를 다시 저장
-        pieces[targetX, targetY] = piece;
+        // 새 좌표에 기물을 등록한다.
+        pieces[targetX, targetY] =
+            piece;
 
-        // 이동한 좌표 기준으로 기물 표시 순서를 갱신
-        SetPieceSortingOrder(piece.gameObject, targetX, targetY);
+        // 이동 후 현재 좌표를 기준으로
+        // 기물의 화면 정렬 순서를 갱신한다.
+        SetPieceSortingOrder(
+            piece.gameObject,
+            targetX,
+            targetY
+        );
     }
 
     // <변경부분> 현재 WorldRoot 확대 상태가 반영된 타일의 실제 월드 위치를 기준으로 기물 위치 계산

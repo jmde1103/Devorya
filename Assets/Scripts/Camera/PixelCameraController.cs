@@ -7,11 +7,8 @@ using UnityEngine.U2D;
 [RequireComponent(typeof(PixelPerfectCamera))]
 public class PixelCameraController : MonoBehaviour
 {
-    // 카메라 컴포넌트
+    // 실제 Orthographic Camera 제어에 사용하는 카메라 컴포넌트.
     private Camera cam;
-
-    // 픽셀 퍼펙트 카메라 컴포넌트
-    private PixelPerfectCamera pixelCam;
 
     [Header("Start Settings")]
     // 시작 시 카메라 위치
@@ -120,9 +117,6 @@ public class PixelCameraController : MonoBehaviour
     private Transform movingTileFollowTarget;
 
     [Header("Last Piece Attack Cinematic")]
-
-    [Header("Last Piece Attack Cinematic")]
-    // <변경부분> 마지막 Enemy 기물 공격 시 카메라 연출을 사용할지 여부
     [SerializeField]
     private bool useLastPieceAttackCinematic =
         true;
@@ -201,15 +195,22 @@ public class PixelCameraController : MonoBehaviour
     // 기본 화면 기준 카메라 이동 가능 최대 좌표
     public Vector2 maxBounds;
 
+
+    // 마지막 적 공격 시네마틱 도중
+    // Scene 전환 또는 GameObject 비활성화가 발생해도
+    // 느려진 Time.timeScale이 다음 상태까지 남지 않도록 복구한다.
+    private void OnDisable()
+    {
+        RestoreLastPieceAttackCinematicImmediately();
+    }
+
+
     private void Start()
     {
-        // 카메라 컴포넌트 가져오기
+        // 실제 화면 제어에 사용할 Camera를 가져온다.
         cam = GetComponent<Camera>();
 
-        // 픽셀 퍼펙트 카메라 컴포넌트 가져오기
-        pixelCam = GetComponent<PixelPerfectCamera>();
-
-        // 카메라를 Orthographic 모드로 설정
+        // 카메라를 Orthographic 모드로 설정한다.
         cam.orthographic = true;
 
         // 시작 위치 적용
@@ -392,34 +393,64 @@ public class PixelCameraController : MonoBehaviour
 
     private void Update()
     {
-        // <변경부분> 시작 확대 애니메이션이 진행 중일 때는
-        // 코루틴이 WorldRoot 배율을 직접 제어한다.
+        // 시작 확대 애니메이션 중에는
+        // 해당 Coroutine이 WorldRoot 배율을 직접 제어한다.
         //
-        // 이 시간 동안 일반 줌 갱신을 실행하면
-        // 기존 targetWorldScale이 연출 값을 덮어쓸 수 있으므로
-        // 사용자 줌 및 드래그 입력을 잠시 막는다.
+        // 일반 사용자 Zoom / Drag 처리를 함께 실행하지 않는다.
         if (isPlayingStartZoomAnimation)
         {
             ClampCameraByZoom();
             return;
         }
 
-        // <변경부분> 마지막 기물 공격 카메라 연출 중에는
-        // 코루틴이 위치와 줌을 직접 제어하므로 사용자 입력을 막는다.
+        // 마지막 Enemy 공격 시네마틱 중에는
+        // 전용 Coroutine이 카메라 위치와 Zoom을 직접 제어한다.
+        //
+        // 따라서 일반 사용자 입력은 받지 않는다.
         if (isPlayingLastPieceAttackCinematic)
         {
             return;
         }
 
+        // 기물 이동 / 공격 / 흡수 / 고유스킬 등
+        // Battle 행동 연출이 진행 중인지 확인한다.
+        //
+        // 전투 기물 이동은 현재 Tile의 World Position을 기준으로
+        // 목표 위치를 계산하기 때문에,
+        // 이동 도중 WorldRoot Scale이 바뀌면
+        // 저장된 목표 위치와 실제 Tile 위치가 어긋날 수 있다.
+        bool isBattleActionAnimating =
+            BattleManager.Instance != null &&
+            BattleManager.Instance.IsActionAnimating;
 
-        // PC 마우스 휠 확대/축소 처리
-        HandleMouseZoom();
+        if (isBattleActionAnimating)
+        {
+            // 행동 시작 직전에 입력된 Zoom 목표값까지 폐기한다.
+            //
+            // 단순히 Mouse / Pinch 입력만 막으면
+            // 이전 프레임에 만들어진 targetWorldScale을 향해
+            // UpdateWorldZoom()이 계속 보간할 수 있기 때문에
+            // 반드시 현재 배율에서 목표 배율을 고정해야 한다.
+            targetWorldScale =
+                currentWorldScale;
+        }
+        else
+        {
+            // 기물 좌표가 움직이지 않는 안전한 상태에서만
+            // 사용자 확대 / 축소 입력을 허용한다.
 
-        // 모바일 두 손가락 확대/축소 처리
-        HandleMobilePinchZoom();
+            // PC 마우스 휠 확대/축소 처리
+            HandleMouseZoom();
 
-        // 월드 확대 배율 부드럽게 적용
-        UpdateWorldZoom();
+            // 모바일 두 손가락 확대/축소 처리
+            HandleMobilePinchZoom();
+
+            // 목표 Zoom까지 WorldRoot Scale을 부드럽게 적용
+            UpdateWorldZoom();
+        }
+
+        // Zoom과 달리 Camera 자체의 위치 이동은
+        // WorldRoot의 좌표계를 변경하지 않으므로 기존 동작을 유지한다.
 
         // PC 우클릭 드래그 이동
         HandlePCDrag();
@@ -427,7 +458,7 @@ public class PixelCameraController : MonoBehaviour
         // 모바일 두 손가락 드래그 이동
         HandleMobileDrag();
 
-        // 현재 줌 배율에 맞게 카메라 이동 범위 제한
+        // 현재 Zoom 배율에 맞게 카메라 이동 범위를 제한한다.
         ClampCameraByZoom();
     }
 
@@ -824,15 +855,12 @@ public class PixelCameraController : MonoBehaviour
         float elapsedTime =
             0f;
 
-        // <변경부분> 실제 공격 시작 전에
-        // 현재 위치에서 마지막 적 타일 중심으로 빠르게 이동한다.
-        while (elapsedTime < safeDuration)
+        while (elapsedTime < safeDuration &&
+       isPlayingLastPieceAttackCinematic)
         {
             elapsedTime +=
                 Time.unscaledDeltaTime;
 
-            // WorldRoot 확대 상태에 따라 타일의 월드 위치가 달라질 수 있으므로
-            // 현재 프레임의 타일 위치를 계속 갱신한다.
             UpdateLastPieceAttackTargetPosition();
 
             float normalizedTime =
@@ -865,6 +893,13 @@ public class PixelCameraController : MonoBehaviour
                 );
 
             yield return null;
+        }
+
+        // OnDisable 또는 예외 복구로 시네마틱이 이미 종료됐다면
+        // 다시 마지막 적 위치를 적용하지 않고 즉시 종료한다.
+        if (isPlayingLastPieceAttackCinematic == false)
+        {
+            yield break;
         }
 
         UpdateLastPieceAttackTargetPosition();
@@ -1000,7 +1035,63 @@ public class PixelCameraController : MonoBehaviour
             null;
     }
 
-    // <변경부분> 마지막 공격이 끝난 뒤
+    // 마지막 Enemy 공격 시네마틱을 즉시 종료하고
+    // 시작 전에 저장했던 카메라 / 줌 / 시간 상태로 복구한다.
+    //
+    // 정상적인 공격 종료에서는 아래의
+    // RestoreAfterLastPieceAttackCinematicRoutine()을 사용하고,
+    // 기물 소실 / Scene 종료 / Controller 비활성화처럼
+    // Coroutine을 끝까지 진행할 수 없는 예외 상황에서 사용한다.
+    public void RestoreLastPieceAttackCinematicImmediately()
+    {
+        if (isPlayingLastPieceAttackCinematic == false)
+        {
+            return;
+        }
+
+        // 진행 중인 마지막 공격 Zoom Coroutine을 먼저 정리한다.
+        if (lastPieceAttackZoomCoroutine != null)
+        {
+            StopCoroutine(
+                lastPieceAttackZoomCoroutine
+            );
+
+            lastPieceAttackZoomCoroutine =
+                null;
+        }
+
+        // 시네마틱 시작 전에 저장했던
+        // 게임 시간 배율과 물리 업데이트 간격을 즉시 복구한다.
+        Time.timeScale =
+            savedTimeScaleBeforeCinematic;
+
+        Time.fixedDeltaTime =
+            savedFixedDeltaTimeBeforeCinematic;
+
+        // 카메라 위치와 World Zoom도
+        // 시네마틱 시작 전 상태로 즉시 복구한다.
+        transform.position =
+            savedCameraPositionBeforeCinematic;
+
+        currentWorldScale =
+            savedWorldScaleBeforeCinematic;
+
+        targetWorldScale =
+            savedTargetWorldScaleBeforeCinematic;
+
+        ApplyWorldZoom();
+        ClampCameraByZoom();
+
+        // 마지막 공격 추적 상태를 완전히 초기화한다.
+        lastPieceAttackTarget =
+            null;
+
+        isPlayingLastPieceAttackCinematic =
+            false;
+    }
+
+
+    // 마지막 Enemy 공격이 끝난 뒤
     // 시간 배율을 정상화하고 이전 카메라 위치와 줌으로 복구한다.
     public IEnumerator RestoreAfterLastPieceAttackCinematicRoutine()
     {

@@ -30,23 +30,6 @@ public class BoardManager : MonoBehaviour
 
     private Tile[,] tiles; // 모든 타일을 좌표 기준으로 저장하는 2차원 배열
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Awake()
-    {
-        tiles = new Tile[width, height];// 타일 2차원 배열 생성
-        GenerateBoard(); // 보드 생성
-    }
-
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     private void GenerateBoard() // 보드 생성기
     {

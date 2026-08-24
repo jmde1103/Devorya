@@ -20,9 +20,140 @@ public class BattleMoveValidator : MonoBehaviour
         pieceManager = pieceManagerRef;
     }
 
+    // <변경부분> 지정한 기물 주변 8칸 중
+    // 현재 생성 가능한 빈칸이 하나라도 존재하는지 확인한다.
+    //
+    // JelluClone / JelluMultiply의 실제 스킬 사용 가능 판정과
+    // AI 행동 후보 생성이 동일한 기준을 사용하도록 공용화했다.
+    //
+    // 목록이 필요하지 않으므로 새 List를 생성하지 않고
+    // 첫 번째 빈칸을 찾는 순간 즉시 true를 반환한다.
+    public bool HasAdjacentEmptyPosition(
+        Piece centerPiece)
+    {
+        return CollectAdjacentEmptyPositions(
+            centerPiece,
+            null,
+            true
+        );
+    }
+
+    // <변경부분> 지정한 기물 주변 8칸의
+    // 모든 빈칸 좌표를 전달받은 List에 채운다.
+    //
+    // 실제 복제/증식 위치를 랜덤 선택해야 하는 곳에서 사용한다.
+    // 호출자가 기존 List를 재사용할 수 있으므로
+    // 스킬 발동마다 새로운 List를 생성하지 않아도 된다.
+    public void FillAdjacentEmptyPositions(
+        Piece centerPiece,
+        List<Vector2Int> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        // 이전 호출 결과가 남지 않도록 먼저 초기화한다.
+        results.Clear();
+
+        CollectAdjacentEmptyPositions(
+            centerPiece,
+            results,
+            false
+        );
+    }
+
+    // <변경부분> 주변 8칸 빈칸 탐색의 실제 단일 구현.
+    //
+    // stopAfterFirst == true:
+    // 빈칸 존재 여부만 필요하므로 첫 번째 발견 즉시 종료.
+    //
+    // stopAfterFirst == false:
+    // 발견한 모든 빈칸을 results에 저장한다.
+    //
+    // 이렇게 함으로써 빈칸 존재 검사와 실제 후보 수집이
+    // 서로 다른 규칙으로 갈라지는 것을 방지한다.
+    private bool CollectAdjacentEmptyPositions(
+        Piece centerPiece,
+        List<Vector2Int> results,
+        bool stopAfterFirst)
+    {
+        if (centerPiece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return false;
+        }
+
+        bool foundEmptyPosition =
+            false;
+
+        for (int offsetY = -1;
+             offsetY <= 1;
+             offsetY++)
+        {
+            for (int offsetX = -1;
+                 offsetX <= 1;
+                 offsetX++)
+            {
+                // 중심 기물 자신의 위치는 제외한다.
+                if (offsetX == 0 &&
+                    offsetY == 0)
+                {
+                    continue;
+                }
+
+                int targetX =
+                    centerPiece.X +
+                    offsetX;
+
+                int targetY =
+                    centerPiece.Y +
+                    offsetY;
+
+                // 보드 밖 좌표는 후보가 아니다.
+                if (IsInsideBoard(
+                        targetX,
+                        targetY) ==
+                    false)
+                {
+                    continue;
+                }
+
+                // 기존 Clone / Multiply 규칙과 동일하게
+                // 해당 좌표에 기물이 없는 경우만 빈칸으로 취급한다.
+                if (pieceManager.IsEmpty(
+                        targetX,
+                        targetY) ==
+                    false)
+                {
+                    continue;
+                }
+
+                foundEmptyPosition =
+                    true;
+
+                // 존재 여부만 확인하는 경우
+                // 첫 빈칸을 발견하는 즉시 종료한다.
+                if (stopAfterFirst)
+                {
+                    return true;
+                }
+
+                results?.Add(
+                    new Vector2Int(
+                        targetX,
+                        targetY
+                    )
+                );
+            }
+        }
+
+        return foundEmptyPosition;
+    }
+
     // <변경부분> 기물 하나가 현재 보드에서 선택할 수 있는
     // 모든 이동 및 공격 좌표를 반환하는 공용 함수
-    // 플레이어 하이라이트와 AI 후보 생성이 이 결과를 함께 사용한다.
     public List<Vector2Int> GetSelectablePositions(Piece piece)
     {
         List<Vector2Int> selectablePositions =
@@ -426,22 +557,52 @@ public class BattleMoveValidator : MonoBehaviour
         return false;
     }
 
-    // <변경부분> 지정한 젤루 합성 Pawn 주변에서
-    // 현재 실제 합성 재료로 사용할 수 있는 모든 기물을 반환한다.
+    // <변경부분> 젤루 합성에 사용할 수 있는 재료 목록을 새 List로 반환한다.
     //
-    // AI 후보 생성, 무작위 희생 기대값 평가,
-    // 실제 스킬 조건 검증이 같은 기준을 사용하도록 만든다.
+    // AI 평가나 실제 스킬 실행처럼 결과 목록을 따로 보관해야 하는 곳에서 사용한다.
+    // 실제 합성 재료 규칙은 아래 FillJelluSynthesisMaterialCandidates() 한 곳에서만 판정한다.
     public List<Piece> GetJelluSynthesisMaterialCandidates(
         Piece actingPiece)
     {
         List<Piece> materials =
             new List<Piece>();
 
+        FillJelluSynthesisMaterialCandidates(
+            actingPiece,
+            materials
+        );
+
+        return materials;
+    }
+
+    // <변경부분> 전달받은 List에 현재 사용할 수 있는 젤루 합성 재료를 채운다.
+    //
+    // AI 후보 생성처럼 매번 새 List를 만들 필요가 없는 곳에서는
+    // 기존 List를 재사용하여 불필요한 GC 할당을 줄일 수 있다.
+    //
+    // 젤루 합성 재료 판정의 단일 기준:
+    // - 시전자 = Jellu Pawn
+    // - 시전자 주변 8칸
+    // - Jellu 태그 보유
+    // - King 제외
+    // - 시전자와 같은 팀 또는 Neutral
+    public void FillJelluSynthesisMaterialCandidates(
+        Piece actingPiece,
+        List<Piece> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        // 이전 판정 결과가 남지 않도록 항상 먼저 초기화한다.
+        results.Clear();
+
         if (actingPiece == null ||
             boardManager == null ||
             pieceManager == null)
         {
-            return materials;
+            return;
         }
 
         // 젤루 합성은 Jellu Pawn 전용이다.
@@ -451,7 +612,7 @@ public class BattleMoveValidator : MonoBehaviour
                 PieceSpeciesTag.Jellu) ==
             false)
         {
-            return materials;
+            return;
         }
 
         // 시전자 주변 8칸을 검사한다.
@@ -463,6 +624,7 @@ public class BattleMoveValidator : MonoBehaviour
                  offsetX <= 1;
                  offsetX++)
             {
+                // 시전자 자신의 위치는 재료에서 제외한다.
                 if (offsetX == 0 &&
                     offsetY == 0)
                 {
@@ -496,7 +658,7 @@ public class BattleMoveValidator : MonoBehaviour
                     continue;
                 }
 
-                // Jellu 태그가 없는 기물은 제외한다.
+                // Jellu 태그가 없는 기물은 합성 재료가 아니다.
                 if (candidatePiece.HasSpeciesTag(
                         PieceSpeciesTag.Jellu) ==
                     false)
@@ -504,14 +666,14 @@ public class BattleMoveValidator : MonoBehaviour
                     continue;
                 }
 
-                // King은 합성 재료가 될 수 없다.
+                // King은 승패 조건 보호를 위해 합성 재료에서 제외한다.
                 if (candidatePiece.PieceType ==
                     PieceType.King)
                 {
                     continue;
                 }
 
-                // 같은 팀 또는 Neutral Jellu만 허용한다.
+                // 시전자와 같은 팀 또는 Neutral Jellu만 허용한다.
                 if (candidatePiece.Team !=
                         actingPiece.Team &&
                     candidatePiece.Team !=
@@ -520,13 +682,11 @@ public class BattleMoveValidator : MonoBehaviour
                     continue;
                 }
 
-                materials.Add(
+                results.Add(
                     candidatePiece
                 );
             }
         }
-
-        return materials;
     }
 
 

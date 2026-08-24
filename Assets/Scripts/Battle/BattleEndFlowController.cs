@@ -7,18 +7,28 @@ public class BattleEndFlowController : MonoBehaviour
 {
     [Header("Scene Move")]
 
-    // <변경부분> 승리 후 바로 맵 씬으로 이동할지 여부
-    [SerializeField] private bool moveToMapSceneImmediatelyOnWin = false;
+    // 승리 후 보상 팝업을 생략하고
+    // 바로 WorldMap Scene으로 복귀할지 여부.
+    //
+    // false:
+    // 보상 결과 Popup 표시
+    // → 확인
+    // → MoveToMapScene()
+    //
+    // true:
+    // 보상 적용 직후 바로 MoveToMapScene()
+    [SerializeField]
+    private bool moveToMapSceneImmediatelyOnWin =
+     false;
 
-    // <변경부분> 전투 승리 후 돌아갈 로그라이크 맵 씬 이름
-    [SerializeField] private string mapSceneName = "WorldMapScene";
-
-    // <변경부분> 보상 확인 후 맵으로 돌아가기 전에
-    // 다음 레벨 전투 씬으로 이동할지 여부
-    [SerializeField] private bool moveToNextBattleSceneAfterReward = true;
-
-    // <변경부분> 1번 레벨 전투 승리 후 이동할 2번 레벨 전투 씬 이름
-    [SerializeField] private string nextBattleSceneName = "BattleLevel2Scene";
+    // 전투 승리 후 돌아갈 로그라이크 WorldMap Scene 이름.
+    //
+    // 현재 정식 전투 흐름은
+    // Battle → Reward → WorldMap 구조이므로
+    // BattleScene에서 다음 BattleScene으로 직접 이동하지 않는다.
+    [SerializeField]
+    private string mapSceneName =
+        "WorldMapScene";
 
 
 

@@ -947,20 +947,40 @@ public class BattleUIController : MonoBehaviour
         PlayActionButtonIconNoiseOnShow();
     }
 
-    // <변경부분> 상대 기물 정보를 오른쪽 상단 스테이터스 UI에 표시하는 함수
-    public void RefreshEnemyStatus(Piece enemyPiece)
+    // 상대 기물 정보를 오른쪽 상단 스테이터스 UI에 표시한다.
+    //
+    // null이 전달된 경우에는 상대 정보가 없는 상태로 간주하고
+    // 기존 Enemy Status UI를 안전하게 비운다.
+    public void RefreshEnemyStatus(
+        Piece enemyPiece)
     {
-        // <변경부분> 상대 스테이터스 갱신 호출 확인
-        Debug.Log("상대 스테이터스 갱신 호출: " + enemyPiece.PieceType);
+        // 기물이 제거된 직후나 외부 호출에서 null이 전달되어도
+        // PieceType 접근으로 NullReferenceException이 발생하지 않도록
+        // 가장 먼저 null을 처리한다.
+        if (enemyPiece == null)
+        {
+            ClearEnemyStatus();
+            return;
+        }
 
-        if (enemyStatusUIController != null)
+        // 실제 표시할 기물이 있을 때만 Debug 정보를 출력한다.
+        Debug.Log(
+            "상대 스테이터스 갱신 호출: " +
+            enemyPiece.PieceType
+        );
+
+        if (enemyStatusUIController == null)
         {
-            enemyStatusUIController.Refresh(enemyPiece);
+            Debug.LogWarning(
+                "Enemy Status UI Controller가 연결되지 않았습니다."
+            );
+
+            return;
         }
-        else
-        {
-            Debug.LogWarning("Enemy Status UI Controller가 연결되지 않았습니다.");
-        }
+
+        enemyStatusUIController.Refresh(
+            enemyPiece
+        );
     }
 
     // <변경부분> 상대 기물 스테이터스 UI를 숨기는 함수

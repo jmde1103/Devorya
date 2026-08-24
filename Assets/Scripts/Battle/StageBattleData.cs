@@ -120,26 +120,63 @@ public class StageBattleData : ScriptableObject
     // BattleSetupManager가 이 배열을 읽어서 Enemy 기물에게만 적용한다.
     public EnemyGeneralSkillGrantRule[] enemyGeneralSkillGrantRules;
 
-    // <변경부분> 스테이지 데이터가 최소 실행 가능한 상태인지 확인
+    // StageBattleData 자체만 검사할 때 사용하는 기본 Validation.
+    //
+    // Runtime RunState가 존재한다고 가정하지 않기 때문에
+    // playerFormationData까지 정상적으로 연결되어 있어야 유효한 것으로 판단한다.
+    //
+    // Editor 검사나 Runtime Context가 없는 외부 검사에서도
+    // 기존 IsValid() 호출 방식을 그대로 유지할 수 있다.
     public bool IsValid()
     {
-        // <변경부분> 모든 전투 스테이지는
-        // 자신이 사용할 BackgroundMapData를 가지고 있어야 한다.
+        return IsValid(
+            false
+        );
+    }
+
+
+    // 현재 전투 진입 상황까지 고려하여
+    // StageBattleData가 실제 Battle Setup에 사용 가능한지 검사한다.
+    //
+    // hasRunStatePlayerPieces:
+    // 현재 RunStateManager에 실제로 사용할 수 있는
+    // Player 기물 데이터가 존재하는지를 BattleSetupManager가 전달한다.
+    //
+    // StageBattleData는 RunStateManager를 직접 참조하지 않고
+    // 전투 데이터 자체의 Validation 규칙만 담당한다.
+    public bool IsValid(
+        bool hasRunStatePlayerPieces)
+    {
+        // 모든 전투 스테이지는
+        // 사용할 BackgroundMapData가 반드시 필요하다.
         if (backgroundMapData == null)
         {
             return false;
         }
 
-        if (playerFormationData == null)
+        // 저장된 Player RunState를 사용할 수 있는지는
+        // Stage 설정과 실제 Runtime 데이터가 모두 만족해야 한다.
+        bool canUseRunStatePlayerPieces =
+            useRunStatePlayerPieces &&
+            hasRunStatePlayerPieces;
+
+        // 실제 사용할 RunState 기물이 없다면
+        // Stage의 기본 Player Formation이 반드시 필요하다.
+        if (canUseRunStatePlayerPieces == false)
         {
-            return false;
+            if (playerFormationData == null)
+            {
+                return false;
+            }
+
+            if (playerFormationData.IsValid() == false)
+            {
+                return false;
+            }
         }
 
-        if (playerFormationData.IsValid() == false)
-        {
-            return false;
-        }
-
+        // Enemy Formation은 RunState와 관계없이
+        // 모든 전투에서 반드시 필요하다.
         if (enemyFormationData == null)
         {
             return false;

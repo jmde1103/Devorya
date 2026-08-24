@@ -60594,7 +60594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87dc8cfc1004eea4f8afb1e2799f49ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetupManager
-  directTestStageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+  directTestStageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
   battleManager: {fileID: 52600099}
@@ -108713,8 +108713,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleEndFlowController
   moveToMapSceneImmediatelyOnWin: 0
   mapSceneName: WorldMapScene
-  moveToNextBattleSceneAfterReward: 0
-  nextBattleSceneName: BattleLevel2Scene
   battleRewardPopupUI: {fileID: 337650159}
   maxPlayerPieceCount: 10
   devoryaPawnRewardPercent: 90

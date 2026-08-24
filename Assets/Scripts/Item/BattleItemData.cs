@@ -35,13 +35,14 @@ public class BattleItemData : ScriptableObject
     // changeTargetPieceData가 비어 있을 때만 사용하는 구버전 보조값이다.
     public UniqueSkillType changeTargetUniqueSkill = UniqueSkillType.None;
 
-    // <변경부분> 아이템 사용 시 부여할 일반스킬
-    public GeneralSkillType changeTargetGeneralSkill = GeneralSkillType.None;
+    // 아이템 사용 시 부여할 일반스킬.
+    //
+    // 현재 일반스킬은 레벨 시스템을 사용하지 않으며,
+    // 동일 스킬의 중복 보유도 허용하지 않는다.
+    public GeneralSkillType changeTargetGeneralSkill =
+        GeneralSkillType.None;
 
-    // <변경부분> 아이템 사용 시 부여할 일반스킬 레벨
-    public int changeTargetGeneralSkillLevel = 1;
-
-    // <변경부분> 아이템 사용 후 흡수된 젤루 외형으로 표시할지 여부
+    // 아이템 사용 후 흡수된 젤루 외형으로 표시할지 여부
     public bool useAbsorbedJelluVisual = true;
 
     // <변경부분> King 타입 기물에게 사용을 금지할지 여부

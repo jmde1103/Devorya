@@ -1689,8 +1689,12 @@ public class BattleAIActionEvaluator
         return 0f;
     }
 
-    // <변경부분> 가장 높은 점수의 행동들을 추려낸 뒤
+    // <변경부분> 가장 높은 점수의 유효한 행동들을 추려낸 뒤
     // 동점 후보 중 하나를 랜덤으로 선택한다.
+    //
+    // float.MinValue는 AI 평가기에서
+    // "현재 상황에서는 실행하면 안 되는 행동"을 의미하는 예약 점수로 사용한다.
+    // 따라서 실제 최고 점수 후보에 포함시키지 않는다.
     public BattleAIAction SelectBestAction(
         List<BattleAIAction> actions,
         List<BattleAIAction> bestActions)
@@ -1721,9 +1725,21 @@ public class BattleAIActionEvaluator
         // 모든 행동을 순회하며 최고 점수 후보를 수집한다.
         for (int i = 0; i < actions.Count; i++)
         {
-            BattleAIAction action = actions[i];
+            BattleAIAction action =
+                actions[i];
 
             if (action == null)
+            {
+                continue;
+            }
+
+            // <변경부분>
+            // float.MinValue는 평가 단계에서 실행 금지로 판정된 행동이다.
+            //
+            // 이 값을 후보에 포함하면 모든 행동이 실행 불가인 상황에서
+            // float.MinValue 행동들이 서로 동점으로 처리되어
+            // 실제 실행 대상으로 잘못 선택될 수 있으므로 반드시 제외한다.
+            if (action.Score == float.MinValue)
             {
                 continue;
             }
@@ -1741,7 +1757,7 @@ public class BattleAIActionEvaluator
                 continue;
             }
 
-            // 현재 최고 점수와 같은 행동은 동점 후보로 추가한다.
+            // 현재 최고 점수와 같은 유효 행동은 동점 후보로 추가한다.
             if (Mathf.Approximately(
                     action.Score,
                     highestScore))
@@ -1750,13 +1766,15 @@ public class BattleAIActionEvaluator
             }
         }
 
-        // 유효한 최고 점수 후보가 없다면 선택 실패
+        // <변경부분>
+        // 원본 후보가 존재하더라도 모두 실행 금지 점수였다면
+        // 선택할 수 있는 실제 행동이 없는 것으로 처리한다.
         if (bestActions.Count == 0)
         {
             return null;
         }
 
-        // 최고 점수가 같은 행동 중 하나를 랜덤으로 선택한다.
+        // 최고 점수가 같은 유효 행동 중 하나를 랜덤으로 선택한다.
         int selectedIndex =
             Random.Range(
                 0,

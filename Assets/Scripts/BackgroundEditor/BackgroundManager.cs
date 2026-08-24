@@ -179,14 +179,42 @@ public class BackgroundManager : MonoBehaviour
         }
     }
 
-    // 지정 좌표에 배경 타일을 새로 생성
-    private void SpawnBackgroundTile(BackgroundTileType tileType, int x, int y)
+    private void SpawnBackgroundTile(
+      BackgroundTileType tileType,
+      int x,
+      int y)
     {
-        // <변경부분> All은 실제 타일이 아니라 랜덤 생성 규칙이므로 실제 배치 타입으로 변환
-        BackgroundTileType actualTileType = GetActualBackgroundTileType(tileType);
+        // BackgroundMapData 또는 외부 호출에서 잘못된 좌표가 들어와도
+        // backgroundTiles[x, y] 접근으로 예외가 발생하지 않도록
+        // 실제 생성 전에 좌표를 검증한다.
+        if (x < 0 ||
+            x >= backgroundWidth ||
+            y < 0 ||
+            y >= backgroundHeight)
+        {
+            Debug.LogWarning(
+                $"배경 타일 생성 건너뜀: " +
+                $"좌표 ({x}, {y})가 " +
+                $"현재 배경 범위 " +
+                $"({backgroundWidth} x {backgroundHeight})를 " +
+                $"벗어났습니다."
+            );
 
-        // 실제 배치 타입에 맞는 스프라이트를 가져오기
-        Sprite tileSprite = GetRandomTileSprite(actualTileType);
+            return;
+        }
+
+        // All은 실제 타일이 아니라 랜덤 생성 규칙이므로
+        // 실제 배치 가능한 타일 타입으로 변환한다.
+        BackgroundTileType actualTileType =
+            GetActualBackgroundTileType(
+                tileType
+            );
+
+        // 실제 배치 타입에 맞는 스프라이트를 가져온다.
+        Sprite tileSprite =
+            GetRandomTileSprite(
+                actualTileType
+            );
 
         if (tileSprite == null)
         {
@@ -831,29 +859,53 @@ public class BackgroundManager : MonoBehaviour
         // 생성된 장식물 이름을 좌표 기준으로 정리
         decorationObject.name = $"Decoration_{decorationType}_{x}_{y}";
 
-        // 생성된 장식물에 선택된 스프라이트 적용
-        SpriteRenderer spriteRenderer = decorationObject.GetComponent<SpriteRenderer>();
+        // 생성된 장식물에 표시용 SpriteRenderer가 있는지 확인한다.
+        //
+        // 장식물은 SpriteRenderer가 없으면 정상적인 시각 오브젝트로
+        // 사용할 수 없으므로 불완전한 인스턴스를 남기지 않고 제거한다.
+        SpriteRenderer spriteRenderer =
+            decorationObject.GetComponent<SpriteRenderer>();
 
-        if (spriteRenderer != null)
+        if (spriteRenderer == null)
         {
-            spriteRenderer.sprite = decorationSprite;
+            Debug.LogError(
+                $"장식물 생성 실패: " +
+                $"DecorationPrefab에 SpriteRenderer가 없습니다. " +
+                $"Type: {decorationType}, " +
+                $"Position: ({x}, {y})"
+            );
+
+            DestroyBackgroundObject(
+                decorationObject
+            );
+
+            return;
         }
 
-        // <변경부분> 장식물을 배경 분위기에 맞게 어둡게 표시
+        // 선택된 장식물 스프라이트를 적용한다.
+        spriteRenderer.sprite =
+            decorationSprite;
+
+        // 장식물을 배경 분위기에 맞게 어둡게 표시한다.
         if (useDarkDecoration)
         {
-            float brightness = Mathf.Clamp01(decorationBrightness);
+            float brightness =
+                Mathf.Clamp01(
+                    decorationBrightness
+                );
 
             spriteRenderer.color =
                 new Color(
                     brightness,
                     brightness,
                     brightness,
-                    1f);
+                    1f
+                );
         }
         else
         {
-            spriteRenderer.color = Color.white;
+            spriteRenderer.color =
+                Color.white;
         }
 
         // 장식물 데이터 초기화
@@ -1157,53 +1209,111 @@ public class BackgroundManager : MonoBehaviour
         LoadMapFromData();
     }
 
-    // <변경부분> 연결된 맵 데이터에서
-    // 배경 타일과 장식물을 다시 생성
     public void LoadMapFromData()
     {
         if (currentMapData == null)
         {
-            Debug.LogWarning("불러올 BackgroundMapData가 연결되지 않았습니다.");
+            Debug.LogWarning(
+                "불러올 BackgroundMapData가 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        backgroundWidth = currentMapData.Width;
-        backgroundHeight = currentMapData.Height;
-        backgroundOriginOffset = currentMapData.BackgroundOriginOffset;
+        // 저장된 맵 크기가 유효하지 않으면
+        // 배열 생성이나 잘못된 Runtime 상태로 진입하기 전에 중단한다.
+        if (currentMapData.Width <= 0 ||
+            currentMapData.Height <= 0)
+        {
+            Debug.LogError(
+                $"배경 맵 데이터 불러오기 실패: " +
+                $"유효하지 않은 맵 크기입니다. " +
+                $"{currentMapData.Width} x " +
+                $"{currentMapData.Height}"
+            );
 
+            return;
+        }
+
+        // 검증된 BackgroundMapData의 기본 설정을 적용한다.
+        backgroundWidth =
+            currentMapData.Width;
+
+        backgroundHeight =
+            currentMapData.Height;
+
+        backgroundOriginOffset =
+            currentMapData.BackgroundOriginOffset;
+
+        // 기존 Scene 배경과 장식물을 정리한 뒤
+        // 저장 데이터 기준으로 다시 구성한다.
         ClearBackground();
         ClearDecorations();
 
         BuildTileSpriteDictionary();
         BuildDecorationSpriteDictionary();
 
-        backgroundTiles = new BackgroundTile[backgroundWidth, backgroundHeight];
+        backgroundTiles =
+            new BackgroundTile[
+                backgroundWidth,
+                backgroundHeight
+            ];
 
-        for (int i = 0; i < currentMapData.Tiles.Count; i++)
+        // 저장된 배경 타일을 다시 생성한다.
+        //
+        // SpawnBackgroundTile() 자체에서도 좌표를 검증하므로
+        // 잘못된 개별 데이터는 건너뛰고 나머지 맵은 계속 불러온다.
+        if (currentMapData.Tiles != null)
         {
-            BackgroundTileSaveData tileData = currentMapData.Tiles[i];
-
-            if (tileData == null)
+            for (int i = 0;
+                 i < currentMapData.Tiles.Count;
+                 i++)
             {
-                continue;
-            }
+                BackgroundTileSaveData tileData =
+                    currentMapData.Tiles[i];
 
-            SpawnBackgroundTile(tileData.TileType, tileData.X, tileData.Y);
+                if (tileData == null)
+                {
+                    continue;
+                }
+
+                SpawnBackgroundTile(
+                    tileData.TileType,
+                    tileData.X,
+                    tileData.Y
+                );
+            }
         }
 
-        for (int i = 0; i < currentMapData.Decorations.Count; i++)
+        // 저장된 장식물을 다시 생성한다.
+        //
+        // SpawnDecoration() 내부에 동일한 좌표 범위 검사가 있으므로
+        // 잘못된 장식물 데이터도 안전하게 건너뛴다.
+        if (currentMapData.Decorations != null)
         {
-            DecorationSaveData decorationData = currentMapData.Decorations[i];
-
-            if (decorationData == null)
+            for (int i = 0;
+                 i < currentMapData.Decorations.Count;
+                 i++)
             {
-                continue;
-            }
+                DecorationSaveData decorationData =
+                    currentMapData.Decorations[i];
 
-            SpawnDecoration(decorationData.DecorationType, decorationData.X, decorationData.Y);
+                if (decorationData == null)
+                {
+                    continue;
+                }
+
+                SpawnDecoration(
+                    decorationData.DecorationType,
+                    decorationData.X,
+                    decorationData.Y
+                );
+            }
         }
 
-        Debug.Log("배경 맵 데이터를 불러왔습니다.");
+        Debug.Log(
+            "배경 맵 데이터를 불러왔습니다."
+        );
     }
 
     // <변경부분> 새 BackgroundMapData 에셋을 생성하고 현재 맵 데이터로 연결
