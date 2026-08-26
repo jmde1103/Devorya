@@ -101,6 +101,16 @@ public class WorldMapProgressController : MonoBehaviour
     private float waitBeforeSceneMove =
         0.25f;
 
+    [Header("Scene Transition")]
+    // 전투 / 이벤트 Scene으로 이동하기 직전에 실행되는
+    // WorldMap Camera 축소와 Fog Close 연출의 공통 재생 시간.
+    //
+    // 두 연출이 서로 다른 시간을 독립적으로 사용하지 않도록
+    // WorldMapProgressController가 Scene 전환 시간의 SSOT를 소유한다.
+    [SerializeField, Min(0.01f)]
+    private float sceneCloseDuration =
+        0.9f;
+
     // 현재 검은 구체가 이동 중인지 확인한다.
     private bool isMovingMarker;
 
@@ -140,13 +150,22 @@ public class WorldMapProgressController : MonoBehaviour
         }
     }
 
-    // 월드맵 생성 완료 후
-    // 시작 노드, 전투 승리 결과, 해금 상태를 적용한다.
     private IEnumerator InitializeWorldMapRoutine()
     {
         yield return null;
 
         if (ValidateReferences() == false)
+        {
+            yield break;
+        }
+
+        // WorldMapData에서 시작 노드를 의미하는 initiallyCleared가
+        // 여러 노드에 동시에 설정되어 있지 않은지 먼저 검사한다.
+        //
+        // 여러 개가 존재하면 Marker 시작 위치와
+        // 실제 Cleared 노드 상태가 서로 달라질 수 있으므로
+        // 잘못된 데이터 상태에서 진행도를 초기화하지 않는다.
+        if (ValidateInitialStartPlacement() == false)
         {
             yield break;
         }
@@ -348,6 +367,70 @@ public class WorldMapProgressController : MonoBehaviour
                 "PlayerMarkerRoot 자식에서 Renderer를 찾지 못했습니다. " +
                 "포그 전환 중 마커를 포그 위로 올리는 처리는 생략됩니다."
             );
+        }
+
+        return true;
+    }
+
+    // WorldMapData에서 시작 노드 역할을 하는
+    // initiallyCleared가 여러 노드에 중복 설정되어 있는지 검사한다.
+    //
+    // 현재 구조에서 initiallyCleared는 단순한 시각적 Cleared 옵션이 아니라
+    // 새로운 월드맵 진행도를 처음 시작할 CurrentNode를 결정하는 기준이므로
+    // 한 맵에 두 개 이상 존재하면 안 된다.
+    private bool ValidateInitialStartPlacement()
+    {
+        if (worldMapBuilder == null ||
+            worldMapBuilder.WorldMapData == null)
+        {
+            return false;
+        }
+
+        WorldMapData mapData =
+            worldMapBuilder.WorldMapData;
+
+        if (mapData.nodePlacements == null)
+        {
+            return true;
+        }
+
+        MapNodePlacementData firstStartPlacement =
+            null;
+
+        for (int i = 0;
+             i < mapData.nodePlacements.Count;
+             i++)
+        {
+            MapNodePlacementData placement =
+                mapData.nodePlacements[i];
+
+            if (placement == null ||
+                placement.initiallyCleared == false)
+            {
+                continue;
+            }
+
+            // 첫 번째 initiallyCleared 노드는
+            // 정상적인 시작 노드 후보로 저장한다.
+            if (firstStartPlacement == null)
+            {
+                firstStartPlacement =
+                    placement;
+
+                continue;
+            }
+
+            // 두 번째 initiallyCleared가 발견되는 순간
+            // 시작 위치가 모호한 잘못된 WorldMapData 상태로 판단한다.
+            Debug.LogError(
+                $"월드맵 시작 노드 설정 오류: " +
+                $"Initially Cleared가 두 개 이상 설정되어 있습니다. " +
+                $"첫 번째 노드: {firstStartPlacement.nodeId} / " +
+                $"중복 노드: {placement.nodeId}. " +
+                $"Initially Cleared는 시작 노드 하나에만 설정해 주세요."
+            );
+
+            return false;
         }
 
         return true;
@@ -940,11 +1023,11 @@ public class WorldMapProgressController : MonoBehaviour
         // 마커는 포그가 완전히 닫힌 뒤에만 비활성화한다.
         SetPlayerMarkerAboveFog();
 
-        // 맵 시작 연출의 역재생처럼 보이도록
-        // 카메라 축소와 포그 수축을 같은 시간에 동시에 실행한다.
-        float sceneCloseDuration =
-            0.9f;
-
+        // WorldMapProgressController가 소유한 공통 Scene Close 시간을 사용하여
+        // Camera 축소와 Fog Close를 동시에 시작한다.
+        //
+        // Camera / Fog Controller 내부의 개별 Duration은
+        // 독립 호출 시 사용할 fallback 값으로만 유지한다.
         Coroutine cameraCloseCoroutine =
             null;
 
@@ -976,11 +1059,23 @@ public class WorldMapProgressController : MonoBehaviour
                 );
         }
 
-        // 두 연출이 모두 끝난 다음에만 전투 씬을 불러온다.
+        // 두 연출은 이미 동시에 시작된 상태다.
+        //
+        // 먼저 Fog 종료를 기다리고,
+        // Camera가 아직 남아 있다면 이어서 Camera 종료까지 기다린다.
+        // 같은 Duration이라면 두 번째 대기는 사실상 즉시 끝나지만,
+        // 한쪽 Controller가 없거나 향후 구현 시간이 달라져도
+        // Scene Load가 연출보다 먼저 실행되는 것을 방지한다.
         if (fogCloseCoroutine != null)
         {
             yield return
                 fogCloseCoroutine;
+        }
+
+        if (cameraCloseCoroutine != null)
+        {
+            yield return
+                cameraCloseCoroutine;
         }
 
         // 포그가 완전히 검게 닫힌 다음에만

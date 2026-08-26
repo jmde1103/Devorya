@@ -108,15 +108,35 @@ public class PieceAnimationManager : MonoBehaviour
     // <변경부분> 공격/방어 충격 시 화면 흔들림 세기
     [SerializeField] private float cameraShakeStrength = 0.06f;
 
-    // <변경부분> 모바일 빌드에서 공격/방어 충격 시 진동 사용 여부
+    // 모바일 빌드에서 공격/방어 충격 시 진동 사용 여부
     [SerializeField] private bool enableMobileVibration = true;
 
 
-    // <변경부분> 기물이 시작 위치에서 목표 위치까지 살짝 떠서 이동하는 기본 이동 연출
-    // 이동 중에는 Sprite/Spine 외형을 임시로 최상단에 표시하고,
-    // 이동이 끝나면 원래 Sorting Order로 복구한다.
+    // 현재 실행 중인 카메라 흔들림 코루틴.
+    // 새로운 충격이 발생하면 기존 흔들림을 먼저 정리한 뒤 새 흔들림을 시작한다.
+    private Coroutine cameraShakeCoroutine;
+
+    // 현재 흔들림이 적용되고 있는 실제 Transform.
+    private Transform activeCameraShakeTarget;
+
+    // 현재 흔들림을 시작하기 전의 정확한 기준 Local Position.
+    // 중첩 흔들림이나 비활성화 시 반드시 이 위치로 복구한다.
+    private Vector3 cameraShakeBaseLocalPosition;
+
+
+
+
+    private void OnDisable()
+    {
+        // 컴포넌트가 비활성화되면서 Unity가 코루틴을 중단하더라도
+        // 카메라가 마지막 흔들림 좌표에 남지 않도록 즉시 원위치로 복구한다.
+        StopCameraShakeImmediately();
+    }
+
+
+    // 기물이 시작 위치에서 목표 위치까지 살짝 떠서 이동하는 기본 이동 연출
     public IEnumerator PlayPieceJumpMoveAnimation(
-        Piece piece,
+            Piece piece,
         Vector3 targetPosition)
     {
         // 이동할 기물이 없으면 종료
@@ -1083,8 +1103,9 @@ public class PieceAnimationManager : MonoBehaviour
     // <변경부분> 공격/방어 충격 피드백 실행
     private void PlayAttackImpactFeedback()
     {
-        // 화면 흔들림 실행
-        StartCoroutine(ShakeCameraRoutine());
+        // 기존 흔들림이 실행 중이라면 먼저 원위치로 복구한 뒤
+        // 이번 충격 기준으로 새로운 흔들림을 시작한다.
+        StartCameraShake();
 
         // 모바일 빌드에서 진동 실행
         if (enableMobileVibration)
@@ -1096,44 +1117,149 @@ public class PieceAnimationManager : MonoBehaviour
     }
 
 
-    // <변경부분> 카메라 또는 지정된 Transform을 짧게 흔드는 코루틴
-    private IEnumerator ShakeCameraRoutine()
+    // 공격 충격용 카메라 흔들림을 시작한다.
+    //
+    // 이미 흔들림이 실행 중이라면 기존 코루틴을 중단하고
+    // 기존 흔들림 시작 전의 정확한 위치로 먼저 복구한 뒤
+    // 새로운 충격 기준으로 흔들림 시간을 다시 시작한다.
+    private void StartCameraShake()
     {
-        Transform shakeTarget = cameraShakeTarget;
+        // 이전 흔들림이 실행 중이었다면
+        // 반드시 기준 위치를 복구한 뒤 종료한다.
+        StopCameraShakeImmediately();
 
-        // 별도 흔들림 대상이 없으면 Main Camera 사용
-        if (shakeTarget == null && Camera.main != null)
+        Transform shakeTarget =
+            cameraShakeTarget;
+
+        // Inspector에 별도 대상이 없으면 Main Camera를 사용한다.
+        if (shakeTarget == null &&
+            Camera.main != null)
         {
-            shakeTarget = Camera.main.transform;
+            shakeTarget =
+                Camera.main.transform;
         }
 
         if (shakeTarget == null)
         {
-            yield break;
+            return;
         }
 
-        Vector3 originalPosition = shakeTarget.localPosition;
-
-        if (cameraShakeDuration <= 0f || cameraShakeStrength <= 0f)
+        // 흔들림 설정이 비활성 상태라면
+        // 코루틴을 새로 시작하지 않는다.
+        if (cameraShakeDuration <= 0f ||
+            cameraShakeStrength <= 0f)
         {
-            yield break;
+            return;
         }
 
-        float elapsedTime = 0f;
+        activeCameraShakeTarget =
+            shakeTarget;
 
-        while (elapsedTime < cameraShakeDuration)
+        // 이번 흔들림이 시작되는 정확한 위치를
+        // 새로운 기준 위치로 저장한다.
+        cameraShakeBaseLocalPosition =
+            shakeTarget.localPosition;
+
+        cameraShakeCoroutine =
+            StartCoroutine(
+                ShakeCameraRoutine(
+                    shakeTarget,
+                    cameraShakeBaseLocalPosition
+                )
+            );
+    }
+
+
+    // 지정된 기준 위치를 중심으로 카메라를 짧게 흔든다.
+    //
+    // 기준 위치는 코루틴 시작 시 한 번만 전달받기 때문에
+    // 흔들리는 도중의 임시 위치가 새로운 원점으로 사용되지 않는다.
+    private IEnumerator ShakeCameraRoutine(
+        Transform shakeTarget,
+        Vector3 baseLocalPosition)
+    {
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               cameraShakeDuration)
         {
-            elapsedTime += Time.deltaTime;
+            // 흔들림 대상이 연출 도중 제거됐다면 안전하게 종료한다.
+            if (shakeTarget == null)
+            {
+                cameraShakeCoroutine =
+                    null;
 
-            float randomX = Random.Range(-cameraShakeStrength, cameraShakeStrength);
-            float randomY = Random.Range(-cameraShakeStrength, cameraShakeStrength);
+                activeCameraShakeTarget =
+                    null;
 
-            shakeTarget.localPosition = originalPosition + new Vector3(randomX, randomY, 0f);
+                yield break;
+            }
+
+            elapsedTime +=
+                Time.deltaTime;
+
+            float randomX =
+                Random.Range(
+                    -cameraShakeStrength,
+                    cameraShakeStrength
+                );
+
+            float randomY =
+                Random.Range(
+                    -cameraShakeStrength,
+                    cameraShakeStrength
+                );
+
+            shakeTarget.localPosition =
+                baseLocalPosition +
+                new Vector3(
+                    randomX,
+                    randomY,
+                    0f
+                );
 
             yield return null;
         }
 
-        shakeTarget.localPosition = originalPosition;
+        // 흔들림이 정상적으로 끝나면
+        // 시작 전 기준 위치로 정확히 복구한다.
+        if (shakeTarget != null)
+        {
+            shakeTarget.localPosition =
+                baseLocalPosition;
+        }
+
+        cameraShakeCoroutine =
+            null;
+
+        activeCameraShakeTarget =
+            null;
+    }
+
+
+    // 실행 중인 카메라 흔들림을 즉시 중단하고
+    // 흔들림 시작 전의 정확한 위치로 복구한다.
+    private void StopCameraShakeImmediately()
+    {
+        if (cameraShakeCoroutine != null)
+        {
+            StopCoroutine(
+                cameraShakeCoroutine
+            );
+
+            cameraShakeCoroutine =
+                null;
+        }
+
+        if (activeCameraShakeTarget != null)
+        {
+            activeCameraShakeTarget.localPosition =
+                cameraShakeBaseLocalPosition;
+        }
+
+        activeCameraShakeTarget =
+            null;
     }
 
     // <변경부분> 기물 선택 시 Spine Select 애니메이션을 재생하는 함수

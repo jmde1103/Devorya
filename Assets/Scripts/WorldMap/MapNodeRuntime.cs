@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 // 월드맵에 실제로 생성된 노드의 표시와 클릭을 관리한다.
 [RequireComponent(typeof(SpriteRenderer))]
@@ -63,6 +64,11 @@ public class MapNodeRuntime : MonoBehaviour
 
     // 현재 포인터가 노드 위에서 눌렸는지 확인한다.
     private bool isPointerPressed;
+
+    // 모바일 / PC에서 현재 포인터 위치의 UI Raycast 결과를 재사용한다.
+    // 노드를 클릭할 때마다 List를 새로 생성하지 않아 불필요한 GC 할당을 방지한다.
+    private static readonly List<RaycastResult> pointerRaycastResults =
+        new List<RaycastResult>();
 
     private void Reset()
     {
@@ -232,13 +238,54 @@ public class MapNodeRuntime : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // 포인터가 노드 위에서 눌렸음을 저장한다.
-        //
-        // 이후 맵 드래그 기능을 추가할 때
-        // 일정 거리 이상 드래그했다면 클릭을 취소하도록 확장한다.
+        // 모바일에서 두 손가락이 사용 중이라면
+        // WorldMapCameraController의 Pinch / Drag 제스처로 판단하고
+        // 노드 클릭을 시작하지 않는다.
+        if (Input.touchCount >= 2)
+        {
+            isPointerPressed =
+                false;
+
+            return;
+        }
+
+        // UI 위에서 시작된 Mouse / Touch라면
+        // 뒤쪽 WorldMap Node로 입력을 전달하지 않는다.
+        if (IsPointerOverUI())
+        {
+            isPointerPressed =
+                false;
+
+            return;
+        }
+
+        // 실제 WorldMap Node 위에서 시작된 입력만
+        // 노드 클릭 후보로 저장한다.
         isPointerPressed =
             true;
     }
+
+
+    // 노드를 누른 상태에서 두 번째 손가락이 추가되면
+    // 단일 노드 클릭이 아니라 카메라 Pinch / Drag 제스처로 전환된 것으로 판단한다.
+    //
+    // 첫 번째 손가락으로 노드를 누른 뒤
+    // 두 번째 손가락을 추가하는 경우에도
+    // 이후 Node 진입이 발생하지 않도록 클릭 상태를 취소한다.
+    private void OnMouseDrag()
+    {
+        if (isPointerPressed == false)
+        {
+            return;
+        }
+
+        if (Input.touchCount >= 2)
+        {
+            isPointerPressed =
+                false;
+        }
+    }
+
 
     private void OnMouseUpAsButton()
     {
@@ -247,10 +294,137 @@ public class MapNodeRuntime : MonoBehaviour
             return;
         }
 
+        // 먼저 클릭 상태를 초기화하여
+        // 이후 어떤 경로로 return되더라도 상태가 남지 않도록 한다.
         isPointerPressed =
             false;
 
+        // Touch 종료 시점까지 두 손가락 입력이 유지되고 있다면
+        // 카메라 제스처이므로 Node 진입을 실행하지 않는다.
+        if (Input.touchCount >= 2)
+        {
+            return;
+        }
+
+        // 입력 종료 위치가 UI 위라면
+        // 뒤쪽 Node 진입을 실행하지 않는다.
+        if (IsPointerOverUI())
+        {
+            return;
+        }
+
         EnterNode();
+    }
+
+
+    // 현재 Mouse 또는 Mobile Touch가
+    // 실제 Unity UI 위에 위치하는지 확인한다.
+    //
+    // Battle Tile에서 모바일 실기기 테스트가 완료된 방식과 동일하게
+    // EventSystem Pointer ID 판정에만 의존하지 않고
+    // 실제 화면 좌표에서 UI Raycast를 직접 수행한다.
+    private static bool IsPointerOverUI()
+    {
+        EventSystem eventSystem =
+            EventSystem.current;
+
+        if (eventSystem == null)
+        {
+            return false;
+        }
+
+        // 모바일 Touch가 존재하면
+        // 현재 활성화된 모든 손가락의 실제 화면 위치를 검사한다.
+        if (Input.touchCount > 0)
+        {
+            for (int i = 0;
+                 i < Input.touchCount;
+                 i++)
+            {
+                Touch touch =
+                    Input.GetTouch(i);
+
+                if (IsScreenPositionOverUI(
+                    eventSystem,
+                    touch.position))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // PC Mouse 또는 Unity가 Mouse Pointer로 변환한 입력도
+        // 실제 화면 위치를 기준으로 검사한다.
+        if (IsScreenPositionOverUI(
+            eventSystem,
+            Input.mousePosition))
+        {
+            return true;
+        }
+
+        // 기존 EventSystem 판정도 마지막 보조 안전장치로 유지한다.
+        return
+            eventSystem.IsPointerOverGameObject();
+    }
+
+
+    // 지정된 화면 좌표에서
+    // Unity UI Graphic이 실제로 Raycast되는지 확인한다.
+    private static bool IsScreenPositionOverUI(
+        EventSystem eventSystem,
+        Vector2 screenPosition)
+    {
+        if (eventSystem == null)
+        {
+            return false;
+        }
+
+        PointerEventData pointerEventData =
+            new PointerEventData(
+                eventSystem
+            );
+
+        pointerEventData.position =
+            screenPosition;
+
+        pointerRaycastResults.Clear();
+
+        // 현재 화면 위치에서 EventSystem에 등록된
+        // 모든 Raycaster를 대상으로 Raycast를 수행한다.
+        eventSystem.RaycastAll(
+            pointerEventData,
+            pointerRaycastResults
+        );
+
+        bool isOverUI =
+            false;
+
+        for (int i = 0;
+             i < pointerRaycastResults.Count;
+             i++)
+        {
+            RaycastResult raycastResult =
+                pointerRaycastResults[i];
+
+            // GraphicRaycaster로 검출된 대상만 UI로 판단한다.
+            //
+            // PhysicsRaycaster / Physics2DRaycaster로 검출되는
+            // WorldMap Node 등의 월드 오브젝트는 여기서 제외한다.
+            if (raycastResult.module
+                is UnityEngine.UI.GraphicRaycaster)
+            {
+                isOverUI =
+                    true;
+
+                break;
+            }
+        }
+
+        // 다음 입력 판정에서 이전 결과가 남지 않도록 초기화한다.
+        pointerRaycastResults.Clear();
+
+        return
+            isOverUI;
     }
 
     // 현재 노드 진입을 월드맵 진행 컨트롤러에 요청한다.

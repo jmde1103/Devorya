@@ -928,6 +928,74 @@ public class WorldMapNodeEditorWindow : EditorWindow
         );
     }
 
+    // Battle / BossBattle처럼 실제 전투 데이터가 필요한
+    // 노드 타입인지 확인한다.
+    private static bool RequiresBattleStageData(
+        MapNodeType nodeType)
+    {
+        return
+            nodeType == MapNodeType.Battle ||
+            nodeType == MapNodeType.BossBattle;
+    }
+
+
+    // 노드가 실제 Scene으로 진입하기 위해 필요한
+    // Target Scene Name과 StageBattleData가 준비되어 있는지 검사한다.
+    //
+    // Initially Cleared 노드는 이미 완료된 위치로 사용되며
+    // 런타임에서도 Scene 진입을 수행하지 않으므로
+    // Scene / Battle Data 검사를 생략한다.
+    private bool ValidateNodeEntrySettings(
+        MapNodeType nodeType,
+        string targetSceneName,
+        StageBattleData stageBattleData,
+        bool willBeInitiallyCleared,
+        string nodeContext)
+    {
+        if (willBeInitiallyCleared)
+        {
+            return true;
+        }
+
+        bool isValid =
+            true;
+
+        // 아직 클리어되지 않은 노드는 실제 Scene으로 이동해야 하므로
+        // Target Scene Name이 반드시 필요하다.
+        if (string.IsNullOrWhiteSpace(
+                targetSceneName))
+        {
+            Debug.LogWarning(
+                $"월드맵 노드 저장 실패: " +
+                $"{nodeContext} / {nodeType} 노드의 " +
+                $"Target Scene Name이 비어 있습니다."
+            );
+
+            isValid =
+                false;
+        }
+
+        // Battle / BossBattle 노드는 BattleScene에서 사용할
+        // 실제 StageBattleData가 반드시 필요하다.
+        if (RequiresBattleStageData(
+                nodeType) &&
+            stageBattleData == null)
+        {
+            Debug.LogWarning(
+                $"월드맵 노드 저장 실패: " +
+                $"{nodeContext} / {nodeType} 노드의 " +
+                $"Stage Battle Data가 연결되지 않았습니다."
+            );
+
+            isValid =
+                false;
+        }
+
+        return
+            isValid;
+    }
+
+
     // 선택한 Grid 셀에 새 노드 데이터를 추가한다.
     private void AddNodeAtGrid(
         Vector2Int gridPosition)
@@ -968,9 +1036,33 @@ public class WorldMapNodeEditorWindow : EditorWindow
             return;
         }
 
+
+        // Cleared 타입은 생성 즉시 Initially Cleared가 적용되므로
+        // 실제 Scene 진입 데이터가 없어도 정상적인 노드다.
+        bool willBeInitiallyCleared =
+            selectedNodeType ==
+            MapNodeType.Cleared;
+
+        // 잘못된 Scene / Battle 설정을 가진 노드가
+        // WorldMapData에 저장되기 전에 차단한다.
+        if (ValidateNodeEntrySettings(
+                selectedNodeType,
+                newTargetSceneName,
+                newStageBattleData,
+                willBeInitiallyCleared,
+                string.IsNullOrWhiteSpace(
+                    newNodeDisplayName)
+                    ? "새 노드"
+                    : newNodeDisplayName) ==
+            false)
+        {
+            return;
+        }
+
+
         // ScriptableObject 변경을 Undo로 되돌릴 수 있게 기록한다.
         Undo.RecordObject(
-            mapData,
+                    mapData,
             "Add World Map Node"
         );
 
@@ -1280,9 +1372,9 @@ public class WorldMapNodeEditorWindow : EditorWindow
 
         // 수정된 노드 타입에 맞는 Style Data를 가져온다.
         MapNodeStyleData editedStyle =
-            GetNodeStyleByType(
-                editNodeType
-            );
+    GetNodeStyleByType(
+        editNodeType
+    );
 
         if (editedStyle == null)
         {
@@ -1292,6 +1384,30 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 $"Node Style Data가 연결되지 않았습니다."
             );
 
+            return;
+        }
+
+
+        // Cleared 타입이거나 수동으로 Initially Cleared를 지정한 노드는
+        // 이미 완료된 위치로 취급되어 실제 Scene 진입을 하지 않는다.
+        bool willBeInitiallyCleared =
+            editNodeType ==
+                MapNodeType.Cleared ||
+            editInitiallyCleared;
+
+        // 수정된 값을 WorldMapData에 저장하기 전에
+        // Scene / Battle 필수 데이터 누락을 검사한다.
+        if (ValidateNodeEntrySettings(
+                editNodeType,
+                editTargetSceneName,
+                editStageBattleData,
+                willBeInitiallyCleared,
+                string.IsNullOrWhiteSpace(
+                    selectedPlacement.nodeId)
+                    ? "선택 노드"
+                    : selectedPlacement.nodeId) ==
+            false)
+        {
             return;
         }
 
