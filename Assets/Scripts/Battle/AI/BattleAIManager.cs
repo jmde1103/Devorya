@@ -58,8 +58,18 @@ public class BattleAIManager : MonoBehaviour
     private BattleAIActionEvaluator actionEvaluator;
 
     [Header("AI Debug")]
+    // Enemy AI의 상세 진행 로그를 Console에 출력할지 여부.
+    //
+    // 기본값은 false로 두어 일반 플레이 및 빌드에서는
+    // 반복적인 후보 점수 계산 로그와 행동 선택 로그를 출력하지 않는다.
+    //
+    // AI 행동을 분석해야 할 때만 Inspector에서 직접 활성화한다.
+    //
+    // 기존 logEvaluatedActionScores 필드와 이름을 분리하여
+    // Scene / Prefab에 남아 있던 기존 true Serialized 값이
+    // 새 설정에 자동으로 이어지지 않도록 한다.
     [SerializeField]
-    private bool logEvaluatedActionScores = true;
+    private bool enableAIDebugLogs = false;
 
     // 같은 Enemy 턴에 AI 코루틴이 중복 실행되는 것을 방지한다.
     private Coroutine enemyTurnRoutine;
@@ -73,16 +83,21 @@ public class BattleAIManager : MonoBehaviour
         float chancePercent)
     {
         uniqueSkillUseChance =
-            Mathf.Clamp(
-                chancePercent,
-                0f,
-                100f
-            );
+    Mathf.Clamp(
+        chancePercent,
+        0f,
+        100f
+    );
 
-        Debug.Log(
-            $"Enemy AI 고유스킬 사용 확률 적용: " +
-            $"{uniqueSkillUseChance}%"
-        );
+        // AI 상세 디버그가 활성화된 경우에만
+        // Stage에서 전달받은 고유스킬 확률을 출력한다.
+        if (enableAIDebugLogs)
+        {
+            Debug.Log(
+                $"Enemy AI 고유스킬 사용 확률 적용: " +
+                $"{uniqueSkillUseChance}%"
+            );
+        }
     }
 
     // <변경부분> BattleManager가 전투 시작 시 한 번 호출하는 초기화 함수
@@ -166,13 +181,18 @@ public class BattleAIManager : MonoBehaviour
         // 같은 Enemy 턴 안에서 고유스킬 사용 후 재평가하거나
         // ChanceAttack 추가 행동이 발생해도 다시 랜덤을 굴리지 않는다.
         allowUniqueSkillThisEnemyTurn =
-            RollUniqueSkillUseForCurrentEnemyTurn();
+    RollUniqueSkillUseForCurrentEnemyTurn();
 
-        Debug.Log(
-            $"Enemy AI 이번 턴 고유스킬 사용 여부: " +
-            $"{allowUniqueSkillThisEnemyTurn} / " +
-            $"스테이지 확률 {uniqueSkillUseChance}%"
-        );
+        // Enemy 턴 단위 고유스킬 Roll 결과는
+        // AI 분석이 필요한 경우에만 출력한다.
+        if (enableAIDebugLogs)
+        {
+            Debug.Log(
+                $"Enemy AI 이번 턴 고유스킬 사용 여부: " +
+                $"{allowUniqueSkillThisEnemyTurn} / " +
+                $"스테이지 확률 {uniqueSkillUseChance}%"
+            );
+        }
 
         enemyTurnRoutine =
             StartCoroutine(
@@ -421,10 +441,15 @@ public class BattleAIManager : MonoBehaviour
 
             // 모든 후보의 점수를 계산한다.
             actionEvaluator.EvaluateActions(
-                actionCandidates
-            );
+    actionCandidates
+);
 
-            if (logEvaluatedActionScores)
+            // 모든 AI 후보의 상세 점수 출력은
+            // 필요할 때만 Inspector에서 활성화한다.
+            //
+            // 후보 수만큼 문자열과 Console 로그가 발생하므로
+            // 일반 플레이에서는 기본적으로 비활성화한다.
+            if (enableAIDebugLogs)
             {
                 actionEvaluator
                     .DebugLogEvaluatedActions(
@@ -474,16 +499,21 @@ public class BattleAIManager : MonoBehaviour
                 yield break;
             }
 
-            Debug.Log(
-                $"Enemy AI 행동 선택: " +
-                $"{selectedAction.ActionType} / " +
-                $"{selectedAction.ActingPiece.PieceType} / " +
-                $"{selectedAction.SourcePosition} → " +
-                $"{selectedAction.TargetPosition} / " +
-                $"점수 {selectedAction.Score} / " +
-                $"동점 후보 {bestActionCandidates.Count}개 / " +
-                $"추가 행동 여부 {bonusActionPiece != null}"
-            );
+            // 실제 선택된 AI 행동과 평가 점수는
+            // AI 상세 디버그가 켜져 있을 때만 출력한다.
+            if (enableAIDebugLogs)
+            {
+                Debug.Log(
+                    $"Enemy AI 행동 선택: " +
+                    $"{selectedAction.ActionType} / " +
+                    $"{selectedAction.ActingPiece.PieceType} / " +
+                    $"{selectedAction.SourcePosition} → " +
+                    $"{selectedAction.TargetPosition} / " +
+                    $"점수 {selectedAction.Score} / " +
+                    $"동점 후보 {bestActionCandidates.Count}개 / " +
+                    $"추가 행동 여부 {bonusActionPiece != null}"
+                );
+            }
 
             // <변경부분> 선택된 행동 종류에 따라
             // 일반 이동·공격과 고유스킬의 실행 경로를 분리한다.

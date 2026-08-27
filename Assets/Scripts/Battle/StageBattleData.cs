@@ -100,20 +100,25 @@ public class StageBattleData : ScriptableObject
     public BattleRewardData battleRewardData;
 
     [Header("Enemy AI")]
-    // <변경부분> Enemy AI가 자신의 턴에
-    // 고유스킬 사용을 고려할 확률.
+    // Enemy AI가 Enemy 턴 시작 시
+    // 고유스킬 후보를 고려할지 결정하는 확률.
+    //
+    // 이 확률은 Enemy 턴 시작 순간 한 번만 판정하며,
+    // 같은 Enemy 턴 안에서 고유스킬 사용 후 재평가하거나
+    // ChanceAttack 추가 행동이 발생해도 다시 추첨하지 않는다.
     //
     // 0%:
-    // 이 스테이지에서는 Enemy AI가 고유스킬을 전혀 사용하지 않는다.
+    // 해당 스테이지의 Enemy AI는 고유스킬을 고려하지 않는다.
     //
     // 100%:
-    // 기존 AI와 동일하게 고유스킬 후보를 정상적으로 평가한다.
+    // 사용 가능한 고유스킬 후보를 항상 전술 평가에 포함한다.
     //
-    // 실제 스킬의 전술적 사용 여부와 개별 확률은
-    // BattleAIActionEvaluator의 기존 판단을 그대로 사용한다.
+    // 실제 어떤 고유스킬을 사용할지는
+    // BattleAIActionEvaluator의 전술 점수로 결정하며,
+    // Evaluator에서는 별도의 고유스킬 사용 확률을 다시 적용하지 않는다.
     [Range(0f, 100f)]
     public float enemyUniqueSkillUseChance =
-        100f;
+    100f;
 
     [Header("Enemy General Skill Grant Rules")]
     // <변경부분> 스테이지 시작 시 적 기물에게 랜덤으로 부여할 일반스킬 규칙 목록

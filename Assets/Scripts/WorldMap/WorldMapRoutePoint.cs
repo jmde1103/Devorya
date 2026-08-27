@@ -38,11 +38,6 @@ public class WorldMapRoutePoint : MonoBehaviour
     [SerializeField]
     private Vector2Int currentGridPosition;
 
-    // 마지막으로 정렬된 월드 위치
-    //
-    // 같은 위치에서 OnValidate가 반복 실행되는 것을 방지한다.
-    private Vector3 lastSnappedWorldPosition;
-
     // 현재 Point가 위치한 Grid 좌표를 반환한다.
     public Vector2Int CurrentGridPosition
     {
@@ -131,25 +126,23 @@ public class WorldMapRoutePoint : MonoBehaviour
                 nearestCell.y
             );
 
-        // 이미 같은 셀 중심에 위치했다면
+        // 이미 정확한 Grid 셀 중심에 위치하고 있다면
         // Transform을 다시 갱신하지 않는다.
         if (Vector3.SqrMagnitude(
                 transform.position -
                 snappedWorldPosition) <=
             0.000001f)
         {
-            lastSnappedWorldPosition =
-                snappedWorldPosition;
-
             return;
         }
 
+        // 실제 위치가 달라졌을 때만
+        // 가장 가까운 Grid 셀 중심으로 이동한다.
         transform.position =
             snappedWorldPosition;
 
-        lastSnappedWorldPosition =
-            snappedWorldPosition;
-
+        // 자동 Snap으로 발생한 Transform 변경은 처리 완료했으므로
+        // 다음 Editor Update에서 다시 Snap하지 않도록 초기화한다.
         transform.hasChanged =
             false;
     }

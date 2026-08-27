@@ -605,8 +605,28 @@ public class WorldMapFogController : MonoBehaviour
     }
 
     // 노드 중심과 주변 셀을 완전 탐사 상태로 전환한다.
+    //
+    // 별도의 반경이 전달되지 않는 기존 호출에서는
+    // WorldMapFogController의 기본 nodeAreaRadius를 사용한다.
     public void RevealExploredNodeArea(
         Vector3 nodeWorldPosition)
+    {
+        RevealExploredNodeArea(
+            nodeWorldPosition,
+            nodeAreaRadius
+        );
+    }
+
+    // 노드 데이터에 저장된 개별 revealRadius를 사용하여
+    // 해당 노드 전용 탐사 반경을 적용한다.
+    //
+    // revealRadius:
+    // 0 = 중심 1칸
+    // 1 = 3×3
+    // 2 = 5×5
+    public void RevealExploredNodeArea(
+        Vector3 nodeWorldPosition,
+        int revealRadius)
     {
         if (isInitialized == false)
         {
@@ -629,17 +649,20 @@ public class WorldMapFogController : MonoBehaviour
         centerCell.z =
             0;
 
-        // 노드 중심의 완전 탐사 영역은
-        // 대각선 셀까지 포함한 사각형 형태로 밝힌다.
-        //
-        // Node Area Radius가 1이면
-        // 중심을 포함한 3×3 셀이 완전히 밝아진다.
-        for (int y = -nodeAreaRadius;
-             y <= nodeAreaRadius;
+        // 잘못된 음수 값이 런타임으로 들어와도
+        // 최소 0으로 제한하여 안전하게 처리한다.
+        int safeRevealRadius =
+            Mathf.Max(
+                0,
+                revealRadius
+            );
+
+        for (int y = -safeRevealRadius;
+             y <= safeRevealRadius;
              y++)
         {
-            for (int x = -nodeAreaRadius;
-                 x <= nodeAreaRadius;
+            for (int x = -safeRevealRadius;
+                 x <= safeRevealRadius;
                  x++)
             {
                 RevealExploredCell(
@@ -705,6 +728,7 @@ public class WorldMapFogController : MonoBehaviour
         }
     }
 
+    
     // 두 노드 사이의 Connection Route Grid 좌표와
     // 실제 PathTilemap을 기준으로 다음 탐사 후보 길을 표시한다.
     public void RevealPreviewRoute(
@@ -794,8 +818,8 @@ public class WorldMapFogController : MonoBehaviour
         // 각 Route 지점 사이를 Grid 선으로 연결하여
         // 실제 Path Tile이 있는 셀만 Preview 처리한다.
         for (int i = 0;
-             i < routePoints.Count - 1;
-             i++)
+      i < routePoints.Count - 1;
+      i++)
         {
             RevealPreviewLine(
                 routePoints[i],
@@ -803,6 +827,8 @@ public class WorldMapFogController : MonoBehaviour
             );
         }
 
+        // 다음 이동 가능한 노드 주변은 기존처럼
+        // Preview Fog 상태로 표시한다.
         RevealPreviewNodeArea(
             toNode.transform.position
         );

@@ -152,38 +152,71 @@ public class BattleMoveValidator : MonoBehaviour
         return foundEmptyPosition;
     }
 
-    // <변경부분> 기물 하나가 현재 보드에서 선택할 수 있는
-    // 모든 이동 및 공격 좌표를 반환하는 공용 함수
-    public List<Vector2Int> GetSelectablePositions(Piece piece)
+    // 지정한 기물이 현재 보드에서 선택할 수 있는
+    // 모든 이동 및 공격 좌표를 새 List로 반환한다.
+    //
+    // 기존 외부 호출과의 호환성을 유지하기 위한 API이며,
+    // 반복 호출이 많은 AI에서는 FillSelectablePositions()를 사용하여
+    // 재사용 List에 결과를 채우는 방식을 권장한다.
+    public List<Vector2Int> GetSelectablePositions(
+        Piece piece)
     {
         List<Vector2Int> selectablePositions =
             new List<Vector2Int>();
 
-        // 기물이 없으면 빈 목록 반환
+        FillSelectablePositions(
+            piece,
+            selectablePositions
+        );
+
+        return selectablePositions;
+    }
+
+
+    // 지정한 기물의 이동 및 공격 가능 좌표를
+    // 호출자가 전달한 기존 List에 채운다.
+    //
+    // AI 후보 생성처럼 반복 호출되는 곳에서는
+    // 매 기물마다 새 List를 생성하지 않고 같은 List를 재사용할 수 있다.
+    //
+    // 실제 이동 규칙은 이 함수 한 곳에서만 계산한다.
+    public void FillSelectablePositions(
+        Piece piece,
+        List<Vector2Int> results)
+    {
+        if (results == null)
+        {
+            return;
+        }
+
+        // 이전 기물의 계산 결과가 남지 않도록
+        // 호출할 때마다 기존 내용을 먼저 초기화한다.
+        results.Clear();
+
         if (piece == null)
         {
-            return selectablePositions;
+            return;
         }
 
-        // 이동 불가능한 중립 기물 등은 행동 후보를 생성하지 않음
+        // 이동할 수 없는 벽이나 특수 기물은
+        // 이동 및 공격 후보를 생성하지 않는다.
         if (piece.CanMove == false)
         {
-            return selectablePositions;
+            return;
         }
 
-        // 필요한 매니저가 초기화되지 않았다면 판정 불가
         if (boardManager == null ||
             pieceManager == null)
         {
             Debug.LogWarning(
-                "BattleMoveValidator 초기화가 완료되지 않았습니다."
+                "BattleMoveValidator가 초기화되지 않았습니다."
             );
 
-            return selectablePositions;
+            return;
         }
 
-        // 실제 기물 타입이 아니라
-        // KingQueenMove 등의 임시 이동 타입까지 반영한 타입 사용
+        // 실제 PieceType뿐 아니라
+        // KingQueenMove 등의 임시 이동 타입까지 반영한다.
         PieceType moveType =
             piece.GetCurrentMoveType();
 
@@ -192,7 +225,7 @@ public class BattleMoveValidator : MonoBehaviour
             case PieceType.Pawn:
                 AddPawnSelectablePositions(
                     piece,
-                    selectablePositions
+                    results
                 );
                 break;
 
@@ -201,28 +234,28 @@ public class BattleMoveValidator : MonoBehaviour
                     piece,
                     1,
                     0,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     -1,
                     0,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     0,
                     1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     0,
                     -1,
-                    selectablePositions
+                    results
                 );
                 break;
 
@@ -231,106 +264,105 @@ public class BattleMoveValidator : MonoBehaviour
                     piece,
                     1,
                     1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     -1,
                     1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     1,
                     -1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     -1,
                     -1,
-                    selectablePositions
+                    results
                 );
                 break;
 
             case PieceType.Knight:
                 AddKnightSelectablePositions(
                     piece,
-                    selectablePositions
+                    results
                 );
                 break;
 
             case PieceType.King:
                 AddKingSelectablePositions(
                     piece,
-                    selectablePositions
+                    results
                 );
                 break;
 
             case PieceType.Queen:
-                // Queen은 Rook과 Bishop의 모든 방향을 사용
+                // Queen은 Rook과 Bishop의
+                // 모든 직선 및 대각선 방향을 사용한다.
                 AddLineSelectablePositions(
                     piece,
                     1,
                     0,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     -1,
                     0,
-                    selectablePositions
-                );
-
-                AddLineSelectablePositions(
-                    piece,
-                    0,
-                    1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     0,
+                    1,
+                    results
+                );
+
+                AddLineSelectablePositions(
+                    piece,
+                    0,
                     -1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     1,
                     1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     -1,
                     1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     1,
                     -1,
-                    selectablePositions
+                    results
                 );
 
                 AddLineSelectablePositions(
                     piece,
                     -1,
                     -1,
-                    selectablePositions
+                    results
                 );
                 break;
         }
-
-        return selectablePositions;
     }
 
     // <변경부분> AI가 일반 이동 후보만 따로 평가할 수 있도록

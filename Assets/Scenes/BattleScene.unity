@@ -5928,7 +5928,7 @@ MonoBehaviour:
   decisionDelay: 0.5
   maxActionsPerEnemyTurn: 10
   battleMoveValidator: {fileID: 1035375297}
-  logEvaluatedActionScores: 1
+  enableAIDebugLogs: 0
 --- !u!1 &53017942
 GameObject:
   m_ObjectHideFlags: 0
@@ -122568,7 +122568,7 @@ MonoBehaviour:
   tooltipData: {fileID: 0}
   holdDelay: 0.3
   positionMode: 0
-  customPositionOffset: {x: -100, y: 100}
+  customPositionOffset: {x: 0, y: -100}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
   popupOffsetYPerSection: 0
@@ -149469,7 +149469,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 330585545}
-  m_PlaneDistance: 100
+  m_PlaneDistance: 1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -156455,9 +156455,9 @@ MonoBehaviour:
   sectionPrefabs:
   - sectionType: 1
     sectionPrefab: {fileID: 5949523261928351889, guid: 7fb0b80725d63d54b986d89468079e28, type: 3}
-  popupOffset: {x: 400, y: 200}
+  popupOffset: {x: -100, y: 0}
   screenPadding: {x: 0, y: 0}
-  fixedPositionPivot: {x: 0.5, y: 0.5}
+  fixedPositionPivot: {x: 0, y: 0}
 --- !u!222 &1624233311
 CanvasRenderer:
   m_ObjectHideFlags: 0

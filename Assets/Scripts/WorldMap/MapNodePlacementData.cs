@@ -67,8 +67,12 @@ public class MapNodePlacementData
     new List<MapNodeConnectionData>();
 
     [Header("Fog Reveal")]
-    // 추후 포그 시스템에서
-    // 노드 방문 시 주변을 밝힐 Grid 반경
+    // 노드에 실제로 방문했을 때
+    // 중심을 기준으로 완전 탐사 상태로 밝힐 Grid 반경.
+    //
+    // 0 = 중심 1칸
+    // 1 = 3×3
+    // 2 = 5×5
     [Min(0)]
     public int revealRadius = 2;
 }

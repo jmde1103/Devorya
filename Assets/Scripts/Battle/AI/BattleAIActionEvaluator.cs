@@ -111,30 +111,20 @@ public class BattleAIActionEvaluator
     private const float DegenerationOpportunityPriorityBonus =
         100f;
 
-    // <변경부분> 퇴화 Knight가 현재 이미 상대 공격 범위에 있고,
+    // 퇴화 Knight가 현재 이미 상대 공격 범위에 있고,
     // 이번 턴 최고 일반 행동은 다른 기물의 행동일 때
-    // 선제적으로 퇴화를 사용할 확률
-    private const float DegenerationCurrentThreatUseChance =
-        0.8f;
-
-    // <변경부분> 위 조건을 만족해 퇴화를 사용하기로 결정했을 때
-    // 현재 최고 일반 행동보다 먼저 선택되도록 추가하는 점수
+    // 퇴화를 먼저 사용하도록 추가하는 우선순위 점수.
+    //
+    // 고유스킬 사용 빈도 자체는 StageBattleData의
+    // enemyUniqueSkillUseChance가 Enemy 턴 시작 시 한 번 결정한다.
     private const float DegenerationCurrentThreatPriorityBonus =
         75f;
 
-    // <변경부분> 젤루 킹이 안전하고
-    // 실제 증식 조건을 만족할 때 증식을 선택할 확률
+    // 실제 증식 조건을 만족하는 상황에서
+    // 증식을 높은 우선순위로 평가하기 위한 기본 점수.
     //
-    // 증식 사용 후에도 Enemy 턴이 유지되므로
-    // 다른 기물의 이동이나 공격을 이어갈 수 있다.
-    private const float JelluMultiplyUseChance =
-        0.95f;
-
-    // <변경부분> 안전한 상황에서 증식을 높은 우선순위로
-    // 평가하기 위한 기본 점수
-    //
-    // Pawn, Knight, Bishop 일반 공격보다 높지만
-    // Rook, Queen, King 처치 같은 중요한 공격보다 낮게 설정한다.
+    // 증식 사용 여부에 별도의 Random을 적용하지 않고,
+    // Stage 확률을 통과한 턴에서는 전술 점수만으로 판단한다.
     private const float JelluMultiplyBaseScore =
         420f;
 
@@ -889,29 +879,28 @@ public class BattleAIActionEvaluator
             return float.MinValue;
         }
 
-        // <변경부분> 증식은 사용 후 Enemy 턴을 종료하지 않는다.
+        // 증식은 사용 후 Enemy 턴을 종료하지 않는다.
         //
         // 따라서 King이 현재 위험하거나 이동해야 하는 상황이어도
         // 증식을 먼저 사용한 뒤 같은 턴에 King 이동,
         // 공격자 제거 또는 다른 회피 행동을 이어갈 수 있다.
         //
-        // 증식 후보 생성 조건과 고유스킬 사용 가능 조건만 충족하면
-        // 킹의 현재 위험 여부와 관계없이 확률 평가를 진행한다.
-
-        // 조건을 만족하면 높은 확률로 증식을 먼저 사용한다.
-        if (Random.value >
-            JelluMultiplyUseChance)
-        {
-            return float.MinValue;
-        }
-
+        // 이번 Enemy 턴에 고유스킬을 고려할지는
+        // BattleAIManager가 StageBattleData 확률을 기준으로
+        // 턴 시작 시 이미 한 번 결정했다.
+        //
+        // Evaluator에서는 별도의 Random을 다시 적용하지 않고
+        // 현재 전술 상황의 점수만 계산한다.
         float bestNormalScore =
             bestNormalAction == null
                 ? 0f
                 : bestNormalAction.Score;
 
-        // 일반 행동보다 높은 점수를 부여하여
-        // 증식을 먼저 사용한 뒤 행동 후보를 다시 평가한다.
+        // 실제 사용 조건을 만족한 증식은
+        // 일반 행동과 순수하게 점수를 비교한다.
+        //
+        // 증식 후 변경된 보드 상태는 기존처럼
+        // 같은 Enemy 턴에서 다시 후보 생성 및 평가된다.
         return Mathf.Max(
             JelluMultiplyBaseScore,
             bestNormalScore +
@@ -961,10 +950,13 @@ public class BattleAIActionEvaluator
             return float.MinValue;
         }
 
-        // <변경부분> Knight가 현재 위치에서 이미 공격받을 수 있고,
+        // Knight가 현재 위치에서 이미 공격받을 수 있고,
         // 이번 턴 최고 일반 행동은 다른 기물을 사용하는 행동이라면
-        // Knight를 움직이지 않는 동안의 사망 위험에 대비해
-        // 높은 확률로 퇴화를 먼저 사용한다.
+        // Knight를 움직이지 않는 동안 사망할 위험이 있다.
+        //
+        // 이번 Enemy 턴에 고유스킬 자체를 고려할지는
+        // StageBattleData 확률로 이미 결정되었으므로,
+        // 여기서는 추가 Random 없이 전술 상황만 평가한다.
         bool isCurrentlyThreatened =
             battleManager
                 .IsPieceCurrentlyThreatened(
@@ -977,9 +969,7 @@ public class BattleAIActionEvaluator
                 degenerationKnight;
 
         if (isCurrentlyThreatened &&
-            bestActionUsesAnotherPiece &&
-            Random.value <=
-                DegenerationCurrentThreatUseChance)
+            bestActionUsesAnotherPiece)
         {
             return Mathf.Max(
                 DegenerationOpportunityBaseScore,

@@ -19,15 +19,20 @@ public class BattleSkillManager : MonoBehaviour
     // 젤루 합성 및 주변 빈칸의 공용 판정 기준을 사용하는 Validator 참조
     private BattleMoveValidator battleMoveValidator;
 
-    // <변경부분> 복제/증식 스킬에서 사용할 주변 빈칸 좌표 재사용 목록.
-    //
-    // 스킬을 사용할 때마다 new List<Vector2Int>()를 만들지 않고
-    // 동일한 목록을 Clear 후 다시 사용하여 불필요한 GC 할당을 줄인다.
+    // 복제 / 증식 스킬의 실제 생성 위치를 선택할 때 사용하는
+    // 재사용 가능한 주변 빈칸 목록.
     private readonly List<Vector2Int> adjacentEmptyPositions =
         new List<Vector2Int>();
 
-    // <변경부분> 일반스킬 데이터베이스
-    [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
+    // 고유스킬 사용 가능 여부를 검사할 때 사용하는
+    // JelluSynthesis 재료 후보 재사용 목록.
+    //
+    // AI가 후보를 반복 검사해도 매번 새 List를 생성하지 않는다.
+    private readonly List<Piece> synthesisValidationCandidates =
+        new List<Piece>();
+
+    [SerializeField]
+    private GeneralSkillDatabase generalSkillDatabase;
 
     // <변경부분> 상태이상 데이터베이스
     // 퇴화 같은 상태이상 기본 지속 턴/중첩 정보를 가져올 때 사용
@@ -410,15 +415,16 @@ public class BattleSkillManager : MonoBehaviour
 
 
 
-    // <변경부분> 고유스킬 아이콘 표시 전에
-    // 실제 스킬 사용에 필요한 필수 조건을 미리 검사한다.
+    // 지정한 기물의 고유스킬이 현재 보드 상태에서
+    // 실제 효과를 발동할 수 있는지 검사한다.
     //
-    // 이 함수에서는 기물 생성, 상태이상 부여,
-    // 이동 타입 변경 등의 실제 효과는 실행하지 않는다.
+    // Player 실제 스킬 실행과 Enemy AI 후보 필터가
+    // 동일한 효과 사용 가능 조건을 공유하도록 공개한다.
     //
-    // 복제/증식의 주변 빈칸 판정과
-    // 합성의 재료 판정은 BattleMoveValidator를 공용 기준으로 사용한다.
-    private bool CanUseUniqueSkillEffect(
+    // 턴 전체 제한, 사망 스택, oncePerTurn 등의 전투 상태는
+    // BattleManager가 별도로 판정하며,
+    // 이 함수는 실제 스킬 효과에 필요한 조건만 담당한다.
+    public bool CanUseUniqueSkillEffect(
         Piece piece)
     {
         if (piece == null)
@@ -492,18 +498,19 @@ public class BattleSkillManager : MonoBehaviour
                         return false;
                     }
 
-                    // <변경부분>
-                    // AI 및 실제 합성 실행과 동일한
-                    // BattleMoveValidator의 합성 재료 규칙을 사용한다.
-                    List<Piece> synthesisCandidates =
-                        battleMoveValidator
-                            .GetJelluSynthesisMaterialCandidates(
-                                piece
-                            );
+                    // 실제 합성과 AI 후보 판정이 사용하는
+                    // 동일한 BattleMoveValidator 재료 규칙을 적용한다.
+                    //
+                    // 재사용 List를 사용하여 AI 후보 검사마다
+                    // 새로운 List<Piece>가 생성되는 것을 방지한다.
+                    battleMoveValidator
+                        .FillJelluSynthesisMaterialCandidates(
+                            piece,
+                            synthesisValidationCandidates
+                        );
 
                     return
-                        synthesisCandidates != null &&
-                        synthesisCandidates.Count >= 2;
+                        synthesisValidationCandidates.Count >= 2;
                 }
 
             case UniqueSkillType.JelluWall:

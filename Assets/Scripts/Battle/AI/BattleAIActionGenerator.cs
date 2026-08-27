@@ -14,13 +14,20 @@ public class BattleAIActionGenerator
     // 플레이어와 AI가 공용으로 사용하는 이동 판정기
     private readonly BattleMoveValidator battleMoveValidator;
 
-    // <변경부분> 젤루 합성 후보를 생성할 때
-    // 인접한 합성 가능 재료를 임시로 저장하는 재사용 목록
-    //
-    // 기물마다 새로운 List를 생성하지 않도록
-    // 후보 생성기 내부에서 하나의 목록을 반복해서 사용한다.
+    // JelluSynthesis 후보 판정에 사용하는
+    // 재사용 가능한 합성 재료 목록.
     private readonly List<Piece> synthesisMaterialCandidates =
         new List<Piece>();
+
+    // AI 기물 하나의 이동 및 공격 가능 좌표를 저장하는
+    // 재사용 가능한 임시 목록.
+    //
+    // 기물마다 GetSelectablePositions()로 새 List를 생성하지 않고
+    // BattleMoveValidator가 이 목록을 Clear 후 다시 채운다.
+    //
+    // HornHeadbutt 후보 검사에서도 같은 계산 결과를 재사용한다.
+    private readonly List<Vector2Int> selectablePositions =
+        new List<Vector2Int>();
 
     // <변경부분> 필요한 전투 참조를 생성 시 한 번 전달받는다.
     public BattleAIActionGenerator(
@@ -110,12 +117,14 @@ public class BattleAIActionGenerator
             return;
         }
 
-        // 플레이어 하이라이트와 같은
-        // 공용 이동 판정 결과를 사용한다.
-        List<Vector2Int> selectablePositions =
-            battleMoveValidator.GetSelectablePositions(
-                actingPiece
-            );
+        // 공용 이동 판정 결과를 재사용 List에 채운다.
+        //
+        // 매 기물마다 새 List를 생성하지 않아
+        // Enemy AI 후보 생성 과정의 GC 할당을 줄인다.
+        battleMoveValidator.FillSelectablePositions(
+            actingPiece,
+            selectablePositions
+        );
 
         Vector2Int sourcePosition =
             new Vector2Int(
@@ -166,38 +175,40 @@ public class BattleAIActionGenerator
             }
         }
 
-        // <변경부분> 일반 이동·공격 후보 생성이 끝난 뒤
-        // 현재 기물이 사용할 수 있는 고유스킬 후보를 추가한다.
+        // 일반 이동/공격 후보 생성에 사용한 좌표 계산 결과를
+        // 고유스킬 후보 판정에서도 그대로 재사용한다.
         //
-        // 고유스킬 후보 생성은 기물마다 한 번만 호출해야 한다.
-        // 합성 함수 내부에서 다시 호출하면 무한 재귀가 발생한다.
+        // 특히 HornHeadbutt가 같은 이동 범위를
+        // 다시 계산하지 않도록 전달한다.
         AddUniqueSkillActions(
             actingPiece,
+            selectablePositions,
             results
         );
     }
 
-    // <변경부분> 기물이 보유한 고유스킬 종류에 따라
+    // 기물이 보유한 고유스킬에 따라
     // 해당 스킬 전용 AI 행동 후보를 생성한다.
     //
-    // 각 스킬의 조건과 대상 형태가 다르므로
-    // 스킬별 후보 생성 함수로 분리한다.
+    // 일반 이동/공격 후보를 만들 때 이미 계산한
+    // selectablePositions를 함께 받아 필요한 스킬에서 재사용한다.
     private void AddUniqueSkillActions(
-            Piece actingPiece,
-            List<BattleAIAction> results)
+        Piece actingPiece,
+        List<Vector2Int> currentSelectablePositions,
+        List<BattleAIAction> results)
+    {
+        if (actingPiece == null ||
+            results == null)
         {
-            if (actingPiece == null ||
-                results == null)
-            {
-                return;
-            }
+            return;
+        }
 
-            // 개별 기물의 쿨타임 또는 이번 턴 사용 상태로
-            // 고유스킬을 사용할 수 없다면 후보를 만들지 않는다.
-            if (actingPiece.CanUseUniqueSkill() == false)
-            {
-                return;
-            }
+        // 개별 기물의 쿨타임 또는
+        // 이번 턴 사용 여부를 먼저 확인한다.
+        if (actingPiece.CanUseUniqueSkill() == false)
+        {
+            return;
+        }
 
         switch (actingPiece.UniqueSkill)
         {
@@ -225,6 +236,7 @@ public class BattleAIActionGenerator
             case UniqueSkillType.HornHeadbutt:
                 AddHornHeadbuttActions(
                     actingPiece,
+                    currentSelectablePositions,
                     results
                 );
                 break;
@@ -418,19 +430,21 @@ public class BattleAIActionGenerator
     //
     // 스킬 사용 후 같은 Enemy 턴에 행동 후보를 다시 평가하므로,
     // Breakthrough를 얻은 뒤 해당 방어 기물을 공격하게 된다.
-    private void AddHornHeadbuttActions(
-        Piece actingPiece,
-        List<BattleAIAction> results)
+
+   private void AddHornHeadbuttActions(
+    Piece actingPiece,
+    List<Vector2Int> currentSelectablePositions,
+    List<BattleAIAction> results)
     {
         if (actingPiece == null ||
+            currentSelectablePositions == null ||
             results == null ||
-            pieceManager == null ||
-            battleMoveValidator == null)
+            pieceManager == null)
         {
             return;
         }
 
-        // 실제 보유 스킬과 Rook 타입을 기준으로 검사한다.
+        // HornHeadbutt는 Jellu Rook 전용이다.
         if (actingPiece.PieceType !=
                 PieceType.Rook ||
             actingPiece.UniqueSkill !=
@@ -439,35 +453,36 @@ public class BattleAIActionGenerator
             return;
         }
 
-        // 실제 스킬과 동일하게 Water 또는 Swamp 위에서만 사용 가능하다.
+        // 실제 스킬과 동일하게
+        // Water 또는 Swamp 위에서만 후보를 생성한다.
         if (actingPiece.CurrentTile == null ||
-            (actingPiece.CurrentTile.TileType != TileType.Water &&
-             actingPiece.CurrentTile.TileType != TileType.Swamp))
+            (actingPiece.CurrentTile.TileType !=
+                 TileType.Water &&
+             actingPiece.CurrentTile.TileType !=
+                 TileType.Swamp))
         {
             return;
         }
 
-        // 이미 Breakthrough 상태라면 같은 효과를 다시 사용할 필요가 없다.
+        // 이미 Breakthrough 상태라면
+        // 동일한 효과를 다시 사용할 필요가 없다.
         if (actingPiece.HasStatusEffect(
                 StatusEffectType.Breakthrough))
         {
             return;
         }
 
-        List<Vector2Int> selectablePositions =
-            battleMoveValidator.GetSelectablePositions(
-                actingPiece
-            );
-
         bool hasDefendedAttackTarget =
             false;
 
+        // 일반 이동/공격 후보 생성 과정에서 이미 계산한
+        // 동일 기물의 selectablePositions를 그대로 재사용한다.
         for (int i = 0;
-             i < selectablePositions.Count;
+             i < currentSelectablePositions.Count;
              i++)
         {
             Vector2Int targetPosition =
-                selectablePositions[i];
+     currentSelectablePositions[i];
 
             Piece targetPiece =
                 pieceManager.GetPieceAt(

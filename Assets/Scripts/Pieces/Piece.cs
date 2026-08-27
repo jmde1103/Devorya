@@ -279,18 +279,6 @@ public class Piece : MonoBehaviour
         }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
 
     public void Initialize(PieceType pieceType, PieceTeam team, int x, int y, Tile currentTile, bool canMove = true, UniqueSkillType uniqueSkill = UniqueSkillType.None, params PieceSpeciesTag[] initialSpeciesTags)
     {

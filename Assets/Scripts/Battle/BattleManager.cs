@@ -4086,8 +4086,14 @@ public class BattleManager : MonoBehaviour
         EndTurn();
     }
 
-    // <변경부분> 지정 진영에 행동 후보가 없을 때
-    // 승패 조건을 확인하고 전투가 끝나지 않았다면 턴을 넘긴다.
+    // <변경부분> 현재 턴 진영에 실행 가능한 행동이 하나도 없을 때
+    // 일반적인 "행동 후 턴 종료" 규칙의 예외로 행동 없이 턴을 넘긴다.
+    //
+    // Enemy AI의 경우 이동/공격/사용 가능한 고유스킬 후보가 모두 없을 때
+    // BattleAIManager가 이 함수를 호출한다.
+    //
+    // 단, 턴을 넘기기 전에 AllPiecesDead / KingDeath 등
+    // 실제 전투 종료 조건은 정상적으로 다시 확인한다.
     public void ResolveNoActionableTurn(
         PieceTeam actingTeam)
     {
@@ -4096,7 +4102,8 @@ public class BattleManager : MonoBehaviour
                 ? PieceTeam.Player
                 : PieceTeam.Enemy;
 
-        // 현재 턴 진영과 요청 진영이 다르면 처리하지 않는다.
+        // 현재 턴 주체와 다른 진영이 잘못 요청한 경우에는
+        // 턴 상태를 변경하지 않는다.
         if (actingTeam != currentTurnTeam)
         {
             Debug.LogWarning(
@@ -4108,19 +4115,25 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // NoActionablePieces를 포함한 현재 승패 조건을 다시 검사한다.
+        // <변경부분> 행동 불가 자체는 Enemy의 패배로 처리하지 않는다.
+        //
+        // 다만 AllPiecesDead / KingDeath 등 다른 실제 패배 조건이
+        // 동시에 충족되었을 가능성이 있으므로 기존 승패 판정은 수행한다.
         CheckBattleEnd();
 
-        // 승패 조건으로 전투가 끝났다면 턴을 넘기지 않는다.
         if (isBattleEnded)
         {
             return;
         }
 
         Debug.Log(
-            $"{actingTeam} 진영에 실행 가능한 행동이 없어 턴을 종료합니다."
+            $"{actingTeam} 진영에 실행 가능한 행동이 없습니다. " +
+            "예외 규칙으로 행동 없이 턴을 넘깁니다."
         );
 
+        // <변경부분> 일반적인 행동 완료와 동일한 EndTurn 경로를 사용하여
+        // 턴 UI, 상태효과 턴 감소, 고유스킬 쿨타임 등
+        // 기존 턴 전환 후처리를 모두 정상적으로 유지한다.
         EndTurn();
     }
 
@@ -4332,7 +4345,16 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
-        return true;
+        // Player의 실제 고유스킬 실행 직전과 동일한
+        // BattleSkillManager 효과 사용 가능 조건을 적용한다.
+        //
+        // 이렇게 하면 AI가 실제로 발동할 수 없는 고유스킬을
+        // 평가 후보에 포함한 뒤 최고 점수로 선택하여
+        // 실행 단계에서 실패하는 상황을 방지한다.
+        return battleSkillManager
+            .CanUseUniqueSkillEffect(
+                skillPiece
+            );
     }
 
     // <변경부분> 지정한 진영의 현재 합법적인 AI 행동 후보를 생성한다.
@@ -4887,8 +4909,21 @@ public class BattleManager : MonoBehaviour
             return true;
         }
 
-        if (defeatConditions.HasFlag(BattleDefeatConditionType.NoActionablePieces) &&
-            HasNoActionablePieces(team))
+        // <변경부분> NoActionablePieces 패배 조건은 Player 진영에만 적용한다.
+        //
+        // Enemy AI는 실행 가능한 행동이 하나도 없을 경우 패배하지 않고,
+        // BattleAIManager -> ResolveNoActionableTurn() 경로를 통해
+        // 예외적으로 행동 없이 턴을 넘긴다.
+        //
+        // 이를 통해 Enemy가 일시적으로 완전히 봉쇄된 상황에서도
+        // 남아 있는 Enemy 기물을 실제 공격/흡수하여 전투를 마무리할 수 있다.
+        if (team == PieceTeam.Player &&
+            defeatConditions.HasFlag(
+                BattleDefeatConditionType.NoActionablePieces
+            ) &&
+            HasNoActionablePieces(
+                PieceTeam.Player
+            ))
         {
             return true;
         }

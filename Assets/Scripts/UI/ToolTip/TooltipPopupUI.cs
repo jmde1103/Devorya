@@ -178,34 +178,31 @@ public class TooltipPopupUI : MonoBehaviour
             );
 
         RefreshSections(
-            tooltipViewData.sections
+      tooltipViewData.sections
+  );
+
+        // <변경부분> Section의 최종 위치를 먼저 확정한다.
+        // Tooltip 위치 계산에서 마지막 Section까지 포함한 실제 Bounds를
+        // 사용할 수 있도록 SetPopupPosition보다 먼저 적용한다.
+        ApplySectionPositionOffset(
+            sectionPositionOffset
         );
 
-        // <변경부분> Section 생성 후 Tooltip 전체 레이아웃과
-        // 기본 팝업 위치를 먼저 확정한다.
-        //
-        // SetPopupPosition 내부에서 LayoutRebuilder가 실행되므로
-        // Section 전용 Offset보다 먼저 호출해야 한다.
+        // <변경부분> 기본 Tooltip뿐 아니라 생성된 모든 Section까지 포함한
+        // 실제 표시 영역을 기준으로 최종 팝업 위치를 계산한다.
         SetPopupPosition(
-     screenPosition,
-     positionMode,
-     customPositionOffset,
-     fixedCanvasPosition,
-     popupOffsetYPerSection
- );
+            screenPosition,
+            positionMode,
+            customPositionOffset,
+            fixedCanvasPosition,
+            popupOffsetYPerSection
+        );
 
-        // 오픈 애니메이션에서 초기 RectTransform 상태를
-        // 먼저 적용하도록 애니메이션을 선행 실행한다.
+        // 위치 계산이 모두 끝난 뒤 오픈 애니메이션을 실행한다.
         if (popupOpenAnimator != null)
         {
             popupOpenAnimator.PlayOpen();
         }
-
-        // <변경부분> 오픈 애니메이션 초기화 이후
-        // SectionParent에만 Trigger별 위치 보정값을 적용한다.
-        ApplySectionPositionOffset(
-            sectionPositionOffset
-        );
     }
 
     // <변경부분> 팝업을 숨김
@@ -382,12 +379,15 @@ public class TooltipPopupUI : MonoBehaviour
 
     // <변경부분> 위치 모드에 따라
     // 포인터 기준 자동 위치 또는 Canvas 기준 고정 위치를 적용한다.
+    //
+    // 기본 PopupRoot Rect 크기만 사용하는 대신,
+    // 실제 생성된 모든 Section까지 포함한 전체 표시 Bounds를 기준으로 배치한다.
     private void SetPopupPosition(
-     Vector2 screenPosition,
-     TooltipPositionMode positionMode,
-     Vector2 customPositionOffset,
-     Vector2 fixedCanvasPosition,
-     float popupOffsetYPerSection)
+        Vector2 screenPosition,
+        TooltipPositionMode positionMode,
+        Vector2 customPositionOffset,
+        Vector2 fixedCanvasPosition,
+        float popupOffsetYPerSection)
     {
         if (rootCanvas == null ||
             popupRoot == null)
@@ -403,15 +403,15 @@ public class TooltipPopupUI : MonoBehaviour
             return;
         }
 
-        // Tooltip 내용 길이에 따라 PopupRoot 크기를 먼저 갱신
+        // Tooltip 및 Section의 최신 크기를 Layout에 반영한다.
+        Canvas.ForceUpdateCanvases();
+
         LayoutRebuilder.ForceRebuildLayoutImmediate(
             popupRoot
         );
 
-        Vector2 targetPosition;
-
-        // <변경부분> 고정 위치 모드에서는
-        // 포인터 위치와 사분면 계산을 사용하지 않는다.
+        // <변경부분> 고정 위치 Tooltip은 기존 고정 좌표를 유지한 뒤,
+        // 실제 Tooltip 전체 Bounds가 화면 밖으로 나가는 경우에만 보정한다.
         if (positionMode ==
             TooltipPositionMode.FixedCanvasPosition)
         {
@@ -425,133 +425,241 @@ public class TooltipPopupUI : MonoBehaviour
                     )
                 );
 
-            targetPosition =
+            popupRoot.anchoredPosition =
                 fixedCanvasPosition;
+
+            ClampPopupVisualBoundsToCanvas(
+                canvasRect
+            );
+
+            return;
+        }
+
+        Vector2 localPoint;
+
+        RectTransformUtility
+            .ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPosition,
+                rootCanvas.renderMode ==
+                    RenderMode.ScreenSpaceOverlay
+                    ? null
+                    : rootCanvas.worldCamera,
+                out localPoint
+            );
+
+        // 포인터가 화면 오른쪽에 있으면
+        // Tooltip을 포인터의 왼쪽 방향으로 배치한다.
+        bool isRightSide =
+            localPoint.x >= 0f;
+
+        // 포인터가 화면 위쪽에 있으면
+        // Tooltip을 포인터의 아래쪽 방향으로 배치한다.
+        bool isTopSide =
+            localPoint.y >= 0f;
+
+        popupRoot.pivot =
+            new Vector2(
+                isRightSide ? 1f : 0f,
+                isTopSide ? 1f : 0f
+            );
+
+        // <변경부분> 기존 Trigger별 Section 보정값도 유지한다.
+        // 필요하지 않은 Tooltip에서는 Inspector 값을 0으로 두면 된다.
+        float dynamicOffsetY =
+            popupOffset.y +
+            (
+                currentSectionCount *
+                popupOffsetYPerSection
+            );
+
+        float offsetX =
+            isRightSide
+                ? -popupOffset.x
+                : popupOffset.x;
+
+        float offsetY =
+            isTopSide
+                ? -dynamicOffsetY
+                : dynamicOffsetY;
+
+        // Tooltip 전체 Bounds가 맞춰질 기준 위치.
+        Vector2 referencePosition =
+            localPoint +
+            new Vector2(
+                offsetX,
+                offsetY
+            ) +
+            customPositionOffset;
+
+        popupRoot.anchoredPosition =
+            referencePosition;
+
+        // Section의 실제 위치와 ContentSizeFitter 결과까지 반영한다.
+        Canvas.ForceUpdateCanvases();
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            popupRoot
+        );
+
+        // <변경부분> 기본 Tooltip뿐 아니라
+        // 마지막 Section까지 포함한 실제 전체 Bounds를 계산한다.
+        Bounds visualBounds =
+            RectTransformUtility
+                .CalculateRelativeRectTransformBounds(
+                    canvasRect,
+                    popupRoot
+                );
+
+        Vector2 visualBoundsAlignment =
+            Vector2.zero;
+
+        // 좌/우 방향 역시 전체 Tooltip의 실제 끝 모서리를 기준으로 맞춘다.
+        visualBoundsAlignment.x =
+            isRightSide
+                ? referencePosition.x -
+                  visualBounds.max.x
+                : referencePosition.x -
+                  visualBounds.min.x;
+
+        // <변경부분> 화면 아래쪽에서는 기본 Tooltip 하단이 아니라
+        // 마지막 Section까지 포함한 실제 전체 Tooltip의 최하단을 기준점으로 사용한다.
+        //
+        // 따라서 Player Status처럼 화면 하단에 있는 Tooltip도
+        // 추가 Section이 화면 밖으로 잘리지 않는 위치에서 열린다.
+        visualBoundsAlignment.y =
+            isTopSide
+                ? referencePosition.y -
+                  visualBounds.max.y
+                : referencePosition.y -
+                  visualBounds.min.y;
+
+        popupRoot.anchoredPosition +=
+            visualBoundsAlignment;
+
+        // 마지막으로 전체 Tooltip Bounds가 화면을 벗어나는 경우
+        // 필요한 거리만큼 Canvas 안쪽으로 보정한다.
+        ClampPopupVisualBoundsToCanvas(
+            canvasRect
+        );
+    }
+
+    // <변경부분> 기본 Tooltip과 모든 추가 Section을 포함한
+    // 실제 시각적 Bounds가 Canvas 영역 밖으로 나가지 않도록 보정한다.
+    private void ClampPopupVisualBoundsToCanvas(
+        RectTransform canvasRect)
+    {
+        if (canvasRect == null ||
+            popupRoot == null)
+        {
+            return;
+        }
+
+        // Section 텍스트 길이와 ContentSizeFitter 결과까지
+        // 현재 프레임의 RectTransform 크기에 확실하게 반영한다.
+        Canvas.ForceUpdateCanvases();
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            popupRoot
+        );
+
+        Bounds visualBounds =
+            RectTransformUtility
+                .CalculateRelativeRectTransformBounds(
+                    canvasRect,
+                    popupRoot
+                );
+
+        float allowedMinX =
+            canvasRect.rect.xMin +
+            screenPadding.x;
+
+        float allowedMaxX =
+            canvasRect.rect.xMax -
+            screenPadding.x;
+
+        float allowedMinY =
+            canvasRect.rect.yMin +
+            screenPadding.y;
+
+        float allowedMaxY =
+            canvasRect.rect.yMax -
+            screenPadding.y;
+
+        Vector2 correction =
+            Vector2.zero;
+
+        // Tooltip 전체가 Canvas보다 작은 일반적인 경우에는
+        // 넘쳐난 방향만큼 정확하게 안쪽으로 이동시킨다.
+        float availableWidth =
+            allowedMaxX -
+            allowedMinX;
+
+        if (visualBounds.size.x <=
+            availableWidth)
+        {
+            if (visualBounds.min.x <
+                allowedMinX)
+            {
+                correction.x =
+                    allowedMinX -
+                    visualBounds.min.x;
+            }
+            else if (visualBounds.max.x >
+                     allowedMaxX)
+            {
+                correction.x =
+                    allowedMaxX -
+                    visualBounds.max.x;
+            }
         }
         else
         {
-            Vector2 localPoint;
-
-            RectTransformUtility
-                .ScreenPointToLocalPointInRectangle(
-                    canvasRect,
-                    screenPosition,
-                    rootCanvas.renderMode ==
-                        RenderMode.ScreenSpaceOverlay
-                        ? null
-                        : rootCanvas.worldCamera,
-                    out localPoint
-                );
-
-            // 커서가 화면 오른쪽 절반에 있는지 확인
-            bool isRightSide =
-                localPoint.x >= 0f;
-
-            // 커서가 화면 위쪽 절반에 있는지 확인
-            bool isTopSide =
-                localPoint.y >= 0f;
-
-            // 포인터 위치에 따라 팝업 Pivot 결정
-            popupRoot.pivot =
-                new Vector2(
-                    isRightSide ? 1f : 0f,
-                    isTopSide ? 1f : 0f
-                );
-
-            // <변경부분> Section이 추가되어 팝업 전체 높이가 길어지면
-            // Section 개수에 비례해 PopupRoot 전체 기준 위치를 보정한다.
-            //
-            // SectionParent 자체의 미세 위치는 별도의
-            // sectionPositionOffset으로 처리한다.
-            // <변경부분> 공통값이 아니라 현재 TooltipTrigger에서 전달한
-            // Section 1개당 PopupRoot 보정값을 사용한다.
-            float dynamicOffsetY =
-                popupOffset.y +
+            // Tooltip 자체가 Canvas보다 넓은 예외 상황에서는
+            // 한쪽으로 치우치지 않도록 허용 영역 중앙에 맞춘다.
+            correction.x =
                 (
-                    currentSectionCount *
-                    popupOffsetYPerSection
-                );
-
-            // 포인터가 있는 사분면의 반대 방향으로 이동
-            float offsetX =
-                isRightSide
-                    ? -popupOffset.x
-                    : popupOffset.x;
-
-            float offsetY =
-                isTopSide
-                    ? -dynamicOffsetY
-                    : dynamicOffsetY;
-
-            // 기존 자동 위치에 Trigger별 개별 Offset 적용
-            targetPosition =
-                localPoint +
-                new Vector2(
-                    offsetX,
-                    offsetY
-                ) +
-                customPositionOffset;
+                    allowedMinX +
+                    allowedMaxX
+                ) * 0.5f -
+                visualBounds.center.x;
         }
 
-        float halfCanvasWidth =
-            canvasRect.rect.width * 0.5f;
+        float availableHeight =
+            allowedMaxY -
+            allowedMinY;
 
-        float halfCanvasHeight =
-            canvasRect.rect.height * 0.5f;
+        if (visualBounds.size.y <=
+            availableHeight)
+        {
+            if (visualBounds.min.y <
+                allowedMinY)
+            {
+                correction.y =
+                    allowedMinY -
+                    visualBounds.min.y;
+            }
+            else if (visualBounds.max.y >
+                     allowedMaxY)
+            {
+                correction.y =
+                    allowedMaxY -
+                    visualBounds.max.y;
+            }
+        }
+        else
+        {
+            // Tooltip 자체가 Canvas보다 높은 예외 상황에서도
+            // 가능한 범위 안에서 중앙에 위치시킨다.
+            correction.y =
+                (
+                    allowedMinY +
+                    allowedMaxY
+                ) * 0.5f -
+                visualBounds.center.y;
+        }
 
-        float popupWidth =
-            popupRoot.rect.width;
-
-        float popupHeight =
-            popupRoot.rect.height;
-
-        // <변경부분> 자동 위치와 고정 위치 모두
-        // 팝업이 화면 밖으로 나가지 않도록 최종 보정한다.
-        float minX =
-            -halfCanvasWidth +
-            screenPadding.x +
-            popupWidth *
-            popupRoot.pivot.x;
-
-        float maxX =
-            halfCanvasWidth -
-            screenPadding.x -
-            popupWidth *
-            (
-                1f -
-                popupRoot.pivot.x
-            );
-
-        float minY =
-            -halfCanvasHeight +
-            screenPadding.y +
-            popupHeight *
-            popupRoot.pivot.y;
-
-        float maxY =
-            halfCanvasHeight -
-            screenPadding.y -
-            popupHeight *
-            (
-                1f -
-                popupRoot.pivot.y
-            );
-
-        targetPosition.x =
-            Mathf.Clamp(
-                targetPosition.x,
-                minX,
-                maxX
-            );
-
-        targetPosition.y =
-            Mathf.Clamp(
-                targetPosition.y,
-                minY,
-                maxY
-            );
-
-        popupRoot.anchoredPosition =
-            targetPosition;
+        popupRoot.anchoredPosition +=
+            correction;
     }
 }

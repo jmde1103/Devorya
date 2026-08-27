@@ -280,19 +280,25 @@ public class WorldMapBuilder : MonoBehaviour
         // 이동할 씬 이름, 실제 전투 StageBattleData,
         // 연결된 다음 Node ID 목록,
         // 초기 해금 상태를 런타임 노드에 전달한다.
+        // 배치 데이터에 저장된 실제 Node Type과
+        // 현재 표시용 Style Data를 각각 Runtime 노드에 전달한다.
+        //
+        // Node Type = 게임플레이 역할
+        // Style Data = Sprite / Color / Collider 등 시각 표현
         createdNode.Initialize(
-    placementData.nodeId,
-    placementData.nodeDisplayName,
-    placementData.nodeStyleData,
-    placementData.targetSceneName,
-    placementData.stageBattleData,
+            placementData.nodeId,
+            placementData.nodeDisplayName,
+            placementData.nodeType,
+            placementData.nodeStyleData,
+            placementData.targetSceneName,
+            placementData.stageBattleData,
 
-    // 연결 대상 Node ID와 Route Grid 좌표를
-    // 한 세트로 런타임 노드에 전달한다.
-    placementData.connections,
+            // 연결 대상 Node ID와 Route Grid 좌표를
+            // 한 세트로 Runtime 노드에 전달한다.
+            placementData.connections,
 
-    placementData.initiallyUnlocked
-);
+            placementData.initiallyUnlocked
+        );
 
         // 시작 지점처럼 처음부터 클리어된 노드는
         // 배치 데이터의 초기 상태를 그대로 적용한다.

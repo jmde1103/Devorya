@@ -620,20 +620,24 @@ public class WorldMapProgressController : MonoBehaviour
         // Target → Current Connection을 찾아
         // Route Grid Positions를 역순으로 사용한다.
         if (TryFindConnection(
-                currentNodeId,
-                targetNodeId,
-                out connection,
-                out useReverseRoute) ==
-            false)
+        currentNodeId,
+        targetNodeId,
+        out connection,
+        out useReverseRoute) ==
+    false)
         {
             Debug.Log(
                 $"노드 이동 불가: " +
-                $"{currentNodeId} ↔ {targetNodeId} 사이에 " +
+                $"{currentNodeId} → {targetNodeId} 사이에 " +
                 $"Connection이 없습니다."
             );
 
             return;
         }
+
+        // 실제 이동을 시작하는 순간
+        // 현재 표시 중인 모든 다음 노드 Pulse를 종료한다.
+        ClearSelectableNodePulses();
 
         StartCoroutine(
             MoveMarkerToNodeRoutine(
@@ -835,31 +839,43 @@ public class WorldMapProgressController : MonoBehaviour
         // 마지막 Waypoint 위치와 관계없이
         // 최종적으로 목적지 노드 중심에 정확히 배치한다.
         yield return
-      MoveMarkerToPositionRoutine(
-          targetNode.transform.position
-      );
-
-        // 목적지 노드에 실제로 도착했으므로
-        // 노드 중심과 주변 셀을 완전 탐사 상태로 전환한다.
-        if (worldMapFogController != null)
-        {
-            worldMapFogController
-                .RevealExploredNodeArea(
-                    targetNode.transform.position
-                );
-        }
+       MoveMarkerToPositionRoutine(
+           targetNode.transform.position
+       );
 
         string targetNodeId =
             targetNode.GetNodeId();
 
-        // 목적지 노드의 원본 배치 데이터를 가져온다.
-        //
-        // 화면에 적용된 Sprite나 MapNodeRuntime 내부 표시 상태가 아니라,
-        // WorldMapData와 런타임 진행도를 기준으로 실제 클리어 여부를 판단한다.
+        // 실제 WorldMapData의 노드 배치 데이터를 먼저 가져온다.
+        // 노드별 Fog Reveal Radius도 이 데이터에서 읽는다.
         MapNodePlacementData targetPlacement =
-     FindPlacementById(
-         targetNodeId
-     );
+            FindPlacementById(
+                targetNodeId
+            );
+
+        // 목적지 노드에 실제로 도착했으므로
+        // 해당 노드에 저장된 개별 revealRadius를 적용한다.
+        //
+        // 데이터 검색에 실패한 예외 상황에서는
+        // 기존 WorldMapFogController의 기본 nodeAreaRadius로 동작시킨다.
+        if (worldMapFogController != null)
+        {
+            if (targetPlacement != null)
+            {
+                worldMapFogController
+                    .RevealExploredNodeArea(
+                        targetNode.transform.position,
+                        targetPlacement.revealRadius
+                    );
+            }
+            else
+            {
+                worldMapFogController
+                    .RevealExploredNodeArea(
+                        targetNode.transform.position
+                    );
+            }
+        }
 
         // 목적지 노드의 클리어 여부를 세 가지 기준으로 확인한다.
         //
@@ -1352,11 +1368,62 @@ public class WorldMapProgressController : MonoBehaviour
         }
     }
 
+    // 현재 월드맵에 생성된 모든 노드의
+    // 선택 가능 Pulse 효과를 종료한다.
+    //
+    // 플레이어의 현재 위치가 변경될 때
+    // 이전 위치에서 표시하던 이동 후보 효과가 남는 것을 방지한다.
+    private void ClearSelectableNodePulses()
+    {
+        if (worldMapBuilder == null ||
+            worldMapBuilder.WorldMapData == null ||
+            worldMapBuilder.WorldMapData.nodePlacements == null)
+        {
+            return;
+        }
+
+        WorldMapData mapData =
+            worldMapBuilder.WorldMapData;
+
+        for (int i = 0;
+             i < mapData.nodePlacements.Count;
+             i++)
+        {
+            MapNodePlacementData placement =
+                mapData.nodePlacements[i];
+
+            if (placement == null ||
+                string.IsNullOrWhiteSpace(
+                    placement.nodeId))
+            {
+                continue;
+            }
+
+            MapNodeRuntime runtimeNode =
+                worldMapBuilder.GetGeneratedNode(
+                    placement.nodeId
+                );
+
+            if (runtimeNode == null)
+            {
+                continue;
+            }
+
+            runtimeNode.SetSelectablePulse(
+                false
+            );
+        }
+    }
+
     // 현재 탐사 완료 노드를 중심으로
     // Connections에 등록된 미탐사 노드와
     // 해당 Route Grid 길을 Preview 상태로 표시한다.
     private void RefreshFogForCurrentNode()
     {
+        // 현재 위치를 기준으로 다음 이동 후보를 다시 계산하기 전에
+        // 이전 노드에서 실행 중이던 Pulse 효과를 모두 정리한다.
+        ClearSelectableNodePulses();
+
         if (worldMapFogController == null)
         {
             return;
@@ -1372,20 +1439,17 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
         MapNodeRuntime currentNode =
-            worldMapBuilder.GetGeneratedNode(
-                currentNodeId
-            );
+    worldMapBuilder.GetGeneratedNode(
+        currentNodeId
+    );
 
         if (currentNode == null)
         {
             return;
         }
 
-        worldMapFogController
-            .RevealExploredNodeArea(
-                currentNode.transform.position
-            );
-
+        // 현재 노드의 원본 배치 데이터를 먼저 찾아
+        // 노드별 Fog Reveal Radius를 함께 가져온다.
         MapNodePlacementData currentPlacement =
             FindPlacementById(
                 currentNodeId
@@ -1393,8 +1457,23 @@ public class WorldMapProgressController : MonoBehaviour
 
         if (currentPlacement == null)
         {
+            // 배치 데이터가 없는 예외 상황에서도
+            // 기존 기본 Fog 반경으로 최소한 현재 노드를 표시한다.
+            worldMapFogController
+                .RevealExploredNodeArea(
+                    currentNode.transform.position
+                );
+
             return;
         }
+
+        // 현재 노드에 저장된 개별 revealRadius를
+        // 실제 런타임 Fog 공개 범위에 적용한다.
+        worldMapFogController
+            .RevealExploredNodeArea(
+                currentNode.transform.position,
+                currentPlacement.revealRadius
+            );
 
         bool isCurrentNodeCleared =
             currentNode.IsCleared() ||
@@ -1444,13 +1523,17 @@ public class WorldMapProgressController : MonoBehaviour
             }
 
             if (connectedNode.IsUnlocked() ==
-                false)
+    false)
             {
                 continue;
             }
 
-            // Connection 자체에 저장된 Route Grid 좌표를 사용해
-            // 다음 탐사 후보 길과 목적지 노드를 Preview 처리한다.
+            // 현재 노드에서 실제로 연결되어 있고,
+            // Unlock된 미클리어 다음 노드만 선택 가능 Pulse를 재생한다.
+            connectedNode.SetSelectablePulse(
+                true
+            );
+
             worldMapFogController
                 .RevealPreviewRoute(
                     currentNode,

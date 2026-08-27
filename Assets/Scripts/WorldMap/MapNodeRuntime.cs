@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,8 +17,23 @@ public class MapNodeRuntime : MonoBehaviour
     [SerializeField]
     private string nodeDisplayName;
 
+    [Header("Node Type")]
+    // 노드의 실제 게임플레이 역할.
+    //
+    // Battle / BossBattle / Event / RuinsEvent / Shop 등의
+    // 의미 판정은 Visual Style이 아니라 이 값을 기준으로 한다.
+    //
+    // Cleared Style로 외형이 변경되어도
+    // 원래 노드 역할은 유지된다.
+    [SerializeField]
+    private MapNodeType nodeType =
+        MapNodeType.Battle;
+
     [Header("Node Style")]
-    // 노드 종류와 Sprite 정보를 담은 스타일 데이터
+    // 현재 노드에 표시할 Sprite / Color / Collider 등의
+    // 시각적 스타일 데이터.
+    //
+    // 노드의 실제 역할 판정에는 사용하지 않는다.
     [SerializeField]
     private MapNodeStyleData nodeStyleData;
 
@@ -62,9 +78,33 @@ public class MapNodeRuntime : MonoBehaviour
     [SerializeField]
     private BoxCollider2D nodeCollider;
 
+    [Header("Selectable Node Pulse")]
+    // 현재 위치에서 이동 가능한 다음 노드임을 표시할 때
+    // 원래 크기에서 얼마나 확대할지 결정한다.
+    //
+    // 1.08 = 원래 크기의 108%
+    [SerializeField, Min(1f)]
+    private float selectablePulseScale =
+        1.08f;
+
+    // 기본 크기 → 확대 또는 확대 → 기본 크기까지
+    // 한 방향으로 변화하는 데 걸리는 시간.
+    [SerializeField, Min(0.05f)]
+    private float selectablePulseHalfDuration =
+        0.7f;
+
+    // 현재 선택 가능 노드 Pulse Coroutine.
+    private Coroutine selectablePulseCoroutine;
+
+    // Pulse 시작 직전 노드의 실제 Scale.
+    // 프리팹 Scale이 1이 아니더라도 정확히 원래 크기로 복원하기 위해 저장한다.
+    private Vector3 selectablePulseBaseScale;
+
+    // 현재 Pulse용 원본 Scale을 저장했는지 확인한다.
+    private bool hasSelectablePulseBaseScale;
+
     // 현재 포인터가 노드 위에서 눌렸는지 확인한다.
     private bool isPointerPressed;
-
     // 모바일 / PC에서 현재 포인터 위치의 UI Raycast 결과를 재사용한다.
     // 노드를 클릭할 때마다 List를 새로 생성하지 않아 불필요한 GC 할당을 방지한다.
     private static readonly List<RaycastResult> pointerRaycastResults =
@@ -89,6 +129,13 @@ public class MapNodeRuntime : MonoBehaviour
 
         // 현재 연결된 스타일 데이터를 노드에 적용한다.
         ApplyStyle();
+    }
+
+    private void OnDisable()
+    {
+        // Scene 전환이나 노드 비활성화 중 Coroutine이 종료될 때
+        // 확대된 Scale이 남지 않도록 반드시 원래 크기로 복원한다.
+        StopSelectablePulse();
     }
 
 #if UNITY_EDITOR
@@ -151,6 +198,7 @@ public class MapNodeRuntime : MonoBehaviour
     public void Initialize(
     string newNodeId,
     string newDisplayName,
+    MapNodeType newNodeType,
     MapNodeStyleData newStyleData,
     string newTargetSceneName,
     StageBattleData newStageBattleData,
@@ -163,6 +211,16 @@ public class MapNodeRuntime : MonoBehaviour
         nodeDisplayName =
             newDisplayName;
 
+        // WorldMapData에 저장된 원래 Node Type을
+        // Runtime 노드의 실제 역할로 보관한다.
+        //
+        // 이후 Cleared Style로 외형이 변경되어도
+        // 이 값은 변경하지 않는다.
+        nodeType =
+            newNodeType;
+
+        // Style Data는 Sprite / Color / Collider 등
+        // 현재 시각 표현만 담당한다.
         nodeStyleData =
             newStyleData;
 
@@ -174,11 +232,8 @@ public class MapNodeRuntime : MonoBehaviour
         stageBattleData =
             newStageBattleData;
 
-        // 노드 연결 정보와 Route 좌표를
-        // 원본 데이터와 별개의 새 객체로 복사한다.
-        //
-        // Inspector에서 수정해도 Apply 버튼을 누르기 전에는
-        // WorldMapData 원본이 바로 변경되지 않도록 한다.
+        // 연결 및 Route 정보는
+        // 원본 데이터와 별개의 Runtime 복사본으로 유지한다.
         connections =
             CopyConnections(
                 newConnections
@@ -234,6 +289,151 @@ public class MapNodeRuntime : MonoBehaviour
         }
 
         return copiedConnections;
+    }
+
+    // 현재 노드가 플레이어가 선택할 수 있는 다음 이동 후보인지에 따라
+    // 부드러운 확대/축소 Pulse 효과를 시작하거나 종료한다.
+    public void SetSelectablePulse(
+        bool shouldPulse)
+    {
+        // 실제로 이동 가능한 미클리어 노드에서만
+        // Pulse 효과를 허용한다.
+        bool canPulse =
+            shouldPulse &&
+            isUnlocked &&
+            isCleared == false;
+
+        if (canPulse)
+        {
+            StartSelectablePulse();
+
+            return;
+        }
+
+        StopSelectablePulse();
+    }
+
+    // 선택 가능한 다음 노드의 Pulse Coroutine을 시작한다.
+    private void StartSelectablePulse()
+    {
+        // 이미 실행 중이면 중복 Coroutine을 만들지 않는다.
+        if (selectablePulseCoroutine != null)
+        {
+            return;
+        }
+
+        // 현재 실제 Scale을 기준값으로 저장한다.
+        // 프리팹이나 에디터에서 Scale이 변경돼도
+        // Vector3.one으로 강제 복원하지 않는다.
+        selectablePulseBaseScale =
+            transform.localScale;
+
+        hasSelectablePulseBaseScale =
+            true;
+
+        selectablePulseCoroutine =
+            StartCoroutine(
+                SelectablePulseRoutine()
+            );
+    }
+
+    // 현재 선택 가능 Pulse를 종료하고
+    // 노드 Scale을 시작 전 크기로 정확하게 복원한다.
+    private void StopSelectablePulse()
+    {
+        if (selectablePulseCoroutine != null)
+        {
+            StopCoroutine(
+                selectablePulseCoroutine
+            );
+
+            selectablePulseCoroutine =
+                null;
+        }
+
+        if (hasSelectablePulseBaseScale)
+        {
+            transform.localScale =
+                selectablePulseBaseScale;
+
+            hasSelectablePulseBaseScale =
+                false;
+        }
+    }
+
+    // 선택 가능한 다음 노드를
+    // 기본 크기 → 확대 → 기본 크기로 계속 부드럽게 반복한다.
+    private IEnumerator SelectablePulseRoutine()
+    {
+        Vector3 expandedScale =
+            selectablePulseBaseScale *
+            selectablePulseScale;
+
+        while (true)
+        {
+            // 기본 크기에서 확대 크기까지 부드럽게 변화한다.
+            yield return
+                AnimateSelectablePulseScaleRoutine(
+                    selectablePulseBaseScale,
+                    expandedScale
+                );
+
+            // 확대 크기에서 다시 기본 크기로 부드럽게 돌아온다.
+            yield return
+                AnimateSelectablePulseScaleRoutine(
+                    expandedScale,
+                    selectablePulseBaseScale
+                );
+        }
+    }
+
+    // 지정된 두 Scale 사이를 SmoothStep으로 보간한다.
+    private IEnumerator AnimateSelectablePulseScaleRoutine(
+        Vector3 startScale,
+        Vector3 targetScale)
+    {
+        float safeDuration =
+            Mathf.Max(
+                0.05f,
+                selectablePulseHalfDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               safeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    safeDuration
+                );
+
+            // 시작과 끝에서 갑자기 움직이는 느낌이 없도록
+            // 부드러운 Ease In / Ease Out 보간을 적용한다.
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            transform.localScale =
+                Vector3.LerpUnclamped(
+                    startScale,
+                    targetScale,
+                    smoothTime
+                );
+
+            yield return null;
+        }
+
+        transform.localScale =
+            targetScale;
     }
 
     private void OnMouseDown()
@@ -511,19 +711,33 @@ public class MapNodeRuntime : MonoBehaviour
 
     // 외부 진행 시스템에서 노드 해금 상태를 변경한다.
     public void SetUnlocked(
-        bool unlocked)
+     bool unlocked)
     {
         isUnlocked =
             unlocked;
+
+        // 잠긴 노드는 더 이상 선택 가능한 후보가 아니므로
+        // 실행 중인 Pulse를 즉시 종료한다.
+        if (isUnlocked == false)
+        {
+            StopSelectablePulse();
+        }
     }
 
     // 기존 WorldMapBuilder의 1개 인자 호출과 호환을 유지한다.
     // 초기 생성 단계에서는 클리어 상태만 먼저 저장한다.
     public void SetCleared(
-        bool cleared)
+    bool cleared)
     {
         isCleared =
             cleared;
+
+        // 클리어된 노드는 다음 신규 이동 후보가 아니므로
+        // 선택 가능 Pulse를 종료한다.
+        if (isCleared)
+        {
+            StopSelectablePulse();
+        }
     }
 
     // 외부 진행 시스템에서 노드 클리어 상태를 변경한다.
@@ -535,12 +749,16 @@ public class MapNodeRuntime : MonoBehaviour
         MapNodeStyleData clearedStyleData)
     {
         isCleared =
-            cleared;
+     cleared;
 
         if (isCleared == false)
         {
             return;
         }
+
+        // 클리어 상태가 되는 순간
+        // 선택 가능한 다음 노드 Pulse를 즉시 종료하고 원래 크기로 복원한다.
+        StopSelectablePulse();
 
         if (clearedStyleData == null)
         {
@@ -653,16 +871,12 @@ public class MapNodeRuntime : MonoBehaviour
 
 
 
-    // 현재 노드 종류를 반환한다.
+    // 현재 노드의 실제 게임플레이 역할을 반환한다.
+    //
+    // Visual Style이 Cleared Style 등으로 변경되어도
+    // Runtime에 저장된 원래 Node Type은 변경되지 않는다.
     public MapNodeType GetNodeType()
     {
-        // 스타일 데이터가 아직 연결되지 않았다면
-        // 기본 노드 종류인 일반 전투로 반환한다.
-        if (nodeStyleData == null)
-        {
-            return MapNodeType.Battle;
-        }
-
-        return nodeStyleData.NodeType;
+        return nodeType;
     }
 }
