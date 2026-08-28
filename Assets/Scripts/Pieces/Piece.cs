@@ -63,6 +63,21 @@ public class Piece : MonoBehaviour
     [SerializeField]
     private SpriteRenderer typeIconBoxRenderer;
 
+    [Header("Type Icon Box Sprites")]
+    // <변경부분> Player 기물에 사용할 전용 타입 아이콘 배경 박스.
+    //
+    // Enemy / Neutral은 기존 공용 Piece Prefab에 들어 있는
+    // TypeIconBox Sprite를 그대로 사용한다.
+    [SerializeField]
+    private Sprite playerTypeIconBoxSprite;
+
+    // <변경부분> 공용 Piece Prefab에 원래 설정되어 있던
+    // 기본 TypeIconBox Sprite를 Awake에서 저장한다.
+    //
+    // Enemy / Neutral 또는 Player 전용 Sprite가 비어 있을 때
+    // 안전하게 기존 배경으로 복원하기 위해 사용한다.
+    private Sprite defaultTypeIconBoxSprite;
+
     [Header("Field Absorb Button")]
     // 공격 가능한 상대 기물을 선택했을 때
     // 타입 아이콘 위치에 표시할 필드 흡수 버튼
@@ -87,12 +102,27 @@ public class Piece : MonoBehaviour
     [Header("Selected Type Icon Visual")]
     // <변경부분> 선택된 기물의 타입 아이콘을
     // 기본 위치보다 위로 올리는 로컬 Y 거리
-    [SerializeField] private float selectedTypeIconRaiseAmount = 0.08f;
+    [SerializeField]
+    private float selectedTypeIconRaiseAmount =
+    0.08f;
 
-    // <변경부분> 선택된 기물이 있을 때
-    // 선택되지 않은 표시 중 타입 아이콘에 적용할 알파값
+    // <변경부분> 아무 기물도 포커스되지 않은 일반 상태에서
+    // 표시 중인 타입 아이콘과 배경 박스에 적용할 기본 알파값.
+    //
+    // 0.8 = 80% 불투명도
     [Range(0f, 1f)]
-    [SerializeField] private float unselectedTypeIconAlpha = 0.45f;
+    [SerializeField]
+    private float normalTypeIconAlpha =
+        0.8f;
+
+    // <변경부분> 다른 기물이 선택 / 확인 / AI 행동 중일 때
+    // 포커스되지 않은 표시 중 타입 아이콘에 적용할 알파값.
+    //
+    // 기존 45% 값을 그대로 유지한다.
+    [Range(0f, 1f)]
+    [SerializeField]
+    private float unselectedTypeIconAlpha =
+        0.45f;
 
     // <변경부분> 선택 또는 선택 해제 시
     // 타입 아이콘이 목표 위치까지 부드럽게 이동하는 시간
@@ -199,15 +229,23 @@ public class Piece : MonoBehaviour
                 typeIconRenderer.sortingOrder;
         }
 
-        // <변경부분> TypeIconBox의 Inspector 기본 색상과
-        // Order in Layer를 별도로 저장한다.
+        // <변경부분> TypeIconBox의 Inspector 기본 Sprite,
+        // 색상, Order in Layer를 별도로 저장한다.
         if (typeIconBoxRenderer != null)
         {
+            // <변경부분> 공용 Piece Prefab에 원래 들어 있던
+            // TypeIconBox Sprite를 Enemy / Neutral용 기본 배경으로 저장한다.
+            defaultTypeIconBoxSprite =
+                typeIconBoxRenderer.sprite;
+
             // 타입 아이콘 박스의 Inspector 기본 색상 저장
+            //
+            // Player / Enemy 배경 구분에는 Color를 사용하지 않고
+            // Sprite 자체만 교체한다.
             typeIconBoxBaseColor =
                 typeIconBoxRenderer.color;
 
-            // <변경부분> 타입 아이콘 박스의 Inspector 기본
+            // 타입 아이콘 박스의 Inspector 기본
             // Order in Layer를 선택 해제 복구용으로 저장한다.
             typeIconBoxBaseSortingOrder =
                 typeIconBoxRenderer.sortingOrder;
@@ -1414,11 +1452,13 @@ public class Piece : MonoBehaviour
         typeIconMoveCoroutine = null;
     }
 
-    // <변경부분> 현재 표시 중인 타입 아이콘이
-    // 선택되지 않은 상태인지에 따라
-    // 아이콘 이미지와 TypeIconBox에 같은 알파값을 적용한다.
-    public void SetTypeIconDimmed(bool isDimmed)
+    // <변경부분> 현재 타입 아이콘의 포커스 상태에 따라
+    // 기본 / 선택 / 비선택 알파값을 적용한다.
+    public void SetTypeIconDimmed(
+        bool isDimmed)
     {
+        // 다른 기물이 포커스된 상태에서
+        // 현재 기물이 비선택 상태라면 기존 45% 알파를 사용한다.
         if (isDimmed)
         {
             SetTypeIconAlpha(
@@ -1428,9 +1468,24 @@ public class Piece : MonoBehaviour
             return;
         }
 
-        // 선택된 아이콘이거나 흐림 처리가 필요 없는 경우
-        // 아이콘과 박스를 각각의 원래 색상으로 복구한다.
-        RestoreTypeIconColor();
+        // <변경부분> 선택된 Player 기물,
+        // 확인 중인 상대 기물,
+        // 현재 행동 중인 Enemy AI 기물은
+        // 완전 불투명 상태로 강조한다.
+        if (isTypeIconSelected)
+        {
+            SetTypeIconAlpha(
+                1f
+            );
+
+            return;
+        }
+
+        // <변경부분> 아무 포커스도 받지 않은 일반 표시 상태는
+        // 기본 80% 알파를 사용한다.
+        SetTypeIconAlpha(
+            normalTypeIconAlpha
+        );
     }
 
     // <변경부분> 타입 아이콘 이미지와 TypeIconBox의
@@ -1574,22 +1629,65 @@ public class Piece : MonoBehaviour
 
 
 
-    // <변경부분> 현재 기물 타입과 소속 진영에 맞는 아이콘 스프라이트 적용
+    // <변경부분> 현재 기물 타입과 소속 진영에 맞는
+    // 타입 아이콘 및 배경 박스 Sprite를 최신 상태로 갱신한다.
     private void UpdateTypeIconSprite()
     {
-        // 타입 아이콘 이미지가 없으면 종료
+        // <변경부분> 내부 기물 아이콘과 별개로
+        // Team 기준 TypeIconBox Sprite부터 갱신한다.
+        UpdateTypeIconBoxSprite();
+
         if (typeIconRenderer == null)
         {
             return;
         }
 
-        // <변경부분> 현재 기물 소속과 타입에 맞는 아이콘을 가져와 적용
-        Sprite iconSprite = GetTypeIconSpriteByTeamAndType();
+        // 현재 기물 소속과 타입에 맞는
+        // 내부 기물 타입 아이콘을 가져온다.
+        Sprite iconSprite =
+            GetTypeIconSpriteByTeamAndType();
 
-        // 아이콘이 있으면 적용
         if (iconSprite != null)
         {
-            typeIconRenderer.sprite = iconSprite;
+            typeIconRenderer.sprite =
+                iconSprite;
+        }
+    }
+
+    // <변경부분> 기물 Team에 따라
+    // TypeIconBox의 배경 Sprite만 교체한다.
+    //
+    // Player:
+    // 새로 연결한 검정 배경 박스 사용
+    //
+    // Enemy / Neutral:
+    // 공용 Piece Prefab의 기존 배경 박스 사용
+    private void UpdateTypeIconBoxSprite()
+    {
+        if (typeIconBoxRenderer == null)
+        {
+            return;
+        }
+
+        // Player는 전용 검정 배경 Sprite를 사용한다.
+        if (Team == PieceTeam.Player &&
+            playerTypeIconBoxSprite != null)
+        {
+            typeIconBoxRenderer.sprite =
+                playerTypeIconBoxSprite;
+
+            return;
+        }
+
+        // Enemy / Neutral은
+        // Prefab에 원래 설정되어 있던 기존 박스를 사용한다.
+        //
+        // Player 전용 Sprite 연결이 빠진 경우에도
+        // 기존 박스로 안전하게 대체된다.
+        if (defaultTypeIconBoxSprite != null)
+        {
+            typeIconBoxRenderer.sprite =
+                defaultTypeIconBoxSprite;
         }
     }
 

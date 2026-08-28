@@ -175,18 +175,84 @@ public class PixelCameraController : MonoBehaviour
 
     private Vector3 lastPieceAttackTargetWorldPosition;
 
-    [Header("Move")]
-    // 마우스 드래그 이동 속도
-    public float mouseDragSpeed = 0.3f;
+    [Header("Move Sensitivity")]
+    // <변경부분> PC 마우스 드래그 이동 감도
+    // 모바일 감도와 별도로 관리한다.
+    public float mouseDragSpeed =
+    0.3f;
 
-    // 모바일 드래그 이동 속도
-    public float touchDragSpeed = 0.01f;
+    // <변경부분> 모바일 터치 드래그 이동 감도
+    // PC 감도와 별도로 관리한다.
+    public float touchDragSpeed =
+        0.01f;
+
+    [Header("PC Left Drag")]
+    // <변경부분> 좌클릭 후 실제 카메라 Drag로 확정하기 위해
+    // 마우스가 이동해야 하는 최소 화면 픽셀 거리.
+    //
+    // 단순 클릭 중 발생하는 미세한 마우스 흔들림으로
+    // 카메라가 움직이는 것을 방지한다.
+    [SerializeField, Min(0f)]
+    private float pcDragStartThresholdPixels =
+        8f;
+
+    // <변경부분> 현재 좌클릭이
+    // 카메라 Drag를 시작할 수 있는 영역에서 시작되었는지 여부.
+    private bool isPCDragCandidate =
+        false;
+
+    // <변경부분> Drag Threshold를 넘어
+    // 실제 카메라 이동 상태로 확정되었는지 여부.
+    private bool isPCDragging =
+        false;
+
+    // <변경부분> 좌클릭을 처음 누른 화면 좌표.
+    // Drag Threshold 계산에 사용한다.
+    private Vector2 pcDragStartScreenPosition;
+
+    // <변경부분> PC 좌클릭을 처음 눌렀던 Battle Tile.
+    //
+    // Mouse Up까지 Drag로 전환되지 않았고,
+    // 눌렀던 Tile과 뗀 Tile이 동일할 때만
+    // 실제 Battle Click으로 확정한다.
+    private Tile pcPressedTile =
+        null;
 
     // 최소 줌 상태에서 이동을 막기 위한 허용 오차
-    [SerializeField] private float minZoomMoveThreshold = 0.01f;
+    [SerializeField]
+    private float minZoomMoveThreshold =
+        0.01f;
 
     // 최소 줌 기준 화면 중심 위치
     private Vector3 baseCameraPosition;
+
+    // <변경부분> 현재 실제 Camera 이동이 가능한 상태인지 반환한다.
+    //
+    // Click 판정 자체와 Camera 이동 가능 여부는 분리한다.
+    // 최소 Zoom 상태에서도 기물/Tile Click은 정상 처리되고,
+    // Drag했을 때 Camera 이동만 발생하지 않는다.
+    public bool CanUseManualDrag
+    {
+        get
+        {
+            if (isPlayingStartZoomAnimation ||
+                isPlayingLastPieceAttackCinematic)
+            {
+                return false;
+            }
+
+            if (BattleManager.Instance != null &&
+                BattleManager.Instance
+                    .CanUseManualCameraDrag ==
+                false)
+            {
+                return false;
+            }
+
+            return
+                CanMoveCameraByZoom();
+        }
+    }
 
     [Header("Camera Bounds")]
     // 기본 화면 기준 카메라 이동 가능 최소 좌표
@@ -201,6 +267,12 @@ public class PixelCameraController : MonoBehaviour
     // 느려진 Time.timeScale이 다음 상태까지 남지 않도록 복구한다.
     private void OnDisable()
     {
+        // <변경부분> Scene 전환 / Camera 비활성화 시
+        // 좌클릭 Drag 입력 상태가 다음 활성화까지 남지 않도록 초기화한다.
+        ResetPCDragState();
+
+        // 마지막 적 공격 Cinematic 도중 종료되었을 경우
+        // TimeScale과 카메라 상태를 즉시 복원한다.
         RestoreLastPieceAttackCinematicImmediately();
     }
 
@@ -1355,37 +1427,251 @@ public class PixelCameraController : MonoBehaviour
         );
     }
 
-    // PC 우클릭 드래그 이동
+    // <변경부분> PC Battle 좌클릭을
+    // Click과 Camera Drag로 구분하여 처리한다.
+    //
+    // UI를 제외한 Battle World 어디에서 시작하든
+    // 일정 거리 이상 움직이면 Camera Drag,
+    // 움직이지 않고 놓으면 기존 Battle Click으로 처리한다.
     private void HandlePCDrag()
     {
-        // 최소 줌 상태에서는 카메라 이동 불가
-        if (CanMoveCameraByZoom() == false)
+        // 좌클릭을 새로 누른 순간
+        if (Input.GetMouseButtonDown(0))
+        {
+            ResetPCDragState();
+
+            // UI에서 시작한 좌클릭은
+            // Camera / Battle World 입력이 가져가지 않는다.
+            if (Tile.IsPointerOverUI())
+            {
+                return;
+            }
+
+            isPCDragCandidate =
+                true;
+
+            pcDragStartScreenPosition =
+                Input.mousePosition;
+
+            // <변경부분> Click으로 끝났을 경우를 대비해
+            // 최초로 누른 Battle Tile을 저장한다.
+            //
+            // 보드 바깥에서 시작했다면 null이며,
+            // 이 경우 짧게 클릭해도 Battle 행동은 발생하지 않는다.
+            pcPressedTile =
+                GetTileAtScreenPosition(
+                    pcDragStartScreenPosition
+                );
+
+            return;
+        }
+
+        if (isPCDragCandidate == false)
         {
             return;
         }
 
-        // 우클릭 중이 아니면 종료
-        if (Input.GetMouseButton(1) == false)
+        // 좌클릭을 놓은 순간
+        if (Input.GetMouseButtonUp(0))
+        {
+            // <변경부분> Threshold를 넘지 않았다면
+            // Drag가 아니라 Click으로 확정한다.
+            if (isPCDragging == false &&
+                pcPressedTile != null &&
+                Tile.IsPointerOverUI() == false &&
+                BattleManager.Instance != null)
+            {
+                Tile releasedTile =
+                    GetTileAtScreenPosition(
+                        Input.mousePosition
+                    );
+
+                // 눌렀던 Tile과 실제로 뗀 Tile이 같을 때만
+                // Battle 입력을 실행한다.
+                //
+                // 따라서 클릭 중 다른 Tile까지 움직였다가 놓는 경우
+                // 잘못된 기물 선택/이동이 발생하지 않는다.
+                if (releasedTile ==
+                    pcPressedTile)
+                {
+                    BattleManager.Instance
+                        .SelectTile(
+                            pcPressedTile
+                        );
+                }
+            }
+
+            ResetPCDragState();
+
+            return;
+        }
+
+        // 비정상적으로 Mouse Up을 놓친 경우 안전하게 초기화한다.
+        if (Input.GetMouseButton(0) == false)
+        {
+            ResetPCDragState();
+            return;
+        }
+
+        // 아직 Drag로 확정되지 않았다면
+        // 최초 위치에서 움직인 거리를 확인한다.
+        if (isPCDragging == false)
+        {
+            float dragDistance =
+                Vector2.Distance(
+                    pcDragStartScreenPosition,
+                    Input.mousePosition
+                );
+
+            if (dragDistance <
+                pcDragStartThresholdPixels)
+            {
+                return;
+            }
+
+            // <변경부분> Threshold를 넘는 순간
+            // 이번 입력은 완전히 Camera Drag로 전환한다.
+            //
+            // 이후 Mouse Up 시 Battle Click은 실행되지 않는다.
+            isPCDragging =
+                true;
+
+            // 기물 선택으로 진행 중이던 자동 Camera Focus가 있다면
+            // 사용자의 수동 Drag 입력을 우선한다.
+            if (pieceFocusCoroutine != null)
+            {
+                StopCoroutine(
+                    pieceFocusCoroutine
+                );
+
+                pieceFocusCoroutine =
+                    null;
+            }
+        }
+
+        // Drag 자체는 확정되었지만
+        // 현재 Camera를 움직일 수 없는 상태라면 이동만 하지 않는다.
+        //
+        // 이 경우에도 Click으로 되돌아가지는 않는다.
+        if (CanUseManualDrag == false)
         {
             return;
         }
 
-        // 마우스 X 이동량
-        float moveX = Input.GetAxis("Mouse X");
+        float moveX =
+            Input.GetAxis(
+                "Mouse X"
+            );
 
-        // 마우스 Y 이동량
-        float moveY = Input.GetAxis("Mouse Y");
+        float moveY =
+            Input.GetAxis(
+                "Mouse Y"
+            );
 
-        // 확대 상태일수록 이동량을 줄여 조작감 유지
-        float zoomAdjustedSpeed = mouseDragSpeed / currentWorldScale;
+        float zoomAdjustedSpeed =
+            mouseDragSpeed /
+            currentWorldScale;
 
-        // 카메라 위치 이동
-        transform.position -= new Vector3(
-            moveX * zoomAdjustedSpeed,
-            moveY * zoomAdjustedSpeed,
-            0f
-        );
+        transform.position -=
+            new Vector3(
+                moveX *
+                    zoomAdjustedSpeed,
+                moveY *
+                    zoomAdjustedSpeed,
+                0f
+            );
     }
+
+
+// <변경부분> 현재 화면 좌표 아래에 존재하는 Battle Tile을 찾는다.
+//
+// Piece가 Tile보다 앞에 렌더링되는 상황에서도
+// 같은 위치에 존재하는 Tile Collider를 찾을 수 있도록
+// OverlapPointAll 결과 전체를 확인한다.
+private Tile GetTileAtScreenPosition(
+    Vector2 screenPosition)
+{
+    if (cam == null)
+    {
+        return null;
+    }
+
+    // 현재 Camera에서 보드가 위치한 Z = 0 평면까지의
+    // 화면 좌표를 World 좌표로 변환한다.
+    float worldPlaneDistance =
+        Mathf.Abs(
+            transform.position.z
+        );
+
+    Vector3 worldPosition =
+        cam.ScreenToWorldPoint(
+            new Vector3(
+                screenPosition.x,
+                screenPosition.y,
+                worldPlaneDistance
+            )
+        );
+
+    Collider2D[] hitColliders =
+        Physics2D.OverlapPointAll(
+            new Vector2(
+                worldPosition.x,
+                worldPosition.y
+            )
+        );
+
+    for (int i = 0;
+         i < hitColliders.Length;
+         i++)
+    {
+        Collider2D hitCollider =
+            hitColliders[i];
+
+        if (hitCollider == null)
+        {
+            continue;
+        }
+
+        Tile tile =
+            hitCollider.GetComponent<Tile>();
+
+        if (tile == null)
+        {
+            tile =
+                hitCollider
+                    .GetComponentInParent<Tile>();
+        }
+
+        if (tile != null)
+        {
+            return tile;
+        }
+    }
+
+    // Tile이 없다는 것은 보드 바깥 배경 영역이므로
+    // BattleManager에서 Drag 가능 영역으로 처리할 수 있다.
+    return null;
+}
+
+
+    // <변경부분> 현재 PC 좌클릭의
+    // Click / Drag 판정 상태를 완전히 초기화한다.
+    private void ResetPCDragState()
+    {
+        isPCDragCandidate =
+            false;
+
+        isPCDragging =
+            false;
+
+        pcDragStartScreenPosition =
+            Vector2.zero;
+
+        pcPressedTile =
+            null;
+    }
+
+
 
     // <변경부분> 모바일 두 손가락 드래그 이동
     private void HandleMobileDrag()

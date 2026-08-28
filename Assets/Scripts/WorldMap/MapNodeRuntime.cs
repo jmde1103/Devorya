@@ -438,6 +438,18 @@ public class MapNodeRuntime : MonoBehaviour
 
     private void OnMouseDown()
     {
+        // <변경부분> PC의 Node Click / Camera Drag 판정은
+        // WorldMapCameraController에서 통합 처리한다.
+        //
+        // 현재 Node 자체 Mouse 이벤트는
+        // 모바일 기존 입력 보존용으로만 사용한다.
+        if (Application.isMobilePlatform == false)
+        {
+            isPointerPressed =
+                false;
+
+            return;
+        }
         // 모바일에서 두 손가락이 사용 중이라면
         // WorldMapCameraController의 Pinch / Drag 제스처로 판단하고
         // 노드 클릭을 시작하지 않는다.
@@ -474,6 +486,11 @@ public class MapNodeRuntime : MonoBehaviour
     // 이후 Node 진입이 발생하지 않도록 클릭 상태를 취소한다.
     private void OnMouseDrag()
     {
+        // <변경부분> PC Drag는 WorldMapCameraController가 담당한다.
+        if (Application.isMobilePlatform == false)
+        {
+            return;
+        }
         if (isPointerPressed == false)
         {
             return;
@@ -489,6 +506,15 @@ public class MapNodeRuntime : MonoBehaviour
 
     private void OnMouseUpAsButton()
     {
+        // <변경부분> PC Node Click은 WorldMapCameraController가
+        // Mouse Up 시점에 직접 확정한다.
+        if (Application.isMobilePlatform == false)
+        {
+            isPointerPressed =
+                false;
+
+            return;
+        }
         if (isPointerPressed == false)
         {
             return;
@@ -517,13 +543,9 @@ public class MapNodeRuntime : MonoBehaviour
     }
 
 
-    // 현재 Mouse 또는 Mobile Touch가
-    // 실제 Unity UI 위에 위치하는지 확인한다.
-    //
-    // Battle Tile에서 모바일 실기기 테스트가 완료된 방식과 동일하게
-    // EventSystem Pointer ID 판정에만 의존하지 않고
-    // 실제 화면 좌표에서 UI Raycast를 직접 수행한다.
-    private static bool IsPointerOverUI()
+    // <변경부분> MapNodeRuntime과 WorldMapCameraController가
+    // 동일한 UI Raycast 판정을 공유하도록 공개한다.
+    public static bool IsPointerOverUI()
     {
         EventSystem eventSystem =
             EventSystem.current;

@@ -76,14 +76,44 @@ public class WorldMapCameraController : MonoBehaviour
         10f;
 
     [Header("Camera Move")]
-    // PC 마우스 우클릭 드래그 이동 속도
+    // <변경부분> PC WorldMap Camera Drag 감도
     [SerializeField, Min(0.001f)]
     private float mouseDragSpeed =
-        0.3f;
-    // 모바일 두 손가락 드래그 이동 속도
+     0.3f;
+
+    // <변경부분> 모바일 WorldMap Camera Drag 감도
     [SerializeField, Min(0.0001f)]
     private float touchDragSpeed =
         0.01f;
+
+    [Header("PC Left Drag")]
+    // <변경부분> 좌클릭을 Camera Drag로 판정할
+    // 최소 화면 이동 거리.
+    //
+    // Battle과 동일하게 기본 8px을 사용한다.
+    [SerializeField, Min(0f)]
+    private float pcDragStartThresholdPixels =
+        8f;
+
+    // UI가 아닌 WorldMap 영역에서
+    // 현재 좌클릭이 시작되었는지 여부.
+    private bool isPCDragCandidate =
+        false;
+
+    // 현재 입력이 Threshold를 넘어
+    // 실제 Camera Drag로 전환되었는지 여부.
+    private bool isPCDragging =
+        false;
+
+    // 현재 좌클릭을 처음 누른 화면 좌표.
+    private Vector2 pcDragStartScreenPosition;
+
+    // <변경부분> 좌클릭 시작 위치에 있던 WorldMap Node.
+    //
+    // Drag 없이 동일 Node에서 Mouse Up 되었을 때만
+    // Node Click으로 확정한다.
+    private MapNodeRuntime pcPressedNode =
+        null;
 
     [Header("Map Start Zoom")]
     // 맵 씬이 시작될 때 적용할 초기 배율
@@ -469,12 +499,13 @@ public class WorldMapCameraController : MonoBehaviour
 
         if (isFollowingMarker)
         {
-            // 추적을 시작하는 순간의 실제 배율을
-            // 목표 배율로 고정하여 이동 중 줌 변화가 남지 않게 한다.
+            // <변경부분> Marker 자동 추적이 시작되면
+            // 진행 중이던 사용자 Click / Drag 후보를 제거한다.
+            ResetPCDragState();
+
             targetWorldScale =
                 currentWorldScale;
 
-            // 진행 중이던 줌 보간도 현재 값으로 즉시 고정한다.
             ApplyWorldScale();
         }
     }
@@ -492,6 +523,10 @@ public class WorldMapCameraController : MonoBehaviour
 
         isPlayingMapStartZoom =
             true;
+
+        // <변경부분> 자동 Start Zoom이 시작되므로
+        // 진행 중인 사용자 Pointer 상태를 제거한다.
+        ResetPCDragState();
 
         // 시작 확대 연출 중에는 일반 마커 추적 상태를 사용하지 않는다.
         markerFollowTarget =
@@ -617,6 +652,10 @@ public class WorldMapCameraController : MonoBehaviour
         isPlayingMapCloseZoom =
             true;
 
+        // <변경부분> Scene 이동 전 자동 Zoom이 시작되므로
+        // 진행 중인 사용자 Pointer 상태를 제거한다.
+        ResetPCDragState();
+
         markerFollowTarget =
             null;
 
@@ -726,14 +765,98 @@ public class WorldMapCameraController : MonoBehaviour
         ClampCameraPosition();
     }
 
-    // PC 마우스 우클릭 드래그 이동 처리
+    // <변경부분> PC WorldMap 좌클릭을
+    // Node Click과 Camera Drag로 구분한다.
+    //
+    // UI를 제외한 WorldMap 어디에서 시작하든
+    // Threshold 이상 이동하면 Camera Drag,
+    // 움직이지 않고 동일 Node에서 놓으면 Node Click으로 처리한다.
     private void HandlePCDrag()
     {
-        // 우클릭 중이 아니면 처리하지 않는다.
-        if (Input.GetMouseButton(
-                1) == false)
+        if (Input.GetMouseButtonDown(0))
+        {
+            ResetPCDragState();
+
+            // UI에서 시작한 입력은
+            // WorldMap Camera가 가져가지 않는다.
+            if (MapNodeRuntime.IsPointerOverUI())
+            {
+                return;
+            }
+
+            isPCDragCandidate =
+                true;
+
+            pcDragStartScreenPosition =
+                Input.mousePosition;
+
+            // 최초로 누른 Node가 있다면 Click 후보로 저장한다.
+            pcPressedNode =
+                GetNodeAtScreenPosition(
+                    pcDragStartScreenPosition
+                );
+
+            return;
+        }
+
+        if (isPCDragCandidate == false)
         {
             return;
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            // <변경부분> Drag가 아니었다면 Node Click으로 확정한다.
+            if (isPCDragging == false &&
+                pcPressedNode != null &&
+                MapNodeRuntime.IsPointerOverUI() ==
+                false)
+            {
+                MapNodeRuntime releasedNode =
+                    GetNodeAtScreenPosition(
+                        Input.mousePosition
+                    );
+
+                // 눌렀던 Node와 뗀 Node가 동일할 때만
+                // 실제 Node 진입 요청을 실행한다.
+                if (releasedNode ==
+                    pcPressedNode)
+                {
+                    pcPressedNode.EnterNode();
+                }
+            }
+
+            ResetPCDragState();
+
+            return;
+        }
+
+        if (Input.GetMouseButton(0) == false)
+        {
+            ResetPCDragState();
+            return;
+        }
+
+        // 아직 Drag로 확정되지 않았다면
+        // 최초 좌표에서 이동한 거리를 확인한다.
+        if (isPCDragging == false)
+        {
+            float dragDistance =
+                Vector2.Distance(
+                    pcDragStartScreenPosition,
+                    Input.mousePosition
+                );
+
+            if (dragDistance <
+                pcDragStartThresholdPixels)
+            {
+                return;
+            }
+
+            // Threshold를 넘었다면 이번 입력은
+            // Node Click이 아닌 Camera Drag로 확정한다.
+            isPCDragging =
+                true;
         }
 
         float moveX =
@@ -746,8 +869,6 @@ public class WorldMapCameraController : MonoBehaviour
                 "Mouse Y"
             );
 
-        // 확대 배율이 높아질수록
-        // 같은 마우스 이동량으로 카메라가 너무 빠르게 움직이지 않도록 한다.
         float zoomAdjustedSpeed =
             mouseDragSpeed /
             Mathf.Max(
@@ -758,11 +879,93 @@ public class WorldMapCameraController : MonoBehaviour
         transform.position -=
             new Vector3(
                 moveX *
-                zoomAdjustedSpeed,
+                    zoomAdjustedSpeed,
                 moveY *
-                zoomAdjustedSpeed,
+                    zoomAdjustedSpeed,
                 0f
             );
+    }
+
+    // <변경부분> 지정한 화면 좌표 아래에 존재하는
+    // WorldMap Node를 찾아 반환한다.
+    private MapNodeRuntime GetNodeAtScreenPosition(
+        Vector2 screenPosition)
+    {
+        if (cam == null)
+        {
+            return null;
+        }
+
+        float worldPlaneDistance =
+            Mathf.Abs(
+                transform.position.z
+            );
+
+        Vector3 worldPosition =
+            cam.ScreenToWorldPoint(
+                new Vector3(
+                    screenPosition.x,
+                    screenPosition.y,
+                    worldPlaneDistance
+                )
+            );
+
+        Collider2D[] hitColliders =
+            Physics2D.OverlapPointAll(
+                new Vector2(
+                    worldPosition.x,
+                    worldPosition.y
+                )
+            );
+
+        for (int i = 0;
+             i < hitColliders.Length;
+             i++)
+        {
+            Collider2D hitCollider =
+                hitColliders[i];
+
+            if (hitCollider == null)
+            {
+                continue;
+            }
+
+            MapNodeRuntime node =
+                hitCollider
+                    .GetComponent<MapNodeRuntime>();
+
+            if (node == null)
+            {
+                node =
+                    hitCollider
+                        .GetComponentInParent<MapNodeRuntime>();
+            }
+
+            if (node != null)
+            {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+
+    // <변경부분> 현재 PC WorldMap
+    // Click / Drag 판정 상태를 초기화한다.
+    private void ResetPCDragState()
+    {
+        isPCDragCandidate =
+            false;
+
+        isPCDragging =
+            false;
+
+        pcDragStartScreenPosition =
+            Vector2.zero;
+
+        pcPressedNode =
+            null;
     }
 
     // 모바일 두 손가락 드래그 이동 처리
@@ -947,6 +1150,13 @@ public class WorldMapCameraController : MonoBehaviour
                 clampedY,
                 cameraZPosition
             );
+    }
+
+    private void OnDisable()
+    {
+        // <변경부분> Scene 전환 / Camera 비활성화 시
+        // PC Click / Drag 상태가 남지 않도록 초기화한다.
+        ResetPCDragState();
     }
 
     private void OnValidate()

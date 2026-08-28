@@ -6,6 +6,24 @@ using System.Collections;
 
 public class BattleManager : MonoBehaviour
 {
+    // <변경부분> 기물 타입 아이콘 버튼의 3단계 표시 모드
+    //
+    // All:
+    // 모든 기물 타입 아이콘 표시
+    //
+    // EnemyOnly:
+    // Enemy 타입 아이콘을 기본 표시하고,
+    // 직접 선택된 기물은 진영과 관계없이 표시
+    //
+    // SelectedOnly:
+    // 기본 아이콘은 모두 숨기고
+    // 직접 선택/확인/AI 행동 중인 기물만 표시
+    private enum TypeIconDisplayMode
+    {
+        All = 0,
+        EnemyOnly = 1,
+        SelectedOnly = 2
+    }
     //다른 스크립트에서 BattleManager에 접근하기 위한 임시 싱글톤
     public static BattleManager Instance { get; private set; }
 
@@ -131,8 +149,17 @@ public class BattleManager : MonoBehaviour
 
 
 
-    // <변경부분> 기물 타입 아이콘 표시 상태
-    private bool isTypeIconVisible = false;
+    // <변경부분> 기물 타입 아이콘 표시 모드
+    // 전투 시작 기본 상태는 모든 기물 아이콘 표시.
+    private TypeIconDisplayMode typeIconDisplayMode =
+        TypeIconDisplayMode.All;
+
+    // <변경부분> 현재 Enemy AI가 실제로 행동 중인 기물.
+    //
+    // Player의 selectedPiece와 섞지 않고
+    // AI 타입 아이콘 연출 전용으로 별도 관리한다.
+    private Piece aiTypeIconFocusPiece = null;
+
     // 흡수 모드가 켜져 있는지 여부
     private bool isAbsorbMode = false;
     // 전투가 끝났는지 여부
@@ -218,9 +245,44 @@ public class BattleManager : MonoBehaviour
         get { return isPlayerDeploymentPhase; }
     }
 
+
+    // <변경부분> 현재 Battle에서
+    // 사용자 수동 Camera Drag를 허용할 수 있는 상태인지 반환한다.
+    //
+    // 기물 / 이동 가능 Tile 등 "어디를 눌렀는지"는 더 이상 검사하지 않는다.
+    // PC 입력은 PixelCameraController가 Click과 Drag 거리로 구분한다.
+    public bool CanUseManualCameraDrag
+    {
+        get
+        {
+            // 전투가 종료되었거나 기물 행동 연출 중에는
+            // 수동 Camera 이동을 허용하지 않는다.
+            if (isBattleEnded ||
+                isActionAnimating)
+            {
+                return false;
+            }
+
+            // Tutorial / Event Sequence가 특정 입력을 강제하는 동안에는
+            // Camera 이동으로 연출이나 강제 입력을 방해하지 않는다.
+            if (eventSequenceController != null &&
+                (
+                    eventSequenceController
+                        .IsDialogueBlockingBattleInput ||
+                    eventSequenceController
+                        .IsForcedBattleInputActive
+                ))
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+
     // <변경부분> 현재 ChanceAttack 추가 행동을 받아
     // 같은 턴에 다시 행동해야 하는 기물을 반환한다.
-    // 추가 행동 상태가 아니라면 null을 반환한다.
     public Piece GetChanceAttackBonusPiece()
     {
         return chanceAttackBonusPiece;
@@ -1560,11 +1622,16 @@ public class BattleManager : MonoBehaviour
         StartNormalBattleTurn();
     }
 
-    // <변경부분> 배치 종료 후 현재 턴을
-    // 기존 BattleAIManager 전투 흐름에 전달한다.
     private void StartNormalBattleTurn()
     {
-        // <변경부분> 정상 전투 시작 시 현재 보드 상태를 기준으로
+        // <변경부분> 정상 전투가 시작되는 순간
+        // 현재 타입 아이콘 표시 모드를 보드 전체에 확실하게 적용한다.
+        //
+        // 기본값은 All이므로 일반 전투 시작 시
+        // 모든 기물의 타입 아이콘이 표시된다.
+        RefreshTypeIconVisuals();
+
+        // 현재 보드 상태를 기준으로
         // 마지막 Enemy 1기 강제 흡수 버튼 표시 여부를 갱신한다.
         RefreshLastEnemyAbsorbOpportunity();
 
@@ -1695,7 +1762,23 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
-        // <변경부분> 검증을 통과한 행동만 공용 코루틴으로 실행한다.
+        // <변경부분> Enemy AI가 실제 이동/공격을 시작할 때
+        // 해당 AI 기물을 타입 아이콘 포커스로 저장한다.
+        //
+        // selectedPiece는 Player 입력과 다른 시스템에서도 사용하므로
+        // AI 표시 연출에는 별도 aiTypeIconFocusPiece를 사용한다.
+        if (currentTurn == BattleTurn.Enemy &&
+            actingPiece.Team == PieceTeam.Enemy &&
+            battleAIManager != null &&
+            battleAIManager.IsEnemyControlledByAI())
+        {
+            aiTypeIconFocusPiece =
+                actingPiece;
+
+            RefreshTypeIconVisuals();
+        }
+
+        // 검증을 통과한 행동만 공용 전투 코루틴으로 실행한다.
         StartCoroutine(
             ExecutePieceActionRoutine(
                 actingPiece,
@@ -1725,6 +1808,13 @@ public class BattleManager : MonoBehaviour
 
             return false;
         }
+
+        // <변경부분> Enemy AI가 고유스킬을 사용하는 경우에도
+        // 실제 행동 주체를 타입 아이콘 포커스로 표시한다.
+        aiTypeIconFocusPiece =
+            action.ActingPiece;
+
+        RefreshTypeIconVisuals();
 
         StartCoroutine(
             ExecuteAIUniqueSkillRoutine(
@@ -3640,16 +3730,12 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 모든 기물 타입 아이콘 표시 상태 전환.
-    //
-    // 일반 전투에서는 기존처럼 자유롭게 사용할 수 있고,
-    // Event Sequence의 ForceButton에서 TypeInfo를 기다리는 경우에는
-    // 해당 버튼이 허용된 상태에서만 실행한다.
+    // <변경부분> 타입 아이콘 표시 모드를
+    // All → EnemyOnly → SelectedOnly → All 순서로 전환한다.
     public void ToggleTypeIcons()
     {
-        // <변경부분> 현재 Event Sequence가
-        // 다른 특정 버튼 입력을 강제하고 있다면
-        // TypeInfo 버튼 기능 자체를 실행하지 않는다.
+        // Event Sequence가 다른 특정 버튼 입력을 강제하고 있다면
+        // TypeInfo 버튼 기능을 실행하지 않는다.
         if (eventSequenceController != null &&
             eventSequenceController.CanPressButton(
                 EventSequenceButtonType.TypeInfo) ==
@@ -3660,13 +3746,31 @@ public class BattleManager : MonoBehaviour
 
         PlayTypeIconButtonPixelBurst();
 
-        isTypeIconVisible =
-            !isTypeIconVisible;
+        // <변경부분> 기존 단순 ON/OFF가 아니라
+        // 3단계 타입 아이콘 표시 모드를 순환한다.
+        switch (typeIconDisplayMode)
+        {
+            case TypeIconDisplayMode.All:
+                typeIconDisplayMode =
+                    TypeIconDisplayMode.EnemyOnly;
+                break;
 
+            case TypeIconDisplayMode.EnemyOnly:
+                typeIconDisplayMode =
+                    TypeIconDisplayMode.SelectedOnly;
+                break;
+
+            default:
+                typeIconDisplayMode =
+                    TypeIconDisplayMode.All;
+                break;
+        }
+
+        // 변경된 표시 모드를 현재 보드 전체에 즉시 반영한다.
         RefreshTypeIconVisuals();
 
-        // <변경부분> 타입 정보 버튼 기능이 정상 실행된 뒤
-        // 현재 ForceButton Step 완료를 통지한다.
+        // TypeInfo 버튼 기능이 정상 실행된 뒤
+        // Event Sequence의 ForceButton Step 완료를 통지한다.
         if (eventSequenceController != null)
         {
             eventSequenceController.NotifyButtonPressed(
@@ -3716,9 +3820,9 @@ public class BattleManager : MonoBehaviour
         battleUIController.PlayIconPixelBurstAt(typeIconButtonRectTransform);
     }
 
-    // <변경부분> 전체 타입 아이콘 토글,
-    // 현재 선택 기물과 상대 확인 대상을 기준으로
-    // 타입 아이콘 표시, 선택 위치, 비선택 알파값을 갱신한다.
+    // <변경부분> 현재 타입 아이콘 표시 모드와
+    // Player 선택 / 상대 확인 / AI 행동 포커스를 기준으로
+    // 전체 보드의 표시, 선택 연출, 정렬, 투명도를 갱신한다.
     private void RefreshTypeIconVisuals()
     {
         if (boardManager == null ||
@@ -3727,18 +3831,17 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // Player 기물이 선택되어 있으면
-        // 전체 토글이 꺼져 있어도 Enemy 타입 아이콘 전체를 표시한다.
-        bool shouldShowAllEnemyTypeIcons =
-            selectedPiece != null &&
-            selectedPiece.Team == PieceTeam.Player;
-
-        // <변경부분> 현재 선택된 기물이 하나라도 있는지 확인한다.
-        // 조작 기물 또는 상대 확인 대상 중 하나라도 있으면
-        // 선택되지 않은 표시 중 아이콘을 반투명하게 처리한다.
-        bool hasSelectedTypeIcon =
+        // <변경부분> 현재 시각적으로 포커스된 기물이 있는지 확인한다.
+        //
+        // Player 직접 선택,
+        // 상대 정보/공격 확인 대상,
+        // 현재 행동 중인 Enemy AI
+        //
+        // 중 하나라도 존재하면 표시 중인 나머지 아이콘을 반투명 처리한다.
+        bool hasFocusedTypeIcon =
             selectedPiece != null ||
-            pendingAttackTargetPiece != null;
+            pendingAttackTargetPiece != null ||
+            aiTypeIconFocusPiece != null;
 
         for (int x = 0;
              x < boardManager.Width;
@@ -3759,50 +3862,84 @@ public class BattleManager : MonoBehaviour
                     continue;
                 }
 
-                // 다음 조건 중 하나라도 만족하면
-                // 해당 기물의 타입 아이콘을 표시한다.
-                bool shouldShowTypeIcon =
-                    isTypeIconVisible ||
+                // <변경부분> 현재 직접 포커스된 타입 아이콘인지 확인한다.
+                bool isFocusedTypeIcon =
                     piece == selectedPiece ||
                     piece == pendingAttackTargetPiece ||
-                    (
-                        shouldShowAllEnemyTypeIcons &&
-                        piece.Team == PieceTeam.Enemy
-                    );
+                    piece == aiTypeIconFocusPiece;
 
-                // 현재 직접 선택된 조작 기물 또는
-                // 정보·공격 확인 대상으로 선택된 상대 기물인지 확인한다.
-                bool isSelectedTypeIcon =
-                    piece == selectedPiece ||
-                    piece == pendingAttackTargetPiece;
+                bool shouldShowTypeIcon = false;
+
+                // <변경부분> 현재 버튼의 3단계 표시 모드에 따라
+                // 기본적인 타입 아이콘 표시 여부를 결정한다.
+                switch (typeIconDisplayMode)
+                {
+                    case TypeIconDisplayMode.All:
+                        // 모든 진영 표시
+                        shouldShowTypeIcon =
+                            true;
+                        break;
+
+                    case TypeIconDisplayMode.EnemyOnly:
+                        // Enemy만 기본 표시
+                        shouldShowTypeIcon =
+                            piece.Team ==
+                            PieceTeam.Enemy;
+                        break;
+
+                    case TypeIconDisplayMode.SelectedOnly:
+                        // 직접 포커스된 기물 외에는 기본적으로 모두 숨긴다.
+                        shouldShowTypeIcon =
+                            false;
+                        break;
+                }
+
+                // <변경부분> 현재 선택/확인/AI 행동 중인 기물은
+                // 표시 모드와 관계없이 항상 보여야 한다.
+                if (isFocusedTypeIcon)
+                {
+                    shouldShowTypeIcon =
+                        true;
+                }
 
                 piece.SetTypeIconVisible(
                     shouldShowTypeIcon
                 );
 
-                // 선택된 기물은 기존처럼 살짝 위로 올라가고,
-                // 선택 해제 시 기본 위치로 내려온다.
+                // <변경부분> Player뿐 아니라 AI 행동 기물도
+                // 기존 선택 타입 아이콘 연출을 사용한다.
+                //
+                // 따라서 AI가 움직일 때 해당 아이콘은 올라오고,
+                // 나머지 표시 아이콘은 아래에서 반투명 처리된다.
                 piece.SetTypeIconSelected(
-                    isSelectedTypeIcon
+                    isFocusedTypeIcon
                 );
 
-                // <변경부분> 타입 아이콘 정렬 우선순위를 계산한다.
+                // 타입 아이콘 정렬 우선순위 계산.
                 //
-                // 기본 기물은 우선순위 0,
-                // 공격 확인 대상은 우선순위 1,
-                // 실제 공격하는 selectedPiece는 우선순위 2로 적용한다.
-                int typeIconSortingPriority = 0;
+                // 일반 표시 = 0
+                // 상대 확인 / AI 행동 기물 = 1
+                // Player 선택 기물 = 1 또는 공격 확인 상태에서 2
+                int typeIconSortingPriority =
+                    0;
 
-                if (piece == pendingAttackTargetPiece)
+                if (piece ==
+                    pendingAttackTargetPiece)
                 {
-                    // 공격받는 대상은 일반 기물보다 앞으로 표시한다.
-                    typeIconSortingPriority = 1;
+                    typeIconSortingPriority =
+                        1;
                 }
 
-                if (piece == selectedPiece)
+                if (piece ==
+                    aiTypeIconFocusPiece)
                 {
-                    // 공격 대상이 함께 선택된 공격 확인 상태에서는
-                    // 공격하는 기물을 대상보다 한 단계 더 앞으로 표시한다.
+                    typeIconSortingPriority =
+                        1;
+                }
+
+                if (piece ==
+                    selectedPiece)
+                {
                     typeIconSortingPriority =
                         pendingAttackTargetPiece != null
                             ? 2
@@ -3813,12 +3950,13 @@ public class BattleManager : MonoBehaviour
                     typeIconSortingPriority
                 );
 
-                // <변경부분> 선택된 기물이 하나 이상 있을 때만,
-                // 표시 중이면서 선택되지 않은 타입 아이콘을 반투명 처리한다.
+                // <변경부분> Player 선택뿐 아니라
+                // AI 행동 중에도 현재 포커스 기물을 제외한
+                // 표시 중인 모든 타입 아이콘을 기존 알파값으로 낮춘다.
                 bool shouldDimTypeIcon =
                     shouldShowTypeIcon &&
-                    hasSelectedTypeIcon &&
-                    isSelectedTypeIcon == false;
+                    hasFocusedTypeIcon &&
+                    isFocusedTypeIcon == false;
 
                 piece.SetTypeIconDimmed(
                     shouldDimTypeIcon
@@ -4547,13 +4685,21 @@ public class BattleManager : MonoBehaviour
         pendingAttackTargetPiece =
             null;
 
-        // 선택된 기물 해제
-        selectedPiece = null;
+        // 선택된 Player 기물 해제
+        selectedPiece =
+            null;
+
+        // <변경부분> Enemy AI 행동 타입 아이콘 포커스도
+        // 턴 종료 시 함께 해제한다.
+        aiTypeIconFocusPiece =
+            null;
 
         // 흡수 모드 해제
-        isAbsorbMode = false;
+        isAbsorbMode =
+            false;
 
-        // 모든 타입 아이콘 비활성화
+        // <변경부분> 현재 사용자가 선택한 타입 아이콘 표시 모드는 유지한 채
+        // 선택/AI 포커스가 사라진 일반 표시 상태로 복구한다.
         RefreshTypeIconVisuals();
 
         // 턴 종료 시 액션 버튼 숨김

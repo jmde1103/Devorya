@@ -267,7 +267,7 @@ public class Tile : MonoBehaviour
     // 이렇게 하면 모바일에서 OnMouseDown과 UI EventSystem의
     // Pointer ID 또는 처리 타이밍이 서로 맞지 않는 경우에도
     // 뒤쪽 Battle Tile로 입력이 전달되는 것을 차단할 수 있다.
-    private static bool IsPointerOverUI()
+    public static bool IsPointerOverUI()
     {
         EventSystem eventSystem =
             EventSystem.current;
@@ -374,12 +374,22 @@ public class Tile : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // UI 위에서 시작된 Pointer / Touch라면
-        // 뒤에 위치한 Battle Tile에는 입력을 전달하지 않는다.
+        // <변경부분> PC Battle 입력은
+        // PixelCameraController가 Mouse Down → Drag Threshold →
+        // Mouse Up 순서로 Click과 Camera Drag를 구분한다.
         //
-        // 특히 모바일 FieldAbsorbButton,
-        // 일반 Absorb / UniqueSkill / Item / Relic UI 등을
-        // 눌렀을 때 뒤쪽 타일이 함께 선택되는 것을 방지한다.
+        // 따라서 PC에서는 Tile이 MouseDown 순간
+        // SelectTile을 직접 실행하지 않는다.
+        if (Application.isMobilePlatform == false)
+        {
+            return;
+        }
+
+        // 아래는 현재 모바일 입력을 그대로 유지한다.
+        //
+        // 모바일의 Tap vs 1 Finger Drag 구조는
+        // 다음 입력 작업에서 별도로 변경한다.
+
         if (IsPointerOverUI())
         {
             return;
@@ -390,8 +400,6 @@ public class Tile : MonoBehaviour
             return;
         }
 
-        // 실제 World 영역을 직접 눌렀을 때만
-        // BattleManager의 타일 선택 흐름으로 전달한다.
         BattleManager.Instance.SelectTile(
             this
         );
