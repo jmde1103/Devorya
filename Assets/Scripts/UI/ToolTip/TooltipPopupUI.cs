@@ -178,12 +178,21 @@ public class TooltipPopupUI : MonoBehaviour
             );
 
         RefreshSections(
-      tooltipViewData.sections
-  );
+    tooltipViewData.sections
+);
 
-        // <변경부분> Section의 최종 위치를 먼저 확정한다.
-        // Tooltip 위치 계산에서 마지막 Section까지 포함한 실제 Bounds를
-        // 사용할 수 있도록 SetPopupPosition보다 먼저 적용한다.
+        // <변경부분> Tooltip은 현재 읽기 전용 UI이므로
+        // Mouse / Touch Raycast를 가로채지 않게 한다.
+        //
+        // 특히 PC Hover Tooltip이 열린 순간
+        // Popup이 원래 TooltipTrigger의 Pointer를 빼앗아
+        // 즉시 PointerExit가 발생하는 현상을 방지한다.
+        //
+        // Section은 Show 시 Runtime으로 생성되므로
+        // RefreshSections 이후에 처리해야 한다.
+        DisableTooltipRaycastTargets();
+
+        // Section의 최종 위치를 먼저 확정한다.
         ApplySectionPositionOffset(
             sectionPositionOffset
         );
@@ -308,6 +317,44 @@ public class TooltipPopupUI : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(
             sectionParent
         );
+    }
+
+    // <변경부분> Tooltip Popup 내부의 모든 UI Graphic을
+    // Pointer Raycast 대상에서 제외한다.
+    //
+    // 현재 Tooltip은 정보 표시 전용이며
+    // Button / Scroll / Drag 같은 직접 상호작용이 없으므로
+    // Popup이 원본 TooltipTrigger의 Hover를 가로챌 필요가 없다.
+    //
+    // Runtime으로 생성되는 Section의 Image / TMP_Text까지
+    // 모두 함께 처리한다.
+    private void DisableTooltipRaycastTargets()
+    {
+        if (popupRoot == null)
+        {
+            return;
+        }
+
+        Graphic[] tooltipGraphics =
+            popupRoot.GetComponentsInChildren<Graphic>(
+                true
+            );
+
+        for (int i = 0;
+             i < tooltipGraphics.Length;
+             i++)
+        {
+            Graphic graphic =
+                tooltipGraphics[i];
+
+            if (graphic == null)
+            {
+                continue;
+            }
+
+            graphic.raycastTarget =
+                false;
+        }
     }
 
     // <변경부분> 실제로 생성 가능한 Section 데이터 개수를 반환한다.

@@ -910,20 +910,27 @@ public class WorldMapCameraController : MonoBehaviour
         ClampCameraPosition();
     }
 
-    // <변경부분> PC WorldMap 좌클릭을
-    // Node Click과 Camera Drag로 구분한다.
-    //
-    // UI를 제외한 WorldMap 어디에서 시작하든
-    // Threshold 이상 이동하면 Camera Drag,
-    // 움직이지 않고 동일 Node에서 놓으면 Node Click으로 처리한다.
     private void HandlePCDrag()
     {
+        // <변경부분> Android / iOS에서는 Touch가
+        // Legacy Mouse 입력으로 함께 전달될 수 있다.
+        //
+        // 모바일 WorldMap 입력은
+        // HandleMobileDrag() / HandleMobilePinchZoom()이 전담하므로
+        // PC Mouse 처리기가 Touch를 중복으로 받지 않도록 한다.
+        //
+        // 특히 두 손가락 Pinch 중 첫 번째 Touch가
+        // Mouse Drag로 해석되어 Camera가 같이 움직이는 현상을 방지한다.
+        if (Application.isMobilePlatform)
+        {
+            ResetPCDragState();
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             ResetPCDragState();
 
-            // UI에서 시작한 입력은
-            // WorldMap Camera가 가져가지 않는다.
             if (MapNodeRuntime.IsPointerOverUI())
             {
                 return;
@@ -935,7 +942,6 @@ public class WorldMapCameraController : MonoBehaviour
             pcDragStartScreenPosition =
                 Input.mousePosition;
 
-            // 최초로 누른 Node가 있다면 Click 후보로 저장한다.
             pcPressedNode =
                 GetNodeAtScreenPosition(
                     pcDragStartScreenPosition
@@ -951,19 +957,16 @@ public class WorldMapCameraController : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            // <변경부분> Drag가 아니었다면 Node Click으로 확정한다.
             if (isPCDragging == false &&
                 pcPressedNode != null &&
                 MapNodeRuntime.IsPointerOverUI() ==
-                false)
+                    false)
             {
                 MapNodeRuntime releasedNode =
                     GetNodeAtScreenPosition(
                         Input.mousePosition
                     );
 
-                // 눌렀던 Node와 뗀 Node가 동일할 때만
-                // 실제 Node 진입 요청을 실행한다.
                 if (releasedNode ==
                     pcPressedNode)
                 {
@@ -982,8 +985,6 @@ public class WorldMapCameraController : MonoBehaviour
             return;
         }
 
-        // 아직 Drag로 확정되지 않았다면
-        // 최초 좌표에서 이동한 거리를 확인한다.
         if (isPCDragging == false)
         {
             float dragDistance =
@@ -998,8 +999,6 @@ public class WorldMapCameraController : MonoBehaviour
                 return;
             }
 
-            // Threshold를 넘었다면 이번 입력은
-            // Node Click이 아닌 Camera Drag로 확정한다.
             isPCDragging =
                 true;
         }

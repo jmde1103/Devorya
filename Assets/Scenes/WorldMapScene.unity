@@ -504,6 +504,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapNodeRuntime
   nodeId: ForestMap_01_Cleared_01
   nodeDisplayName: "\uC2DC\uC791\uC810"
+  nodeType: 0
   nodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
   targetSceneName: 
   stageBattleData: {fileID: 0}
@@ -517,6 +518,8 @@ MonoBehaviour:
   isCleared: 1
   nodeSpriteRenderer: {fileID: 220366397}
   nodeCollider: {fileID: 220366396}
+  selectablePulseScale: 1.08
+  selectablePulseHalfDuration: 0.7
 --- !u!61 &220366396
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -949,6 +952,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapNodeRuntime
   nodeId: ForestMap_01_Battle_03
   nodeDisplayName: "\uB9C8\uC9C0\uB9C9 \uBC30\uD2C0"
+  nodeType: 0
   nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
   targetSceneName: BattleLevel1Scene
   stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
@@ -957,6 +961,8 @@ MonoBehaviour:
   isCleared: 0
   nodeSpriteRenderer: {fileID: 620521076}
   nodeCollider: {fileID: 620521075}
+  selectablePulseScale: 1.08
+  selectablePulseHalfDuration: 0.7
 --- !u!61 &620521075
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1229,6 +1235,7 @@ MonoBehaviour:
   markerAnimationInterval: 0.05
   markerMoveSpeed: 8
   waitBeforeSceneMove: 0.25
+  sceneCloseDuration: 0.9
 --- !u!1 &777440905
 GameObject:
   m_ObjectHideFlags: 0
@@ -1313,6 +1320,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapNodeRuntime
   nodeId: ForestMap_01_Battle_02
   nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C"
+  nodeType: 0
   nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
   targetSceneName: BattleLevel1Scene
   stageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
@@ -1327,6 +1335,8 @@ MonoBehaviour:
   isCleared: 0
   nodeSpriteRenderer: {fileID: 1107833711}
   nodeCollider: {fileID: 1107833710}
+  selectablePulseScale: 1.08
+  selectablePulseHalfDuration: 0.7
 --- !u!61 &1107833710
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1786,6 +1796,8 @@ MonoBehaviour:
   zoomSmoothSpeed: 7
   mouseDragSpeed: 1
   touchDragSpeed: 0.01
+  pcDragStartThresholdPixels: 8
+  mobileDragStartThresholdPixels: 30
   mapStartZoomFrom: 1
   mapStartZoomTo: 1.5
   mapStartZoomDuration: 1
@@ -2126,6 +2138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapNodeRuntime
   nodeId: ForestMap_01_Battle_01
   nodeDisplayName: "\uC911\uAC04 \uBCF4\uC2A4 \uC804\uD22C"
+  nodeType: 0
   nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
   targetSceneName: BattleLevel1Scene
   stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
@@ -2137,6 +2150,8 @@ MonoBehaviour:
   isCleared: 0
   nodeSpriteRenderer: {fileID: 1864127676}
   nodeCollider: {fileID: 1864127675}
+  selectablePulseScale: 1.08
+  selectablePulseHalfDuration: 0.7
 --- !u!61 &1864127675
 BoxCollider2D:
   m_ObjectHideFlags: 0

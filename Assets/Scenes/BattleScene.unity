@@ -34424,7 +34424,8 @@ MonoBehaviour:
   lastPieceAttackRestoreDuration: 0.35
   mouseDragSpeed: 0.3
   touchDragSpeed: 0.005
-  pcDragStartThresholdPixels: 8
+  pcDragStartThresholdPixels: 5
+  mobileDragStartThresholdPixels: 12
   minZoomMoveThreshold: 0.01
   minBounds: {x: -3, y: -2}
   maxBounds: {x: 3, y: 2}

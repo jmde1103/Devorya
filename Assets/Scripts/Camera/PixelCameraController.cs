@@ -1606,14 +1606,24 @@ public class PixelCameraController : MonoBehaviour
         );
     }
 
-    // <변경부분> PC Battle 좌클릭을
-    // Click과 Camera Drag로 구분하여 처리한다.
-    //
-    // UI를 제외한 Battle World 어디에서 시작하든
-    // 일정 거리 이상 움직이면 Camera Drag,
-    // 움직이지 않고 놓으면 기존 Battle Click으로 처리한다.
     private void HandlePCDrag()
     {
+        // <변경부분> 모바일 빌드에서는 Touch 입력이
+        // Legacy Mouse 입력으로 함께 전달될 수 있다.
+        //
+        // 모바일 입력은 HandleMobileDrag() /
+        // HandleMobilePinchZoom()에서 전담하므로
+        // PC Mouse 처리기가 같은 Touch를 중복 처리하지 않게 차단한다.
+        //
+        // 이 보호가 없으면 한 번의 모바일 Tap이
+        // PC SelectTile + Mobile SelectTile로 두 번 전달되어
+        // 이동/공격의 1차 확인과 2차 실행이 한 번에 발생할 수 있다.
+        if (Application.isMobilePlatform)
+        {
+            ResetPCDragState();
+            return;
+        }
+
         // 좌클릭을 새로 누른 순간
         if (Input.GetMouseButtonDown(0))
         {
@@ -1632,11 +1642,6 @@ public class PixelCameraController : MonoBehaviour
             pcDragStartScreenPosition =
                 Input.mousePosition;
 
-            // <변경부분> Click으로 끝났을 경우를 대비해
-            // 최초로 누른 Battle Tile을 저장한다.
-            //
-            // 보드 바깥에서 시작했다면 null이며,
-            // 이 경우 짧게 클릭해도 Battle 행동은 발생하지 않는다.
             pcPressedTile =
                 GetTileAtScreenPosition(
                     pcDragStartScreenPosition
@@ -1650,11 +1655,8 @@ public class PixelCameraController : MonoBehaviour
             return;
         }
 
-        // 좌클릭을 놓은 순간
         if (Input.GetMouseButtonUp(0))
         {
-            // <변경부분> Threshold를 넘지 않았다면
-            // Drag가 아니라 Click으로 확정한다.
             if (isPCDragging == false &&
                 pcPressedTile != null &&
                 Tile.IsPointerOverUI() == false &&
@@ -1665,11 +1667,6 @@ public class PixelCameraController : MonoBehaviour
                         Input.mousePosition
                     );
 
-                // 눌렀던 Tile과 실제로 뗀 Tile이 같을 때만
-                // Battle 입력을 실행한다.
-                //
-                // 따라서 클릭 중 다른 Tile까지 움직였다가 놓는 경우
-                // 잘못된 기물 선택/이동이 발생하지 않는다.
                 if (releasedTile ==
                     pcPressedTile)
                 {
@@ -1685,15 +1682,12 @@ public class PixelCameraController : MonoBehaviour
             return;
         }
 
-        // 비정상적으로 Mouse Up을 놓친 경우 안전하게 초기화한다.
         if (Input.GetMouseButton(0) == false)
         {
             ResetPCDragState();
             return;
         }
 
-        // 아직 Drag로 확정되지 않았다면
-        // 최초 위치에서 움직인 거리를 확인한다.
         if (isPCDragging == false)
         {
             float dragDistance =
@@ -1708,15 +1702,9 @@ public class PixelCameraController : MonoBehaviour
                 return;
             }
 
-            // <변경부분> Threshold를 넘는 순간
-            // 이번 입력은 완전히 Camera Drag로 전환한다.
-            //
-            // 이후 Mouse Up 시 Battle Click은 실행되지 않는다.
             isPCDragging =
                 true;
 
-            // 기물 선택으로 진행 중이던 자동 Camera Focus가 있다면
-            // 사용자의 수동 Drag 입력을 우선한다.
             if (pieceFocusCoroutine != null)
             {
                 StopCoroutine(
@@ -1728,10 +1716,6 @@ public class PixelCameraController : MonoBehaviour
             }
         }
 
-        // Drag 자체는 확정되었지만
-        // 현재 Camera를 움직일 수 없는 상태라면 이동만 하지 않는다.
-        //
-        // 이 경우에도 Click으로 되돌아가지는 않는다.
         if (CanUseManualDrag == false)
         {
             return;
@@ -1762,12 +1746,12 @@ public class PixelCameraController : MonoBehaviour
     }
 
 
-// <변경부분> 현재 화면 좌표 아래에 존재하는 Battle Tile을 찾는다.
-//
-// Piece가 Tile보다 앞에 렌더링되는 상황에서도
-// 같은 위치에 존재하는 Tile Collider를 찾을 수 있도록
-// OverlapPointAll 결과 전체를 확인한다.
-private Tile GetTileAtScreenPosition(
+    // <변경부분> 현재 화면 좌표 아래에 존재하는 Battle Tile을 찾는다.
+    //
+    // Piece가 Tile보다 앞에 렌더링되는 상황에서도
+    // 같은 위치에 존재하는 Tile Collider를 찾을 수 있도록
+    // OverlapPointAll 결과 전체를 확인한다.
+    private Tile GetTileAtScreenPosition(
     Vector2 screenPosition)
 {
     if (cam == null)
