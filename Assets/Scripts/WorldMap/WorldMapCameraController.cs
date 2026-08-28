@@ -113,7 +113,60 @@ public class WorldMapCameraController : MonoBehaviour
     // Drag 없이 동일 Node에서 Mouse Up 되었을 때만
     // Node Click으로 확정한다.
     private MapNodeRuntime pcPressedNode =
+    null;
+
+
+    [Header("Mobile Touch Input")]
+
+    // <변경부분> 한 손가락 Tap과 Camera Drag를 구분하는 최소 화면 이동 거리.
+    // 손가락 입력 오차를 고려해 PC보다 큰 값을 사용한다.
+    [SerializeField, Min(0f)]
+    private float mobileDragStartThresholdPixels =
+        24f;
+
+    // <변경부분> 현재 한 손가락 입력이
+    // Tap / Drag 판정 후보인지 확인한다.
+    private bool isMobileSingleTouchCandidate =
+        false;
+
+    // <변경부분> Threshold를 넘어
+    // 실제 Camera Drag로 확정되었는지 확인한다.
+    private bool isMobileDragging =
+        false;
+
+    // <변경부분> 현재 두 손가락 Pinch가
+    // Gesture 입력을 소유하고 있는지 확인한다.
+    private bool isMobilePinchActive =
+        false;
+
+    // <변경부분> 현재 Pinch가 실제 WorldMap Zoom을
+    // 수행할 수 있는 입력인지 저장한다.
+    //
+    // 두 손가락 중 하나라도 UI에서 시작했다면 false.
+    private bool isMobilePinchAllowed =
+        false;
+
+    // <변경부분> Pinch 또는 UI Touch 이후
+    // 모든 손가락이 화면에서 떨어질 때까지
+    // 새로운 한 손가락 Gesture를 시작하지 않는다.
+    //
+    // 2 Finger -> 1 Finger 전환 직후
+    // Camera가 갑자기 움직이는 현상을 방지한다.
+    private bool waitForAllMobileTouchesReleased =
+        false;
+
+    // <변경부분> 현재 한 손가락 Gesture를 소유한 Finger ID.
+    private int mobilePrimaryFingerId =
+        -1;
+
+    // <변경부분> 한 손가락을 처음 누른 화면 좌표.
+    private Vector2 mobileDragStartScreenPosition;
+
+    // <변경부분> Tap으로 끝날 가능성이 있는
+    // 최초 입력 위치의 WorldMap Node.
+    private MapNodeRuntime mobilePressedNode =
         null;
+
 
     [Header("Map Start Zoom")]
     // 맵 씬이 시작될 때 적용할 초기 배율
@@ -274,8 +327,8 @@ public class WorldMapCameraController : MonoBehaviour
 
     private void Update()
     {
-        // 맵 시작 확대, 맵 종료 축소 또는 마커 추적 중에는
-        // 사용자의 줌과 드래그 입력을 모두 차단한다.
+        // Map Start Zoom / Map Close Zoom / Marker Follow 중에는
+        // 자동 연출이 Camera와 WorldMapRoot를 직접 제어한다.
         if (isPlayingMapStartZoom ||
             isPlayingMapCloseZoom ||
             isFollowingMarker)
@@ -283,26 +336,27 @@ public class WorldMapCameraController : MonoBehaviour
             return;
         }
 
-        // PC 마우스 휠 확대·축소를 처리한다.
+        // PC Mouse Wheel Zoom
         HandleMouseZoom();
 
-        // 모바일 두 손가락 핀치 확대·축소를 처리한다.
+        // <변경부분> 모바일 두 손가락은
+        // Zoom 전용 Gesture로 처리한다.
         HandleMobilePinchZoom();
 
-        // 현재 배율을 목표 배율로 부드럽게 변경한다.
+        // 현재 Zoom 배율을 부드럽게 적용한다.
         UpdateWorldZoom();
 
-        // PC 마우스 우클릭 드래그를 처리한다.
+        // PC Left Click / Drag
         HandlePCDrag();
 
-        // 모바일 두 손가락 드래그 이동을 처리한다.
+        // <변경부분> 모바일 한 손가락
+        // Tap / Camera Drag를 통합 처리한다.
         HandleMobileDrag();
 
-        // 현재 배율과 카메라 화면 범위를 기준으로
-        // 카메라가 월드맵 바깥으로 이동하지 않도록 제한한다.
+        // 현재 WorldMap Scale과 화면 크기에 맞춰
+        // Camera 위치를 최종 제한한다.
         ClampCameraPosition();
     }
-
     // Player Marker의 이동이 현재 프레임에 적용된 다음
     // 카메라가 마커의 최신 월드 위치를 따라가도록 한다.
     private void LateUpdate()
@@ -372,60 +426,141 @@ public class WorldMapCameraController : MonoBehaviour
             );
     }
 
-    // 모바일 두 손가락 핀치 확대·축소 처리
+    // <변경부분> 모바일 두 손가락 Pinch 확대/축소를 처리한다.
+    //
+    // 두 번째 손가락이 들어오는 순간
+    // 기존 1 Finger Tap / Drag 후보를 취소한다.
+    //
+    // 이후 한 손가락만 남더라도
+    // 모든 손가락이 완전히 떨어질 때까지
+    // 새로운 1 Finger Gesture를 시작하지 않는다.
     private void HandleMobilePinchZoom()
     {
-        // 두 손가락 터치가 아니면 처리하지 않는다.
-        //
-        // 한 손가락 터치는 노드 선택에 사용하므로
-        // 카메라 조작과 분리한다.
-        if (Input.touchCount !=
-            2)
+        // 모든 손가락이 떨어지면
+        // 다음 Gesture를 받을 수 있도록 초기화한다.
+        if (Input.touchCount == 0)
         {
+            isMobilePinchActive =
+                false;
+
+            isMobilePinchAllowed =
+                false;
+
+            waitForAllMobileTouchesReleased =
+                false;
+
+            return;
+        }
+
+        // Pinch 후 한 손가락만 남은 상태.
+        //
+        // Pinch 자체는 종료하지만
+        // 모든 Touch Release 대기는 유지한다.
+        if (Input.touchCount < 2)
+        {
+            isMobilePinchActive =
+                false;
+
+            isMobilePinchAllowed =
+                false;
+
+            return;
+        }
+
+        // 3 Finger 이상은 지원하지 않는다.
+        //
+        // 현재 Gesture를 취소하고
+        // 모든 손가락이 떨어질 때까지 기다린다.
+        if (Input.touchCount != 2)
+        {
+            CancelMobileSingleTouchGesture();
+
+            isMobilePinchActive =
+                false;
+
+            isMobilePinchAllowed =
+                false;
+
+            waitForAllMobileTouchesReleased =
+                true;
+
             return;
         }
 
         Touch firstTouch =
-            Input.GetTouch(
-                0
-            );
+            Input.GetTouch(0);
 
         Touch secondTouch =
-            Input.GetTouch(
-                1
-            );
+            Input.GetTouch(1);
 
-        // 첫 번째 손가락의 이전 프레임 위치
+        // 두 번째 손가락이 들어온 순간
+        // Pinch가 이번 Gesture의 입력 소유권을 가져간다.
+        if (isMobilePinchActive == false)
+        {
+            CancelMobileSingleTouchGesture();
+
+            isMobilePinchActive =
+                true;
+
+            waitForAllMobileTouchesReleased =
+                true;
+
+            // 두 손가락 중 하나라도 UI 위에 있다면
+            // 뒤쪽 WorldMap Zoom을 실행하지 않는다.
+            isMobilePinchAllowed =
+                MapNodeRuntime.IsScreenPositionOverUI(
+                    firstTouch.position
+                ) == false &&
+                MapNodeRuntime.IsScreenPositionOverUI(
+                    secondTouch.position
+                ) == false;
+        }
+
+        if (isMobilePinchAllowed == false)
+        {
+            return;
+        }
+
+        // 손가락이 추가/제거되는 프레임에는
+        // 이전 위치 계산이 불안정할 수 있으므로 Zoom하지 않는다.
+        if (firstTouch.phase == TouchPhase.Began ||
+            secondTouch.phase == TouchPhase.Began ||
+            firstTouch.phase == TouchPhase.Ended ||
+            secondTouch.phase == TouchPhase.Ended ||
+            firstTouch.phase == TouchPhase.Canceled ||
+            secondTouch.phase == TouchPhase.Canceled)
+        {
+            return;
+        }
+
+        // 이전 프레임 첫 번째 손가락 위치
         Vector2 previousFirstPosition =
             firstTouch.position -
             firstTouch.deltaPosition;
 
-        // 두 번째 손가락의 이전 프레임 위치
+        // 이전 프레임 두 번째 손가락 위치
         Vector2 previousSecondPosition =
             secondTouch.position -
             secondTouch.deltaPosition;
 
-        // 이전 프레임의 두 손가락 거리
         float previousDistance =
             Vector2.Distance(
                 previousFirstPosition,
                 previousSecondPosition
             );
 
-        // 현재 프레임의 두 손가락 거리
         float currentDistance =
             Vector2.Distance(
                 firstTouch.position,
                 secondTouch.position
             );
 
-        // 두 손가락 사이 거리 변화량
         float pinchDelta =
             currentDistance -
             previousDistance;
 
-        // 두 손가락을 벌리면 확대하고,
-        // 오므리면 기본 배율 1까지 축소한다.
+        // 손가락을 벌리면 확대,
+        // 오므리면 축소한다.
         targetWorldScale +=
             pinchDelta *
             pinchZoomSpeed;
@@ -500,8 +635,12 @@ public class WorldMapCameraController : MonoBehaviour
         if (isFollowingMarker)
         {
             // <변경부분> Marker 자동 추적이 시작되면
-            // 진행 중이던 사용자 Click / Drag 후보를 제거한다.
+            // 진행 중이던 PC 입력을 취소한다.
             ResetPCDragState();
+
+            // <변경부분> 모바일 Tap / Drag / Pinch 상태도
+            // 함께 초기화해 자동 Camera 연출과 충돌하지 않게 한다.
+            ResetMobileGestureState();
 
             targetWorldScale =
                 currentWorldScale;
@@ -522,13 +661,16 @@ public class WorldMapCameraController : MonoBehaviour
         }
 
         isPlayingMapStartZoom =
-            true;
+    true;
 
-        // <변경부분> 자동 Start Zoom이 시작되므로
-        // 진행 중인 사용자 Pointer 상태를 제거한다.
+        // <변경부분> Map Start Zoom이 시작되면
+        // 진행 중이던 PC Click / Drag를 취소한다.
         ResetPCDragState();
 
-        // 시작 확대 연출 중에는 일반 마커 추적 상태를 사용하지 않는다.
+        // <변경부분> 모바일 Gesture도 함께 취소하여
+        // 자동 Zoom 종료 후 이전 Touch 상태가 이어지지 않게 한다.
+        ResetMobileGestureState();
+
         markerFollowTarget =
             null;
 
@@ -650,11 +792,14 @@ public class WorldMapCameraController : MonoBehaviour
         }
 
         isPlayingMapCloseZoom =
-            true;
+     true;
 
-        // <변경부분> Scene 이동 전 자동 Zoom이 시작되므로
-        // 진행 중인 사용자 Pointer 상태를 제거한다.
+        // <변경부분> Map Close Zoom 시작 시
+        // 진행 중인 PC 입력을 취소한다.
         ResetPCDragState();
+
+        // <변경부분> 모바일 입력도 함께 초기화한다.
+        ResetMobileGestureState();
 
         markerFollowTarget =
             null;
@@ -968,62 +1113,204 @@ public class WorldMapCameraController : MonoBehaviour
             null;
     }
 
-    // 모바일 두 손가락 드래그 이동 처리
+    // <변경부분> 현재 1 Finger Tap / Drag 후보만 초기화한다.
+    //
+    // Pinch 상태와 모든 Touch Release 대기 상태는
+    // 별도로 유지한다.
+    private void CancelMobileSingleTouchGesture()
+    {
+        isMobileSingleTouchCandidate =
+            false;
+
+        isMobileDragging =
+            false;
+
+        mobilePrimaryFingerId =
+            -1;
+
+        mobileDragStartScreenPosition =
+            Vector2.zero;
+
+        mobilePressedNode =
+            null;
+    }
+
+
+    // <변경부분> 모바일 Gesture 상태 전체를 초기화한다.
+    private void ResetMobileGestureState()
+    {
+        CancelMobileSingleTouchGesture();
+
+        isMobilePinchActive =
+            false;
+
+        isMobilePinchAllowed =
+            false;
+
+        waitForAllMobileTouchesReleased =
+            false;
+    }
+
+
+    // <변경부분> 모바일 한 손가락 입력을
+    // Node Tap과 Camera Drag로 구분한다.
+    //
+    // Tap:
+    // 같은 Node에서 Threshold 미만으로 Touch 종료.
+    //
+    // Drag:
+    // WorldMap 어느 위치에서든 Threshold 이상 이동하면
+    // Camera Drag로 확정한다.
     private void HandleMobileDrag()
     {
-        // 한 손가락 터치는 노드 선택에 사용하므로
-        // 두 손가락일 때만 카메라를 움직인다.
-        if (Input.touchCount !=
-            2)
+        // 모든 손가락이 떨어지면
+        // 다음 Gesture를 받을 수 있도록 상태를 정리한다.
+        if (Input.touchCount == 0)
+        {
+            CancelMobileSingleTouchGesture();
+
+            if (isMobilePinchActive == false)
+            {
+                waitForAllMobileTouchesReleased =
+                    false;
+            }
+
+            return;
+        }
+
+        // 한 손가락만 처리한다.
+        //
+        // 두 손가락 이상은
+        // HandleMobilePinchZoom()이 소유한다.
+        if (Input.touchCount != 1)
         {
             return;
         }
 
-        Touch firstTouch =
-            Input.GetTouch(
-                0
-            );
-
-        Touch secondTouch =
-            Input.GetTouch(
-                1
-            );
-
-        // 두 손가락 모두 움직이지 않았다면
-        // 드래그 처리를 실행하지 않는다.
-        if (firstTouch.phase !=
-                TouchPhase.Moved &&
-            secondTouch.phase !=
-                TouchPhase.Moved)
+        // Pinch 직후 한 손가락이 남아 있거나
+        // UI에서 시작한 Touch가 아직 유지 중이라면
+        // 새로운 Tap / Drag를 시작하지 않는다.
+        if (waitForAllMobileTouchesReleased)
         {
             return;
         }
 
-        // 현재 프레임의 두 손가락 중심점
-        Vector2 currentCenter =
-            (
-                firstTouch.position +
-                secondTouch.position
-            ) *
-            0.5f;
+        Touch touch =
+            Input.GetTouch(0);
 
-        // 이전 프레임의 두 손가락 중심점
-        Vector2 previousCenter =
-            (
-                firstTouch.position -
-                firstTouch.deltaPosition +
-                secondTouch.position -
-                secondTouch.deltaPosition
-            ) *
-            0.5f;
+        // 새로운 한 손가락 Gesture 시작.
+        if (touch.phase == TouchPhase.Began)
+        {
+            CancelMobileSingleTouchGesture();
 
-        // 두 손가락 중심점 이동량
-        Vector2 delta =
-            currentCenter -
-            previousCenter;
+            // UI에서 시작한 Touch는
+            // 이번 손가락이 완전히 떨어질 때까지
+            // WorldMap 입력으로 전환하지 않는다.
+            if (MapNodeRuntime.IsScreenPositionOverUI(
+                    touch.position))
+            {
+                waitForAllMobileTouchesReleased =
+                    true;
 
-        // 확대 배율이 높을수록
-        // 카메라 이동 속도를 줄여 조작감을 유지한다.
+                return;
+            }
+
+            isMobileSingleTouchCandidate =
+                true;
+
+            mobilePrimaryFingerId =
+                touch.fingerId;
+
+            mobileDragStartScreenPosition =
+                touch.position;
+
+            // Node 위에서 시작했다면 Tap 후보로 저장한다.
+            //
+            // 빈 Map 영역에서 시작했다면 null.
+            // 이 경우 짧게 Tap해도 아무 행동은 없지만
+            // Drag는 정상적으로 가능하다.
+            mobilePressedNode =
+                GetNodeAtScreenPosition(
+                    touch.position
+                );
+
+            return;
+        }
+
+        // Gesture를 처음 시작한 Finger만 계속 처리한다.
+        if (isMobileSingleTouchCandidate == false ||
+            touch.fingerId != mobilePrimaryFingerId)
+        {
+            return;
+        }
+
+        // 손가락을 뗀 순간 Tap 여부를 확정한다.
+        if (touch.phase == TouchPhase.Ended ||
+            touch.phase == TouchPhase.Canceled)
+        {
+            bool shouldExecuteTap =
+                touch.phase == TouchPhase.Ended &&
+                isMobileDragging == false &&
+                mobilePressedNode != null &&
+                MapNodeRuntime.IsScreenPositionOverUI(
+                    touch.position
+                ) == false;
+
+            if (shouldExecuteTap)
+            {
+                MapNodeRuntime releasedNode =
+                    GetNodeAtScreenPosition(
+                        touch.position
+                    );
+
+                // 처음 누른 Node와
+                // 손을 뗀 Node가 동일할 때만 EnterNode().
+                //
+                // 손가락이 다른 Node까지 움직였다면
+                // 잘못된 Node 진입을 발생시키지 않는다.
+                if (releasedNode ==
+                    mobilePressedNode)
+                {
+                    mobilePressedNode.EnterNode();
+                }
+            }
+
+            CancelMobileSingleTouchGesture();
+
+            return;
+        }
+
+        // 움직이지 않았다면 계속 Tap 후보 상태로 유지한다.
+        if (touch.phase != TouchPhase.Moved)
+        {
+            return;
+        }
+
+        // 아직 Camera Drag로 확정되지 않았다면
+        // 최초 Touch 위치부터의 전체 이동 거리를 검사한다.
+        if (isMobileDragging == false)
+        {
+            float dragDistance =
+                Vector2.Distance(
+                    mobileDragStartScreenPosition,
+                    touch.position
+                );
+
+            if (dragDistance <
+                mobileDragStartThresholdPixels)
+            {
+                return;
+            }
+
+            // Threshold를 넘은 순간
+            // 이번 입력은 Node Tap이 아니라
+            // Camera Drag로 완전히 확정된다.
+            isMobileDragging =
+                true;
+        }
+
+        // 현재 Zoom 배율에 맞춰
+        // Camera 이동 감도를 보정한다.
         float zoomAdjustedSpeed =
             touchDragSpeed /
             Mathf.Max(
@@ -1033,10 +1320,10 @@ public class WorldMapCameraController : MonoBehaviour
 
         transform.position -=
             new Vector3(
-                delta.x *
-                zoomAdjustedSpeed,
-                delta.y *
-                zoomAdjustedSpeed,
+                touch.deltaPosition.x *
+                    zoomAdjustedSpeed,
+                touch.deltaPosition.y *
+                    zoomAdjustedSpeed,
                 0f
             );
     }
@@ -1155,8 +1442,12 @@ public class WorldMapCameraController : MonoBehaviour
     private void OnDisable()
     {
         // <변경부분> Scene 전환 / Camera 비활성화 시
-        // PC Click / Drag 상태가 남지 않도록 초기화한다.
+        // PC Click / Drag 상태를 초기화한다.
         ResetPCDragState();
+
+        // <변경부분> 모바일 Tap / Drag / Pinch 상태도
+        // 다음 활성화까지 남지 않도록 초기화한다.
+        ResetMobileGestureState();
     }
 
     private void OnValidate()

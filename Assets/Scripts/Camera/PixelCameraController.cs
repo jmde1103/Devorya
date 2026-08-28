@@ -218,6 +218,60 @@ public class PixelCameraController : MonoBehaviour
     private Tile pcPressedTile =
         null;
 
+
+    [Header("Mobile Touch Input")]
+
+    // <변경부분> 한 손가락 Tap과 Camera Drag를 구분하는 최소 화면 픽셀 거리.
+    // PC보다 손가락 입력 오차가 크므로 기본값을 더 크게 사용한다.
+    [SerializeField, Min(0f)]
+    private float mobileDragStartThresholdPixels =
+        24f;
+
+    // <변경부분> 현재 한 손가락 입력이
+    // Tap / Drag 판정 후보인지 여부.
+    private bool isMobileSingleTouchCandidate =
+        false;
+
+    // <변경부분> 현재 한 손가락 입력이 Threshold를 넘어
+    // 실제 Camera Drag로 확정되었는지 여부.
+    private bool isMobileDragging =
+        false;
+
+    // <변경부분> 현재 두 손가락 Pinch가
+    // 입력을 소유하고 있는지 여부.
+    private bool isMobilePinchActive =
+        false;
+
+    // <변경부분> Pinch 시작 시
+    // 두 손가락 모두 Battle World에서 시작했는지 저장한다.
+    //
+    // UI에서 시작한 손가락이 하나라도 있으면
+    // 해당 Pinch는 World Zoom을 수행하지 않는다.
+    private bool isMobilePinchAllowed =
+        false;
+
+    // <변경부분> Pinch 또는 UI Touch가 시작된 뒤
+    // 모든 손가락이 화면에서 떨어질 때까지
+    // 새 1 Finger Gesture를 시작하지 않는다.
+    //
+    // 특히 2 Finger -> 1 Finger 전환 직후
+    // 남은 손가락 때문에 Camera가 튀는 현상을 방지한다.
+    private bool waitForAllMobileTouchesReleased =
+        false;
+
+    // <변경부분> 현재 한 손가락 Gesture를 소유한 Finger ID.
+    private int mobilePrimaryFingerId =
+        -1;
+
+    // <변경부분> 한 손가락을 처음 누른 화면 좌표.
+    private Vector2 mobileDragStartScreenPosition;
+
+    // <변경부분> 모바일 Tap으로 끝났을 경우를 대비해
+    // 최초로 누른 Battle Tile을 저장한다.
+    private Tile mobilePressedTile =
+        null;
+
+
     // 최소 줌 상태에서 이동을 막기 위한 허용 오차
     [SerializeField]
     private float minZoomMoveThreshold =
@@ -268,8 +322,12 @@ public class PixelCameraController : MonoBehaviour
     private void OnDisable()
     {
         // <변경부분> Scene 전환 / Camera 비활성화 시
-        // 좌클릭 Drag 입력 상태가 다음 활성화까지 남지 않도록 초기화한다.
+        // PC Click / Drag 입력 상태를 초기화한다.
         ResetPCDragState();
+
+        // <변경부분> 모바일 Tap / Drag / Pinch 상태도
+        // 다음 활성화까지 남지 않도록 함께 초기화한다.
+        ResetMobileGestureState();
 
         // 마지막 적 공격 Cinematic 도중 종료되었을 경우
         // TimeScale과 카메라 상태를 즉시 복원한다.
@@ -499,7 +557,7 @@ public class PixelCameraController : MonoBehaviour
         {
             // 행동 시작 직전에 입력된 Zoom 목표값까지 폐기한다.
             //
-            // 단순히 Mouse / Pinch 입력만 막으면
+            // 단순히 Mouse / Pinch Zoom만 막으면
             // 이전 프레임에 만들어진 targetWorldScale을 향해
             // UpdateWorldZoom()이 계속 보간할 수 있기 때문에
             // 반드시 현재 배율에서 목표 배율을 고정해야 한다.
@@ -509,25 +567,34 @@ public class PixelCameraController : MonoBehaviour
         else
         {
             // 기물 좌표가 움직이지 않는 안전한 상태에서만
-            // 사용자 확대 / 축소 입력을 허용한다.
-
-            // PC 마우스 휠 확대/축소 처리
+            // PC Wheel Zoom 입력을 허용한다.
             HandleMouseZoom();
+        }
 
-            // 모바일 두 손가락 확대/축소 처리
-            HandleMobilePinchZoom();
+        // <변경부분> Pinch의 입력 소유권 판정은
+        // Battle 행동 중에도 계속 수행한다.
+        //
+        // 그래야 행동 중 2 Finger -> 1 Finger로 바뀌어도
+        // 남은 손가락이 새 Drag / Tap으로 잘못 이어지지 않는다.
+        //
+        // 실제 WorldRoot Zoom 변경만 행동 연출 중 차단한다.
+        HandleMobilePinchZoom(
+            isBattleActionAnimating == false
+        );
 
-            // 목표 Zoom까지 WorldRoot Scale을 부드럽게 적용
+        if (isBattleActionAnimating == false)
+        {
+            // 목표 Zoom까지 WorldRoot Scale을 부드럽게 적용한다.
             UpdateWorldZoom();
         }
 
         // Zoom과 달리 Camera 자체의 위치 이동은
         // WorldRoot의 좌표계를 변경하지 않으므로 기존 동작을 유지한다.
 
-        // PC 우클릭 드래그 이동
+        // PC 좌클릭 Click / Camera Drag 처리
         HandlePCDrag();
 
-        // 모바일 두 손가락 드래그 이동
+        // 모바일 한 손가락 Tap / Camera Drag 처리
         HandleMobileDrag();
 
         // 현재 Zoom 배율에 맞게 카메라 이동 범위를 제한한다.
@@ -1359,41 +1426,153 @@ public class PixelCameraController : MonoBehaviour
         targetWorldScale = Mathf.Clamp(targetWorldScale, minWorldScale, maxWorldScale);
     }
 
-    // 모바일 두 손가락 핀치 확대/축소 처리
-    private void HandleMobilePinchZoom()
+    // <변경부분> 모바일 두 손가락 Pinch 확대/축소 처리.
+    //
+    // Pinch가 시작되는 순간 기존 1 Finger Tap / Drag 후보를 취소하고,
+    // 두 손가락이 모두 떨어질 때까지 1 Finger Gesture 재시작을 막는다.
+    private void HandleMobilePinchZoom(
+        bool allowZoom)
     {
-        // 두 손가락 터치가 아니면 종료
+        // 손가락이 모두 떨어지면
+        // 다음 Gesture를 받을 수 있도록 상태를 초기화한다.
+        if (Input.touchCount == 0)
+        {
+            isMobilePinchActive =
+                false;
+
+            isMobilePinchAllowed =
+                false;
+
+            waitForAllMobileTouchesReleased =
+                false;
+
+            return;
+        }
+
+        // 한 손가락만 남았다면 Pinch 자체는 종료한다.
+        //
+        // 단 waitForAllMobileTouchesReleased는 유지한다.
+        // 따라서 Pinch 후 남은 한 손가락으로
+        // Camera Drag가 즉시 재개되지 않는다.
+        if (Input.touchCount < 2)
+        {
+            isMobilePinchActive =
+                false;
+
+            isMobilePinchAllowed =
+                false;
+
+            return;
+        }
+
+        // 세 손가락 이상 입력은 지원하지 않는다.
+        // 기존 1 Finger 후보를 취소하고 모두 뗄 때까지 기다린다.
         if (Input.touchCount != 2)
+        {
+            CancelMobileSingleTouchGesture();
+
+            isMobilePinchActive =
+                false;
+
+            isMobilePinchAllowed =
+                false;
+
+            waitForAllMobileTouchesReleased =
+                true;
+
+            return;
+        }
+
+        Touch touch0 =
+            Input.GetTouch(0);
+
+        Touch touch1 =
+            Input.GetTouch(1);
+
+        // 두 번째 손가락이 들어온 최초 프레임에
+        // Pinch가 이번 Gesture의 입력 소유권을 가져간다.
+        if (isMobilePinchActive == false)
+        {
+            CancelMobileSingleTouchGesture();
+
+            isMobilePinchActive =
+                true;
+
+            waitForAllMobileTouchesReleased =
+                true;
+
+            // UI 위에 위치한 손가락이 하나라도 있으면
+            // 뒤쪽 Battle World Zoom이 반응하지 않도록 한다.
+            isMobilePinchAllowed =
+                Tile.IsScreenPositionOverUI(
+                    touch0.position
+                ) == false &&
+                Tile.IsScreenPositionOverUI(
+                    touch1.position
+                ) == false;
+        }
+
+        // Battle Action 중이거나
+        // UI Touch가 포함된 Pinch라면 실제 Zoom은 하지 않는다.
+        //
+        // 단 Pinch 입력 소유권 자체는 계속 유지한다.
+        if (isMobilePinchAllowed == false ||
+            allowZoom == false)
         {
             return;
         }
 
-        // 첫 번째 터치 정보
-        Touch touch0 = Input.GetTouch(0);
+        // 손가락이 새로 추가되거나 제거되는 프레임에는
+        // 이전 위치 계산이 불안정할 수 있으므로 Zoom을 적용하지 않는다.
+        if (touch0.phase == TouchPhase.Began ||
+            touch1.phase == TouchPhase.Began ||
+            touch0.phase == TouchPhase.Ended ||
+            touch1.phase == TouchPhase.Ended ||
+            touch0.phase == TouchPhase.Canceled ||
+            touch1.phase == TouchPhase.Canceled)
+        {
+            return;
+        }
 
-        // 두 번째 터치 정보
-        Touch touch1 = Input.GetTouch(1);
+        // 이전 프레임의 두 Touch 위치
+        Vector2 previousTouch0 =
+            touch0.position -
+            touch0.deltaPosition;
 
-        // 이전 프레임의 첫 번째 터치 위치
-        Vector2 prevTouch0 = touch0.position - touch0.deltaPosition;
-
-        // 이전 프레임의 두 번째 터치 위치
-        Vector2 prevTouch1 = touch1.position - touch1.deltaPosition;
+        Vector2 previousTouch1 =
+            touch1.position -
+            touch1.deltaPosition;
 
         // 이전 프레임의 두 손가락 거리
-        float prevDistance = Vector2.Distance(prevTouch0, prevTouch1);
+        float previousDistance =
+            Vector2.Distance(
+                previousTouch0,
+                previousTouch1
+            );
 
         // 현재 프레임의 두 손가락 거리
-        float currentDistance = Vector2.Distance(touch0.position, touch1.position);
+        float currentDistance =
+            Vector2.Distance(
+                touch0.position,
+                touch1.position
+            );
 
-        // 두 손가락 거리 변화량
-        float pinchDelta = currentDistance - prevDistance;
+        // 두 손가락 사이 거리 변화량
+        float pinchDelta =
+            currentDistance -
+            previousDistance;
 
-        // 손가락을 벌리면 월드 확대, 오므리면 월드 축소
-        targetWorldScale += pinchDelta * pinchZoomSpeed;
+        // 벌리면 확대 / 오므리면 축소
+        targetWorldScale +=
+            pinchDelta *
+            pinchZoomSpeed;
 
-        // 월드 확대 배율 제한
-        targetWorldScale = Mathf.Clamp(targetWorldScale, minWorldScale, maxWorldScale);
+        targetWorldScale =
+            Mathf.Clamp(
+                targetWorldScale,
+                minWorldScale,
+                maxWorldScale
+            );
     }
 
     // 월드 확대 배율 부드럽게 적용
@@ -1673,54 +1852,243 @@ private Tile GetTileAtScreenPosition(
 
 
 
-    // <변경부분> 모바일 두 손가락 드래그 이동
+    // <변경부분> 현재 1 Finger Tap / Drag 후보만 초기화한다.
+    //
+    // Pinch 소유권과 모든 Touch Release 대기 상태는
+    // 별도로 유지한다.
+    private void CancelMobileSingleTouchGesture()
+    {
+        isMobileSingleTouchCandidate =
+            false;
+
+        isMobileDragging =
+            false;
+
+        mobilePrimaryFingerId =
+            -1;
+
+        mobileDragStartScreenPosition =
+            Vector2.zero;
+
+        mobilePressedTile =
+            null;
+    }
+
+
+    // <변경부분> 모바일 Gesture 상태 전체를 초기화한다.
+    private void ResetMobileGestureState()
+    {
+        CancelMobileSingleTouchGesture();
+
+        isMobilePinchActive =
+            false;
+
+        isMobilePinchAllowed =
+            false;
+
+        waitForAllMobileTouchesReleased =
+            false;
+    }
+
+
+    // <변경부분> 모바일 한 손가락 입력을
+    // Tap과 Camera Drag로 구분하여 처리한다.
+    //
+    // Tap:
+    // 같은 Tile에서 Threshold 미만으로 Touch End
+    //
+    // Drag:
+    // Threshold 이상 이동하면 Camera가 입력을 소유한다.
     private void HandleMobileDrag()
     {
-        // 최소 줌 상태에서는 카메라 이동 불가
-        if (CanMoveCameraByZoom() == false)
+        // 모든 손가락이 떨어진 프레임에는
+        // 다음 Gesture를 받을 수 있도록 상태를 정리한다.
+        if (Input.touchCount == 0)
+        {
+            CancelMobileSingleTouchGesture();
+
+            if (isMobilePinchActive == false)
+            {
+                waitForAllMobileTouchesReleased =
+                    false;
+            }
+
+            return;
+        }
+
+        // 한 손가락 Gesture만 여기서 처리한다.
+        //
+        // 두 손가락 이상은
+        // HandleMobilePinchZoom()이 입력을 소유한다.
+        if (Input.touchCount != 1)
         {
             return;
         }
 
-        // <변경부분> 두 손가락 터치가 아니면 카메라 이동을 하지 않음
-        // 한 손가락 터치는 기물/타일 선택 전용으로 사용
-        if (Input.touchCount != 2)
+        // Pinch가 끝난 뒤 한 손가락만 남아 있거나
+        // UI에서 시작한 Touch가 유지 중이면
+        // 새 Drag / Tap을 만들지 않는다.
+        if (waitForAllMobileTouchesReleased)
         {
             return;
         }
 
-        // 첫 번째 터치 정보
-        Touch touch0 = Input.GetTouch(0);
+        Touch touch =
+            Input.GetTouch(0);
 
-        // 두 번째 터치 정보
-        Touch touch1 = Input.GetTouch(1);
+        // 새 1 Finger Gesture 시작
+        if (touch.phase == TouchPhase.Began)
+        {
+            CancelMobileSingleTouchGesture();
 
-        // <변경부분> 두 손가락 중 하나라도 움직이지 않았다면 이동 처리하지 않음
-        if (touch0.phase != TouchPhase.Moved && touch1.phase != TouchPhase.Moved)
+            // UI에서 시작한 Touch는
+            // 이번 손가락이 완전히 떨어질 때까지
+            // Battle World Gesture 후보로 전환하지 않는다.
+            if (Tile.IsScreenPositionOverUI(
+                    touch.position))
+            {
+                waitForAllMobileTouchesReleased =
+                    true;
+
+                return;
+            }
+
+            isMobileSingleTouchCandidate =
+                true;
+
+            mobilePrimaryFingerId =
+                touch.fingerId;
+
+            mobileDragStartScreenPosition =
+                touch.position;
+
+            // 보드 밖에서 시작하면 null을 저장한다.
+            //
+            // Drag는 가능하지만 짧은 Tap으로
+            // Battle 행동은 발생하지 않는다.
+            mobilePressedTile =
+                GetTileAtScreenPosition(
+                    touch.position
+                );
+
+            return;
+        }
+
+        // 최초 Gesture를 시작한 Finger만 계속 처리한다.
+        if (isMobileSingleTouchCandidate == false ||
+            touch.fingerId != mobilePrimaryFingerId)
         {
             return;
         }
 
-        // <변경부분> 현재 프레임의 두 손가락 중심점 계산
-        Vector2 currentCenter = (touch0.position + touch1.position) * 0.5f;
+        // Touch가 끝나면 Drag 여부를 기준으로 Tap을 확정한다.
+        if (touch.phase == TouchPhase.Ended ||
+            touch.phase == TouchPhase.Canceled)
+        {
+            bool shouldExecuteTap =
+                touch.phase == TouchPhase.Ended &&
+                isMobileDragging == false &&
+                mobilePressedTile != null &&
+                BattleManager.Instance != null &&
+                Tile.IsScreenPositionOverUI(
+                    touch.position
+                ) == false;
 
-        // <변경부분> 이전 프레임의 두 손가락 중심점 계산
-        Vector2 previousCenter =
-            ((touch0.position - touch0.deltaPosition) +
-             (touch1.position - touch1.deltaPosition)) * 0.5f;
+            if (shouldExecuteTap)
+            {
+                Tile releasedTile =
+                    GetTileAtScreenPosition(
+                        touch.position
+                    );
 
-        // <변경부분> 두 손가락 중심점이 이동한 만큼 카메라 이동
-        Vector2 delta = currentCenter - previousCenter;
+                // 처음 누른 Tile과 손을 뗀 Tile이 같을 때만
+                // 기존 Battle Click을 실행한다.
+                //
+                // 따라서 Drag 직전 또는 손가락 흔들림 때문에
+                // 다른 Tile을 잘못 선택하지 않는다.
+                if (releasedTile ==
+                    mobilePressedTile)
+                {
+                    BattleManager.Instance
+                        .SelectTile(
+                            mobilePressedTile
+                        );
+                }
+            }
 
-        // 확대 상태일수록 이동량을 줄여 조작감 유지
-        float zoomAdjustedSpeed = touchDragSpeed / currentWorldScale;
+            CancelMobileSingleTouchGesture();
 
-        // 카메라 위치 이동
-        transform.position -= new Vector3(
-            delta.x * zoomAdjustedSpeed,
-            delta.y * zoomAdjustedSpeed,
-            0f
-        );
+            return;
+        }
+
+        // 움직이지 않은 손가락은 Tap 후보 상태로 계속 유지한다.
+        if (touch.phase != TouchPhase.Moved)
+        {
+            return;
+        }
+
+        // 아직 Drag로 확정되지 않았다면
+        // 최초 Touch 위치에서 움직인 전체 거리를 검사한다.
+        if (isMobileDragging == false)
+        {
+            float dragDistance =
+                Vector2.Distance(
+                    mobileDragStartScreenPosition,
+                    touch.position
+                );
+
+            if (dragDistance <
+                mobileDragStartThresholdPixels)
+            {
+                return;
+            }
+
+            // Threshold를 넘은 순간부터
+            // 이번 입력은 Tap이 아닌 Camera Drag로 확정한다.
+            isMobileDragging =
+                true;
+
+            // 기물 선택으로 진행 중이던 자동 Camera Focus보다
+            // 사용자의 수동 Drag를 우선한다.
+            if (pieceFocusCoroutine != null)
+            {
+                StopCoroutine(
+                    pieceFocusCoroutine
+                );
+
+                pieceFocusCoroutine =
+                    null;
+            }
+        }
+
+        // Drag Gesture 자체는 이미 확정했다.
+        //
+        // 현재 Battle 상태 또는 최소 Zoom 때문에
+        // 수동 Camera 이동이 잠겨 있다면 위치만 변경하지 않는다.
+        //
+        // 이 경우에도 Tap으로 되돌아가지는 않는다.
+        if (CanUseManualDrag == false)
+        {
+            return;
+        }
+
+        // 확대된 상태일수록 이동량을 줄여
+        // 기존 Camera 조작감을 유지한다.
+        float zoomAdjustedSpeed =
+            touchDragSpeed /
+            Mathf.Max(
+                0.01f,
+                currentWorldScale
+            );
+
+        transform.position -=
+            new Vector3(
+                touch.deltaPosition.x *
+                    zoomAdjustedSpeed,
+                touch.deltaPosition.y *
+                    zoomAdjustedSpeed,
+                0f
+            );
     }
 
     // 현재 줌 상태에서 카메라 이동 가능 여부

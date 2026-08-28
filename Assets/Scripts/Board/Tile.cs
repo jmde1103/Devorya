@@ -312,6 +312,25 @@ public class Tile : MonoBehaviour
     }
 
 
+    // <변경부분> 지정된 화면 좌표가 Unity UI 위인지
+    // Camera Controller에서도 직접 확인할 수 있도록 공개한다.
+    public static bool IsScreenPositionOverUI(
+        Vector2 screenPosition)
+    {
+        EventSystem eventSystem =
+            EventSystem.current;
+
+        if (eventSystem == null)
+        {
+            return false;
+        }
+
+        return IsScreenPositionOverUI(
+            eventSystem,
+            screenPosition
+        );
+    }
+
     // 지정된 화면 좌표에 Unity UI Graphic이 존재하는지 직접 확인한다.
     private static bool IsScreenPositionOverUI(
         EventSystem eventSystem,
@@ -374,34 +393,17 @@ public class Tile : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // <변경부분> PC Battle 입력은
-        // PixelCameraController가 Mouse Down → Drag Threshold →
-        // Mouse Up 순서로 Click과 Camera Drag를 구분한다.
+        // <변경부분> PC와 모바일의 Battle World 입력은
+        // 모두 PixelCameraController가 통합 처리한다.
         //
-        // 따라서 PC에서는 Tile이 MouseDown 순간
-        // SelectTile을 직접 실행하지 않는다.
-        if (Application.isMobilePlatform == false)
-        {
-            return;
-        }
-
-        // 아래는 현재 모바일 입력을 그대로 유지한다.
+        // PC:
+        // Mouse Down -> Drag Threshold -> Mouse Up
         //
-        // 모바일의 Tap vs 1 Finger Drag 구조는
-        // 다음 입력 작업에서 별도로 변경한다.
-
-        if (IsPointerOverUI())
-        {
-            return;
-        }
-
-        if (BattleManager.Instance == null)
-        {
-            return;
-        }
-
-        BattleManager.Instance.SelectTile(
-            this
-        );
+        // Mobile:
+        // Touch Began -> Drag Threshold -> Touch Ended
+        //
+        // Tile이 여기서 즉시 SelectTile()을 실행하면
+        // 모바일에서 한 손가락 Drag를 시작하는 순간에도
+        // 기물/타일 선택이 먼저 발생하므로 직접 입력은 실행하지 않는다.
     }
 }

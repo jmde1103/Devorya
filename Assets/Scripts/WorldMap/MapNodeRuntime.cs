@@ -438,108 +438,32 @@ public class MapNodeRuntime : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // <변경부분> PC의 Node Click / Camera Drag 판정은
-        // WorldMapCameraController에서 통합 처리한다.
+        // <변경부분> PC와 모바일의 WorldMap 입력은
+        // 모두 WorldMapCameraController가 통합 처리한다.
         //
-        // 현재 Node 자체 Mouse 이벤트는
-        // 모바일 기존 입력 보존용으로만 사용한다.
-        if (Application.isMobilePlatform == false)
-        {
-            isPointerPressed =
-                false;
-
-            return;
-        }
-        // 모바일에서 두 손가락이 사용 중이라면
-        // WorldMapCameraController의 Pinch / Drag 제스처로 판단하고
-        // 노드 클릭을 시작하지 않는다.
-        if (Input.touchCount >= 2)
-        {
-            isPointerPressed =
-                false;
-
-            return;
-        }
-
-        // UI 위에서 시작된 Mouse / Touch라면
-        // 뒤쪽 WorldMap Node로 입력을 전달하지 않는다.
-        if (IsPointerOverUI())
-        {
-            isPointerPressed =
-                false;
-
-            return;
-        }
-
-        // 실제 WorldMap Node 위에서 시작된 입력만
-        // 노드 클릭 후보로 저장한다.
-        isPointerPressed =
-            true;
+        // PC:
+        // Mouse Down -> Drag Threshold -> Mouse Up
+        //
+        // Mobile:
+        // Touch Began -> Drag Threshold -> Touch Ended
+        //
+        // Node에서 직접 EnterNode()를 실행하면
+        // 모바일 Camera Drag 시작 시 Node가 먼저 선택될 수 있으므로
+        // 여기서는 직접 입력을 처리하지 않는다.
     }
 
 
-    // 노드를 누른 상태에서 두 번째 손가락이 추가되면
-    // 단일 노드 클릭이 아니라 카메라 Pinch / Drag 제스처로 전환된 것으로 판단한다.
-    //
-    // 첫 번째 손가락으로 노드를 누른 뒤
-    // 두 번째 손가락을 추가하는 경우에도
-    // 이후 Node 진입이 발생하지 않도록 클릭 상태를 취소한다.
     private void OnMouseDrag()
     {
-        // <변경부분> PC Drag는 WorldMapCameraController가 담당한다.
-        if (Application.isMobilePlatform == false)
-        {
-            return;
-        }
-        if (isPointerPressed == false)
-        {
-            return;
-        }
-
-        if (Input.touchCount >= 2)
-        {
-            isPointerPressed =
-                false;
-        }
+        // <변경부분> Camera Drag 판정은
+        // PC / Mobile 모두 WorldMapCameraController가 담당한다.
     }
 
 
     private void OnMouseUpAsButton()
     {
-        // <변경부분> PC Node Click은 WorldMapCameraController가
-        // Mouse Up 시점에 직접 확정한다.
-        if (Application.isMobilePlatform == false)
-        {
-            isPointerPressed =
-                false;
-
-            return;
-        }
-        if (isPointerPressed == false)
-        {
-            return;
-        }
-
-        // 먼저 클릭 상태를 초기화하여
-        // 이후 어떤 경로로 return되더라도 상태가 남지 않도록 한다.
-        isPointerPressed =
-            false;
-
-        // Touch 종료 시점까지 두 손가락 입력이 유지되고 있다면
-        // 카메라 제스처이므로 Node 진입을 실행하지 않는다.
-        if (Input.touchCount >= 2)
-        {
-            return;
-        }
-
-        // 입력 종료 위치가 UI 위라면
-        // 뒤쪽 Node 진입을 실행하지 않는다.
-        if (IsPointerOverUI())
-        {
-            return;
-        }
-
-        EnterNode();
+        // <변경부분> Node Tap 확정도
+        // WorldMapCameraController의 Gesture 판정 이후에만 실행한다.
     }
 
 
@@ -589,6 +513,24 @@ public class MapNodeRuntime : MonoBehaviour
             eventSystem.IsPointerOverGameObject();
     }
 
+    // <변경부분> 지정한 화면 좌표가 Unity UI 위인지
+    // WorldMapCameraController에서도 직접 검사할 수 있도록 공개한다.
+    public static bool IsScreenPositionOverUI(
+        Vector2 screenPosition)
+    {
+        EventSystem eventSystem =
+            EventSystem.current;
+
+        if (eventSystem == null)
+        {
+            return false;
+        }
+
+        return IsScreenPositionOverUI(
+            eventSystem,
+            screenPosition
+        );
+    }
 
     // 지정된 화면 좌표에서
     // Unity UI Graphic이 실제로 Raycast되는지 확인한다.
