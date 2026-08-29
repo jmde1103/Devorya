@@ -19,11 +19,51 @@ public class PieceStatusUIController : MonoBehaviour
     // <변경부분> 일반스킬 슬롯에 표시할 아이콘 이미지 배열
     [SerializeField] private Image[] generalSkillIconImages;
 
-    // <변경부분> 일반스킬 슬롯을 꾹 눌렀을 때 설명을 표시할 TooltipTrigger 배열
+    // <변경부분> 일반스킬 슬롯에 연결된 TooltipTrigger 배열
     [SerializeField] private TooltipTrigger[] generalSkillTooltipTriggers;
 
-    // <변경부분> 일반스킬 아이콘/이름/설명을 찾기 위한 데이터베이스
+    // <변경부분> 일반스킬 아이콘/설명을 찾기 위한 데이터베이스
     [SerializeField] private GeneralSkillDatabase generalSkillDatabase;
+
+
+    [Header("Unique Skill Slot")]
+    // <변경부분> 이 스테이터스 UI에서 고유스킬 아이콘을 표시할지 여부.
+    //
+    // Enemy Status에서는 true,
+    // Player Status에서는 false로 사용한다.
+    //
+    // 같은 PieceStatusUIController를 양쪽이 공용으로 사용하더라도
+    // 플레이어 UI에는 불필요한 고유스킬 아이콘이 나타나지 않게 한다.
+    [SerializeField]
+    private bool showUniqueSkillSlot =
+        false;
+
+    // <변경부분> Enemy 고유스킬 아이콘 전체를 감싸는 슬롯 Root.
+    //
+    // 고유스킬이 없을 때는 Root 전체를 비활성화하여
+    // 보이지 않는 Tooltip Raycast 영역이 남지 않게 한다.
+    [SerializeField]
+    private GameObject uniqueSkillSlotRoot;
+
+    // <변경부분> 현재 선택한 Enemy의 고유스킬 아이콘을 표시할 Image.
+    [SerializeField]
+    private Image uniqueSkillIconImage;
+
+    // <변경부분> 고유스킬 아이콘에 연결된 TooltipTrigger.
+    //
+    // PC:
+    // Hover -> Tooltip
+    //
+    // Mobile:
+    // Long Press -> Tooltip
+    [SerializeField]
+    private TooltipTrigger uniqueSkillTooltipTrigger;
+
+    // <변경부분> UniqueSkillType에 맞는
+    // 이름 / 아이콘 / 설명 / Tooltip Section을 찾기 위한 데이터베이스.
+    [SerializeField]
+    private UniqueSkillDatabase uniqueSkillDatabase;
+
 
     [Header("Status Effect Slots")]
     // <변경부분> 상태이상 아이콘/이름/설명을 찾기 위한 데이터베이스
@@ -49,36 +89,58 @@ public class PieceStatusUIController : MonoBehaviour
         AutoBindPopupOpenAnimator();
     }
 
-    // <변경부분> 선택한 기물 정보를 필드 기물에서 직접 받아 UI에 표시하는 함수
-    // <변경부분> 선택한 기물 정보를 필드 기물에서 직접 받아 UI에 표시하는 함수
-    public void Refresh(Piece selectedPiece)
+    // <변경부분> 선택한 필드 기물의 현재 정보를
+    // 스테이터스 UI에 갱신한다.
+    public void Refresh(
+        Piece selectedPiece)
     {
-        // 선택한 기물이 없으면 UI를 숨김
+        // 선택한 기물이 없으면
+        // 기존 스테이터스 내용을 모두 비우고 숨긴다.
         if (selectedPiece == null)
         {
             Clear();
             return;
         }
 
-        // <변경부분> 선택한 기물이 있으면 스테이터스 창 표시
+        // 선택한 기물이 있으면 스테이터스 창 표시
         if (statusRoot != null)
         {
-            statusRoot.SetActive(true);
+            statusRoot.SetActive(
+                true
+            );
         }
 
-        // 선택한 필드 기물의 현재 외형 스프라이트를 그대로 표시
-        SetPieceImageFromSelectedPiece(selectedPiece);
+        // 현재 기물 외형 표시
+        SetPieceImageFromSelectedPiece(
+            selectedPiece
+        );
 
-        // 선택한 필드 기물의 현재 타입 아이콘 스프라이트를 그대로 표시
-        SetPieceTypeIconFromSelectedPiece(selectedPiece);
+        // 현재 기물 타입 아이콘 표시
+        SetPieceTypeIconFromSelectedPiece(
+            selectedPiece
+        );
 
-        // <변경부분> 기물이 보유한 일반스킬 목록을 UI 슬롯에 표시
-        SetGeneralSkillSlots(selectedPiece.GetGeneralSkills());
+        // 기물이 보유한 일반스킬 표시
+        SetGeneralSkillSlots(
+            selectedPiece.GetGeneralSkills()
+        );
 
-        // <변경부분> 기물이 보유한 상태이상 목록을 UI 슬롯에 표시
-        SetStatusEffectSlots(selectedPiece);
+        // <변경부분> Enemy Status에서 사용할
+        // 고유스킬 아이콘과 Tooltip을 갱신한다.
+        //
+        // showUniqueSkillSlot이 false인 Player Status에서는
+        // 자동으로 비활성화 상태가 유지된다.
+        SetUniqueSkillSlot(
+            selectedPiece
+        );
 
-        // <변경부분> 스테이터스 정보 갱신이 끝난 뒤 지지직 오픈 애니메이션 재생
+        // 현재 기물이 보유한 상태이상 표시
+        SetStatusEffectSlots(
+            selectedPiece
+        );
+
+        // 모든 스테이터스 정보 갱신이 끝난 뒤
+        // 기존 오픈 애니메이션을 재생한다.
         PlayStatusOpenAnimation();
     }
 
@@ -281,6 +343,143 @@ public class PieceStatusUIController : MonoBehaviour
         }
     }
 
+    // <변경부분> 현재 선택한 기물이 보유한 고유스킬을
+    // Enemy Status 전용 아이콘과 Tooltip에 표시한다.
+    private void SetUniqueSkillSlot(
+        Piece selectedPiece)
+    {
+        // 이전 Enemy의 아이콘/Tooltip 데이터가
+        // 다음 Enemy에게 남지 않도록 먼저 초기화한다.
+        ClearUniqueSkillSlot();
+
+        // Player Status처럼
+        // 이 기능을 사용하지 않는 스테이터스 UI에서는 종료한다.
+        if (showUniqueSkillSlot == false)
+        {
+            return;
+        }
+
+        if (selectedPiece == null ||
+            selectedPiece.UniqueSkill ==
+            UniqueSkillType.None)
+        {
+            return;
+        }
+
+        // UniqueSkillData 없이는
+        // 아이콘과 Tooltip 설명을 구성할 수 없다.
+        if (uniqueSkillDatabase == null)
+        {
+            Debug.LogWarning(
+                "PieceStatusUIController에 " +
+                "UniqueSkillDatabase가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        UniqueSkillData skillData =
+            uniqueSkillDatabase.GetData(
+                selectedPiece.UniqueSkill
+            );
+
+        if (skillData == null)
+        {
+            Debug.LogWarning(
+                $"고유스킬 데이터를 찾지 못했습니다: " +
+                $"{selectedPiece.UniqueSkill}"
+            );
+
+            return;
+        }
+
+        // 표시할 실제 아이콘이 없다면
+        // 빈 슬롯을 노출하지 않는다.
+        if (skillData.iconSprite == null)
+        {
+            Debug.LogWarning(
+                $"고유스킬 아이콘이 없습니다: " +
+                $"{selectedPiece.UniqueSkill}"
+            );
+
+            return;
+        }
+
+        // <변경부분> 모든 데이터 검사가 끝난 뒤
+        // 실제 고유스킬 슬롯을 활성화한다.
+        if (uniqueSkillSlotRoot != null)
+        {
+            uniqueSkillSlotRoot.SetActive(
+                true
+            );
+        }
+
+        if (uniqueSkillIconImage != null)
+        {
+            uniqueSkillIconImage.sprite =
+                skillData.iconSprite;
+
+            uniqueSkillIconImage.enabled =
+                true;
+
+            uniqueSkillIconImage.preserveAspect =
+                true;
+        }
+
+        // <변경부분> 기존 UniqueSkillData를 그대로 사용해
+        // 고유스킬 이름 / 설명 / Section Tooltip을 연결한다.
+        //
+        // 최신 TooltipTrigger가 플랫폼을 구분하므로:
+        // PC = Hover
+        // Mobile = Long Press
+        // 로 자동 동작한다.
+        if (uniqueSkillTooltipTrigger != null)
+        {
+            uniqueSkillTooltipTrigger
+                .SetTooltipViewData(
+                    TooltipViewData
+                        .FromUniqueSkillData(
+                            skillData
+                        )
+                );
+        }
+    }
+
+
+    // <변경부분> Enemy 고유스킬 슬롯의
+    // 이전 표시 정보와 Tooltip 데이터를 완전히 초기화한다.
+    private void ClearUniqueSkillSlot()
+    {
+        // 이전 Enemy Tooltip 데이터 제거
+        if (uniqueSkillTooltipTrigger != null)
+        {
+            uniqueSkillTooltipTrigger
+                .SetTooltipViewData(
+                    null
+                );
+        }
+
+        // 이전 Enemy 아이콘 제거
+        if (uniqueSkillIconImage != null)
+        {
+            uniqueSkillIconImage.sprite =
+                null;
+
+            uniqueSkillIconImage.enabled =
+                false;
+        }
+
+        // 고유스킬이 없거나
+        // Player Status처럼 사용하지 않는 경우
+        // 슬롯 Root 자체를 숨긴다.
+        if (uniqueSkillSlotRoot != null)
+        {
+            uniqueSkillSlotRoot.SetActive(
+                false
+            );
+        }
+    }
+
     // <변경부분> 상태이상 슬롯에 아이콘/남은 턴/중첩을 표시하는 함수
     private void SetStatusEffectSlots(Piece selectedPiece)
     {
@@ -412,31 +611,44 @@ public class PieceStatusUIController : MonoBehaviour
         popupOpenAnimator.PlayOpen();
     }
 
-    // <변경부분> 선택 기물이 없을 때 UI를 비우는 함수
+    /// <변경부분> 선택 기물이 없을 때
+    // 현재 스테이터스 UI 정보를 모두 비운다.
     public void Clear()
     {
-        // <변경부분> 선택한 기물이 없으면 스테이터스 창 숨김
+        // 선택한 기물이 없으면 스테이터스 창 숨김
         if (statusRoot != null)
         {
-            statusRoot.SetActive(false);
+            statusRoot.SetActive(
+                false
+            );
         }
 
         if (pieceImage != null)
         {
-            pieceImage.sprite = null;
-            pieceImage.enabled = false;
+            pieceImage.sprite =
+                null;
+
+            pieceImage.enabled =
+                false;
         }
 
         if (pieceTypeIconImage != null)
         {
-            pieceTypeIconImage.sprite = null;
-            pieceTypeIconImage.enabled = false;
+            pieceTypeIconImage.sprite =
+                null;
+
+            pieceTypeIconImage.enabled =
+                false;
         }
 
-        // <변경부분> 일반스킬 슬롯 아이콘과 텍스트 초기화
+        // 일반스킬 슬롯 초기화
         ClearGeneralSkillSlots();
 
-        // <변경부분> 상태이상 슬롯 초기화
+        // <변경부분> Enemy 고유스킬 아이콘과
+        // Tooltip 데이터도 함께 초기화한다.
+        ClearUniqueSkillSlot();
+
+        // 상태이상 슬롯 초기화
         ClearStatusEffectSlots();
     }
 }

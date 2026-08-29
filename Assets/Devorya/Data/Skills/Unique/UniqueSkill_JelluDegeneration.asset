@@ -21,9 +21,9 @@ MonoBehaviour:
   - sectionType: 1
     sectionTitle: "\uD1F4\uD654"
     sectionCategory: "\uC0C1\uD0DC\uD6A8\uACFC"
-    sectionDescription: "\uAE30\uBB3C\uC774 \uC8FD\uC73C\uBA74 \n\uC778\uC811\uD55C
-      \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 \uC911\uB9BD \uAE30\uBB3C\uC744
-      \uC0DD\uC131\uD55C\uB2E4"
+    sectionDescription: "\uAE30\uBB3C\uC774 \uC8FD\uC73C\uBA74 \uC778\uC811\uD55C
+      \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 \n<b><color=#FFD54A>\uC911\uB9BD</color></b>
+      \uAE30\uBB3C\uC744 \uC0DD\uC131\uD55C\uB2E4"
     sectionIcon: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
     sectionColor: {r: 0, g: 0, b: 0, a: 0}
   cooldownTurn: 2
