@@ -76,3 +76,25 @@ MonoBehaviour:
     initiallyCleared: 0
     connections: []
     revealRadius: 2
+  - nodeId: ForestMap_01_Battle_04
+    nodeDisplayName: "\uB9C8\uC9C0\uB9C9 \uBC30\uD2C0"
+    gridPosition: {x: 33, y: 11}
+    nodeType: 0
+    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
+    targetSceneName: BattleScene
+    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+    initiallyUnlocked: 0
+    initiallyCleared: 0
+    connections: []
+    revealRadius: 2
+  - nodeId: ForestMap_01_Battle_05
+    nodeDisplayName: "\uB9C8\uC9C0\uB9C9 \uBC30\uD2C0"
+    gridPosition: {x: 38, y: 14}
+    nodeType: 0
+    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
+    targetSceneName: BattleScene
+    stageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
+    initiallyUnlocked: 0
+    initiallyCleared: 0
+    connections: []
+    revealRadius: 2

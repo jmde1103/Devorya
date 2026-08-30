@@ -107,7 +107,16 @@ public class BattleManager : MonoBehaviour
     // 공용 Spine Announcement 연출을 담당하는 Controller.
     [SerializeField]
     private BattleAnnouncementController
-        battleAnnouncementController;
+    battleAnnouncementController;
+
+    // <변경부분> 현재 StageBattleData에서 전달받은
+    // 전투 시작 Announcement 종류.
+    //
+    // 기본값은 기존 일반 전투와 동일하게 BattleStart.
+    // StageBattleData에서 Warning 또는 None을 지정하면
+    // BattleSetupManager를 통해 이 값이 교체된다.
+    private BattleAnnouncementType startAnnouncementType =
+        BattleAnnouncementType.BattleStart;
 
     // <변경부분> BattleManager 기준으로
     // 현재 Announcement가 전투 입력을 잠그고 있는지 확인한다.
@@ -1603,7 +1612,7 @@ public class BattleManager : MonoBehaviour
     }
 
     // <변경부분> 플레이어 초기 배치를 확정한 뒤
-    // BATTLE START Announcement 연출을 거쳐
+    // 현재 StageBattleData에서 지정한 시작 Announcement를 거쳐
     // 기존 정상 전투 흐름으로 진입한다.
     public void ConfirmPlayerDeployment()
     {
@@ -1616,7 +1625,7 @@ public class BattleManager : MonoBehaviour
         // 기존 배치 선택과 Highlight 정리
         ClearDeploymentSelection();
 
-        // 이제 일반 배치 입력은 종료한다.
+        // 플레이어 초기 배치 단계 종료
         isPlayerDeploymentPhase =
             false;
 
@@ -1630,24 +1639,52 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log(
-            "플레이어 초기 배치 완료: " +
-            "BATTLE START 연출을 시작합니다."
+            $"플레이어 초기 배치 완료: " +
+            $"Start Announcement = {startAnnouncementType}"
         );
 
-        // <변경부분> 기존처럼 즉시 전투를 시작하지 않고
-        // Announcement가 완전히 끝난 뒤 시작한다.
+        // <변경부분> 기존 BattleStart 고정 Coroutine 대신
+        // 현재 StageBattleData에서 전달받은 타입을 처리하는
+        // 공용 시작 Announcement Coroutine을 실행한다.
         StartCoroutine(
-            PlayBattleStartAnnouncementThenStartBattleRoutine()
+            PlayStageStartAnnouncementThenStartBattleRoutine()
         );
     }
 
-    // <변경부분> 초기 배치 완료 후
-    // 공용 Announcement 시스템에서 BattleStart를 재생하고,
-    // 모든 등장/Spine/퇴장 연출이 끝난 뒤
-    // 기존 정상 Battle Turn을 시작한다.
+
+    // <변경부분> 현재 StageBattleData에서 지정한
+    // 시작 Announcement를 재생한 뒤 정상 전투를 시작한다.
+    //
+    // BattleStart:
+    // BATTLE START Spine 재생 후 전투 시작.
+    //
+    // Warning:
+    // WARNING Spine 재생 후 전투 시작.
+    //
+    // None:
+    // AnnouncementController를 호출하지 않고 바로 전투 시작.
     private IEnumerator
-        PlayBattleStartAnnouncementThenStartBattleRoutine()
+        PlayStageStartAnnouncementThenStartBattleRoutine()
     {
+        // <변경부분> None은 실제 연출이 없으므로
+        // BattleAnnouncementController에 요청하지 않는다.
+        //
+        // 따라서 None용 BattleAnnouncementData Asset도 필요 없다.
+        if (startAnnouncementType ==
+            BattleAnnouncementType.None)
+        {
+            Debug.Log(
+                "전투 시작 Announcement 없음: " +
+                "StageBattleData 설정에 따라 바로 전투를 시작합니다."
+            );
+
+            StartNormalBattleTurn();
+
+            yield break;
+        }
+
+        // <변경부분> 실제 Announcement가 존재하는 경우에만
+        // 전투 입력을 잠근다.
         isBattleAnnouncementPlaying =
             true;
 
@@ -1656,16 +1693,16 @@ public class BattleManager : MonoBehaviour
             yield return
                 battleAnnouncementController
                     .PlayRoutine(
-                        BattleAnnouncementType.BattleStart
+                        startAnnouncementType
                     );
         }
         else
         {
-            // Inspector 연결 누락 때문에
-            // 전투 자체가 멈추지는 않게 한다.
+            // Controller 연결이 누락되어도
+            // 전투 자체가 영구 정지하지 않도록 연출만 건너뛴다.
             Debug.LogWarning(
-                "BattleAnnouncementController가 연결되지 않아 " +
-                "BATTLE START 연출을 건너뜁니다."
+                $"BattleAnnouncementController가 연결되지 않아 " +
+                $"{startAnnouncementType} 연출을 건너뜁니다."
             );
         }
 
@@ -1673,21 +1710,20 @@ public class BattleManager : MonoBehaviour
             false;
 
         // Scene 전환 등의 예외 상황으로
-        // 전투가 이미 끝났다면 다시 시작하지 않는다.
+        // 이미 전투가 종료된 경우에는 다시 시작하지 않는다.
         if (isBattleEnded)
         {
             yield break;
         }
 
         Debug.Log(
-            "BATTLE START 연출 완료: " +
+            $"{startAnnouncementType} 연출 완료: " +
             "정상 전투를 시작합니다."
         );
 
-        // <변경부분> 기존 전투 시작 함수는 수정하지 않고 그대로 사용.
+        // 기존 정상 전투 진입점은 그대로 보존한다.
         StartNormalBattleTurn();
     }
-
     private void StartNormalBattleTurn()
     {
         // <변경부분> 정상 전투가 시작되는 순간
@@ -2779,6 +2815,24 @@ public class BattleManager : MonoBehaviour
         Debug.Log(
             $"전투 스테이지 이름 적용: " +
             $"{safeStageName}"
+        );
+    }
+
+    // <변경부분> 현재 StageBattleData에서 지정한
+    // 전투 시작 Announcement 종류를 적용한다.
+    //
+    // BattleSetupManager가 Battle Scene 세팅 시 한 번 전달하며,
+    // 이후 플레이어 초기 배치 완료 시 이 값을 사용해
+    // BattleStart 또는 Warning을 재생한다.
+    public void SetStartAnnouncementType(
+        BattleAnnouncementType announcementType)
+    {
+        startAnnouncementType =
+            announcementType;
+
+        Debug.Log(
+            $"전투 시작 Announcement 적용: " +
+            $"{startAnnouncementType}"
         );
     }
 

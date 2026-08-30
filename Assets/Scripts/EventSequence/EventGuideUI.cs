@@ -43,6 +43,33 @@ public class EventGuideUI : MonoBehaviour
     [SerializeField]
     private TMP_Text guideText;
 
+
+    [Header("Continue Arrow")]
+    // <변경부분> 현재 Dialogue 페이지의 모든 글자가 출력된 뒤
+    // 플레이어의 다음 클릭을 기다리고 있음을 표시하는 화살표.
+    //
+    // DialoguePanel 하단에 별도의 Image 오브젝트로 배치하며,
+    // 타이핑 중에는 숨기고 클릭 대기 상태에서만 표시한다.
+    [SerializeField]
+    private Image continueArrowImage;
+
+    // <변경부분> 화살표가 가장 흐려졌을 때의 Alpha.
+    //
+    // 0 = 완전히 투명
+    // 1 = 완전히 불투명
+    [SerializeField, Range(0f, 1f)]
+    private float continueArrowMinAlpha =
+        0.25f;
+
+    // <변경부분> 화살표가
+    // 밝음 → 흐림 또는 흐림 → 밝음으로 전환되는 시간.
+    //
+    // 전체 한 번의 깜빡임 주기는 이 값의 약 2배다.
+    [SerializeField, Min(0.05f)]
+    private float continueArrowFadeDuration =
+        0.4f;
+
+
     [Header("Typing Animation")]
     // 글자 한 글자가 나타나는 간격
     [SerializeField, Min(0.001f)]
@@ -82,7 +109,14 @@ public class EventGuideUI : MonoBehaviour
     //
     // 최소 다음 프레임부터만 페이지 넘김을 허용한다.
     private int pageCompletedFrame =
-        -1;
+    -1;
+
+    // <변경부분> ContinueArrow의 반복 깜빡임을 담당하는 Coroutine.
+    //
+    // 새 페이지 시작 / 클릭 / Dialogue 종료 시
+    // 기존 Coroutine을 확실하게 정리하기 위해 저장한다.
+    private Coroutine continueArrowBlinkCoroutine =
+        null;
 
     // BattleManager 등 외부 시스템이
     // Dialogue 입력 차단 여부를 확인할 때 사용
@@ -178,6 +212,27 @@ public class EventGuideUI : MonoBehaviour
 
             guideText.maxVisibleCharacters =
                 int.MaxValue;
+        }
+
+        // <변경부분> Scene 시작 시 ContinueArrow는
+        // Dialogue 페이지 출력 완료 전까지 보이지 않도록 초기화한다.
+        if (continueArrowImage != null)
+        {
+            continueArrowImage.raycastTarget =
+                false;
+
+            Color arrowColor =
+                continueArrowImage.color;
+
+            arrowColor.a =
+                1f;
+
+            continueArrowImage.color =
+                arrowColor;
+
+            continueArrowImage.gameObject.SetActive(
+                false
+            );
         }
     }
 
@@ -333,13 +388,17 @@ public class EventGuideUI : MonoBehaviour
             // <변경부분> 새로운 Dialogue Element가 시작될 때
             // 이전 페이지의 진행 상태를 완전히 초기화한다.
             isAdvanceRequested =
-                false;
+      false;
 
             canAcceptAdvanceInput =
                 false;
 
             pageCompletedFrame =
                 -1;
+
+            // <변경부분> 새 Dialogue 페이지의 타이핑을 시작하므로
+            // 이전 페이지의 ContinueArrow는 즉시 숨긴다.
+            HideContinueArrow();
 
             // <변경부분> 현재 Element의 텍스트를
             // 처음부터 끝까지 타이핑한다.
@@ -368,7 +427,12 @@ public class EventGuideUI : MonoBehaviour
             // 마지막 Element도 클릭해야
             // Dialogue Step 자체가 완료된다.
             canAcceptAdvanceInput =
-                true;
+     true;
+
+            // <변경부분> 현재 페이지의 모든 글자가 출력되었고
+            // 이제 플레이어의 다음 클릭을 받을 수 있으므로
+            // ContinueArrow를 표시하고 깜빡임을 시작한다.
+            ShowContinueArrow();
 
             while (isAdvanceRequested == false)
             {
@@ -379,6 +443,10 @@ public class EventGuideUI : MonoBehaviour
 
                 yield return null;
             }
+
+            // <변경부분> 플레이어가 현재 페이지를 넘겼으므로
+            // 다음 페이지가 시작되기 전에 ContinueArrow를 즉시 숨긴다.
+            HideContinueArrow();
 
             // <변경부분> 현재 Element는 플레이어가 직접 넘겼으므로
             // 다음 Element에 이전 클릭 상태가 전달되지 않도록 초기화한다.
@@ -473,6 +541,213 @@ public class EventGuideUI : MonoBehaviour
             false;
     }
 
+    // <변경부분> 현재 Dialogue 페이지의 출력이 완료되어
+    // 플레이어 입력을 기다리는 동안 ContinueArrow를 표시한다.
+    private void ShowContinueArrow()
+    {
+        if (continueArrowImage == null)
+        {
+            return;
+        }
+
+        // 이전 깜빡임 Coroutine이 남아 있다면
+        // 중복 실행되지 않도록 먼저 종료한다.
+        if (continueArrowBlinkCoroutine != null)
+        {
+            StopCoroutine(
+                continueArrowBlinkCoroutine
+            );
+
+            continueArrowBlinkCoroutine =
+                null;
+        }
+
+        continueArrowImage.gameObject.SetActive(
+            true
+        );
+
+        SetContinueArrowAlpha(
+            1f
+        );
+
+        continueArrowBlinkCoroutine =
+            StartCoroutine(
+                ContinueArrowBlinkRoutine()
+            );
+    }
+
+
+    // <변경부분> 다음 페이지 시작 또는 Dialogue 종료 시
+    // ContinueArrow와 깜빡임 Coroutine을 즉시 정리한다.
+    private void HideContinueArrow()
+    {
+        if (continueArrowBlinkCoroutine != null)
+        {
+            StopCoroutine(
+                continueArrowBlinkCoroutine
+            );
+
+            continueArrowBlinkCoroutine =
+                null;
+        }
+
+        if (continueArrowImage == null)
+        {
+            return;
+        }
+
+        // 다음 표시 때 항상 완전히 밝은 상태에서 시작하도록 복원한다.
+        SetContinueArrowAlpha(
+            1f
+        );
+
+        continueArrowImage.gameObject.SetActive(
+            false
+        );
+    }
+
+
+    // <변경부분> ContinueArrow Image의 Alpha만 변경한다.
+    //
+    // Sprite 색상 자체는 유지하고
+    // 투명도만 변경하여 깜빡임을 만든다.
+    private void SetContinueArrowAlpha(
+        float alpha)
+    {
+        if (continueArrowImage == null)
+        {
+            return;
+        }
+
+        Color arrowColor =
+            continueArrowImage.color;
+
+        arrowColor.a =
+            Mathf.Clamp01(
+                alpha
+            );
+
+        continueArrowImage.color =
+            arrowColor;
+    }
+
+
+    // <변경부분> Dialogue 페이지 출력 완료 후
+    // 플레이어가 다음 클릭을 할 때까지
+    // ContinueArrow의 Alpha를 반복해서 변화시킨다.
+    //
+    // Time.timeScale의 영향을 받지 않도록
+    // Dialogue 설정에 맞춰 unscaledDeltaTime도 지원한다.
+    private IEnumerator ContinueArrowBlinkRoutine()
+    {
+        if (continueArrowImage == null)
+        {
+            continueArrowBlinkCoroutine =
+                null;
+
+            yield break;
+        }
+
+        float safeFadeDuration =
+            Mathf.Max(
+                0.05f,
+                continueArrowFadeDuration
+            );
+
+        float safeMinAlpha =
+            Mathf.Clamp01(
+                continueArrowMinAlpha
+            );
+
+        while (
+            isDialoguePlaying &&
+            isTyping == false &&
+            canAcceptAdvanceInput
+        )
+        {
+            // 밝은 상태 → 흐린 상태
+            float elapsedTime =
+                0f;
+
+            while (elapsedTime <
+                   safeFadeDuration)
+            {
+                if (isDialoguePlaying == false ||
+                    isTyping ||
+                    canAcceptAdvanceInput == false)
+                {
+                    continueArrowBlinkCoroutine =
+                        null;
+
+                    yield break;
+                }
+
+                elapsedTime +=
+                    useUnscaledTime
+                        ? Time.unscaledDeltaTime
+                        : Time.deltaTime;
+
+                float normalizedTime =
+                    Mathf.Clamp01(
+                        elapsedTime /
+                        safeFadeDuration
+                    );
+
+                SetContinueArrowAlpha(
+                    Mathf.Lerp(
+                        1f,
+                        safeMinAlpha,
+                        normalizedTime
+                    )
+                );
+
+                yield return null;
+            }
+
+            // 흐린 상태 → 밝은 상태
+            elapsedTime =
+                0f;
+
+            while (elapsedTime <
+                   safeFadeDuration)
+            {
+                if (isDialoguePlaying == false ||
+                    isTyping ||
+                    canAcceptAdvanceInput == false)
+                {
+                    continueArrowBlinkCoroutine =
+                        null;
+
+                    yield break;
+                }
+
+                elapsedTime +=
+                    useUnscaledTime
+                        ? Time.unscaledDeltaTime
+                        : Time.deltaTime;
+
+                float normalizedTime =
+                    Mathf.Clamp01(
+                        elapsedTime /
+                        safeFadeDuration
+                    );
+
+                SetContinueArrowAlpha(
+                    Mathf.Lerp(
+                        safeMinAlpha,
+                        1f,
+                        normalizedTime
+                    )
+                );
+
+                yield return null;
+            }
+        }
+
+        continueArrowBlinkCoroutine =
+            null;
+    }
+
     // <변경부분> Dialogue UI를 즉시 종료하고
     // 모든 입력 상태를 초기화한다.
     public void HideImmediately()
@@ -517,6 +792,11 @@ public class EventGuideUI : MonoBehaviour
 
         pageCompletedFrame =
             -1;
+
+        // <변경부분> Dialogue가 정상 종료되거나
+        // Scene / GameObject 비활성화 등으로 강제 종료되어도
+        // ContinueArrow가 화면에 남지 않도록 함께 정리한다.
+        HideContinueArrow();
     }
 
     private void OnDisable()

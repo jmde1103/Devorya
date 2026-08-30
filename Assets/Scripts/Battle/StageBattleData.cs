@@ -27,6 +27,23 @@ public class StageBattleData : ScriptableObject
     // 현재 StageBattleData가 필요한 Sequence를 결정한다.
     public EventSequenceData eventSequenceData;
 
+
+    [Header("Battle Announcement")]
+
+    // <변경부분> 이 스테이지의 플레이어 초기 배치 완료 후
+    // 실제 전투 시작 전에 재생할 Announcement 종류.
+    //
+    // 일반 전투:
+    // BattleStart
+    //
+    // 보스 전투:
+    // Warning
+    //
+    // BattleSetupManager가 이 값을 BattleManager에 전달하고,
+    // BattleManager는 기존 공용 BattleAnnouncementController를 사용해 재생한다.
+    public BattleAnnouncementType startAnnouncementType =
+        BattleAnnouncementType.BattleStart;
+
     [Header("Background Map")]
     // <변경부분> 이 스테이지에서 사용할 배경 맵 데이터.
     //

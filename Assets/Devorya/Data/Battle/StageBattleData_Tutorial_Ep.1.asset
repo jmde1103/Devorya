@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
-  m_Name: StageBattleData_Tutorial
+  m_Name: StageBattleData_Tutorial_Ep.1
   m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
   stageName: "\uD29C\uD1A0\uB9AC\uC5BC"
-  description: "\uD29C\uD1A0\uB9AC\uC5BC \uB9F5"
+  description: "\uC5F0\uAD6C\uC2E4"
   eventSequenceData: {fileID: 11400000, guid: c04729b24f0810447b51551ad62b7c4a, type: 2}
+  startAnnouncementType: 2
   backgroundMapData: {fileID: 11400000, guid: 9d3487eb836a20b4db4dab527cb2b6be, type: 2}
   checkerTileTypeA: 4
   checkerTileTypeB: 5

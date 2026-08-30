@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
+  m_Name: StageBattleData_Tutorial_Ep.2
+  m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
+  stageName: "\uB4E4\uD310 #1"
+  description: 
+  eventSequenceData: {fileID: 11400000, guid: c04729b24f0810447b51551ad62b7c4a, type: 2}
+  startAnnouncementType: 0
+  backgroundMapData: {fileID: 0}
+  checkerTileTypeA: 4
+  checkerTileTypeB: 5
+  playerDefeatCondition: 5
+  enemyDefeatCondition: 10
+  playerFormationData: {fileID: 0}
+  useRunStatePlayerPieces: 1
+  savePlayerPiecesToRunState: 1
+  enemyFormationData: {fileID: 0}
+  battleRewardData: {fileID: 0}
+  enemyUniqueSkillUseChance: 100
+  enemyGeneralSkillGrantRules: []

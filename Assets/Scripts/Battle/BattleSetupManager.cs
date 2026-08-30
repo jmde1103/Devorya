@@ -121,21 +121,24 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 현재 StageBattleData의 스테이지 이름을
-        // 좌측 상단 TurnInfo UI에 표시하도록 BattleManager에 전달한다.
-        //
-        // 스테이지가 바뀌면 동일한 BattleScene을 사용하더라도
-        // 각 StageBattleData의 stageName이 자동으로 표시된다.
         battleManager.SetStageName(
-    stageBattleData.stageName
-);
+     stageBattleData.stageName
+ );
+
+        // <변경부분> 현재 StageBattleData에서 지정한
+        // 전투 시작 Announcement 종류를 BattleManager에 전달한다.
+        //
+        // 일반 전투:
+        // BattleStart
+        //
+        // 보스 전투:
+        // Warning
+        battleManager.SetStartAnnouncementType(
+            stageBattleData.startAnnouncementType
+        );
 
         // <변경부분> 현재 StageBattleData에 연결된
         // BackgroundMapData를 BattleScene 배경으로 불러온다.
-        //
-        // 이전에 Scene에 저장되어 있던 고정 배경은 제거하고,
-        // 현재 스테이지 데이터의 배경 타일 / 장식물 / 위치 정보를
-        // BackgroundManager가 다시 생성한다.
         backgroundManager.LoadMapFromData(
             stageBattleData.backgroundMapData
         );
