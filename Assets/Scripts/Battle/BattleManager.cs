@@ -88,21 +88,31 @@ public class BattleManager : MonoBehaviour
     private Piece selectedPiece;
 
     [Header("Player Deployment")]
-    // <변경부분> 전투 시작 전에 플레이어 기물의 위치를 정하는
-    // 초기 배치 단계를 사용할지 여부
     [SerializeField]
     private bool usePlayerDeploymentPhase = true;
 
-    // <변경부분> 플레이어 배치에 사용할 시작 구역의 세로 칸 수
-    // 5x6 보드에서는 아래쪽 2줄인 Y = 0, 1을 사용한다.
     [SerializeField, Min(1)]
     private int playerDeploymentRowCount = 2;
 
-    // <변경부분> 현재 플레이어 초기 배치 단계가 진행 중인지 확인
-    private bool isPlayerDeploymentPhase = false;
+    private bool isPlayerDeploymentPhase =
+        false;
 
-    // <변경부분> 초기 배치 단계에서 현재 선택한 플레이어 기물
-    private Piece selectedDeploymentPiece = null;
+    private Piece selectedDeploymentPiece =
+        null;
+
+
+    [Header("Battle Announcement")]
+
+    // <변경부분> BATTLE START / WARNING 등
+    // 공용 Spine Announcement 연출을 담당하는 Controller.
+    [SerializeField]
+    private BattleAnnouncementController
+        battleAnnouncementController;
+
+    // <변경부분> BattleManager 기준으로
+    // 현재 Announcement가 전투 입력을 잠그고 있는지 확인한다.
+    private bool isBattleAnnouncementPlaying =
+        false;
 
     // <변경부분> 이동 또는 공격 실행 전에
     // 첫 번째 클릭으로 확인한 타일
@@ -255,16 +265,16 @@ public class BattleManager : MonoBehaviour
     {
         get
         {
-            // 전투가 종료되었거나 기물 행동 연출 중에는
-            // 수동 Camera 이동을 허용하지 않는다.
+            // <변경부분> 전투 행동뿐 아니라
+            // Battle Announcement 연출 중에도
+            // PC / Mobile 수동 Camera Drag를 잠근다.
             if (isBattleEnded ||
-                isActionAnimating)
+                isActionAnimating ||
+                isBattleAnnouncementPlaying)
             {
                 return false;
             }
 
-            // Tutorial / Event Sequence가 특정 입력을 강제하는 동안에는
-            // Camera 이동으로 연출이나 강제 입력을 방해하지 않는다.
             if (eventSequenceController != null &&
                 (
                     eventSequenceController
@@ -438,10 +448,8 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
-        // <변경부분> Dialogue 진행 중이거나
-        // ForcePieceSelect / ForceTileSelect가 진행 중일 때는
-        // 튜토리얼에서 요구하지 않은 Space / Q / S 등의
-        // Battle 단축키 입력을 받지 않는다.
+        // Event Sequence 대사 또는 강제 입력 중에는
+        // 일반 Battle 단축키를 받지 않는다.
         if (eventSequenceController != null &&
             (
                 eventSequenceController
@@ -453,35 +461,36 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 플레이어 초기 배치 단계에서는
-        // 턴 종료, 흡수, 고유스킬 등의 전투 단축키를 받지 않는다.
-        if (isPlayerDeploymentPhase)
+        // <변경부분> 플레이어 초기 배치 또는
+        // Battle Announcement 연출 중에는
+        // 정상 전투 단축키를 받지 않는다.
+        if (isPlayerDeploymentPhase ||
+            isBattleAnnouncementPlaying)
         {
             return;
         }
 
-        // Space 키를 누르면 턴 종료
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(
+                KeyCode.Space))
         {
             EndTurn();
         }
 
-        // Q 키를 누르면 기권
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(
+                KeyCode.Q))
         {
             Surrender();
         }
 
-        // <변경부분> S 키를 누르면 선택된 기물의 고유 스킬 사용
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(
+                KeyCode.S))
         {
             UseSelectedPieceSkill();
         }
 
-        // <변경부분> F8 키를 누르면 Enemy 진영의
-        // 현재 합법적인 AI 행동 후보를 Console에 출력한다.
-        // AI 후보 검증이 끝나면 이 단축키 코드는 제거할 예정이다.
-        if (Input.GetKeyDown(KeyCode.F8))
+        // 기존 AI Debug 단축키 유지
+        if (Input.GetKeyDown(
+                KeyCode.F8))
         {
             DebugGenerateEnemyAIActions();
         }
@@ -493,12 +502,13 @@ public class BattleManager : MonoBehaviour
     // 기물을 선택하는 함수
     public void SelectPiece(Piece piece)
     {
-        // <변경부분> 튜토리얼 / 이벤트가 특정 기물 선택을
-        // 강제하고 있다면 허용된 기물 외의 클릭은
-        // 기존 Battle 선택 로직에 전달하지 않는다.
-        //
-        // EventSequenceController가 없거나
-        // 현재 선택 제한 단계가 아니라면 기존과 동일하게 통과한다.
+        // <변경부분> BATTLE START / WARNING 연출 중에는
+        // 기물 선택, Status 갱신, Camera Focus를 실행하지 않는다.
+        if (isBattleAnnouncementPlaying)
+        {
+            return;
+        }
+
         if (eventSequenceController != null &&
             eventSequenceController.CanSelectPiece(
                 piece) ==
@@ -893,12 +903,13 @@ public class BattleManager : MonoBehaviour
 
     public void SelectTile(Tile tile)
     {
-        // <변경부분> 튜토리얼 / 이벤트가 특정 타일 입력을
-        // 강제하고 있다면 지정 타일 외의 클릭은
-        // 기존 Battle 로직에 전달하지 않는다.
-        //
-        // ForcePieceSelect 중에도 타일 클릭을 차단하여
-        // 지정 기물 선택 외의 행동이 발생하지 않도록 한다.
+        // <변경부분> Announcement가 화면을 소유하는 동안
+        // Tile 선택 / 이동 확인 / 공격 확인을 모두 차단한다.
+        if (isBattleAnnouncementPlaying)
+        {
+            return;
+        }
+
         if (eventSequenceController != null &&
             eventSequenceController.CanSelectTile(
                 tile) ==
@@ -906,6 +917,7 @@ public class BattleManager : MonoBehaviour
         {
             return;
         }
+
 
         // 전투가 끝났으면 타일 선택 불가
         if (isBattleEnded)
@@ -1590,22 +1602,24 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // <변경부분> 우측 체크 버튼에서 호출하는
-    // 플레이어 초기 배치 완료 함수
+    // <변경부분> 플레이어 초기 배치를 확정한 뒤
+    // BATTLE START Announcement 연출을 거쳐
+    // 기존 정상 전투 흐름으로 진입한다.
     public void ConfirmPlayerDeployment()
     {
-        if (isPlayerDeploymentPhase == false)
+        if (isPlayerDeploymentPhase == false ||
+            isBattleAnnouncementPlaying)
         {
             return;
         }
 
+        // 기존 배치 선택과 Highlight 정리
         ClearDeploymentSelection();
 
+        // 이제 일반 배치 입력은 종료한다.
         isPlayerDeploymentPhase =
             false;
 
-        // <변경부분> 체크 아이콘을 기존 흡수 아이콘으로 복구하고
-        // 정상 전투 UI 상태로 전환한다.
         if (battleUIController != null)
         {
             battleUIController.SetPlayerDeploymentMode(
@@ -1616,9 +1630,61 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log(
-            "플레이어 초기 배치 완료: 전투를 시작합니다."
+            "플레이어 초기 배치 완료: " +
+            "BATTLE START 연출을 시작합니다."
         );
 
+        // <변경부분> 기존처럼 즉시 전투를 시작하지 않고
+        // Announcement가 완전히 끝난 뒤 시작한다.
+        StartCoroutine(
+            PlayBattleStartAnnouncementThenStartBattleRoutine()
+        );
+    }
+
+    // <변경부분> 초기 배치 완료 후
+    // 공용 Announcement 시스템에서 BattleStart를 재생하고,
+    // 모든 등장/Spine/퇴장 연출이 끝난 뒤
+    // 기존 정상 Battle Turn을 시작한다.
+    private IEnumerator
+        PlayBattleStartAnnouncementThenStartBattleRoutine()
+    {
+        isBattleAnnouncementPlaying =
+            true;
+
+        if (battleAnnouncementController != null)
+        {
+            yield return
+                battleAnnouncementController
+                    .PlayRoutine(
+                        BattleAnnouncementType.BattleStart
+                    );
+        }
+        else
+        {
+            // Inspector 연결 누락 때문에
+            // 전투 자체가 멈추지는 않게 한다.
+            Debug.LogWarning(
+                "BattleAnnouncementController가 연결되지 않아 " +
+                "BATTLE START 연출을 건너뜁니다."
+            );
+        }
+
+        isBattleAnnouncementPlaying =
+            false;
+
+        // Scene 전환 등의 예외 상황으로
+        // 전투가 이미 끝났다면 다시 시작하지 않는다.
+        if (isBattleEnded)
+        {
+            yield break;
+        }
+
+        Debug.Log(
+            "BATTLE START 연출 완료: " +
+            "정상 전투를 시작합니다."
+        );
+
+        // <변경부분> 기존 전투 시작 함수는 수정하지 않고 그대로 사용.
         StartNormalBattleTurn();
     }
 
@@ -1649,9 +1715,10 @@ public class BattleManager : MonoBehaviour
         Piece actingPiece,
         Vector2Int targetPosition)
     {
-        // <변경부분> 초기 배치 단계에서는
-        // 일반 이동 및 공격 행동을 실행하지 않는다.
-        if (isPlayerDeploymentPhase)
+        // <변경부분> 초기 배치 또는 Announcement 연출 중에는
+        // Player / AI 실제 이동 및 공격 행동을 시작하지 않는다.
+        if (isPlayerDeploymentPhase ||
+            isBattleAnnouncementPlaying)
         {
             return false;
         }
@@ -2767,19 +2834,24 @@ public class BattleManager : MonoBehaviour
         );
     }
 
-    // 일반 전투에서 기권하는 함수
     public void Surrender()
     {
-        // 이미 끝난 전투면 무시
-        if (isBattleEnded)
+        // <변경부분> Announcement 연출 중에는
+        // 화면 연출과 Battle 시작 Coroutine이 꼬이지 않도록
+        // 기권 입력을 받지 않는다.
+        if (isBattleEnded ||
+            isBattleAnnouncementPlaying)
         {
             return;
         }
 
-        // 일반 전투 기권은 패배 처리
-        EndBattle(BattleResult.Lose);
+        EndBattle(
+            BattleResult.Lose
+        );
 
-        Debug.Log("기권: 일반 전투 패배 / 보상 없음 / 받은 피해와 사망 상태 유지");
+        Debug.Log(
+            "기권: 일반 전투 패배 / 보상 없음 / 받은 피해와 사망 상태 유지"
+        );
     }
 
     // <변경부분> 현재 마지막 Enemy 1기 강제 흡수가 가능한지 검사한다.
@@ -2789,11 +2861,12 @@ public class BattleManager : MonoBehaviour
     public bool CanUseLastEnemyAbsorb()
     {
         if (isPlayerDeploymentPhase ||
-            isBattleEnded ||
-            isActionAnimating ||
-            currentTurn != BattleTurn.Player ||
-            pieceManager == null ||
-            boardManager == null)
+    isBattleAnnouncementPlaying ||
+    isBattleEnded ||
+    isActionAnimating ||
+    currentTurn != BattleTurn.Player ||
+    pieceManager == null ||
+    boardManager == null)
         {
             return false;
         }
@@ -3195,9 +3268,10 @@ public class BattleManager : MonoBehaviour
     public void ToggleAbsorbMode()
     {
 
-        // <변경부분> 초기 배치 중에는 흡수 버튼을
-        // 체크 버튼으로 사용하므로 흡수 모드를 켜지 않는다.
-        if (isPlayerDeploymentPhase)
+        // <변경부분> 배치 또는 Announcement 중에는
+        // 흡수 모드로 진입하지 않는다.
+        if (isPlayerDeploymentPhase ||
+            isBattleAnnouncementPlaying)
         {
             return;
         }
@@ -3251,9 +3325,10 @@ public class BattleManager : MonoBehaviour
     // 현재 선택된 기물의 고유 스킬을 사용하는 함수
     public void UseSelectedPieceSkill()
     {
-        // <변경부분> 초기 배치가 끝나기 전에는
+        // <변경부분> 배치 또는 Announcement가 끝나기 전에는
         // 고유스킬을 사용할 수 없다.
-        if (isPlayerDeploymentPhase)
+        if (isPlayerDeploymentPhase ||
+            isBattleAnnouncementPlaying)
         {
             return;
         }
@@ -3571,9 +3646,10 @@ public class BattleManager : MonoBehaviour
     // <변경부분> BattleItemManager가 아이템 사용 가능 상태인지 확인할 때 호출하는 함수
     public bool CanUseBattleItem()
     {
-        // <변경부분> 초기 배치가 끝나기 전에는
-        // 전투 아이템을 사용할 수 없다.
-        if (isPlayerDeploymentPhase)
+        // <변경부분> 초기 배치 또는 Announcement가 끝나기 전에는
+        // Battle Item을 사용할 수 없다.
+        if (isPlayerDeploymentPhase ||
+            isBattleAnnouncementPlaying)
         {
             return false;
         }
