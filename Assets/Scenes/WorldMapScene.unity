@@ -2636,7 +2636,13 @@ MonoBehaviour:
   nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
   targetSceneName: BattleScene
   stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
-  connections: []
+  connections:
+  - targetNodeId: ForestMap_01_Battle_04
+    routeGridPositions:
+    - {x: 29, y: 8}
+    - {x: 30, y: 9}
+    - {x: 31, y: 9}
+    - {x: 33, y: 11}
   isUnlocked: 0
   isCleared: 0
   nodeSpriteRenderer: {fileID: 1575163722}

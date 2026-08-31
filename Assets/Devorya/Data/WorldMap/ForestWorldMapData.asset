@@ -74,7 +74,13 @@ MonoBehaviour:
     stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
-    connections: []
+    connections:
+    - targetNodeId: ForestMap_01_Battle_04
+      routeGridPositions:
+      - {x: 29, y: 8}
+      - {x: 30, y: 9}
+      - {x: 31, y: 9}
+      - {x: 33, y: 11}
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_04
     nodeDisplayName: "\uCD5C\uC885 \uBCF4\uC2A4"
