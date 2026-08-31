@@ -116,6 +116,39 @@ public class StageBattleData : ScriptableObject
     // 여러 StageBattleData가 같은 BattleRewardData를 공유할 수 있다.
     public BattleRewardData battleRewardData;
 
+    [Header("Battle Win Scene")]
+
+    // <변경부분> 이 스테이지에서 승리하고
+    // 보상 팝업 확인까지 끝낸 뒤 이동할 Scene 이름.
+    //
+    // 일반 전투:
+    // WorldMapScene
+    //
+    // 컷씬:
+    // TextCutsceneScene
+    //
+    // 최종 보스:
+    // Title Scene 등
+    //
+    // 비어 있는 경우에는 BattleEndFlowController의
+    // 기존 WorldMap Scene 설정을 fallback으로 사용한다.
+    public string victorySceneName =
+    "WorldMapScene";
+
+    // <변경부분> 승리 후 TextCutsceneScene으로 이동할 경우
+    // 다음 컷씬에서 실행할 TextCutsceneData.
+    //
+    // null:
+    // 별도의 컷씬 데이터를 전달하지 않는다.
+    //
+    // Data 지정:
+    // 보상 팝업 확인 후 Scene을 이동하기 직전에
+    // TextCutsceneRuntimeState에 Pending Data로 등록한다.
+    //
+    // 실제 컷씬 재생 Scene 이름은
+    // victorySceneName에 별도로 지정한다.
+    public TextCutsceneData victoryCutsceneData;
+
     [Header("Enemy AI")]
     // Enemy AI가 Enemy 턴 시작 시
     // 고유스킬 후보를 고려할지 결정하는 확률.

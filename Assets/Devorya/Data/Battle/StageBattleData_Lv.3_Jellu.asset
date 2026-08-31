@@ -16,6 +16,7 @@ MonoBehaviour:
   description: "\uC824\uB8E8\uC138\uD2B8\uB97C \uB123\uC5B4 \uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0\uB97C
     \uC9C4\uD589\uD55C\uB2E4."
   eventSequenceData: {fileID: 0}
+  startAnnouncementType: 0
   backgroundMapData: {fileID: 11400000, guid: 922f0a17035f5af4b8aa0e08eb1a39e8, type: 2}
   checkerTileTypeA: 0
   checkerTileTypeB: 1
@@ -26,6 +27,8 @@ MonoBehaviour:
   savePlayerPiecesToRunState: 1
   enemyFormationData: {fileID: 11400000, guid: b7df25faa6415dd42b375a3f7a216136, type: 2}
   battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
+  victorySceneName: TextCutsceneScene
+  victoryCutsceneData: {fileID: 11400000, guid: 1569fa4846c247d4292a6a0c4eecc547, type: 2}
   enemyUniqueSkillUseChance: 15
   enemyGeneralSkillGrantRules:
   - skillType: 1

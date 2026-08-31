@@ -625,36 +625,62 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 현재 플레이어 턴인데 플레이어 기물이 아니면 선택 불가
-        if (currentTurn == BattleTurn.Player && piece.Team != PieceTeam.Player)
+        if (currentTurn == BattleTurn.Player &&
+    piece.Team != PieceTeam.Player)
         {
-            Debug.Log("상대 기물 정보를 확인합니다.");
+            Debug.Log(
+                "상대 기물 정보를 확인합니다."
+            );
 
-            // <변경부분> 상대 기물을 클릭해 선택이 해제되는 경우, 기존 선택 기물은 Down 후 Idle로 전환
+            // <변경부분> 상대 기물을 클릭해 선택이 해제되는 경우,
+            // 기존 Player 선택 기물은 Down 후 Idle로 전환한다.
             if (previousSelectedPiece != null)
             {
-                pieceManager.PlayPieceDeselectAnimation(previousSelectedPiece);
+                pieceManager.PlayPieceDeselectAnimation(
+                    previousSelectedPiece
+                );
             }
 
-            // <변경부분> 플레이어 턴에 상대 기물을 클릭하면 오른쪽 상단 스테이터스 UI에 표시
+            // <변경부분> Player Turn에 상대 기물을 클릭하면
+            // 오른쪽 상단 Enemy Status UI에 해당 기물 정보를 표시한다.
             if (battleUIController != null)
             {
-                battleUIController.RefreshEnemyStatus(piece);
+                battleUIController.RefreshEnemyStatus(
+                    piece
+                );
             }
 
-            selectedPiece = null;
+            // 상대 기물은 실제 Player 행동 기물로 선택하지 않는다.
+            selectedPiece =
+                null;
 
             // <변경부분> 클릭한 상대 기물을
             // 정보 확인용 타입 아이콘 표시 대상으로 저장한다.
             pendingAttackTargetPiece =
                 piece;
 
-            // 전체 토글이 켜져 있으면 모든 아이콘을 유지하고,
-            // 꺼져 있으면 확인 중인 상대 아이콘만 표시한다.
+            // 전체 타입 아이콘 표시 상태를 현재 대상 기준으로 갱신한다.
             RefreshTypeIconVisuals();
 
-            // 중요: 여기서는 HideActionButtons() 호출 금지
-            // HideActionButtons()를 호출하면 EnemyStatusPanel까지 같이 꺼짐
+            // <변경부분> ForcePieceSelect가 Enemy / Neutral 등
+            // 현재 Player가 직접 조작하는 진영이 아닌 기물을
+            // 선택 대상으로 지정한 경우에도,
+            // 실제 정보 확인 클릭이 성공했다는 사실을
+            // EventSequenceController에 반드시 전달한다.
+            //
+            // EventSequenceController 내부에서
+            // Team + 좌표를 다시 검증하므로
+            // 일반 Enemy 정보 확인에는 영향을 주지 않는다.
+            if (eventSequenceController != null)
+            {
+                eventSequenceController.NotifyPieceSelected(
+                    piece
+                );
+            }
+
+            // 중요:
+            // 여기서는 HideActionButtons() 호출 금지.
+            // 호출하면 EnemyStatusPanel까지 함께 닫힐 수 있다.
 
             return;
         }
@@ -4797,6 +4823,74 @@ public class BattleManager : MonoBehaviour
         EndTurn();
     }
 
+    // <변경부분> EventSequence가 현재 전투 턴을
+    // 기존 정상 EndTurn 파이프라인을 통해 다음 턴으로 넘길 때 사용한다.
+    //
+    // currentTurn을 직접 변경하지 않고 반드시 EndTurn()을 재사용하여
+    // 선택 상태 / 하이라이트 / 스킬 쿨타임 / 상태이상 /
+    // TurnInfo UI / Enemy AI 턴 시작 통지를 동일하게 처리한다.
+    public bool TryAdvanceBattleTurnFromEvent()
+    {
+        // 전투가 이미 종료된 상태에서는 턴을 변경하지 않는다.
+        if (isBattleEnded)
+        {
+            Debug.LogWarning(
+                "Event 턴 전환 실패: " +
+                "전투가 이미 종료되었습니다."
+            );
+
+            return false;
+        }
+
+        // 이동 / 공격 / 스킬 연출 도중에는
+        // 중간 상태에서 턴이 바뀌는 것을 방지한다.
+        if (isActionAnimating)
+        {
+            Debug.LogWarning(
+                "Event 턴 전환 실패: " +
+                "현재 전투 행동 연출이 진행 중입니다."
+            );
+
+            return false;
+        }
+
+        // 일반 Player 초기 배치 단계가 남아 있는 상태에서는
+        // 턴을 강제로 넘기지 않는다.
+        if (isPlayerDeploymentPhase)
+        {
+            Debug.LogWarning(
+                "Event 턴 전환 실패: " +
+                "Player 초기 배치 단계가 아직 진행 중입니다."
+            );
+
+            return false;
+        }
+
+        // Battle Start / Warning Announcement가 진행 중이라면
+        // 연출 도중 턴 상태가 변경되지 않도록 막는다.
+        if (isBattleAnnouncementPlaying)
+        {
+            Debug.LogWarning(
+                "Event 턴 전환 실패: " +
+                "Battle Announcement가 진행 중입니다."
+            );
+
+            return false;
+        }
+
+        BattleTurn previousTurn =
+            currentTurn;
+
+        // <변경부분> 기존 정상 전투의 턴 전환 파이프라인을 그대로 사용한다.
+        EndTurn();
+
+        Debug.Log(
+            $"Event 턴 전환 완료: " +
+            $"{previousTurn} -> {currentTurn}"
+        );
+
+        return true;
+    }
     private void EndTurn()
     {
 
@@ -5242,6 +5336,67 @@ public class BattleManager : MonoBehaviour
                 }
             }
         }
+
+        return true;
+    }
+
+    // <변경부분> Event Sequence의 명시적인 저장 Step에서
+    // 현재 보드의 Player 기물 상태를 RunState에 즉시 확정 저장한다.
+    //
+    // StageBattleData의 savePlayerPiecesToRunState 설정은
+    // "전투 종료 시 자동 저장 여부"이므로 여기서는 검사하지 않는다.
+    //
+    // 따라서 튜토리얼 Stage를
+    // Save Player Pieces To Run State = false로 유지하면서도,
+    // 원하는 Event Step에서만 현재 상태를 저장할 수 있다.
+    public bool CommitPlayerPiecesToRunStateFromEvent()
+    {
+        if (pieceManager == null)
+        {
+            Debug.LogWarning(
+                "Event Player 기물 저장 실패: " +
+                "PieceManager가 연결되지 않았습니다."
+            );
+
+            return false;
+        }
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "Event Player 기물 저장 실패: " +
+                "RunStateManager가 존재하지 않습니다."
+            );
+
+            return false;
+        }
+
+        // 현재 보드에 실제로 살아있는
+        // Player 기물 전체 상태를 런타임 데이터로 캡처한다.
+        List<PlayerPieceRuntimeData> runtimeDataList =
+            pieceManager.CapturePlayerPieceRuntimeData();
+
+        // <변경부분> 잘못 배치된 Event Step 하나 때문에
+        // 기존 RunState가 빈 목록으로 덮어써지는 것을 방지한다.
+        if (runtimeDataList == null ||
+            runtimeDataList.Count == 0)
+        {
+            Debug.LogWarning(
+                "Event Player 기물 저장 실패: " +
+                "현재 보드에 저장할 Player 기물이 없습니다."
+            );
+
+            return false;
+        }
+
+        RunStateManager.Instance.SavePlayerPieces(
+            runtimeDataList
+        );
+
+        Debug.Log(
+            $"Event Player 기물 RunState 저장 완료: " +
+            $"{runtimeDataList.Count}개"
+        );
 
         return true;
     }

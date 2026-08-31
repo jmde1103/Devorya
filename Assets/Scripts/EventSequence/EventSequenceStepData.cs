@@ -34,8 +34,47 @@ public enum EventSequenceStepType
     Wait,
 
     // 시퀀스를 즉시 완료한다.
-    CompleteSequence
+    CompleteSequence,
+
+    // <변경부분> 현재 보드에 존재하는
+    // Player 기물 상태 전체를 RunState에 즉시 저장한다.
+    //
+    // 튜토리얼에서 Spawn / 흡수 / 변형한 결과 중
+    // 실제 다음 전투에 가져갈 상태가 완성된 시점에 사용한다.
+    //
+    // StageBattleData의 자동 저장 설정과는 별개로
+    // 이 Step이 실행되는 순간 명시적으로 한 번 저장한다.
+    CommitPlayerPiecesToRunState,
+
+    // <변경부분> EventSequence가 현재 전투 턴을
+    // 기존 BattleManager의 정상 EndTurn 흐름을 통해 다음 진영으로 넘긴다.
+    //
+    // currentTurn을 직접 변경하지 않으며,
+    // 턴 UI / 고유스킬 쿨타임 / 상태이상 /
+    // AI 턴 시작 통지 등 기존 턴 전환 후처리를 그대로 사용한다.
+    AdvanceBattleTurn,
+
+    // <변경부분> 지정한 기물을 지정 좌표로
+    // 자동 이동 또는 공격시킨다.
+    //
+    // 목표 위치가 빈 타일이면 이동,
+    // 적대 기물이 있다면 공격으로 처리하며
+    // 실제 판정과 실행은 BattleManager의
+    // 기존 공용 전투 행동 파이프라인을 그대로 사용한다.
+    ExecutePieceAction,
+
+    // <변경부분> 지정한 기물이 현재 실제로 보유 중인
+    // 고유스킬을 EventSequence에서 자동으로 사용한다.
+    //
+    // EventSequenceData에서 별도의 Skill Type을 지정하지 않고
+    // 해당 기물의 Piece.UniqueSkill을 그대로 사용한다.
+    //
+    // 쿨타임 / 턴당 사용 제한 / 사망 스택 /
+    // 실제 스킬 발동 조건은 기존 BattleManager와
+    // BattleSkillManager의 정상 판정을 그대로 사용한다.
+    ExecutePieceUniqueSkill
 }
+
 
 // <변경부분> 튜토리얼에서 지정할 수 있는
 // 공용 전투 버튼 종류
@@ -222,10 +261,45 @@ public class EventSequenceStepData
     public bool checkRemovePieceTeam =
         false;
 
-    // <변경부분> Check Remove Piece Team이 켜져 있을 때
-    // 이 진영의 기물만 제거한다.
     public PieceTeam removePieceTeam =
+    PieceTeam.Enemy;
+
+    [Header("Execute Piece Action")]
+
+    // <변경부분> 자동으로 행동시킬 기물의 진영.
+    //
+    // 현재 목적은 Enemy Tutorial 행동이지만
+    // EventSequence 공용 기능으로 Player / Enemy 모두 지정 가능하다.
+    public PieceTeam actionPieceTeam =
         PieceTeam.Enemy;
+
+    // <변경부분> 자동 행동시킬 기물의
+    // 현재 보드 좌표.
+    public Vector2Int actionPiecePosition =
+        Vector2Int.zero;
+
+    // <변경부분> 해당 기물이 이동 또는 공격할 목표 좌표.
+    //
+    // 빈 타일 = 이동
+    // 적대 기물 위치 = 공격
+    public Vector2Int actionTargetPosition =
+    Vector2Int.zero;
+
+    [Header("Execute Piece Unique Skill")]
+
+    // <변경부분> 고유스킬을 자동 사용할 기물의 진영.
+    //
+    // 현재 Tutorial에서는 주로 Enemy를 사용하지만
+    // EventSequence 공용 기능으로 Player도 지정할 수 있다.
+    public PieceTeam uniqueSkillPieceTeam =
+        PieceTeam.Enemy;
+
+    // <변경부분> 고유스킬을 사용할 기물의
+    // 현재 보드 좌표.
+    //
+    // 이 좌표의 실제 Piece.UniqueSkill을 읽어 사용한다.
+    public Vector2Int uniqueSkillPiecePosition =
+        Vector2Int.zero;
 
     [Header("Wait")]
     // Wait 단계에서 기다릴 시간

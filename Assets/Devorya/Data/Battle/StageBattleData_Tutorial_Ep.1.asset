@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
   m_Name: StageBattleData_Tutorial_Ep.1
   m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
-  stageName: "\uD29C\uD1A0\uB9AC\uC5BC"
-  description: "\uC5F0\uAD6C\uC2E4"
+  stageName: "\uC5F0\uAD6C\uC2E4"
+  description: "\uAE30\uBCF8 \uCCB4\uC2A4\uC758 \uADDC\uCE59\uC744 \uC54C\uB824\uC8FC\uB294
+    \uD29C\uD1A0\uB9AC\uC5BC"
   eventSequenceData: {fileID: 11400000, guid: c04729b24f0810447b51551ad62b7c4a, type: 2}
   startAnnouncementType: 2
   backgroundMapData: {fileID: 11400000, guid: 9d3487eb836a20b4db4dab527cb2b6be, type: 2}

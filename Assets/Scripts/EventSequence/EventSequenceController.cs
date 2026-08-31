@@ -869,6 +869,44 @@ public class EventSequenceController : MonoBehaviour
                 CompleteSequence();
                 yield break;
 
+            case EventSequenceStepType.CommitPlayerPiecesToRunState:
+                // <변경부분> 현재 시점의 Player 기물 상태를
+                // RunState에 명시적으로 확정 저장한다.
+                ExecuteCommitPlayerPiecesToRunStateStep(
+                    step
+                );
+
+                yield break;
+
+            case EventSequenceStepType.AdvanceBattleTurn:
+                // <변경부분> 현재 Battle Turn을
+                // BattleManager의 기존 정상 턴 전환 파이프라인으로 넘긴다.
+                ExecuteAdvanceBattleTurnStep(
+                    step
+                );
+
+                yield break;
+
+            case EventSequenceStepType.ExecutePieceAction:
+                // <변경부분> 지정 좌표의 기물을 찾아
+                // 기존 Battle 이동/공격 파이프라인으로 자동 행동시킨다.
+                yield return
+                    ExecutePieceActionStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+            case EventSequenceStepType.ExecutePieceUniqueSkill:
+                // <변경부분> 지정 좌표의 기물이
+                // 현재 실제로 보유 중인 고유스킬을 자동 사용한다.
+                yield return
+                    ExecutePieceUniqueSkillStepRoutine(
+                        step
+                    );
+
+                yield break;
+
             case EventSequenceStepType.ForcePieceSelect:
                 // <변경부분> 지정한 기물을 실제로 선택할 때까지
                 // 현재 Step에서 대기한다.
@@ -1459,6 +1497,349 @@ public class EventSequenceController : MonoBehaviour
             $"{removedTeam} / " +
             $"{removedPieceType} / " +
             $"{removePosition}"
+        );
+    }
+
+    // <변경부분> 현재 Event Sequence 시점의
+    // Player 기물 상태 전체를 RunState에 저장한다.
+    //
+    // SpawnPiece / 흡수 / 변형 등이 모두 끝난 뒤
+    // 다음 전투에 실제로 전달하고 싶은 시점에 배치한다.
+    private void ExecuteCommitPlayerPiecesToRunStateStep(
+        EventSequenceStepData step)
+    {
+        if (battleManager == null)
+        {
+            Debug.LogWarning(
+                $"Event Player 기물 저장 Step 실패: " +
+                $"BattleManager가 연결되지 않았습니다. / " +
+                $"{step?.stepName}"
+            );
+
+            return;
+        }
+
+        bool saved =
+            battleManager
+                .CommitPlayerPiecesToRunStateFromEvent();
+
+        if (saved == false)
+        {
+            Debug.LogWarning(
+                $"Event Player 기물 저장 Step 실패: " +
+                $"{step?.stepName}"
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            $"Event Player 기물 저장 Step 완료: " +
+            $"{step?.stepName}"
+        );
+    }
+
+    // <변경부분> EventSequence에서 현재 전투 턴을
+    // 다음 진영으로 명시적으로 넘기는 Step을 실행한다.
+    //
+    // currentTurn을 직접 변경하지 않고
+    // BattleManager의 기존 EndTurn 파이프라인을 재사용한다.
+    private void ExecuteAdvanceBattleTurnStep(
+        EventSequenceStepData step)
+    {
+        if (battleManager == null)
+        {
+            Debug.LogWarning(
+                $"Event 턴 전환 Step 실패: " +
+                $"BattleManager가 연결되지 않았습니다. / " +
+                $"{step?.stepName}"
+            );
+
+            return;
+        }
+
+        BattleTurn previousTurn =
+            battleManager.CurrentTurn;
+
+        bool advanced =
+            battleManager
+                .TryAdvanceBattleTurnFromEvent();
+
+        if (advanced == false)
+        {
+            Debug.LogWarning(
+                $"Event 턴 전환 Step 실패: " +
+                $"{step?.stepName} / " +
+                $"현재 턴 {previousTurn}"
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            $"Event 턴 전환 Step 완료: " +
+            $"{step?.stepName} / " +
+            $"{previousTurn} -> " +
+            $"{battleManager.CurrentTurn}"
+        );
+    }
+
+    // <변경부분> EventSequence에 지정된 기물을 찾아
+    // 지정 좌표로 자동 이동 또는 공격시킨다.
+    //
+    // EventSequenceController 내부에서
+    // 이동 규칙이나 공격 규칙을 별도로 구현하지 않고,
+    // BattleManager.TryExecuteBattleAction()을 그대로 사용하여
+    // 일반 Battle / AI와 동일한 실행 파이프라인을 유지한다.
+    private IEnumerator ExecutePieceActionStepRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (pieceManager == null ||
+            battleManager == null)
+        {
+            Debug.LogWarning(
+                $"Event 기물 행동 Step 실패: " +
+                $"PieceManager 또는 BattleManager가 연결되지 않았습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> EventSequence 데이터에 지정된
+        // 현재 보드 좌표에서 실제 행동 기물을 찾는다.
+        Piece actingPiece =
+            pieceManager.GetPieceAt(
+                step.actionPiecePosition.x,
+                step.actionPiecePosition.y
+            );
+
+        if (actingPiece == null)
+        {
+            Debug.LogWarning(
+                $"Event 기물 행동 Step 실패: " +
+                $"{step.actionPiecePosition}에 " +
+                $"행동시킬 기물이 없습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> 좌표에 다른 진영의 기물이 들어와 있을 경우
+        // 잘못된 Tutorial 행동이 실행되지 않도록 Team까지 확인한다.
+        if (actingPiece.Team !=
+            step.actionPieceTeam)
+        {
+            Debug.LogWarning(
+                $"Event 기물 행동 Step 실패: " +
+                $"지정 Team={step.actionPieceTeam} / " +
+                $"실제 Team={actingPiece.Team} / " +
+                $"{step.actionPiecePosition} / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        Vector2Int sourcePosition =
+            new Vector2Int(
+                actingPiece.X,
+                actingPiece.Y
+            );
+
+        // <변경부분> 일반 Battle과 AI가 사용하는
+        // 기존 공용 행동 실행 함수를 그대로 사용한다.
+        //
+        // 목표가 빈칸이면 이동,
+        // 목표에 적대 기물이 있으면 공격으로 자동 처리된다.
+        bool actionStarted =
+            battleManager.TryExecuteBattleAction(
+                actingPiece,
+                step.actionTargetPosition
+            );
+
+        if (actionStarted == false)
+        {
+            Debug.LogWarning(
+                $"Event 기물 행동 Step 실패: " +
+                $"{step.actionPieceTeam} / " +
+                $"{sourcePosition} -> " +
+                $"{step.actionTargetPosition} / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> 이동 / 공격 / Defense / Insight /
+        // ChanceAttack 등 기존 전투 행동 처리가 완전히 끝날 때까지
+        // 다음 Event Step으로 넘어가지 않는다.
+        while (battleManager != null &&
+               battleManager.IsActionAnimating)
+        {
+            if (isSequenceActive == false)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Debug.Log(
+            $"Event 기물 행동 Step 완료: " +
+            $"{step.actionPieceTeam} / " +
+            $"{sourcePosition} -> " +
+            $"{step.actionTargetPosition} / " +
+            $"{step.stepName}"
+        );
+    }
+
+    // <변경부분> EventSequence에 지정된 기물이
+    // 현재 실제로 보유 중인 고유스킬을 자동으로 사용한다.
+    //
+    // 스킬 효과나 사용 조건을 EventSequenceController에서
+    // 다시 구현하지 않고,
+    // 기존 BattleManager.TryExecuteAIUniqueSkill() 경로를 사용한다.
+    private IEnumerator ExecutePieceUniqueSkillStepRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (pieceManager == null ||
+            battleManager == null)
+        {
+            Debug.LogWarning(
+                $"Event 고유스킬 Step 실패: " +
+                $"PieceManager 또는 BattleManager가 연결되지 않았습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> EventSequence 데이터에 지정된 좌표에서
+        // 실제 스킬 사용 기물을 찾는다.
+        Piece skillPiece =
+            pieceManager.GetPieceAt(
+                step.uniqueSkillPiecePosition.x,
+                step.uniqueSkillPiecePosition.y
+            );
+
+        if (skillPiece == null)
+        {
+            Debug.LogWarning(
+                $"Event 고유스킬 Step 실패: " +
+                $"{step.uniqueSkillPiecePosition}에 " +
+                $"기물이 없습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> 잘못된 좌표에 다른 진영의 기물이 들어와도
+        // 의도하지 않은 스킬이 발동하지 않도록 Team을 검증한다.
+        if (skillPiece.Team !=
+            step.uniqueSkillPieceTeam)
+        {
+            Debug.LogWarning(
+                $"Event 고유스킬 Step 실패: " +
+                $"지정 Team={step.uniqueSkillPieceTeam} / " +
+                $"실제 Team={skillPiece.Team} / " +
+                $"{step.uniqueSkillPiecePosition} / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // 고유스킬 자체가 없는 기물은 실행할 수 없다.
+        if (skillPiece.UniqueSkill ==
+            UniqueSkillType.None)
+        {
+            Debug.LogWarning(
+                $"Event 고유스킬 Step 실패: " +
+                $"{step.uniqueSkillPiecePosition}의 " +
+                $"{skillPiece.PieceType} 기물이 " +
+                $"고유스킬을 보유하고 있지 않습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        UniqueSkillType skillType =
+            skillPiece.UniqueSkill;
+
+        // <변경부분> 기물이 현재 실제로 가지고 있는
+        // UniqueSkill을 그대로 BattleAIAction에 담는다.
+        BattleAIAction skillAction =
+            BattleAIAction.CreateUniqueSkill(
+                skillPiece
+            );
+
+        if (skillAction == null)
+        {
+            Debug.LogWarning(
+                $"Event 고유스킬 Step 실패: " +
+                $"고유스킬 행동 데이터를 생성하지 못했습니다. / " +
+                $"{skillType} / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> 기존 AI 고유스킬 실행 진입점을 그대로 사용하여
+        // 현재 턴 / 쿨타임 / 턴당 사용 제한 /
+        // 사망 스택 / 실제 Skill Effect 조건을 모두 검증한다.
+        bool skillStarted =
+            battleManager.TryExecuteAIUniqueSkill(
+                skillAction
+            );
+
+        if (skillStarted == false)
+        {
+            Debug.LogWarning(
+                $"Event 고유스킬 Step 실패: " +
+                $"{step.uniqueSkillPieceTeam} / " +
+                $"{step.uniqueSkillPiecePosition} / " +
+                $"{skillType} / " +
+                $"현재 스킬 사용 조건을 만족하지 못했습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분> 스킬 아이콘 연출과 실제 스킬 효과,
+        // 쿨타임 및 후처리가 모두 끝날 때까지 기다린다.
+        while (battleManager != null &&
+               battleManager.IsActionAnimating)
+        {
+            if (isSequenceActive == false)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Debug.Log(
+            $"Event 고유스킬 Step 완료: " +
+            $"{step.uniqueSkillPieceTeam} / " +
+            $"{step.uniqueSkillPiecePosition} / " +
+            $"{skillType} / " +
+            $"{step.stepName}"
         );
     }
 

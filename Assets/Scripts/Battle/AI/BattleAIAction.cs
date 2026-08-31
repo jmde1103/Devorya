@@ -73,6 +73,40 @@ public class BattleAIAction
         );
     }
 
+    // <변경부분> 지정한 기물이 현재 실제로 보유 중인
+    // 고유스킬을 그대로 사용하는 공용 행동 데이터를 생성한다.
+    //
+    // EventSequence처럼 AI의 후보 생성 과정을 거치지 않고
+    // 특정 기물의 고유스킬을 명시적으로 실행해야 할 때 사용한다.
+    //
+    // 실제 사용 가능 여부는 BattleManager.TryExecuteAIUniqueSkill()
+    // 내부의 기존 검증을 그대로 사용한다.
+    public static BattleAIAction CreateUniqueSkill(
+        Piece actingPiece)
+    {
+        if (actingPiece == null ||
+            actingPiece.UniqueSkill ==
+                UniqueSkillType.None)
+        {
+            return null;
+        }
+
+        Vector2Int currentPosition =
+            new Vector2Int(
+                actingPiece.X,
+                actingPiece.Y
+            );
+
+        return new BattleAIAction(
+            BattleAIActionType.UniqueSkill,
+            actingPiece,
+            currentPosition,
+            currentPosition,
+            null,
+            actingPiece.UniqueSkill
+        );
+    }
+
     // <변경부분> 젤루 합성 고유스킬 AI 행동 후보를 생성한다.
     //
     // AI는 특정 합성 재료를 행동 데이터에 저장하지 않고

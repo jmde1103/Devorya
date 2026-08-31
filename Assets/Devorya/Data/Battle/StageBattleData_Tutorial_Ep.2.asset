@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
   stageName: "\uB4E4\uD310 #1"
   description: 
-  eventSequenceData: {fileID: 11400000, guid: c04729b24f0810447b51551ad62b7c4a, type: 2}
-  startAnnouncementType: 0
-  backgroundMapData: {fileID: 0}
-  checkerTileTypeA: 4
-  checkerTileTypeB: 5
-  playerDefeatCondition: 5
-  enemyDefeatCondition: 10
-  playerFormationData: {fileID: 0}
+  eventSequenceData: {fileID: 11400000, guid: ae0ab461fd1e784499f9a07d68a5b0bc, type: 2}
+  startAnnouncementType: 2
+  backgroundMapData: {fileID: 11400000, guid: cfef9f2fa93f4dd4497b2fe408ea2bea, type: 2}
+  checkerTileTypeA: 0
+  checkerTileTypeB: 1
+  playerDefeatCondition: 0
+  enemyDefeatCondition: 0
+  playerFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   useRunStatePlayerPieces: 1
   savePlayerPiecesToRunState: 1
-  enemyFormationData: {fileID: 0}
-  battleRewardData: {fileID: 0}
-  enemyUniqueSkillUseChance: 100
+  enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
+  battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
+  enemyUniqueSkillUseChance: 0
   enemyGeneralSkillGrantRules: []

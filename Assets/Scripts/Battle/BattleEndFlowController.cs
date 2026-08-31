@@ -28,7 +28,22 @@ public class BattleEndFlowController : MonoBehaviour
     // BattleScene에서 다음 BattleScene으로 직접 이동하지 않는다.
     [SerializeField]
     private string mapSceneName =
-        "WorldMapScene";
+    "WorldMapScene";
+
+    // <변경부분> 현재 StageBattleData에서 전달받은
+    // 실제 승리 후 이동 목적지 Scene.
+    //
+    // 일반 전투는 WorldMapScene,
+    // 최종 보스는 Title Scene 등을 사용할 수 있다.
+    //
+    // 빈 값이면 기존 mapSceneName을 fallback으로 사용한다.
+    private string victorySceneName;
+
+    // <변경부분> 현재 StageBattleData에서 전달받은
+    // 승리 후 실행할 TextCutsceneData.
+    //
+    // null이면 일반 Scene 이동으로 처리한다.
+    private TextCutsceneData victoryCutsceneData;
 
 
 
@@ -96,6 +111,65 @@ public class BattleEndFlowController : MonoBehaviour
         }
 
         Debug.Log($"전투 보상 데이터 적용: {battleRewardData.rewardName}");
+    }
+
+    // <변경부분> 현재 StageBattleData에 지정된
+    // 승리 후 이동 Scene 이름을 전달받는다.
+    //
+    // Scene 이름이 비어 있으면 기존 WorldMap 이동 구조를
+    // 그대로 유지하기 위해 mapSceneName을 사용한다.
+    public void SetVictorySceneName(
+        string sceneName)
+    {
+        if (string.IsNullOrWhiteSpace(
+                sceneName))
+        {
+            victorySceneName =
+                mapSceneName;
+
+            Debug.LogWarning(
+                "승리 후 이동 Scene이 비어 있어 " +
+                $"기본 Scene을 사용합니다. / {mapSceneName}"
+            );
+
+            return;
+        }
+
+        victorySceneName =
+            sceneName;
+
+        Debug.Log(
+            $"승리 후 이동 Scene 적용: " +
+            $"{victorySceneName}"
+        );
+    }
+
+    // <변경부분> 현재 StageBattleData에 지정된
+    // 승리 후 TextCutsceneData를 전달받는다.
+    //
+    // 실제 Scene 이동은 victorySceneName을 사용하며,
+    // 이 데이터는 Scene Load 직전에
+    // TextCutsceneRuntimeState에 Pending Data로 등록한다.
+    public void SetVictoryCutsceneData(
+        TextCutsceneData cutsceneData)
+    {
+        victoryCutsceneData =
+            cutsceneData;
+
+        if (victoryCutsceneData == null)
+        {
+            Debug.Log(
+                "승리 후 컷씬 데이터 없음: " +
+                "일반 Scene 이동을 사용합니다."
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            $"승리 후 컷씬 데이터 적용: " +
+            $"{victoryCutsceneData.name}"
+        );
     }
 
     // <변경부분> BattleManager가 전투 종료 시 호출하는 함수
@@ -536,30 +610,50 @@ public class BattleEndFlowController : MonoBehaviour
         );
     }
 
-    // <변경부분> 전투 보상 확인 후 월드맵으로 복귀한다.
+    // <변경부분> 전투 보상 확인 후
+    // 현재 StageBattleData에서 지정한 승리 목적지 Scene으로 이동한다.
     //
-    // 승리한 전투 노드를 먼저 런타임 진행도에 기록한 뒤
-    // 월드맵 씬을 불러온다.
+    // 기존 BattleRewardPopupUI 등의 호출 연결을 보호하기 위해
+    // 함수 이름 MoveToMapScene()은 그대로 유지한다.
     //
-    // 월드맵이 다시 시작되면 해당 노드가 클리어 처리되고,
-    // 연결된 다음 노드가 자동으로 해금된다.
+    // WorldMap으로 돌아가는 일반 전투일 때만
+    // 기존 WorldMap 노드 승리 기록을 적용한다.
     public void MoveToMapScene()
     {
-        if (string.IsNullOrEmpty(
-                mapSceneName))
+        // <변경부분> StageBattleData에서 전달받은 목적지가 있으면 우선 사용하고,
+        // 없다면 기존 WorldMap Scene 설정을 fallback으로 사용한다.
+        string targetSceneName =
+            string.IsNullOrWhiteSpace(
+                victorySceneName)
+                ? mapSceneName
+                : victorySceneName;
+
+        if (string.IsNullOrWhiteSpace(
+                targetSceneName))
         {
             Debug.LogWarning(
-                "맵 씬 이동 실패: " +
-                "mapSceneName이 비어 있습니다."
+                "승리 후 Scene 이동 실패: " +
+                "이동할 Scene 이름이 비어 있습니다."
             );
 
             return;
         }
 
-        // <변경부분> 어떤 맵 복귀 설정을 사용하더라도
-        // 승리 결과는 반드시 월드맵 진행도에 기록한다.
+        // <변경부분> 실제 목적지가 기존 WorldMap Scene일 때만
+        // 현재 전투 노드를 클리어 예정 상태로 기록한다.
+        //
+        // 최종 보스처럼 Title Scene 등으로 바로 나가는 경우에는
+        // WorldMapRuntimeState를 불필요하게 변경하지 않는다.
+        bool isReturningToWorldMap =
+            string.Equals(
+                targetSceneName,
+                mapSceneName,
+                System.StringComparison.Ordinal
+            );
+
         if (lastBattleResult ==
-            BattleResult.Win)
+                BattleResult.Win &&
+            isReturningToWorldMap)
         {
             WorldMapRuntimeState.MarkBattleWon();
 
@@ -569,14 +663,32 @@ public class BattleEndFlowController : MonoBehaviour
             );
         }
 
+        // <변경부분> 승리 후 컷씬 데이터가 지정되어 있다면
+        // Scene을 이동하기 전에 Pending Cutscene Data로 등록한다.
+        //
+        // TextCutsceneScene은 시작 시 이 Pending Data를 가져와
+        // Inspector 기본 데이터보다 우선하여 실행한다.
+        if (victoryCutsceneData != null)
+        {
+            TextCutsceneRuntimeState
+                .SetPendingCutsceneData(
+                    victoryCutsceneData
+                );
+
+            Debug.Log(
+                $"승리 후 컷씬 데이터 전달 완료: " +
+                $"{victoryCutsceneData.name}"
+            );
+        }
+
         Debug.Log(
             $"리워드 확인 완료: " +
-            $"로그라이크 맵 씬으로 이동합니다. / " +
-            $"{mapSceneName}"
+            $"승리 후 Scene으로 이동합니다. / " +
+            $"{targetSceneName}"
         );
 
         SceneManager.LoadScene(
-            mapSceneName
+            targetSceneName
         );
     }
 

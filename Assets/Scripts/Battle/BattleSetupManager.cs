@@ -181,9 +181,28 @@ public class BattleSetupManager : MonoBehaviour
             stageBattleData.enemyUniqueSkillUseChance
         );
 
-        // <변경부분> 현재 스테이지의 전투 보상 데이터를 BattleEndFlowController에 전달
+        // <변경부분> 현재 스테이지의 전투 보상 데이터를
+        // BattleEndFlowController에 전달한다.
         battleEndFlowController.SetBattleRewardData(
             stageBattleData.battleRewardData
+        );
+
+        // <변경부분> 현재 StageBattleData에 지정된
+        // 승리 후 이동 Scene을 BattleEndFlowController에 전달한다.
+        //
+        // 일반 Stage는 WorldMapScene,
+        // 최종 보스 Stage는 Title Scene 등
+        // 스테이지마다 서로 다른 목적지를 사용할 수 있다.
+        battleEndFlowController.SetVictorySceneName(
+    stageBattleData.victorySceneName
+);
+
+        // <변경부분> 승리 후 컷씬이 지정되어 있다면
+        // 해당 TextCutsceneData도 BattleEndFlowController에 전달한다.
+        //
+        // null인 일반 전투에서는 아무 컷씬 데이터도 등록하지 않는다.
+        battleEndFlowController.SetVictoryCutsceneData(
+            stageBattleData.victoryCutsceneData
         );
 
         // <변경부분> 스테이지별 적 일반스킬 랜덤 부여 규칙 적용

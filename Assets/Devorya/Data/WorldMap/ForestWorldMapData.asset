@@ -19,12 +19,12 @@ MonoBehaviour:
   gridHeight: 30
   nodePlacements:
   - nodeId: ForestMap_01_Battle_02
-    nodeDisplayName: "\uC77C\uBC18 \uC804\uD22C"
+    nodeDisplayName: "\uD29C\uD1A0\uB9AC\uC5BC"
     gridPosition: {x: 23, y: 14}
-    nodeType: 0
-    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
+    nodeType: 2
+    nodeStyleData: {fileID: 11400000, guid: ca1d7159da3d76b4cb26be4415084675, type: 2}
     targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+    stageBattleData: {fileID: 11400000, guid: a61c2e4305ca80a4e8aff3360c54ce30, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -36,12 +36,12 @@ MonoBehaviour:
       - {x: 28, y: 15}
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_01
-    nodeDisplayName: "\uC911\uAC04 \uBCF4\uC2A4 \uC804\uD22C"
+    nodeDisplayName: "LV1 \uC804\uD22C"
     gridPosition: {x: 28, y: 14}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
+    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -66,30 +66,19 @@ MonoBehaviour:
       - {x: 22, y: 14}
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_03
-    nodeDisplayName: "\uB9C8\uC9C0\uB9C9 \uBC30\uD2C0"
+    nodeDisplayName: "LV2. \uC804\uD22C"
     gridPosition: {x: 29, y: 8}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
+    stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections: []
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_04
-    nodeDisplayName: "\uB9C8\uC9C0\uB9C9 \uBC30\uD2C0"
+    nodeDisplayName: "\uCD5C\uC885 \uBCF4\uC2A4"
     gridPosition: {x: 33, y: 11}
-    nodeType: 0
-    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
-    initiallyUnlocked: 0
-    initiallyCleared: 0
-    connections: []
-    revealRadius: 2
-  - nodeId: ForestMap_01_Battle_05
-    nodeDisplayName: "\uB9C8\uC9C0\uB9C9 \uBC30\uD2C0"
-    gridPosition: {x: 38, y: 14}
     nodeType: 0
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene

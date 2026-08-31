@@ -15,7 +15,8 @@ MonoBehaviour:
   skillType: 5
   skillName: "\uC824\uB8E8 \uBCBD"
   iconSprite: {fileID: 21300000, guid: fbd7c12a2f0ea354c90fcf177131d596, type: 3}
-  description: "\uAE30\uBB3C \uC55E\uC5D0 \uC824\uB8E8 \uBCBD 1\uAC1C\uB97C \uC0DD\uC131\uD55C\uB2E4."
+  description: "\uAE30\uBB3C \uC55E\uC5D0 \uC911\uB9BD\uAE30\uBB3C\uC778  '\uC824\uB8E8
+    \uBCBD' 1\uAC1C\uB97C \uC0DD\uC131\uD55C\uB2E4."
   tooltipSections: []
   cooldownTurn: 5
   requiredDeathStack: 0
