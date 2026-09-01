@@ -4974,9 +4974,6 @@ MonoBehaviour:
     Y: 6
     DecorationType: 1
   - X: 16
-    Y: 17
-    DecorationType: 1
-  - X: 16
     Y: 30
     DecorationType: 1
   - X: 16
