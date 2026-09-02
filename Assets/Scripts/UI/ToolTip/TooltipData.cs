@@ -130,8 +130,13 @@ public class TooltipViewData
         };
     }
 
-    // <변경부분> 아이템 데이터의 기존 이름/설명/아이콘을 Tooltip 기본 정보로 사용
-    public static TooltipViewData FromBattleItemData(BattleItemData data)
+    // <변경부분> 아이템 데이터에서 Tooltip 표시 데이터를 생성한다.
+    //
+    // 이름과 기본 설명은 현재 Locale에 맞는 Localization 값을 사용하며,
+    // Localization이 연결되지 않은 기존 아이템은
+    // BattleItemData의 기존 한국어 원문으로 자동 fallback한다.
+    public static TooltipViewData FromBattleItemData(
+        BattleItemData data)
     {
         if (data == null)
         {
@@ -140,11 +145,22 @@ public class TooltipViewData
 
         return new TooltipViewData
         {
-            title = data.itemName,
-            category = "아이템",
-            mainDescription = data.description,
-            icon = data.iconSprite,
-            sections = data.tooltipSections
+            title =
+                data.GetLocalizedItemName(),
+
+            // <변경부분> 공용 Category 문자열의 Localization은
+            // 이후 Tooltip 공통 텍스트 작업에서 별도로 처리한다.
+            category =
+                "아이템",
+
+            mainDescription =
+                data.GetLocalizedDescription(),
+
+            icon =
+                data.iconSprite,
+
+            sections =
+                data.tooltipSections
         };
     }
 

@@ -16,6 +16,24 @@ MonoBehaviour:
   itemName: "\uBC29\uC5B4"
   iconSprite: {fileID: 21300000, guid: b1dea2452d257504b93f90baf90b0d2f, type: 3}
   description: "\uC0C1\uD0DC\uC774\uC0C1 \uBC29\uC5B4\uB97C \uBD80\uC5EC\uD55C\uB2E4"
+  localizedItemName:
+    m_TableReference:
+      m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
+    m_TableEntryReference:
+      m_KeyId: 34076602535936
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
+    m_TableEntryReference:
+      m_KeyId: 34076606730240
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   tooltipSections:
   - sectionType: 0
     sectionTitle: "\uBC29\uC5B4"
@@ -28,8 +46,10 @@ MonoBehaviour:
   changeTargetPieceType: 0
   changeTargetUniqueSkill: 0
   changeTargetGeneralSkill: 0
-  changeTargetGeneralSkillLevel: 1
   useAbsorbedJelluVisual: 1
   blockUseOnKing: 1
   onlyPlayerPiece: 1
   applyStatusEffectData: {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}
+  references:
+    version: 2
+    RefIds: []

@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 // <변경부분> 전투 아이템 슬롯 하나의 아이콘 표시와 클릭 입력을 관리하는 UI
@@ -10,12 +12,42 @@ public class BattleItemSlotUI : MonoBehaviour
     // 이 슬롯의 번호
     private int slotIndex;
 
+    // <변경부분> 현재 슬롯에 연결되어 있는 아이템 데이터.
+    //
+    // Locale이 변경되었을 때 TooltipViewData를
+    // 현재 언어 기준으로 다시 생성하기 위해 보관한다.
+    private BattleItemData currentItemData;
+
     [Header("UI")]
     [SerializeField] private Button slotButton;
     [SerializeField] private Image itemIconImage;
 
     // <변경부분> 아이템 슬롯을 꾹 눌렀을 때 아이템 설명 팝업을 표시할 TooltipTrigger
     [SerializeField] private TooltipTrigger tooltipTrigger;
+
+    // <변경부분> 이 슬롯이 활성화되어 있는 동안
+    // Unity Localization의 Locale 변경 이벤트를 받는다.
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> 슬롯이 비활성화되거나 제거될 때
+    // 이벤트 구독을 반드시 해제하여 중복 호출을 방지한다.
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> 게임 실행 중 언어가 변경되면
+    // 현재 아이템 Tooltip 문자열을 새 Locale 기준으로 다시 만든다.
+    private void OnSelectedLocaleChanged(
+        Locale locale)
+    {
+        RefreshTooltip();
+    }
 
     // <변경부분> 슬롯 번호와 상위 UI를 저장하고 버튼 클릭 이벤트를 연결하는 함수
     public void Initialize(BattleUIController owner, int index)
@@ -58,11 +90,16 @@ public class BattleItemSlotUI : MonoBehaviour
     // 아이템 바 전체 표시 여부는 BattleUIController에서 별도로 처리한다.
     public void Refresh(BattleItemData itemData)
     {
-        // 아이템 데이터가 있고 아이템 타입이 None이 아니면
-        // 실제 아이템이 들어 있는 슬롯이다.
         bool hasItem =
             itemData != null &&
             itemData.itemType != BattleItemType.None;
+
+        // <변경부분> Locale 변경 시 Tooltip을 다시 만들 수 있도록
+        // 현재 슬롯의 실제 아이템 데이터를 보관한다.
+        currentItemData =
+            hasItem
+                ? itemData
+                : null;
 
         // <변경부분> 이전 갱신에서 슬롯 오브젝트가 비활성화됐을 수 있으므로
         // 모든 슬롯은 항상 다시 활성화한다.
@@ -93,18 +130,32 @@ public class BattleItemSlotUI : MonoBehaviour
                 hasItem;
         }
 
-        // <변경부분> 아이템이 있는 슬롯에는 Tooltip을 연결하고
-        // 빈 슬롯에서는 기존 Tooltip 데이터를 제거한다.
-        if (tooltipTrigger != null)
+        // <변경부분> 현재 Locale 기준으로
+        // 아이템 Tooltip 표시 데이터를 생성한다.
+        RefreshTooltip();
+
+
+    }
+
+    // <변경부분> 현재 아이템 데이터와 현재 Locale을 기준으로
+    // TooltipViewData를 다시 생성하여 TooltipTrigger에 전달한다.
+    //
+    // 게임 실행 중 언어를 변경한 경우에도
+    // Tooltip을 다시 열면 변경된 언어가 표시된다.
+    private void RefreshTooltip()
+    {
+        if (tooltipTrigger == null)
         {
-            tooltipTrigger.SetTooltipViewData(
-                hasItem
-                    ? TooltipViewData.FromBattleItemData(
-                        itemData
-                    )
-                    : null
-            );
+            return;
         }
+
+        tooltipTrigger.SetTooltipViewData(
+            currentItemData != null
+                ? TooltipViewData.FromBattleItemData(
+                    currentItemData
+                )
+                : null
+        );
     }
 
     // <변경부분> 슬롯 클릭 시 상위 BattleUIController에 슬롯 번호를 전달하는 함수

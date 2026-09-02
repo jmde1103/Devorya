@@ -20,6 +20,18 @@ public class BattleItemManager : MonoBehaviour
     // <변경부분> BattleItemType으로 BattleItemData를 찾는 아이템 데이터베이스
     [SerializeField] private BattleItemDatabase battleItemDatabase;
 
+    [Header("Debug Test Item")]
+
+    // <변경부분> 개발용 아이템 추가 버튼으로
+    // 어떤 아이템을 지급할지 Inspector에서 선택한다.
+    //
+    // 기본값은 젤루 변환 아이템으로 설정한다.
+    // 필요할 때 다른 BattleItemType으로 변경하여
+    // 같은 디버그 버튼으로 여러 아이템을 테스트할 수 있다.
+    [SerializeField]
+    private BattleItemType debugTestItemType =
+        BattleItemType.ChangeSelectedPieceToJelluPawn;
+
     // <변경부분> BattleManager에서 전투 시작 시 아이템 매니저를 초기화하는 함수
     public void Initialize(BattleManager owner, BattleUIController uiController)
     {
@@ -88,14 +100,25 @@ public class BattleItemManager : MonoBehaviour
         AddBattleItem(itemData);
     }
 
-    // <변경부분> 디버그 버튼으로 방어 아이템을 수동 추가하는 함수
-    // 자동 지급이 아니라 개발 중 상태효과 아이템 테스트용으로만 사용한다.
+    // <변경부분> 디버그 버튼으로 테스트 아이템을 수동 추가하는 함수.
+    //
+    // 실제 지급 아이템은 Inspector의 Debug Test Item Type에서 선택하며,
+    // 자동 지급이 아니라 개발 중 아이템 기능 테스트용으로만 사용한다.
     public void AddTestItemForDebug()
     {
-        // <변경부분> BattleItemDatabase에서
-        // 방어 상태효과 부여 아이템 데이터를 찾아 빈 슬롯에 추가한다.
+        if (debugTestItemType ==
+            BattleItemType.None)
+        {
+            Debug.LogWarning(
+                "디버그 아이템 추가 실패: " +
+                "Debug Test Item Type이 None입니다."
+            );
+
+            return;
+        }
+
         AddBattleItemByType(
-            BattleItemType.ApplyStatusEffectToSelectedPiece
+            debugTestItemType
         );
     }
 

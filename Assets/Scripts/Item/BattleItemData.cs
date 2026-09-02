@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 
 // <변경부분> 전투 중 사용하는 소모성 아이템 하나의 기본 데이터를 관리하는 ScriptableObject
 [CreateAssetMenu(fileName = "BattleItemData", menuName = "Devorya/Battle/Item Data")]
@@ -15,12 +16,87 @@ public class BattleItemData : ScriptableObject
     // 아이템 슬롯에 표시할 아이콘 이미지
     public Sprite iconSprite;
 
-    // <변경부분> 아이템 설명
+    // <변경부분> 아이템 설명.
+    //
+    // 기존 한국어 원문 데이터는 그대로 유지한다.
+    // Localization이 연결되지 않았거나 번역 결과가 비어 있을 경우
+    // 이 값을 fallback으로 사용한다.
     [TextArea]
     public string description;
-    // <변경부분> 아이템 설명 팝업 하단에 추가로 붙일 설명 블록 목록
-    // 이름, 설명, 아이콘은 기존 itemName / description / iconSprite를 그대로 사용한다.
-    public List<TooltipSectionData> tooltipSections = new List<TooltipSectionData>();
+
+    [Header("Localization")]
+
+    // <변경부분> 플레이어에게 표시할 아이템 이름 Localization 참조.
+    //
+    // 기존 itemName은 삭제하지 않는다.
+    // 이 값이 비어 있으면 기존 itemName을 그대로 사용한다.
+    public LocalizedString localizedItemName =
+        new LocalizedString();
+
+    // <변경부분> 플레이어에게 표시할 아이템 설명 Localization 참조.
+    //
+    // 기존 description은 삭제하지 않는다.
+    // 이 값이 비어 있으면 기존 description을 그대로 사용한다.
+    public LocalizedString localizedDescription =
+        new LocalizedString();
+
+    // <변경부분> 아이템 설명 팝업 하단에 추가로 붙일 설명 블록 목록.
+    //
+    // Tooltip Section 다국어화는 기본 이름/설명 검증 후
+    // 다음 단계에서 별도로 확장한다.
+    public List<TooltipSectionData> tooltipSections =
+        new List<TooltipSectionData>();
+
+    // <변경부분> 현재 선택된 Locale 기준으로
+    // 실제 UI에 표시할 아이템 이름을 반환한다.
+    //
+    // Localization 참조가 아직 연결되지 않은 기존 데이터에서는
+    // 기존 itemName을 그대로 사용하므로 이전 데이터와 호환된다.
+    public string GetLocalizedItemName()
+    {
+        return GetLocalizedTextOrFallback(
+            localizedItemName,
+            itemName
+        );
+    }
+
+    // <변경부분> 현재 선택된 Locale 기준으로
+    // 실제 UI에 표시할 아이템 설명을 반환한다.
+    //
+    // Localization 참조가 아직 연결되지 않은 기존 데이터에서는
+    // 기존 description을 그대로 사용한다.
+    public string GetLocalizedDescription()
+    {
+        return GetLocalizedTextOrFallback(
+            localizedDescription,
+            description
+        );
+    }
+
+    // <변경부분> LocalizedString이 실제로 연결되어 있다면
+    // 현재 Locale의 문자열을 반환하고,
+    // 사용할 번역이 없다면 기존 한국어 원문을 fallback으로 사용한다.
+    private string GetLocalizedTextOrFallback(
+        LocalizedString localizedString,
+        string fallbackText)
+    {
+        if (localizedString == null ||
+            localizedString.IsEmpty)
+        {
+            return fallbackText;
+        }
+
+        string localizedText =
+            localizedString.GetLocalizedString();
+
+        if (string.IsNullOrWhiteSpace(
+                localizedText))
+        {
+            return fallbackText;
+        }
+
+        return localizedText;
+    }
 
     [Header("Change Piece Effect")]
     // <변경부분> 아이템 사용 시 변경할 기물 데이터
