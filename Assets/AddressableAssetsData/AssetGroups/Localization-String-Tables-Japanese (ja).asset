@@ -15,14 +15,38 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Japanese (ja)
   m_GUID: 25ab5e06cf9a9904c8d23b75b96747d9
   m_SerializeEntries:
+  - m_GUID: 8e936dd6f1138b34ea9a554851e9a57a
+    m_Address: General_Skill_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 977cb091752a591448aeffdcae432777
+    m_Address: Tooltip_Common_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9ff4f7419b1670346888ccb6a474fe63
     m_Address: Battle_Item_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af9415935ff79864891508af70ff0a1d
+    m_Address: Status_Effect_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ccc485fd08f2c9c47ab6beac17c4dbf0
     m_Address: Localization_Test_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f56d00526a2bb0045a5e8cab89d5a7b8
+    m_Address: Unique_Skill_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja

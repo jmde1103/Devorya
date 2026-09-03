@@ -21,8 +21,32 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 221bb5640c82fd741b921b1a1bae85d7
+    m_Address: Status_Effect_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 501957a270d795146b7d3100648502ef
+    m_Address: Unique_Skill_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 82760df7eb92c9c4483b31bab9075557
     m_Address: Battle_Item_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a57c56bc758a5f743b547ebf2e74e350
+    m_Address: General_Skill_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c70cb318db963344ab2c15932339e265
+    m_Address: Tooltip_Common_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

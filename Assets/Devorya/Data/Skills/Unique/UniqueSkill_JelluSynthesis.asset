@@ -20,9 +20,39 @@ MonoBehaviour:
     \uD569\uC131\uD574\n\uB79C\uB364\uD558\uAC8C \uAC19\uC740 \uC885\uC871\uC758
     \uC0C1\uC704 \uAE30\uBB3C\uB85C \uC2B9\uAE09"
   tooltipSections: []
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 86056217743360
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 86056217743361
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedConditionFailMessage:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 86056217743362
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   cooldownTurn: 3
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
   conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
     \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  references:
+    version: 2
+    RefIds: []

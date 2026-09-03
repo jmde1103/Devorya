@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using TMPro;
 
@@ -137,6 +139,13 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 고유스킬 타입으로 아이콘 데이터를 찾기 위한 데이터베이스
     [SerializeField] private UniqueSkillDatabase uniqueSkillDatabase;
 
+    // <변경부분> 현재 플레이어 액션 버튼에 표시 중인 고유스킬 타입.
+    //
+    // Locale 변경 시 아이콘/쿨타임/버튼 애니메이션은 건드리지 않고
+    // 해당 고유스킬의 Tooltip 데이터만 새로운 언어로 다시 생성하기 위해 사용한다.
+    private UniqueSkillType currentActionUniqueSkillType =
+        UniqueSkillType.None;
+
     [Header("Tooltip")]
     // <변경부분> 흡수 버튼을 꾹 눌렀을 때 표시할 Tooltip 데이터
     [SerializeField] private TooltipData absorbTooltipData;
@@ -180,6 +189,86 @@ public class BattleUIController : MonoBehaviour
     [Header("Relic Slots")]
     // <변경부분> 전투 중 보유한 유물을 표시하는 유물 슬롯 UI 목록
     [SerializeField] private BattleRelicSlotUI[] relicSlotUIs;
+
+    // <변경부분> Battle UI가 활성화되어 있는 동안
+    // Unity Localization의 Locale 변경 이벤트를 구독한다.
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> Battle UI가 비활성화되거나 제거될 때
+    // Locale 변경 이벤트 구독을 해제한다.
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> 게임 실행 중 언어가 변경되면
+    // 현재 플레이어 액션 버튼의 고유스킬 Tooltip만 다시 생성한다.
+    //
+    // RefreshSelectedPieceButtons() 전체를 다시 호출하지 않으므로
+    // 아이콘 노이즈 애니메이션, 버튼 표시 상태,
+    // 쿨타임 UI 등은 불필요하게 다시 갱신되지 않는다.
+    private void OnSelectedLocaleChanged(
+        Locale locale)
+    {
+        RefreshCurrentUniqueSkillTooltip();
+    }
+
+    // <변경부분> 현재 액션 버튼에 연결된 고유스킬의
+    // TooltipViewData만 현재 Locale 기준으로 다시 만든다.
+    private void RefreshCurrentUniqueSkillTooltip()
+    {
+        if (uniqueSkillTooltipTrigger == null)
+        {
+            return;
+        }
+
+        if (currentActionUniqueSkillType ==
+            UniqueSkillType.None)
+        {
+            uniqueSkillTooltipTrigger
+                .SetTooltipViewData(
+                    null
+                );
+
+            return;
+        }
+
+        if (uniqueSkillDatabase == null)
+        {
+            return;
+        }
+
+        UniqueSkillData skillData =
+            uniqueSkillDatabase.GetData(
+                currentActionUniqueSkillType
+            );
+
+        if (skillData == null)
+        {
+            uniqueSkillTooltipTrigger
+                .SetTooltipViewData(
+                    null
+                );
+
+            return;
+        }
+
+        // <변경부분> TooltipData.FromUniqueSkillData()가
+        // 현재 Locale의 이름과 설명을 가져오므로
+        // Locale 변경 직후 새로운 번역으로 Tooltip이 재생성된다.
+        uniqueSkillTooltipTrigger
+            .SetTooltipViewData(
+                TooltipViewData
+                    .FromUniqueSkillData(
+                        skillData
+                    )
+            );
+    }
 
     private void Start()
     {
@@ -1366,8 +1455,16 @@ public class BattleUIController : MonoBehaviour
     }
 
     // <변경부분> 고유 스킬 종류에 맞는 아이콘을 표시하는 함수
-    private void SetUniqueSkillIcon(UniqueSkillType skillType)
+    private void SetUniqueSkillIcon(
+     UniqueSkillType skillType)
     {
+        // <변경부분> 현재 플레이어 액션 버튼에 표시할
+        // 고유스킬 타입을 먼저 저장한다.
+        //
+        // Locale 변경 시 이 타입을 기준으로 Tooltip만 다시 생성한다.
+        currentActionUniqueSkillType =
+            skillType;
+
         // 고유 스킬 아이콘 이미지가 없으면 종료
         if (uniqueSkillIconImage == null)
         {
@@ -1427,12 +1524,12 @@ public class BattleUIController : MonoBehaviour
             }
         }
 
-        // <변경부분> 현재 선택된 고유스킬 설명 Tooltip 연결
-        if (uniqueSkillTooltipTrigger != null)
-        {
-            // <변경부분> 고유스킬 데이터의 기존 이름/설명/아이콘으로 Tooltip을 자동 구성
-            uniqueSkillTooltipTrigger.SetTooltipViewData(TooltipViewData.FromUniqueSkillData(skillData));
-        }
+        // <변경부분> 현재 고유스킬 Tooltip을
+        // 공용 갱신 함수를 통해 현재 Locale 기준으로 생성한다.
+        //
+        // 최초 기물 선택/흡수 시와
+        // 이후 Locale 변경 시가 동일한 Tooltip 생성 경로를 사용한다.
+        RefreshCurrentUniqueSkillTooltip();
     }
 
     // <변경부분> 선택된 기물의 고유스킬 쿨타임 숫자와 배경 이미지를 갱신하는 함수
@@ -1506,20 +1603,38 @@ public class BattleUIController : MonoBehaviour
         );
     }
 
-    // <변경부분> 고유 스킬 버튼 표시/숨김
-    public void SetUniqueSkillButtonVisible(bool isVisible)
+    // <변경부분> 고유스킬 버튼 표시/숨김
+    public void SetUniqueSkillButtonVisible(
+        bool isVisible)
     {
         if (uniqueSkillButton == null)
         {
             return;
         }
 
-        uniqueSkillButton.gameObject.SetActive(isVisible);
+        uniqueSkillButton.gameObject.SetActive(
+            isVisible
+        );
 
-        // <변경부분> 고유스킬 버튼을 숨길 때 Cooldown UI도 반드시 같이 숨김
+        // <변경부분> 고유스킬 버튼을 숨길 때
+        // Cooldown UI와 현재 Tooltip 대상도 함께 초기화한다.
+        //
+        // 이전에 선택했던 기물의 고유스킬 번역 데이터가
+        // 다음 기물에 남는 것을 방지한다.
         if (isVisible == false)
         {
             HideUniqueSkillCooldownUI();
+
+            currentActionUniqueSkillType =
+                UniqueSkillType.None;
+
+            if (uniqueSkillTooltipTrigger != null)
+            {
+                uniqueSkillTooltipTrigger
+                    .SetTooltipViewData(
+                        null
+                    );
+            }
         }
     }
 

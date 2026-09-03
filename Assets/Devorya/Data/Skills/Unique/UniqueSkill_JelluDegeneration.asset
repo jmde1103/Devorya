@@ -18,17 +18,41 @@ MonoBehaviour:
   description: "\uC790\uC2E0\uC5D0\uAC8C '\uD1F4\uD654' \uC0C1\uD0DC\uD6A8\uACFC\uB97C
     1\uD134 \uBD80\uC5EC\uD55C\uB2E4."
   tooltipSections:
-  - sectionType: 1
-    sectionTitle: "\uD1F4\uD654"
-    sectionCategory: "\uC0C1\uD0DC\uD6A8\uACFC"
-    sectionDescription: "\uAE30\uBB3C\uC774 \uC8FD\uC73C\uBA74 \uC778\uC811\uD55C
-      \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 \n<b><color=#FFD54A>\uC911\uB9BD</color></b>
-      \uAE30\uBB3C\uC744 \uC0DD\uC131\uD55C\uB2E4"
-    sectionIcon: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
+  - statusEffectData: {fileID: 11400000, guid: f02a606ddcaaad54e907582bc6b81132, type: 2}
     sectionColor: {r: 0, g: 0, b: 0, a: 0}
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 85345065111552
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 85345065111553
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedConditionFailMessage:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 85345065111554
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   cooldownTurn: 2
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
   conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
     \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  references:
+    version: 2
+    RefIds: []

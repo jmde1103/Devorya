@@ -18,7 +18,40 @@ MonoBehaviour:
   description: "\uC790\uAE30 \uC9C4\uC601 \uAE30\uBB3C\uC774 3\uAC1C \uC7A1\uD790
     \uB54C\uB9C8\uB2E4, \uC774\uBC88 \uD134 \uB3D9\uC548 Queen\uCC98\uB7FC \uC774\uB3D9/\uACF5\uACA9
     \uD569\uB2C8\uB2E4."
+  tooltipSections: []
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 88777704476672
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 88777704476673
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedConditionFailMessage:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 88777704476674
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   cooldownTurn: 1
   requiredDeathStack: 1
   consumeDeathStackOnUse: 1
   oncePerTurn: 1
+  conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
+    \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  references:
+    version: 2
+    RefIds: []

@@ -9568,8 +9568,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.1, y: 31.7}
-  m_SizeDelta: {x: 77.12, y: 50}
+  m_AnchoredPosition: {x: -1.92, y: 31.7}
+  m_SizeDelta: {x: 105.38, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &92487485
 MonoBehaviour:
@@ -9591,7 +9591,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Skill
+  m_text: ABILITY
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: af7ddd0db100e4749bdc727a2fbcb4d0, type: 2}
   m_sharedMaterial: {fileID: 3628219098879806405, guid: af7ddd0db100e4749bdc727a2fbcb4d0, type: 2}
@@ -9618,8 +9618,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 22
+  m_fontSizeBase: 22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -49202,7 +49202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemManager
   battleItemDatabase: {fileID: 11400000, guid: 9ce39f5f760a04149839bff59eb28e40, type: 2}
-  debugTestItemType: 1
+  debugTestItemType: 2
 --- !u!4 &500334405
 Transform:
   m_ObjectHideFlags: 0
@@ -108062,8 +108062,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000076293945, y: 13.8}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -5.86, y: 13.8}
+  m_SizeDelta: {x: 480.35, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1118287760
 MonoBehaviour:
@@ -146248,8 +146248,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000038147, y: 54.5}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -3.83, y: 54.5}
+  m_SizeDelta: {x: 476.29, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1546816131
 MonoBehaviour:
@@ -184059,8 +184059,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0000081062, y: 74.5}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -0.000012398, y: 85.9}
+  m_SizeDelta: {x: 459.76, y: 28.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1924617870
 MonoBehaviour:
@@ -184109,8 +184109,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
-  m_fontSizeBase: 28
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

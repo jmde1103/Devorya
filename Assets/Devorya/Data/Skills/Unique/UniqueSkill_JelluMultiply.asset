@@ -13,14 +13,44 @@ MonoBehaviour:
   m_Name: UniqueSkill_JelluMultiply
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 2
-  skillName: "\uC99D\uC2DD"
+  skillName: Multiply
   iconSprite: {fileID: 21300000, guid: 7cdfcc3498ec2194c9288245f29902d5, type: 3}
   description: "\uC778\uC811\uD55C \uB79C\uB364\uD55C 1\uCE78\uC5D0 \uAC19\uC740
     \uC885\uC871 \uD3F0\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4."
   tooltipSections: []
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 85520307326976
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 85520307326977
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedConditionFailMessage:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 85520307326978
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   cooldownTurn: 10
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
   conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
     \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  references:
+    version: 2
+    RefIds: []

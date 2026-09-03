@@ -17,9 +17,40 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: 2dcd351c500c4d742a0a196506497dd0, type: 3}
   description: "\uC801 \uAE30\uBB3C\uC744 \uCC98\uCE58\uD588\uC744 \uB54C \n{percent}%
     \uD655\uB960\uB85C \uCD94\uAC00 \uD589\uB3D9\uC744 \uC5BB\uC2B5\uB2C8\uB2E4."
-  tooltipDescriptionFormat: 
+  tooltipDescriptionFormat: "\uC801 \uAE30\uBB3C\uC744 \uCC98\uCE58\uD588\uC744 \uB54C
+    \n{percent}% \uD655\uB960\uB85C \uCD94\uAC00 \uD589\uB3D9\uC744 \uC5BB\uC2B5\uB2C8\uB2E4."
   tooltipSections: []
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:ae14eba64dcb3d844ae42633ce783a2e
+    m_TableEntryReference:
+      m_KeyId: 717885440
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:ae14eba64dcb3d844ae42633ce783a2e
+    m_TableEntryReference:
+      m_KeyId: 793382912
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedTooltipDescriptionFormat:
+    m_TableReference:
+      m_TableCollectionName: GUID:ae14eba64dcb3d844ae42633ce783a2e
+    m_TableEntryReference:
+      m_KeyId: 793382913
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   chanceAttackPercent: 15
   chanceAttackContinuousPenaltyRate: 0.33333334
   defenseGrantChancePercent: 15
   insightPercent: 30
+  references:
+    version: 2
+    RefIds: []

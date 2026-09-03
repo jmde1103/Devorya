@@ -3568,14 +3568,30 @@ public class BattleManager : MonoBehaviour
         else
         {
             // <변경부분> 스킬 내부 조건이 맞지 않아 발동하지 못한 경우
-            string failMessage = "조건이 맞지 않아 사용할 수 없습니다.";
+            // 현재 Locale의 스킬별 실패 메시지를 사용한다.
+            //
+            // Localization이 연결되지 않은 기존 UniqueSkillData에서는
+            // 기존 conditionFailMessage가 자동 fallback된다.
+            string failMessage =
+                "조건이 맞지 않아 사용할 수 없습니다.";
 
-            if (skillData != null && string.IsNullOrEmpty(skillData.conditionFailMessage) == false)
+            if (skillData != null)
             {
-                failMessage = skillData.conditionFailMessage;
+                string localizedFailMessage =
+                    skillData
+                        .GetLocalizedConditionFailMessage();
+
+                if (string.IsNullOrWhiteSpace(
+                        localizedFailMessage) == false)
+                {
+                    failMessage =
+                        localizedFailMessage;
+                }
             }
 
-            ShowUniqueSkillFailMessage(failMessage);
+            ShowUniqueSkillFailMessage(
+                failMessage
+            );
         }
 
         // 스킬 연출 종료 후 다시 입력 허용

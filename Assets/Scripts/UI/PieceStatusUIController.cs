@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using static UnityEngine.Audio.ProcessorInstance;
 
@@ -83,6 +85,57 @@ public class PieceStatusUIController : MonoBehaviour
     [SerializeField] private bool playOpenAnimationOnRefresh = true;
 
 
+        // <변경부분> 현재 Status UI가 표시하고 있는 기물을 보관한다.
+    //
+    // Locale이 변경되었을 때 현재 기물의 General Skill Tooltip을
+    // 새로운 언어 기준으로 다시 생성하기 위해 사용한다.
+    private Piece currentSelectedPiece;
+
+    // <변경부분> 이 Status UI가 활성화되어 있는 동안
+    // Unity Localization의 Locale 변경 이벤트를 구독한다.
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> Status UI가 비활성화되거나 제거될 때
+    // Locale 변경 이벤트 구독을 반드시 해제한다.
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> 게임 실행 중 Locale이 변경되면
+    // 현재 선택 기물의 Localization 영향을 받는 Tooltip 데이터를 다시 생성한다.
+    //
+    // 전체 Refresh()를 호출하지 않으므로
+    // Status 창 Open Animation은 다시 재생되지 않는다.
+    private void OnSelectedLocaleChanged(
+        Locale locale)
+    {
+        if (currentSelectedPiece == null)
+        {
+            return;
+        }
+
+        // 일반스킬 Tooltip 갱신
+        SetGeneralSkillSlots(
+            currentSelectedPiece.GetGeneralSkills()
+        );
+
+        // <변경부분> Enemy Status처럼
+        // 고유스킬 슬롯을 사용하는 UI에서는
+        // Unique Skill Tooltip도 현재 Locale 기준으로 다시 생성한다.
+        if (showUniqueSkillSlot)
+        {
+            SetUniqueSkillSlot(
+                currentSelectedPiece
+            );
+        }
+    }
+
     private void Start()
     {
         // <변경부분> PopupOpenAnimator가 연결되지 않았다면 자동으로 탐색
@@ -92,8 +145,15 @@ public class PieceStatusUIController : MonoBehaviour
     // <변경부분> 선택한 필드 기물의 현재 정보를
     // 스테이터스 UI에 갱신한다.
     public void Refresh(
-        Piece selectedPiece)
+    Piece selectedPiece)
     {
+        // <변경부분> 현재 Status UI가 표시하는 기물을 저장한다.
+        //
+        // 이후 Locale 변경 시 이 기물의 General Skill Tooltip을
+        // 새로운 언어 기준으로 다시 생성한다.
+        currentSelectedPiece =
+            selectedPiece;
+
         // 선택한 기물이 없으면
         // 기존 스테이터스 내용을 모두 비우고 숨긴다.
         if (selectedPiece == null)
@@ -611,10 +671,13 @@ public class PieceStatusUIController : MonoBehaviour
         popupOpenAnimator.PlayOpen();
     }
 
-    /// <변경부분> 선택 기물이 없을 때
-    // 현재 스테이터스 UI 정보를 모두 비운다.
     public void Clear()
     {
+        // <변경부분> 더 이상 표시 중인 기물이 없으므로
+        // Locale 변경용 현재 선택 기물 참조도 함께 제거한다.
+        currentSelectedPiece =
+            null;
+
         // 선택한 기물이 없으면 스테이터스 창 숨김
         if (statusRoot != null)
         {

@@ -15,6 +15,30 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-Korean (ko)
   m_GUID: d376e19a8ac3dad48af8e416dbef0e1f
   m_SerializeEntries:
+  - m_GUID: 0417ef74a35a9b14cae1d803f510000d
+    m_Address: Tooltip_Common_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 050ade10d7ba7b34e93fe95e5a611af6
+    m_Address: Status_Effect_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 27e88f058a58a4948a37425b35832dd1
+    m_Address: Unique_Skill_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e0741bee4980274cafa7a34d7ead893
+    m_Address: General_Skill_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ba7efa6804b88dd4f8d2b222ed663230
     m_Address: Battle_Item_ko
     m_ReadOnly: 1

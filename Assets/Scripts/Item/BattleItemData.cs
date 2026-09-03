@@ -40,10 +40,14 @@ public class BattleItemData : ScriptableObject
     public LocalizedString localizedDescription =
         new LocalizedString();
 
-    // <변경부분> 아이템 설명 팝업 하단에 추가로 붙일 설명 블록 목록.
+    // 아이템의 실제 효과 설명 외에 추가로 표시할 Tooltip Section 목록.
     //
-    // Tooltip Section 다국어화는 기본 이름/설명 검증 후
-    // 다음 단계에서 별도로 확장한다.
+    // ApplyStatusEffectToSelectedPiece 아이템의 실제 적용 상태효과는
+    // applyStatusEffectData에서 자동으로 Tooltip Section을 생성하므로
+    // 이 목록에 동일한 데이터를 다시 입력할 필요가 없다.
+    //
+    // 이 목록은 추가 상태효과나 보조 정보를 표시해야 할 때만 사용한다.
+    [InspectorName("Additional Tooltip Sections")]
     public List<TooltipSectionData> tooltipSections =
         new List<TooltipSectionData>();
 
@@ -128,7 +132,17 @@ public class BattleItemData : ScriptableObject
     public bool onlyPlayerPiece = true;
 
     [Header("Status Effect")]
-    // <변경부분> 상태효과 부여 아이템이
-    // 선택한 기물에 적용할 StatusEffectData
+    // 상태효과 부여 아이템이
+    // 선택한 기물에 실제로 적용할 StatusEffectData.
+    //
+    // 게임 효과와 기본 Tooltip Section이 이 데이터를 함께 사용한다.
     public StatusEffectData applyStatusEffectData;
+
+    // applyStatusEffectData에서 자동 생성되는
+    // 기본 상태효과 Tooltip Section의 배경색.
+    //
+    // Localization 데이터와 관계없는 순수 표시 설정만
+    // BattleItemData에서 별도로 관리한다.
+    public Color applyStatusEffectTooltipSectionColor =
+        Color.white;
 }

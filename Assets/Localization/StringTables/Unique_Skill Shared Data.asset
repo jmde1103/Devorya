@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Unique_Skill Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Unique_Skill
+  m_TableCollectionNameGuidString: be430d2c224cec643986d474b5a45860
+  m_Entries:
+  - m_Id: 722079744
+    m_Key: unique_skill.horn_headbutt.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 793382912
+    m_Key: unique_skill.horn_headbutt.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 793382913
+    m_Key: unique_skill.horn_headbutt.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84051071995904
+    m_Key: unique_skill.jellu_clone.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84051134910464
+    m_Key: unique_skill.jellu_clone.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84051134910465
+    m_Key: unique_skill.jellu_clone.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85345065111552
+    m_Key: unique_skill.jellu_degeneration.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85345065111553
+    m_Key: unique_skill.jellu_degeneration.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85345065111554
+    m_Key: unique_skill.jellu_degeneration.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85520307326976
+    m_Key: unique_skill.jellu_multiply.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85520307326977
+    m_Key: unique_skill.jellu_multiply.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85520307326978
+    m_Key: unique_skill.jellu_multiply.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86056217743360
+    m_Key: unique_skill.jellu_synthesis.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86056217743361
+    m_Key: unique_skill.jellu_synthesis.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86056217743362
+    m_Key: unique_skill.jellu_synthesis.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88327840206848
+    m_Key: unique_skill.jellu_wall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88327840206849
+    m_Key: unique_skill.jellu_wall.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88327840206850
+    m_Key: unique_skill.jellu_wall.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88777704476672
+    m_Key: unique_skill.king_queen_move.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88777704476673
+    m_Key: unique_skill.king_queen_move.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88777704476674
+    m_Key: unique_skill.king_queen_move.condition_fail
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 5154926197638168650
+  references:
+    version: 2
+    RefIds:
+    - rid: 5154926197638168650
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1788423346416

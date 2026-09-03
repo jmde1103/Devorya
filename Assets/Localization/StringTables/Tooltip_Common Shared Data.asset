@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Tooltip_Common Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Tooltip_Common
+  m_TableCollectionNameGuidString: 56695454630943042947367796de6251
+  m_Entries:
+  - m_Id: 633999360
+    m_Key: tooltip.category.general_skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 696913920
+    m_Key: tooltip.category.unique_skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 696913921
+    m_Key: tooltip.category.item
+    m_Metadata:
+      m_Items: []
+  - m_Id: 701108224
+    m_Key: tooltip.category.status_effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 701108225
+    m_Key: tooltip.category.relic
+    m_Metadata:
+      m_Items: []
+  - m_Id: 701108226
+    m_Key: tooltip.status.remaining_turn
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 5154926197638168664
+  references:
+    version: 2
+    RefIds:
+    - rid: 5154926197638168664
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1788433771787

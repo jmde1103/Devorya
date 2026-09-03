@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Unique_Skill_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: be430d2c224cec643986d474b5a45860, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 722079744
+    m_Localized: Horn Charge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 793382912
+    m_Localized: When used on a 'Water' or 'Swamp' tile, gain 'Breakthrough' for
+      1 turn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 793382913
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84051071995904
+    m_Localized: Clone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84051134910464
+    m_Localized: Creates a duplicate piece with the same data as itself on 1 random
+      adjacent empty tile.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 84051134910465
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85345065111552
+    m_Localized: Degeneration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85345065111553
+    m_Localized: Grants itself the 'Degeneration' status effect for 1 turn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85345065111554
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85520307326976
+    m_Localized: Multiply
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85520307326977
+    m_Localized: Creates a Pawn of the same race on 1 random adjacent tile.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85520307326978
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86056217743360
+    m_Localized: Jellu Synthesis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86056217743361
+    m_Localized: Synthesizes 2 allied or neutral pieces of the same race, excluding
+      Kings, and randomly promotes them into a higher-tier piece of the same race.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86056217743362
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88327840206848
+    m_Localized: Jellu Wall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88327840206849
+    m_Localized: Creates 1 neutral 'Jellu Wall' piece in front of itself.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88327840206850
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88777704476672
+    m_Localized: King's Awakening
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88777704476673
+    m_Localized: Every time 3 allied pieces are captured, moves and attacks like
+      a Queen for the rest of this turn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88777704476674
+    m_Localized: "The conditions are not met, so this skill cannot be used.\u738B\u306E\u899A\u9192"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

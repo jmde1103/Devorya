@@ -18,6 +18,27 @@ MonoBehaviour:
     \uC778\uC811\uD55C \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 \uC911\uB9BD\uAE30\uBB3C\uC744
     \uC0DD\uC131\uD55C\uB2E4."
   tooltipSections: []
+  localizedEffectName:
+    m_TableReference:
+      m_TableCollectionName: GUID:e842e6af1227296438f192bafb99765c
+    m_TableEntryReference:
+      m_KeyId: 72943439319040
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:e842e6af1227296438f192bafb99765c
+    m_TableEntryReference:
+      m_KeyId: 72943439319041
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   iconSprite: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
   durationTurn: 1
   maxStack: 1
+  references:
+    version: 2
+    RefIds: []
