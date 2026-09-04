@@ -318,49 +318,49 @@ public class TooltipViewData
             return null;
         }
 
-               return new TooltipViewData
+        return new TooltipViewData
         {
             // <변경부분> 현재 Locale 기준 일반스킬 이름을 사용한다.
             //
             // Localization이 연결되지 않은 기존 Data는
             // GeneralSkillData 내부에서 기존 skillName으로 fallback한다.
             title =
-                data.GetLocalizedSkillName(),
+         data.GetLocalizedSkillName(),
 
-                   // <변경부분> Tooltip Category Localization은
-                   // 이후 공용 Tooltip 문자열 작업에서 별도로 처리한다.
-                   category =
-    TooltipLocalization
-        .GetGeneralSkillCategory(),
+            // <변경부분> Tooltip Category Localization은
+            // 이후 공용 Tooltip 문자열 작업에서 별도로 처리한다.
+            category =
+TooltipLocalization
+ .GetGeneralSkillCategory(),
 
-                   // 일반스킬 레벨 표시를 사용하지 않는다.
-                   levelText =
-                string.Empty,
+            // 일반스킬 레벨 표시를 사용하지 않는다.
+            levelText =
+         string.Empty,
 
-                   // <변경부분> 현재 Locale 기준 일반스킬 Tooltip 설명을
-                   // 명시적으로 가져온다.
-                   //
-                   // GeneralSkillData 내부에서
-                   // 현재 Locale Tooltip → 현재 Locale Description →
-                   // 기존 한국어 Tooltip → 기존 한국어 Description 순으로 처리한다.
-                   mainDescription =
-                data.GetLocalizedTooltipDescription(),
+            // <변경부분> 현재 Locale 기준 일반스킬 Tooltip 설명을
+            // 명시적으로 가져온다.
+            //
+            // GeneralSkillData 내부에서
+            // 현재 Locale Tooltip → 현재 Locale Description →
+            // 기존 한국어 Tooltip → 기존 한국어 Description 순으로 처리한다.
+            mainDescription =
+         data.GetLocalizedTooltipDescription(),
 
-                   icon =
-                data.iconSprite,
+            icon =
+         data.iconSprite,
 
-                   // <변경부분> 일반스킬 Tooltip에 연결된
-                   // StatusEffect Section은 StatusEffectData를 SSOT로 사용한다.
-                   //
-                   // 예:
-                   // Defense 일반스킬
-                   // → Defence StatusEffectData
-                   // → 현재 Locale의 이름/설명/아이콘 자동 사용
-                   sections =
-                ResolveTooltipSections(
-                    data.tooltipSections
-                )
-               };
+            // <변경부분> 일반스킬 Tooltip에 연결된
+            // StatusEffect Section은 StatusEffectData를 SSOT로 사용한다.
+            //
+            // 예:
+            // Defense 일반스킬
+            // → Defence StatusEffectData
+            // → 현재 Locale의 이름/설명/아이콘 자동 사용
+            sections =
+         ResolveTooltipSections(
+             data.tooltipSections
+         )
+        };
     }
 
     // <변경부분> 고유스킬 Tooltip을
@@ -432,11 +432,11 @@ public class TooltipViewData
             icon =
                 data.iconSprite,
 
-            
-    // <변경부분> 상태효과 부여 아이템은
-    // Tooltip Section에 별도 StatusEffectData를 복사하지 않고
-    // 실제 효과에 사용하는 applyStatusEffectData를 SSOT로 사용한다.
-    sections =
+
+            // <변경부분> 상태효과 부여 아이템은
+            // Tooltip Section에 별도 StatusEffectData를 복사하지 않고
+            // 실제 효과에 사용하는 applyStatusEffectData를 SSOT로 사용한다.
+            sections =
         ResolveBattleItemTooltipSections(
             data
         )
@@ -523,66 +523,92 @@ public class TooltipViewData
     }
 
     // <변경부분> 기물 복구 보상에 표시할 PieceData 기반 Tooltip 생성
-    public static TooltipViewData FromPieceData(PieceData data)
+    //
+    // 현재 Reward 1차 Localization에서는
+    // Recovery Piece 자체의 Localization까지 함께 처리하지 않는다.
+    //
+    // 따라서 공용 TooltipViewData가 UniqueSkillDatabase나
+    // Reward 전용 Localization Table을 직접 참조하지 않도록
+    // Reward 작업 전의 단순 PieceData 기반 구조를 유지한다.
+    //
+    // Recovery Piece Tooltip Localization은
+    // Reward 3차 작업에서 Piece 표시명의 실제 SSOT를 확인한 뒤 별도로 처리한다.
+    public static TooltipViewData FromPieceData(
+        PieceData data)
     {
         if (data == null)
         {
             return null;
         }
 
-        // <변경부분> 별도 표시 이름이 없으므로 pieceId를 우선 사용
-        string displayName = string.IsNullOrEmpty(data.pieceId)
-            ? data.pieceType.ToString()
-            : data.pieceId;
+        // <변경부분> 별도 표시 이름이 없으므로 pieceId를 우선 사용한다.
+        string displayName =
+            string.IsNullOrEmpty(
+                data.pieceId)
+                ? data.pieceType.ToString()
+                : data.pieceId;
 
         // <변경부분> PieceData에 별도 설명 필드가 없으므로
-        // 복구 기물이라는 기본 설명과 고유스킬 정보를 조합
+        // 기존 Recovery Tooltip 문구를 그대로 사용한다.
         string description =
             $"전투 종료 후 복구된 {data.pieceType} 기물입니다.";
 
-        if (data.uniqueSkill != UniqueSkillType.None)
+        if (data.uniqueSkill !=
+            UniqueSkillType.None)
         {
             description +=
                 $"\n기본 고유스킬: {data.uniqueSkill}";
         }
 
-        // <변경부분> 보상 아이콘은 상태 UI용 스프라이트를 우선 사용
-        Sprite displayIcon = data.playerStatusSprite != null
-            ? data.playerStatusSprite
-            : data.playerSprite;
+        // <변경부분> 보상 아이콘은 상태 UI용 스프라이트를 우선 사용한다.
+        Sprite displayIcon =
+            data.playerStatusSprite != null
+                ? data.playerStatusSprite
+                : data.playerSprite;
 
         return new TooltipViewData
         {
-            title = displayName,
-            category = "기물 복구",
-            mainDescription = description,
-            icon = displayIcon,
-            sections = new List<TooltipSectionData>()
+            title =
+        displayName,
+
+            category =
+        "기물 복구",
+
+            mainDescription =
+        description,
+
+            icon =
+        displayIcon,
+
+            sections =
+        new List<TooltipSectionData>()
         };
     }
 }
 
 // <변경부분> 별도 데이터가 없는 버튼/설명 전용 Tooltip 에셋
-// 스킬/아이템/유물/상태효과처럼 이미 Data가 있는 대상에는 필수로 만들 필요 없다.
+// 스킬/아이템/유물/상태효과처럼 이미 Data가 있는 대상에는 필수로 만들 필요 없음.
 [CreateAssetMenu(fileName = "TooltipData_New", menuName = "Devorya/UI/Tooltip Data")]
 public class TooltipData : ScriptableObject
 {
-    [Header("Header")]
-    // 팝업 상단에 표시할 이름
-    public string title;
+    
+        [Header("Header")]
+        // 팝업 상단에 표시할 이름
+        public string title;
 
-    // 버튼 / 전투 설명 / 기물 정보 같은 분류
-    public string category;
+        // 버튼 / 전투 설명 / 기물 정보 같은 분류
+        public string category;
 
-    // <변경부분> 별도 TooltipData를 쓸 때 표시할 대표 아이콘
-    public Sprite icon;
+        // <변경부분> 별도 TooltipData를 쓸 때 표시할 대표 아이콘
+        public Sprite icon;
 
-    [Header("Description")]
-    [TextArea(2, 5)]
-    // 기본 설명 문장
-    public string mainDescription;
+        [Header("Description")]
+        [TextArea(2, 5)]
+        // 기본 설명 문장
+        public string mainDescription;
 
-    [Header("Sections")]
-    // 하단에 동적으로 붙일 추가 설명 블록 목록
-    public List<TooltipSectionData> sections = new List<TooltipSectionData>();
+        [Header("Sections")]
+        // 하단에 동적으로 붙일 추가 설명 블록 목록
+        public List<TooltipSectionData> sections = new List<TooltipSectionData>();
+
 }

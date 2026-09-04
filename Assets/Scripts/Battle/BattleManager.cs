@@ -3430,6 +3430,10 @@ public class BattleManager : MonoBehaviour
     }
 
     // 현재 선택된 기물의 고유 스킬을 사용하는 함수
+    //
+    // 내부 시스템 명칭은 기존 UniqueSkill을 그대로 유지한다.
+    // 플레이어에게 노출되는 실패 Popup 문구만 공식 UI 용어인
+    // "능력 / Ability" 기준 Localization 문자열을 사용한다.
     public void UseSelectedPieceSkill()
     {
         // <변경부분> 배치 또는 Announcement가 끝나기 전에는
@@ -3446,81 +3450,133 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 이동/공격/스킬 연출 중에는 중복 입력 방지
+        // <변경부분> 이동 / 공격 / 스킬 연출 중에는 중복 입력 방지.
+        //
+        // 실제 Popup 문자열은 Battle_UI Localization을 사용한다.
         if (isActionAnimating)
         {
-            ShowUniqueSkillFailMessage("현재 다른 행동이 진행 중입니다.");
+            ShowUniqueSkillFailMessage(
+    "현재 다른 행동이 진행 중입니다."
+);
+
             return;
         }
 
-        // 선택된 기물이 없으면 스킬 사용 불가
+        // <변경부분> 선택된 기물이 없으면 Ability 사용 불가
         if (selectedPiece == null)
         {
-            ShowUniqueSkillFailMessage("스킬을 사용할 기물을 먼저 선택해야 합니다.");
+            ShowUniqueSkillFailMessage(
+    "스킬을 사용할 기물을 먼저 선택해야 합니다."
+);
+
             return;
         }
 
-        // 현재 턴의 기물이 아니면 스킬 사용 불가
-        if (IsCurrentTurnPiece(selectedPiece) == false)
+        // <변경부분> 현재 턴의 기물이 아니면 Ability 사용 불가
+        if (IsCurrentTurnPiece(
+                selectedPiece) == false)
         {
-            ShowUniqueSkillFailMessage("현재 턴의 기물만 고유스킬을 사용할 수 있습니다.");
+            ShowUniqueSkillFailMessage(
+    "현재 턴의 기물만 고유스킬을 사용할 수 있습니다."
+);
+
             return;
         }
 
         // <변경부분> 선택된 고유스킬의 기본 데이터 가져오기
-        UniqueSkillData skillData = GetUniqueSkillData(selectedPiece.UniqueSkill);
+        UniqueSkillData skillData =
+            GetUniqueSkillData(
+                selectedPiece.UniqueSkill
+            );
 
-        // <변경부분> 고유스킬 데이터가 없으면 스킬 사용 불가
+        // <변경부분> 고유스킬 데이터가 없으면
+        // 기존 Popup 흐름을 유지하되 현재 Locale 문구를 사용한다.
         if (skillData == null)
         {
-            ShowUniqueSkillFailMessage("고유스킬 데이터를 찾을 수 없습니다.");
+            ShowUniqueSkillFailMessage(
+    "고유스킬 데이터를 찾을 수 없습니다."
+            );
+
             return;
         }
 
-        // <변경부분> 데이터에서 한 턴 1회 제한이 켜져 있고, 이미 이번 턴에 고유스킬을 사용했다면 사용 불가
-        if (skillData.oncePerTurn && hasUsedUniqueSkillThisTurn)
+        // <변경부분> 데이터에서 한 턴 1회 제한이 켜져 있고
+        // 이미 이번 턴에 사용했다면 Ability 사용 불가
+        if (skillData.oncePerTurn &&
+            hasUsedUniqueSkillThisTurn)
         {
-            ShowUniqueSkillFailMessage("이번 턴에는\n 이미고유스킬을 사용했습니다.");
+            ShowUniqueSkillFailMessage(
+    "이번 턴에는\n 이미고유스킬을 사용했습니다."
+            );
+
             return;
         }
 
-        // <변경부분> 선택된 기물의 고유 스킬 사용 가능 여부 확인
-        // 여기서는 고유 스킬 없음 / 개별 쿨타임 여부를 검사
+        // <변경부분> 선택된 기물의 고유 스킬 공통 사용 가능 여부 확인
+        //
+        // 여기서는 Ability 없음 / 개별 쿨타임 / 기타 공통 사용 불가 상태를 검사한다.
         if (selectedPiece.CanUseUniqueSkill() == false)
         {
-            int cooldown = selectedPiece.GetUniqueSkillCooldown();
+            int cooldown =
+                selectedPiece
+                    .GetUniqueSkillCooldown();
 
-            if (selectedPiece.UniqueSkill == UniqueSkillType.None)
+            if (selectedPiece.UniqueSkill ==
+                UniqueSkillType.None)
             {
-                ShowUniqueSkillFailMessage("이 기물은 고유스킬이 없습니다.");
+                ShowUniqueSkillFailMessage(
+     "이 기물은 고유스킬이 없습니다."
+                 );
             }
             else if (cooldown > 0)
             {
-                ShowUniqueSkillFailMessage($"고유스킬 쿨타임이 {cooldown}턴 남았습니다.");
+                ShowUniqueSkillFailMessage(
+    $"고유스킬 쿨타임이 {cooldown}턴 남았습니다."
+                );
             }
             else
             {
-                ShowUniqueSkillFailMessage("현재 고유스킬을 사용할 수 없습니다.");
+                ShowUniqueSkillFailMessage(
+    "현재 고유스킬을 사용할 수 없습니다."
+                );
             }
 
             return;
         }
 
-        if (HasEnoughDeathStackForUniqueSkill(selectedPiece.Team, skillData.requiredDeathStack) == false)
+        // <변경부분> requiredDeathStack 등
+        // Ability 실행 전에 필요한 공통 조건이 부족하면 현재 Locale Popup을 표시한다.
+        if (HasEnoughDeathStackForUniqueSkill(
+                selectedPiece.Team,
+                skillData.requiredDeathStack) ==
+            false)
         {
-            ShowUniqueSkillFailMessage("고유스킬 사용 조건이 부족합니다.");
+            ShowUniqueSkillFailMessage(
+      "고유스킬 사용 조건이 부족합니다."
+              );
+
             return;
         }
 
         // <변경부분> 고유스킬 실제 실행은 BattleSkillManager에 위임
         if (battleSkillManager == null)
         {
-            Debug.LogWarning("BattleSkillManager가 연결되지 않아 고유스킬을 사용할 수 없습니다.");
+            // Manager 연결 실패는 플레이어용 게임 조건이 아니라
+            // 개발 설정 오류이므로 기존 Debug Warning만 유지한다.
+            Debug.LogWarning(
+                "BattleSkillManager가 연결되지 않아 고유스킬을 사용할 수 없습니다."
+            );
+
             return;
         }
 
         // <변경부분> 합성처럼 애니메이션을 기다려야 하는 스킬을 위해 코루틴으로 실행
-        StartCoroutine(UseSelectedPieceSkillRoutine(selectedPiece, skillData));
+        StartCoroutine(
+            UseSelectedPieceSkillRoutine(
+                selectedPiece,
+                skillData
+            )
+        );
     }
 
     // <변경부분> 고유스킬 실행 코루틴
@@ -3597,8 +3653,11 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 스킬 내부 조건이 맞지 않아 발동하지 못한 경우
             // 현재 Locale의 스킬별 실패 메시지를 사용한다.
             //
-            // Localization이 연결되지 않은 기존 UniqueSkillData에서는
-            // 기존 conditionFailMessage가 자동 fallback된다.
+            // 개별 Ability의 조건 실패 문구는
+            // UniqueSkillData의 Localization을 SSOT로 계속 사용한다.
+            //
+            // Reward 1차 작업 중에는 Ability Failure 공통 Battle_UI Localization을
+            // 아직 진행하지 않으므로, 공통 fallback만 기존 한국어 문구를 유지한다.
             string failMessage =
                 "조건이 맞지 않아 사용할 수 없습니다.";
 

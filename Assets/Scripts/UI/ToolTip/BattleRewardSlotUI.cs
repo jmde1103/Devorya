@@ -65,7 +65,9 @@ public class BattleRewardSlotUI : MonoBehaviour
         ApplyCommon(
             displayIcon,
             amount,
-            TooltipViewData.FromPieceData(pieceData)
+            TooltipViewData.FromPieceData(
+                pieceData
+            )
         );
     }
 
@@ -109,8 +111,15 @@ public class BattleRewardSlotUI : MonoBehaviour
         );
     }
 
-    // <변경부분> 금화 TooltipData에서 이름, 분류, 아이콘,
-    // 기본 설명을 가져오고 현재 보유 금화량을 런타임으로 추가한다.
+    // <변경부분> Gold Reward Tooltip 표시.
+    //
+    // Gold의 아이콘과 기존 한국어 원문은 현재 연결된 TooltipData를 유지하고,
+    // 실제 플레이어 노출 title / category / description은
+    // Battle_UI의 현재 Locale 문자열을 사용한다.
+    //
+    // 현재 별도 Gold/Currency Data owner가 존재하지 않으므로
+    // Reward 화면에서 사용하는 Gold Tooltip 문자열만
+    // Battle_UI의 Reward namespace에서 관리한다.
     public void RefreshGold(
         TooltipData goldTooltipData,
         int acquiredGoldAmount,
@@ -127,8 +136,8 @@ public class BattleRewardSlotUI : MonoBehaviour
             return;
         }
 
-        // <변경부분> ScriptableObject 원본을 직접 수정하지 않고
-        // 팝업 표시 전용 런타임 데이터로 복사한다.
+        // ScriptableObject 원본 자체는 수정하지 않고
+        // 현재 팝업 표시용 TooltipViewData만 생성한다.
         TooltipViewData goldTooltipViewData =
             TooltipViewData.FromTooltipData(
                 goldTooltipData
@@ -136,28 +145,50 @@ public class BattleRewardSlotUI : MonoBehaviour
 
         if (goldTooltipViewData != null)
         {
-            string baseDescription =
-                goldTooltipData.mainDescription;
+            // 기존 TooltipData의 한국어 값은
+            // Localization 누락 시 fallback으로 유지한다.
+            goldTooltipViewData.title =
+                BattleUILocalization
+                    .GetRewardGoldTitle(
+                        goldTooltipData.title
+                    );
 
-            // <변경부분> 기본 설명이 비어 있어도
-            // 현재 보유 금화량은 정상적으로 표시한다.
-            if (string.IsNullOrWhiteSpace(baseDescription))
+            goldTooltipViewData.category =
+                BattleUILocalization
+                    .GetRewardGoldCategory(
+                        goldTooltipData.category
+                    );
+
+            string baseDescription =
+                BattleUILocalization
+                    .GetRewardGoldDescription(
+                        goldTooltipData.mainDescription
+                    );
+
+            string currentGoldText =
+                BattleUILocalization
+                    .GetRewardCurrentGoldText(
+                        currentGoldAmount
+                    );
+
+            // 기본 설명이 비어 있는 TooltipData라도
+            // 현재 Gold 수량은 항상 정상 표시한다.
+            if (string.IsNullOrWhiteSpace(
+                    baseDescription))
             {
                 goldTooltipViewData.mainDescription =
-                    $"현재 보유 금화: " +
-                    $"{Mathf.Max(0, currentGoldAmount):N0}";
+                    currentGoldText;
             }
             else
             {
                 goldTooltipViewData.mainDescription =
                     $"{baseDescription}\n\n" +
-                    $"현재 보유 금화: " +
-                    $"{Mathf.Max(0, currentGoldAmount):N0}";
+                    $"{currentGoldText}";
             }
         }
 
-        // <변경부분> 슬롯 아이콘도 별도 Inspector 항목이 아니라
-        // TooltipData에 등록된 아이콘을 사용한다.
+        // 아이콘과 이번 전투에서 획득한 수량 표시는
+        // Localization 대상이 아니므로 기존 구조를 그대로 유지한다.
         ApplyCommon(
             goldTooltipData.icon,
             acquiredGoldAmount,
@@ -212,7 +243,8 @@ public class BattleRewardSlotUI : MonoBehaviour
         if (iconImage != null)
         {
             iconImage.sprite = icon;
-            iconImage.enabled = icon != null;
+            iconImage.enabled =
+                icon != null;
         }
 
         if (amountText != null)

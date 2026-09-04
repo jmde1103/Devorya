@@ -23,6 +23,34 @@ MonoBehaviour:
     m_Key: battle.ui.final_absorption_instruction
     m_Metadata:
       m_Items: []
+  - m_Id: 86372795420672
+    m_Key: battle.ui.reward.recovery_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86394542886912
+    m_Key: battle.ui.reward.drop_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86409495580672
+    m_Key: battle.ui.reward.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102001741008896
+    m_Key: battle.ui.reward.gold_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102021219356672
+    m_Key: battle.ui.reward.gold_category
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102042991988736
+    m_Key: battle.ui.reward.gold_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102060993941504
+    m_Key: battle.ui.reward.current_gold
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

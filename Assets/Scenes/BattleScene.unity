@@ -34570,9 +34570,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleRewardPopupUI
   popupRoot: {fileID: 1766949219}
   recoverySlotParent: {fileID: 484974950}
-  recoveryAreaObject: {fileID: 117720645}
+  recoveryAreaObject: {fileID: 967605757}
+  recoveryTitleText: {fileID: 967605759}
   dropSlotParent: {fileID: 114583228}
   dropAreaObject: {fileID: 1147801515}
+  dropTitleText: {fileID: 109511225}
   rewardSlotPrefab: {fileID: 2537777922694835768, guid: 6de50ff11416da142a0ecbc7d7041993, type: 3}
   goldTooltipData: {fileID: 11400000, guid: d06b053ccb5386d46b1d32785551123b, type: 2}
   confirmButton: {fileID: 553583809}

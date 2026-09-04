@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 // <변경부분> 전투 종료 후 실제 획득한 기물 복구,
 // 금화, 아이템, 유물 보상을 슬롯 형태로 표시하는 팝업 UI
@@ -19,12 +21,26 @@ public class BattleRewardPopupUI : MonoBehaviour
     // <변경부분> 복구 기물이 없을 때 숨길 복구 보상 영역
     [SerializeField] private GameObject recoveryAreaObject;
 
+    // <변경부분> 복구 보상 영역의 제목 TMP
+    //
+    // 실제 표시 문구는 Battle_UI String Table에서 가져오며,
+    // 기존 Prefab에 입력되어 있는 한국어 문구는 Localization 실패 시 fallback으로 사용한다.
+    [SerializeField]
+    private TMP_Text recoveryTitleText;
+
     [Header("Battle Drop")]
     // <변경부분> 금화, 아이템, 유물 슬롯이 생성될 부모
     [SerializeField] private Transform dropSlotParent;
 
     // <변경부분> 드롭 보상이 없을 때 숨길 보상 영역
     [SerializeField] private GameObject dropAreaObject;
+
+    // <변경부분> 전투 드롭 보상 영역의 제목 TMP
+    //
+    // Recovery 제목과 동일하게 Battle_UI String Table을 사용하고,
+    // 기존 Prefab 문구를 안전한 한국어 fallback으로 유지한다.
+    [SerializeField]
+    private TMP_Text dropTitleText;
 
     [SerializeField] private BattleRewardSlotUI rewardSlotPrefab;
 
@@ -42,6 +58,23 @@ public class BattleRewardPopupUI : MonoBehaviour
     // <변경부분> 팝업 하단의 "Click to continue" 안내 문구
     [SerializeField]
     private TMP_Text continueText;
+
+    // <변경부분> Reward Popup 제목과 Continue 문구의 기존 한국어 원문 보관
+    //
+    // Localization 값이 비어 있거나 연결되지 않은 경우에도
+    // 현재 Prefab에 입력되어 있던 한국어 문구를 그대로 사용할 수 있도록
+    // Awake()에서 최초 TMP 문자열을 한 번 저장한다.
+    //
+    // Runtime Locale 변경으로 TMP text가 바뀐 뒤의 값을 fallback으로 다시 저장하면 안 되므로
+    // 최초 Awake 시점에만 캡처한다.
+    private string recoveryTitleFallbackText =
+        string.Empty;
+
+    private string dropTitleFallbackText =
+        string.Empty;
+
+    private string continueFallbackText =
+        string.Empty;
 
     // <변경부분> 안내 문구가 가장 흐려졌을 때의 알파값
     // 완전히 사라지지 않도록 기본값은 0.25로 사용한다.
@@ -78,6 +111,24 @@ public class BattleRewardPopupUI : MonoBehaviour
 
     private void Awake()
     {
+        if (recoveryTitleText != null)
+        {
+            recoveryTitleFallbackText =
+                recoveryTitleText.text;
+        }
+
+        if (dropTitleText != null)
+        {
+            dropTitleFallbackText =
+                dropTitleText.text;
+        }
+
+        if (continueText != null)
+        {
+            continueFallbackText =
+                continueText.text;
+        }
+
         if (popupRoot == null)
         {
             popupRoot = gameObject;
@@ -137,22 +188,79 @@ public class BattleRewardPopupUI : MonoBehaviour
         }
     }
 
+    // <변경부분> Reward Popup Controller가 활성화되어 있는 동안
+    // Locale 변경 이벤트를 구독한다.
+    //
+    // BattleRewardPopupUI GameObject 자체는 계속 활성 상태를 유지하고
+    // 실제 화면 표시 여부는 popupRoot가 담당하므로,
+    // Popup이 열린 상태에서 언어를 변경해도 제목/Continue 문구를 즉시 갱신할 수 있다.
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+    }
+
+    // <변경부분> 현재 Locale이 변경되면
+    // Reward Popup의 고정 UI 문구만 현재 언어 기준으로 다시 계산한다.
+    //
+    // Slot Tooltip은 각 BattleRewardSlotUI가 별도로 Locale 변경을 구독한다.
+    private void OnSelectedLocaleChanged(
+        Locale locale)
+    {
+        RefreshLocalizedTexts();
+    }
+
     // <변경부분> 씬 전환이나 외부 처리로
     // 팝업이 비활성화되는 경우에도
     // Click to continue 애니메이션을 안전하게 정리한다.
     private void OnDisable()
     {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+
         StopContinueTextBlink();
+    }
+
+    private void RefreshLocalizedTexts()
+    {
+        if (recoveryTitleText != null)
+        {
+            recoveryTitleText.text =
+                BattleUILocalization
+                    .GetRewardRecoveryTitle(
+                        recoveryTitleFallbackText
+                    );
+        }
+
+        if (dropTitleText != null)
+        {
+            dropTitleText.text =
+                BattleUILocalization
+                    .GetRewardDropTitle(
+                        dropTitleFallbackText
+                    );
+        }
+
+        if (continueText != null)
+        {
+            continueText.text =
+                BattleUILocalization
+                    .GetRewardContinueText(
+                        continueFallbackText
+                    );
+        }
     }
 
     // <변경부분> 전투 종료 컨트롤러가 보상 계산을 끝낸 뒤 호출
     public void Show(
-        BattleEndFlowController owner,
-        List<BattleRecoveryRewardRuntimeData> recoveryRewards,
-        int goldAmount,
-        List<BattleRewardOptionRuntimeData> acquiredRewards)
+    BattleEndFlowController owner,
+    List<BattleRecoveryRewardRuntimeData> recoveryRewards,
+    int goldAmount,
+    List<BattleRewardOptionRuntimeData> acquiredRewards)
     {
         battleEndFlowController = owner;
+
+        RefreshLocalizedTexts();
 
         if (popupRoot == null)
         {
@@ -276,9 +384,9 @@ public class BattleRewardPopupUI : MonoBehaviour
                 );
 
             slotUI.RefreshRecoveryPiece(
-                reward.pieceData,
-                reward.amount
-            );
+    reward.pieceData,
+    reward.amount
+);
 
             createdCount++;
         }

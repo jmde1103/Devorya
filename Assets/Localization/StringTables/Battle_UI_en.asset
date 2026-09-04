@@ -26,6 +26,34 @@ MonoBehaviour:
     m_Localized: Press the Absorption button\nto use Final Absorption.
     m_Metadata:
       m_Items: []
+  - m_Id: 86372795420672
+    m_Localized: '|Restoration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86394542886912
+    m_Localized: '|Loot'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 86409495580672
+    m_Localized: Click to continue...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102060993941504
+    m_Localized: 'Current Gold: {gold}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102001741008896
+    m_Localized: Gold Coin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102021219356672
+    m_Localized: Currency
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102042991988736
+    m_Localized: A shiny gold coin.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

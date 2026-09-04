@@ -7,13 +7,62 @@ using UnityEngine.Localization;
 public static class BattleUILocalization
 {
     private const string TableCollectionName =
-        "Battle_UI";
+    "Battle_UI";
 
+    // <변경부분> 전투 시작 전 Player 기물 자리 배치 안내
+    //
+    // 기존 Battle_UI Localization 완료 항목.
+    // Serialized Data와 관계없는 String Table Key이므로 기존 Key를 절대 변경하지 않는다.
     private const string DeploymentInstructionKey =
         "battle.ui.deployment_instruction";
 
+    // <변경부분> 마지막 Enemy 기물 마무리 흡수 안내
+    //
+    // 기존 KR / EN / JA 테스트 완료 항목.
+    // Reward Localization을 추가하더라도 기존 Key를 삭제하거나 교체하면 안 된다.
     private const string FinalAbsorptionInstructionKey =
         "battle.ui.final_absorption_instruction";
+
+
+    // ============================================================
+    // Reward Popup
+    // ============================================================
+
+    // <변경부분> 복구 보상 영역 제목
+    private const string RewardRecoveryTitleKey =
+        "battle.ui.reward.recovery_title";
+
+    // <변경부분> 전투 드롭 보상 영역 제목
+    private const string RewardDropTitleKey =
+        "battle.ui.reward.drop_title";
+
+    // <변경부분> Reward Popup 하단 계속 진행 안내
+    private const string RewardContinueKey =
+      "battle.ui.reward.continue";
+
+
+    // ============================================================
+    // Reward Gold Tooltip
+    // ============================================================
+
+    // <변경부분> Reward Popup의 Gold Tooltip 제목
+    private const string RewardGoldTitleKey =
+        "battle.ui.reward.gold_title";
+
+    // <변경부분> Reward Popup의 Gold Tooltip 분류
+    private const string RewardGoldCategoryKey =
+        "battle.ui.reward.gold_category";
+
+    // <변경부분> Reward Popup의 Gold Tooltip 기본 설명
+    private const string RewardGoldDescriptionKey =
+        "battle.ui.reward.gold_description";
+
+    // <변경부분> Reward Popup에서 현재 보유 중인 Gold 수량을 표시하는 문구
+    //
+    // {gold}에는 현재 RunState의 실제 Gold 수량이 들어간다.
+    private const string RewardCurrentGoldKey =
+        "battle.ui.reward.current_gold";
+
 
     // Tooltip_Common 등에서 이미 사용 중인 방식과 동일하게
     // LocalizedString 참조를 한 번 생성하고
@@ -23,6 +72,58 @@ public static class BattleUILocalization
             new LocalizedString(
                 TableCollectionName,
                 DeploymentInstructionKey
+            );
+
+    private static readonly LocalizedString
+    rewardRecoveryTitle =
+        new LocalizedString(
+            TableCollectionName,
+            RewardRecoveryTitleKey
+        );
+
+    private static readonly LocalizedString
+        rewardDropTitle =
+            new LocalizedString(
+                TableCollectionName,
+                RewardDropTitleKey
+            );
+
+    private static readonly LocalizedString
+    rewardContinue =
+        new LocalizedString(
+            TableCollectionName,
+            RewardContinueKey
+        );
+
+    // <변경부분> Reward Gold Tooltip은
+    // 현재 별도 Gold/Currency Data owner가 없으므로
+    // Battle_UI의 Reward 전용 고정 문자열을 사용한다.
+    private static readonly LocalizedString
+        rewardGoldTitle =
+            new LocalizedString(
+                TableCollectionName,
+                RewardGoldTitleKey
+            );
+
+    private static readonly LocalizedString
+        rewardGoldCategory =
+            new LocalizedString(
+                TableCollectionName,
+                RewardGoldCategoryKey
+            );
+
+    private static readonly LocalizedString
+        rewardGoldDescription =
+            new LocalizedString(
+                TableCollectionName,
+                RewardGoldDescriptionKey
+            );
+
+    private static readonly LocalizedString
+        rewardCurrentGold =
+            new LocalizedString(
+                TableCollectionName,
+                RewardCurrentGoldKey
             );
 
     private static readonly LocalizedString
@@ -47,6 +148,93 @@ public static class BattleUILocalization
         return GetLocalizedTextOrFallback(
             finalAbsorptionInstruction,
             "흡수 버튼을 눌러 \n마무리 흡수를 사용하세요."
+        );
+    }
+
+    public static string GetRewardRecoveryTitle(
+    string fallbackText)
+    {
+        return GetLocalizedTextOrFallback(
+            rewardRecoveryTitle,
+            fallbackText
+        );
+    }
+
+    public static string GetRewardDropTitle(
+        string fallbackText)
+    {
+        return GetLocalizedTextOrFallback(
+            rewardDropTitle,
+            fallbackText
+        );
+    }
+
+    public static string GetRewardContinueText(
+    string fallbackText)
+    {
+        return GetLocalizedTextOrFallback(
+            rewardContinue,
+            fallbackText
+        );
+    }
+
+    // <변경부분> Gold Tooltip 제목.
+    // 기존 Gold TooltipData의 한국어 title은
+    // Localization 누락 시 fallback으로 그대로 사용한다.
+    public static string GetRewardGoldTitle(
+        string fallbackText)
+    {
+        return GetLocalizedTextOrFallback(
+            rewardGoldTitle,
+            fallbackText
+        );
+    }
+
+    // <변경부분> Gold Tooltip 분류.
+    // 기존 TooltipData 값을 fallback으로 유지한다.
+    public static string GetRewardGoldCategory(
+        string fallbackText)
+    {
+        return GetLocalizedTextOrFallback(
+            rewardGoldCategory,
+            fallbackText
+        );
+    }
+
+    // <변경부분> Gold Tooltip 기본 설명.
+    // 기존 TooltipData 값을 fallback으로 유지한다.
+    public static string GetRewardGoldDescription(
+        string fallbackText)
+    {
+        return GetLocalizedTextOrFallback(
+            rewardGoldDescription,
+            fallbackText
+        );
+    }
+
+    // <변경부분> 현재 RunState Gold 수량을
+    // 현재 Locale 문장 안의 {gold} 위치에 삽입한다.
+    //
+    // Smart String 의존성을 추가하지 않고
+    // 기존 DEVORYA 공용 Localization 방식과 동일하게
+    // 문자열 Resolve 후 placeholder만 교체한다.
+    public static string GetRewardCurrentGoldText(
+        int currentGoldAmount)
+    {
+        string localizedText =
+            GetLocalizedTextOrFallback(
+                rewardCurrentGold,
+                "현재 보유 금화: {gold}"
+            );
+
+        int safeGoldAmount =
+            currentGoldAmount < 0
+                ? 0
+                : currentGoldAmount;
+
+        return localizedText.Replace(
+            "{gold}",
+            safeGoldAmount.ToString("N0")
         );
     }
 
