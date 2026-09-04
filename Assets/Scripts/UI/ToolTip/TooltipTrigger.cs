@@ -32,21 +32,19 @@ public class TooltipTrigger : MonoBehaviour,
 
     [Header("Input")]
 
-    // <변경부분> 모바일에서 Tooltip을 표시하기 위해
-    // 손가락을 누르고 있어야 하는 시간.
-    [SerializeField, Min(0f)]
-    private float holdDelay =
-        0.3f;
-
-    // <변경부분> PC에서 마우스가 Tooltip 대상 위에 올라온 뒤
-    // 자동으로 Tooltip을 표시하기까지의 시간.
+    // Tooltip 입력 시간은 모든 TooltipTrigger가
+    // 동일한 공용값을 사용한다.
     //
-    // 마우스를 UI 사이에서 빠르게 움직일 때
-    // Tooltip이 계속 번쩍이는 현상을 줄이기 위해
-    // 즉시 표시하지 않고 짧은 Delay를 사용한다.
-    [SerializeField, Min(0f)]
-    private float hoverDelay =
-        0.35f;
+    // Inspector 개별 설정을 사용하지 않으므로
+    // 기존 Scene / Prefab에 저장된 SerializeField 값의 영향을 받지 않는다.
+    //
+    // Mobile Long Press
+    private const float HoldDelay =
+      0.3f;
+
+    // PC Mouse Hover
+    private const float HoverDelay =
+        0.5f;
 
     [Header("Position")]
     // <변경부분> 이 TooltipTrigger가 사용할 위치 계산 방식
@@ -124,7 +122,80 @@ public class TooltipTrigger : MonoBehaviour,
         }
     }
 
-    // <변경부분> 별도 TooltipData 에셋을 연결
+    // TooltipTrigger가 붙은 UI가 비활성화될 때
+    // 현재 이 Trigger에서 표시 중이던 Tooltip과
+    // Hover / Long Press 입력 상태를 함께 정리한다.
+    //
+    // 턴 전환처럼 Button GameObject 자체가 SetActive(false) 되는 경우에는
+    // 정상적인 PointerExit가 발생하지 않을 수 있으므로
+    // OnDisable에서도 반드시 정리해야 한다.
+    private void OnDisable()
+    {
+        // 이 Trigger가 실제 Tooltip을 표시하고 있었는지 먼저 저장한다.
+        //
+        // 다른 TooltipTrigger가 표시한 Popup을
+        // 관계없는 UI의 비활성화 때문에 닫지 않도록 하기 위함이다.
+        bool wasShowingTooltip =
+            isTooltipVisible;
+
+        isPointerInside =
+            false;
+
+        isHolding =
+            false;
+
+        isTooltipVisible =
+            false;
+
+        wasTooltipShownDuringPress =
+            false;
+
+        // PC Hover 표시를 기다리고 있었다면 취소한다.
+        if (hoverCoroutine != null)
+        {
+            StopCoroutine(
+                hoverCoroutine
+            );
+
+            hoverCoroutine =
+                null;
+        }
+
+        // 모바일 Long Press 표시를 기다리고 있었다면 취소한다.
+        if (holdCoroutine != null)
+        {
+            StopCoroutine(
+                holdCoroutine
+            );
+
+            holdCoroutine =
+                null;
+        }
+
+        // 모바일 Long Press 직후 Button을 임시로 비활성화한 상태에서
+        // UI 자체가 꺼지면 다음 프레임 복구 Coroutine이 중단될 수 있다.
+        //
+        // 그 경우 Button이 다시 켜졌을 때 계속 interactable=false로
+        // 남지 않도록 기존 상태를 즉시 복구한다.
+        if (blockNextClick &&
+            targetButton != null)
+        {
+            targetButton.interactable =
+                cachedButtonInteractable;
+        }
+
+        blockNextClick =
+            false;
+
+        // 실제로 이 Trigger가 열었던 Tooltip만 닫는다.
+        if (wasShowingTooltip &&
+            TooltipPopupUI.Instance != null)
+        {
+            TooltipPopupUI.Instance.Hide();
+        }
+    }
+
+    // 별도 TooltipData 에셋을 연결
     public void SetTooltipData(TooltipData newTooltipData)
     {
         tooltipData = newTooltipData;
@@ -348,8 +419,8 @@ public class TooltipTrigger : MonoBehaviour,
     private IEnumerator ShowTooltipAfterHoverDelay()
     {
         yield return new WaitForSecondsRealtime(
-            hoverDelay
-        );
+    HoverDelay
+);
 
         // Delay 동안 Mouse가 다른 곳으로 이동했다면
         // Tooltip을 표시하지 않는다.
@@ -382,7 +453,7 @@ public class TooltipTrigger : MonoBehaviour,
     {
         // Time.timeScale과 관계없는 실제 시간을 사용한다.
         yield return new WaitForSecondsRealtime(
-            holdDelay
+        HoldDelay
         );
 
         // 기다리는 동안 손가락을 뗐거나

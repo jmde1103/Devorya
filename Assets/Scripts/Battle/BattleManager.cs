@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using UnityEngine.Localization.Settings;
 
 public class BattleManager : MonoBehaviour
 {
@@ -1234,8 +1235,33 @@ public class BattleManager : MonoBehaviour
     // 한 프레임 기다린 뒤 플레이어 초기 배치 또는 정상 전투를 시작한다.
     private IEnumerator BeginPlayerDeploymentAfterSetupRoutine()
     {
-        // BattleSetupManager와 EventSequenceController의
-        // Start 초기화가 모두 끝날 수 있도록 한 프레임 기다린다.
+        // Battle Scene 시작 직후 배치 안내가 표시되기 전에
+        // Unity Localization 자체 초기화가 끝날 때까지 기다린다.
+        //
+        // 이를 기다리지 않으면 Battle Scene을 직접 실행했을 때
+        // 저장된 EN / JA Locale이 적용되기 전에
+        // 한국어 기본값으로 안내 문구가 생성될 수 있다.
+        yield return
+            LocalizationSettings
+                .InitializationOperation;
+
+        // DevoryaLocalizationManager가 존재하는 경우에는
+        // 저장된 사용자 언어를 SelectedLocale에 실제로 적용하는
+        // 과정까지 완료될 때까지 기다린다.
+        if (DevoryaLocalizationManager.Instance != null)
+        {
+            while (
+                DevoryaLocalizationManager
+                    .Instance
+                    .IsInitialized ==
+                false)
+            {
+                yield return null;
+            }
+        }
+
+        // 기존 BattleSetupManager / EventSequenceController의
+        // Start 초기화 순서를 보호하기 위한 한 프레임 대기는 유지한다.
         yield return null;
 
         // <변경부분> 현재 Event Sequence가
@@ -1311,8 +1337,9 @@ public class BattleManager : MonoBehaviour
             // <변경부분> 기존 SkillFailurePopup을 재사용하여
             // 전투 시작 전 플레이어 기물 배치 방법을 안내한다.
             battleUIController.ShowUniqueSkillFailureMessage(
-                "기물 자리 배치를 진행하고\n 체크 버튼을 누르세요."
-            );
+       BattleUILocalization
+           .GetDeploymentInstruction()
+   );
         }
 
         Debug.Log(
@@ -4909,6 +4936,17 @@ public class BattleManager : MonoBehaviour
     }
     private void EndTurn()
     {
+        // 턴이 전환되는 순간 현재 표시 중인 Tooltip을 즉시 닫는다.
+        //
+        // Player 전용 Action UI가 Enemy 턴 진입과 함께 사라질 때
+        // PointerExit가 발생하지 않아 TooltipPopup만 남는 현상을 방지한다.
+        //
+        // 턴이 바뀐 뒤 이전 턴의 Item / Trait / Ability / Status 정보를
+        // 화면에 계속 남겨두지 않는 공통 안전장치이기도 하다.
+        if (TooltipPopupUI.Instance != null)
+        {
+            TooltipPopupUI.Instance.Hide();
+        }
 
         // 턴이 바뀌면 현재 상대 기물 위에 표시된
         // 필드 흡수 버튼을 즉시 초기화한다.

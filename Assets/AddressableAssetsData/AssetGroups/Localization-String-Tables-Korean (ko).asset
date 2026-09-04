@@ -39,6 +39,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 87681834f57e78346a136f8a81516d69
+    m_Address: Battle_UI_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ba7efa6804b88dd4f8d2b222ed663230
     m_Address: Battle_Item_ko
     m_ReadOnly: 1
@@ -47,6 +53,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bc1b248b593c3c840ab48863f3a3d99f
     m_Address: Localization_Test_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb41fc729773f474cb05a29ebbe41c6c
+    m_Address: Battle_Relic_ko
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko

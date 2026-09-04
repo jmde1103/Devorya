@@ -1216,8 +1216,9 @@ public class BattleUIController : MonoBehaviour
             // SetLastEnemyAbsorbMode가 false → true로 바뀔 때만 이 분기로 들어오므로
             // 보드 상태를 반복 갱신해도 안내 문구가 계속 중복 출력되지 않는다.
             ShowUniqueSkillFailureMessage(
-                "흡수 버튼을 눌러 \n마무리 흡수를 사용하세요."
-            );
+    BattleUILocalization
+        .GetFinalAbsorptionInstruction()
+);
 
             // <변경부분> 파티클 프리팹 생성 및 재생
             PlayLastEnemyAbsorbParticle();

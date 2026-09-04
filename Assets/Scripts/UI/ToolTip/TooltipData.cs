@@ -272,8 +272,8 @@ public class TooltipViewData
     }
 
 
-    // <변경부분> 별도 TooltipData 에셋을 TooltipViewData로 변환
-    public static TooltipViewData FromTooltipData(TooltipData data)
+    public static TooltipViewData FromTooltipData(
+    TooltipData data)
     {
         if (data == null)
         {
@@ -282,12 +282,22 @@ public class TooltipViewData
 
         return new TooltipViewData
         {
-            title = data.title,
-            category = data.category,
-            mainDescription = data.mainDescription,
-            icon = data.icon,
-            // <변경부분> StatusEffect Section이 있다면
-            // 연결된 StatusEffectData 기준으로 Runtime 데이터를 해석한다.
+            // 별도 TooltipData Asset은
+            // 자신의 Header / Description 데이터를 그대로 사용한다.
+            title =
+                data.title,
+
+            category =
+                data.category,
+
+            mainDescription =
+                data.mainDescription,
+
+            icon =
+                data.icon,
+
+            // Tooltip Section은 현재 StatusEffectData 기반
+            // 공통 Resolver를 사용한다.
             sections =
                 ResolveTooltipSections(
                     data.sections
@@ -471,8 +481,8 @@ public class TooltipViewData
         };
     }
 
-    // <변경부분> 유물 데이터의 기존 이름/설명/아이콘을 Tooltip 기본 정보로 사용
-    public static TooltipViewData FromBattleRelicData(BattleRelicData data)
+    public static TooltipViewData FromBattleRelicData(
+    BattleRelicData data)
     {
         if (data == null)
         {
@@ -481,14 +491,30 @@ public class TooltipViewData
 
         return new TooltipViewData
         {
-            title = data.relicName,
+            // 현재 Locale 기준 유물 이름.
+            //
+            // Localization이 연결되지 않은 기존 Asset은
+            // BattleRelicData 내부에서 relicName으로 fallback한다.
+            title =
+                data.GetLocalizedRelicName(),
+
+            // 유물 Category는 Tooltip_Common의
+            // 공용 Localization을 사용한다.
             category =
-    TooltipLocalization
-        .GetRelicCategory(),
-            mainDescription = data.description,
-            icon = data.iconSprite,
-            // <변경부분> 유물 역시 StatusEffect Section을 사용할 경우
-            // 동일한 StatusEffectData SSOT 구조를 사용한다.
+                TooltipLocalization
+                    .GetRelicCategory(),
+
+            // 현재 Locale 기준 유물 설명.
+            //
+            // Localization이 연결되지 않은 기존 Asset은
+            // BattleRelicData 내부에서 description으로 fallback한다.
+            mainDescription =
+                data.GetLocalizedDescription(),
+
+            icon =
+                data.iconSprite,
+
+            // 추가 Section은 기존 StatusEffectData SSOT 구조를 유지한다.
             sections =
                 ResolveTooltipSections(
                     data.tooltipSections

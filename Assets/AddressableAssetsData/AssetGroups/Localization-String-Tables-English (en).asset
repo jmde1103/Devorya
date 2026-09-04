@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-English (en)
   m_GUID: 705c7fc560a512f44adf8339244088c0
   m_SerializeEntries:
+  - m_GUID: 0e944bb54ed09f44494281b130ea35bf
+    m_Address: Battle_UI_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 13d0dcd784cf0e0478a2a00355fe3eac
     m_Address: Localization_Test_en
     m_ReadOnly: 1
@@ -29,6 +35,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 501957a270d795146b7d3100648502ef
     m_Address: Unique_Skill_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6ff960738a4315642ad488f26b2229b1
+    m_Address: Battle_Relic_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

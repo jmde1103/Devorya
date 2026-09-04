@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f3ad39bcc28ee04badf56f058a43c33
+    m_Address: Assets/Localization/StringTables/Battle_UI Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 56695454630943042947367796de6251
     m_Address: Assets/Localization/StringTables/Tooltip_Common Shared Data.asset
     m_ReadOnly: 1
@@ -42,6 +47,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e842e6af1227296438f192bafb99765c
     m_Address: Assets/Localization/StringTables/Status_Effect Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea57add2adcd22c44a85a1bf49893269
+    m_Address: Assets/Localization/StringTables/Battle_Relic Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
