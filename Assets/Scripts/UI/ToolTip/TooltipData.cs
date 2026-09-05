@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 
 // Tooltip Section은 현재 StatusEffect 데이터 기반 Section만 사용한다.
 //
@@ -273,7 +274,7 @@ public class TooltipViewData
 
 
     public static TooltipViewData FromTooltipData(
-    TooltipData data)
+      TooltipData data)
     {
         if (data == null)
         {
@@ -282,22 +283,26 @@ public class TooltipViewData
 
         return new TooltipViewData
         {
-            // 별도 TooltipData Asset은
-            // 자신의 Header / Description 데이터를 그대로 사용한다.
+            // <변경부분>
+            // TooltipData가 자기 콘텐츠 문자열의 Localization SSOT가 된다.
+            //
+            // 현재 Locale의 번역값을 우선 사용하고,
+            // Localization이 아직 연결되지 않았거나 번역값이 비어 있으면
+            // TooltipData에 기존부터 저장되어 있던 한국어 원문으로 fallback한다.
             title =
-                data.title,
+                data.GetLocalizedTitle(),
 
             category =
-                data.category,
+                data.GetLocalizedCategory(),
 
             mainDescription =
-                data.mainDescription,
+                data.GetLocalizedMainDescription(),
 
             icon =
                 data.icon,
 
-            // Tooltip Section은 현재 StatusEffectData 기반
-            // 공통 Resolver를 사용한다.
+            // Tooltip Section은 기존과 동일하게
+            // StatusEffectData 기반 공통 Resolver를 사용한다.
             sections =
                 ResolveTooltipSections(
                     data.sections
@@ -591,24 +596,109 @@ TooltipLocalization
 [CreateAssetMenu(fileName = "TooltipData_New", menuName = "Devorya/UI/Tooltip Data")]
 public class TooltipData : ScriptableObject
 {
-    
-        [Header("Header")]
-        // 팝업 상단에 표시할 이름
-        public string title;
 
-        // 버튼 / 전투 설명 / 기물 정보 같은 분류
-        public string category;
+    [Header("Header")]
+    // 팝업 상단에 표시할 이름
+    public string title;
 
-        // <변경부분> 별도 TooltipData를 쓸 때 표시할 대표 아이콘
-        public Sprite icon;
+    // 버튼 / 전투 설명 / 기물 정보 같은 분류
+    public string category;
 
-        [Header("Description")]
-        [TextArea(2, 5)]
-        // 기본 설명 문장
-        public string mainDescription;
+    // <변경부분> 별도 TooltipData를 쓸 때 표시할 대표 아이콘
+    public Sprite icon;
 
-        [Header("Sections")]
-        // 하단에 동적으로 붙일 추가 설명 블록 목록
-        public List<TooltipSectionData> sections = new List<TooltipSectionData>();
+    [Header("Description")]
+    [TextArea(2, 5)]
+    // 기본 설명 문장
+    public string mainDescription;
+
+    [Header("Localization")]
+
+    // <변경부분>
+    // 현재 Locale 기준 Tooltip 제목 Localization 참조.
+    //
+    // 기존 title은 삭제하지 않으며
+    // 한국어 authoring 원문 및 Localization 누락 시 fallback으로 유지한다.
+    public LocalizedString localizedTitle =
+new LocalizedString();
+
+    // <변경부분>
+    // 현재 Locale 기준 Tooltip 분류 Localization 참조.
+    //
+    // 기존 category는 삭제하지 않고
+    // 한국어 authoring 원문 및 fallback으로 유지한다.
+    public LocalizedString localizedCategory =
+        new LocalizedString();
+
+    // <변경부분>
+    // 현재 Locale 기준 Tooltip 기본 설명 Localization 참조.
+    //
+    // 기존 mainDescription은 삭제하지 않고
+    // 한국어 authoring 원문 및 fallback으로 유지한다.
+    public LocalizedString localizedMainDescription =
+        new LocalizedString();
+
+    [Header("Sections")]
+    // 하단에 동적으로 붙일 추가 설명 블록 목록
+    public List<TooltipSectionData> sections = new List<TooltipSectionData>();
+
+    // <변경부분>
+    // 현재 선택된 Locale 기준 Tooltip 제목을 반환한다.
+    //
+    // Localization이 연결되지 않은 기존 TooltipData Asset도
+    // 기존 title을 그대로 표시할 수 있도록 fallback한다.
+    public string GetLocalizedTitle()
+    {
+        return GetLocalizedTextOrFallback(
+            localizedTitle,
+            title
+        );
+    }
+
+    // <변경부분>
+    // 현재 선택된 Locale 기준 Tooltip 분류를 반환한다.
+    public string GetLocalizedCategory()
+    {
+        return GetLocalizedTextOrFallback(
+            localizedCategory,
+            category
+        );
+    }
+
+    // <변경부분>
+    // 현재 선택된 Locale 기준 Tooltip 기본 설명을 반환한다.
+    public string GetLocalizedMainDescription()
+    {
+        return GetLocalizedTextOrFallback(
+            localizedMainDescription,
+            mainDescription
+        );
+    }
+
+    // <변경부분>
+    // LocalizedString이 정상 연결되어 있으면 현재 Locale 값을 사용하고,
+    // 참조가 없거나 현재 Locale 문자열이 비어 있으면
+    // 기존 한국어 raw 값을 안전한 fallback으로 사용한다.
+    private string GetLocalizedTextOrFallback(
+        LocalizedString localizedString,
+        string fallbackText)
+    {
+        if (localizedString == null ||
+            localizedString.IsEmpty)
+        {
+            return fallbackText ?? string.Empty;
+        }
+
+        string localizedText =
+            localizedString.GetLocalizedString();
+
+        if (string.IsNullOrWhiteSpace(
+                localizedText))
+        {
+            return fallbackText ?? string.Empty;
+        }
+
+        return localizedText;
+    }
 
 }

@@ -195,11 +195,29 @@ public class TooltipTrigger : MonoBehaviour,
         }
     }
 
-    // 별도 TooltipData 에셋을 연결
-    public void SetTooltipData(TooltipData newTooltipData)
+    // <변경부분> 별도 TooltipData Asset을 연결.
+    //
+    // TooltipData 기반 Tooltip은 여기서 미리 TooltipViewData로 변환하지 않는다.
+    //
+    // 이유:
+    // TooltipViewData에는 이미 resolve된 string이 저장되므로
+    // Scene 초기화 시점에 미리 생성하면 당시 Locale의 문자열이 캐시될 수 있다.
+    //
+    // TooltipData 자체를 source로 유지하고,
+    // 실제 Tooltip을 표시하는 순간 현재 Locale 기준으로
+    // TooltipViewData를 다시 생성한다.
+    public void SetTooltipData(
+        TooltipData newTooltipData)
     {
-        tooltipData = newTooltipData;
-        tooltipViewData = TooltipViewData.FromTooltipData(newTooltipData);
+        tooltipData =
+            newTooltipData;
+
+        // 이전에 만들어진 Locale 문자열이 남지 않도록 제거한다.
+        //
+        // TooltipData 기반 Tooltip은 ShowTooltip()에서
+        // 현재 Locale 기준으로 다시 생성한다.
+        tooltipViewData =
+            null;
     }
 
     // <변경부분> 기존 SkillData / ItemData / StatusEffectData에서 만든 TooltipViewData를 연결
@@ -485,10 +503,17 @@ public class TooltipTrigger : MonoBehaviour,
         Vector2 screenPosition,
         bool isLongPress)
     {
-        // 고정 TooltipData만 연결된 경우
-        // 표시용 Runtime TooltipViewData를 생성한다.
-        if (tooltipViewData == null &&
-            tooltipData != null)
+        // <변경부분>
+        // TooltipData가 source로 연결된 Tooltip은
+        // Tooltip을 실제로 표시할 때마다 현재 Locale 기준으로 다시 resolve한다.
+        //
+        // TooltipViewData는 이미 번역된 일반 string을 가지고 있기 때문에
+        // 이전 Locale에서 생성된 ViewData를 재사용하지 않는다.
+        //
+        // SetTooltipViewData()를 사용하는 Skill / Item 등의
+        // Runtime ViewData 경로는 tooltipData가 null이므로
+        // 기존 동작에 영향을 주지 않는다.
+        if (tooltipData != null)
         {
             tooltipViewData =
                 TooltipViewData.FromTooltipData(

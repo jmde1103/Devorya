@@ -13,9 +13,19 @@ MonoBehaviour:
   m_Name: PieceData_Devorya Bishop
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya Bishop
+  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uBE44\uC20D]"
   pieceType: 3
   uniqueSkill: 0
   canMove: 1
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
+    m_TableEntryReference:
+      m_KeyId: 663359488
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   speciesTags: 
   defaultGeneralSkills: []
   playerSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
@@ -38,3 +48,6 @@ MonoBehaviour:
   enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  references:
+    version: 2
+    RefIds: []

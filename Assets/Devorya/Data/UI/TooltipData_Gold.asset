@@ -15,5 +15,35 @@ MonoBehaviour:
   title: "\uAE08\uD654"
   category: "\uC7AC\uD654"
   icon: {fileID: 21300000, guid: 96eb06079e651fb4f883389ac4b6a4e2, type: 3}
-  mainDescription: 
+  mainDescription: "\uBC18\uC9DD\uC774\uB294 \uAE08\uD654\uC785\uB2C8\uB2E4."
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: GUID:c8fdd95a46eecfe428922464b4ae733c
+    m_TableEntryReference:
+      m_KeyId: 476393902080
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedCategory:
+    m_TableReference:
+      m_TableCollectionName: GUID:c8fdd95a46eecfe428922464b4ae733c
+    m_TableEntryReference:
+      m_KeyId: 476393902081
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedMainDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:c8fdd95a46eecfe428922464b4ae733c
+    m_TableEntryReference:
+      m_KeyId: 476393902082
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   sections: []
+  references:
+    version: 2
+    RefIds: []

@@ -42,31 +42,24 @@ public static class BattleUILocalization
 
 
     // ============================================================
-    // Reward Gold Tooltip
+    // Reward Gold Runtime UI
     // ============================================================
 
-    // <변경부분> Reward Popup의 Gold Tooltip 제목
-    private const string RewardGoldTitleKey =
-        "battle.ui.reward.gold_title";
-
-    // <변경부분> Reward Popup의 Gold Tooltip 분류
-    private const string RewardGoldCategoryKey =
-        "battle.ui.reward.gold_category";
-
-    // <변경부분> Reward Popup의 Gold Tooltip 기본 설명
-    private const string RewardGoldDescriptionKey =
-        "battle.ui.reward.gold_description";
-
-    // <변경부분> Reward Popup에서 현재 보유 중인 Gold 수량을 표시하는 문구
+    // <변경부분>
+    // Gold의 title / category / description은
+    // TooltipData_Gold가 Localization SSOT로 관리한다.
+    //
+    // Battle_UI에서는 정적 Gold 콘텐츠를 중복 관리하지 않고,
+    // 런타임 Gold 수량이 들어가는 이 문장만 관리한다.
     //
     // {gold}에는 현재 RunState의 실제 Gold 수량이 들어간다.
     private const string RewardCurrentGoldKey =
         "battle.ui.reward.current_gold";
 
-
-    // Tooltip_Common 등에서 이미 사용 중인 방식과 동일하게
-    // LocalizedString 참조를 한 번 생성하고
-    // 호출 시점의 현재 Locale 문자열을 가져온다.
+    // 기존 Battle_UI Localization 항목.
+    //
+    // Gold Tooltip 정적 문자열 제거와 관계없는 기존 항목이므로
+    // 반드시 유지한다.
     private static readonly LocalizedString
         deploymentInstruction =
             new LocalizedString(
@@ -74,13 +67,15 @@ public static class BattleUILocalization
                 DeploymentInstructionKey
             );
 
+    // Reward Popup 복구 영역 제목.
     private static readonly LocalizedString
-    rewardRecoveryTitle =
-        new LocalizedString(
-            TableCollectionName,
-            RewardRecoveryTitleKey
-        );
+        rewardRecoveryTitle =
+            new LocalizedString(
+                TableCollectionName,
+                RewardRecoveryTitleKey
+            );
 
+    // Reward Popup 전투 드롭 영역 제목.
     private static readonly LocalizedString
         rewardDropTitle =
             new LocalizedString(
@@ -88,37 +83,17 @@ public static class BattleUILocalization
                 RewardDropTitleKey
             );
 
+    // Reward Popup 하단 계속 진행 안내.
     private static readonly LocalizedString
-    rewardContinue =
-        new LocalizedString(
-            TableCollectionName,
-            RewardContinueKey
-        );
-
-    // <변경부분> Reward Gold Tooltip은
-    // 현재 별도 Gold/Currency Data owner가 없으므로
-    // Battle_UI의 Reward 전용 고정 문자열을 사용한다.
-    private static readonly LocalizedString
-        rewardGoldTitle =
+        rewardContinue =
             new LocalizedString(
                 TableCollectionName,
-                RewardGoldTitleKey
+                RewardContinueKey
             );
 
-    private static readonly LocalizedString
-        rewardGoldCategory =
-            new LocalizedString(
-                TableCollectionName,
-                RewardGoldCategoryKey
-            );
-
-    private static readonly LocalizedString
-        rewardGoldDescription =
-            new LocalizedString(
-                TableCollectionName,
-                RewardGoldDescriptionKey
-            );
-
+    // <변경부분>
+    // Gold의 정적 Tooltip 콘텐츠는 TooltipData_Gold가 담당하고,
+    // Battle_UI에는 런타임 현재 보유량 문장만 유지한다.
     private static readonly LocalizedString
         rewardCurrentGold =
             new LocalizedString(
@@ -178,39 +153,6 @@ public static class BattleUILocalization
         );
     }
 
-    // <변경부분> Gold Tooltip 제목.
-    // 기존 Gold TooltipData의 한국어 title은
-    // Localization 누락 시 fallback으로 그대로 사용한다.
-    public static string GetRewardGoldTitle(
-        string fallbackText)
-    {
-        return GetLocalizedTextOrFallback(
-            rewardGoldTitle,
-            fallbackText
-        );
-    }
-
-    // <변경부분> Gold Tooltip 분류.
-    // 기존 TooltipData 값을 fallback으로 유지한다.
-    public static string GetRewardGoldCategory(
-        string fallbackText)
-    {
-        return GetLocalizedTextOrFallback(
-            rewardGoldCategory,
-            fallbackText
-        );
-    }
-
-    // <변경부분> Gold Tooltip 기본 설명.
-    // 기존 TooltipData 값을 fallback으로 유지한다.
-    public static string GetRewardGoldDescription(
-        string fallbackText)
-    {
-        return GetLocalizedTextOrFallback(
-            rewardGoldDescription,
-            fallbackText
-        );
-    }
 
     // <변경부분> 현재 RunState Gold 수량을
     // 현재 Locale 문장 안의 {gold} 위치에 삽입한다.

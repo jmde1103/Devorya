@@ -39,6 +39,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6b7eb29b2317c6a4db9bc571d8e854fa
+    m_Address: Tooltip_Data_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6ff960738a4315642ad488f26b2229b1
     m_Address: Battle_Relic_en
     m_ReadOnly: 1
@@ -59,6 +65,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c70cb318db963344ab2c15932339e265
     m_Address: Tooltip_Common_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: daf6a0ffddcd5bb499f201189451367a
+    m_Address: Piece_Data_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

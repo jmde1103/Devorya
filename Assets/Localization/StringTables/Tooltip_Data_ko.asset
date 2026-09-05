@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Tooltip_Data_ko
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: ko
+  m_SharedData: {fileID: 11400000, guid: c8fdd95a46eecfe428922464b4ae733c, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 852103168
+    m_Localized: "\uD761\uC218"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 919212032
+    m_Localized: "\uC804\uD22C \uD589\uB3D9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 927600640
+    m_Localized: "\uC0C1\uB300\uC758 \uB370\uC774\uD130\uB97C \uD761\uC218\uD558\uC5EC
+      \uBCC0\uD654\uD55C\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 476393902080
+    m_Localized: "\uAE08\uD654"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 476393902081
+    m_Localized: "\uC7AC\uD654"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 476393902082
+    m_Localized: "\uBC18\uC9DD\uC774\uB294 \uAE08\uD654\uC785\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

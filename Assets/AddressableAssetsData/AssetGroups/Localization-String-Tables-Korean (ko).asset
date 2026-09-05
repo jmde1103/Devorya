@@ -33,6 +33,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4e504a60939bfe341975734f9e40dae1
+    m_Address: Tooltip_Data_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 69bfb470729a0f44ba665776d4af554e
+    m_Address: Piece_Data_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7e0741bee4980274cafa7a34d7ead893
     m_Address: General_Skill_ko
     m_ReadOnly: 1

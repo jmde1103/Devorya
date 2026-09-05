@@ -13,9 +13,19 @@ MonoBehaviour:
   m_Name: PieceData_Devorya King
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya King
+  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uD0B9]"
   pieceType: 4
   uniqueSkill: 0
   canMove: 1
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   speciesTags: 
   defaultGeneralSkills: []
   playerSprite: {fileID: 21300000, guid: a3676b634bc0aa646b3bbf43dd54ffdd, type: 3}
@@ -38,3 +48,6 @@ MonoBehaviour:
   enemyFieldStatusEffectPosition: {x: -0.2, y: 0.2, z: 0}
   neutralFieldStatusEffectPosition: {x: -0.2, y: 0.2, z: 0}
   absorbedPlayerFieldStatusEffectPosition: {x: -0.2, y: 0.2, z: 0}
+  references:
+    version: 2
+    RefIds: []
