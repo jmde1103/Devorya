@@ -25,6 +25,17 @@ public class PieceData : ScriptableObject
     // displayName = 젤루 룩
     public string displayName;
 
+    // <변경부분>
+    // 기물 자체에 대한 사용자 표시용 설명.
+    //
+    // Reward Popup 전용 문장이 아니라
+    // 기물 자체가 소유하는 콘텐츠 설명이므로 PieceData에서 관리한다.
+    //
+    // 이후 도감 / 기물 상세정보 / Tooltip 등에서도
+    // 동일한 설명을 SSOT로 재사용한다.
+    [TextArea(2, 5)]
+    public string description;
+
     // <변경부분> 이 데이터가 의미하는 기물 타입
     public PieceType pieceType;
 
@@ -42,6 +53,14 @@ public class PieceData : ScriptableObject
     // 기존 displayName은 한국어 authoring 원문 및
     // Localization 누락 시 fallback으로 계속 유지한다.
     public LocalizedString localizedDisplayName =
+    new LocalizedString();
+
+    // <변경부분>
+    // 현재 Locale 기준 기물 설명.
+    //
+    // description은 한국어 authoring 원문 및
+    // Localization 누락 시 fallback으로 유지한다.
+    public LocalizedString localizedDescription =
         new LocalizedString();
 
     [Header("Species")]
@@ -166,6 +185,32 @@ public class PieceData : ScriptableObject
         }
 
         return pieceType.ToString();
+    }
+
+    // <변경부분>
+    // 현재 선택된 Locale 기준 기물 자체 설명을 반환한다.
+    //
+    // Localization이 아직 연결되지 않았거나
+    // 현재 Locale 값이 비어 있으면
+    // 기존 description 한국어 원문으로 fallback한다.
+    public string GetLocalizedDescription()
+    {
+        if (localizedDescription == null ||
+            localizedDescription.IsEmpty)
+        {
+            return description ?? string.Empty;
+        }
+
+        string localizedText =
+            localizedDescription.GetLocalizedString();
+
+        if (string.IsNullOrWhiteSpace(
+                localizedText))
+        {
+            return description ?? string.Empty;
+        }
+
+        return localizedText;
     }
 
     // <변경부분> 팀과 외형 상태에 맞는 스프라이트 반환

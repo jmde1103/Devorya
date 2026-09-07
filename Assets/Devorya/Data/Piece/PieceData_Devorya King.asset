@@ -19,9 +19,9 @@ MonoBehaviour:
   canMove: 1
   localizedDisplayName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 292023249276928
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0

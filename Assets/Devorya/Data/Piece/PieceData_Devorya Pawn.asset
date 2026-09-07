@@ -13,9 +13,30 @@ MonoBehaviour:
   m_Name: PieceData_Devorya Pawn
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya Pawn
+  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uD3F0]"
+  description: "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4\uCCB4 \uD0C0\uC785 :
+    [\uD3F0]"
   pieceType: 0
   uniqueSkill: 0
   canMove: 1
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
+    m_TableEntryReference:
+      m_KeyId: 292450145538048
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
+    m_TableEntryReference:
+      m_KeyId: 335905739640832
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   speciesTags: 
   defaultGeneralSkills: []
   playerSprite: {fileID: 21300000, guid: d5f31ef29fc69ea4786a01fe38d54d36, type: 3}
@@ -38,3 +59,6 @@ MonoBehaviour:
   enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  references:
+    version: 2
+    RefIds: []

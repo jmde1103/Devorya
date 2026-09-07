@@ -29,10 +29,11 @@ public class PieceDataEditor : Editor
         // LocalizedString 참조만 아래 Localization 관리 영역에서
         // 자동 연결하므로 기본 Inspector에서는 숨긴다.
         DrawPropertiesExcluding(
-            serializedObject,
-            "m_Script",
-            "localizedDisplayName"
-        );
+     serializedObject,
+     "m_Script",
+     "localizedDisplayName",
+     "localizedDescription"
+ );
 
         serializedObject.ApplyModifiedProperties();
 
@@ -70,12 +71,15 @@ public class PieceDataEditor : Editor
             }
 
             string baseKey =
-                GetPieceBaseKey(
-                    pieceData
-                );
+    GetPieceBaseKey(
+        pieceData
+    );
 
             string nameKey =
                 $"{baseKey}.name";
+
+            string descriptionKey =
+                $"{baseKey}.description";
 
             EditorGUILayout.LabelField(
                 "자동 Localization Key",
@@ -86,6 +90,11 @@ public class PieceDataEditor : Editor
                 "Name",
                 nameKey
             );
+
+            EditorGUILayout.LabelField(
+    "Description",
+    descriptionKey
+);
 
             EditorGUILayout.Space(6);
 
@@ -109,17 +118,20 @@ public class PieceDataEditor : Editor
                         "Localization 생성 / 한국어 동기화"))
                 {
                     SyncLocalization(
-                        pieceData,
-                        nameKey
-                    );
+      pieceData,
+      nameKey,
+      descriptionKey
+  );
                 }
             }
 
             EditorGUILayout.Space(4);
 
             bool localizationReady =
-                pieceData.localizedDisplayName != null &&
-                pieceData.localizedDisplayName.IsEmpty == false;
+    pieceData.localizedDisplayName != null &&
+    pieceData.localizedDisplayName.IsEmpty == false &&
+    pieceData.localizedDescription != null &&
+    pieceData.localizedDescription.IsEmpty == false;
 
             if (localizationReady == false)
             {
@@ -156,8 +168,9 @@ public class PieceDataEditor : Editor
             if (showTranslations)
             {
                 DrawTranslations(
-                    nameKey
-                );
+     nameKey,
+     descriptionKey
+ );
             }
 
             EditorGUILayout.Space(6);
@@ -167,7 +180,8 @@ public class PieceDataEditor : Editor
     }
 
     private void DrawTranslations(
-        string nameKey)
+     string nameKey,
+     string descriptionKey)
     {
         StringTableCollection collection =
             DevoryaLocalizationEditorUtility
@@ -186,27 +200,30 @@ public class PieceDataEditor : Editor
         }
 
         DrawLocaleTranslation(
-            collection,
-            "English",
-            "en",
-            nameKey
-        );
+    collection,
+    "English",
+    "en",
+    nameKey,
+    descriptionKey
+);
 
         EditorGUILayout.Space(8);
 
         DrawLocaleTranslation(
-            collection,
-            "Japanese",
-            "ja",
-            nameKey
-        );
+     collection,
+     "Japanese",
+     "ja",
+     nameKey,
+     descriptionKey
+ );
     }
 
     private void DrawLocaleTranslation(
-        StringTableCollection collection,
-        string displayName,
-        string localeCode,
-        string nameKey)
+     StringTableCollection collection,
+     string displayName,
+     string localeCode,
+     string nameKey,
+     string descriptionKey)
     {
         StringTable table =
             DevoryaLocalizationEditorUtility
@@ -237,12 +254,29 @@ public class PieceDataEditor : Editor
                     nameKey
                 );
 
+        string currentDescription =
+            DevoryaLocalizationEditorUtility
+                .GetTableValue(
+                    table,
+                    descriptionKey
+                );
+
         EditorGUI.BeginChangeCheck();
 
         string newName =
             EditorGUILayout.TextField(
                 "Name",
                 currentName
+            );
+
+        EditorGUILayout.LabelField(
+            "Description"
+        );
+
+        string newDescription =
+            EditorGUILayout.TextArea(
+                currentDescription,
+                GUILayout.MinHeight(55)
             );
 
         if (EditorGUI.EndChangeCheck())
@@ -259,6 +293,13 @@ public class PieceDataEditor : Editor
                     newName
                 );
 
+            DevoryaLocalizationEditorUtility
+                .SetTableValue(
+                    table,
+                    descriptionKey,
+                    newDescription
+                );
+
             EditorUtility.SetDirty(
                 collection.SharedData
             );
@@ -270,8 +311,9 @@ public class PieceDataEditor : Editor
     //
     // English / Japanese 값은 건드리지 않는다.
     private void SyncLocalization(
-        PieceData pieceData,
-        string nameKey)
+    PieceData pieceData,
+    string nameKey,
+    string descriptionKey)
     {
         StringTableCollection collection =
             DevoryaLocalizationEditorUtility
@@ -327,6 +369,13 @@ public class PieceDataEditor : Editor
                 pieceData.displayName
             );
 
+        DevoryaLocalizationEditorUtility
+    .SetTableValue(
+        koreanTable,
+        descriptionKey,
+        pieceData.description
+    );
+
         pieceData.localizedDisplayName =
             DevoryaLocalizationEditorUtility
                 .CreateLocalizedStringReference(
@@ -334,8 +383,17 @@ public class PieceDataEditor : Editor
                     nameKey
                 );
 
+        pieceData.localizedDescription =
+    DevoryaLocalizationEditorUtility
+        .CreateLocalizedStringReference(
+            collection,
+            descriptionKey
+        );
+
         if (pieceData.localizedDisplayName == null ||
-            pieceData.localizedDisplayName.IsEmpty)
+    pieceData.localizedDisplayName.IsEmpty ||
+    pieceData.localizedDescription == null ||
+    pieceData.localizedDescription.IsEmpty)
         {
             EditorUtility.DisplayDialog(
                 "Localization 연결 실패",

@@ -19,6 +19,38 @@ MonoBehaviour:
     m_Key: piece.devorya bishop.name
     m_Metadata:
       m_Items: []
+  - m_Id: 292023249276928
+    m_Key: piece.devorya king.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292290971701248
+    m_Key: piece.devorya knight.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292450145538048
+    m_Key: piece.devorya pawn.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292609487147008
+    m_Key: piece.devorya rook.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 332976420950016
+    m_Key: piece.devorya bishop.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 335738714066944
+    m_Key: piece.devorya knight.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 335905739640832
+    m_Key: piece.devorya pawn.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 338624219058176
+    m_Key: piece.devorya rook.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
