@@ -54,6 +54,13 @@ MonoBehaviour:
     m_Localized: 'Devorya Fragment Type: [Rook]'
     m_Metadata:
       m_Items: []
+  - m_Id: 667822833930240
+    m_Localized: 'A mysterious black entity of unknown origin.
+
+      It absorbs
+      living beings, taking their forms and abilities as its own.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

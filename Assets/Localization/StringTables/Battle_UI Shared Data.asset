@@ -51,6 +51,18 @@ MonoBehaviour:
     m_Key: battle.ui.reward.current_gold
     m_Metadata:
       m_Items: []
+  - m_Id: 1076994670989312
+    m_Key: battle.ui.reward.recovery_category
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1077082000592896
+    m_Key: battle.ui.reward.recovery_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1077399425519616
+    m_Key: battle.ui.reward.recovery_ability
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

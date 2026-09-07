@@ -54,6 +54,18 @@ MonoBehaviour:
     m_Localized: A shiny gold coin.
     m_Metadata:
       m_Items: []
+  - m_Id: 1076994670989312
+    m_Localized: Piece Restoration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1077082000592896
+    m_Localized: The {piece} was restored after battle.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1077399425519616
+    m_Localized: 'Ability: {ability}'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

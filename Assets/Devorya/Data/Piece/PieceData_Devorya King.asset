@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya King
   displayName: "\uB370\uBCF4\uB9AC\uC544 [\uD0B9]"
-  description: 
+  description: "\uC815\uCCB4\uB97C \uC54C \uC218 \uC5C6\uB294 \uAC80\uC740 \uC874\uC7AC.\n\uC0DD\uBA85\uCCB4\uB97C
+    \uD761\uC218\uD574 \uADF8 \uBAA8\uC2B5\uACFC \uB2A5\uB825\uC744 \uC790\uC2E0\uC758
+    \uAC83\uC73C\uB85C \uB9CC\uB4E0\uB2E4."
   pieceType: 4
   uniqueSkill: 0
   canMove: 1
