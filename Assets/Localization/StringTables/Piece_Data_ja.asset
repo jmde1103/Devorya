@@ -50,6 +50,10 @@ MonoBehaviour:
     m_Localized: "\u30C7\u30DC\u30EA\u30A2\u306E\u5206\u88C2\u4F53\u30BF\u30A4\u30D7\uFF1A[\u30DD\u30FC\u30F3]"
     m_Metadata:
       m_Items: []
+  - m_Id: 338624219058176
+    m_Localized: "Devorya Fragment Type: [\u30EB\u30FC\u30AF]"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

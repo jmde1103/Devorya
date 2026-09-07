@@ -527,17 +527,15 @@ TooltipLocalization
         };
     }
 
-    // <변경부분> 기물 복구 보상에 표시할 PieceData 기반 Tooltip 생성
+    // <변경부분>
+    // PieceData 자체가 소유하는 사용자 표시용 Tooltip 데이터를 생성한다.
     //
-    // 현재 Reward 1차 Localization에서는
-    // Recovery Piece 자체의 Localization까지 함께 처리하지 않는다.
+    // 기물 이름 / 설명은 PieceData Localization SSOT를 사용한다.
     //
-    // 따라서 공용 TooltipViewData가 UniqueSkillDatabase나
-    // Reward 전용 Localization Table을 직접 참조하지 않도록
-    // Reward 작업 전의 단순 PieceData 기반 구조를 유지한다.
-    //
-    // Recovery Piece Tooltip Localization은
-    // Reward 3차 작업에서 Piece 표시명의 실제 SSOT를 확인한 뒤 별도로 처리한다.
+    // "기물 복구" 같은 특정 화면 문맥과
+    // Recovery 전용 안내 문장은 여기에서 관리하지 않는다.
+    // Reward Popup에서 사용할 경우 BattleRewardSlotUI가
+    // 이 기본 데이터를 바탕으로 Recovery 문장을 추가한다.
     public static TooltipViewData FromPieceData(
         PieceData data)
     {
@@ -546,26 +544,6 @@ TooltipLocalization
             return null;
         }
 
-        // <변경부분> 별도 표시 이름이 없으므로 pieceId를 우선 사용한다.
-        string displayName =
-            string.IsNullOrEmpty(
-                data.pieceId)
-                ? data.pieceType.ToString()
-                : data.pieceId;
-
-        // <변경부분> PieceData에 별도 설명 필드가 없으므로
-        // 기존 Recovery Tooltip 문구를 그대로 사용한다.
-        string description =
-            $"전투 종료 후 복구된 {data.pieceType} 기물입니다.";
-
-        if (data.uniqueSkill !=
-            UniqueSkillType.None)
-        {
-            description +=
-                $"\n기본 고유스킬: {data.uniqueSkill}";
-        }
-
-        // <변경부분> 보상 아이콘은 상태 UI용 스프라이트를 우선 사용한다.
         Sprite displayIcon =
             data.playerStatusSprite != null
                 ? data.playerStatusSprite
@@ -573,20 +551,26 @@ TooltipLocalization
 
         return new TooltipViewData
         {
+            // PieceData가 소유하는 현재 Locale 표시명.
             title =
-        displayName,
+                data.GetLocalizedDisplayName(),
 
+            // PieceData 자체에는 특정 UI 문맥 Category를 두지 않는다.
+            // Reward에서는 BattleRewardSlotUI가
+            // "기물 복구" Localization으로 교체한다.
             category =
-        "기물 복구",
+                string.Empty,
 
+            // 도감 / 상세정보 / Tooltip에서 공통으로 재사용할
+            // PieceData 자체 설명.
             mainDescription =
-        description,
+                data.GetLocalizedDescription(),
 
             icon =
-        displayIcon,
+                displayIcon,
 
             sections =
-        new List<TooltipSectionData>()
+                new List<TooltipSectionData>()
         };
     }
 }

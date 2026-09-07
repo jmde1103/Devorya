@@ -51,6 +51,10 @@ MonoBehaviour:
     m_Key: piece.devorya rook.description
     m_Metadata:
       m_Items: []
+  - m_Id: 667822833930240
+    m_Key: piece.devorya king.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -40,6 +40,28 @@ public static class BattleUILocalization
     private const string RewardContinueKey =
       "battle.ui.reward.continue";
 
+    // ============================================================
+// Reward Recovery Piece Tooltip
+// ============================================================
+
+// <변경부분> 복구 기물 Tooltip Category.
+private const string RewardRecoveryCategoryKey =
+    "battle.ui.reward.recovery_category";
+
+// <변경부분>
+// 복구 기물 안내 문장.
+//
+// {piece}에는 PieceData.GetLocalizedDisplayName() 결과가 들어간다.
+private const string RewardRecoveryDescriptionKey =
+    "battle.ui.reward.recovery_description";
+
+// <변경부분>
+// 복구 기물의 Ability 표시 문장.
+//
+// {ability}에는 UniqueSkillData.GetLocalizedSkillName() 결과가 들어간다.
+private const string RewardRecoveryAbilityKey =
+    "battle.ui.reward.recovery_ability";
+
 
     // ============================================================
     // Reward Gold Runtime UI
@@ -89,6 +111,30 @@ public static class BattleUILocalization
             new LocalizedString(
                 TableCollectionName,
                 RewardContinueKey
+            );
+
+    // Reward Recovery Tooltip Category.
+    private static readonly LocalizedString
+        rewardRecoveryCategory =
+            new LocalizedString(
+                TableCollectionName,
+                RewardRecoveryCategoryKey
+            );
+
+    // Reward Recovery Tooltip 설명.
+    private static readonly LocalizedString
+        rewardRecoveryDescription =
+            new LocalizedString(
+                TableCollectionName,
+                RewardRecoveryDescriptionKey
+            );
+
+    // Reward Recovery Tooltip Ability 문장.
+    private static readonly LocalizedString
+        rewardRecoveryAbility =
+            new LocalizedString(
+                TableCollectionName,
+                RewardRecoveryAbilityKey
             );
 
     // <변경부분>
@@ -150,6 +196,52 @@ public static class BattleUILocalization
         return GetLocalizedTextOrFallback(
             rewardContinue,
             fallbackText
+        );
+    }
+
+    // <변경부분>
+    // 복구 기물 Tooltip Category.
+    public static string GetRewardRecoveryCategory()
+    {
+        return GetLocalizedTextOrFallback(
+            rewardRecoveryCategory,
+            "기물 복구"
+        );
+    }
+
+    // <변경부분>
+    // 현재 Locale의 Recovery 안내 문장을 가져온 뒤
+    // {piece}를 실제 PieceData 표시명으로 교체한다.
+    public static string GetRewardRecoveryDescription(
+        string pieceDisplayName)
+    {
+        string localizedText =
+            GetLocalizedTextOrFallback(
+                rewardRecoveryDescription,
+                "전투 종료 후 복구된 {piece} 기물입니다."
+            );
+
+        return localizedText.Replace(
+            "{piece}",
+            pieceDisplayName ?? string.Empty
+        );
+    }
+
+    // <변경부분>
+    // 현재 Locale의 Ability 표시 문장을 가져온 뒤
+    // {ability}를 기존 UniqueSkillData Localization 이름으로 교체한다.
+    public static string GetRewardRecoveryAbilityLine(
+        string abilityDisplayName)
+    {
+        string localizedText =
+            GetLocalizedTextOrFallback(
+                rewardRecoveryAbility,
+                "능력: {ability}"
+            );
+
+        return localizedText.Replace(
+            "{ability}",
+            abilityDisplayName ?? string.Empty
         );
     }
 

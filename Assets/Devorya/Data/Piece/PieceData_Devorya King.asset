@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya King
   displayName: "\uB370\uBCF4\uB9AC\uC544 [\uD0B9]"
+  description: 
   pieceType: 4
   uniqueSkill: 0
   canMove: 1
@@ -22,6 +23,15 @@ MonoBehaviour:
       m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
       m_KeyId: 292023249276928
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
+    m_TableEntryReference:
+      m_KeyId: 667822833930240
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
