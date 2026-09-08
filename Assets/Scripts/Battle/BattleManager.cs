@@ -3429,11 +3429,6 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // 현재 선택된 기물의 고유 스킬을 사용하는 함수
-    //
-    // 내부 시스템 명칭은 기존 UniqueSkill을 그대로 유지한다.
-    // 플레이어에게 노출되는 실패 Popup 문구만 공식 UI 용어인
-    // "능력 / Ability" 기준 Localization 문자열을 사용한다.
     public void UseSelectedPieceSkill()
     {
         // <변경부분> 배치 또는 Announcement가 끝나기 전에는
@@ -3452,12 +3447,14 @@ public class BattleManager : MonoBehaviour
 
         // <변경부분> 이동 / 공격 / 스킬 연출 중에는 중복 입력 방지.
         //
-        // 실제 Popup 문자열은 Battle_UI Localization을 사용한다.
+        // 플레이어에게 표시되는 공통 Ability 실패 문구는
+        // Battle_UI Localization을 사용한다.
         if (isActionAnimating)
         {
             ShowUniqueSkillFailMessage(
-    "현재 다른 행동이 진행 중입니다."
-);
+                BattleUILocalization
+                    .GetAbilityFailActionInProgress()
+            );
 
             return;
         }
@@ -3466,8 +3463,9 @@ public class BattleManager : MonoBehaviour
         if (selectedPiece == null)
         {
             ShowUniqueSkillFailMessage(
-    "스킬을 사용할 기물을 먼저 선택해야 합니다."
-);
+                BattleUILocalization
+                    .GetAbilityFailSelectPiece()
+            );
 
             return;
         }
@@ -3477,8 +3475,9 @@ public class BattleManager : MonoBehaviour
                 selectedPiece) == false)
         {
             ShowUniqueSkillFailMessage(
-    "현재 턴의 기물만 고유스킬을 사용할 수 있습니다."
-);
+                BattleUILocalization
+                    .GetAbilityFailWrongTurnPiece()
+            );
 
             return;
         }
@@ -3494,7 +3493,8 @@ public class BattleManager : MonoBehaviour
         if (skillData == null)
         {
             ShowUniqueSkillFailMessage(
-    "고유스킬 데이터를 찾을 수 없습니다."
+                BattleUILocalization
+                    .GetAbilityFailDataMissing()
             );
 
             return;
@@ -3506,7 +3506,8 @@ public class BattleManager : MonoBehaviour
             hasUsedUniqueSkillThisTurn)
         {
             ShowUniqueSkillFailMessage(
-    "이번 턴에는\n 이미고유스킬을 사용했습니다."
+                BattleUILocalization
+                    .GetAbilityFailAlreadyUsed()
             );
 
             return;
@@ -3514,7 +3515,8 @@ public class BattleManager : MonoBehaviour
 
         // <변경부분> 선택된 기물의 고유 스킬 공통 사용 가능 여부 확인
         //
-        // 여기서는 Ability 없음 / 개별 쿨타임 / 기타 공통 사용 불가 상태를 검사한다.
+        // 여기서는 Ability 없음 / 개별 쿨타임 /
+        // 기타 공통 사용 불가 상태를 검사한다.
         if (selectedPiece.CanUseUniqueSkill() == false)
         {
             int cooldown =
@@ -3525,19 +3527,24 @@ public class BattleManager : MonoBehaviour
                 UniqueSkillType.None)
             {
                 ShowUniqueSkillFailMessage(
-     "이 기물은 고유스킬이 없습니다."
-                 );
+                    BattleUILocalization
+                        .GetAbilityFailNoAbility()
+                );
             }
             else if (cooldown > 0)
             {
                 ShowUniqueSkillFailMessage(
-    $"고유스킬 쿨타임이 {cooldown}턴 남았습니다."
+                    BattleUILocalization
+                        .GetAbilityFailCooldownRemaining(
+                            cooldown
+                        )
                 );
             }
             else
             {
                 ShowUniqueSkillFailMessage(
-    "현재 고유스킬을 사용할 수 없습니다."
+                    BattleUILocalization
+                        .GetAbilityFailUnavailable()
                 );
             }
 
@@ -3545,15 +3552,17 @@ public class BattleManager : MonoBehaviour
         }
 
         // <변경부분> requiredDeathStack 등
-        // Ability 실행 전에 필요한 공통 조건이 부족하면 현재 Locale Popup을 표시한다.
+        // Ability 실행 전에 필요한 공통 조건이 부족하면
+        // 현재 Locale Popup을 표시한다.
         if (HasEnoughDeathStackForUniqueSkill(
                 selectedPiece.Team,
                 skillData.requiredDeathStack) ==
             false)
         {
             ShowUniqueSkillFailMessage(
-      "고유스킬 사용 조건이 부족합니다."
-              );
+                BattleUILocalization
+                    .GetAbilityFailRequirementsNotMet()
+            );
 
             return;
         }
@@ -3654,12 +3663,14 @@ public class BattleManager : MonoBehaviour
             // 현재 Locale의 스킬별 실패 메시지를 사용한다.
             //
             // 개별 Ability의 조건 실패 문구는
-            // UniqueSkillData의 Localization을 SSOT로 계속 사용한다.
+            // UniqueSkillData.condition_fail Localization을
+            // SSOT로 계속 사용한다.
             //
-            // Reward 1차 작업 중에는 Ability Failure 공통 Battle_UI Localization을
-            // 아직 진행하지 않으므로, 공통 fallback만 기존 한국어 문구를 유지한다.
+            // 개별 실패 문구가 비어 있는 예외 상황에서만
+            // Battle_UI의 공통 fallback을 사용한다.
             string failMessage =
-                "조건이 맞지 않아 사용할 수 없습니다.";
+                BattleUILocalization
+                    .GetAbilityFailConditionUnmet();
 
             if (skillData != null)
             {

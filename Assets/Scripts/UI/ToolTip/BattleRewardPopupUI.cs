@@ -28,13 +28,6 @@ public class BattleRewardPopupUI : MonoBehaviour
     [SerializeField]
     private TMP_Text recoveryTitleText;
 
-    // <변경부분>
-    // PieceData.uniqueSkill의 UniqueSkillType을
-    // 실제 UniqueSkillData로 Resolve하여
-    // 기존 Ability Localization을 재사용하기 위한 Database.
-    [SerializeField]
-    private UniqueSkillDatabase uniqueSkillDatabase;
-
     [Header("Battle Drop")]
     // <변경부분> 금화, 아이템, 유물 슬롯이 생성될 부모
     [SerializeField] private Transform dropSlotParent;
@@ -391,10 +384,9 @@ public class BattleRewardPopupUI : MonoBehaviour
                 );
 
             slotUI.RefreshRecoveryPiece(
-    reward.pieceData,
-    reward.amount,
-    uniqueSkillDatabase
-);
+     reward.pieceData,
+     reward.amount
+ );
 
             createdCount++;
         }

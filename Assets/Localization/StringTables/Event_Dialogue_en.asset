@@ -1,0 +1,182 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Event_Dialogue_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 6ac2f911a5b58f6408736734707d5412, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 747245568
+    m_Localized: Devorya operation confirmed. Beginning basic function test.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965824
+    m_Localized: Devorya can generate four types of Fragments, each capable of performing
+      a different role.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965825
+    m_Localized: 'The four Fragment types are Pawn, Rook, Knight, and Bishop.
+
+      Each
+      piece moves and attacks in a different way.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965826
+    m_Localized: Select the Pawn piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965827
+    m_Localized: A Pawn can move 1 tile forward.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965828
+    m_Localized: Select the Rook piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965829
+    m_Localized: A Rook can move in straight lines horizontally or vertically.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965830
+    m_Localized: Select the Knight piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965831
+    m_Localized: A Knight can jump over other pieces when moving.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965832
+    m_Localized: Select the Bishop piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965833
+    m_Localized: A Bishop can move diagonally.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965834
+    m_Localized: Select the Pawn piece again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965835
+    m_Localized: A Pawn can attack and absorb a target located 1 tile diagonally
+      forward.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965836
+    m_Localized: 'An Absorption icon appears on targets that can be absorbed.
+
+      Select
+      the icon to prepare an Absorption.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965837
+    m_Localized: Target data successfully absorbed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965838
+    m_Localized: Devorya stores data absorbed from living beings and can use that
+      data to transform its Fragments.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965840
+    m_Localized: Select the Rook.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965843
+    m_Localized: Select the Knight.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965846
+    m_Localized: Select the Bishop.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965848
+    m_Localized: This time, select an enemy and attack without using Absorption.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965849
+    m_Localized: Without Absorption, no transformation occurs.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965850
+    m_Localized: 'Final test: victory condition.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965852
+    m_Localized: Only a King can directly attack and absorb the enemy King.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965854
+    m_Localized: Devorya restores a number of pieces equal to half the number of
+      enemy lifeforms absorbed during battle.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965855
+    m_Localized: However, restoration cannot exceed the maximum piece capacity of
+      10.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965856
+    m_Localized: Basic function test complete.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965857
+    m_Localized: "Beginning the next tes\u2026\u2026 t\u2026\u2026 \u2026\u2026 bzzzt\u2026\u2026
+      ba\u2026\u2026sic\u2026\u2026 tes\u2026\u2026t\u2026\u2026 now\u2026\u2026
+      now\u2026\u2026 n\u2026\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 784994304
+    m_Localized: Beginning Devorya Fragmentation Function Test.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965853
+    m_Localized: Absorb the enemy King.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965839
+    m_Localized: Devorya stores data absorbed from living beings and can use that
+      data to transform its Fragments.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965841
+    m_Localized: A Rook can attack or absorb a target located in a straight line.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965842
+    m_Localized: Try absorbing the enemy.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965844
+    m_Localized: A Knight can jump over other pieces to attack or absorb a target.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965845
+    m_Localized: Try absorbing the enemy.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965847
+    m_Localized: A Bishop can attack or absorb a target located diagonally.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965851
+    m_Localized: You win the battle by defeating the enemy leader, the King, or by
+      eliminating all enemy pieces.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

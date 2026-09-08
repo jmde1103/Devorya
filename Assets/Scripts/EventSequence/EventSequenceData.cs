@@ -45,6 +45,17 @@ public class EventSequenceData : ScriptableObject
     // Inspector에서 확인할 이벤트 이름
     public string sequenceName;
 
+    // <변경부분>
+    // Event Dialogue Localization에서 사용하는
+    // 이 EventSequenceData 전용 고정 ID.
+    //
+    // sequenceName이나 Asset 이름은 이후 변경될 수 있으므로
+    // Localization Key의 identity로 직접 사용하지 않는다.
+    //
+    // 실제 편집과 생성은 EventSequenceDataEditor가 담당한다.
+    [HideInInspector]
+    public string localizationId;
+
     // 이벤트의 용도
     public EventSequenceMode sequenceMode =
         EventSequenceMode.Tutorial;

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: EventSequenceData_Tutorial_Ep.1
   m_EditorClassIdentifier: Assembly-CSharp::EventSequenceData
   sequenceName: Tutorial 01
+  localizationId: event_sequence_data_tutorial_ep_1
   sequenceMode: 0
   description: "\uB370\uBAA8 \uD29C\uD1A0\uB9AC\uC5BC"
   playAutomatically: 1
@@ -27,6 +28,8 @@ MonoBehaviour:
       \uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
     - "\uB370\uBCF4\uB9AC\uC544 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
       \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -48,14 +51,41 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD14C\uC2A4\uD2B8 \uC2DC\uC791"
     stepType: 1
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
       \uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
-    - "\uB370\uBCF4\uB9AC\uC544 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
+    - "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
       \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_7f587a5d
+    dialogueLocalizationPages:
+    - localizationId: page_035f0b26
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 747245568
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_cd12ca79
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 784994304
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -77,6 +107,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -85,6 +120,8 @@ MonoBehaviour:
       \uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
     - "\uB370\uBCF4\uB9AC\uC544 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
       \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -106,6 +143,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB8E9 \uC0DD\uC131"
     stepType: 5
@@ -114,6 +156,8 @@ MonoBehaviour:
       \uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
     - "\uB370\uBCF4\uB9AC\uC544 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
       \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -135,6 +179,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC0DD\uC131"
     stepType: 5
@@ -143,6 +192,8 @@ MonoBehaviour:
       \uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
     - "\uB370\uBCF4\uB9AC\uC544 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
       \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -164,6 +215,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC0DD\uC131"
     stepType: 5
@@ -172,6 +228,8 @@ MonoBehaviour:
       \uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
     - "\uB370\uBCF4\uB9AC\uC544 \uBD84\uC5F4 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uB97C
       \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -193,6 +251,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBD84\uC5F4\uCCB4 \uC124\uBA85"
     stepType: 1
@@ -203,6 +266,28 @@ MonoBehaviour:
     - "\uAC01 \uBD84\uC5F4\uCCB4\uC758 \uBA85\uCE6D\uC740 \uD3F0, \uB8E9, \uB098\uC774\uD2B8,
       \uBE44\uC20D\uC785\uB2C8\uB2E4.\n\uAC01 \uAE30\uBB3C\uC740 \uC11C\uB85C \uB2E4\uB978
       \uBC29\uC2DD\uC73C\uB85C \uC774\uB3D9\uD558\uACE0 \uACF5\uACA9\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_a4506c91
+    dialogueLocalizationPages:
+    - localizationId: page_8cf4eb35
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965824
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_fb3bff49
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965825
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -224,11 +309,28 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: dialogue_b03ce7b6
+    dialogueLocalizationPages:
+    - localizationId: page_d165e1d9
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965826
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -250,11 +352,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -276,12 +385,29 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD3F0\uC740 \uC790\uC2E0\uC758 \uC9C4\uD589 \uBC29\uD5A5\uC73C\uB85C 1\uCE78
       \uC774\uB3D9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_8d8b0cd2
+    dialogueLocalizationPages:
+    - localizationId: page_5151c2e7
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965827
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -303,11 +429,28 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB8E9 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB8E9 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: dialogue_c1b90d30
+    dialogueLocalizationPages:
+    - localizationId: page_8ce67c3c
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965828
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -329,11 +472,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB8E9 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -355,12 +505,29 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB8E9 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB8E9\uC740 \uC0C1\uD558\uC88C\uC6B0 \uC9C1\uC120 \uBC29\uD5A5\uC73C\uB85C
       \uC774\uB3D9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_8262bd76
+    dialogueLocalizationPages:
+    - localizationId: page_59b95fee
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965829
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -382,11 +549,28 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB098\uC774\uD2B8 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: dialogue_4cd49807
+    dialogueLocalizationPages:
+    - localizationId: page_f1fa6208
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965830
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -408,11 +592,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -434,12 +625,29 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB098\uC774\uD2B8\uB294 \uB2E4\uB978 \uAE30\uBB3C\uC744 \uB6F0\uC5B4\uB118\uC5B4
       \uC774\uB3D9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_30575e3a
+    dialogueLocalizationPages:
+    - localizationId: page_8b539fc4
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965831
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -461,11 +669,28 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uBE44\uC20D \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: dialogue_850d19b8
+    dialogueLocalizationPages:
+    - localizationId: page_3445ccdc
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965832
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -487,11 +712,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -513,12 +745,29 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_9def231a
+    dialogueLocalizationPages:
+    - localizationId: page_4d921692
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965833
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -540,12 +789,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -567,12 +823,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 4, y: 0}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -594,12 +857,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -621,12 +891,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -648,11 +925,28 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
     dialoguePages:
-    - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
+    - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+    dialogueLocalizationId: dialogue_302d4f63
+    dialogueLocalizationPages:
+    - localizationId: page_b62f989c
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965834
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -674,11 +968,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -700,6 +1001,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -707,6 +1013,18 @@ MonoBehaviour:
     - "\uD3F0\uC740 \uC9C4\uD589 \uBC29\uD5A5\uC758 \uB300\uAC01\uC120 1\uCE78\uC5D0
       \uC704\uCE58\uD55C \uB300\uC0C1\uC744 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_47201cab
+    dialogueLocalizationPages:
+    - localizationId: page_dbd0ce5d
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965835
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -728,11 +1046,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 4}
@@ -754,6 +1079,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -761,6 +1091,18 @@ MonoBehaviour:
     - "\uD761\uC218 \uAC00\uB2A5\uD55C \uB300\uC0C1\uC5D0\uB294 \uD761\uC218 \uC544\uC774\uCF58\uC774
       \uD45C\uC2DC\uB429\uB2C8\uB2E4.\n\uC544\uC774\uCF58\uC744 \uC120\uD0DD\uD558\uBA74
       \uD761\uC218\uB97C \uC900\uBE44\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_11f79ce7
+    dialogueLocalizationPages:
+    - localizationId: page_2e64aba5
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965836
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -782,6 +1124,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
@@ -789,6 +1136,8 @@ MonoBehaviour:
     - "\uD761\uC218 \uAC00\uB2A5\uD55C \uB300\uC0C1\uC5D0\uB294 \uD761\uC218 \uC544\uC774\uCF58\uC774
       \uD45C\uC2DC\uB429\uB2C8\uB2E4.\n\uC544\uC774\uCF58\uC744 \uC120\uD0DD\uD558\uBA74
       \uD761\uC218\uB97C \uC900\uBE44\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -810,11 +1159,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 4}
@@ -836,12 +1192,29 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD761\uC218 \uC131\uACF5"
     stepType: 1
     dialoguePages:
     - "\uB300\uC0C1\uC758 \uB370\uC774\uD130\uB97C \uC131\uACF5\uC801\uC73C\uB85C
       \uD761\uC218\uD588\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_09b1dccc
+    dialogueLocalizationPages:
+    - localizationId: page_8b386cb4
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965837
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -863,12 +1236,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB300\uC0C1\uC758 \uB370\uC774\uD130\uB97C \uC131\uACF5\uC801\uC73C\uB85C
       \uD761\uC218\uD588\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 4}
@@ -890,6 +1270,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC124\uBA85"
     stepType: 1
@@ -900,6 +1285,28 @@ MonoBehaviour:
       \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     - "\uB610\uD55C \uD761\uC218\uD55C \uC0DD\uBA85\uCCB4\uAC00 \uC9C0\uB2CC \uD2B9\uC131\uACFC
       \uB2A5\uB825\uC744 \uC7AC\uD604\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_d5b03738
+    dialogueLocalizationPages:
+    - localizationId: page_4dfdc49f
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965838
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_a00bb086
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965839
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -921,12 +1328,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
       \uBC29\uBC95\uC5D0 \uB300\uD574 \uC124\uBA85\uD574 \uB4DC\uB9AC\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -948,6 +1362,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uB8E9 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -956,6 +1375,38 @@ MonoBehaviour:
     - "\uB8E9\uC740 \uC9C1\uC120\uC0C1\uC5D0 \uC704\uCE58\uD55C \uB300\uC0C1\uC744
       \uACF5\uACA9\uD558\uAC70\uB098 \uD761\uC218\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     - "\uC801\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: dialogue_a6924a99
+    dialogueLocalizationPages:
+    - localizationId: page_1752d524
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965840
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_9497bb81
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965841
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_225e70bf
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965842
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -977,11 +1428,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB8E9 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -1003,11 +1461,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 2}
@@ -1029,11 +1494,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 2}
@@ -1055,11 +1527,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 2}
@@ -1081,12 +1560,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
       \uBC29\uBC95\uC5D0 \uB300\uD574 \uC124\uBA85\uD574 \uB4DC\uB9AC\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1108,6 +1594,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 5
   - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -1117,6 +1608,38 @@ MonoBehaviour:
       \uB300\uC0C1\uC744 \uACF5\uACA9\uD558\uAC70\uB098 \uD761\uC218\uD560 \uC218
       \uC788\uC2B5\uB2C8\uB2E4. "
     - "\uC801 \uAE30\uBB3C\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694. "
+    dialogueLocalizationId: dialogue_cff56823
+    dialogueLocalizationPages:
+    - localizationId: page_acc09f67
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965843
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_96cc5187
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965844
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_de2db165
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965845
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -1138,11 +1661,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1164,11 +1694,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1190,11 +1727,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 2}
@@ -1216,11 +1760,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1242,12 +1793,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
       \uBC29\uBC95\uC5D0 \uB300\uD574 \uC124\uBA85\uD574 \uB4DC\uB9AC\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1269,6 +1827,11 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 5
   - stepName: "\uBE44\uC20D \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -1276,6 +1839,28 @@ MonoBehaviour:
     - "\uBE44\uC20D\uC744 \uC120\uD0DD\uD558\uC138\uC694. "
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120\uC0C1\uC5D0 \uC704\uCE58\uD55C \uB300\uC0C1\uC744
       \uACF5\uACA9\uAC70\uB098 \uD761\uC218\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. "
+    dialogueLocalizationId: dialogue_f0318668
+    dialogueLocalizationPages:
+    - localizationId: page_42e19a7b
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965846
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_5d300e9a
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965847
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -1297,11 +1882,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1323,11 +1915,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 0}
@@ -1349,12 +1948,29 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC77C\uBC18 \uACF5\uACA9"
     stepType: 1
     dialoguePages:
     - "\uC774\uBC88\uC5D4 \uD761\uC218 \uC5C6\uC774 \uC801\uC744 \uC120\uD0DD\uD574
       \uACF5\uACA9\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: dialogue_c681f2f8
+    dialogueLocalizationPages:
+    - localizationId: page_914aace7
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965848
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 2}
@@ -1376,11 +1992,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 4}
     targetPieceTeam: 0
     targetTilePosition: {x: 3, y: 0}
@@ -1402,12 +2025,19 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 0
   - stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
       \uBC29\uBC95\uC5D0 \uB300\uD574 \uC124\uBA85\uD574 \uB4DC\uB9AC\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1429,11 +2059,28 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 2
   - stepName: "\uC77C\uBC18 \uACF5\uACA9 \uC131\uACF5"
     stepType: 1
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_621f4b5a
+    dialogueLocalizationPages:
+    - localizationId: page_9fc965a1
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965849
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1455,11 +2102,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1481,11 +2135,18 @@ MonoBehaviour:
     removePiecePosition: {x: 0, y: 4}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1507,11 +2168,18 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 2}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1533,11 +2201,18 @@ MonoBehaviour:
     removePiecePosition: {x: 2, y: 3}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1559,11 +2234,18 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uD0B9 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1585,6 +2267,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uC2B9\uB9AC\uC870\uAC74"
     stepType: 1
@@ -1593,6 +2280,28 @@ MonoBehaviour:
     - "\uC0C1\uB300\uC758 \uC6B0\uB450\uBA38\uB9AC\uC778 \uD0B9\uC744 \uC81C\uAC70\uD558\uAC70\uB098,
       \uC0C1\uB300\uC758 \uBAA8\uB4E0 \uAE30\uBB3C\uC744 \uC81C\uAC70\uD558\uBA74
       \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_0a4d612e
+    dialogueLocalizationPages:
+    - localizationId: page_b9e54c6f
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965850
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_28391ce8
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965851
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1614,6 +2323,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uD0B9 \uC120\uD0DD"
     stepType: 2
@@ -1622,6 +2336,8 @@ MonoBehaviour:
     - "\uC0C1\uB300\uC758 \uC6B0\uB450\uBA38\uB9AC\uC778 \uD0B9\uC744 \uC81C\uAC70\uD558\uAC70\uB098,
       \uC0C1\uB300\uC758 \uBAA8\uB4E0 \uAE30\uBB3C\uC744 \uC81C\uAC70\uD558\uBA74
       \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1643,6 +2359,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
     stepType: 3
@@ -1651,6 +2372,8 @@ MonoBehaviour:
     - "\uC0C1\uB300\uC758 \uC6B0\uB450\uBA38\uB9AC\uC778 \uD0B9\uC744 \uC81C\uAC70\uD558\uAC70\uB098,
       \uC0C1\uB300\uC758 \uBAA8\uB4E0 \uAE30\uBB3C\uC744 \uC81C\uAC70\uD558\uBA74
       \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1672,6 +2395,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uD0B9 \uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -1679,6 +2407,28 @@ MonoBehaviour:
     - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
       \uC788\uB294 \uAE30\uBB3C\uC740 \uAC19\uC740 \uD0B9\uBFD0\uC785\uB2C8\uB2E4."
     - "\uC801 \uD0B9\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: dialogue_00fff223
+    dialogueLocalizationPages:
+    - localizationId: page_7fb80906
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965852
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_fa28ef12
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965853
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1700,6 +2450,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uD0B9\uD761\uC218"
     stepType: 4
@@ -1709,6 +2464,8 @@ MonoBehaviour:
       \uBCF5\uAD6C\uB429\uB2C8\uB2E4."
     - "\uB2E8, \uBCF4\uC720 \uAC00\uB2A5\uD55C \uCD5C\uB300 \uAE30\uBB3C \uC218\uC778
       10\uAC1C\uB97C \uCD08\uACFC\uD558\uC5EC \uBCF5\uAD6C\uD560 \uC218\uB294 \uC5C6\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1730,6 +2487,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
     stepType: 3
@@ -1738,6 +2500,8 @@ MonoBehaviour:
     - "\uC0C1\uB300\uC758 \uC6B0\uB450\uBA38\uB9AC\uC778 \uD0B9\uC744 \uC81C\uAC70\uD558\uAC70\uB098,
       \uC0C1\uB300\uC758 \uBAA8\uB4E0 \uAE30\uBB3C\uC744 \uC81C\uAC70\uD558\uBA74
       \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1759,6 +2523,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uC804\uD22C\uC2B9\uB9AC \uBCF4\uC0C1"
     stepType: 1
@@ -1768,6 +2537,28 @@ MonoBehaviour:
       \uBCF5\uAD6C\uB429\uB2C8\uB2E4."
     - "\uB2E8, \uBCF4\uC720 \uAC00\uB2A5\uD55C \uCD5C\uB300 \uAE30\uBB3C \uC218\uC778
       10\uAC1C\uB97C \uCD08\uACFC\uD558\uC5EC \uBCF5\uAD6C\uD560 \uC218\uB294 \uC5C6\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_c38f09de
+    dialogueLocalizationPages:
+    - localizationId: page_f0356d05
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965854
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_1e9dd241
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965855
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1789,6 +2580,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uC624\uB958 \uBC1C\uC0DD"
     stepType: 1
@@ -1798,6 +2594,28 @@ MonoBehaviour:
       \uD558\uACA0\u2026\u2026\uC2B5\u2026\u2026 \uB2C8\u2026\u2026 \u2026\u2026
       \uC9C0\uC9C0\uC9C1\u2026\u2026 \uAE30\u2026\u2026\uBCF8\u2026\u2026 \uD14C\uC2A4\u2026\u2026\uD2B8\u2026\u2026
       \uC774\u2026\u2026\uC81C\u2026\u2026 \uC774\u2026\u2026\uC81C\u2026\u2026\u3148\u2026\u2026"
+    dialogueLocalizationId: dialogue_7135180b
+    dialogueLocalizationPages:
+    - localizationId: page_aa9a7bd3
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965856
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_4b030dfa
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 805965857
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1819,6 +2637,11 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: "\uC804\uD22C\uC2B9\uB9AC"
     stepType: 8
@@ -1826,6 +2649,8 @@ MonoBehaviour:
     - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
       \uC788\uB294 \uAE30\uBB3C\uC740 \uAC19\uC740 \uD0B9\uBFD0\uC785\uB2C8\uB2E4."
     - "\uC801 \uD0B9\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1847,7 +2672,15 @@ MonoBehaviour:
     removePiecePosition: {x: 3, y: 0}
     checkRemovePieceTeam: 0
     removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
   completionType: 2
   completionSceneName: TextCutsceneScene
   completionCutsceneData: {fileID: 11400000, guid: c42389642b1dd724f98315c23aa69760, type: 2}
+  references:
+    version: 2
+    RefIds: []

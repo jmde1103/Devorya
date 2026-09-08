@@ -1,0 +1,172 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Event_Dialogue Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Event_Dialogue
+  m_TableCollectionNameGuidString: 6ac2f911a5b58f6408736734707d5412
+  m_Entries:
+  - m_Id: 747245568
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_7f587a5d.page_035f0b26
+    m_Metadata:
+      m_Items: []
+  - m_Id: 784994304
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_7f587a5d.page_cd12ca79
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965824
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_a4506c91.page_8cf4eb35
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965825
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_a4506c91.page_fb3bff49
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965826
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_b03ce7b6.page_d165e1d9
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965827
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_8d8b0cd2.page_5151c2e7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965828
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_c1b90d30.page_8ce67c3c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965829
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_8262bd76.page_59b95fee
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965830
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_4cd49807.page_f1fa6208
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965831
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_30575e3a.page_8b539fc4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965832
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_850d19b8.page_3445ccdc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965833
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_9def231a.page_4d921692
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965834
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_302d4f63.page_b62f989c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965835
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_47201cab.page_dbd0ce5d
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965836
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_11f79ce7.page_2e64aba5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965837
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_09b1dccc.page_8b386cb4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965838
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_d5b03738.page_4dfdc49f
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965839
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_d5b03738.page_a00bb086
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965840
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_a6924a99.page_1752d524
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965841
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_a6924a99.page_9497bb81
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965842
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_a6924a99.page_225e70bf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965843
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_cff56823.page_acc09f67
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965844
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_cff56823.page_96cc5187
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965845
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_cff56823.page_de2db165
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965846
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_f0318668.page_42e19a7b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965847
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_f0318668.page_5d300e9a
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965848
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_c681f2f8.page_914aace7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965849
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_621f4b5a.page_9fc965a1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965850
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_0a4d612e.page_b9e54c6f
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965851
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_0a4d612e.page_28391ce8
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965852
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_00fff223.page_7fb80906
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965853
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_00fff223.page_fa28ef12
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965854
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_c38f09de.page_f0356d05
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965855
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_c38f09de.page_1e9dd241
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965856
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_7135180b.page_aa9a7bd3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 805965857
+    m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_7135180b.page_4b030dfa
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 5154926317190774857
+  references:
+    version: 2
+    RefIds:
+    - rid: 5154926317190774857
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1788874436701

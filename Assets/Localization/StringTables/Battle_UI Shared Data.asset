@@ -59,8 +59,44 @@ MonoBehaviour:
     m_Key: battle.ui.reward.recovery_description
     m_Metadata:
       m_Items: []
-  - m_Id: 1077399425519616
-    m_Key: battle.ui.reward.recovery_ability
+  - m_Id: 1520013656330240
+    m_Key: battle.ui.ability_fail.action_in_progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520074582790144
+    m_Key: battle.ui.ability_fail.select_piece
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520130824212480
+    m_Key: battle.ui.ability_fail.wrong_turn_piece
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520228098510848
+    m_Key: battle.ui.ability_fail.data_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520289343737856
+    m_Key: battle.ui.ability_fail.already_used
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520344020684800
+    m_Key: battle.ui.ability_fail.no_ability
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520407937683456
+    m_Key: battle.ui.ability_fail.cooldown_remaining
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520493753143296
+    m_Key: battle.ui.ability_fail.unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1521419155017728
+    m_Key: battle.ui.ability_fail.requirements_not_met
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1521489933897728
+    m_Key: battle.ui.ability_fail.condition_unmet
     m_Metadata:
       m_Items: []
   m_Metadata:

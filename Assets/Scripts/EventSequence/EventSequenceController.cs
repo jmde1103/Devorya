@@ -1220,10 +1220,24 @@ public class EventSequenceController : MonoBehaviour
     // 아직 EventGuideUI가 연결되지 않은 경우에는
     // 경고 후 해당 Step만 건너뛴다.
     private IEnumerator ExecuteDialogueStepRoutine(
-        EventSequenceStepData step)
+      EventSequenceStepData step)
     {
-        if (step.dialoguePages == null ||
-            step.dialoguePages.Count == 0)
+        if (step == null)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // EventSequenceStepData가 현재 Locale 기준으로
+        // 최종 Dialogue Page 문자열을 Resolve한다.
+        //
+        // Localization이 연결되지 않은 기존 데이터는
+        // 기존 한국어 dialoguePages를 fallback으로 반환한다.
+        List<string> resolvedDialoguePages =
+            step.GetLocalizedDialoguePages();
+
+        if (resolvedDialoguePages == null ||
+            resolvedDialoguePages.Count == 0)
         {
             yield break;
         }
@@ -1239,10 +1253,11 @@ public class EventSequenceController : MonoBehaviour
             yield break;
         }
 
-        // EventGuideUI가 모든 페이지 표시를 마칠 때까지 기다린다.
+        // EventGuideUI는 Localization을 직접 알 필요 없이
+        // 최종 문자열 목록만 받아 기존 방식대로 출력한다.
         yield return
             eventGuideUI.PlayDialogueRoutine(
-                step.dialoguePages
+                resolvedDialoguePages
             );
     }
 

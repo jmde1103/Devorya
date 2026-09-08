@@ -62,8 +62,44 @@ MonoBehaviour:
     m_Localized: The {piece} was restored after battle.
     m_Metadata:
       m_Items: []
-  - m_Id: 1077399425519616
-    m_Localized: 'Ability: {ability}'
+  - m_Id: 1520013656330240
+    m_Localized: Another action is currently in progress.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520074582790144
+    m_Localized: Select a piece before using an Ability.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520130824212480
+    m_Localized: Only pieces on the current turn can use Abilities.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520228098510848
+    m_Localized: Ability data could not be found.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520289343737856
+    m_Localized: An Ability has already been used this turn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520344020684800
+    m_Localized: This piece has no Ability.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520407937683456
+    m_Localized: 'Ability cooldown: {turn} turn(s) remaining.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1520493753143296
+    m_Localized: This Ability cannot be used right now.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1521419155017728
+    m_Localized: Ability requirements are not met.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1521489933897728
+    m_Localized: The conditions to use this Ability are not met.
     m_Metadata:
       m_Items: []
   references:

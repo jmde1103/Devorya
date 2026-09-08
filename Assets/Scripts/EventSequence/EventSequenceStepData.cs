@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 
 // <변경부분> 이벤트 시퀀스에서 실행할
 // 한 단계의 행동 종류
@@ -157,6 +158,29 @@ public class EventPieceSpawnOverrideData
     public bool useAbsorbedPlayerVisual = false;
 }
 
+// <변경부분>
+// EventSequence Dialogue 한 페이지의
+// Localization 전용 Metadata.
+//
+// 실제 한국어 원문은 기존 dialoguePages에 그대로 보존한다.
+//
+// localizationId:
+// 페이지 순서를 바꾸거나 다른 Page를 추가하더라도
+// 기존 Localization Key가 변경되지 않도록 사용하는 고정 ID.
+//
+// localizedText:
+// Event_Dialogue String Table의 실제 Entry를 가리킨다.
+[Serializable]
+public class EventDialoguePageLocalizationData
+{
+    [HideInInspector]
+    public string localizationId;
+
+    [HideInInspector]
+    public LocalizedString localizedText =
+        new LocalizedString();
+}
+
 // <변경부분> 이벤트 시퀀스 한 단계의 설정 데이터
 //
 // 현재는 공용 데이터 필드를 가지고 있지만,
@@ -174,12 +198,35 @@ public class EventSequenceStepData
         EventSequenceStepType.None;
 
     [Header("Dialogue")]
-    // Dialogue 단계에서 순서대로 표시할 문장 목록
+    // Dialogue 단계에서 순서대로 표시할 페이지 목록.
     //
-    // 한 Step에 여러 페이지를 넣을 수 있다.
+    // 기존 EventSequenceData의 Serialized 데이터를
+    // 절대 잃지 않기 위해 List<string> 구조는 그대로 유지한다.
+    //
+    // 앞으로 Inspector에서의 실제 편집은
+    // EventSequenceDataEditor의 Dialogue Localization 영역에서 담당한다.
+    [HideInInspector]
     [TextArea(2, 6)]
     public List<string> dialoguePages =
-        new List<string>();
+    new List<string>();
+
+    // <변경부분>
+    // 현재 Dialogue Step 전용 Stable Localization ID.
+    //
+    // Step 순서가 변경되어도 이 값은 유지되므로
+    // 기존 번역 Key가 다른 Step으로 밀리지 않는다.
+    [HideInInspector]
+    public string dialogueLocalizationId;
+
+    // <변경부분>
+    // dialoguePages와 같은 순서로 대응하는
+    // 페이지별 Localization Metadata.
+    //
+    // 한국어 원문 자체는 여기에 중복 저장하지 않는다.
+    [HideInInspector]
+    public List<EventDialoguePageLocalizationData>
+        dialogueLocalizationPages =
+            new List<EventDialoguePageLocalizationData>();
 
     [Header("Piece Target")]
     // ForcePieceSelect에서 사용할 대상 좌표
@@ -305,4 +352,68 @@ public class EventSequenceStepData
     // Wait 단계에서 기다릴 시간
     [Min(0f)]
     public float waitDuration = 0.5f;
+
+    // <변경부분>
+    // 현재 Locale 기준 Dialogue 페이지 목록을 생성한다.
+    //
+    // Localization이 아직 생성되지 않은 기존 EventSequenceData이거나
+    // 특정 페이지의 LocalizedString 참조가 없는 경우에는
+    // 기존 dialoguePages의 한국어 원문을 그대로 fallback으로 사용한다.
+    //
+    // EventGuideUI에는 최종 List<string>만 전달하므로
+    // 기존 Dialogue 타이핑 / 클릭 / ContinueArrow 로직에는
+    // Localization 의존성을 추가하지 않는다.
+    public List<string> GetLocalizedDialoguePages()
+    {
+        List<string> resolvedPages =
+            new List<string>();
+
+        if (dialoguePages == null)
+        {
+            return resolvedPages;
+        }
+
+        for (int i = 0;
+             i < dialoguePages.Count;
+             i++)
+        {
+            string fallbackText =
+                dialoguePages[i] ??
+                string.Empty;
+
+            string resolvedText =
+                fallbackText;
+
+            if (dialogueLocalizationPages != null &&
+                i < dialogueLocalizationPages.Count)
+            {
+                EventDialoguePageLocalizationData
+                    localizationData =
+                        dialogueLocalizationPages[i];
+
+                if (localizationData != null &&
+                    localizationData.localizedText != null &&
+                    localizationData.localizedText.IsEmpty == false)
+                {
+                    string localizedText =
+                        localizationData
+                            .localizedText
+                            .GetLocalizedString();
+
+                    if (string.IsNullOrWhiteSpace(
+                            localizedText) == false)
+                    {
+                        resolvedText =
+                            localizedText;
+                    }
+                }
+            }
+
+            resolvedPages.Add(
+                resolvedText
+            );
+        }
+
+        return resolvedPages;
+    }
 }

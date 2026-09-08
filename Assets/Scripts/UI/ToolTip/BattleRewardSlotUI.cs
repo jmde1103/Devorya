@@ -38,16 +38,7 @@ public class BattleRewardSlotUI : MonoBehaviour
     private PieceData cachedRecoveryPieceData;
 
     // <변경부분>
-    // Recovery Piece Ability 이름을 기존 UniqueSkillData Localization에서
-    // 다시 Resolve하기 위한 Database.
-    private UniqueSkillDatabase
-        cachedRecoveryUniqueSkillDatabase;
-
-    // <변경부분>
     // 현재 이 Reward Slot이 Gold를 표시하고 있는지 기록한다.
-    //
-    // Reward Slot Prefab은 Recovery / Gold / Item / Relic이 공용으로 사용하므로
-    // Locale 변경 시 Gold가 아닌 슬롯을 잘못 갱신하지 않기 위해 사용한다.
     private bool isGoldRewardSlot;
 
     // <변경부분>
@@ -102,20 +93,19 @@ public class BattleRewardSlotUI : MonoBehaviour
             OnSelectedLocaleChanged;
     }
 
-    // <변경부분> 복구된 기물 Slot 표시.
+    // <변경부분>
+    // 복구된 기물 Slot을 표시한다.
     //
     // PieceData:
-    // 이름 / 기물 자체 설명 Localization SSOT.
+    // 현재 Locale 기준 기물 이름 / 기물 자체 설명.
     //
     // Battle_UI:
-    // 복구 화면 전용 문장.
+    // Reward 복구 화면 전용 Category / 안내 문장.
     //
-    // UniqueSkillData:
-    // Ability 이름 Localization SSOT.
+    // Ability 정보는 Recovery Tooltip에 표시하지 않는다.
     public void RefreshRecoveryPiece(
         PieceData pieceData,
-        int amount,
-        UniqueSkillDatabase uniqueSkillDatabase)
+        int amount)
     {
         ClearGoldRuntimeCache();
         ClearRecoveryRuntimeCache();
@@ -132,9 +122,6 @@ public class BattleRewardSlotUI : MonoBehaviour
         cachedRecoveryPieceData =
             pieceData;
 
-        cachedRecoveryUniqueSkillDatabase =
-            uniqueSkillDatabase;
-
         Sprite displayIcon =
             GetRecoveryTypeIcon(
                 pieceData.pieceType
@@ -142,8 +129,7 @@ public class BattleRewardSlotUI : MonoBehaviour
 
         TooltipViewData recoveryTooltipViewData =
             CreateRecoveryTooltipViewData(
-                pieceData,
-                uniqueSkillDatabase
+                pieceData
             );
 
         ApplyCommon(
@@ -156,14 +142,13 @@ public class BattleRewardSlotUI : MonoBehaviour
     // <변경부분>
     // Recovery 화면에서 사용할 최종 TooltipViewData를 생성한다.
     //
-    // PieceData의 공용 이름/설명을 먼저 Resolve하고,
-    // Reward 전용 Category / 안내 문장 / Ability 문장만 추가한다.
+    // PieceData가 소유하는 이름/설명을 현재 Locale 기준으로 가져온 뒤,
+    // Reward 전용 Category와 복구 안내 문장만 조합한다.
     //
-    // 이렇게 하면 PieceData 설명은 이후 도감에서도 그대로 재사용할 수 있고,
-    // Reward 전용 문장이 PieceData 안으로 섞이지 않는다.
+    // Ability / Trait 등 상세 전투 정보는
+    // Recovery Tooltip에서 별도로 표시하지 않는다.
     private TooltipViewData CreateRecoveryTooltipViewData(
-        PieceData pieceData,
-        UniqueSkillDatabase uniqueSkillDatabase)
+        PieceData pieceData)
     {
         if (pieceData == null)
         {
@@ -184,69 +169,25 @@ public class BattleRewardSlotUI : MonoBehaviour
             recoveryTooltipViewData.title;
 
         string recoveryDescription =
-            BattleUILocalization
-                .GetRewardRecoveryDescription(
-                    pieceDisplayName
-                );
+    BattleUILocalization
+        .GetRewardRecoveryDescription(
+            pieceDisplayName
+        );
 
-        string pieceDescription =
-            recoveryTooltipViewData.mainDescription;
-
-        string finalDescription =
-            recoveryDescription;
-
-        // PieceData 자체 설명.
-        if (string.IsNullOrWhiteSpace(
-                pieceDescription) == false)
-        {
-            finalDescription +=
-                $"\n\n{pieceDescription}";
-        }
-
-        // 기본 Ability가 있는 경우 기존 UniqueSkillData Localization 재사용.
-        if (pieceData.uniqueSkill !=
-            UniqueSkillType.None)
-        {
-            // Database 연결 누락 시에도 Tooltip 전체가 깨지지 않도록
-            // enum 이름을 최후 fallback으로 유지한다.
-            string abilityDisplayName =
-                pieceData.uniqueSkill.ToString();
-
-            if (uniqueSkillDatabase != null)
-            {
-                UniqueSkillData uniqueSkillData =
-                    uniqueSkillDatabase.GetData(
-                        pieceData.uniqueSkill
-                    );
-
-                if (uniqueSkillData != null)
-                {
-                    abilityDisplayName =
-                        uniqueSkillData
-                            .GetLocalizedSkillName();
-                }
-            }
-
-            string abilityLine =
-                BattleUILocalization
-                    .GetRewardRecoveryAbilityLine(
-                        abilityDisplayName
-                    );
-
-            finalDescription +=
-                $"\n\n{abilityLine}";
-        }
-
+        // PieceData 자체 Description은 그대로 보존하지만,
+        // Recovery Reward Tooltip에서는 표시하지 않는다.
+        //
+        // 해당 Description은 이후 도감 / 기물 상세정보 등
+        // PieceData 자체 정보를 보여주는 UI에서 재사용한다.
         recoveryTooltipViewData.category =
             BattleUILocalization
                 .GetRewardRecoveryCategory();
 
         recoveryTooltipViewData.mainDescription =
-            finalDescription;
+            recoveryDescription;
 
         return recoveryTooltipViewData;
     }
-
     // <변경부분> 아이템 보상 슬롯 표시
     public void RefreshItem(
         BattleItemData itemData,
@@ -421,12 +362,11 @@ public class BattleRewardSlotUI : MonoBehaviour
 
         // Recovery Piece.
         if (isRecoveryRewardSlot &&
-            cachedRecoveryPieceData != null)
+     cachedRecoveryPieceData != null)
         {
             TooltipViewData recoveryTooltipViewData =
                 CreateRecoveryTooltipViewData(
-                    cachedRecoveryPieceData,
-                    cachedRecoveryUniqueSkillDatabase
+                    cachedRecoveryPieceData
                 );
 
             tooltipTrigger.SetTooltipViewData(
@@ -461,9 +401,6 @@ public class BattleRewardSlotUI : MonoBehaviour
             false;
 
         cachedRecoveryPieceData =
-            null;
-
-        cachedRecoveryUniqueSkillDatabase =
             null;
     }
 
