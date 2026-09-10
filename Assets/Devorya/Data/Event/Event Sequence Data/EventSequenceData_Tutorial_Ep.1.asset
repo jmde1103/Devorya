@@ -2678,6 +2678,41 @@ MonoBehaviour:
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
     waitDuration: 1
+  - stepName: "\uC804\uD22C\uC2B9\uB9AC"
+    stepType: 8
+    dialoguePages:
+    - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
+      \uC788\uB294 \uAE30\uBB3C\uC740 \uAC19\uC740 \uD0B9\uBFD0\uC785\uB2C8\uB2E4."
+    - "\uC801 \uD0B9\uC744 \uD761\uC218\uD574 \uBCF4\uC138\uC694."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 3, y: 2}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 2, y: 3}
+    targetButton: 3
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0.5}
+    spawnPieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 2, y: 3}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 0
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 3, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    waitDuration: 1
   completionType: 2
   completionSceneName: TextCutsceneScene
   completionCutsceneData: {fileID: 11400000, guid: c42389642b1dd724f98315c23aa69760, type: 2}

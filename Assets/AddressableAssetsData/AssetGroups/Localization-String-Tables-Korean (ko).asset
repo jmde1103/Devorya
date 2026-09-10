@@ -75,6 +75,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ddf79b8cc8964fd49b1dcd635977b850
+    m_Address: Cutscene_Dialogue_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eb41fc729773f474cb05a29ebbe41c6c
     m_Address: Battle_Relic_ko
     m_ReadOnly: 1

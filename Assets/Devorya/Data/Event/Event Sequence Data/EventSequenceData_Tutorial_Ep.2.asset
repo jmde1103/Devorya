@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: EventSequenceData_Tutorial_Ep.2
   m_EditorClassIdentifier: Assembly-CSharp::EventSequenceData
   sequenceName: Tutorial 02
+  localizationId: event_sequence_data_tutorial_ep_2
   sequenceMode: 0
   description: "\uCCAB\uBC88\uC9F8 \uC824\uB8E8\uC758 \uC232\uC5D0 \uB4E4\uC5B4\uAC00\uC11C
     \uD761\uC218\uB97C \uD1B5\uD574 \uC2A4\uD0AC\uACFC \uD2B9\uC131 \uADF8\uB9AC\uACE0
@@ -25,6 +26,8 @@ MonoBehaviour:
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
     stepType: 5
     dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -57,6 +60,18 @@ MonoBehaviour:
     dialoguePages:
     - "\uD604\uC7AC \uC9C0\uC5ED\uC5D0 \uB2E4\uC218\uC758 \uC0DD\uBA85\uCCB4 \uBC18\uC751
       \uD655\uC778."
+    dialogueLocalizationId: dialogue_d2dc32d3
+    dialogueLocalizationPages:
+    - localizationId: page_6d362732
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825027305472
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -89,6 +104,8 @@ MonoBehaviour:
     dialoguePages:
     - "\uD604\uC7AC \uC9C0\uC5ED\uC5D0 \uB2E4\uC218\uC758 \uC0DD\uBA85\uCCB4 \uBC18\uC751
       \uD655\uC778."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -121,6 +138,8 @@ MonoBehaviour:
     dialoguePages:
     - "\uD604\uC7AC \uC9C0\uC5ED\uC5D0 \uB2E4\uC218\uC758 \uC0DD\uBA85\uCCB4 \uBC18\uC751
       \uD655\uC778."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -154,6 +173,8 @@ MonoBehaviour:
     - "\uC7AC\uAD6C\uC131\uB41C \uD3F0\uC758 \uC815\uBCF4\uB97C \uD655\uC778 \uD569\uB2C8\uB2E4. "
     - "\uC544\uAD70\uC758 \uC2A4\uD14C\uC774\uD130\uC2A4 \uC815\uBCF4\uB294 \uC67C\uCABD
       \uD558\uB2E8 \uC778\uD130\uD398\uC774\uC2A4\uC5D0 \uD45C\uAE30\uB429\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -186,6 +207,8 @@ MonoBehaviour:
     dialoguePages:
     - "\uD604\uC7AC \uC9C0\uC5ED\uC5D0 \uB2E4\uC218\uC758 \uC0DD\uBA85\uCCB4 \uBC18\uC751
       \uD655\uC778."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -219,6 +242,28 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_799b9e31
+    dialogueLocalizationPages:
+    - localizationId: page_1aeb4649
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825027305473
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_c181e017
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499776
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -252,6 +297,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -285,6 +332,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -318,6 +367,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -351,6 +402,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -384,6 +437,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -417,6 +472,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -450,6 +507,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -483,6 +542,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -516,6 +577,8 @@ MonoBehaviour:
     - "\uC785\uB825\uB41C \uC784\uBB34\uB97C \uAC15\uC81C \uC2E4\uD589 \uD569\uB2C8\uB2E4."
     - "\uD6A8\uC728\uC801\uC778 \uC784\uBB34 \uC218\uD589\uC744 \uC704\uD574 \uBD84\uC5F4\uCCB4\uB97C
       \uC0DD\uC131\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -551,6 +614,38 @@ MonoBehaviour:
     - "\uC8FC\uBCC0 \uC0DD\uBA85\uCCB4\uC758 \uAE30\uBCF8 \uC815\uBCF4\uB97C \uC2A4\uCE94\uC911..."
     - "\uC778\uD130\uD398\uC774\uC2A4 \uD654\uBA74\uC5D0 \uC815\uBCF4 \uBCF4\uAE30
       [ i ] \uC120\uD0DD\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_4c66dd67
+    dialogueLocalizationPages:
+    - localizationId: page_a21c5818
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499777
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_7436bdf1
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499778
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_c487372a
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499779
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -584,6 +679,8 @@ MonoBehaviour:
     - "\uBD84\uC5F4\uCCB4, \uD3F0, \uBE44\uC20D, \uB098\uC774\uD2B8, \uB8E9\uC744
       \uBAA8\uB450 \uC0DD\uC131 \uD558\uC600\uC2B5\uB2C8\uB2E4."
     - "\uC8FC\uBCC0 \uC0DD\uBA85\uCCB4\uC758 \uAE30\uBCF8 \uC815\uBCF4\uB97C \uC2A4\uCE94\uC911..."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -619,6 +716,38 @@ MonoBehaviour:
       \uC8FC\uBCC0 \uC0DD\uBA85\uCCB4\uC758 \uD0C0\uC785\uC774 \uD45C\uC2DC\uB418\uB294
       \uC815\uBCF4\uB97C \uC870\uC815 \uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     - "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC0DD\uBA85\uCCB4\uB97C \uC2A4\uCE94\uD558\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_b22448ff
+    dialogueLocalizationPages:
+    - localizationId: page_7a4ffa56
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499780
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_24799bd0
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499781
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_4f29a0e6
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499782
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -654,6 +783,8 @@ MonoBehaviour:
       \uC8FC\uBCC0 \uC0DD\uBA85\uCCB4\uC758 \uD0C0\uC785\uC774 \uD45C\uC2DC\uB418\uB294
       \uC815\uBCF4\uB97C \uC870\uC815 \uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     - "\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uC0DD\uBA85\uCCB4\uB97C \uC2A4\uCE94\uD558\uACA0\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -691,10 +822,62 @@ MonoBehaviour:
     - "\uC778\uD130\uD398\uC774\uC2A4 \uB0B4 \uC544\uC774\uCF58\uC5D0 \uB300\uD55C
       \uC790\uC138\uD55C \uC124\uBA85 \uD655\uC778\uC740 \uB514\uBC14\uC774\uC2A4\uC758
       \uC720\uD615\uC5D0 \uB530\uB77C \uB2E4\uB974\uAC8C \uC5F4\uB78C \uAC00\uB2A5\uD569\uB2C8\uB2E4. "
+    - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
     - "[\uBAA8\uBC14\uC77C]\n\uC544\uC774\uCF58\uC744 \uD130\uCE58 \uC911 \uC5F4\uB78C
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
-    - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: dialogue_23c3a19d
+    dialogueLocalizationPages:
+    - localizationId: page_a2a0862d
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499783
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_0bbf8821
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499784
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_1cc75866
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499785
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_7a6175d6
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499787
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_72db3bb9
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499786
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 1
     targetTilePosition: {x: 0, y: 0}
@@ -736,6 +919,8 @@ MonoBehaviour:
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
     - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
@@ -777,6 +962,8 @@ MonoBehaviour:
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
     - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -818,6 +1005,8 @@ MonoBehaviour:
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
     - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -859,6 +1048,8 @@ MonoBehaviour:
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
     - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -900,6 +1091,8 @@ MonoBehaviour:
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
     - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -935,6 +1128,28 @@ MonoBehaviour:
       \uC800\uC7A5 "
     - "\uD761\uC218\uD55C \uC0C1\uB300\uC758 \uC815\uBCF4\uB97C \uBC14\uD0D5\uC73C\uB85C
       \uD3F0\uC744 \uC7AC\uAD6C\uC131 \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_9f08473b
+    dialogueLocalizationPages:
+    - localizationId: page_4a2e94ad
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499788
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_5768746b
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499789
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -968,6 +1183,28 @@ MonoBehaviour:
     - "\uC7AC\uAD6C\uC131\uB41C \uD3F0\uC758 \uC815\uBCF4\uB97C \uD655\uC778 \uD569\uB2C8\uB2E4. "
     - "\uC544\uAD70\uC758 \uC2A4\uD14C\uC774\uD130\uC2A4 \uC815\uBCF4\uB294 \uC67C\uCABD
       \uD558\uB2E8 \uC778\uD130\uD398\uC774\uC2A4\uC5D0 \uD45C\uAE30\uB429\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_24d81698
+    dialogueLocalizationPages:
+    - localizationId: page_632b621c
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499790
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_7df7f72c
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499791
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1009,6 +1246,8 @@ MonoBehaviour:
       \uAC00\uB2A5\n[PC]\n\uB9C8\uC6B0\uC2A4 \uCEE4\uC11C\uB97C \uC544\uC774\uCF58
       \uC704\uC5D0 \uC62C\uB9AC\uBA74 \uC5F4\uB78C \uAC00\uB2A5 "
     - "\uC815\uBCF4\uB97C \uC2A4\uCE94\uD55C \uAC1C\uCCB4\uB97C \uD761\uC218 \uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1042,6 +1281,8 @@ MonoBehaviour:
     - "\uC7AC\uAD6C\uC131\uB41C \uD3F0\uC758 \uC815\uBCF4\uB97C \uD655\uC778 \uD569\uB2C8\uB2E4. "
     - "\uC544\uAD70\uC758 \uC2A4\uD14C\uC774\uD130\uC2A4 \uC815\uBCF4\uB294 \uC67C\uCABD
       \uD558\uB2E8 \uC778\uD130\uD398\uC774\uC2A4\uC5D0 \uD45C\uAE30\uB429\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1082,6 +1323,8 @@ MonoBehaviour:
       \uACE0\uD1B5\uB3C4 \uC5C6\uC2B5\uB2C8\uB2E4. \uC27D\uACE0 \uBE60\uB978 \uD761\uC218!\" "
     - "\uB300\uC0C1\uC758 \uACF5\uD3EC \uC218\uCE58\uAC00 \uD55C\uACC4\uCE58 \uCD08\uACFC
       \uD588\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1118,10 +1361,53 @@ MonoBehaviour:
     - "\uACF5\uD3EC, \uBD88\uC548 \uB4F1 \uACF5\uACA9\uC801\uC778 \uC131\uD5A5\uC774
       \uB098\uD0C0\uB0A9\uB2C8\uB2E4.\n\uBA58\uD0C8\uCF00\uC5B4 \uD504\uB85C\uD1A0\uCF5C
       \uC2E4\uD589"
-    - "\"\uC548\uC2EC\uD558\uC2ED\uC2DC\uC624 \uC5B4\uB5A0\uD55C \uD1B5\uC99D\uB3C4
-      \uACE0\uD1B5\uB3C4 \uC5C6\uC2B5\uB2C8\uB2E4. \uC27D\uACE0 \uBE60\uB978 \uD761\uC218!\" "
+    - "\"\uC548\uC2EC\uD558\uC2ED\uC2DC\uC624. \uD1B5\uC99D\uB3C4, \uACE0\uD1B5\uB3C4
+      \uC5C6\uC2B5\uB2C8\uB2E4.\n\uC801\uC5B4\uB3C4 \uB370\uC774\uD130\uC0C1\uC73C\uB85C\uB294
+      \uADF8\uB807\uC2B5\uB2C8\uB2E4.\n\uC27D\uACE0 \uBE60\uB978 \uD761\uC218!\""
     - "\uB300\uC0C1\uC758 \uACF5\uD3EC \uC218\uCE58\uAC00 \uD55C\uACC4\uCE58 \uCD08\uACFC
       \uD588\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_e6a9dd9c
+    dialogueLocalizationPages:
+    - localizationId: page_ee1b4369
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499792
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_98586408
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499793
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_4690a08b
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499794
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_c48c4faa
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499795
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1162,6 +1448,8 @@ MonoBehaviour:
       \uACE0\uD1B5\uB3C4 \uC5C6\uC2B5\uB2C8\uB2E4. \uC27D\uACE0 \uBE60\uB978 \uD761\uC218!\" "
     - "\uB300\uC0C1\uC758 \uACF5\uD3EC \uC218\uCE58\uAC00 \uD55C\uACC4\uCE58 \uCD08\uACFC
       \uD588\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1202,6 +1490,8 @@ MonoBehaviour:
       \uACE0\uD1B5\uB3C4 \uC5C6\uC2B5\uB2C8\uB2E4. \uC27D\uACE0 \uBE60\uB978 \uD761\uC218!\" "
     - "\uB300\uC0C1\uC758 \uACF5\uD3EC \uC218\uCE58\uAC00 \uD55C\uACC4\uCE58 \uCD08\uACFC
       \uD588\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1237,8 +1527,39 @@ MonoBehaviour:
       \uAC83\uC73C\uB85C \uD655\uC778\uC774 \uB429\uB2C8\uB2E4."
     - "\uC6B0\uC120 \uBAA9\uD45C\uBB3C\uC774 \uB3C4\uB9DD\uAC00\uAE30 \uC804\uC5D0
       \uC2E0\uC18D\uD55C \uD761\uC218\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
-    - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uC0C1\uB300 \uB97C \uD761\uC218
-      \uD569\uB2C8\uB2E4."
+    - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uB300\uC0C1\uC744 \uD761\uC218\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_6f4cc90f
+    dialogueLocalizationPages:
+    - localizationId: page_c3353a2b
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499796
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_c5ebc466
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499797
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_7f536dd5
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499798
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 2, y: 1}
     targetPieceTeam: 1
     targetTilePosition: {x: 1, y: 2}
@@ -1279,6 +1600,8 @@ MonoBehaviour:
       \uC2E0\uC18D\uD55C \uD761\uC218\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
     - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uC0C1\uB300 \uB97C \uD761\uC218
       \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 2}
@@ -1319,6 +1642,8 @@ MonoBehaviour:
       \uC2E0\uC18D\uD55C \uD761\uC218\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
     - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uC0C1\uB300 \uB97C \uD761\uC218
       \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1359,6 +1684,8 @@ MonoBehaviour:
       \uC2E0\uC18D\uD55C \uD761\uC218\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
     - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uC0C1\uB300 \uB97C \uD761\uC218
       \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1399,6 +1726,8 @@ MonoBehaviour:
       \uC2E0\uC18D\uD55C \uD761\uC218\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
     - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uC0C1\uB300 \uB97C \uD761\uC218
       \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1439,6 +1768,8 @@ MonoBehaviour:
       \uC2E0\uC18D\uD55C \uD761\uC218\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
     - "\uB098\uC774\uD2B8\uB97C \uC774\uC6A9\uD558\uC5EC \uC0C1\uB300 \uB97C \uD761\uC218
       \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1469,9 +1800,19 @@ MonoBehaviour:
   - stepName: "\uC124\uBA85"
     stepType: 1
     dialoguePages:
-    - "\uBAA9\uD45C\uBB3C \uBE44\uC20D \uD0C0\uC785 \uC0DD\uBA85\uCCB4 \uD761\uC218
-      \uC644\uB8CC \uD761\uC218\uD55C \uC0DD\uBA85\uCCB4\uB85C \uC7AC\uAD6C\uC131
-      \uD569\uB2C8\uB2E4."
+    - "\uB300\uC0C1\uC744 \uD761\uC218\uD558\uC5EC \uC7AC\uAD6C\uC131 \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_56b98321
+    dialogueLocalizationPages:
+    - localizationId: page_2e18bdc3
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499799
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1505,6 +1846,8 @@ MonoBehaviour:
     - "\uBAA9\uD45C\uBB3C \uBE44\uC20D \uD0C0\uC785 \uC0DD\uBA85\uCCB4 \uD761\uC218
       \uC644\uB8CC \uB098\uC774\uD2B8\uB97C \uD761\uC218\uD55C \uC0DD\uBA85\uCCB4\uB85C
       \uC7AC\uAD6C\uC131 \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1538,6 +1881,8 @@ MonoBehaviour:
     - "\uBAA9\uD45C\uBB3C \uBE44\uC20D \uD0C0\uC785 \uC0DD\uBA85\uCCB4 \uD761\uC218
       \uC644\uB8CC \uB098\uC774\uD2B8\uB97C \uD761\uC218\uD55C \uC0DD\uBA85\uCCB4\uB85C
       \uC7AC\uAD6C\uC131 \uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1571,6 +1916,8 @@ MonoBehaviour:
     - "\uB450\uAC00\uC9C0 \uD0C0\uAC9F\uC744 \uB3D9\uC2DC\uC5D0 \uACAC\uC81C\uD569\uB2C8\uB2E4."
     - "\uC5B4\uB5A4 \uC18C\uC18D\uC774\uB358 \uACF5\uACA9\uD558\uC5EC \uC774\uB3D9
       \uBC0F \uACF5\uACA9 \uC81C\uAC70\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1603,8 +1950,30 @@ MonoBehaviour:
     dialoguePages:
     - "\uD761\uC218 \uD6A8\uC728\uC744 \uB192\uC774\uAE30 \uC704\uD55C \uC804\uB7B5
       \uBD84\uC11D\uC5D0 \uB4E4\uC5B4\uAC11\uB2C8\uB2E4....\uBD84\uC11D \uC644\uB8CC
-      \uAC00\uC7A5 \uC774\uC0C1 \uC801 \uD761\uC218 \uB8E8\uD2B8 \uD655\uC778"
-    - "\uC7AC\uAD6C\uC131\uB41C \uBE44\uC20D\uC758 \uB2A5\uB825\uC744 \uC0AC\uC6A9\uD569\uB2C8\uB2E4."
+      \uAC00\uC7A5 \uD6A8\uC728\uC801\uC778 \uD761\uC218 \uB8E8\uD2B8 \uD655\uC778"
+    - "\uC7AC\uAD6C\uC131\uB41C \uC0DD\uBA85\uCCB4\uC758 \uB2A5\uB825\uC744 \uC0AC\uC6A9\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_cd1c1091
+    dialogueLocalizationPages:
+    - localizationId: page_ec1d711e
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499800
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_06f80ab8
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499801
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1638,6 +2007,8 @@ MonoBehaviour:
     - "\uB450\uAC00\uC9C0 \uD0C0\uAC9F\uC744 \uB3D9\uC2DC\uC5D0 \uACAC\uC81C\uD569\uB2C8\uB2E4."
     - "\uC5B4\uB5A4 \uC18C\uC18D\uC774\uB358 \uACF5\uACA9\uD558\uC5EC \uC774\uB3D9
       \uBC0F \uACF5\uACA9 \uC81C\uAC70\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1671,6 +2042,8 @@ MonoBehaviour:
     - "\uD761\uC218 \uD6A8\uC728\uC744 \uB192\uC774\uAE30 \uC704\uD55C \uC804\uB825
       \uBD84\uC11D\uC5D0 \uB4E4\uC5B4\uAC11\uB2C8\uB2E4...."
     - "\uC7AC\uAD6C\uC131\uB41C \uBE44\uC20D\uC758 \uB2A5\uB825\uC744 \uC0AC\uC6A9\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1702,10 +2075,33 @@ MonoBehaviour:
     stepType: 1
     dialoguePages:
     - "\uC0DD\uC131\uB41C \uC911\uB9BD \uAE30\uBB3C\uC740 \uC6C0\uC9C1\uC774\uC9C0
-      \uC54A\uC73C\uBA70 \uB204\uAD6C\uC758 \uC18C\uC18D\uB3C4 \uC544\uB2CC \uBB34\uC0DD\uBB3C
-      \uC785\uB2C8\uB2E4."
-    - "\uC5B4\uB5A4 \uC18C\uC18D\uC774\uB358 \uACF5\uACA9\uD558\uC5EC \uC774\uB3D9
-      \uBC0F \uACF5\uACA9 \uC81C\uAC70\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+      \uC54A\uC73C\uBA70, \uC5B4\uB290 \uC9C4\uC601\uC5D0\uB3C4 \uC18D\uD558\uC9C0
+      \uC54A\uC740 \uBB34\uC0DD\uBB3C\uC785\uB2C8\uB2E4."
+    - "\uC5B4\uB290 \uC9C4\uC601\uC774\uB4E0 \uACF5\uACA9\uD560 \uC218 \uC788\uC73C\uBA70,
+      \uC774\uB3D9 \uB610\uB294 \uACF5\uACA9\uC73C\uB85C \uC81C\uAC70\uD560 \uC218
+      \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_8ba2a843
+    dialogueLocalizationPages:
+    - localizationId: page_d42bb85e
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499802
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_4cd10036
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499803
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 3, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1741,6 +2137,8 @@ MonoBehaviour:
       \uC785\uB2C8\uB2E4."
     - "\uC5B4\uB5A4 \uC18C\uC18D\uC774\uB358 \uACF5\uACA9\uD558\uC5EC \uC774\uB3D9
       \uBC0F \uACF5\uACA9 \uC81C\uAC70\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 2}
@@ -1776,6 +2174,8 @@ MonoBehaviour:
       \uC785\uB2C8\uB2E4."
     - "\uC5B4\uB5A4 \uC18C\uC18D\uC774\uB358 \uACF5\uACA9\uD558\uC5EC \uC774\uB3D9
       \uBC0F \uACF5\uACA9 \uC81C\uAC70\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1807,6 +2207,18 @@ MonoBehaviour:
     stepType: 1
     dialoguePages:
     - "\uACF5\uACA9\uD558\uC5EC \uC911\uB9BD \uAE30\uBB3C\uC744 \uC81C\uAC70\uD558\uC138\uC694"
+    dialogueLocalizationId: dialogue_068caf46
+    dialogueLocalizationPages:
+    - localizationId: page_1930311b
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499804
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1842,6 +2254,8 @@ MonoBehaviour:
       \uC785\uB2C8\uB2E4."
     - "\uC5B4\uB5A4 \uC18C\uC18D\uC774\uB358 \uACF5\uACA9\uD558\uC5EC \uC774\uB3D9
       \uBC0F \uACF5\uACA9 \uC81C\uAC70\uAC00 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1873,6 +2287,8 @@ MonoBehaviour:
     stepType: 7
     dialoguePages:
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1903,9 +2319,34 @@ MonoBehaviour:
   - stepName: "\uACAC\uC81C"
     stepType: 1
     dialoguePages:
-    - "\uC911\uB9BD \uAE30\uBB3C\uC744 \uC774\uC6A9\uD558\uC5EC \uD3F0\uC744 \uB300\uAC01\uC120
-      \uC774\uB3D9 \uD6C4 \uB450\uAC00\uC9C0 \uD0C0\uAC9F\uC744 \uB3D9\uC2DC\uC5D0
+    - "\uC911\uB9BD \uAE30\uBB3C\uC744 \uC774\uC6A9\uD574 \uD3F0\uC744 \uB300\uAC01\uC120\uC73C\uB85C
+      \uC774\uB3D9\uC2DC\uD0A8 \uD6C4, \uB450 \uAC1C\uC758 \uB300\uC0C1\uC744 \uB3D9\uC2DC\uC5D0
       \uACAC\uC81C\uD569\uB2C8\uB2E4."
+    - "\uB2E4\uC591\uD55C \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uACE0 \uADF8
+      \uB2A5\uB825\uC744 \uD65C\uC6A9\uD558\uC5EC \uC784\uBB34\uB97C \uB354\uC6B1
+      \uD6A8\uC728\uC801\uC73C\uB85C \uC218\uD589\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_2cae4bfe
+    dialogueLocalizationPages:
+    - localizationId: page_4edf58a0
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499805
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_84cf180e
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1937,6 +2378,8 @@ MonoBehaviour:
     stepType: 10
     dialoguePages:
     - "\uB450\uAC00\uC9C0 \uD0C0\uAC9F\uC744 \uB3D9\uC2DC\uC5D0 \uACAC\uC81C\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1968,6 +2411,8 @@ MonoBehaviour:
     stepType: 11
     dialoguePages:
     - "\uB450\uAC00\uC9C0 \uD0C0\uAC9F\uC744 \uB3D9\uC2DC\uC5D0 \uACAC\uC81C\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -1999,6 +2444,8 @@ MonoBehaviour:
     stepType: 10
     dialoguePages:
     - "\uB450\uAC00\uC9C0 \uD0C0\uAC9F\uC744 \uB3D9\uC2DC\uC5D0 \uACAC\uC81C\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2031,6 +2478,18 @@ MonoBehaviour:
     dialoguePages:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
+    dialogueLocalizationId: dialogue_d8840398
+    dialogueLocalizationPages:
+    - localizationId: page_e5cc1003
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499806
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2064,6 +2523,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2097,6 +2558,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2130,6 +2593,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2163,6 +2628,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2194,6 +2661,8 @@ MonoBehaviour:
     stepType: 7
     dialoguePages:
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2226,6 +2695,18 @@ MonoBehaviour:
     dialoguePages:
     - "\uD761\uC218\uD55C \uC0DD\uBA85\uCCB4\uB85C \uB2E4\uC2DC \uC7AC\uAD6C\uC131
       \uB429\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_c8aed3a1
+    dialogueLocalizationPages:
+    - localizationId: page_5137c302
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499807
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2256,9 +2737,21 @@ MonoBehaviour:
   - stepName: "\uB9C8\uBB34\uB9AC \uC5B4\uD0DD"
     stepType: 1
     dialoguePages:
-    - "\uC0C1\uB300\uC758 \uAC1C\uCCB4\uAC00 1\uB9C8\uB9AC \uB0A8\uC73C\uBA74 \uD0B9\uC744
-      \uC774\uC6A9\uD574 '\uB9C8\uBB34\uB9AC \uC77C\uACA9'\uC744 \uC0AC\uC6A9\uD574
-      \uC27D\uAC8C \uD761\uC218\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. "
+    - "\uC0C1\uB300 \uC0DD\uBA85\uCCB4\uAC00 1\uB9C8\uB9AC\uB9CC \uB0A8\uC73C\uBA74,
+      \uB370\uBCF4\uB9AC\uC544 [\uD0B9]\uC758 '\uB9C8\uBB34\uB9AC \uC77C\uACA9'\uC744
+      \uC0AC\uC6A9\uD574 \uC27D\uAC8C \uD761\uC218\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_ecd04f0d
+    dialogueLocalizationPages:
+    - localizationId: page_03ba247e
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499808
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2292,6 +2785,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2325,6 +2820,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2358,6 +2855,8 @@ MonoBehaviour:
     - "\uD3F0\uC744 \uC120\uD0DD\uD558\uC5EC \uC0C1\uB300\uC758 \uB098\uC774\uD2B8
       \uD0C0\uC785 \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC138\uC694."
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 2, y: 3}
     targetPieceTeam: 0
     targetTilePosition: {x: 1, y: 4}
@@ -2391,6 +2890,8 @@ MonoBehaviour:
     - "\uC0C1\uB300\uC758 \uAC1C\uCCB4\uAC00 1\uB9C8\uB9AC \uB0A8\uC73C\uBA74 \uD0B9\uC744
       \uC774\uC6A9\uD574 \uC27D\uAC8C \uD761\uC218\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. "
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2422,6 +2923,8 @@ MonoBehaviour:
     stepType: 7
     dialoguePages:
     - "\uB9C8\uBB34\uB9AC \uACF5\uACA9\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2452,8 +2955,30 @@ MonoBehaviour:
   - stepName: "\uD29C\uD1A0\uB9AC\uC5BC \uB9C8\uBB34\uB9AC"
     stepType: 1
     dialoguePages:
-    - "\uC8FC\uBCC0 \uD658\uACBD \uAC10\uC9C0\uB41C \uC0DD\uBA85\uBC18\uC751 \uC5C6\uC74C "
+    - "\uC8FC\uBCC0 \uD658\uACBD \uAC10\uC9C0\uB41C \uC0DD\uBA85\uBC18\uC751 \uC5C6\uC74C."
     - "\uB2E4\uC74C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: dialogue_3c4f433b
+    dialogueLocalizationPages:
+    - localizationId: page_dcce049d
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499809
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_65df1b93
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 23825031499810
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2486,6 +3011,8 @@ MonoBehaviour:
     dialoguePages:
     - "\uC8FC\uBCC0 \uD658\uACBD \uAC10\uC9C0\uB41C \uC0DD\uBA85\uBC18\uC751 \uC5C6\uC74C "
     - "\uB2E4\uC74C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2518,6 +3045,8 @@ MonoBehaviour:
     dialoguePages:
     - "\uC8FC\uBCC0 \uD658\uACBD \uAC10\uC9C0\uB41C \uC0DD\uBA85\uBC18\uC751 \uC5C6\uC74C "
     - "\uB2E4\uC74C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 1, y: 2}
     targetPieceTeam: 0
     targetTilePosition: {x: 2, y: 3}
@@ -2548,3 +3077,6 @@ MonoBehaviour:
   completionType: 3
   completionSceneName: WorldMapScene
   completionCutsceneData: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

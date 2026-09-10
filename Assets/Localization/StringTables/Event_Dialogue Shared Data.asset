@@ -159,6 +159,158 @@ MonoBehaviour:
     m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_7135180b.page_4b030dfa
     m_Metadata:
       m_Items: []
+  - m_Id: 23825027305472
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_d2dc32d3.page_6d362732
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825027305473
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_799b9e31.page_1aeb4649
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499776
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_799b9e31.page_c181e017
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499777
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_4c66dd67.page_a21c5818
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499778
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_4c66dd67.page_7436bdf1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499779
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_4c66dd67.page_c487372a
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499780
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_b22448ff.page_7a4ffa56
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499781
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_b22448ff.page_24799bd0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499782
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_b22448ff.page_4f29a0e6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499783
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_23c3a19d.page_a2a0862d
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499784
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_23c3a19d.page_0bbf8821
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499785
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_23c3a19d.page_1cc75866
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499786
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_23c3a19d.page_72db3bb9
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499787
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_23c3a19d.page_7a6175d6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499788
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_9f08473b.page_4a2e94ad
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499789
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_9f08473b.page_5768746b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499790
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_24d81698.page_632b621c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499791
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_24d81698.page_7df7f72c
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499792
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e6a9dd9c.page_ee1b4369
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499793
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e6a9dd9c.page_98586408
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499794
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e6a9dd9c.page_4690a08b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499795
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e6a9dd9c.page_c48c4faa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499796
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_6f4cc90f.page_c3353a2b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499797
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_6f4cc90f.page_c5ebc466
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499798
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_6f4cc90f.page_7f536dd5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499799
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_56b98321.page_2e18bdc3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499800
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_cd1c1091.page_ec1d711e
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499801
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_cd1c1091.page_06f80ab8
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499802
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_8ba2a843.page_d42bb85e
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499803
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_8ba2a843.page_4cd10036
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499804
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_068caf46.page_1930311b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499805
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_2cae4bfe.page_4edf58a0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499806
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_d8840398.page_e5cc1003
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499807
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_c8aed3a1.page_5137c302
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499808
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_ecd04f0d.page_03ba247e
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499809
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_3c4f433b.page_dcce049d
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499810
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_3c4f433b.page_65df1b93
+    m_Metadata:
+      m_Items: []
+  - m_Id: 606779965313024
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_2cae4bfe.page_84cf180e
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

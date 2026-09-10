@@ -1,5 +1,29 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
+
+// <변경부분>
+// TextCutscene 한 Page의 Localization 전용 Metadata.
+//
+// 실제 한국어 원문은 기존 TextCutsceneData.textPages에 그대로 보존한다.
+//
+// localizationId:
+// Page의 순서를 변경하거나 다른 Page를 추가하더라도
+// 기존 Localization Key가 변경되지 않도록 사용하는 고정 ID.
+//
+// localizedText:
+// Cutscene_Dialogue String Table의 실제 Entry를 가리킨다.
+[Serializable]
+public class TextCutscenePageLocalizationData
+{
+    [HideInInspector]
+    public string localizationId;
+
+    [HideInInspector]
+    public LocalizedString localizedText =
+        new LocalizedString();
+}
 
 // <변경부분> 공용 TextCutsceneScene에서 사용할
 // 텍스트 컷씬 한 편의 설정을 저장하는 ScriptableObject.
@@ -17,8 +41,18 @@ public class TextCutsceneData : ScriptableObject
     // <변경부분> Inspector에서 구분하기 위한 컷씬 이름.
     public string cutsceneName;
 
+    // <변경부분>
+    // Cutscene Dialogue Localization에서 사용하는
+    // 이 TextCutsceneData 전용 고정 ID.
+    //
+    // cutsceneName이나 Asset 이름은 이후 변경될 수 있으므로
+    // Localization Key의 identity로 직접 사용하지 않는다.
+    //
+    // 실제 생성과 편집은 이후 TextCutsceneDataEditor가 담당한다.
+    [HideInInspector]
+    public string localizationId;
+
     [TextArea]
-    // 제작 메모용 설명.
     public string description;
 
     [Header("Text Pages")]
@@ -31,7 +65,18 @@ public class TextCutsceneData : ScriptableObject
     // 형식의 대기 태그를 사용할 수 있다.
     [TextArea(3, 15)]
     public List<string> textPages =
-        new List<string>();
+    new List<string>();
+
+    // <변경부분>
+    // textPages와 같은 순서로 대응하는
+    // Page별 Localization Metadata.
+    //
+    // 한국어 원문 자체는 이 List에 중복 저장하지 않는다.
+    // 이후 TextCutsceneDataEditor에서 textPages 개수와 항상 맞춰 관리한다.
+    [HideInInspector]
+    public List<TextCutscenePageLocalizationData>
+        textPageLocalizationPages =
+            new List<TextCutscenePageLocalizationData>();
 
     [Header("Typing")]
     // 글자 하나가 출력되는 기본 간격.
@@ -190,6 +235,70 @@ public class TextCutsceneData : ScriptableObject
     // 전투 승리 후 월드맵에서
     // 어느 노드를 클리어해야 하는지 판단하는 데 필요하다.
     public string battleNodeId;
+
+    // <변경부분>
+    // 현재 Locale 기준 TextCutscene Page 목록을 생성한다.
+    //
+    // Localization이 아직 생성되지 않은 기존 TextCutsceneData이거나
+    // 특정 Page의 LocalizedString 참조가 없는 경우에는
+    // 기존 textPages의 한국어 원문을 그대로 fallback으로 사용한다.
+    //
+    // TextCutsceneController에는 최종 List<string>만 전달하므로
+    // 기존 Typing / wait / glitch / Scene Transition 로직에는
+    // Localization 의존성을 추가하지 않는다.
+    public List<string> GetLocalizedTextPages()
+    {
+        List<string> resolvedPages =
+            new List<string>();
+
+        if (textPages == null)
+        {
+            return resolvedPages;
+        }
+
+        for (int i = 0;
+             i < textPages.Count;
+             i++)
+        {
+            string fallbackText =
+                textPages[i] ??
+                string.Empty;
+
+            string resolvedText =
+                fallbackText;
+
+            if (textPageLocalizationPages != null &&
+                i < textPageLocalizationPages.Count)
+            {
+                TextCutscenePageLocalizationData
+                    localizationData =
+                        textPageLocalizationPages[i];
+
+                if (localizationData != null &&
+                    localizationData.localizedText != null &&
+                    localizationData.localizedText.IsEmpty == false)
+                {
+                    string localizedText =
+                        localizationData
+                            .localizedText
+                            .GetLocalizedString();
+
+                    if (string.IsNullOrWhiteSpace(
+                            localizedText) == false)
+                    {
+                        resolvedText =
+                            localizedText;
+                    }
+                }
+            }
+
+            resolvedPages.Add(
+                resolvedText
+            );
+        }
+
+        return resolvedPages;
+    }
 
     // <변경부분> 최소 실행 가능한 데이터인지 확인한다.
     public bool IsValid()

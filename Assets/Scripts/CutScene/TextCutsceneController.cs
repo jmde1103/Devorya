@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic; // <변경부분> Localization Resolve Page 목록
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -239,18 +240,28 @@ public class TextCutsceneController : MonoBehaviour
         );
     }
 
-    // <변경부분> 모든 문장을 순서대로 출력하고
-    // 마지막 문장까지 끝난 뒤 다음 Scene으로 이동한다.
     private IEnumerator PlayCutsceneRoutine()
     {
-        // <변경부분> 현재 컷씬 Data에 등록된
-        // Text Pages를 순서대로 실행한다.
+        // <변경부분>
+        // TextCutsceneData에서 현재 Locale 기준 Page 목록을 가져온다.
+        //
+        // 번역이 존재하면 현재 Locale 문자열을 사용하고,
+        // Localization 참조 또는 번역값이 없으면
+        // 기존 textPages 한국어 원문을 fallback으로 사용한다.
+        //
+        // 이후 Typing / wait / glitch / Scene Transition은
+        // 기존 Cutscene 흐름을 그대로 사용한다.
+        List<string> resolvedTextPages =
+            cutsceneData.GetLocalizedTextPages();
+
+        // <변경부분>
+        // Resolve된 Text Pages를 순서대로 실행한다.
         for (int i = 0;
-             i < cutsceneData.textPages.Count;
+             i < resolvedTextPages.Count;
              i++)
         {
             string pageText =
-                cutsceneData.textPages[i];
+                resolvedTextPages[i];
 
             if (pageText == null)
             {
@@ -258,7 +269,7 @@ public class TextCutsceneController : MonoBehaviour
                     string.Empty;
             }
 
-            // <변경부분> 현재 문장을
+            // 현재 문장을
             // 처음부터 끝까지 타이핑한다.
             yield return
                 PlayTypingRoutine(
@@ -266,28 +277,28 @@ public class TextCutsceneController : MonoBehaviour
                 );
 
             bool isLastPage =
-     i ==
-     cutsceneData.textPages.Count - 1;
+                i ==
+                resolvedTextPages.Count - 1;
 
             if (isLastPage)
             {
-                // <변경부분> 마지막 문장은 별도의 유지 시간을 사용한다.
+                // 마지막 문장은 별도의 유지 시간을 사용한다.
                 yield return
                     WaitRoutine(
-    cutsceneData.finalHoldDuration
-);
+                        cutsceneData.finalHoldDuration
+                    );
 
                 break;
             }
 
-            // <변경부분> 일반 문장은 완전히 출력된 상태로
+            // 일반 문장은 완전히 출력된 상태로
             // 지정된 시간만큼 화면에 유지한다.
             yield return
                 WaitRoutine(
-    cutsceneData.pageHoldDuration
-);
+                    cutsceneData.pageHoldDuration
+                );
 
-            // <변경부분> 다음 문장이 나오기 전에
+            // 다음 문장이 나오기 전에
             // 실제 타이핑된 문자열만 비운다.
             //
             // 커서는 별도 코루틴에서 계속 깜빡이므로
@@ -297,14 +308,14 @@ public class TextCutsceneController : MonoBehaviour
 
             RefreshCutsceneText();
 
-            // <변경부분> 문장 사이에 짧은 검은 화면 간격을 둔다.
+            // 문장 사이에 짧은 검은 화면 간격을 둔다.
             yield return
                 WaitRoutine(
-    cutsceneData.betweenPageDelay
-);
+                    cutsceneData.betweenPageDelay
+                );
         }
 
-        // <변경부분> 모든 타이핑과 마지막 유지 시간이 끝난 뒤
+        // 모든 타이핑과 마지막 유지 시간이 끝난 뒤
         // 전체 텍스트에 PopupOpenAnimator 기반
         // 글리치 / 노이즈 소멸 애니메이션을 실행한다.
         //

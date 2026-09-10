@@ -45,6 +45,11 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b676b912c0b3c044180c505245d085f8
+    m_Address: Assets/Localization/StringTables/Cutscene_Dialogue Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: be430d2c224cec643986d474b5a45860
     m_Address: Assets/Localization/StringTables/Unique_Skill Shared Data.asset
     m_ReadOnly: 1

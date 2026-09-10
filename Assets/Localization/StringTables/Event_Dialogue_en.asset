@@ -177,6 +177,191 @@ MonoBehaviour:
       eliminating all enemy pieces.
     m_Metadata:
       m_Items: []
+  - m_Id: 23825027305472
+    m_Localized: Multiple lifeform signals detected in the current area.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825027305473
+    m_Localized: Forced mission execution initiated.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499776
+    m_Localized: Generating Fragments for efficient mission execution.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499777
+    m_Localized: 'All Fragments have been generated: Pawn, Bishop, Knight, and Rook.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499778
+    m_Localized: Scanning basic information on nearby lifeforms...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499779
+    m_Localized: Select View Info [ i ] on the interface.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499780
+    m_Localized: Lifeform type confirmed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499781
+    m_Localized: Repeatedly select View Info [ i ] to adjust the display of nearby
+      lifeform type indicators.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499782
+    m_Localized: Scanning the nearest lifeform.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499783
+    m_Localized: Target scan complete.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499784
+    m_Localized: The scanned target's type, Traits, Skills, and other information
+      are displayed on the interface in the upper-right corner.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499785
+    m_Localized: Detailed information about interface icons can be viewed differently
+      depending on the type of device being used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499786
+    m_Localized: '[Mobile]
+
+      Touch and hold an icon to view its details.
+
+      [PC]
+
+      Hover
+      the mouse cursor over an icon to view its details.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499787
+    m_Localized: Absorb the scanned target.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499788
+    m_Localized: Stores the absorbed target's Trait, Ability, type, and form information
+      in the database.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499789
+    m_Localized: Reconstructs the Pawn based on the absorbed target's data.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499790
+    m_Localized: Check the reconstructed Pawn's information.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499791
+    m_Localized: Allied status information is displayed on the interface in the lower-left
+      corner.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499792
+    m_Localized: 'The target is using an Ability.
+
+      Analyzing the opponent''s
+      response.... Analysis complete.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499793
+    m_Localized: 'Aggressive tendencies associated with fear, anxiety, and similar
+      responses detected.
+
+      Initiating Mental Care Protocol.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499794
+    m_Localized: 'Rest assured. There will be no pain or suffering.
+
+      At least,
+      according to the data.
+
+      Quick and easy Absorption!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499795
+    m_Localized: The target's fear level has exceeded the limit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499796
+    m_Localized: The opponent's Bishop-type lifeform has been confirmed to have generated
+      a neutral piece with no detectable life signs.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499797
+    m_Localized: First, we will proceed with a rapid Absorption before the target
+      escapes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499798
+    m_Localized: Use the Knight to absorb the target.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499799
+    m_Localized: Absorb the target and reconstruct it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499800
+    m_Localized: 'Beginning strategic analysis to improve Absorption efficiency....
+      Analysis complete.
+
+      Most efficient Absorption route confirmed.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499801
+    m_Localized: Use the reconstructed lifeform's Ability.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499802
+    m_Localized: The generated neutral piece does not move and is an inanimate object
+      that belongs to no faction.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499803
+    m_Localized: It can be attacked by any faction and removed through movement or
+      attack.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499804
+    m_Localized: Attack and remove the neutral piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499805
+    m_Localized: Use the neutral piece to move the Pawn diagonally, then threaten
+      two targets at the same time.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 606779965313024
+    m_Localized: By absorbing various lifeforms and utilizing their Abilities, missions
+      can be carried out more efficiently.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499806
+    m_Localized: Select the Pawn and absorb the opponent's Knight-type lifeform.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499807
+    m_Localized: Reconstructed based on the absorbed lifeform.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499808
+    m_Localized: When only one enemy lifeform remains, use Devorya [King]'s 'Finishing
+      Blow' to absorb it with ease.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499809
+    m_Localized: No life signs detected in the surrounding area.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23825031499810
+    m_Localized: Moving to the next location.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

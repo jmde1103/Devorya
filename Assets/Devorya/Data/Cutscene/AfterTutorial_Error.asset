@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AfterTutorial_Error
   m_EditorClassIdentifier: Assembly-CSharp::TextCutsceneData
   cutsceneName: "\uC5D0\uB7EC\uCC3D"
+  localizationId: after_tutorial_error
   description: "\uD29C\uD1A0\uB9AC\uC5BC \uD6C4 \uC2E4\uD589"
   textPages:
   - "\uC608\uAE30\uCE58 \uBABB\uD55C \uC2DC\uC2A4\uD15C \uC624\uB958\uB85C \uC778\uD574
@@ -29,6 +30,27 @@ MonoBehaviour:
     \uD658\uACBD \uC2A4\uCE94\uC744 \uC2DC\uC791\uD569\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.5>\\n\n\uD658\uACBD
     \uB370\uC774\uD130\uB97C \uC218\uC9D1 \uC911\uC785\uB2C8\uB2E4<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.4>\\n\n\uC218\uC9D1\uB41C
     \uD658\uACBD \uB370\uC774\uD130\uB97C \uC804\uC1A1\uD569\uB2C8\uB2E4.<glitch=0.08><wait=0.5>\\n\\n\\n\nLOADING<wait=0.3>.<wait=0.3>.<wait=0.3>."
+  textPageLocalizationPages:
+  - localizationId: page_e708e61e
+    localizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b676b912c0b3c044180c505245d085f8
+      m_TableEntryReference:
+        m_KeyId: 587862016
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+  - localizationId: page_5a08c8a8
+    localizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b676b912c0b3c044180c505245d085f8
+      m_TableEntryReference:
+        m_KeyId: 629805056
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
   characterInterval: 0.01
   pageHoldDuration: 1.2
   betweenPageDelay: 0.2
@@ -54,3 +76,6 @@ MonoBehaviour:
   nextSceneName: WorldMapScene
   nextStageBattleData: {fileID: 0}
   battleNodeId: 
+  references:
+    version: 2
+    RefIds: []

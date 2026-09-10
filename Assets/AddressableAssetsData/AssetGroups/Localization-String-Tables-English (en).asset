@@ -45,6 +45,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 64db8608cdff7c44ba6d50ecd934a251
+    m_Address: Cutscene_Dialogue_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6b7eb29b2317c6a4db9bc571d8e854fa
     m_Address: Tooltip_Data_en
     m_ReadOnly: 1

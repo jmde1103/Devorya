@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Cutscene_Dialogue_ja
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: ja
+  m_SharedData: {fileID: 11400000, guid: b676b912c0b3c044180c505245d085f8, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 2313989787648
+    m_Localized: SOUL DEVOURER PROJECT\nTEST 0807\n\n<wait=0.2>BASIC FUNCTION TEST<wait=0.3>\n\nDEVORYA\nBOOTING...<wait=0.4>\n\nSynchronizing
+      Identity Data...<wait=0.7>\n\nFAILED<wait=0.4>\n\nSDI CHECK<wait=0.2>\n\nSlot
+      01 ........ EMPTY<wait=0.15>\nSlot 02 ........ EMPTY<wait=0.15>\nSlot 03 ........
+      EMPTY<wait=0.3>\n\nSwitching to Temporary Test Mode...<wait=0.5>\n\nACTIVATION
+      COMPLETE<wait=0.4>\n\nLOADING<wait=0.3>.<wait=0.3>.<wait=0.3>.<wait=0.3>.<wait=0.3>.<wait=0.3>.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 587862016
+    m_Localized: "\u4E88\u671F\u305B\u306C\u30B7\u30B9\u30C6\u30E0\u30A8\u30E9\u30FC\u306B\u3088\u308A\u3001\u518D\u8D77\u52D5\u3057\u307E\u3057\u305F\u3002<glitch=0.08><wait=0.5>\\n\\n\n\u30B7\u30B9\u30C6\u30E0\u72B6\u614B\u3092\u78BA\u8A8D\u3057\u307E\u3059<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.4>\\n\\n\\n\n\u4EBA\u683C\u30C7\u30FC\u30BF\u306E\u540C\u671F\u3092\u8A66\u884C\u3057\u307E\u3059<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.7>\\n\n\u540C\u671F\u5931\u6557\u3002<glitch=0.18><wait=0.4>\\n\n\u6709\u52B9\u306A\u4EBA\u683C\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002<glitch=0.08><wait=0.5>\\n\\n\\n\nAI\u5358\u72EC\u904B\u7528\u30E2\u30FC\u30C9\u3078\u79FB\u884C\u3057\u307E\u3059\u3002<glitch=0.12><wait=0.6>\\n\\n\\n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 629805056
+    m_Localized: "SOUL DEVOURER PROJECT<glitch=0.08>\\n\n\u81EA\u52D5\u5B9F\u884C\u30D7\u30ED\u30C8\u30B3\u30EB\u3092\u518D\u958B\u3057\u307E\u3059\u3002<wait=0.6>\\n\\n\\n\n\u73FE\u5728\u4F4D\u7F6E\u30C7\u30FC\u30BF\u3092\u78BA\u8A8D\u3057\u307E\u3059<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.5>\\n\n\u73FE\u5728\u4F4D\u7F6E\u3092\u78BA\u8A8D\u3067\u304D\u307E\u305B\u3093\u3002<glitch=0.18><wait=0.6>\\n\\n\n\u5468\u8FBA\u74B0\u5883\u306E\u30B9\u30AD\u30E3\u30F3\u3092\u958B\u59CB\u3057\u307E\u3059<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.5>\\n\n\u74B0\u5883\u30C7\u30FC\u30BF\u3092\u53CE\u96C6\u4E2D\u3067\u3059<wait=0.2>.<wait=0.2>.<wait=0.2>.<wait=0.4>\\n\n\u53CE\u96C6\u3057\u305F\u74B0\u5883\u30C7\u30FC\u30BF\u3092\u9001\u4FE1\u3057\u307E\u3059\u3002<glitch=0.08><wait=0.5>\\n\\n\\n\nLOADING<wait=0.3>.<wait=0.3>.<wait=0.3>."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Prologue_Boot
   m_EditorClassIdentifier: Assembly-CSharp::TextCutsceneData
   cutsceneName: Prologue Boot
+  localizationId: prologue_boot
   description: "\uD29C\uD1A0\uB9AC\uC5BC \uC2DC\uC791 \uCEF7\uC52C"
   textPages:
   - SOUL DEVOURER PROJECT\nTEST 0807\n\n<wait=0.2>BASIC FUNCTION TEST<wait=0.3>\n\nDEVORYA\nBOOTING...<wait=0.4>\n\nSynchronizing
@@ -20,6 +21,17 @@ MonoBehaviour:
     01 ........ EMPTY<wait=0.15>\nSlot 02 ........ EMPTY<wait=0.15>\nSlot 03 ........
     EMPTY<wait=0.3>\n\nSwitching to Temporary Test Mode...<wait=0.5>\n\nACTIVATION
     COMPLETE<wait=0.4>\n\nLOADING<wait=0.3>.<wait=0.3>.<wait=0.3>.<wait=0.3>.<wait=0.3>.<wait=0.3>.
+  textPageLocalizationPages:
+  - localizationId: page_66767e2f
+    localizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:b676b912c0b3c044180c505245d085f8
+      m_TableEntryReference:
+        m_KeyId: 2313989787648
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
   characterInterval: 0.01
   pageHoldDuration: 1.2
   betweenPageDelay: 0.2
@@ -45,3 +57,6 @@ MonoBehaviour:
   nextSceneName: BattleScene
   nextStageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
   battleNodeId: a
+  references:
+    version: 2
+    RefIds: []
