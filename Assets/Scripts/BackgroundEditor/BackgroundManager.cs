@@ -510,24 +510,56 @@ public class BackgroundManager : MonoBehaviour
             null;
     }
 
-    // <변경부분> 지정 좌표에 이미 존재하는 배경 타일 하나를 씬 오브젝트 기준으로 찾음
-    private BackgroundTile GetBackgroundTileAt(int x, int y)
+    // <변경부분>
+    // 지정 좌표에 존재하는 BackgroundTile을 반환한다.
+    //
+    // 기존 Background Editor뿐 아니라
+    // Event Scene Actor 배치에서도 동일한 좌표 조회를 재사용한다.
+    public BackgroundTile GetBackgroundTileAt(
+        int x,
+        int y)
     {
         if (backgroundTileParent == null)
         {
             return null;
         }
 
-        for (int i = 0; i < backgroundTileParent.childCount; i++)
+        // <변경부분>
+        // Runtime에서 BackgroundMapData를 불러온 뒤에는
+        // 좌표 배열이 이미 구성되어 있으므로 우선 배열을 사용한다.
+        if (backgroundTiles != null &&
+            x >= 0 &&
+            x < backgroundWidth &&
+            y >= 0 &&
+            y < backgroundHeight)
         {
-            BackgroundTile tile = backgroundTileParent.GetChild(i).GetComponent<BackgroundTile>();
+            BackgroundTile cachedTile =
+                backgroundTiles[x, y];
+
+            if (cachedTile != null)
+            {
+                return cachedTile;
+            }
+        }
+
+        // Editor Script Reload 등으로 배열이 없는 경우에는
+        // 기존 Scene Object 탐색 방식으로 fallback한다.
+        for (int i = 0;
+             i < backgroundTileParent.childCount;
+             i++)
+        {
+            BackgroundTile tile =
+                backgroundTileParent
+                    .GetChild(i)
+                    .GetComponent<BackgroundTile>();
 
             if (tile == null)
             {
                 continue;
             }
 
-            if (tile.X == x && tile.Y == y)
+            if (tile.X == x &&
+                tile.Y == y)
             {
                 return tile;
             }

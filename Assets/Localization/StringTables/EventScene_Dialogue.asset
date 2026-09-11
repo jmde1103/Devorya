@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: EventScene_Dialogue
+  m_EditorClassIdentifier: Unity.Localization.Editor::UnityEditor.Localization.StringTableCollection
+  m_SharedTableData: {fileID: 11400000, guid: 1d040faacacfa1248aff1aa7194ad8f0, type: 2}
+  m_Tables:
+  - {fileID: 11400000, guid: e7fd6062901ab634f90329d4d1eac7b9, type: 2}
+  - {fileID: 11400000, guid: c3a415116ae23324fa4ab6815873dd7e, type: 2}
+  - {fileID: 11400000, guid: 8439d8ed7f47c3344849bbae02a2da03, type: 2}
+  m_Extensions: []
+  m_Group: String Table
+  references:
+    version: 2
+    RefIds: []

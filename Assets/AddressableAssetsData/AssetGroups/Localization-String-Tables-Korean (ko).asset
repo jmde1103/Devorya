@@ -51,6 +51,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8439d8ed7f47c3344849bbae02a2da03
+    m_Address: EventScene_Dialogue_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 87681834f57e78346a136f8a81516d69
     m_Address: Battle_UI_ko
     m_ReadOnly: 1

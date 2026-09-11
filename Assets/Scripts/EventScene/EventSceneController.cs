@@ -32,10 +32,12 @@ public class EventSceneController : MonoBehaviour
     [SerializeField]
     private BackgroundManager backgroundManager;
 
-    // Dialogue / Wait / Completion 및
-    // 향후 Event Scene Step을 실행할 기존 Sequence Controller.
+    // <변경부분>
+    // Battle / Tutorial용 EventSequenceController가 아니라
+    // Event Scene 전용 Sequence Controller를 사용한다.
     [SerializeField]
-    private EventSequenceController eventSequenceController;
+    private EventSceneSequenceController
+        eventSceneSequenceController;
 
     [Header("Startup")]
 
@@ -98,11 +100,13 @@ public class EventSceneController : MonoBehaviour
             return;
         }
 
-        if (eventSequenceController == null)
+        // <변경부분>
+        // Event Scene 전용 Controller 연결 검사.
+        if (eventSceneSequenceController == null)
         {
             Debug.LogWarning(
                 "Event Scene 시작 실패: " +
-                "EventSequenceController가 연결되지 않았습니다."
+                "EventSceneSequenceController가 연결되지 않았습니다."
             );
 
             return;
@@ -116,15 +120,8 @@ public class EventSceneController : MonoBehaviour
         // EventSceneData의 BackgroundMapData를
         // 직접 BackgroundManager에 적용한다.
         backgroundManager.LoadMapFromData(
-            eventSceneData.backgroundMapData
-        );
-
-        // <변경부분>
-        // BattleSetupManager 대신
-        // EventSceneData의 EventSequenceData를 직접 전달한다.
-        eventSequenceController.SetSequenceData(
-            eventSceneData.eventSequenceData
-        );
+     eventSceneData.backgroundMapData
+ );
 
         Debug.Log(
             $"Event Scene 세팅 완료: " +
@@ -132,22 +129,13 @@ public class EventSceneController : MonoBehaviour
         );
 
         // <변경부분>
-        // 기존 EventSequenceData의 Play Automatically 설정을 유지한다.
+        // EventSceneData 하나가
+        // Background / Steps / Completion을 모두 소유하는 SSOT다.
         //
-        // false이면 데이터만 연결하고,
-        // 외부에서 StartSequence()를 호출할 때까지 기다린다.
-        if (eventSceneData
-                .eventSequenceData
-                .playAutomatically == false)
-        {
-            Debug.Log(
-                $"Event Sequence 자동 시작 안 함: " +
-                $"{eventSceneData.eventSequenceData.name}"
-            );
-
-            return;
-        }
-
-        eventSequenceController.StartSequence();
+        // 별도의 EventSceneSequenceData를 거치지 않고
+        // 현재 EventSceneData 자체를 Sequence Controller에 전달한다.
+        eventSceneSequenceController.StartSequence(
+            eventSceneData
+        );
     }
 }

@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8939fc0a949e21540822e23d23e50b09, type: 3}
+  m_Name: EventSequenceData_Test
+  m_EditorClassIdentifier: Assembly-CSharp::EventSequenceData
+  sequenceName: "\uC774\uBCA4\uD2B8 \uD14C\uC2A4\uD2B8"
+  localizationId: 
+  sequenceMode: 2
+  description: 
+  playAutomatically: 1
+  ignoreNormalBattleEnd: 0
+  pauseEnemyAIWhileSequenceActive: 0
+  skipNormalPlayerDeployment: 0
+  steps:
+  - stepName: "01 \uB2E4\uC774\uC5B4\uB85C\uADF8"
+    stepType: 1
+    dialoguePages:
+    - "\uC774\uAC74 \uD14C\uC2A4\uD2B8 \uC785\uB2C8\uB2E4."
+    - "\uD398\uC774\uC9C0\uB97C \uCD94\uAC00\uD574 \uBCF8\uAC83\uC785\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_3817eea7
+    dialogueLocalizationPages:
+    - localizationId: page_48ce3df2
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_e658ca98
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 0
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 0
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 0
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    actionPieceTeam: 0
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 0
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    waitDuration: 0
+  - stepName: "02 \uB2E4\uC774\uC5B4\uB85C"
+    stepType: 1
+    dialoguePages:
+    - "\uB450\uBC88\uC9F8 \uB2E4\uC774\uC5B4\uB85C\uADF8 \uD14C\uC2A4\uD2B8"
+    - "\uBB38\uC81C\uC5C6\uC2B5\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_3817eea7
+    dialogueLocalizationPages:
+    - localizationId: page_48ce3df2
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_e658ca98
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 0
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 0
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 0
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    actionPieceTeam: 0
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 0
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    waitDuration: 0
+  completionType: 0
+  completionSceneName: 
+  completionCutsceneData: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

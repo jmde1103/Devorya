@@ -75,6 +75,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ja
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3a415116ae23324fa4ab6815873dd7e
+    m_Address: EventScene_Dialogue_ja
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ja
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ccc485fd08f2c9c47ab6beac17c4dbf0
     m_Address: Localization_Test_ja
     m_ReadOnly: 1
