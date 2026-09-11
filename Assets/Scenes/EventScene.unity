@@ -90376,12 +90376,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947132296}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.75231, y: 1.2655, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.86704, y: -0.8237701, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1377629335}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &947880293
 GameObject:
@@ -103279,7 +103279,7 @@ MonoBehaviour:
   - TargetTileType: 1
     DecorationType: 1
     SpawnChance: 0.1
-  currentMapData: {fileID: 11400000, guid: cfef9f2fa93f4dd4497b2fe408ea2bea, type: 2}
+  currentMapData: {fileID: 11400000, guid: 74b4542356006434dadb7f8b38eaadae, type: 2}
   newMapDataName: TutorialStage
   mapDataSaveFolder: Assets/Devorya/BackgroundMaps
 --- !u!4 &1113883778
@@ -128081,7 +128081,8 @@ Transform:
   m_LocalPosition: {x: -1.61935, y: 0.46927005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 947132297}
   m_Father: {fileID: 714921435}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1379587608
@@ -147067,6 +147068,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1557539794}
   - component: {fileID: 1557539795}
+  - component: {fileID: 1557539796}
   m_Layer: 0
   m_Name: EventSceneSystem
   m_TagString: Untagged
@@ -147101,10 +147103,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1f24c589525b247a0915d1fbb90a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventSceneController
-  eventSceneData: {fileID: 0}
+  eventSceneData: {fileID: 11400000, guid: 634223ff18f6dff428e9c88c533a145c, type: 2}
   backgroundManager: {fileID: 1113883777}
-  eventSequenceController: {fileID: 2133944367}
+  eventSceneSequenceController: {fileID: 1557539796}
   startAutomatically: 1
+--- !u!114 &1557539796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1557539793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cabc5510d7e9b2f41bbfd865dbabad99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EventSceneSequenceController
+  eventGuideUI: {fileID: 372108115}
+  backgroundManager: {fileID: 1113883777}
+  eventActorsRoot: {fileID: 947132297}
 --- !u!1 &1558219992
 GameObject:
   m_ObjectHideFlags: 0
@@ -199686,7 +199703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2133944367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201291,4 +201308,3 @@ SceneRoots:
   - {fileID: 1123980042}
   - {fileID: 1207915590}
   - {fileID: 1557539794}
-  - {fileID: 947132297}

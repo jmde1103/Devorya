@@ -23,11 +23,19 @@ MonoBehaviour:
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
     waitDuration: 1
   - stepName: 
     stepType: 1
     dialoguePages:
-    - 
+    - "\uC548\uB155"
     dialogueLocalizationId: dialogue_a5f24ff7
     dialogueLocalizationPages:
     - localizationId: page_7446e962
@@ -40,7 +48,29 @@ MonoBehaviour:
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
     waitDuration: 0
+  - stepName: 
+    stepType: 3
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    spawnActorId: jellu_01
+    spawnActorPieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
+    spawnActorTeam: 1
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0.23}
+    spawnActorFlipX: 1
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 22, y: 23}
+    waitDuration: 0.5
   completionType: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
