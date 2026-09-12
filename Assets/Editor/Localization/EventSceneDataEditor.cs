@@ -49,6 +49,16 @@ public class EventSceneDataEditor : Editor
         -1;
 
     // <변경부분>
+    // Scene View에서 MoveActor 목적지를 선택하고 있는지 여부.
+    private bool isSelectingMoveActorTile =
+        false;
+
+    // <변경부분>
+    // 현재 목적지 좌표 선택을 요청한 MoveActor Step Index.
+    private int selectingMoveActorStepIndex =
+        -1;
+
+    // <변경부분>
     // EventSceneData Inspector가 활성화되면
     // Scene View 입력을 감지한다.
     private void OnEnable()
@@ -66,9 +76,16 @@ public class EventSceneDataEditor : Editor
             HandleSceneGUI;
 
         isSelectingSpawnActorTile =
-            false;
+    false;
 
         selectingSpawnActorStepIndex =
+            -1;
+
+        // <변경부분>
+        isSelectingMoveActorTile =
+            false;
+
+        selectingMoveActorStepIndex =
             -1;
     }
 
@@ -688,6 +705,17 @@ public class EventSceneDataEditor : Editor
                 break;
 
 
+            // <변경부분>
+            case EventSceneStepType.MoveActor:
+
+                DrawMoveActorStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
             case EventSceneStepType.Wait:
 
                 EditorGUI.BeginChangeCheck();
@@ -779,11 +807,21 @@ public class EventSceneDataEditor : Editor
             );
 
         bool newUseAbsorbedVisual =
-            step.spawnActorUseAbsorbedPlayerVisual;
+    step.spawnActorUseAbsorbedPlayerVisual;
 
         // <변경부분>
         // 흡수 Player 외형은 Player Visual일 때만 의미가 있으므로
         // Player 선택 시에만 Inspector에 표시한다.
+        if (newTeam ==
+            PieceTeam.Player)
+        {
+            newUseAbsorbedVisual =
+                EditorGUILayout.Toggle(
+                    "Use Absorbed Player Visual",
+                    step.spawnActorUseAbsorbedPlayerVisual
+                );
+        }
+
         // <변경부분>
         // Visual Prefab의 Pivot 위치를 Event Scene에서만 보정한다.
         Vector2 newVisualOffset =
@@ -913,15 +951,22 @@ public class EventSceneDataEditor : Editor
             }
             else
             {
+                // <변경부분>
+                // MoveActor 목적지 선택 상태가 남아 있으면
+                // HandleSceneGUI에서 MoveActor 입력이 우선 처리되므로
+                // SpawnActor 선택 시작 시 반드시 해제한다.
+                isSelectingMoveActorTile =
+                    false;
+
+                selectingMoveActorStepIndex =
+                    -1;
+
                 isSelectingSpawnActorTile =
                     true;
 
                 selectingSpawnActorStepIndex =
                     stepIndex;
 
-                // <변경부분>
-                // Scene View가 바로 갱신되어
-                // 선택 모드 안내를 확인할 수 있도록 한다.
                 SceneView.RepaintAll();
             }
         }
@@ -953,6 +998,198 @@ public class EventSceneDataEditor : Editor
         }
     }
 
+    // <변경부분>
+    // MoveActor Step 전용 제작 UI.
+    //
+    // Actor ID와 목적지 BackgroundTile,
+    // 이동 시간 / 포물선 높이를 설정한다.
+    private void DrawMoveActorStep(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Actor",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        string newActorId =
+            EditorGUILayout.TextField(
+                "Actor ID",
+                step.moveActorId
+            );
+
+        float newDuration =
+            EditorGUILayout.FloatField(
+                "Move Duration",
+                step.moveActorDuration
+            );
+
+        float newArcHeight =
+            EditorGUILayout.FloatField(
+                "Arc Height",
+                step.moveActorArcHeight
+            );
+
+        // <변경부분>
+        // 현재 MoveActor Step에서
+        // Actor 방향을 새로 지정할지 선택한다.
+        bool newChangeFlipX =
+            EditorGUILayout.Toggle(
+                "Change Flip X",
+                step.moveActorChangeFlipX
+            );
+
+        bool newFlipX =
+            step.moveActorFlipX;
+
+        // <변경부분>
+        // 방향을 변경하도록 설정한 경우에만
+        // 실제 Flip X 값을 표시한다.
+        if (newChangeFlipX)
+        {
+            newFlipX =
+                EditorGUILayout.Toggle(
+                    "Flip X",
+                    step.moveActorFlipX
+                );
+        }
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Move Actor"
+            );
+
+            step.moveActorId =
+                newActorId;
+
+            step.moveActorDuration =
+                Mathf.Max(
+                    0f,
+                    newDuration
+                );
+
+            step.moveActorArcHeight =
+                Mathf.Max(
+                    0f,
+                    newArcHeight
+                );
+
+            // <변경부분>
+            step.moveActorChangeFlipX =
+                newChangeFlipX;
+
+            step.moveActorFlipX =
+                newFlipX;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(5);
+
+        EditorGUILayout.LabelField(
+            "Destination",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        Vector2Int newDestination =
+            EditorGUILayout.Vector2IntField(
+                "Background Tile",
+                step.moveActorDestination
+            );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Move Destination"
+            );
+
+            step.moveActorDestination =
+                newDestination;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        int stepIndex =
+            GetStepIndex(
+                eventData,
+                step
+            );
+
+        bool isThisStepSelecting =
+            isSelectingMoveActorTile &&
+            selectingMoveActorStepIndex ==
+                stepIndex;
+
+        string buttonLabel =
+            isThisStepSelecting
+                ? "Scene 타일 선택 취소"
+                : "Scene에서 목적지 선택";
+
+        if (GUILayout.Button(
+                buttonLabel))
+        {
+            if (isThisStepSelecting)
+            {
+                isSelectingMoveActorTile =
+                    false;
+
+                selectingMoveActorStepIndex =
+                    -1;
+            }
+            else
+            {
+                // <변경부분>
+                // SpawnActor 좌표 선택과 동시에 실행되지 않도록 정리한다.
+                isSelectingSpawnActorTile =
+                    false;
+
+                selectingSpawnActorStepIndex =
+                    -1;
+
+                isSelectingMoveActorTile =
+                    true;
+
+                selectingMoveActorStepIndex =
+                    stepIndex;
+
+                SceneView.RepaintAll();
+            }
+        }
+
+        if (isThisStepSelecting)
+        {
+            EditorGUILayout.HelpBox(
+                "Scene View에서 이동할 BackgroundTile을 클릭하세요.",
+                MessageType.Info
+            );
+        }
+
+        EditorGUILayout.HelpBox(
+            "목적지를 Actor의 현재 좌표와 동일하게 지정하면 " +
+            "다른 타일로 이동하지 않고 제자리에서 위로 뛰었다 내려옵니다.",
+            MessageType.None
+        );
+
+        if (string.IsNullOrWhiteSpace(
+                step.moveActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "MoveActor를 실행하려면 Actor ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+    }
     private bool DrawDialoguePage(
      EventSceneData eventData,
      EventSceneStepData step,
@@ -2149,9 +2386,28 @@ public class EventSceneDataEditor : Editor
                 eventData,
                 backgroundManager
             );
+
+            // <변경부분>
+            // MoveActor 목적지도 Scene View에 표시한다.
+            DrawMoveActorMarkers(
+                eventData,
+                backgroundManager
+            );
         }
 
-        // 여기부터는 실제 타일 선택 모드일 때만 실행한다.
+        // <변경부분>
+        // MoveActor 목적지 선택 모드가 먼저 처리된다.
+        if (isSelectingMoveActorTile)
+        {
+            HandleMoveActorTileSelection(
+                eventData,
+                backgroundManager
+            );
+
+            return;
+        }
+
+        // 기존 SpawnActor 좌표 선택.
         if (isSelectingSpawnActorTile == false)
         {
             return;
@@ -2285,6 +2541,146 @@ public class EventSceneDataEditor : Editor
         SceneView.RepaintAll();
     }
 
+    // <변경부분>
+    // Scene View에서 MoveActor의 목적지 BackgroundTile을 선택한다.
+    private void HandleMoveActorTileSelection(
+        EventSceneData eventData,
+        BackgroundManager backgroundManager)
+    {
+        if (eventData == null ||
+            eventData.steps == null ||
+            selectingMoveActorStepIndex < 0 ||
+            selectingMoveActorStepIndex >=
+                eventData.steps.Count)
+        {
+            CancelMoveActorTileSelection();
+            return;
+        }
+
+        EventSceneStepData step =
+            eventData.steps[
+                selectingMoveActorStepIndex];
+
+        if (step == null ||
+            step.stepType !=
+                EventSceneStepType.MoveActor)
+        {
+            CancelMoveActorTileSelection();
+            return;
+        }
+
+        Handles.BeginGUI();
+
+        GUI.Box(
+            new Rect(
+                10f,
+                10f,
+                300f,
+                50f
+            ),
+            "MoveActor 목적지 선택 중\n" +
+            "원하는 BackgroundTile을 클릭하세요."
+        );
+
+        Handles.EndGUI();
+
+        Event currentEvent =
+            Event.current;
+
+        if (currentEvent == null ||
+            currentEvent.alt)
+        {
+            return;
+        }
+
+        if (currentEvent.type !=
+                EventType.MouseDown ||
+            currentEvent.button != 0)
+        {
+            return;
+        }
+
+        if (backgroundManager == null)
+        {
+            Debug.LogWarning(
+                "Event Scene MoveActor 타일 선택 실패: " +
+                "BackgroundManager를 찾을 수 없습니다."
+            );
+
+            CancelMoveActorTileSelection();
+            return;
+        }
+
+        Ray mouseRay =
+            HandleUtility
+                .GUIPointToWorldRay(
+                    currentEvent.mousePosition
+                );
+
+        Vector3 worldPosition =
+            mouseRay.origin;
+
+        if (backgroundManager
+                .TryGetBackgroundGridPosition(
+                    worldPosition,
+                    out int gridX,
+                    out int gridY) == false)
+        {
+            return;
+        }
+
+        BackgroundTile selectedTile =
+            backgroundManager
+                .GetBackgroundTileAt(
+                    gridX,
+                    gridY
+                );
+
+        if (selectedTile == null)
+        {
+            return;
+        }
+
+        Undo.RecordObject(
+            eventData,
+            "Select Event Move Actor Tile"
+        );
+
+        step.moveActorDestination =
+            new Vector2Int(
+                selectedTile.X,
+                selectedTile.Y
+            );
+
+        EditorUtility.SetDirty(
+            eventData
+        );
+
+        isSelectingMoveActorTile =
+            false;
+
+        selectingMoveActorStepIndex =
+            -1;
+
+        currentEvent.Use();
+
+        Repaint();
+        SceneView.RepaintAll();
+    }
+
+    // <변경부분>
+    // MoveActor Scene 좌표 선택 상태를 종료한다.
+    private void CancelMoveActorTileSelection()
+    {
+        isSelectingMoveActorTile =
+            false;
+
+        selectingMoveActorStepIndex =
+            -1;
+
+        Repaint();
+        SceneView.RepaintAll();
+    }
 
     // <변경부분>
     // EventSceneData에 등록된 모든 SpawnActor 위치를
@@ -2306,7 +2702,7 @@ public class EventSceneDataEditor : Editor
         Color previousColor =
             Handles.color;
 
-       
+
 
         // <변경부분>
         // Unity 기본 HelpBox 배경을 사용하여
@@ -2494,6 +2890,284 @@ public class EventSceneDataEditor : Editor
 
         Handles.color =
             previousColor;
+    }
+
+    // <변경부분>
+    // EventSceneData에 등록된 모든 MoveActor 목적지를
+    // Scene View에 제작용 Marker로 표시한다.
+    //
+    // 이전 SpawnActor / MoveActor Step을 순서대로 추적하여
+    // 해당 Actor의 이동 시작 위치도 함께 계산한다.
+    //
+    // 시작 위치와 목적지가 같으면
+    // 일반 이동이 아니라 제자리 Jump로 표시한다.
+    private void DrawMoveActorMarkers(
+        EventSceneData eventData,
+        BackgroundManager backgroundManager)
+    {
+        if (eventData == null ||
+            eventData.steps == null ||
+            backgroundManager == null)
+        {
+            return;
+        }
+
+        Color previousColor =
+            Handles.color;
+
+        // <변경부분>
+        // MoveActor Marker의 Actor ID / Step 정보를
+        // Scene View에서 쉽게 확인하기 위한 Label Style.
+        GUIStyle labelStyle =
+            new GUIStyle(
+                EditorStyles.helpBox
+            );
+
+        labelStyle.alignment =
+            TextAnchor.MiddleCenter;
+
+        labelStyle.normal.textColor =
+            Color.white;
+
+        labelStyle.fontStyle =
+            FontStyle.Bold;
+
+        labelStyle.fontSize =
+            12;
+
+        labelStyle.padding =
+            new RectOffset(
+                7,
+                7,
+                4,
+                4
+            );
+
+        for (int stepIndex = 0;
+             stepIndex < eventData.steps.Count;
+             stepIndex++)
+        {
+            EventSceneStepData step =
+                eventData.steps[stepIndex];
+
+            if (step == null ||
+                step.stepType !=
+                    EventSceneStepType.MoveActor)
+            {
+                continue;
+            }
+
+            // <변경부분>
+            // MoveActor에 설정된 목적지 BackgroundTile을 찾는다.
+            BackgroundTile destinationTile =
+                backgroundManager
+                    .GetBackgroundTileAt(
+                        step.moveActorDestination.x,
+                        step.moveActorDestination.y
+                    );
+
+            if (destinationTile == null)
+            {
+                continue;
+            }
+
+            Vector3 destinationPosition =
+                destinationTile.transform.position;
+
+            float markerSize =
+                HandleUtility.GetHandleSize(
+                    destinationPosition
+                ) * 0.11f;
+
+            // <변경부분>
+            // MoveActor 목적지는 Spawn Marker와 구분되도록
+            // 파란색 계열 Marker로 표시한다.
+            Handles.color =
+                new Color(
+                    0.25f,
+                    0.65f,
+                    1f,
+                    1f
+                );
+
+            Handles.DrawWireDisc(
+                destinationPosition,
+                Vector3.forward,
+                markerSize
+            );
+
+            // <변경부분>
+            // 이 MoveActor Step이 실행되기 직전
+            // 해당 Actor가 어느 Tile에 있는지 계산한다.
+            bool hasSourcePosition =
+                TryGetPlannedActorPositionBeforeStep(
+                    eventData,
+                    stepIndex,
+                    step.moveActorId,
+                    out Vector2Int sourceGridPosition
+                );
+
+            // <변경부분>
+            // 시작 좌표와 목적지가 같으면
+            // 제자리 Jump Step이다.
+            bool isJump =
+                hasSourcePosition &&
+                sourceGridPosition ==
+                    step.moveActorDestination;
+
+            // <변경부분>
+            // 일반 이동이라면 시작 Tile → 목적지 Tile 선을 표시한다.
+            //
+            // 제자리 Jump는 시작과 끝이 같으므로
+            // 이동선을 그리지 않는다.
+            if (hasSourcePosition &&
+                isJump == false)
+            {
+                BackgroundTile sourceTile =
+                    backgroundManager
+                        .GetBackgroundTileAt(
+                            sourceGridPosition.x,
+                            sourceGridPosition.y
+                        );
+
+                if (sourceTile != null)
+                {
+                    Handles.DrawAAPolyLine(
+                        3f,
+                        sourceTile.transform.position,
+                        destinationPosition
+                    );
+                }
+            }
+
+            string actorLabel =
+                string.IsNullOrWhiteSpace(
+                    step.moveActorId)
+                    ? "Actor ID 없음"
+                    : step.moveActorId;
+
+            string moveLabel =
+                isJump
+                    ? $"Jump {stepIndex} : {actorLabel}"
+                    : $"Move {stepIndex} : {actorLabel}";
+
+            Vector2 guiPosition =
+                HandleUtility.WorldToGUIPoint(
+                    destinationPosition
+                );
+
+            Vector2 labelSize =
+                labelStyle.CalcSize(
+                    new GUIContent(
+                        moveLabel
+                    )
+                );
+
+            Rect labelRect =
+                new Rect(
+                    guiPosition.x -
+                        labelSize.x * 0.5f,
+                    guiPosition.y -
+                        labelSize.y -
+                        20f,
+                    labelSize.x,
+                    labelSize.y
+                );
+
+            Handles.BeginGUI();
+
+            GUI.Box(
+                labelRect,
+                moveLabel,
+                labelStyle
+            );
+
+            Handles.EndGUI();
+        }
+
+        Handles.color =
+            previousColor;
+    }
+
+    // <변경부분>
+    // 지정된 Step이 실행되기 직전까지
+    // EventSceneData의 SpawnActor / MoveActor Step을 순서대로 확인하여
+    // 해당 Actor가 계획상 어느 BackgroundTile에 있는지 계산한다.
+    //
+    // Runtime Actor가 아직 생성되지 않은 Editor 상태에서도
+    // Scene View에 Move 경로를 미리 표시하기 위해 사용한다.
+    private bool TryGetPlannedActorPositionBeforeStep(
+        EventSceneData eventData,
+        int beforeStepIndex,
+        string actorId,
+        out Vector2Int gridPosition)
+    {
+        gridPosition =
+            Vector2Int.zero;
+
+        if (eventData == null ||
+            eventData.steps == null ||
+            string.IsNullOrWhiteSpace(
+                actorId))
+        {
+            return false;
+        }
+
+        bool foundActor =
+            false;
+
+        // <변경부분>
+        // 현재 MoveActor Step 자체는 제외하고
+        // 그 이전 Step까지만 검사한다.
+        int safeEndIndex =
+            Mathf.Min(
+                beforeStepIndex,
+                eventData.steps.Count
+            );
+
+        for (int i = 0;
+             i < safeEndIndex;
+             i++)
+        {
+            EventSceneStepData previousStep =
+                eventData.steps[i];
+
+            if (previousStep == null)
+            {
+                continue;
+            }
+
+            // <변경부분>
+            // 해당 Actor가 Spawn된 최초 위치.
+            if (previousStep.stepType ==
+                    EventSceneStepType.SpawnActor &&
+                previousStep.spawnActorId ==
+                    actorId)
+            {
+                gridPosition =
+                    previousStep.spawnActorPosition;
+
+                foundActor =
+                    true;
+
+                continue;
+            }
+
+            // <변경부분>
+            // Spawn 이후 같은 Actor의 MoveActor가 있었다면
+            // 가장 최근 목적지가 현재 위치가 된다.
+            if (previousStep.stepType ==
+                    EventSceneStepType.MoveActor &&
+                previousStep.moveActorId ==
+                    actorId &&
+                foundActor)
+            {
+                gridPosition =
+                    previousStep.moveActorDestination;
+            }
+        }
+
+        return foundActor;
     }
 
 

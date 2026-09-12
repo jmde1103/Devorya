@@ -31,6 +31,12 @@ MonoBehaviour:
     spawnActorFlipX: 0
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
     waitDuration: 1
   - stepName: 
     stepType: 1
@@ -56,6 +62,12 @@ MonoBehaviour:
     spawnActorFlipX: 0
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
     waitDuration: 0
   - stepName: 
     stepType: 3
@@ -69,7 +81,33 @@ MonoBehaviour:
     spawnActorVisualOffset: {x: 0, y: 0.23}
     spawnActorFlipX: 1
     spawnActorFadeInDuration: 0.35
-    spawnActorPosition: {x: 22, y: 23}
+    spawnActorPosition: {x: 20, y: 21}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    waitDuration: 0.5
+  - stepName: "\uC55E\uC73C\uB85C \uC774\uB3D9"
+    stepType: 4
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: jellu_01
+    moveActorDestination: {x: 20, y: 20}
+    moveActorDuration: 0.4
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 1
+    moveActorFlipX: 0
     waitDuration: 0.5
   completionType: 0
   completionSceneName: 

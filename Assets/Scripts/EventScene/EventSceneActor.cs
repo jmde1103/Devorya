@@ -654,6 +654,132 @@ public class EventSceneActor : MonoBehaviour
     }
 
     // <변경부분>
+    // Event Actor를 목표 BackgroundTile까지
+    // 순수한 포물선 좌표 이동으로 이동시킨다.
+    //
+    // Battle Piece 이동과 달리
+    // Left / Right / Stop 등의 Spine 이동 Animation은 실행하지 않는다.
+    //
+    // 목적지가 현재 GridPosition과 동일하면
+    // X/Y 이동 없이 포물선 높이만 적용되어
+    // 제자리에서 위로 뛰었다 다시 내려오는 Jump가 된다.
+    public IEnumerator PlayMoveRoutine(
+        Vector3 targetWorldPosition,
+        Vector2Int targetGridPosition,
+        float duration,
+        float arcHeight)
+    {
+        Vector3 startWorldPosition =
+            transform.position;
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                duration
+            );
+
+        float safeArcHeight =
+            Mathf.Max(
+                0f,
+                arcHeight
+            );
+
+        // <변경부분>
+        // Event Scene에서는 Battle 이동 Animation을 사용하지 않는다.
+        // 현재 Actor Visual Animation 상태는 그대로 유지한 채
+        // Actor Root의 위치만 포물선으로 변경한다.
+        yield return
+            MoveArcRoutine(
+                startWorldPosition,
+                targetWorldPosition,
+                safeDuration,
+                safeArcHeight
+            );
+
+        // <변경부분>
+        // 부동소수점 누적 오차 없이
+        // 최종 위치를 목적지 BackgroundTile에 정확히 고정한다.
+        transform.position =
+            targetWorldPosition;
+
+        // <변경부분>
+        // 이후 MoveActor / AttackActor 등의 Step에서
+        // 현재 위치를 참조할 수 있도록 Grid 좌표를 갱신한다.
+        gridPosition =
+            targetGridPosition;
+    }
+
+
+    // <변경부분>
+    // Event Actor 전용 포물선 이동.
+    //
+    // 시작 위치와 도착 위치가 동일해도
+    // Sin 곡선의 Y Offset은 유지되므로
+    // 자연스럽게 제자리 수직 Jump가 된다.
+    private IEnumerator MoveArcRoutine(
+        Vector3 startPosition,
+        Vector3 endPosition,
+        float duration,
+        float arcHeight)
+    {
+        if (duration <= 0f)
+        {
+            transform.position =
+                endPosition;
+
+            yield break;
+        }
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               duration)
+        {
+            elapsedTime +=
+                Time.deltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    duration
+                );
+
+            float easedTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            Vector3 currentPosition =
+                Vector3.Lerp(
+                    startPosition,
+                    endPosition,
+                    easedTime
+                );
+
+            float arcOffset =
+                Mathf.Sin(
+                    normalizedTime *
+                    Mathf.PI
+                ) *
+                arcHeight;
+
+            currentPosition.y +=
+                arcOffset;
+
+            transform.position =
+                currentPosition;
+
+            yield return null;
+        }
+
+        transform.position =
+            endPosition;
+    }
+
+    // <변경부분>
     // 이후 MoveActor 구현 시
     // Actor의 현재 BackgroundTile 좌표를 갱신한다.
     public void SetGridPosition(

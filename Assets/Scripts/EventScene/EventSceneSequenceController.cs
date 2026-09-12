@@ -263,7 +263,17 @@ public class EventSceneSequenceController : MonoBehaviour
                 yield break;
 
 
+            // <변경부분>
             case EventSceneStepType.MoveActor:
+
+                yield return
+                    ExecuteMoveActorStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
             case EventSceneStepType.AttackActor:
             case EventSceneStepType.AbsorbActor:
             case EventSceneStepType.PlayActorAnimation:
@@ -464,6 +474,110 @@ public class EventSceneSequenceController : MonoBehaviour
         );
 
         yield break;
+    }
+
+    // <변경부분>
+    // MoveActor Step 실행.
+    //
+    // 지정 Actor를 현재 위치에서 목적지 BackgroundTile까지
+    // 포물선으로 이동시킨다.
+    //
+    // 목적지가 현재 Actor GridPosition과 동일하면
+    // 제자리 수직 Jump로 처리한다.
+    private IEnumerator ExecuteMoveActorStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.moveActorId))
+        {
+            Debug.LogWarning(
+                "Event Scene MoveActor 실패: " +
+                "Actor ID가 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        if (activeActors.TryGetValue(
+                step.moveActorId,
+                out EventSceneActor actor) == false ||
+            actor == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene MoveActor 실패: " +
+                $"Actor ID '{step.moveActorId}'를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        if (backgroundManager == null)
+        {
+            Debug.LogWarning(
+                "Event Scene MoveActor 실패: " +
+                "BackgroundManager가 연결되지 않았습니다."
+            );
+
+            yield break;
+        }
+
+        BackgroundTile destinationTile =
+            backgroundManager
+                .GetBackgroundTileAt(
+                    step.moveActorDestination.x,
+                    step.moveActorDestination.y
+                );
+
+        if (destinationTile == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene MoveActor 실패: " +
+                $"BackgroundTile " +
+                $"({step.moveActorDestination.x}, " +
+                $"{step.moveActorDestination.y})를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 이 MoveActor Step에서 방향 변경이 지정되어 있다면
+        // 포물선 이동을 시작하기 전에 Actor의 Flip X를 적용한다.
+        //
+        // Event Scene에서는 이동 방향을 자동 판단하지 않고
+        // 제작자가 지정한 방향을 그대로 사용한다.
+        if (step.moveActorChangeFlipX)
+        {
+            actor.SetFlipX(
+                step.moveActorFlipX
+            );
+        }
+
+        bool isJump =
+            actor.GridPosition ==
+            step.moveActorDestination;
+
+        Debug.Log(
+                    isJump
+                ? $"Event Scene Actor 제자리 Jump: {step.moveActorId}"
+                : $"Event Scene Actor 이동: " +
+                  $"{step.moveActorId} / " +
+                  $"{actor.GridPosition} → " +
+                  $"{step.moveActorDestination}"
+        );
+
+        yield return
+            actor.PlayMoveRoutine(
+                destinationTile.transform.position,
+                step.moveActorDestination,
+                step.moveActorDuration,
+                step.moveActorArcHeight
+            );
     }
 
     // <변경부분>

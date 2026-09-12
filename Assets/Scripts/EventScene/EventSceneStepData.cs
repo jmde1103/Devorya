@@ -186,9 +186,55 @@ public class EventSceneStepData
     public float spawnActorFadeInDuration =
         0.35f;
 
-    // Actor를 생성할 BackgroundTile 좌표.
     public Vector2Int spawnActorPosition =
+     Vector2Int.zero;
+
+
+    [Header("Move Actor")]
+
+    // <변경부분>
+    // 이동시킬 Event Actor의 고유 ID.
+    //
+    // 이전 SpawnActor에서 생성한 Actor ID를 사용한다.
+    public string moveActorId;
+
+    // <변경부분>
+    // Actor가 이동할 BackgroundTile 좌표.
+    //
+    // 현재 Actor 좌표와 동일한 좌표를 지정하면
+    // 다른 타일로 이동하지 않고 제자리에서 위로 뛰었다 내려온다.
+    public Vector2Int moveActorDestination =
         Vector2Int.zero;
+
+    // <변경부분>
+    // 포물선 이동 또는 제자리 점프에 걸리는 전체 시간.
+    [Min(0f)]
+    public float moveActorDuration =
+        0.6f;
+
+    // 포물선의 최대 높이.
+    //
+    // 다른 타일 이동과 제자리 점프 모두 동일하게 사용한다.
+    [Min(0f)]
+    public float moveActorArcHeight =
+        0.5f;
+
+    // <변경부분>
+    // 이 MoveActor Step에서 Actor의 Flip X 상태를
+    // 새로 지정할지 여부.
+    //
+    // false이면 현재 Actor가 가지고 있는 방향을 그대로 유지한다.
+    public bool moveActorChangeFlipX =
+        false;
+
+    // <변경부분>
+    // moveActorChangeFlipX가 true일 때 적용할 Flip X 값.
+    //
+    // false = 기본 방향
+    // true = X축 반전
+    public bool moveActorFlipX =
+        false;
+
 
     [Header("Wait")]
 
