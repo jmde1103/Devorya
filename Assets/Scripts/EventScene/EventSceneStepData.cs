@@ -57,6 +57,32 @@ public enum EventSceneStepType
 
 
 // <변경부분>
+// RemoveActor Step에서 Actor를 제거하는 방식을 정의한다.
+//
+// FadeOut을 0번으로 두어
+// 새 필드가 추가된 기존 EventSceneData에서도
+// 기본적으로 즉시 사라지는 것보다 안전한 FadeOut을 사용한다.
+public enum EventSceneRemoveMode
+{
+    FadeOut = 0,
+    Immediate = 1
+}
+
+// <변경부분>
+// AttackActor Step의 연출 결과.
+//
+// 실제 Battle 공격 성공 여부와는 관계없이
+// Event Scene 제작자가 공격 연출 결과를 직접 지정한다.
+//
+// 기존 Serialized 값 보호를 위해
+// 이후 값을 추가할 경우 기존 순서를 변경하지 않는다.
+public enum EventSceneAttackResult
+{
+    Success = 0,
+    Failure = 1
+}
+
+// <변경부분>
 // Event Scene Dialogue 한 Page의 Localization Metadata.
 //
 // 실제 한국어 원문은 dialoguePages에 유지하고,
@@ -235,6 +261,218 @@ public class EventSceneStepData
     public bool moveActorFlipX =
         false;
 
+
+    [Header("Attack Actor")]
+
+    // <변경부분>
+    // 공격 연출을 실행할 Actor ID.
+    public string attackActorId;
+
+    // <변경부분>
+    // 공격 대상 Actor ID.
+    public string attackTargetActorId;
+
+    // <변경부분>
+    // Event Scene에서 보여줄 공격 결과.
+    //
+    // Battle 판정과는 연결하지 않는다.
+    public EventSceneAttackResult attackResult =
+        EventSceneAttackResult.Success;
+
+    // <변경부분>
+    // 공격자가 Target 쪽으로 접근하는 데 걸리는 시간.
+    [Min(0f)]
+    public float attackApproachDuration =
+        0.22f;
+
+    // <변경부분>
+    // 기존 초기 AttackActor의 단순 원위치 복귀 시간.
+    //
+    // 현재 Failure는 Defense Bounce 구조를 사용하므로
+    // Runtime에서는 더 이상 사용하지 않는다.
+    // 기존 EventSceneData Serialized 값 보호를 위해 필드는 유지한다.
+    [HideInInspector]
+    [Min(0f)]
+    public float attackReturnDuration =
+        0.22f;
+
+    // <변경부분>
+    // Failure일 때 공격자가 Target까지 완전히 도달하기 전에
+    // 방어에 막히는 충돌 지점의 비율.
+    //
+    // Success에서는 사용하지 않고
+    // 공격자가 Target 위치까지 완전히 이동한다.
+    [Range(0f, 1f)]
+    public float attackApproachRatio =
+        0.78f;
+
+    // 공격 접근 포물선 높이.
+    [Min(0f)]
+    public float attackArcHeight =
+        0.18f;
+
+    // <변경부분>
+    // 초기 Failure 빗나감 연출용 Legacy 값.
+    //
+    // 현재 Failure는 옆으로 빗나가지 않고
+    // Defense처럼 충돌 후 튕겨나가므로 Runtime에서는 사용하지 않는다.
+    [HideInInspector]
+    [Min(0f)]
+    public float attackFailureMissOffset =
+        0.25f;
+
+
+    // <변경부분>
+    // Failure 충돌 순간 Target에게 적용할 흔들림 시간.
+    //
+    // 공격 실패도 방어에 부딪히는 타격감이 있어야 하므로
+    // 충돌 지점에서 Target Shake를 실행한다.
+    [Min(0f)]
+    public float attackTargetShakeDuration =
+        0.12f;
+
+    // <변경부분>
+    // Failure 충돌 순간 Target 흔들림 강도.
+    [Min(0f)]
+    public float attackTargetShakeIntensity =
+        0.08f;
+
+
+    // <변경부분>
+    // 이하 값은 Battle의 Defense Bounce 연출을 기준으로 한
+    // Event Scene 전용 반동 설정이다.
+
+    // 방어 충돌 후 공격자가 원위치 바로 앞쪽에 떨어지는 거리.
+    [Min(0f)]
+    public float attackFailureFallShortDistance =
+        0.25f;
+
+    // 충돌 지점에서 첫 착지 지점까지 튕겨나가는 시간.
+    [Min(0f)]
+    public float attackFailureFallBackDuration =
+        0.12f;
+
+    // 첫 번째 큰 바운스 시간.
+    [Min(0f)]
+    public float attackFailureFirstBounceDuration =
+        0.13f;
+
+    // 첫 번째 큰 바운스 높이.
+    [Min(0f)]
+    public float attackFailureFirstBounceHeight =
+        0.22f;
+
+    // 두 번째 작은 바운스 시간.
+    [Min(0f)]
+    public float attackFailureSecondBounceDuration =
+        0.11f;
+
+    // 두 번째 작은 바운스 높이.
+    [Min(0f)]
+    public float attackFailureSecondBounceHeight =
+        0.11f;
+
+    // 마지막으로 원위치에 정확히 붙는 시간.
+    [Min(0f)]
+    public float attackFailureFinalReturnDuration =
+        0.08f;
+
+    // <변경부분>
+    // 이 AttackActor Step에서 공격자의 Flip X 상태를
+    // 새로 지정할지 여부.
+    //
+    // false이면 현재 방향을 유지한다.
+    public bool attackChangeFlipX =
+        false;
+
+    // <변경부분>
+    // attackChangeFlipX가 true일 때 적용할 Flip X.
+    public bool attackFlipX =
+        false;
+
+
+    [Header("Play Actor Animation")]
+
+    // <변경부분>
+    // Animation을 실행할 Event Actor의 고유 ID.
+    //
+    // 이전 SpawnActor에서 생성한 Actor ID를 사용한다.
+    public string playAnimationActorId;
+
+    // <변경부분>
+    // 실행할 Spine Animation Clip 이름.
+    //
+    // 특정 공용 Animation Enum으로 제한하지 않고
+    // 실제 SkeletonData에 존재하는 Clip 이름을 직접 지정한다.
+    //
+    // 예:
+    // Idle
+    // Select
+    // Down
+    // Death
+    public string playAnimationName;
+
+    // <변경부분>
+    // 지정 Animation을 반복 재생할지 여부.
+    //
+    // true이면 Animation을 Loop 상태로 시작한 뒤
+    // Sequence는 바로 다음 Step으로 진행한다.
+    public bool playAnimationLoop =
+        false;
+
+    // <변경부분>
+    // Loop가 아닌 Animation의 재생 완료까지
+    // 현재 Event Sequence가 기다릴지 여부.
+    //
+    // false이면 Animation 재생을 시작한 직후
+    // 바로 다음 Step으로 진행한다.
+    public bool playAnimationWaitForComplete =
+        true;
+
+    // 비반복 Animation 재생 완료 후
+    // Idle Animation으로 복귀할지 여부.
+    //
+    // 실제 Idle Clip이 존재하는 경우에만 적용한다.
+    public bool playAnimationReturnToIdle =
+        true;
+
+    // <변경부분>
+    // 현재 Spine Animation에서 새 Animation으로 전환될 때
+    // 사용할 Mix 시간.
+    //
+    // 0이면 즉시 전환한다.
+    // 값이 클수록 이전 Pose와 새 Pose가 더 부드럽게 연결된다.
+    [Min(0f)]
+    public float playAnimationMixDuration =
+        0.12f;
+
+
+    [Header("Remove Actor")]
+
+    // <변경부분>
+    // Event Scene에서 제거할 Actor의 고유 ID.
+    //
+    // 이전 SpawnActor에서 생성한 Actor ID를 사용한다.
+    public string removeActorId;
+
+    // <변경부분>
+    // Actor 제거 방식.
+    //
+    // FadeOut:
+    // 지정 시간 동안 투명해진 뒤 제거.
+    //
+    // Immediate:
+    // Fade 없이 즉시 화면에서 제거.
+    public EventSceneRemoveMode removeActorMode =
+        EventSceneRemoveMode.FadeOut;
+
+    // <변경부분>
+    // FadeOut 제거 시 사용할 시간.
+    //
+    // Immediate에서는 사용하지 않는다.
+    [Min(0f)]
+    public float removeActorFadeOutDuration =
+        0.35f;
 
     [Header("Wait")]
 

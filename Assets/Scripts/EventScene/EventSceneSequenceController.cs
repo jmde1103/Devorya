@@ -42,6 +42,37 @@ public class EventSceneSequenceController : MonoBehaviour
     [SerializeField]
     private Transform eventActorsRoot;
 
+    // <변경부분>
+    // Event Scene의 화면 흔들림 대상.
+    //
+    // 비어 있으면 Runtime에서 Main Camera Transform을 사용한다.
+    //
+    // Battle의 Camera Shake와 동일하게
+    // Camera Transform의 Local Position을 흔드는 방식이다.
+    [SerializeField]
+    private Transform cameraShakeTarget;
+
+
+    // <변경부분>
+    // 현재 실행 중인 Event Scene Camera Shake Coroutine.
+    //
+    // 새로운 충격이 들어오면 기존 Shake를 정리한 뒤
+    // 새로운 Shake를 시작한다.
+    private Coroutine cameraShakeCoroutine;
+
+
+    // <변경부분>
+    // 현재 실제로 흔들고 있는 Camera Transform.
+    private Transform activeCameraShakeTarget;
+
+
+    // <변경부분>
+    // Camera Shake 시작 직전의 정확한 Local Position.
+    //
+    // Shake가 끝나거나 강제로 중단될 때
+    // 반드시 이 좌표로 복구한다.
+    private Vector3 cameraShakeBaseLocalPosition;
+
     private bool isSequenceActive =
         false;
 
@@ -274,11 +305,44 @@ public class EventSceneSequenceController : MonoBehaviour
                 yield break;
 
 
-            case EventSceneStepType.AttackActor:
-            case EventSceneStepType.AbsorbActor:
+            // <변경부분>
+            // 지정 Actor의 Spine Animation을 실행한다.
             case EventSceneStepType.PlayActorAnimation:
-            case EventSceneStepType.SpeechBubble:
+
+                yield return
+                    ExecutePlayActorAnimationStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            // <변경부분>
+            // 지정 Actor를 Event Scene에서 제거한다.
             case EventSceneStepType.RemoveActor:
+
+                yield return
+                    ExecuteRemoveActorStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            // <변경부분>
+            // Event Scene 전용 공격 연출.
+            case EventSceneStepType.AttackActor:
+
+                yield return
+                    ExecuteAttackActorStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            case EventSceneStepType.AbsorbActor:
+            case EventSceneStepType.SpeechBubble:
             case EventSceneStepType.CameraShot:
             case EventSceneStepType.ScreenShake:
 
@@ -581,6 +645,530 @@ public class EventSceneSequenceController : MonoBehaviour
     }
 
     // <변경부분>
+    // AttackActor Step 실행.
+    //
+    // Event Scene의 두 Actor를 ID로 찾아
+    // Battle 판정 없이 순수 공격 연출만 실행한다.
+    //
+    // Success:
+    // Target 접근 → Target Shake → 공격자 원위치.
+    //
+    // Failure:
+    // Target 옆으로 빗나감 → 공격자 원위치.
+    //
+    // Target 제거는 이 Step에서 자동으로 하지 않는다.
+    private IEnumerator ExecuteAttackActorStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.attackActorId))
+        {
+            Debug.LogWarning(
+                "Event Scene AttackActor 실패: " +
+                "Attacker ID가 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.attackTargetActorId))
+        {
+            Debug.LogWarning(
+                "Event Scene AttackActor 실패: " +
+                "Target ID가 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        if (step.attackActorId ==
+            step.attackTargetActorId)
+        {
+            Debug.LogWarning(
+                $"Event Scene AttackActor 실패: " +
+                $"Attacker와 Target이 동일한 Actor입니다. " +
+                $"'{step.attackActorId}'"
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 공격자 Actor 조회.
+        if (activeActors.TryGetValue(
+                step.attackActorId,
+                out EventSceneActor attacker) == false ||
+            attacker == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene AttackActor 실패: " +
+                $"Attacker ID '{step.attackActorId}'를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // Target Actor 조회.
+        if (activeActors.TryGetValue(
+                step.attackTargetActorId,
+                out EventSceneActor targetActor) == false ||
+            targetActor == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene AttackActor 실패: " +
+                $"Target ID '{step.attackTargetActorId}'를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 제작자가 이 Attack Step에서 방향 변경을 지정한 경우에만
+        // 공격 시작 전에 Flip X를 적용한다.
+        if (step.attackChangeFlipX)
+        {
+            attacker.SetFlipX(
+                step.attackFlipX
+            );
+        }
+
+        Debug.Log(
+            $"Event Scene AttackActor 실행: " +
+            $"{step.attackActorId} → " +
+            $"{step.attackTargetActorId} / " +
+            $"{step.attackResult}"
+        );
+
+        // <변경부분>
+        // Success 충돌 순간 Target을 실제 Runtime Actor 목록에서도 제거한다.
+        //
+        // 공격자 EventSceneActor는 Target의 GridPosition을 미리 저장한 뒤
+        // 이 Callback을 실행하므로 Target GameObject가 제거되어도
+        // 공격자는 해당 위치를 정상적으로 점유할 수 있다.
+        // <변경부분>
+        // Success 충돌 순간:
+        //
+        // 1. 화면 흔들림
+        // 2. Target Runtime 목록 제거
+        // 3. Target 즉시 숨김 / 제거
+        //
+        // 순서로 처리한다.
+        System.Action onSuccessImpact =
+            () =>
+            {
+                if (step.attackResult !=
+                    EventSceneAttackResult.Success)
+                {
+                    return;
+                }
+
+                // <변경부분>
+                // 성공 공격의 실제 타격 순간에
+                // Actor가 아니라 화면 전체를 흔든다.
+                StartCameraShake(
+                    step.attackTargetShakeDuration,
+                    step.attackTargetShakeIntensity
+                );
+
+                activeActors.Remove(
+                    step.attackTargetActorId
+                );
+
+                if (targetActor != null &&
+                    targetActor.gameObject != null)
+                {
+                    targetActor.gameObject.SetActive(
+                        false
+                    );
+
+                    Destroy(
+                        targetActor.gameObject
+                    );
+                }
+
+                Debug.Log(
+                    $"Event Scene AttackActor Target 제거: " +
+                    $"{step.attackTargetActorId}"
+                );
+            };
+
+        // <변경부분>
+        // Failure도 공격이 빗나간 것이 아니라
+        // Defense에 실제로 충돌한 연출이므로
+        // 충돌 순간 동일한 Screen Shake를 실행한다.
+        //
+        // Target Actor 자체는 흔들지 않는다.
+        System.Action onFailureImpact =
+            () =>
+            {
+                if (step.attackResult !=
+                    EventSceneAttackResult.Failure)
+                {
+                    return;
+                }
+
+                StartCameraShake(
+                    step.attackTargetShakeDuration,
+                    step.attackTargetShakeIntensity
+                );
+            };
+
+        yield return
+     attacker.PlayAttackRoutine(
+         targetActor,
+         step.attackResult,
+         step.attackApproachDuration,
+         step.attackApproachRatio,
+         step.attackArcHeight,
+         step.attackFailureFallShortDistance,
+         step.attackFailureFallBackDuration,
+         step.attackFailureFirstBounceDuration,
+         step.attackFailureFirstBounceHeight,
+         step.attackFailureSecondBounceDuration,
+         step.attackFailureSecondBounceHeight,
+         step.attackFailureFinalReturnDuration,
+         onSuccessImpact,
+         onFailureImpact
+     );
+    }
+
+    // <변경부분>
+    // Event Scene 공용 Screen Shake를 시작한다.
+    //
+    // Battle의 공격 Impact Feedback과 같은 원칙으로
+    // Camera Transform의 Local Position을 짧게 흔든다.
+    //
+    // 이미 Shake가 실행 중이라면
+    // 기존 Camera를 먼저 정확한 기준 위치로 복구한 뒤
+    // 새로운 Shake를 시작한다.
+    private void StartCameraShake(
+        float duration,
+        float strength)
+    {
+        StopCameraShakeImmediately();
+
+        Transform shakeTarget =
+            cameraShakeTarget;
+
+        // <변경부분>
+        // Inspector에 별도 Camera가 연결되지 않았다면
+        // Main Camera를 자동 사용한다.
+        if (shakeTarget == null &&
+            Camera.main != null)
+        {
+            shakeTarget =
+                Camera.main.transform;
+        }
+
+        if (shakeTarget == null)
+        {
+            Debug.LogWarning(
+                "Event Scene Camera Shake 실패: " +
+                "Camera Shake Target 또는 Main Camera를 찾을 수 없습니다."
+            );
+
+            return;
+        }
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                duration
+            );
+
+        float safeStrength =
+            Mathf.Max(
+                0f,
+                strength
+            );
+
+        if (safeDuration <= 0f ||
+            safeStrength <= 0f)
+        {
+            return;
+        }
+
+        activeCameraShakeTarget =
+            shakeTarget;
+
+        // <변경부분>
+        // 흔들림 도중 위치를 새 기준점으로 잡는 Drift를 방지하기 위해
+        // 시작 직전 위치를 한 번만 저장한다.
+        cameraShakeBaseLocalPosition =
+            shakeTarget.localPosition;
+
+        cameraShakeCoroutine =
+            StartCoroutine(
+                PlayCameraShakeRoutine(
+                    shakeTarget,
+                    cameraShakeBaseLocalPosition,
+                    safeDuration,
+                    safeStrength
+                )
+            );
+    }
+
+
+    // <변경부분>
+    // 지정 Camera Transform을 기준 위치 주변에서 짧게 흔든다.
+    private IEnumerator PlayCameraShakeRoutine(
+        Transform shakeTarget,
+        Vector3 baseLocalPosition,
+        float duration,
+        float strength)
+    {
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               duration)
+        {
+            if (shakeTarget == null)
+            {
+                cameraShakeCoroutine =
+                    null;
+
+                activeCameraShakeTarget =
+                    null;
+
+                yield break;
+            }
+
+            elapsedTime +=
+                Time.deltaTime;
+
+            float randomX =
+                Random.Range(
+                    -strength,
+                    strength
+                );
+
+            float randomY =
+                Random.Range(
+                    -strength,
+                    strength
+                );
+
+            shakeTarget.localPosition =
+                baseLocalPosition +
+                new Vector3(
+                    randomX,
+                    randomY,
+                    0f
+                );
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // Shake 종료 후 기준 위치로 정확히 복구한다.
+        if (shakeTarget != null)
+        {
+            shakeTarget.localPosition =
+                baseLocalPosition;
+        }
+
+        cameraShakeCoroutine =
+            null;
+
+        activeCameraShakeTarget =
+            null;
+    }
+
+
+    // <변경부분>
+    // 현재 실행 중인 Screen Shake를 즉시 종료하고
+    // Shake 시작 전 Camera 위치로 정확하게 복구한다.
+    private void StopCameraShakeImmediately()
+    {
+        if (cameraShakeCoroutine != null)
+        {
+            StopCoroutine(
+                cameraShakeCoroutine
+            );
+
+            cameraShakeCoroutine =
+                null;
+        }
+
+        if (activeCameraShakeTarget != null)
+        {
+            activeCameraShakeTarget.localPosition =
+                cameraShakeBaseLocalPosition;
+        }
+
+        activeCameraShakeTarget =
+            null;
+    }
+
+    // <변경부분>
+    // PlayActorAnimation Step 실행.
+    //
+    // 이전 SpawnActor에서 생성된 Actor를 Actor ID로 찾고,
+    // 해당 Actor가 가지고 있는 Spine SkeletonAnimation에
+    // 지정 Animation을 직접 실행한다.
+    private IEnumerator ExecutePlayActorAnimationStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.playAnimationActorId))
+        {
+            Debug.LogWarning(
+                "Event Scene PlayActorAnimation 실패: " +
+                "Actor ID가 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.playAnimationName))
+        {
+            Debug.LogWarning(
+                $"Event Scene PlayActorAnimation 실패: " +
+                $"Actor '{step.playAnimationActorId}'의 " +
+                $"Animation Name이 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // SpawnActor에서 등록한 Runtime Event Actor를 찾는다.
+        if (activeActors.TryGetValue(
+                step.playAnimationActorId,
+                out EventSceneActor actor) == false ||
+            actor == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene PlayActorAnimation 실패: " +
+                $"Actor ID '{step.playAnimationActorId}'를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        Debug.Log(
+            $"Event Scene Actor Animation 실행: " +
+            $"{step.playAnimationActorId} / " +
+            $"{step.playAnimationName} / " +
+            $"Loop={step.playAnimationLoop}"
+        );
+
+        // <변경부분>
+        // EventSceneActor가 Spine SkeletonAnimation을 직접 제어한다.
+        yield return
+    actor.PlayAnimationRoutine(
+        step.playAnimationName,
+        step.playAnimationLoop,
+        step.playAnimationWaitForComplete,
+        step.playAnimationReturnToIdle,
+        step.playAnimationMixDuration
+    );
+    }
+
+    // <변경부분>
+    // RemoveActor Step 실행.
+    //
+    // SpawnActor에서 생성하여 activeActors에 등록된 Actor를
+    // Actor ID로 찾은 뒤 지정된 방식으로 제거한다.
+    //
+    // FadeOut:
+    // Visual Fade가 완료된 후 제거.
+    //
+    // Immediate:
+    // 즉시 비활성화 후 제거.
+    private IEnumerator ExecuteRemoveActorStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.removeActorId))
+        {
+            Debug.LogWarning(
+                "Event Scene RemoveActor 실패: " +
+                "Actor ID가 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // SpawnActor에서 등록한 Runtime Actor를 찾는다.
+        if (activeActors.TryGetValue(
+                step.removeActorId,
+                out EventSceneActor actor) == false ||
+            actor == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene RemoveActor 실패: " +
+                $"Actor ID '{step.removeActorId}'를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // FadeOut 방식이면 실제 제거 전에
+        // Actor Visual이 완전히 사라질 때까지 기다린다.
+        if (step.removeActorMode ==
+            EventSceneRemoveMode.FadeOut)
+        {
+            yield return
+                actor.PlayFadeOutRoutine(
+                    step.removeActorFadeOutDuration
+                );
+        }
+
+        // <변경부분>
+        // Destroy 전에 Dictionary에서 먼저 제거한다.
+        //
+        // 이후 동일한 Actor ID로 다시 SpawnActor를 실행해도
+        // 중복 Actor ID 검사에 걸리지 않도록 한다.
+        activeActors.Remove(
+            step.removeActorId
+        );
+
+        if (actor != null &&
+            actor.gameObject != null)
+        {
+            // <변경부분>
+            // Unity Destroy는 Frame 종료 시 실제 파괴되므로
+            // Immediate에서도 화면에 한 Frame 남지 않도록
+            // 먼저 비활성화한다.
+            actor.gameObject.SetActive(
+                false
+            );
+
+            Destroy(
+                actor.gameObject
+            );
+        }
+
+        Debug.Log(
+            $"Event Scene Actor 제거 완료: " +
+            $"{step.removeActorId} / " +
+            $"{step.removeActorMode}"
+        );
+    }
+
+    // <변경부분>
     // Event Scene Dialogue 실행.
     //
     // Localization Resolve는 StepData가 담당하고
@@ -790,14 +1378,17 @@ public class EventSceneSequenceController : MonoBehaviour
     {
         StopSequenceCoroutine();
 
+        // <변경부분>
+        // Camera Shake 도중 Scene 전환 또는 비활성화가 발생해도
+        // Camera가 흔들린 좌표에 남지 않도록 즉시 원위치 복구.
+        StopCameraShakeImmediately();
+
         isSequenceActive =
             false;
 
         currentStepIndex =
             -1;
 
-        // <변경부분>
-        // Scene 종료 / 비활성화 시 Runtime Data 참조 제거.
         currentEventSceneData =
             null;
     }

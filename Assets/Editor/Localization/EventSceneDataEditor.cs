@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Spine.Unity;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEngine;
@@ -705,10 +706,44 @@ public class EventSceneDataEditor : Editor
                 break;
 
 
-            // <변경부분>
             case EventSceneStepType.MoveActor:
 
                 DrawMoveActorStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
+            // <변경부분>
+            // Event Scene 전용 공격 연출.
+            case EventSceneStepType.AttackActor:
+
+                DrawAttackActorStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
+            // Event Actor의 Spine Animation...
+            case EventSceneStepType.PlayActorAnimation:
+
+                DrawPlayActorAnimationStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
+            // <변경부분>
+            // Event Scene에서 지정 Actor를 제거한다.
+            case EventSceneStepType.RemoveActor:
+
+                DrawRemoveActorStep(
                     eventData,
                     step
                 );
@@ -1190,6 +1225,896 @@ public class EventSceneDataEditor : Editor
             );
         }
     }
+
+    // <변경부분>
+    // AttackActor Step 전용 제작 UI.
+    //
+    // Success:
+    // Target 위치까지 이동
+    // → Target 즉시 제거
+    // → 공격자가 해당 위치를 점유.
+    //
+    // Failure:
+    // Target 앞 충돌 지점까지 이동
+    // → Target Shake
+    // → Defense 방식의 2단 Bounce
+    // → 원래 위치 복귀.
+    private void DrawAttackActorStep(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Attack Actor",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        string newActorId =
+            EditorGUILayout.TextField(
+                "Attacker ID",
+                step.attackActorId
+            );
+
+        string newTargetActorId =
+            EditorGUILayout.TextField(
+                "Target ID",
+                step.attackTargetActorId
+            );
+
+        EventSceneAttackResult newResult =
+            (EventSceneAttackResult)
+            EditorGUILayout.EnumPopup(
+                "Attack Result",
+                step.attackResult
+            );
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField(
+            "Attack Movement",
+            EditorStyles.boldLabel
+        );
+
+        float newApproachDuration =
+            EditorGUILayout.FloatField(
+                "Attack Duration",
+                step.attackApproachDuration
+            );
+
+        float newArcHeight =
+            EditorGUILayout.FloatField(
+                "Arc Height",
+                step.attackArcHeight
+            );
+
+        float newApproachRatio =
+            step.attackApproachRatio;
+
+        float newShakeDuration =
+            step.attackTargetShakeDuration;
+
+        float newShakeIntensity =
+            step.attackTargetShakeIntensity;
+
+        float newFallShortDistance =
+            step.attackFailureFallShortDistance;
+
+        float newFallBackDuration =
+            step.attackFailureFallBackDuration;
+
+        float newFirstBounceDuration =
+            step.attackFailureFirstBounceDuration;
+
+        float newFirstBounceHeight =
+            step.attackFailureFirstBounceHeight;
+
+        float newSecondBounceDuration =
+            step.attackFailureSecondBounceDuration;
+
+        float newSecondBounceHeight =
+            step.attackFailureSecondBounceHeight;
+
+        float newFinalReturnDuration =
+            step.attackFailureFinalReturnDuration;
+
+        // <변경부분>
+        // Failure일 때만 Defense Bounce 관련 값을 표시한다.
+        // <변경부분>
+        // 공격 성공/실패 모두 실제 충돌 순간
+        // 화면 흔들림을 사용한다.
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField(
+            "Impact Screen Shake",
+            EditorStyles.boldLabel
+        );
+
+        newShakeDuration =
+            EditorGUILayout.FloatField(
+                "Shake Duration",
+                step.attackTargetShakeDuration
+            );
+
+        newShakeIntensity =
+            EditorGUILayout.FloatField(
+                "Shake Strength",
+                step.attackTargetShakeIntensity
+            );
+
+
+        // <변경부분>
+        // Failure일 때만 충돌 위치와 Defense Bounce 설정을 표시한다.
+        if (newResult ==
+            EventSceneAttackResult.Failure)
+        {
+            EditorGUILayout.Space(4);
+
+            EditorGUILayout.LabelField(
+                "Failure Impact",
+                EditorStyles.boldLabel
+            );
+
+            newApproachRatio =
+                EditorGUILayout.Slider(
+                    "Impact Ratio",
+                    step.attackApproachRatio,
+                    0f,
+                    1f
+                );
+
+            EditorGUILayout.Space(4);
+
+            EditorGUILayout.LabelField(
+                "Defense Bounce",
+                EditorStyles.boldLabel
+            );
+
+            newFallShortDistance =
+                EditorGUILayout.FloatField(
+                    "Fall Short Distance",
+                    step.attackFailureFallShortDistance
+                );
+
+            newFallBackDuration =
+                EditorGUILayout.FloatField(
+                    "Fall Back Duration",
+                    step.attackFailureFallBackDuration
+                );
+
+            newFirstBounceDuration =
+                EditorGUILayout.FloatField(
+                    "First Bounce Duration",
+                    step.attackFailureFirstBounceDuration
+                );
+
+            newFirstBounceHeight =
+                EditorGUILayout.FloatField(
+                    "First Bounce Height",
+                    step.attackFailureFirstBounceHeight
+                );
+
+            newSecondBounceDuration =
+                EditorGUILayout.FloatField(
+                    "Second Bounce Duration",
+                    step.attackFailureSecondBounceDuration
+                );
+
+            newSecondBounceHeight =
+                EditorGUILayout.FloatField(
+                    "Second Bounce Height",
+                    step.attackFailureSecondBounceHeight
+                );
+
+            newFinalReturnDuration =
+                EditorGUILayout.FloatField(
+                    "Final Return Duration",
+                    step.attackFailureFinalReturnDuration
+                );
+        }
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField(
+            "Direction",
+            EditorStyles.boldLabel
+        );
+
+        bool newChangeFlipX =
+            EditorGUILayout.Toggle(
+                "Change Flip X",
+                step.attackChangeFlipX
+            );
+
+        bool newFlipX =
+            step.attackFlipX;
+
+        if (newChangeFlipX)
+        {
+            newFlipX =
+                EditorGUILayout.Toggle(
+                    "Flip X",
+                    step.attackFlipX
+                );
+        }
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Attack Actor"
+            );
+
+            step.attackActorId =
+                newActorId;
+
+            step.attackTargetActorId =
+                newTargetActorId;
+
+            step.attackResult =
+                newResult;
+
+            step.attackApproachDuration =
+                Mathf.Max(
+                    0f,
+                    newApproachDuration
+                );
+
+            step.attackArcHeight =
+                Mathf.Max(
+                    0f,
+                    newArcHeight
+                );
+
+            step.attackApproachRatio =
+                Mathf.Clamp01(
+                    newApproachRatio
+                );
+
+            step.attackTargetShakeDuration =
+                Mathf.Max(
+                    0f,
+                    newShakeDuration
+                );
+
+            step.attackTargetShakeIntensity =
+                Mathf.Max(
+                    0f,
+                    newShakeIntensity
+                );
+
+            step.attackFailureFallShortDistance =
+                Mathf.Max(
+                    0f,
+                    newFallShortDistance
+                );
+
+            step.attackFailureFallBackDuration =
+                Mathf.Max(
+                    0f,
+                    newFallBackDuration
+                );
+
+            step.attackFailureFirstBounceDuration =
+                Mathf.Max(
+                    0f,
+                    newFirstBounceDuration
+                );
+
+            step.attackFailureFirstBounceHeight =
+                Mathf.Max(
+                    0f,
+                    newFirstBounceHeight
+                );
+
+            step.attackFailureSecondBounceDuration =
+                Mathf.Max(
+                    0f,
+                    newSecondBounceDuration
+                );
+
+            step.attackFailureSecondBounceHeight =
+                Mathf.Max(
+                    0f,
+                    newSecondBounceHeight
+                );
+
+            step.attackFailureFinalReturnDuration =
+                Mathf.Max(
+                    0f,
+                    newFinalReturnDuration
+                );
+
+            step.attackChangeFlipX =
+                newChangeFlipX;
+
+            step.attackFlipX =
+                newFlipX;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(4);
+
+        if (string.IsNullOrWhiteSpace(
+                step.attackActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "AttackActor를 실행하려면 Attacker ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.attackTargetActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "AttackActor를 실행하려면 Target ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.attackActorId) == false &&
+            step.attackActorId ==
+                step.attackTargetActorId)
+        {
+            EditorGUILayout.HelpBox(
+                "Attacker와 Target에 동일한 Actor ID를 사용할 수 없습니다.",
+                MessageType.Warning
+            );
+        }
+
+        if (step.attackResult ==
+            EventSceneAttackResult.Success)
+        {
+            EditorGUILayout.HelpBox(
+                "Success: Target 위치까지 공격한 뒤 Target을 즉시 제거하고 공격자가 해당 위치를 점유합니다.",
+                MessageType.Info
+            );
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                "Failure: 방어 충돌 순간 Target에 Shake를 적용한 뒤 공격자가 두 번 튕기며 원래 위치로 복귀합니다.",
+                MessageType.Info
+            );
+        }
+    }
+
+    // <변경부분>
+    // PlayActorAnimation Step 전용 제작 UI.
+    //
+    // 지정 Actor의 이전 SpawnActor를 추적하여
+    // 실제 PieceData의 Spine Visual Prefab에서
+    // Animation 목록을 읽어 Dropdown으로 표시한다.
+    //
+    // Loop / 완료 대기 / Idle 복귀 / Mix 시간도 함께 설정한다.
+    private void DrawPlayActorAnimationStep(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Actor Animation",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        string newActorId =
+            EditorGUILayout.TextField(
+                "Actor ID",
+                step.playAnimationActorId
+            );
+
+        string newAnimationName =
+            step.playAnimationName;
+
+        // <변경부분>
+        // 현재 Step보다 앞에 있는 SpawnActor를 추적하여
+        // 실제 Spine Prefab Animation 목록을 가져온다.
+        string[] animationNames =
+            GetSpineAnimationNamesForActor(
+                eventData,
+                step,
+                newActorId,
+                out string sourcePrefabName
+            );
+
+        if (animationNames.Length > 0)
+        {
+            List<string> popupOptions =
+                new List<string>();
+
+            popupOptions.Add(
+                "<Select Animation>"
+            );
+
+            for (int i = 0;
+                 i < animationNames.Length;
+                 i++)
+            {
+                popupOptions.Add(
+                    animationNames[i]
+                );
+            }
+
+            int currentPopupIndex =
+                0;
+
+            for (int i = 0;
+                 i < animationNames.Length;
+                 i++)
+            {
+                if (animationNames[i] ==
+                    step.playAnimationName)
+                {
+                    currentPopupIndex =
+                        i + 1;
+
+                    break;
+                }
+            }
+
+            int selectedPopupIndex =
+                EditorGUILayout.Popup(
+                    "Spine Animation",
+                    currentPopupIndex,
+                    popupOptions.ToArray()
+                );
+
+            if (selectedPopupIndex > 0 &&
+                selectedPopupIndex <=
+                    animationNames.Length)
+            {
+                newAnimationName =
+                    animationNames[
+                        selectedPopupIndex - 1];
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    sourcePrefabName) == false)
+            {
+                EditorGUILayout.LabelField(
+                    "Source Prefab",
+                    sourcePrefabName
+                );
+            }
+
+            // <변경부분>
+            // 기존 문자열 값이 현재 Spine Prefab에 없다면
+            // 값을 임의 삭제하지 않고 경고만 표시한다.
+            if (string.IsNullOrWhiteSpace(
+                    step.playAnimationName) == false &&
+                currentPopupIndex == 0)
+            {
+                EditorGUILayout.HelpBox(
+                    $"현재 Animation '{step.playAnimationName}'을 " +
+                    "Spine Prefab에서 찾을 수 없습니다. " +
+                    "Dropdown에서 다시 선택해주세요.",
+                    MessageType.Warning
+                );
+            }
+        }
+        else
+        {
+            // <변경부분>
+            // 아직 이전 SpawnActor를 찾을 수 없거나
+            // Spine Prefab을 읽지 못하는 경우에는
+            // 기존 문자열 입력 방식을 fallback으로 유지한다.
+            newAnimationName =
+                EditorGUILayout.TextField(
+                    "Animation Name",
+                    step.playAnimationName
+                );
+
+            EditorGUILayout.HelpBox(
+                "이 Actor ID와 연결된 이전 SpawnActor의 " +
+                "Spine Prefab을 찾지 못해 Animation Dropdown을 표시할 수 없습니다.",
+                MessageType.Info
+            );
+        }
+
+        float newMixDuration =
+            EditorGUILayout.FloatField(
+                "Mix Duration",
+                step.playAnimationMixDuration
+            );
+
+        bool newLoop =
+            EditorGUILayout.Toggle(
+                "Loop",
+                step.playAnimationLoop
+            );
+
+        bool newWaitForComplete =
+            step.playAnimationWaitForComplete;
+
+        bool newReturnToIdle =
+            step.playAnimationReturnToIdle;
+
+        if (newLoop == false)
+        {
+            newWaitForComplete =
+                EditorGUILayout.Toggle(
+                    "Wait Until Complete",
+                    step.playAnimationWaitForComplete
+                );
+
+            if (newWaitForComplete)
+            {
+                // <변경부분>
+                // Animation 종료 후 자동으로 Idle로 복귀할지 결정한다.
+                //
+                // OFF이면 현재 Animation의 마지막 Pose를 유지하여
+                // 다음 PlayActorAnimation Step과 바로 연결할 수 있다.
+                newReturnToIdle =
+                    EditorGUILayout.Toggle(
+                        "Auto Return To Idle",
+                        step.playAnimationReturnToIdle
+                    );
+            }
+        }
+        else
+        {
+            newWaitForComplete =
+                false;
+
+            newReturnToIdle =
+                false;
+        }
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Actor Animation"
+            );
+
+            step.playAnimationActorId =
+                newActorId;
+
+            step.playAnimationName =
+                newAnimationName;
+
+            step.playAnimationMixDuration =
+                Mathf.Max(
+                    0f,
+                    newMixDuration
+                );
+
+            step.playAnimationLoop =
+                newLoop;
+
+            step.playAnimationWaitForComplete =
+                newWaitForComplete;
+
+            step.playAnimationReturnToIdle =
+                newReturnToIdle;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(4);
+
+        if (string.IsNullOrWhiteSpace(
+                step.playAnimationActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "PlayActorAnimation을 실행하려면 Actor ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.playAnimationName))
+        {
+            EditorGUILayout.HelpBox(
+                "실행할 Spine Animation을 선택해주세요.",
+                MessageType.Warning
+            );
+        }
+
+        if (step.playAnimationLoop)
+        {
+            EditorGUILayout.HelpBox(
+                "Loop Animation은 반복 재생을 시작한 뒤 " +
+                "즉시 다음 Event Step으로 진행합니다.",
+                MessageType.Info
+            );
+        }
+        else if (step.playAnimationWaitForComplete)
+        {
+            EditorGUILayout.HelpBox(
+                step.playAnimationReturnToIdle
+                    ? "Animation 완료까지 기다린 뒤 Mix를 적용하여 Idle로 자동 복귀합니다."
+                    : "Animation 완료 후 Idle로 복귀하지 않고 마지막 Pose를 유지합니다. 다음 Animation Step은 이 Pose에서 바로 연결됩니다.",
+                MessageType.None
+            );
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                "Animation 재생을 시작한 뒤 완료를 기다리지 않고 " +
+                "즉시 다음 Event Step으로 진행합니다.",
+                MessageType.None
+            );
+        }
+    }
+
+    // <변경부분>
+    // RemoveActor Step 전용 제작 UI.
+    //
+    // Actor ID와 제거 방식을 설정한다.
+    // FadeOut일 때만 Fade Duration을 표시한다.
+    private void DrawRemoveActorStep(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Remove Actor",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        string newActorId =
+            EditorGUILayout.TextField(
+                "Actor ID",
+                step.removeActorId
+            );
+
+        EventSceneRemoveMode newRemoveMode =
+            (EventSceneRemoveMode)
+            EditorGUILayout.EnumPopup(
+                "Remove Mode",
+                step.removeActorMode
+            );
+
+        float newFadeOutDuration =
+            step.removeActorFadeOutDuration;
+
+        // <변경부분>
+        // FadeOut일 때만 Fade 시간을 표시한다.
+        if (newRemoveMode ==
+            EventSceneRemoveMode.FadeOut)
+        {
+            newFadeOutDuration =
+                EditorGUILayout.FloatField(
+                    "Fade Out Duration",
+                    step.removeActorFadeOutDuration
+                );
+        }
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Remove Actor"
+            );
+
+            step.removeActorId =
+                newActorId;
+
+            step.removeActorMode =
+                newRemoveMode;
+
+            step.removeActorFadeOutDuration =
+                Mathf.Max(
+                    0f,
+                    newFadeOutDuration
+                );
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(4);
+
+        if (string.IsNullOrWhiteSpace(
+                step.removeActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "RemoveActor를 실행하려면 Actor ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        if (step.removeActorMode ==
+            EventSceneRemoveMode.FadeOut)
+        {
+            EditorGUILayout.HelpBox(
+                "Actor가 지정 시간 동안 Fade Out된 뒤 Event Scene에서 제거됩니다.",
+                MessageType.None
+            );
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                "Actor를 Fade 없이 즉시 Event Scene에서 제거합니다.",
+                MessageType.None
+            );
+        }
+
+        EditorGUILayout.HelpBox(
+            "Death 등의 Animation이 필요하면 RemoveActor 전에 " +
+            "PlayActorAnimation Step을 배치해주세요.",
+            MessageType.Info
+        );
+    }
+
+    // <변경부분>
+    // 현재 PlayActorAnimation Step보다 앞에서
+    // 같은 Actor ID를 생성한 SpawnActor Step을 찾는다.
+    //
+    // Runtime에서도 Animation Step은
+    // SpawnActor 이후에 실행되어야 하므로
+    // 현재 Step 뒤쪽의 SpawnActor는 검색하지 않는다.
+    private EventSceneStepData
+        FindSpawnActorStepBefore(
+            EventSceneData eventData,
+            EventSceneStepData targetStep,
+            string actorId)
+    {
+        if (eventData == null ||
+            eventData.steps == null ||
+            targetStep == null ||
+            string.IsNullOrWhiteSpace(
+                actorId))
+        {
+            return null;
+        }
+
+        int targetStepIndex =
+            GetStepIndex(
+                eventData,
+                targetStep
+            );
+
+        if (targetStepIndex <= 0)
+        {
+            return null;
+        }
+
+        for (int i = targetStepIndex - 1;
+             i >= 0;
+             i--)
+        {
+            EventSceneStepData previousStep =
+                eventData.steps[i];
+
+            if (previousStep == null ||
+                previousStep.stepType !=
+                    EventSceneStepType.SpawnActor)
+            {
+                continue;
+            }
+
+            if (previousStep.spawnActorId ==
+                actorId)
+            {
+                return previousStep;
+            }
+        }
+
+        return null;
+    }
+
+    // <변경부분>
+    // Actor ID와 연결된 SpawnActor의 PieceData를 기준으로
+    // 실제 사용될 Spine Visual Prefab을 찾고,
+    // SkeletonDataAsset 안의 Animation 이름 목록을 반환한다.
+    private string[] GetSpineAnimationNamesForActor(
+        EventSceneData eventData,
+        EventSceneStepData targetStep,
+        string actorId,
+        out string sourcePrefabName)
+    {
+        sourcePrefabName =
+            string.Empty;
+
+        List<string> animationNames =
+            new List<string>();
+
+        EventSceneStepData spawnStep =
+            FindSpawnActorStepBefore(
+                eventData,
+                targetStep,
+                actorId
+            );
+
+        if (spawnStep == null ||
+            spawnStep.spawnActorPieceData == null)
+        {
+            return
+                animationNames.ToArray();
+        }
+
+        // <변경부분>
+        // SpawnActor Runtime과 동일한 기준으로
+        // 실제 Visual Prefab을 가져온다.
+        GameObject visualPrefab =
+            spawnStep.spawnActorPieceData
+                .GetSpineVisualPrefab(
+                    spawnStep.spawnActorTeam,
+                    spawnStep
+                        .spawnActorUseAbsorbedPlayerVisual
+                );
+
+        if (visualPrefab == null)
+        {
+            return
+                animationNames.ToArray();
+        }
+
+        sourcePrefabName =
+            visualPrefab.name;
+
+        SkeletonAnimation skeletonAnimation =
+            visualPrefab
+                .GetComponentInChildren<
+                    SkeletonAnimation
+                >(
+                    true
+                );
+
+        if (skeletonAnimation == null ||
+            skeletonAnimation
+                .SkeletonDataAsset == null)
+        {
+            return
+                animationNames.ToArray();
+        }
+
+        // <변경부분>
+        // Scene Instance를 생성하지 않고
+        // Prefab이 참조하는 SkeletonDataAsset을 직접 읽는다.
+        Spine.SkeletonData skeletonData =
+            skeletonAnimation
+                .SkeletonDataAsset
+                .GetSkeletonData(
+                    true
+                );
+
+        if (skeletonData == null ||
+            skeletonData.Animations == null)
+        {
+            return
+                animationNames.ToArray();
+        }
+
+        Spine.ExposedList<Spine.Animation>
+            animations =
+                skeletonData.Animations;
+
+        for (int i = 0;
+             i < animations.Count;
+             i++)
+        {
+            Spine.Animation animation =
+                animations.Items[i];
+
+            if (animation == null ||
+                string.IsNullOrWhiteSpace(
+                    animation.Name))
+            {
+                continue;
+            }
+
+            animationNames.Add(
+                animation.Name
+            );
+        }
+
+        return
+            animationNames.ToArray();
+    }
+
     private bool DrawDialoguePage(
      EventSceneData eventData,
      EventSceneStepData step,
@@ -3164,6 +4089,59 @@ public class EventSceneDataEditor : Editor
             {
                 gridPosition =
                     previousStep.moveActorDestination;
+            }
+
+            // <변경부분>
+            // 성공한 AttackActor는 공격자가 Target의 위치를 점유한다.
+            //
+            // 현재 Step 직전까지 Target이 실제로 어느 Tile에 있었는지
+            // 같은 계획 위치 계산을 재사용하여 가져온다.
+            if (previousStep.stepType ==
+                    EventSceneStepType.AttackActor &&
+                previousStep.attackResult ==
+                    EventSceneAttackResult.Success)
+            {
+                // Target이 현재 조회 중인 Actor라면
+                // 성공 공격으로 제거된 상태다.
+                if (previousStep.attackTargetActorId ==
+                    actorId)
+                {
+                    foundActor =
+                        false;
+
+                    continue;
+                }
+
+                // 현재 조회 중인 Actor가 공격자라면
+                // 공격 성공 후 Target 위치를 점유한다.
+                if (previousStep.attackActorId ==
+                        actorId &&
+                    foundActor)
+                {
+                    if (TryGetPlannedActorPositionBeforeStep(
+                            eventData,
+                            i,
+                            previousStep.attackTargetActorId,
+                            out Vector2Int targetGridPosition))
+                    {
+                        gridPosition =
+                            targetGridPosition;
+                    }
+                }
+            }
+
+            // <변경부분>
+            // RemoveActor 이후에는 해당 Actor가 없는 상태로 계산한다.
+            //
+            // 이후 동일 ID가 다시 Spawn되면 위 SpawnActor 처리에서
+            // 다시 foundActor = true가 된다.
+            if (previousStep.stepType ==
+                    EventSceneStepType.RemoveActor &&
+                previousStep.removeActorId ==
+                    actorId)
+            {
+                foundActor =
+                    false;
             }
         }
 
