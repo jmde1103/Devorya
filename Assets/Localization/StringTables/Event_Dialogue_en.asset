@@ -362,6 +362,10 @@ MonoBehaviour:
     m_Localized: Moving to the next location.
     m_Metadata:
       m_Items: []
+  - m_Id: 2183080593461248
+    m_Localized: '!@#$!%!@#'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

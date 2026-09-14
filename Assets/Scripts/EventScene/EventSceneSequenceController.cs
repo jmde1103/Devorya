@@ -341,10 +341,21 @@ public class EventSceneSequenceController : MonoBehaviour
                 yield break;
 
 
+            // <변경부분>
+            // 독립 Screen Shake 연출.
+            case EventSceneStepType.ScreenShake:
+
+                yield return
+                    ExecuteScreenShakeStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
             case EventSceneStepType.AbsorbActor:
             case EventSceneStepType.SpeechBubble:
             case EventSceneStepType.CameraShot:
-            case EventSceneStepType.ScreenShake:
 
                 Debug.LogWarning(
                     $"Event Scene Step 미구현: " +
@@ -821,23 +832,72 @@ public class EventSceneSequenceController : MonoBehaviour
             };
 
         yield return
-     attacker.PlayAttackRoutine(
-         targetActor,
-         step.attackResult,
-         step.attackApproachDuration,
-         step.attackApproachRatio,
-         step.attackArcHeight,
-         step.attackFailureFallShortDistance,
-         step.attackFailureFallBackDuration,
-         step.attackFailureFirstBounceDuration,
-         step.attackFailureFirstBounceHeight,
-         step.attackFailureSecondBounceDuration,
-         step.attackFailureSecondBounceHeight,
-         step.attackFailureFinalReturnDuration,
-         onSuccessImpact,
-         onFailureImpact
-     );
+attacker.PlayAttackRoutine(
+  targetActor,
+  step.attackResult,
+  step.attackApproachDuration,
+  step.attackApproachRatio,
+  step.attackArcHeight,
+  step.attackFailureFallShortDistance,
+  step.attackFailureFallBackDuration,
+  step.attackFailureFirstBounceDuration,
+  step.attackFailureFirstBounceHeight,
+  step.attackFailureSecondBounceDuration,
+  step.attackFailureSecondBounceHeight,
+  step.attackFailureFinalReturnDuration,
+  onSuccessImpact,
+  onFailureImpact
+);
     }
+
+
+    // <변경부분>
+    // 독립 ScreenShake Step 실행.
+    //
+    // 실제 화면 흔들림 구현은 AttackActor에서 이미 검증된
+    // StartCameraShake()를 그대로 재사용한다.
+    //
+    // Wait For Complete가 true이면
+    // Shake Coroutine이 끝날 때까지 현재 Step에서 기다린다.
+    //
+    // false이면 Shake를 시작한 직후
+    // 다음 Event Step으로 진행한다.
+    private IEnumerator ExecuteScreenShakeStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        StartCameraShake(
+            step.screenShakeDuration,
+            step.screenShakeStrength
+        );
+
+        if (step.screenShakeWaitForComplete == false)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // StartCameraShake()가 실제 Shake Coroutine을
+        // 생성한 경우에만 완료될 때까지 기다린다.
+        //
+        // Duration / Strength가 0이거나
+        // Camera Target을 찾지 못한 경우에는
+        // Coroutine이 생성되지 않으므로 즉시 다음 Step으로 진행한다.
+        while (cameraShakeCoroutine != null)
+        {
+            if (isSequenceActive == false)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
 
     // <변경부분>
     // Event Scene 공용 Screen Shake를 시작한다.

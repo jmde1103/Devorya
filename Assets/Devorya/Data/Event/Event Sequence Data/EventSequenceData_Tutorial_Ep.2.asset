@@ -54,6 +54,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC778\uD2B8\uB85C \uC124\uBA85"
     stepType: 1
@@ -98,6 +113,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -132,6 +162,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uBE44\uC20D \uC0DD\uC131"
     stepType: 5
@@ -166,6 +211,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC0DD\uC131"
     stepType: 5
@@ -201,6 +261,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD0B9 \uC0DD\uC131"
     stepType: 5
@@ -235,7 +310,71 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
+  - stepName: "\uB9D0\uD48D\uC120"
+    stepType: 13
+    dialoguePages:
+    - "\uC8FC\uBCC0 \uD658\uACBD \uAC10\uC9C0\uB41C \uC0DD\uBA85\uBC18\uC751 \uC5C6\uC74C "
+    - "\uB2E4\uC74C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4. "
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 2, y: 5}
+    targetPieceTeam: 1
+    targetTilePosition: {x: 2, y: 5}
+    targetButton: 1
+    showMarker: 1
+    markerDisplayType: 1
+    markerPositionOffset: {x: 0, y: 70}
+    spawnPieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
+    spawnPieceTeam: 0
+    spawnPosition: {x: 4, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 1
+      generalSkills: 01000000
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 0
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 3, y: 4}
+    actionTargetPosition: {x: 4, y: 5}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 1
+    speechBubblePiecePosition: {x: 2, y: 2}
+    speechBubbleText: '!@#$!%!@#'
+    speechBubbleLocalizationId: speech_c571e041
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 2183080593461248
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 10
+    speechBubbleWaitForComplete: 1
+    waitDuration: 3
   - stepName: "\uC778\uD2B8\uB85C \uC124\uBA85 2"
     stepType: 1
     dialoguePages:
@@ -290,6 +429,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -325,6 +479,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -360,6 +529,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -395,6 +579,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -430,6 +629,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -465,6 +679,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB8E9 \uC0DD\uC131"
     stepType: 5
@@ -500,6 +729,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uBE44\uC20D \uC0DD\uC131"
     stepType: 5
@@ -535,6 +779,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB098\uC774\uD2B8 \uC0DD\uC131"
     stepType: 5
@@ -570,6 +829,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB8E9 \uC0DD\uC131"
     stepType: 5
@@ -605,6 +879,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC124\uBA85"
     stepType: 1
@@ -672,6 +961,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC815\uBCF4 \uBCF4\uAE30 \uBC84\uD2BC"
     stepType: 4
@@ -707,6 +1011,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC815\uBCF4 \uBCF4\uAE30 \uBC84\uD2BC \uC124\uBA85"
     stepType: 1
@@ -774,6 +1093,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uD074\uB9AD"
     stepType: 2
@@ -811,6 +1145,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC2A4\uD14C\uC774\uD130\uC2A4 \uC124\uBA85"
     stepType: 1
@@ -904,6 +1253,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC120\uD0DD"
     stepType: 2
@@ -947,6 +1311,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uC120\uD0DD"
     stepType: 3
@@ -990,6 +1369,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uB204\uB974\uAE30"
     stepType: 4
@@ -1033,6 +1427,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uC120\uD0DD"
     stepType: 3
@@ -1076,6 +1485,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -1119,6 +1543,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uD3F0 \uD761\uC218 \uC644\uB8CC"
     stepType: 1
@@ -1176,6 +1615,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -1231,6 +1685,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -1274,6 +1743,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC0C1\uB300 \uD134 \uC804\uD658"
     stepType: 10
@@ -1309,6 +1793,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uBE44\uC20D \uC2A4\uD0AC \uBC1C\uB3D9"
     stepType: 12
@@ -1351,6 +1850,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 2, y: 2}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC124\uBA85"
     stepType: 1
@@ -1434,6 +1948,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD0B9 \uC774\uB3D9"
     stepType: 11
@@ -1476,6 +2005,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 3, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD134 \uC885\uB8CC"
     stepType: 10
@@ -1518,6 +2062,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC911\uB9BD \uAE30\uBB3C \uC124\uBA85"
     stepType: 1
@@ -1586,6 +2145,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
@@ -1628,6 +2202,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC0C1\uB300 \uBE44\uC20D \uC120\uD0DD"
     stepType: 3
@@ -1670,6 +2259,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218\uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
@@ -1712,6 +2316,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC0C1\uB300 \uBE44\uC20D \uC120\uD0DD"
     stepType: 3
@@ -1754,6 +2373,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -1796,6 +2430,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC124\uBA85"
     stepType: 1
@@ -1839,6 +2488,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134\uC885\uB8CC"
     stepType: 10
@@ -1874,6 +2538,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 2, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC774\uB3D9"
     stepType: 11
@@ -1909,6 +2588,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
     stepType: 10
@@ -1944,6 +2638,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC2A4\uD0AC\uC0AC\uC6A9 \uC124\uBA85"
     stepType: 1
@@ -2000,6 +2709,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uBE44\uC20D \uC120\uD0DD"
     stepType: 2
@@ -2035,6 +2759,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC2A4\uD0AC \uC0AC\uC6A9"
     stepType: 4
@@ -2070,6 +2809,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC124\uBA85"
     stepType: 1
@@ -2128,6 +2882,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC120\uD0DD"
     stepType: 2
@@ -2165,6 +2934,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC120\uD0DD"
     stepType: 3
@@ -2202,6 +2986,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC81C\uAC70 \uC124\uBA85"
     stepType: 1
@@ -2245,6 +3044,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC120\uD0DD"
     stepType: 3
@@ -2282,6 +3096,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: wait
     stepType: 7
@@ -2315,6 +3144,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uACAC\uC81C"
     stepType: 1
@@ -2340,9 +3184,9 @@ MonoBehaviour:
     - localizationId: page_84cf180e
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 606779965313024
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -2373,6 +3217,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
     stepType: 10
@@ -2406,6 +3265,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 1, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD0B9 \uB3C4\uB9DD"
     stepType: 11
@@ -2439,6 +3313,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
     stepType: 10
@@ -2472,6 +3361,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB098\uC774\uD2B8 \uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -2516,6 +3420,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC120\uD0DD"
     stepType: 2
@@ -2551,6 +3470,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 3
@@ -2586,6 +3520,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
@@ -2621,6 +3570,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 3
@@ -2656,6 +3620,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: wait
     stepType: 7
@@ -2689,6 +3668,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 5
   - stepName: "\uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -2733,6 +3727,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB9C8\uBB34\uB9AC \uC5B4\uD0DD"
     stepType: 1
@@ -2778,6 +3787,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
     stepType: 10
@@ -2813,6 +3837,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uD0B9 \uC774\uB3D9"
     stepType: 11
@@ -2848,6 +3887,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
     stepType: 10
@@ -2883,6 +3937,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 4}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB9C8\uBB34\uB9AC \uC5B4\uD0DD"
     stepType: 4
@@ -2918,6 +3987,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: wait
     stepType: 7
@@ -2951,6 +4035,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 6
   - stepName: "\uD29C\uD1A0\uB9AC\uC5BC \uB9C8\uBB34\uB9AC"
     stepType: 1
@@ -3005,6 +4104,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uAE30\uBB3C \uC800\uC7A5"
     stepType: 9
@@ -3039,6 +4153,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB9AC\uC6CC\uB4DC"
     stepType: 8
@@ -3073,6 +4202,21 @@ MonoBehaviour:
     actionTargetPosition: {x: 4, y: 5}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleWaitForComplete: 1
     waitDuration: 3
   completionType: 3
   completionSceneName: WorldMapScene

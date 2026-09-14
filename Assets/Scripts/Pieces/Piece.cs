@@ -29,10 +29,27 @@ public class Piece : MonoBehaviour
     private PieceFieldStatusEffectUI fieldStatusEffectUI;
 
     [Header("Skill Activation Icon")]
-    // <변경부분> 일반스킬 또는 고유스킬 발동 시
+    // 일반스킬 또는 고유스킬 발동 시
     // 기물 위에 스킬 아이콘 연출을 재생하는 컴포넌트
     [SerializeField]
     private PieceSkillActivationIcon skillActivationIcon;
+
+
+    // =====================================================
+    // Speech Bubble
+    // =====================================================
+
+    [Header("Speech Bubble")]
+
+    // <변경부분>
+    // Battle EventSequence에서
+    // 현재 기물 위에 말풍선을 표시하기 위한 공용 UI.
+    //
+    // TypeIcon / FieldStatusEffect와 독립된
+    // SpeechBubbleCanvas를 Inspector에서 연결한다.
+    [SerializeField]
+    private ActorSpeechBubbleUI speechBubbleUI;
+
 
     // 현재 기물이 보유한 고유 스킬
     public UniqueSkillType UniqueSkill { get; private set; }
@@ -270,6 +287,27 @@ public class Piece : MonoBehaviour
                 );
         }
 
+
+        // <변경부분>
+        // SpeechBubbleCanvas는 Prefab에서 기본 OFF 상태로 사용할 수 있으므로
+        // 비활성화된 자식까지 포함하여 자동 연결한다.
+        if (speechBubbleUI == null)
+        {
+            speechBubbleUI =
+                GetComponentInChildren<ActorSpeechBubbleUI>(
+                    true
+                );
+        }
+
+        // <변경부분>
+        // Prefab 또는 이전 Play 상태가 남아 있더라도
+        // Battle 시작 시에는 말풍선을 항상 숨긴 상태로 초기화한다.
+        if (speechBubbleUI != null)
+        {
+            speechBubbleUI.HideImmediately();
+        }
+
+
         // Inspector에서 연결되지 않았다면
         // 비활성화된 자식까지 포함해 필드 흡수 버튼을 찾는다.
         if (fieldAbsorbButton == null)
@@ -314,6 +352,15 @@ public class Piece : MonoBehaviour
         if (fieldAbsorbButton != null)
         {
             fieldAbsorbButton.Hide();
+        }
+
+
+        // <변경부분>
+        // 기물이 제거되거나 비활성화될 때
+        // Event SpeechBubble이 남지 않도록 즉시 정리한다.
+        if (speechBubbleUI != null)
+        {
+            speechBubbleUI.HideImmediately();
         }
     }
 
@@ -1763,6 +1810,130 @@ public class Piece : MonoBehaviour
         }
 
         return null;
+    }
+
+    // =====================================================
+    // Speech Bubble
+    // =====================================================
+
+    // <변경부분>
+    // 현재 Piece 위에 말풍선을 표시하고
+    // 지정 시간이 끝날 때까지 기다린다.
+    //
+    // Battle EventSequence의
+    // Wait For Complete = true 처리에서 사용한다.
+    public IEnumerator PlaySpeechBubbleRoutine(
+    string text,
+    float duration,
+    float typingSpeed,
+    bool useEmphasisShake,
+    float emphasisStrength)
+    {
+        EnsureSpeechBubbleUI();
+
+        if (speechBubbleUI == null)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: " +
+                "ActorSpeechBubbleUI를 찾을 수 없습니다."
+            );
+
+            yield break;
+        }
+
+        yield return
+            speechBubbleUI.PlayRoutine(
+                text,
+                duration,
+                typingSpeed,
+                useEmphasisShake,
+                emphasisStrength
+            );
+    }
+
+
+    // <변경부분>
+    // 말풍선 표시를 시작한 뒤
+    // Battle EventSequence는 즉시 다음 Step으로 진행한다.
+    //
+    // Wait For Complete = false 처리에서 사용한다.
+    public void PlaySpeechBubbleDetached(
+      string text,
+      float duration,
+      float typingSpeed,
+      bool useEmphasisShake,
+      float emphasisStrength)
+    {
+        EnsureSpeechBubbleUI();
+
+        if (speechBubbleUI == null)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name}: " +
+                "ActorSpeechBubbleUI를 찾을 수 없습니다."
+            );
+
+            return;
+        }
+
+        speechBubbleUI.PlayDetached(
+            text,
+            duration,
+            typingSpeed,
+            useEmphasisShake,
+            emphasisStrength
+        );
+    }
+
+
+    // <변경부분>
+    // 시간 제한 없이 현재 Piece의 말풍선을 표시한다.
+    public void ShowSpeechBubble(
+        string text)
+    {
+        EnsureSpeechBubbleUI();
+
+        if (speechBubbleUI == null)
+        {
+            return;
+        }
+
+        speechBubbleUI.Show(
+            text
+        );
+    }
+
+
+    // 현재 Piece의 말풍선을 즉시 숨긴다.
+    public void HideSpeechBubble()
+    {
+        EnsureSpeechBubbleUI();
+
+        if (speechBubbleUI == null)
+        {
+            return;
+        }
+
+        speechBubbleUI.HideImmediately();
+    }
+
+
+    // <변경부분>
+    // Prefab Inspector 연결이 누락된 경우에도
+    // 비활성화된 SpeechBubbleCanvas까지 포함하여 다시 찾는다.
+    private void EnsureSpeechBubbleUI()
+    {
+        if (speechBubbleUI != null)
+        {
+            return;
+        }
+
+        speechBubbleUI =
+            GetComponentInChildren<
+                ActorSpeechBubbleUI
+            >(
+                true
+            );
     }
 
     // <변경부분> 일반스킬 또는 고유스킬 발동 시

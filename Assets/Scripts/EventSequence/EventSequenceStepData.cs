@@ -73,7 +73,14 @@ public enum EventSequenceStepType
     // 쿨타임 / 턴당 사용 제한 / 사망 스택 /
     // 실제 스킬 발동 조건은 기존 BattleManager와
     // BattleSkillManager의 정상 판정을 그대로 사용한다.
-    ExecutePieceUniqueSkill
+    ExecutePieceUniqueSkill,
+
+    // <변경부분>
+    // 지정한 Battle Piece 위에 Event용 SpeechBubble을 표시한다.
+    //
+    // 기존 0~12 Serialized enum 값은 절대 변경하지 않고
+    // 새 Step Type을 마지막에 append한다.
+    SpeechBubble
 }
 
 
@@ -346,12 +353,118 @@ public class EventSequenceStepData
     //
     // 이 좌표의 실제 Piece.UniqueSkill을 읽어 사용한다.
     public Vector2Int uniqueSkillPiecePosition =
+    Vector2Int.zero;
+
+
+    // =====================================================
+    // Speech Bubble
+    // =====================================================
+
+    [Header("Speech Bubble")]
+
+    // <변경부분>
+    // 말풍선을 표시할 Battle Piece의 진영.
+    public PieceTeam speechBubblePieceTeam =
+        PieceTeam.Player;
+
+    // <변경부분>
+    // 말풍선을 표시할 Battle Piece의 현재 보드 좌표.
+    public Vector2Int speechBubblePiecePosition =
         Vector2Int.zero;
+
+    // <변경부분>
+    // SpeechBubble의 한국어 원문.
+    //
+    // 실제 Inspector 편집은 EventSequenceDataEditor의
+    // Localization 영역에서 담당한다.
+    [HideInInspector]
+    [TextArea(2, 6)]
+    public string speechBubbleText =
+        string.Empty;
+
+    // <변경부분>
+    // Step 순서가 변경되어도 Localization Key가 유지되도록
+    // SpeechBubble 하나마다 고정 Stable ID를 가진다.
+    [HideInInspector]
+    public string speechBubbleLocalizationId;
+
+    // <변경부분>
+    // Event_Dialogue String Table의 현재 SpeechBubble Entry를 참조한다.
+    //
+    // Localization이 아직 생성되지 않은 경우에는
+    // speechBubbleText의 한국어 원문을 fallback으로 사용한다.
+    [HideInInspector]
+    public LocalizedString speechBubbleLocalizedText =
+        new LocalizedString();
+
+    // <변경부분>
+    // 말풍선을 표시할 시간.
+    [Min(0f)]
+    public float speechBubbleDuration =
+    1.5f;
+
+    // <변경부분>
+    // 초당 표시할 글자 수.
+    //
+    // 0 = 타이핑 없이 전체 문장 즉시 표시.
+    [Min(0f)]
+    public float speechBubbleTypingSpeed =
+        30f;
+
+    // <변경부분>
+    // 말풍선은 고정하고 Text만 흔드는 강조 효과 사용 여부.
+    public bool speechBubbleUseEmphasisShake =
+        false;
+
+    // <변경부분>
+    // 강조 Text 흔들림 크기.
+    //
+    // SpeechBubble World Space Canvas 내부 UI 단위 기준이다.
+    [Min(0f)]
+    public float speechBubbleEmphasisStrength =
+        2f;
+
+    public bool speechBubbleWaitForComplete =
+        true;
+
 
     [Header("Wait")]
     // Wait 단계에서 기다릴 시간
     [Min(0f)]
     public float waitDuration = 0.5f;
+
+    // <변경부분>
+    // 현재 Locale 기준 SpeechBubble 문자열을 반환한다.
+    //
+    // Localization Reference가 아직 없거나
+    // 현재 Locale 값이 비어 있는 경우에는
+    // speechBubbleText의 한국어 원문을 fallback으로 사용한다.
+    public string GetLocalizedSpeechBubbleText()
+    {
+        string fallbackText =
+            speechBubbleText ??
+            string.Empty;
+
+        if (speechBubbleLocalizedText == null ||
+            speechBubbleLocalizedText.IsEmpty)
+        {
+            return fallbackText;
+        }
+
+        string localizedText =
+            speechBubbleLocalizedText
+                .GetLocalizedString();
+
+        if (string.IsNullOrWhiteSpace(
+                localizedText))
+        {
+            return fallbackText;
+        }
+
+        return localizedText;
+    }
+
+
 
     // <변경부분>
     // 현재 Locale 기준 Dialogue 페이지 목록을 생성한다.

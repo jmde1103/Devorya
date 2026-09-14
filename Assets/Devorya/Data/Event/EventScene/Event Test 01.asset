@@ -65,6 +65,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 1
   - stepName: 
     stepType: 1
@@ -124,6 +127,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0
   - stepName: 
     stepType: 3
@@ -172,6 +178,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0.5
   - stepName: "\uC55E\uC73C\uB85C \uC774\uB3D9"
     stepType: 4
@@ -220,6 +229,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0.5
   - stepName: 
     stepType: 7
@@ -268,6 +280,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0.5
   - stepName: 
     stepType: 7
@@ -316,6 +331,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0.5
   - stepName: 
     stepType: 3
@@ -364,6 +382,9 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0.5
   - stepName: Devorya
     stepType: 5
@@ -412,6 +433,122 @@ MonoBehaviour:
     removeActorId: 
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 11
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 1
+    screenShakeStrength: 0.1
+    screenShakeWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 1
+    dialoguePages:
+    - "\uD654\uBA74\uC774 \uD754\uB4E4\uB9BD\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_4f30ad40
+    dialogueLocalizationPages:
+    - localizationId: page_46d5b75d
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
     waitDuration: 0.5
   completionType: 0
   completionSceneName: 

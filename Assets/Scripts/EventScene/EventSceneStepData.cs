@@ -474,6 +474,41 @@ public class EventSceneStepData
     public float removeActorFadeOutDuration =
         0.35f;
 
+
+    // =====================================================
+    // Screen Shake
+    // =====================================================
+
+    [Header("Screen Shake")]
+
+    // <변경부분>
+    // 독립 ScreenShake Step에서 화면을 흔들 시간.
+    //
+    // AttackActor의 Impact Shake와 동일한
+    // Event Scene 공용 Camera Shake 시스템을 사용한다.
+    [Min(0f)]
+    public float screenShakeDuration =
+        0.12f;
+
+    // <변경부분>
+    // 화면 흔들림 강도.
+    //
+    // 실제 Camera Shake Target의 localPosition에
+    // 적용되는 최대 X/Y Offset이다.
+    [Min(0f)]
+    public float screenShakeStrength =
+        0.08f;
+
+    // <변경부분>
+    // true:
+    // 화면 흔들림이 끝날 때까지 현재 Step에서 기다린다.
+    //
+    // false:
+    // Shake만 시작하고 즉시 다음 Event Step으로 진행한다.
+    public bool screenShakeWaitForComplete =
+        true;
+
+
     [Header("Wait")]
 
     // Wait Step에서 대기할 시간.

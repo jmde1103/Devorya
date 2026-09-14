@@ -320,6 +320,10 @@ MonoBehaviour:
     m_Localized: "\u6B21\u306E\u5834\u6240\u3078\u79FB\u52D5\u3057\u307E\u3059\u3002"
     m_Metadata:
       m_Items: []
+  - m_Id: 2183080593461248
+    m_Localized: '!@#$!%!@#'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -751,6 +751,18 @@ public class EventSceneDataEditor : Editor
                 break;
 
 
+            // <변경부분>
+            // Event Scene 독립 화면 흔들림 연출.
+            case EventSceneStepType.ScreenShake:
+
+                DrawScreenShakeStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
             case EventSceneStepType.Wait:
 
                 EditorGUI.BeginChangeCheck();
@@ -1575,14 +1587,87 @@ public class EventSceneDataEditor : Editor
                 MessageType.Info
             );
         }
+    }
+            // <변경부분>
+            // ScreenShake Step 전용 제작 UI.
+            //
+            // AttackActor에서 이미 사용 중인
+            // Event Scene 공용 Camera Shake를
+            // 독립 Step으로 실행하기 위한 설정이다.
+    private void DrawScreenShakeStep(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Screen Shake",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        float newDuration =
+            EditorGUILayout.FloatField(
+                "Shake Duration",
+                step.screenShakeDuration
+            );
+
+        float newStrength =
+            EditorGUILayout.FloatField(
+                "Shake Strength",
+                step.screenShakeStrength
+            );
+
+        bool newWaitForComplete =
+            EditorGUILayout.Toggle(
+                "Wait For Complete",
+                step.screenShakeWaitForComplete
+            );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Screen Shake"
+            );
+
+            step.screenShakeDuration =
+                Mathf.Max(
+                    0f,
+                    newDuration
+                );
+
+            step.screenShakeStrength =
+                Mathf.Max(
+                    0f,
+                    newStrength
+                );
+
+            step.screenShakeWaitForComplete =
+                newWaitForComplete;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(4);
+
+        if (step.screenShakeWaitForComplete)
+        {
+            EditorGUILayout.HelpBox(
+                "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다.",
+                MessageType.Info
+            );
+        }
         else
         {
             EditorGUILayout.HelpBox(
-                "Failure: 방어 충돌 순간 Target에 Shake를 적용한 뒤 공격자가 두 번 튕기며 원래 위치로 복귀합니다.",
+                "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
                 MessageType.Info
             );
         }
     }
+
 
     // <변경부분>
     // PlayActorAnimation Step 전용 제작 UI.

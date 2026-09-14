@@ -898,10 +898,23 @@ public class EventSequenceController : MonoBehaviour
                 yield break;
 
             case EventSequenceStepType.ExecutePieceUniqueSkill:
-                // <변경부분> 지정 좌표의 기물이
+                // 지정 좌표의 기물이
                 // 현재 실제로 보유 중인 고유스킬을 자동 사용한다.
                 yield return
                     ExecutePieceUniqueSkillStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+            case EventSequenceStepType.SpeechBubble:
+                // <변경부분>
+                // 지정한 Battle Piece 위에 Event SpeechBubble을 표시한다.
+                //
+                // Wait For Complete 설정에 따라
+                // 표시 종료까지 기다리거나 즉시 다음 Step으로 진행한다.
+                yield return
+                    ExecuteSpeechBubbleStepRoutine(
                         step
                     );
 
@@ -935,6 +948,148 @@ public class EventSequenceController : MonoBehaviour
                 yield break;
         }
     }
+
+    // <변경부분>
+    // Battle EventSequence의 SpeechBubble Step 실행.
+    //
+    // EventSequenceData에 저장된 Team + Board Position으로
+    // 실제 Battle Piece를 찾은 뒤,
+    // Piece가 이미 가지고 있는 ActorSpeechBubbleUI 공용 경로를 사용한다.
+    //
+    // 별도의 Screen Space 추적 UI를 만들지 않으며,
+    // Piece 자식의 World Space SpeechBubbleCanvas가
+    // Piece 이동 / Camera 이동 / WorldRoot Zoom을 그대로 따라간다.
+    private IEnumerator ExecuteSpeechBubbleStepRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (pieceManager == null)
+        {
+            Debug.LogWarning(
+                $"Event SpeechBubble Step 실패: " +
+                $"PieceManager가 연결되지 않았습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 지정 좌표에 현재 존재하는 실제 Piece를 찾는다.
+        Piece targetPiece =
+            pieceManager.GetPieceAt(
+                step.speechBubblePiecePosition.x,
+                step.speechBubblePiecePosition.y
+            );
+
+        if (targetPiece == null)
+        {
+            Debug.LogWarning(
+                $"Event SpeechBubble Step 실패: " +
+                $"{step.speechBubblePiecePosition}에 " +
+                $"기물이 없습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 같은 좌표에 예상과 다른 진영의 기물이 들어온 경우
+        // 잘못된 Actor에게 대사가 표시되지 않도록 차단한다.
+        if (targetPiece.Team !=
+            step.speechBubblePieceTeam)
+        {
+            Debug.LogWarning(
+                $"Event SpeechBubble Step 실패: " +
+                $"대상 Team이 일치하지 않습니다. / " +
+                $"요청={step.speechBubblePieceTeam} / " +
+                $"실제={targetPiece.Team} / " +
+                $"위치={step.speechBubblePiecePosition} / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        string resolvedText =
+            step.GetLocalizedSpeechBubbleText();
+
+        if (string.IsNullOrWhiteSpace(
+                resolvedText))
+        {
+            Debug.LogWarning(
+                $"Event SpeechBubble Step 건너뜀: " +
+                $"표시할 문자열이 비어 있습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // <변경부분>
+        // SpeechBubble Step에서 조정 가능한 표시 시간.
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                step.speechBubbleDuration
+            );
+
+        // <변경부분>
+        // SpeechBubble Step에서 조정 가능한 타이핑 속도.
+        float safeTypingSpeed =
+            Mathf.Max(
+                0f,
+                step.speechBubbleTypingSpeed
+            );
+
+        // <변경부분>
+        // Text 강조 흔들림 세기는 음수가 되지 않도록 보정한다.
+        float safeEmphasisStrength =
+            Mathf.Max(
+                0f,
+                step.speechBubbleEmphasisStrength
+            );
+
+        if (step.speechBubbleWaitForComplete)
+        {
+            // <변경부분>
+            // 말풍선 등장 → 타이핑 → 유지 → Fade Out이 끝날 때까지
+            // 현재 Event Step에서 기다린다.
+            yield return
+                targetPiece
+                    .PlaySpeechBubbleRoutine(
+                        resolvedText,
+                        safeDuration,
+                        safeTypingSpeed,
+                        step.speechBubbleUseEmphasisShake,
+                        safeEmphasisStrength
+                    );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // SpeechBubble은 독립 Coroutine으로 계속 연출하고,
+        // EventSequence는 즉시 다음 Step으로 진행한다.
+        //
+        // 서로 다른 Piece에 연속으로 Detached SpeechBubble을 실행하면
+        // 여러 기물의 말풍선을 동시에 표시할 수 있다.
+        targetPiece.PlaySpeechBubbleDetached(
+            resolvedText,
+            safeDuration,
+            safeTypingSpeed,
+            step.speechBubbleUseEmphasisShake,
+            safeEmphasisStrength
+        );
+    }
+
+
 
     // <변경부분> ForcePieceSelect Step 실행
     //
