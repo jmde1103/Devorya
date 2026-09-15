@@ -687,12 +687,12 @@ MonoBehaviour:
     playAnimationMixDuration: 0.12
     speechBubbleActorId: Devorya
     speechBubbleText: '!@#$!$@$!!!'
-    speechBubbleLocalizationId: 
+    speechBubbleLocalizationId: speech_0f1d088f
     speechBubbleLocalizedText:
       m_TableReference:
-        m_TableCollectionName: 
+        m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
       m_TableEntryReference:
-        m_KeyId: 0
+        m_KeyId: 1453953120866304
         m_Key: 
       m_FallbackState: 0
       m_WaitForCompletion: 0
@@ -718,9 +718,9 @@ MonoBehaviour:
     - localizationId: page_46d5b75d
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 1453953196363776
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0

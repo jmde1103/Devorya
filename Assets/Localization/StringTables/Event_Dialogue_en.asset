@@ -231,12 +231,7 @@ MonoBehaviour:
   - m_Id: 23825031499786
     m_Localized: '[Mobile]
 
-      Touch and hold an icon to view its details.
-
-      [PC]
-
-      Hover
-      the mouse cursor over an icon to view its details.'
+      Touch and hold an icon to view its details.'
     m_Metadata:
       m_Items: []
   - m_Id: 23825031499787
@@ -364,6 +359,12 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2183080593461248
     m_Localized: '!@#$!%!@#'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2544779909533696
+    m_Localized: '[PC]
+
+      Hover the mouse cursor over an icon to view its details.'
     m_Metadata:
       m_Items: []
   references:

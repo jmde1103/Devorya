@@ -13,9 +13,29 @@ MonoBehaviour:
   m_Name: PieceData_Jellu Knight
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Jellu Knight
+  displayName: 
+  description: 
   pieceType: 2
   uniqueSkill: 6
   canMove: 1
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   speciesTags: 01000000
   defaultGeneralSkills: []
   playerSprite: {fileID: 21300000, guid: 2057adc286d131a49afaf92362b9f81f, type: 3}
@@ -38,3 +58,7 @@ MonoBehaviour:
   enemyFieldStatusEffectPosition: {x: -0.2, y: 0.15, z: 0}
   neutralFieldStatusEffectPosition: {x: 0, y: 0, z: 0}
   absorbedPlayerFieldStatusEffectPosition: {x: -0.2, y: 0.15, z: 0}
+  speechBubbleOffsetY: 0
+  references:
+    version: 2
+    RefIds: []

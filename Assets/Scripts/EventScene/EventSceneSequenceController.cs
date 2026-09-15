@@ -579,9 +579,13 @@ public class EventSceneSequenceController : MonoBehaviour
             else
             {
                 // <변경부분>
-                // EventSceneActor가 공용 SpeechBubble UI를 소유하도록 연결한다.
-                //
-                // SetSpeechBubbleUI 내부에서 초기 Hide 처리를 담당한다.
+                // 현재 Event Actor가 사용하는 PieceData의
+                // 기물별 SpeechBubble 높이 Offset을 적용한다.
+                speechBubbleUI.SetPieceDataOffsetY(
+                    step.spawnActorPieceData
+                        .speechBubbleOffsetY
+                );
+
                 actor.SetSpeechBubbleUI(
                     speechBubbleUI
                 );

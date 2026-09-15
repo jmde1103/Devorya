@@ -123,18 +123,38 @@ public class PieceData : ScriptableObject
     // <변경부분> 흡수된 플레이어 외형 타입 아이콘 위치
     public Vector3 absorbedPlayerTypeIconPosition;
 
+
+    // <변경부분>
+    // 기존 Field Status Effect Icon 위치 데이터 복구.
+    //
+    // Speech Bubble Position을 추가하면서 삭제되면 안 되는
+    // 기존 Serialized 필드들이므로 이름을 변경하지 않고 그대로 유지한다.
     [Header("Field Status Effect Icon Positions")]
-    // <변경부분> 플레이어 진영 필드 상태효과 아이콘 위치
+
     public Vector3 playerFieldStatusEffectPosition;
 
-    // <변경부분> 적 진영 필드 상태효과 아이콘 위치
     public Vector3 enemyFieldStatusEffectPosition;
 
-    // <변경부분> 중립 진영 필드 상태효과 아이콘 위치
     public Vector3 neutralFieldStatusEffectPosition;
 
-    // <변경부분> 흡수된 플레이어 외형 필드 상태효과 아이콘 위치
     public Vector3 absorbedPlayerFieldStatusEffectPosition;
+
+
+    // =====================================================
+    // Speech Bubble Position
+    // =====================================================
+
+    [Header("Speech Bubble Position")]
+
+    // <변경부분>
+    // 이 PieceData를 사용하는 기물의 SpeechBubble 높이 보정값.
+    //
+    // ActorSpeechBubblePrefab의 기본 위치에 추가되는 Y Offset이다.
+    //
+    // Battle Piece와 Standalone EventSceneActor가
+    // 동일한 값을 공유하도록 PieceData에서 관리한다.
+    public float speechBubbleOffsetY =
+        0f;
 
     // <변경부분>
     // 현재 선택된 Locale 기준 플레이어 표시용 기물 이름을 반환한다.

@@ -818,8 +818,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -914,8 +912,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -4831,8 +4827,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -7254,8 +7248,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -19340,8 +19332,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -20227,8 +20217,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -23269,8 +23257,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -24905,8 +24891,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -26360,8 +26344,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -26926,8 +26908,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -29833,8 +29813,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -32689,8 +32667,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -34126,113 +34102,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &336372693
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 336372694}
-  - component: {fileID: 336372696}
-  - component: {fileID: 336372695}
-  m_Layer: 0
-  m_Name: Decoration_Tree_16_17
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &336372694
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 336372693}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.48, y: -1.93, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 594449982}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &336372695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 336372693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c7058536d631554780e9d0f70ced570, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Decoration
-  decorationType: 1
-  x: 16
-  y: 17
---- !u!212 &336372696
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 336372693}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -5033
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: c6c741367b4982143b373f4b3d1241c0, type: 3}
-  m_Color: {r: 0.854, g: 0.854, b: 0.854, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 0.5, y: 0.5}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
 --- !u!1 &336708654
 GameObject:
   m_ObjectHideFlags: 0
@@ -34430,8 +34299,10 @@ MonoBehaviour:
   popupRoot: {fileID: 1766949219}
   recoverySlotParent: {fileID: 484974950}
   recoveryAreaObject: {fileID: 117720645}
+  recoveryTitleText: {fileID: 0}
   dropSlotParent: {fileID: 114583228}
   dropAreaObject: {fileID: 1147801515}
+  dropTitleText: {fileID: 0}
   rewardSlotPrefab: {fileID: 2537777922694835768, guid: 6de50ff11416da142a0ecbc7d7041993, type: 3}
   goldTooltipData: {fileID: 11400000, guid: d06b053ccb5386d46b1d32785551123b, type: 2}
   confirmButton: {fileID: 553583809}
@@ -36822,8 +36693,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -42553,8 +42422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -48465,8 +48332,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -49037,6 +48902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemManager
   battleItemDatabase: {fileID: 11400000, guid: 9ce39f5f760a04149839bff59eb28e40, type: 2}
+  debugTestItemType: 1
 --- !u!4 &500334405
 Transform:
   m_ObjectHideFlags: 0
@@ -52107,8 +51973,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -58692,7 +58556,6 @@ Transform:
   - {fileID: 1874666941}
   - {fileID: 817939567}
   - {fileID: 1956097936}
-  - {fileID: 336372694}
   - {fileID: 776879504}
   - {fileID: 1591959046}
   - {fileID: 1959953711}
@@ -65944,8 +65807,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -85142,8 +85003,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -90773,8 +90632,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -96417,8 +96274,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -110546,8 +110401,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -111229,8 +111082,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -117682,8 +117533,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -121857,8 +121706,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: -100}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -128933,8 +128780,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -132526,8 +132371,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -133264,8 +133107,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -141661,8 +141502,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -141879,8 +141718,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -142413,8 +142250,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -148517,8 +148352,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -148842,8 +148675,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -149836,8 +149667,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -154033,8 +153862,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -159920,8 +159747,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -160551,8 +160376,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -162401,8 +162224,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -163460,8 +163281,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -169591,8 +169410,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -192778,8 +192595,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -194876,7 +194691,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2053653643
 GameObject:
@@ -197963,8 +197778,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
@@ -202128,8 +201941,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  holdDelay: 0.3
-  hoverDelay: 0.35
   positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}

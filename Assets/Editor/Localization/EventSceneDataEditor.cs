@@ -117,6 +117,15 @@ public class EventSceneDataEditor : Editor
         // Step 목록과 Dialogue 편집 영역을 분리한다.
         // 기존 Tutorial EventSequenceDataEditor와 동일한 관리 방식.
         DrawDialoguePages(
+    eventData
+);
+
+        EditorGUILayout.Space(10);
+
+        // <변경부분>
+        // Dialogue와 동일한 EventScene_Dialogue Collection을 사용하면서
+        // SpeechBubble의 KR / EN / JA를 별도 관리 영역에서 편집한다.
+        DrawSpeechBubbleTexts(
             eventData
         );
 
@@ -270,11 +279,19 @@ public class EventSceneDataEditor : Editor
 
             EditorGUILayout.Space(5);
 
+            // <변경부분>
+            // Dialogue가 하나도 없어도 SpeechBubble Step이 존재하면
+            // Localization 생성 / 한국어 Sync를 실행할 수 있다.
             bool canSync =
                 string.IsNullOrWhiteSpace(
                     eventData.localizationId) == false &&
-                HasAnyDialoguePage(
-                    eventData
+                (
+                    HasAnyDialoguePage(
+                        eventData
+                    ) ||
+                    HasAnySpeechBubbleStep(
+                        eventData
+                    )
                 );
 
             using (new EditorGUI.DisabledScope(
@@ -292,7 +309,15 @@ public class EventSceneDataEditor : Editor
             if (canSync == false)
             {
                 EditorGUILayout.HelpBox(
-                    "Localization ID와 최소 1개의 Dialogue Page가 필요합니다.",
+                    "Localization ID와 최소 1개의 Dialogue Page 또는 SpeechBubble Step이 필요합니다.",
+                    MessageType.None
+                );
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    "한국어 원문만 EventScene_Dialogue KO Table에 동기화합니다.\n" +
+                    "기존 English / Japanese 번역은 덮어쓰지 않습니다.",
                     MessageType.None
                 );
             }
@@ -655,6 +680,205 @@ public class EventSceneDataEditor : Editor
         {
             EditorGUILayout.HelpBox(
                 "현재 EventSceneData에 Dialogue Step이 없습니다.",
+                MessageType.Info
+            );
+        }
+    }
+
+    // <변경부분>
+    // Standalone Event Scene의 SpeechBubble 한국어 원문과
+    // EN / JA 번역을 EventScene_Dialogue Collection에서 관리한다.
+    //
+    // Step Index를 Localization Key에 사용하지 않고
+    // speechBubbleLocalizationId를 Stable ID로 사용하므로
+    // Step 순서가 변경되어도 기존 번역 연결을 유지한다.
+    private void DrawSpeechBubbleTexts(
+        EventSceneData eventData)
+    {
+        EditorGUILayout.LabelField(
+            "Speech Bubble Texts",
+            EditorStyles.boldLabel
+        );
+
+        if (eventData == null ||
+            eventData.steps == null ||
+            eventData.steps.Count == 0)
+        {
+            EditorGUILayout.HelpBox(
+                "Event Step이 없습니다.",
+                MessageType.Info
+            );
+
+            return;
+        }
+
+        bool foundSpeechBubbleStep =
+            false;
+
+        StringTableCollection collection =
+            DevoryaLocalizationEditorUtility
+                .GetStringTableCollection(
+                    TableCollectionName
+                );
+
+        for (int stepIndex = 0;
+             stepIndex < eventData.steps.Count;
+             stepIndex++)
+        {
+            EventSceneStepData step =
+                eventData.steps[stepIndex];
+
+            if (step == null ||
+                step.stepType !=
+                    EventSceneStepType.SpeechBubble)
+            {
+                continue;
+            }
+
+            foundSpeechBubbleStep =
+                true;
+
+            bool expanded =
+                GetDialogueStepFoldout(
+                    stepIndex
+                );
+
+            string safeStepName =
+                string.IsNullOrWhiteSpace(
+                    step.stepName)
+                    ? "SpeechBubble"
+                    : step.stepName;
+
+            expanded =
+                EditorGUILayout.Foldout(
+                    expanded,
+                    $"Step {stepIndex} - {safeStepName}",
+                    true
+                );
+
+            dialogueStepFoldouts[
+                stepIndex] =
+                    expanded;
+
+            if (expanded == false)
+            {
+                continue;
+            }
+
+            using (new EditorGUILayout.VerticalScope(
+                       EditorStyles.helpBox))
+            {
+                if (string.IsNullOrWhiteSpace(
+                        step.speechBubbleLocalizationId))
+                {
+                    EditorGUILayout.LabelField(
+                        "Speech Localization ID",
+                        "Localization 동기화 시 자동 생성"
+                    );
+                }
+                else
+                {
+                    EditorGUILayout.LabelField(
+                        "Speech Localization ID",
+                        step.speechBubbleLocalizationId
+                    );
+                }
+
+                EditorGUILayout.Space(4);
+
+                // <변경부분>
+                // Data에 저장되는 한국어 authoring 원문.
+                // Runtime Localization 누락 시 fallback으로도 사용한다.
+                EditorGUILayout.LabelField(
+                    "Korean"
+                );
+
+                string currentKorean =
+                    step.speechBubbleText ??
+                    string.Empty;
+
+                EditorGUI.BeginChangeCheck();
+
+                string newKorean =
+                    EditorGUILayout.TextArea(
+                        currentKorean,
+                        GUILayout.MinHeight(55)
+                    );
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(
+                        eventData,
+                        "Edit Event Scene SpeechBubble Korean"
+                    );
+
+                    step.speechBubbleText =
+                        newKorean;
+
+                    EditorUtility.SetDirty(
+                        eventData
+                    );
+                }
+
+                string key =
+                    GetSpeechBubbleKey(
+                        eventData,
+                        step
+                    );
+
+                if (string.IsNullOrWhiteSpace(
+                        key))
+                {
+                    EditorGUILayout.HelpBox(
+                        "Localization 생성 / 한국어 동기화를 실행하면 " +
+                        "Stable Key와 EN / JA 입력란이 활성화됩니다.",
+                        MessageType.None
+                    );
+
+                    continue;
+                }
+
+                EditorGUILayout.LabelField(
+                    "Key",
+                    key
+                );
+
+                if (collection == null)
+                {
+                    EditorGUILayout.HelpBox(
+                        "EventScene_Dialogue Collection을 찾을 수 없습니다.",
+                        MessageType.Warning
+                    );
+
+                    continue;
+                }
+
+                EditorGUILayout.Space(3);
+
+                DrawLocaleTranslation(
+                    collection,
+                    "English",
+                    "en",
+                    key
+                );
+
+                EditorGUILayout.Space(4);
+
+                DrawLocaleTranslation(
+                    collection,
+                    "Japanese",
+                    "ja",
+                    key
+                );
+            }
+
+            EditorGUILayout.Space(6);
+        }
+
+        if (foundSpeechBubbleStep == false)
+        {
+            EditorGUILayout.HelpBox(
+                "현재 EventSceneData에 SpeechBubble Step이 없습니다.",
                 MessageType.Info
             );
         }
@@ -1680,13 +1904,11 @@ public class EventSceneDataEditor : Editor
     }
 
     // <변경부분>
-    // Standalone Event Scene SpeechBubble Step 전용 Inspector.
+    // Standalone Event Scene SpeechBubble Step의
+    // Actor / 연출 파라미터만 편집한다.
     //
-    // 현재 1단계에서는 Runtime 동작 검증을 위해
-    // Actor / 한국어 원문 / 연출값을 직접 편집한다.
-    //
-    // EventScene_Dialogue Stable Localization 연결과
-    // EN / JA 편집은 다음 단계에서 추가한다.
+    // 실제 KR / EN / JA Text는 아래
+    // Speech Bubble Texts Localization 영역에서 통합 관리한다.
     private void DrawSpeechBubbleStep(
         EventSceneData eventData,
         EventSceneStepData step)
@@ -1703,21 +1925,6 @@ public class EventSceneDataEditor : Editor
                 "Actor ID",
                 step.speechBubbleActorId
             );
-
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.LabelField(
-            "Korean"
-        );
-
-        string newText =
-            EditorGUILayout.TextArea(
-                step.speechBubbleText ??
-                string.Empty,
-                GUILayout.MinHeight(55)
-            );
-
-        EditorGUILayout.Space(4);
 
         float newDuration =
             EditorGUILayout.FloatField(
@@ -1765,9 +1972,6 @@ public class EventSceneDataEditor : Editor
             step.speechBubbleActorId =
                 newActorId;
 
-            step.speechBubbleText =
-                newText;
-
             step.speechBubbleDuration =
                 Mathf.Max(
                     0f,
@@ -1808,18 +2012,9 @@ public class EventSceneDataEditor : Editor
             );
         }
 
-        if (string.IsNullOrWhiteSpace(
-                step.speechBubbleText))
-        {
-            EditorGUILayout.HelpBox(
-                "표시할 SpeechBubble 문장을 입력해주세요.",
-                MessageType.Warning
-            );
-        }
-
         EditorGUILayout.HelpBox(
-            "현재 Korean은 Runtime 검증용 fallback입니다. " +
-            "다음 단계에서 EventScene_Dialogue Stable Localization과 EN / JA 편집을 연결합니다.",
+            "SpeechBubble의 Korean / English / Japanese Text는 " +
+            "아래 Speech Bubble Texts 영역에서 관리합니다.",
             MessageType.Info
         );
     }
@@ -2891,10 +3086,10 @@ public class EventSceneDataEditor : Editor
 
 
     // <변경부분>
-    // 한국어 원문을 EventScene_Dialogue KO Table에 동기화하고
-    // Page별 LocalizedString 참조를 연결한다.
+    // EventSceneData의 Dialogue Page와 SpeechBubble 한국어 원문을
+    // EventScene_Dialogue KO Table에 동기화한다.
     //
-    // 기존 EN / JA 값은 덮어쓰지 않는다.
+    // EN / JA 기존 번역값은 수정하지 않는다.
     private void SyncLocalization(
         EventSceneData eventData)
     {
@@ -2935,6 +3130,9 @@ public class EventSceneDataEditor : Editor
                     "ko"
                 );
 
+        // <변경부분>
+        // Inspector에서 바로 번역 입력이 가능하도록
+        // EN / JA Table도 함께 준비한다.
         DevoryaLocalizationEditorUtility
             .GetOrCreateStringTable(
                 collection,
@@ -2966,58 +3164,111 @@ public class EventSceneDataEditor : Editor
             eventData
         );
 
-        for (int stepIndex = 0;
-             stepIndex < eventData.steps.Count;
-             stepIndex++)
+        if (eventData.steps != null)
         {
-            EventSceneStepData step =
-                eventData.steps[stepIndex];
-
-            if (step == null ||
-                step.stepType !=
-                    EventSceneStepType.Dialogue ||
-                step.dialoguePages == null)
+            for (int stepIndex = 0;
+                 stepIndex < eventData.steps.Count;
+                 stepIndex++)
             {
-                continue;
-            }
+                EventSceneStepData step =
+                    eventData.steps[stepIndex];
 
-            for (int pageIndex = 0;
-                 pageIndex <
-                 step.dialoguePages.Count;
-                 pageIndex++)
-            {
-                EventSceneDialoguePageLocalizationData
-                    pageData =
-                        step.dialogueLocalizationPages[
-                            pageIndex];
-
-                string key =
-                    GetPageKey(
-                        eventData,
-                        step,
-                        pageData
-                    );
-
-                if (string.IsNullOrWhiteSpace(
-                        key))
+                if (step == null)
                 {
                     continue;
                 }
 
-                DevoryaLocalizationEditorUtility
-                    .SetTableValue(
-                        koreanTable,
-                        key,
-                        step.dialoguePages[
-                            pageIndex]
-                    );
+                // =================================================
+                // Dialogue
+                // =================================================
 
-                pageData.localizedText =
-                    DevoryaLocalizationEditorUtility
-                        .CreateLocalizedStringReference(
-                            collection,
-                            key
+                if (step.stepType ==
+                    EventSceneStepType.Dialogue)
+                {
+                    if (step.dialoguePages == null)
+                    {
+                        continue;
+                    }
+
+                    for (int pageIndex = 0;
+                         pageIndex <
+                         step.dialoguePages.Count;
+                         pageIndex++)
+                    {
+                        EventSceneDialoguePageLocalizationData
+                            pageData =
+                                step.dialogueLocalizationPages[
+                                    pageIndex];
+
+                        string key =
+                            GetPageKey(
+                                eventData,
+                                step,
+                                pageData
+                            );
+
+                        if (string.IsNullOrWhiteSpace(
+                                key))
+                        {
+                            continue;
+                        }
+
+                        DevoryaLocalizationEditorUtility
+                            .SetTableValue(
+                                koreanTable,
+                                key,
+                                step.dialoguePages[
+                                    pageIndex]
+                            );
+
+                        pageData.localizedText =
+                            DevoryaLocalizationEditorUtility
+                                .CreateLocalizedStringReference(
+                                    collection,
+                                    key
+                                );
+                    }
+
+                    continue;
+                }
+
+                // =================================================
+                // Speech Bubble
+                // =================================================
+
+                // <변경부분>
+                // Dialogue와 동일한 EventScene_Dialogue Collection을 사용하지만
+                // speech 전용 Stable Key Namespace를 사용한다.
+                if (step.stepType ==
+                    EventSceneStepType.SpeechBubble)
+                {
+                    string key =
+                        GetSpeechBubbleKey(
+                            eventData,
+                            step
                         );
+
+                    if (string.IsNullOrWhiteSpace(
+                            key))
+                    {
+                        continue;
+                    }
+
+                    DevoryaLocalizationEditorUtility
+                        .SetTableValue(
+                            koreanTable,
+                            key,
+                            step.speechBubbleText ??
+                            string.Empty
+                        );
+
+                    step.speechBubbleLocalizedText =
+                        DevoryaLocalizationEditorUtility
+                            .CreateLocalizedStringReference(
+                                collection,
+                                key
+                            );
+                }
             }
         }
 
@@ -3045,7 +3296,9 @@ public class EventSceneDataEditor : Editor
         );
     }
 
-
+    // <변경부분>
+    // Dialogue와 SpeechBubble 모두 Step 순서와 무관한
+    // Stable Localization Metadata를 준비한다.
     private void EnsureAllLocalizationMetadata(
         EventSceneData eventData)
     {
@@ -3055,7 +3308,12 @@ public class EventSceneDataEditor : Editor
             return;
         }
 
-        HashSet<string> usedStepIds =
+        // Dialogue와 SpeechBubble은 서로 다른 Key Namespace를 사용하므로
+        // 각 타입 내부에서 Stable ID 중복을 검사한다.
+        HashSet<string> usedDialogueStepIds =
+            new HashSet<string>();
+
+        HashSet<string> usedSpeechIds =
             new HashSet<string>();
 
         for (int i = 0;
@@ -3065,73 +3323,109 @@ public class EventSceneDataEditor : Editor
             EventSceneStepData step =
                 eventData.steps[i];
 
-            if (step == null ||
-                step.stepType !=
-                    EventSceneStepType.Dialogue)
+            if (step == null)
             {
                 continue;
             }
 
-            if (string.IsNullOrWhiteSpace(
-                    step.dialogueLocalizationId) ||
-                usedStepIds.Contains(
-                    step.dialogueLocalizationId))
+            // =================================================
+            // Dialogue
+            // =================================================
+
+            if (step.stepType ==
+                EventSceneStepType.Dialogue)
             {
-                step.dialogueLocalizationId =
-                    CreateStableId(
-                        "dialogue"
-                    );
-            }
-
-            usedStepIds.Add(
-                step.dialogueLocalizationId
-            );
-
-            EnsureStepLocalizationMetadata(
-                step
-            );
-
-            HashSet<string> usedPageIds =
-                new HashSet<string>();
-
-            for (int pageIndex = 0;
-                 pageIndex <
-                 step.dialogueLocalizationPages.Count;
-                 pageIndex++)
-            {
-                EventSceneDialoguePageLocalizationData
-                    pageData =
-                        step.dialogueLocalizationPages[
-                            pageIndex];
-
-                if (pageData == null)
-                {
-                    pageData =
-                        CreatePageLocalizationData();
-
-                    step.dialogueLocalizationPages[
-                        pageIndex] =
-                            pageData;
-                }
-
                 if (string.IsNullOrWhiteSpace(
-                        pageData.localizationId) ||
-                    usedPageIds.Contains(
-                        pageData.localizationId))
+                        step.dialogueLocalizationId) ||
+                    usedDialogueStepIds.Contains(
+                        step.dialogueLocalizationId))
                 {
-                    pageData.localizationId =
+                    step.dialogueLocalizationId =
                         CreateStableId(
-                            "page"
+                            "dialogue"
                         );
                 }
 
-                usedPageIds.Add(
-                    pageData.localizationId
+                usedDialogueStepIds.Add(
+                    step.dialogueLocalizationId
                 );
+
+                EnsureStepLocalizationMetadata(
+                    step
+                );
+
+                HashSet<string> usedPageIds =
+                    new HashSet<string>();
+
+                for (int pageIndex = 0;
+                     pageIndex <
+                     step.dialogueLocalizationPages.Count;
+                     pageIndex++)
+                {
+                    EventSceneDialoguePageLocalizationData
+                        pageData =
+                            step.dialogueLocalizationPages[
+                                pageIndex];
+
+                    if (pageData == null)
+                    {
+                        pageData =
+                            CreatePageLocalizationData();
+
+                        step.dialogueLocalizationPages[
+                            pageIndex] =
+                                pageData;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(
+                            pageData.localizationId) ||
+                        usedPageIds.Contains(
+                            pageData.localizationId))
+                    {
+                        pageData.localizationId =
+                            CreateStableId(
+                                "page"
+                            );
+                    }
+
+                    usedPageIds.Add(
+                        pageData.localizationId
+                    );
+                }
+
+                continue;
+            }
+
+            // =================================================
+            // Speech Bubble
+            // =================================================
+
+            if (step.stepType ==
+                EventSceneStepType.SpeechBubble)
+            {
+                if (string.IsNullOrWhiteSpace(
+                        step.speechBubbleLocalizationId) ||
+                    usedSpeechIds.Contains(
+                        step.speechBubbleLocalizationId))
+                {
+                    step.speechBubbleLocalizationId =
+                        CreateStableId(
+                            "speech"
+                        );
+                }
+
+                usedSpeechIds.Add(
+                    step.speechBubbleLocalizationId
+                );
+
+                if (step.speechBubbleLocalizedText == null)
+                {
+                    step.speechBubbleLocalizedText =
+                        new LocalizedString();
+                }
             }
         }
     }
-
 
     private void EnsureStepLocalizationMetadata(
         EventSceneStepData step)
@@ -3272,7 +3566,35 @@ public class EventSceneDataEditor : Editor
             $"{pageData.localizationId}";
     }
 
+    // <변경부분>
+    // SpeechBubble은 Step Index가 아니라
+    // 자체 Stable Localization ID로 Key를 구성한다.
+    //
+    // 형식:
+    // event_scene.<eventId>.speech.<speechId>
+    private string GetSpeechBubbleKey(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        if (eventData == null ||
+            step == null ||
+            string.IsNullOrWhiteSpace(
+                eventData.localizationId) ||
+            string.IsNullOrWhiteSpace(
+                step.speechBubbleLocalizationId))
+        {
+            return string.Empty;
+        }
 
+        return
+            $"event_scene." +
+            $"{eventData.localizationId}." +
+            $"speech." +
+            $"{step.speechBubbleLocalizationId}";
+    }
+    // <변경부분>
+    // Dialogue Page + SpeechBubble Text를 모두
+    // EventScene_Dialogue 번역 진행률에 포함한다.
     private void DrawTranslationStatus(
         EventSceneData eventData)
     {
@@ -3324,33 +3646,84 @@ public class EventSceneDataEditor : Editor
                 EventSceneStepData step =
                     eventData.steps[stepIndex];
 
-                if (step == null ||
-                    step.stepType !=
-                        EventSceneStepType.Dialogue ||
-                    step.dialoguePages == null)
+                if (step == null)
                 {
                     continue;
                 }
 
-                for (int pageIndex = 0;
-                     pageIndex <
-                     step.dialoguePages.Count;
-                     pageIndex++)
+                // =================================================
+                // Dialogue Pages
+                // =================================================
+
+                if (step.stepType ==
+                        EventSceneStepType.Dialogue &&
+                    step.dialoguePages != null)
+                {
+                    for (int pageIndex = 0;
+                         pageIndex <
+                         step.dialoguePages.Count;
+                         pageIndex++)
+                    {
+                        total++;
+
+                        EventSceneDialoguePageLocalizationData
+                            pageData =
+                                GetPageLocalizationData(
+                                    step,
+                                    pageIndex
+                                );
+
+                        string key =
+                            GetPageKey(
+                                eventData,
+                                step,
+                                pageData
+                            );
+
+                        if (string.IsNullOrWhiteSpace(
+                                key))
+                        {
+                            continue;
+                        }
+
+                        if (HasTableValue(
+                                koreanTable,
+                                key))
+                        {
+                            koreanCount++;
+                        }
+
+                        if (HasTableValue(
+                                englishTable,
+                                key))
+                        {
+                            englishCount++;
+                        }
+
+                        if (HasTableValue(
+                                japaneseTable,
+                                key))
+                        {
+                            japaneseCount++;
+                        }
+                    }
+
+                    continue;
+                }
+
+                // =================================================
+                // Speech Bubble
+                // =================================================
+
+                if (step.stepType ==
+                    EventSceneStepType.SpeechBubble)
                 {
                     total++;
 
-                    EventSceneDialoguePageLocalizationData
-                        pageData =
-                            GetPageLocalizationData(
-                                step,
-                                pageIndex
-                            );
-
                     string key =
-                        GetPageKey(
+                        GetSpeechBubbleKey(
                             eventData,
-                            step,
-                            pageData
+                            step
                         );
 
                     if (string.IsNullOrWhiteSpace(
@@ -3389,7 +3762,7 @@ public class EventSceneDataEditor : Editor
         );
 
         EditorGUILayout.HelpBox(
-            $"Total Pages: {total}\n" +
+            $"Total Texts: {total}\n" +
             $"KR: {koreanCount} / {total}\n" +
             $"EN: {englishCount} / {total}\n" +
             $"JA: {japaneseCount} / {total}",
@@ -3451,6 +3824,35 @@ public class EventSceneDataEditor : Editor
         return false;
     }
 
+    // <변경부분>
+    // Dialogue Page가 없어도 SpeechBubble Step 하나만 존재하면
+    // Localization 생성 / KO Sync가 가능하도록 확인한다.
+    private bool HasAnySpeechBubbleStep(
+        EventSceneData eventData)
+    {
+        if (eventData == null ||
+            eventData.steps == null)
+        {
+            return false;
+        }
+
+        for (int i = 0;
+             i < eventData.steps.Count;
+             i++)
+        {
+            EventSceneStepData step =
+                eventData.steps[i];
+
+            if (step != null &&
+                step.stepType ==
+                    EventSceneStepType.SpeechBubble)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private bool GetStepFoldout(
         int stepIndex)

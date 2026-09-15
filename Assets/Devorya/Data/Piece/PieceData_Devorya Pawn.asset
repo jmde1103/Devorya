@@ -59,6 +59,7 @@ MonoBehaviour:
   enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  speechBubbleOffsetY: 0
   references:
     version: 2
     RefIds: []

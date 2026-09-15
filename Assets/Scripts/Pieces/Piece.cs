@@ -387,9 +387,25 @@ public class Piece : MonoBehaviour
 
     // <변경부분> 현재 기물이 참조할 PieceData를 저장하는 함수
     // PieceManager가 SpawnPieceFromData / 흡수 / 승급 / 복제 후 외형 갱신 기준으로 사용한다.
-    public void SetCurrentPieceData(PieceData pieceData)
+    // <변경부분>
+    // 현재 기물이 참조할 PieceData를 저장한다.
+    //
+    // PieceManager의 SpawnPieceFromData,
+    // 흡수 / 승급 / 복제 / 데이터 복원 등에서
+    // PieceData가 변경될 때 공통 진입점으로 사용한다.
+    //
+    // PieceData가 변경되면 해당 기물에 설정된
+    // SpeechBubble 높이 Offset도 즉시 함께 갱신한다.
+    public void SetCurrentPieceData(
+        PieceData pieceData)
     {
-        CurrentPieceData = pieceData;
+        CurrentPieceData =
+            pieceData;
+
+        // <변경부분>
+        // PieceData 변경과 SpeechBubble 위치 갱신을
+        // 항상 같은 시점에 처리한다.
+        RefreshSpeechBubblePieceDataOffset();
     }
 
     public void SetPosition(int x, int y, Tile newTile)  // 기물의 보드 좌표와 현재 타일 정보를 갱신하는 함수
@@ -871,12 +887,21 @@ public class Piece : MonoBehaviour
             return;
         }
 
-        // <변경부분> 현재 기물이 참조할 PieceData 갱신
-        CurrentPieceData = newPieceData;
+        // <변경부분>
+        // PieceData 변경은 공통 진입점을 사용한다.
+        //
+        // CurrentPieceData 갱신과 동시에
+        // SpeechBubble 높이 Offset도 새 PieceData 기준으로 갱신된다.
+        SetCurrentPieceData(
+            newPieceData
+        );
 
-        // <변경부분> PieceData의 타입/고유스킬을 현재 기물에 반영
-        PieceType = newPieceData.pieceType;
-        UniqueSkill = newPieceData.uniqueSkill;
+        // PieceData의 타입/고유스킬을 현재 기물에 반영
+        PieceType =
+            newPieceData.pieceType;
+
+        UniqueSkill =
+            newPieceData.uniqueSkill;
 
         // <변경부분> 흡수 젤루 외형 여부 저장
         IsAbsorbedJelluVisual = isAbsorbedJelluVisual;
@@ -911,9 +936,15 @@ public class Piece : MonoBehaviour
         // 대상의 고유 스킬 복사
         UniqueSkill = targetPiece.UniqueSkill;
 
-        // <변경부분> 흡수 대상의 PieceData를 현재 기물에 복사
-        // 이후 외형/상태 UI/타입 아이콘 위치는 이 데이터 기준으로 갱신된다.
-        CurrentPieceData = targetPiece.CurrentPieceData;
+        // <변경부분>
+        // 흡수 대상의 PieceData를 현재 기물에 적용한다.
+        //
+        // 공통 SetCurrentPieceData()를 사용하므로
+        // 흡수 직후 SpeechBubble 높이도
+        // 흡수 대상 PieceData 기준으로 자동 변경된다.
+        SetCurrentPieceData(
+            targetPiece.CurrentPieceData
+        );
 
         // <변경부분> 흡수로 새로 얻은 고유스킬은 이번 턴에는 바로 사용할 수 없도록 처리
         hasUsedUniqueSkillThisTurn = true;
@@ -1917,6 +1948,31 @@ public class Piece : MonoBehaviour
         speechBubbleUI.HideImmediately();
     }
 
+
+    // <변경부분>
+    // 현재 PieceData에 저장된 SpeechBubble Y Offset을
+    // Battle Piece의 공용 ActorSpeechBubbleUI에 적용한다.
+    //
+    // PieceData가 없는 상태에서는 0을 적용하여
+    // Prefab 기본 위치로 안전하게 복귀한다.
+    private void RefreshSpeechBubblePieceDataOffset()
+    {
+        EnsureSpeechBubbleUI();
+
+        if (speechBubbleUI == null)
+        {
+            return;
+        }
+
+        float offsetY =
+            CurrentPieceData != null
+                ? CurrentPieceData.speechBubbleOffsetY
+                : 0f;
+
+        speechBubbleUI.SetPieceDataOffsetY(
+            offsetY
+        );
+    }
 
     // <변경부분>
     // Prefab Inspector 연결이 누락된 경우에도

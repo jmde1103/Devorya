@@ -315,6 +315,10 @@ MonoBehaviour:
     m_Key: event.event_sequence_data_tutorial_ep_2.speech.speech_c571e041
     m_Metadata:
       m_Items: []
+  - m_Id: 2544779909533696
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_23c3a19d.page_2419cff2
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

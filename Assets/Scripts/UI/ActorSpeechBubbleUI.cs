@@ -200,6 +200,21 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     private string currentDisplayText =
         string.Empty;
 
+    // <변경부분>
+    // PieceData에서 전달받은 기물별 SpeechBubble Y Offset.
+    //
+    // BubbleRoot의 Idle Float 위치와 분리하기 위해
+    // SpeechBubbleCanvas 전체 Transform에 적용한다.
+    private float pieceDataOffsetY =
+        0f;
+
+    // <변경부분>
+    // 외부 Offset 적용 전 SpeechBubbleCanvas의 기본 Local Position.
+    private Vector3 speechBubbleBaseLocalPosition =
+        Vector3.zero;
+
+    private bool isSpeechBubbleBasePositionCached =
+        false;
 
     private void Awake()
     {
@@ -208,14 +223,86 @@ public class ActorSpeechBubbleUI : MonoBehaviour
         AutoBindReferences();
 
         // <변경부분>
-        // Prefab Inspector에 설정된 실제 BubbleRoot Scale을 저장한다.
+        // PieceData Offset을 누적 없이 적용하기 위해
+        // Prefab 자체의 원래 Local Position을 먼저 저장한다.
+        CacheSpeechBubbleBasePosition();
+
+        // Prefab Inspector에 설정된 실제 BubbleRoot 상태를 저장한다.
         CacheBaseVisualState();
     }
-
 
     // =====================================================
     // Public
     // =====================================================
+
+    // <변경부분>
+    // PieceData에 저장된 기물별 SpeechBubble Y Offset을 적용한다.
+    //
+    // Prefab의 원래 위치를 기준으로 매번 다시 계산하므로
+    // 여러 번 호출되어도 Offset이 누적되지 않는다.
+    //
+    // BubbleRoot의 Idle Float 위치는 건드리지 않는다.
+    public void SetPieceDataOffsetY(
+        float offsetY)
+    {
+        AutoBindReferences();
+
+        CacheSpeechBubbleBasePosition();
+
+        pieceDataOffsetY =
+            offsetY;
+
+        ApplyPieceDataOffset();
+    }
+
+    // <변경부분>
+    // SpeechBubble Prefab 자체에 저장된 기본 Local Position을
+    // 최초 한 번만 보관한다.
+    //
+    // PieceData Offset을 여러 번 적용하더라도
+    // 현재 위치를 다시 기준으로 삼지 않기 때문에
+    // 위치가 누적해서 올라가는 문제를 방지한다.
+    private void CacheSpeechBubbleBasePosition()
+    {
+        if (isSpeechBubbleBasePositionCached ||
+            speechBubbleCanvas == null)
+        {
+            return;
+        }
+
+        speechBubbleBaseLocalPosition =
+            speechBubbleCanvas
+                .transform
+                .localPosition;
+
+        isSpeechBubbleBasePositionCached =
+            true;
+    }
+
+
+    // <변경부분>
+    // Prefab 기본 위치 + PieceData Y Offset을 실제 위치에 적용한다.
+    //
+    // BubbleRoot는 Idle Float을 담당하고 있으므로
+    // 여기서는 SpeechBubbleCanvas 전체 위치만 변경한다.
+    private void ApplyPieceDataOffset()
+    {
+        if (speechBubbleCanvas == null ||
+            isSpeechBubbleBasePositionCached == false)
+        {
+            return;
+        }
+
+        speechBubbleCanvas
+            .transform
+            .localPosition =
+                speechBubbleBaseLocalPosition +
+                new Vector3(
+                    0f,
+                    pieceDataOffsetY,
+                    0f
+                );
+    }
 
     // <변경부분>
     // Fade In + Pop + Typing + Emphasis + Fade Out을 포함한
@@ -1221,6 +1308,7 @@ public class ActorSpeechBubbleUI : MonoBehaviour
                 alpha
             );
     }
+
 
 
     // <변경부분>
