@@ -84,10 +84,38 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     private float entrySettleDuration =
         0.10f;
 
-    // 말풍선 종료 시 Fade Out 시간.
     [SerializeField, Min(0f)]
     private float fadeOutDuration =
-        0.12f;
+    0.12f;
+
+
+    [Header("Idle Float Animation")]
+
+    // <변경부분>
+    // 말풍선이 표시되어 있는 동안
+    // 천천히 위아래로 떠다니는 Idle 연출 사용 여부.
+    //
+    // Event Step마다 설정하지 않고
+    // SpeechBubble 공통 연출값으로 사용한다.
+    [SerializeField]
+    private bool useIdleFloat =
+        true;
+
+    // <변경부분>
+    // 기본 위치를 기준으로 위아래로 움직이는 거리.
+    //
+    // World Space Canvas 내부 UI 단위 기준이다.
+    [SerializeField, Min(0f)]
+    private float idleFloatAmplitude =
+        0.025f;
+
+    // <변경부분>
+    // 아래 → 위 → 아래 한 사이클에 걸리는 시간.
+    //
+    // 값이 클수록 더 천천히 움직인다.
+    [SerializeField, Min(0.1f)]
+    private float idleFloatCycleDuration =
+        2.2f;
 
 
     [Header("Text Size")]
@@ -137,12 +165,20 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     private Coroutine textShakeCoroutine;
 
     // <변경부분>
+    // 말풍선 전체가 천천히 위아래로 움직이는
+    // Idle Float Coroutine.
+    private Coroutine idleFloatCoroutine;
+
+    // <변경부분>
     // BubbleRoot의 실제 Inspector 기본 Scale.
-    //
-    // World Space Canvas용 0.008 등의 Scale을 보존하고
-    // 등장 애니메이션은 이 값에 배율만 곱한다.
     private Vector3 bubbleBaseLocalScale =
         Vector3.one;
+
+    // <변경부분>
+    // Idle Float이 종료된 뒤 정확히 돌아올
+    // BubbleRoot의 Inspector 기본 위치.
+    private Vector2 bubbleBaseAnchoredPosition =
+        Vector2.zero;
 
     // Text Shake 종료 후 돌아올 원래 위치.
     private Vector2 bubbleTextBaseAnchoredPosition =
@@ -197,6 +233,11 @@ public class ActorSpeechBubbleUI : MonoBehaviour
         StopDetachedCoroutine();
         StopTextShakeCoroutine();
 
+        // <변경부분>
+        // 이전 말풍선의 Idle Float이 남아 있다면
+        // 기본 위치로 복원한 뒤 새 표시를 시작한다.
+        StopIdleFloatCoroutine();
+
         int currentVersion =
             ++displayVersion;
 
@@ -236,6 +277,7 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     {
         StopDetachedCoroutine();
         StopTextShakeCoroutine();
+        StopIdleFloatCoroutine();
 
         int currentVersion =
             ++displayVersion;
@@ -277,6 +319,7 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     {
         StopDetachedCoroutine();
         StopTextShakeCoroutine();
+        StopIdleFloatCoroutine();
 
         displayVersion++;
 
@@ -295,11 +338,18 @@ public class ActorSpeechBubbleUI : MonoBehaviour
             int.MaxValue;
 
         SetBubbleAlpha(
-            1f
-        );
+    1f
+);
 
         bubbleRoot.localScale =
             bubbleBaseLocalScale;
+
+        // <변경부분>
+        // 시간 제한 없는 Show에서도
+        // 동일한 Idle Float 연출을 유지한다.
+        StartIdleFloat(
+            displayVersion
+        );
     }
 
 
@@ -308,6 +358,11 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     {
         StopDetachedCoroutine();
         StopTextShakeCoroutine();
+
+        // <변경부분>
+        // 강제 종료 시 말풍선 위치도
+        // 반드시 Inspector 기본 위치로 복원한다.
+        StopIdleFloatCoroutine();
 
         displayVersion++;
 
@@ -432,14 +487,47 @@ public class ActorSpeechBubbleUI : MonoBehaviour
 
     // <변경부분>
     // SpeechBubble 한 번의 전체 표시 흐름.
+    //
+    // 등장 Pop과 Typewriter를 동시에 시작하여
+    // 글자가 나타나는 동안 말풍선 / Text / Tail 전체도
+    // 함께 확대됐다가 원래 크기로 돌아온다.
     private IEnumerator PlayDisplayRoutine(
-        int currentVersion,
-        float duration,
-        float typingSpeed,
-        bool useEmphasisShake,
-        float emphasisStrength)
+    int currentVersion,
+    float duration,
+    float typingSpeed,
+    bool useEmphasisShake,
+    float emphasisStrength)
     {
-        // Fade In + 순간 확대 + 원래 크기 복귀.
+        // <변경부분>
+        // 말풍선이 화면에 등장하는 순간부터
+        // 전체 Bubble을 천천히 위아래로 움직인다.
+        //
+        // Typewriter / Pop / Text Shake와 독립된 Coroutine이며
+        // BubbleRoot 위치만 담당한다.
+        StartIdleFloat(
+            currentVersion
+        );
+
+        // Typewriter를 별도 Coroutine으로 먼저 시작한다.
+        //
+        // 따라서:
+        // - Text가 한 글자씩 나타나고
+        // - Bubble 크기가 글자 수에 따라 증가하는 동안
+        // - Entry Pop 애니메이션도 동시에 진행된다.
+        //
+        // Text는 BubbleRoot의 자식이므로
+        // BubbleRoot Scale 변화에 따라 같이 확대/축소된다.
+        Coroutine typingCoroutine =
+            StartCoroutine(
+                PlayTypingRoutine(
+                    currentVersion,
+                    typingSpeed
+                )
+            );
+
+        // <변경부분>
+        // Typewriter와 동시에
+        // Fade In + 순간 확대 + 원래 Scale 복귀를 진행한다.
         yield return
             PlayEntryAnimationRoutine(
                 currentVersion
@@ -452,13 +540,14 @@ public class ActorSpeechBubbleUI : MonoBehaviour
         }
 
         // <변경부분>
-        // <변경부분>
-        // 먼저 Typewriter와 Bubble 자동 확장을 완료한다.
-        yield return
-            PlayTypingRoutine(
-                currentVersion,
-                typingSpeed
-            );
+        // Pop 애니메이션이 먼저 끝났더라도
+        // 아직 Typewriter가 진행 중이라면
+        // 타이핑 완료까지 기다린다.
+        if (typingCoroutine != null)
+        {
+            yield return
+                typingCoroutine;
+        }
 
         if (currentVersion !=
             displayVersion)
@@ -470,8 +559,8 @@ public class ActorSpeechBubbleUI : MonoBehaviour
         // Layout 변경이 모두 끝난 뒤
         // 강조 효과가 켜져 있다면 Text만 흔든다.
         //
-        // 이렇게 해야 HorizontalLayoutGroup과
-        // Text Shake가 같은 RectTransform 위치를 동시에 수정하지 않는다.
+        // 이렇게 해야 타이핑 중 LayoutGroup의 위치 갱신과
+        // Text Shake가 서로 충돌하지 않는다.
         if (useEmphasisShake &&
             emphasisStrength > 0f)
         {
@@ -481,7 +570,6 @@ public class ActorSpeechBubbleUI : MonoBehaviour
             );
         }
 
-        // <변경부분>
         // 타이핑이 끝난 완성 문장을 유지한다.
         float safeDuration =
             Mathf.Max(
@@ -515,7 +603,7 @@ public class ActorSpeechBubbleUI : MonoBehaviour
             yield break;
         }
 
-        // 서서히 Fade Out.
+        // 말풍선 종료 Fade Out.
         yield return
             PlayFadeOutRoutine(
                 currentVersion
@@ -997,6 +1085,129 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     }
 
 
+    // =====================================================
+    // Idle Float
+    // =====================================================
+
+    // <변경부분>
+    // 현재 SpeechBubble의 Idle Float을 시작한다.
+    //
+    // BubbleRoot 전체를 움직이므로
+    // Background / Text / Tail이 함께 움직인다.
+    private void StartIdleFloat(
+        int currentVersion)
+    {
+        StopIdleFloatCoroutine();
+
+        if (useIdleFloat == false ||
+            bubbleRoot == null ||
+            idleFloatAmplitude <= 0f)
+        {
+            return;
+        }
+
+        idleFloatCoroutine =
+            StartCoroutine(
+                PlayIdleFloatRoutine(
+                    currentVersion
+                )
+            );
+    }
+
+
+    // <변경부분>
+    // Sin 곡선을 사용하여 급격한 방향 전환 없이
+    // 천천히 위아래로 떠다니는 느낌을 만든다.
+    //
+    // Time.unscaledDeltaTime을 사용하므로
+    // Battle의 TimeScale 연출에도 영향을 받지 않는다.
+    private IEnumerator PlayIdleFloatRoutine(
+        int currentVersion)
+    {
+        if (bubbleRoot == null)
+        {
+            idleFloatCoroutine =
+                null;
+
+            yield break;
+        }
+
+        float safeCycleDuration =
+            Mathf.Max(
+                0.1f,
+                idleFloatCycleDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (currentVersion ==
+               displayVersion)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                elapsedTime /
+                safeCycleDuration;
+
+            float phase =
+                normalizedTime *
+                Mathf.PI *
+                2f;
+
+            float verticalOffset =
+                Mathf.Sin(
+                    phase
+                ) *
+                idleFloatAmplitude;
+
+            bubbleRoot.anchoredPosition =
+                bubbleBaseAnchoredPosition +
+                new Vector2(
+                    0f,
+                    verticalOffset
+                );
+
+            yield return null;
+        }
+
+        // Coroutine이 자연 종료되더라도
+        // 항상 원래 위치로 돌려놓는다.
+        if (bubbleRoot != null)
+        {
+            bubbleRoot.anchoredPosition =
+                bubbleBaseAnchoredPosition;
+        }
+
+        idleFloatCoroutine =
+            null;
+    }
+
+
+    // <변경부분>
+    // 새 SpeechBubble 표시 / 강제 종료 / Hide 시
+    // Idle Coroutine을 정리하고 정확한 기본 위치로 복원한다.
+    private void StopIdleFloatCoroutine()
+    {
+        if (idleFloatCoroutine != null)
+        {
+            StopCoroutine(
+                idleFloatCoroutine
+            );
+
+            idleFloatCoroutine =
+                null;
+        }
+
+        if (bubbleRoot != null &&
+            isBaseVisualStateCached)
+        {
+            bubbleRoot.anchoredPosition =
+                bubbleBaseAnchoredPosition;
+        }
+    }
+
     private void SetBubbleAlpha(
         float alpha)
     {
@@ -1022,8 +1233,14 @@ public class ActorSpeechBubbleUI : MonoBehaviour
             return;
         }
 
+        // <변경부분>
+        // Pop용 Scale뿐 아니라
+        // Idle Float이 돌아올 기본 위치도 함께 저장한다.
         bubbleBaseLocalScale =
             bubbleRoot.localScale;
+
+        bubbleBaseAnchoredPosition =
+            bubbleRoot.anchoredPosition;
 
         isBaseVisualStateCached =
             true;
@@ -1032,6 +1249,11 @@ public class ActorSpeechBubbleUI : MonoBehaviour
     private void HideInternal()
     {
         StopTextShakeCoroutine();
+
+        // <변경부분>
+        // 말풍선이 사라질 때
+        // Idle Float을 정지하고 원래 위치로 복원한다.
+        StopIdleFloatCoroutine();
 
         if (bubbleText != null)
         {

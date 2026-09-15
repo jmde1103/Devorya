@@ -24,6 +24,13 @@ public class EventSceneActor : MonoBehaviour
     private GameObject visualObject;
 
     // <변경부분>
+    // Event Scene Actor가 소유하는 공용 SpeechBubble UI.
+    //
+    // Battle Piece와 동일한 ActorSpeechBubbleUI를 재사용하지만
+    // Battle Piece 시스템에는 의존하지 않는다.
+    private ActorSpeechBubbleUI speechBubbleUI;
+
+    // <변경부분>
     // 현재 Event Actor Visual 위치 보정값.
     private Vector2 visualOffset =
         Vector2.zero;
@@ -301,6 +308,93 @@ public class EventSceneActor : MonoBehaviour
             flipX;
 
         ApplyVisualTransform();
+    }
+
+    // <변경부분>
+    // SpawnActor가 생성한 공용 SpeechBubble UI를
+    // 현재 Event Scene Actor에 연결한다.
+    //
+    // SpeechBubble Prefab은 Actor Root의 자식이므로
+    // Actor 이동 / 공격 / WorldRoot 이동을 별도 추적 없이 따라간다.
+    public void SetSpeechBubbleUI(
+        ActorSpeechBubbleUI newSpeechBubbleUI)
+    {
+        speechBubbleUI =
+            newSpeechBubbleUI;
+
+        if (speechBubbleUI == null)
+        {
+            return;
+        }
+
+        // 생성 직후에는 말풍선이 보이지 않도록 정리한다.
+        speechBubbleUI.HideImmediately();
+    }
+
+
+    // <변경부분>
+    // Wait For Complete = true용 SpeechBubble 실행.
+    //
+    // ActorSpeechBubbleUI의 전체 연출:
+    // Fade In / Typewriter / 자동 크기 / Idle Float /
+    // Emphasis Shake / Fade Out을 그대로 재사용한다.
+    public IEnumerator PlaySpeechBubbleRoutine(
+        string text,
+        float duration,
+        float typingSpeed,
+        bool useEmphasisShake,
+        float emphasisStrength)
+    {
+        if (speechBubbleUI == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene SpeechBubble 실행 실패: " +
+                $"Actor '{actorId}'에 ActorSpeechBubbleUI가 연결되지 않았습니다."
+            );
+
+            yield break;
+        }
+
+        yield return
+            speechBubbleUI.PlayRoutine(
+                text,
+                duration,
+                typingSpeed,
+                useEmphasisShake,
+                emphasisStrength
+            );
+    }
+
+
+    // <변경부분>
+    // Wait For Complete = false용 SpeechBubble 실행.
+    //
+    // 말풍선은 독립적으로 계속 재생되고
+    // Event Scene Sequence는 즉시 다음 Step으로 진행할 수 있다.
+    public void PlaySpeechBubbleDetached(
+        string text,
+        float duration,
+        float typingSpeed,
+        bool useEmphasisShake,
+        float emphasisStrength)
+    {
+        if (speechBubbleUI == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene SpeechBubble 실행 실패: " +
+                $"Actor '{actorId}'에 ActorSpeechBubbleUI가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        speechBubbleUI.PlayDetached(
+            text,
+            duration,
+            typingSpeed,
+            useEmphasisShake,
+            emphasisStrength
+        );
     }
 
 

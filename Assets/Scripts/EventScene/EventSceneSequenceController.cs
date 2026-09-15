@@ -43,12 +43,17 @@ public class EventSceneSequenceController : MonoBehaviour
     private Transform eventActorsRoot;
 
     // <변경부분>
+    // 모든 EventSceneActor가 공통으로 사용할
+    // World Space SpeechBubble Prefab.
+    //
+    // Prefab Asset 자체를 Inspector에서 연결하기 위해
+    // GameObject Reference로 보관한다.
+    [SerializeField]
+    private GameObject actorSpeechBubblePrefab;
+
+
+    // <변경부분>
     // Event Scene의 화면 흔들림 대상.
-    //
-    // 비어 있으면 Runtime에서 Main Camera Transform을 사용한다.
-    //
-    // Battle의 Camera Shake와 동일하게
-    // Camera Transform의 Local Position을 흔드는 방식이다.
     [SerializeField]
     private Transform cameraShakeTarget;
 
@@ -353,8 +358,19 @@ public class EventSceneSequenceController : MonoBehaviour
                 yield break;
 
 
-            case EventSceneStepType.AbsorbActor:
+            // <변경부분>
+            // 지정 Event Actor 위에 SpeechBubble을 표시한다.
             case EventSceneStepType.SpeechBubble:
+
+                yield return
+                    ExecuteSpeechBubbleStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            case EventSceneStepType.AbsorbActor:
             case EventSceneStepType.CameraShot:
 
                 Debug.LogWarning(
@@ -505,25 +521,87 @@ public class EventSceneSequenceController : MonoBehaviour
             Quaternion.identity;
 
         EventSceneActor actor =
-            actorObject.AddComponent<
-                EventSceneActor
-            >();
+    actorObject.AddComponent<
+        EventSceneActor
+    >();
 
         actor.Initialize(
-    step.spawnActorId,
-    step.spawnActorPieceData,
-    step.spawnActorTeam,
-    step.spawnActorUseAbsorbedPlayerVisual,
-    step.spawnActorPosition,
-    step.spawnActorVisualOffset,
-    step.spawnActorFlipX,
-    visualObject
-);
+            step.spawnActorId,
+            step.spawnActorPieceData,
+            step.spawnActorTeam,
+            step.spawnActorUseAbsorbedPlayerVisual,
+            step.spawnActorPosition,
+            step.spawnActorVisualOffset,
+            step.spawnActorFlipX,
+            visualObject
+        );
 
+
+        // <변경부분>
+        // Battle Piece에서 검증한 공용 SpeechBubble Prefab을
+        // Event Actor Root의 자식으로 생성한다.
+        //
+        // Prefab Asset은 GameObject로 연결하고,
+        // 생성된 Instance 내부에서 ActorSpeechBubbleUI를 찾는다.
+        if (actorSpeechBubblePrefab != null)
+        {
+            GameObject speechBubbleObject =
+                Instantiate(
+                    actorSpeechBubblePrefab,
+                    actorTransform,
+                    false
+                );
+
+            speechBubbleObject.name =
+                "SpeechBubbleCanvas";
+
+            ActorSpeechBubbleUI speechBubbleUI =
+                speechBubbleObject
+                    .GetComponentInChildren<
+                        ActorSpeechBubbleUI
+                    >(
+                        true
+                    );
+
+            if (speechBubbleUI == null)
+            {
+                Debug.LogWarning(
+                    $"Event Scene SpawnActor: " +
+                    $"ActorSpeechBubblePrefab에서 " +
+                    $"ActorSpeechBubbleUI를 찾을 수 없습니다. " +
+                    $"Actor '{step.spawnActorId}'"
+                );
+
+                Destroy(
+                    speechBubbleObject
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // EventSceneActor가 공용 SpeechBubble UI를 소유하도록 연결한다.
+                //
+                // SetSpeechBubbleUI 내부에서 초기 Hide 처리를 담당한다.
+                actor.SetSpeechBubbleUI(
+                    speechBubbleUI
+                );
+            }
+        }
+        else
+        {
+            // SpeechBubble Prefab이 없어도
+            // 기존 Event Actor Spawn 자체는 정상적으로 유지한다.
+            Debug.LogWarning(
+                $"Event Scene SpawnActor: " +
+                $"ActorSpeechBubblePrefab이 연결되지 않았습니다. " +
+                $"Actor '{step.spawnActorId}'는 말풍선을 사용할 수 없습니다."
+            );
+        }
+       
         activeActors.Add(
-    step.spawnActorId,
-    actor
-);
+            step.spawnActorId,
+            actor
+        );
 
         // <변경부분>
         // SpawnActor 등장 연출.
@@ -850,6 +928,118 @@ attacker.PlayAttackRoutine(
 );
     }
 
+    // <변경부분>
+    // Standalone Event Scene의 SpeechBubble Step 실행.
+    //
+    // Battle처럼 Board 좌표로 Piece를 찾지 않고,
+    // SpawnActor에서 등록한 activeActors Dictionary의
+    // Actor ID를 기준으로 EventSceneActor를 찾는다.
+    //
+    // 실제 UI 연출은 EventSceneActor가 소유한
+    // ActorSpeechBubbleUI 공용 컴포넌트를 그대로 사용한다.
+    private IEnumerator ExecuteSpeechBubbleStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.speechBubbleActorId))
+        {
+            Debug.LogWarning(
+                $"Event Scene SpeechBubble 실행 실패: " +
+                $"Actor ID가 비어 있습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 이전 SpawnActor에서 등록된 Runtime Actor를 찾는다.
+        if (activeActors.TryGetValue(
+                step.speechBubbleActorId,
+                out EventSceneActor actor) == false ||
+            actor == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene SpeechBubble 실행 실패: " +
+                $"Actor ID '{step.speechBubbleActorId}'를 찾을 수 없습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        string resolvedText =
+            step.GetLocalizedSpeechBubbleText();
+
+        if (string.IsNullOrWhiteSpace(
+                resolvedText))
+        {
+            Debug.LogWarning(
+                $"Event Scene SpeechBubble 건너뜀: " +
+                $"표시할 문자열이 비어 있습니다. / " +
+                $"Actor={step.speechBubbleActorId} / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 음수 Inspector 값이 Runtime으로 전달되지 않도록 보정한다.
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                step.speechBubbleDuration
+            );
+
+        float safeTypingSpeed =
+            Mathf.Max(
+                0f,
+                step.speechBubbleTypingSpeed
+            );
+
+        float safeEmphasisStrength =
+            Mathf.Max(
+                0f,
+                step.speechBubbleEmphasisStrength
+            );
+
+        if (step.speechBubbleWaitForComplete)
+        {
+            // <변경부분>
+            // Fade In → Typewriter → 유지 → Fade Out까지
+            // 현재 Event Step에서 기다린다.
+            yield return
+                actor.PlaySpeechBubbleRoutine(
+                    resolvedText,
+                    safeDuration,
+                    safeTypingSpeed,
+                    step.speechBubbleUseEmphasisShake,
+                    safeEmphasisStrength
+                );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 말풍선은 Actor에서 독립적으로 계속 재생하고
+        // Sequence는 즉시 다음 Step으로 진행한다.
+        //
+        // 서로 다른 Actor에게 연속 Detached SpeechBubble을 실행하면
+        // 여러 Actor의 말풍선을 동시에 표시할 수도 있다.
+        actor.PlaySpeechBubbleDetached(
+            resolvedText,
+            safeDuration,
+            safeTypingSpeed,
+            step.speechBubbleUseEmphasisShake,
+            safeEmphasisStrength
+        );
+    }
 
     // <변경부분>
     // 독립 ScreenShake Step 실행.

@@ -740,6 +740,17 @@ public class EventSceneDataEditor : Editor
 
 
             // <변경부분>
+            // Event Actor 위에 표시할 SpeechBubble을 설정한다.
+            case EventSceneStepType.SpeechBubble:
+
+                DrawSpeechBubbleStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
             // Event Scene에서 지정 Actor를 제거한다.
             case EventSceneStepType.RemoveActor:
 
@@ -1666,6 +1677,151 @@ public class EventSceneDataEditor : Editor
                 MessageType.Info
             );
         }
+    }
+
+    // <변경부분>
+    // Standalone Event Scene SpeechBubble Step 전용 Inspector.
+    //
+    // 현재 1단계에서는 Runtime 동작 검증을 위해
+    // Actor / 한국어 원문 / 연출값을 직접 편집한다.
+    //
+    // EventScene_Dialogue Stable Localization 연결과
+    // EN / JA 편집은 다음 단계에서 추가한다.
+    private void DrawSpeechBubbleStep(
+        EventSceneData eventData,
+        EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Speech Bubble",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        string newActorId =
+            EditorGUILayout.TextField(
+                "Actor ID",
+                step.speechBubbleActorId
+            );
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField(
+            "Korean"
+        );
+
+        string newText =
+            EditorGUILayout.TextArea(
+                step.speechBubbleText ??
+                string.Empty,
+                GUILayout.MinHeight(55)
+            );
+
+        EditorGUILayout.Space(4);
+
+        float newDuration =
+            EditorGUILayout.FloatField(
+                "Duration",
+                step.speechBubbleDuration
+            );
+
+        float newTypingSpeed =
+            EditorGUILayout.FloatField(
+                "Typing Speed",
+                step.speechBubbleTypingSpeed
+            );
+
+        bool newUseEmphasisShake =
+            EditorGUILayout.Toggle(
+                "Use Emphasis Shake",
+                step.speechBubbleUseEmphasisShake
+            );
+
+        float newEmphasisStrength =
+            step.speechBubbleEmphasisStrength;
+
+        if (newUseEmphasisShake)
+        {
+            newEmphasisStrength =
+                EditorGUILayout.FloatField(
+                    "Emphasis Strength",
+                    step.speechBubbleEmphasisStrength
+                );
+        }
+
+        bool newWaitForComplete =
+            EditorGUILayout.Toggle(
+                "Wait For Complete",
+                step.speechBubbleWaitForComplete
+            );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Scene Speech Bubble"
+            );
+
+            step.speechBubbleActorId =
+                newActorId;
+
+            step.speechBubbleText =
+                newText;
+
+            step.speechBubbleDuration =
+                Mathf.Max(
+                    0f,
+                    newDuration
+                );
+
+            step.speechBubbleTypingSpeed =
+                Mathf.Max(
+                    0f,
+                    newTypingSpeed
+                );
+
+            step.speechBubbleUseEmphasisShake =
+                newUseEmphasisShake;
+
+            step.speechBubbleEmphasisStrength =
+                Mathf.Max(
+                    0f,
+                    newEmphasisStrength
+                );
+
+            step.speechBubbleWaitForComplete =
+                newWaitForComplete;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(4);
+
+        if (string.IsNullOrWhiteSpace(
+                step.speechBubbleActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "SpeechBubble을 실행하려면 이전 SpawnActor에서 생성한 Actor ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                step.speechBubbleText))
+        {
+            EditorGUILayout.HelpBox(
+                "표시할 SpeechBubble 문장을 입력해주세요.",
+                MessageType.Warning
+            );
+        }
+
+        EditorGUILayout.HelpBox(
+            "현재 Korean은 Runtime 검증용 fallback입니다. " +
+            "다음 단계에서 EventScene_Dialogue Stable Localization과 EN / JA 편집을 연결합니다.",
+            MessageType.Info
+        );
     }
 
 

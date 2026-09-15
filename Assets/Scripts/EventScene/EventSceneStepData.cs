@@ -444,7 +444,80 @@ public class EventSceneStepData
     // 값이 클수록 이전 Pose와 새 Pose가 더 부드럽게 연결된다.
     [Min(0f)]
     public float playAnimationMixDuration =
-        0.12f;
+    0.12f;
+
+
+    // =====================================================
+    // Speech Bubble
+    // =====================================================
+
+    [Header("Speech Bubble")]
+
+    // <변경부분>
+    // 말풍선을 표시할 EventSceneActor의 고유 Actor ID.
+    //
+    // 이전 SpawnActor Step에서 생성한 Actor ID를 사용한다.
+    public string speechBubbleActorId;
+
+    // <변경부분>
+    // SpeechBubble의 한국어 원문.
+    //
+    // 현재 1단계에서는 Runtime 테스트용 fallback으로 사용하고,
+    // 다음 Localization 단계에서 EventScene_Dialogue와 연결한다.
+    [HideInInspector]
+    [TextArea(2, 6)]
+    public string speechBubbleText =
+        string.Empty;
+
+    // <변경부분>
+    // Step 순서가 바뀌어도 Localization Key를 유지하기 위한
+    // SpeechBubble 전용 Stable ID.
+    [HideInInspector]
+    public string speechBubbleLocalizationId;
+
+    // <변경부분>
+    // EventScene_Dialogue의 현재 SpeechBubble Entry 참조.
+    //
+    // 아직 Localization이 생성되지 않았거나
+    // 현재 Locale 값이 비어 있으면 speechBubbleText를 fallback으로 사용한다.
+    [HideInInspector]
+    public LocalizedString speechBubbleLocalizedText =
+        new LocalizedString();
+
+    // <변경부분>
+    // Typewriter가 완료된 뒤 완성된 말풍선을 유지할 시간.
+    [Min(0f)]
+    public float speechBubbleDuration =
+        1.5f;
+
+    // <변경부분>
+    // 초당 표시할 글자 수.
+    //
+    // 0이면 Typewriter 없이 전체 문장을 즉시 표시한다.
+    [Min(0f)]
+    public float speechBubbleTypingSpeed =
+        30f;
+
+    // <변경부분>
+    // 완성된 Text만 흔드는 강조 효과 사용 여부.
+    public bool speechBubbleUseEmphasisShake =
+        false;
+
+    // <변경부분>
+    // Text 강조 흔들림 강도.
+    [Min(0f)]
+    public float speechBubbleEmphasisStrength =
+        2f;
+
+    // <변경부분>
+    // true:
+    // 말풍선 전체 연출이 끝난 뒤 다음 Step으로 진행.
+    //
+    // false:
+    // 말풍선은 독립 Coroutine으로 유지하고
+    // Event Scene Sequence는 즉시 다음 Step으로 진행한다.
+    public bool speechBubbleWaitForComplete =
+        true;
 
 
     [Header("Remove Actor")]
@@ -515,6 +588,37 @@ public class EventSceneStepData
     [Min(0f)]
     public float waitDuration =
         0.5f;
+
+    // <변경부분>
+    // 현재 Locale 기준 SpeechBubble 문자열을 반환한다.
+    //
+    // Localization Reference가 아직 없거나
+    // 현재 Locale의 번역값이 비어 있으면
+    // speechBubbleText의 한국어 원문을 fallback으로 사용한다.
+    public string GetLocalizedSpeechBubbleText()
+    {
+        string fallbackText =
+            speechBubbleText ??
+            string.Empty;
+
+        if (speechBubbleLocalizedText == null ||
+            speechBubbleLocalizedText.IsEmpty)
+        {
+            return fallbackText;
+        }
+
+        string localizedText =
+            speechBubbleLocalizedText
+                .GetLocalizedString();
+
+        if (string.IsNullOrWhiteSpace(
+                localizedText))
+        {
+            return fallbackText;
+        }
+
+        return localizedText;
+    }
 
 
     // <변경부분>

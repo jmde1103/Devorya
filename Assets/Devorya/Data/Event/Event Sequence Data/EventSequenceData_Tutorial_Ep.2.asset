@@ -68,6 +68,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC778\uD2B8\uB85C \uC124\uBA85"
@@ -127,6 +130,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uC0DD\uC131"
@@ -176,6 +182,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uBE44\uC20D \uC0DD\uC131"
@@ -225,6 +234,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC0DD\uC131"
@@ -275,6 +287,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD0B9 \uC0DD\uC131"
@@ -324,6 +339,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB9D0\uD48D\uC120"
@@ -372,8 +390,11 @@ MonoBehaviour:
       m_FallbackState: 0
       m_WaitForCompletion: 0
       m_LocalVariables: []
-    speechBubbleDuration: 10
-    speechBubbleWaitForComplete: 1
+    speechBubbleDuration: 3
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 1
+    speechBubbleEmphasisStrength: 1
+    speechBubbleWaitForComplete: 0
     waitDuration: 3
   - stepName: "\uC778\uD2B8\uB85C \uC124\uBA85 2"
     stepType: 1
@@ -443,6 +464,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
@@ -493,6 +517,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
@@ -543,6 +570,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
@@ -593,6 +623,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
@@ -643,6 +676,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC0DD\uC131"
@@ -693,6 +729,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB8E9 \uC0DD\uC131"
@@ -743,6 +782,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uBE44\uC20D \uC0DD\uC131"
@@ -793,6 +835,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB098\uC774\uD2B8 \uC0DD\uC131"
@@ -843,6 +888,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB8E9 \uC0DD\uC131"
@@ -893,6 +941,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC124\uBA85"
@@ -975,6 +1026,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC815\uBCF4 \uBCF4\uAE30 \uBC84\uD2BC"
@@ -1025,6 +1079,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC815\uBCF4 \uBCF4\uAE30 \uBC84\uD2BC \uC124\uBA85"
@@ -1107,6 +1164,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uD074\uB9AD"
@@ -1159,6 +1219,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC2A4\uD14C\uC774\uD130\uC2A4 \uC124\uBA85"
@@ -1267,6 +1330,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC120\uD0DD"
@@ -1325,6 +1391,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uC120\uD0DD"
@@ -1383,6 +1452,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uB204\uB974\uAE30"
@@ -1441,6 +1513,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD3F0 \uC120\uD0DD"
@@ -1499,6 +1574,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
@@ -1557,6 +1635,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uD3F0 \uD761\uC218 \uC644\uB8CC"
@@ -1629,6 +1710,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uC124\uBA85"
@@ -1699,6 +1783,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
@@ -1757,6 +1844,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC0C1\uB300 \uD134 \uC804\uD658"
@@ -1807,6 +1897,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uBE44\uC20D \uC2A4\uD0AC \uBC1C\uB3D9"
@@ -1864,6 +1957,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC124\uBA85"
@@ -1962,6 +2058,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC824\uB8E8 \uD0B9 \uC774\uB3D9"
@@ -2019,6 +2118,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD134 \uC885\uB8CC"
@@ -2076,6 +2178,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC911\uB9BD \uAE30\uBB3C \uC124\uBA85"
@@ -2159,6 +2264,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uB098\uC774\uD2B8 \uC120\uD0DD"
@@ -2216,6 +2324,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC0C1\uB300 \uBE44\uC20D \uC120\uD0DD"
@@ -2273,6 +2384,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218\uBC84\uD2BC \uC120\uD0DD"
@@ -2330,6 +2444,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC0C1\uB300 \uBE44\uC20D \uC120\uD0DD"
@@ -2387,6 +2504,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
@@ -2444,6 +2564,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC124\uBA85"
@@ -2502,6 +2625,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134\uC885\uB8CC"
@@ -2552,6 +2678,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC774\uB3D9"
@@ -2602,6 +2731,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
@@ -2652,6 +2784,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC2A4\uD0AC\uC0AC\uC6A9 \uC124\uBA85"
@@ -2723,6 +2858,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uBE44\uC20D \uC120\uD0DD"
@@ -2773,6 +2911,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC2A4\uD0AC \uC0AC\uC6A9"
@@ -2823,6 +2964,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC124\uBA85"
@@ -2896,6 +3040,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC120\uD0DD"
@@ -2948,6 +3095,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC120\uD0DD"
@@ -3000,6 +3150,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC81C\uAC70 \uC124\uBA85"
@@ -3058,6 +3211,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC911\uB9BD\uAE30\uBB3C \uC120\uD0DD"
@@ -3110,6 +3266,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: wait
@@ -3158,6 +3317,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uACAC\uC81C"
@@ -3231,6 +3393,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
@@ -3279,6 +3444,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD0B9 \uB3C4\uB9DD"
@@ -3327,6 +3495,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
@@ -3375,6 +3546,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB098\uC774\uD2B8 \uD761\uC218 \uC124\uBA85"
@@ -3434,6 +3608,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0 \uC120\uD0DD"
@@ -3484,6 +3661,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC120\uD0DD"
@@ -3534,6 +3714,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
@@ -3584,6 +3767,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uB098\uC774\uD2B8 \uC120\uD0DD"
@@ -3634,6 +3820,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: wait
@@ -3682,6 +3871,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 5
   - stepName: "\uD761\uC218 \uC124\uBA85"
@@ -3741,6 +3933,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB9C8\uBB34\uB9AC \uC5B4\uD0DD"
@@ -3801,6 +3996,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
@@ -3851,6 +4049,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC824\uB8E8 \uD0B9 \uC774\uB3D9"
@@ -3901,6 +4102,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uD134 \uC885\uB8CC"
@@ -3951,6 +4155,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB9C8\uBB34\uB9AC \uC5B4\uD0DD"
@@ -4001,6 +4208,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: wait
@@ -4049,6 +4259,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 6
   - stepName: "\uD29C\uD1A0\uB9AC\uC5BC \uB9C8\uBB34\uB9AC"
@@ -4118,6 +4331,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uAE30\uBB3C \uC800\uC7A5"
@@ -4167,6 +4383,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uB9AC\uC6CC\uB4DC"
@@ -4216,6 +4435,9 @@ MonoBehaviour:
       m_WaitForCompletion: 0
       m_LocalVariables: []
     speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
   completionType: 3
