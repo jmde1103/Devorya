@@ -37,6 +37,19 @@ public class EventSequenceDataEditor : Editor
             new Dictionary<int, bool>();
 
     // <변경부분>
+    // Battle Event Step 각각의 Foldout 상태.
+    //
+    // Dialogue Localization Foldout과는 별도로 관리한다.
+    private readonly Dictionary<int, bool>
+        eventStepFoldouts =
+            new Dictionary<int, bool>();
+
+    // <변경부분>
+    // Event Step Header 한 줄의 높이.
+    private const float EventStepHeaderHeight =
+        24f;
+
+    // <변경부분>
     // Battle Event Sequence의 Steps를
     // Unity ReorderableList로 표시한다.
     //
@@ -149,12 +162,53 @@ public class EventSequenceDataEditor : Editor
 
 
         // =====================================================
-        // Element
+        // Element Height
         // =====================================================
 
-        eventStepsReorderableList.elementHeight =
-            EditorGUIUtility.singleLineHeight +
-            6f;
+        // <변경부분>
+        // ReorderableList 안에서는 GUILayout로 실제 높이를 측정하지 않는다.
+        //
+        // 현재 Step Type과 SerializedProperty 상태를 기준으로
+        // 필요한 높이를 직접 계산한다.
+        eventStepsReorderableList.elementHeightCallback =
+            index =>
+            {
+                if (index < 0 ||
+                    index >=
+                        eventStepsProperty.arraySize)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                if (GetEventStepFoldout(
+                        index) == false)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                SerializedProperty stepProperty =
+                    eventStepsProperty
+                        .GetArrayElementAtIndex(
+                            index
+                        );
+
+                if (stepProperty == null)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                return
+                    EventStepHeaderHeight +
+                    GetExpandedEventStepHeight(
+                        stepProperty
+                    ) +
+                    8f;
+            };
+
+
+        // =====================================================
+        // Element
+        // =====================================================
 
         eventStepsReorderableList.drawElementCallback =
             (
@@ -183,16 +237,14 @@ public class EventSequenceDataEditor : Editor
                 }
 
                 SerializedProperty stepNameProperty =
-                    stepProperty
-                        .FindPropertyRelative(
-                            "stepName"
-                        );
+                    stepProperty.FindPropertyRelative(
+                        "stepName"
+                    );
 
                 SerializedProperty stepTypeProperty =
-                    stepProperty
-                        .FindPropertyRelative(
-                            "stepType"
-                        );
+                    stepProperty.FindPropertyRelative(
+                        "stepType"
+                    );
 
                 string stepName =
                     stepNameProperty != null
@@ -200,21 +252,18 @@ public class EventSequenceDataEditor : Editor
                         : string.Empty;
 
                 string stepTypeName =
-                    stepTypeProperty != null &&
+                    "None";
+
+                if (stepTypeProperty != null &&
                     stepTypeProperty.enumValueIndex >= 0 &&
                     stepTypeProperty.enumValueIndex <
-                        stepTypeProperty.enumDisplayNames.Length
-                        ? stepTypeProperty
-                            .enumDisplayNames[
-                                stepTypeProperty.enumValueIndex
-                            ]
-                        : "None";
+                        stepTypeProperty.enumDisplayNames.Length)
+                {
+                    stepTypeName =
+                        stepTypeProperty.enumDisplayNames[
+                            stepTypeProperty.enumValueIndex];
+                }
 
-                // <변경부분>
-                // 실제 Data에 번호를 저장하지 않고
-                // 현재 List 순서를 기준으로 표시용 번호만 생성한다.
-                //
-                // Drag Reorder 후 자동으로 다시 계산된다.
                 string stepNumber =
                     (index + 1).ToString(
                         "D2"
@@ -227,32 +276,77 @@ public class EventSequenceDataEditor : Editor
                         : stepName;
 
                 string label =
-                    $"Step{stepNumber} - " +
-                    $"{stepDisplayName}";
+                    $"Step{stepNumber} - {stepDisplayName}";
 
-                rect.y +=
-                    3f;
+                bool expanded =
+                    GetEventStepFoldout(
+                        index
+                    );
 
-                rect.height =
-                    EditorGUIUtility.singleLineHeight;
+                // <변경부분>
+                // 왼쪽 ReorderableList Drag Handle과
+                // Foldout 화살표가 겹치지 않도록 여백을 유지한다.
+                const float leftPadding =
+                    18f;
 
-                EditorGUI.LabelField(
-                    rect,
-                    label
+                Rect headerRect =
+                    new Rect(
+                        rect.x + leftPadding,
+                        rect.y + 2f,
+                        Mathf.Max(
+                            0f,
+                            rect.width - leftPadding
+                        ),
+                        EditorGUIUtility.singleLineHeight
+                    );
+
+                bool newExpanded =
+                    EditorGUI.Foldout(
+                        headerRect,
+                        expanded,
+                        label,
+                        true
+                    );
+
+                if (newExpanded != expanded)
+                {
+                    eventStepFoldouts[index] =
+                        newExpanded;
+
+                    Repaint();
+                }
+
+                if (newExpanded == false)
+                {
+                    return;
+                }
+
+                // <변경부분>
+                // GUILayout / EditorGUILayout을 사용하지 않고
+                // ReorderableList가 제공한 Rect 안에서
+                // EditorGUI로 직접 상세 UI를 그린다.
+                Rect contentRect =
+                    new Rect(
+                        rect.x + leftPadding,
+                        rect.y +
+                            EventStepHeaderHeight,
+                        Mathf.Max(
+                            0f,
+                            rect.width - leftPadding
+                        ),
+                        Mathf.Max(
+                            40f,
+                            rect.height -
+                            EventStepHeaderHeight -
+                            4f
+                        )
+                    );
+
+                DrawExpandedEventStep(
+                    contentRect,
+                    stepProperty
                 );
             };
-
-
-        // =====================================================
-        // Select
-        // =====================================================
-
-        eventStepsReorderableList.onSelectCallback =
-            list =>
-            {
-                Repaint();
-            };
-
 
         // =====================================================
         // Add
@@ -285,11 +379,20 @@ public class EventSequenceDataEditor : Editor
                     );
 
                 if (eventStepsProperty != null &&
-                    eventStepsProperty.arraySize > 0)
+     eventStepsProperty.arraySize > 0)
                 {
                     list.index =
                         eventStepsProperty.arraySize -
                         1;
+
+                    // <변경부분>
+                    // Step 추가 후 기존 Foldout 상태를 정리하고,
+                    // 방금 추가한 마지막 Step만 바로 펼쳐준다.
+                    eventStepFoldouts.Clear();
+
+                    eventStepFoldouts[
+                        eventStepsProperty.arraySize - 1
+                    ] = true;
                 }
 
                 Repaint();
@@ -350,8 +453,13 @@ public class EventSequenceDataEditor : Editor
                         );
                 }
 
-                // Step Index 기반 Foldout 표시 상태는
-                // 순서가 달라졌으므로 초기화한다.
+                // <변경부분>
+                // <변경부분>
+                // Step 삭제 후 Index 기반 Foldout 상태를 초기화한다.
+                eventStepFoldouts.Clear();
+
+                // Dialogue / SpeechBubble Localization Foldout도
+                // Step Index가 달라졌으므로 함께 초기화한다.
                 dialogueStepFoldouts.Clear();
 
                 Repaint();
@@ -386,8 +494,13 @@ public class EventSequenceDataEditor : Editor
                     sequenceData
                 );
 
-                // 기존 Foldout은 Index 기준이므로
-                // 잘못된 Step에 붙지 않도록 초기화한다.
+                // <변경부분>
+                // Drag로 Step 순서가 바뀌었으므로
+                // Index 기반 Foldout 상태를 초기화한다.
+                eventStepFoldouts.Clear();
+
+                // Dialogue / SpeechBubble Foldout 역시
+                // Step Index 기준이므로 함께 초기화한다.
                 dialogueStepFoldouts.Clear();
 
                 Repaint();
@@ -395,15 +508,79 @@ public class EventSequenceDataEditor : Editor
     }
 
     // <변경부분>
-    // Battle Event Steps 목록과
-    // 현재 선택한 Step의 전용 설정을 표시한다.
+    // Dialogue Step만 대상으로 전체 펼치기 / 접기를 수행한다.
     //
-    // 목록:
-    // Step01 - 이름
-    // Step02 - 이름
+    // SpeechBubble Foldout 상태에는 영향을 주지 않는다.
+    private void DrawDialogueStepFoldoutControls(
+        EventSequenceData sequenceData)
+    {
+        if (sequenceData == null ||
+            sequenceData.steps == null)
+        {
+            return;
+        }
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button(
+                    "▼ Dialogue 전체 펼치기"))
+            {
+                SetAllDialogueStepFoldouts(
+                    sequenceData,
+                    true
+                );
+            }
+
+            if (GUILayout.Button(
+                    "▲ Dialogue 전체 접기"))
+            {
+                SetAllDialogueStepFoldouts(
+                    sequenceData,
+                    false
+                );
+            }
+        }
+    }
+
+
+    private void SetAllDialogueStepFoldouts(
+        EventSequenceData sequenceData,
+        bool expanded)
+    {
+        if (sequenceData == null ||
+            sequenceData.steps == null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i < sequenceData.steps.Count;
+             i++)
+        {
+            EventSequenceStepData step =
+                sequenceData.steps[i];
+
+            if (step == null ||
+                step.stepType !=
+                    EventSequenceStepType.Dialogue)
+            {
+                continue;
+            }
+
+            dialogueStepFoldouts[i] =
+                expanded;
+        }
+
+        Repaint();
+    }
+
+    // <변경부분>
+    // Battle Event Steps.
     //
-    // 상세:
-    // 선택한 Step Type과 관계있는 필드만 표시한다.
+    // 각 Step 자체가 Foldout이며,
+    // 펼친 Step 바로 아래에서 해당 Step을 수정한다.
+    //
+    // ReorderableList Drag Reorder는 그대로 유지한다.
     private void DrawEventSteps(
         EventSequenceData sequenceData)
     {
@@ -436,14 +613,25 @@ public class EventSequenceDataEditor : Editor
 
         serializedObject.Update();
 
+        int stepCount =
+            eventStepsProperty.arraySize;
+
+        // <변경부분>
+        // 목록 최상단 전체 펼치기 / 접기.
+        DrawEventStepFoldoutControls(
+            stepCount
+        );
+
+        EditorGUILayout.Space(3);
+
         eventStepsReorderableList
             .DoLayoutList();
 
-        if (eventStepsProperty.arraySize <= 0)
-        {
-            serializedObject
-                .ApplyModifiedProperties();
+        serializedObject
+            .ApplyModifiedProperties();
 
+        if (stepCount <= 0)
+        {
             EditorGUILayout.HelpBox(
                 "Event Step이 없습니다.",
                 MessageType.Info
@@ -452,150 +640,155 @@ public class EventSequenceDataEditor : Editor
             return;
         }
 
-        int selectedIndex =
-            eventStepsReorderableList.index;
+        EditorGUILayout.Space(3);
 
-        if (selectedIndex < 0 ||
-            selectedIndex >=
-                eventStepsProperty.arraySize)
-        {
-            serializedObject
-                .ApplyModifiedProperties();
-
-            EditorGUILayout.Space(5);
-
-            EditorGUILayout.HelpBox(
-                "위 Steps 목록에서 편집할 Step을 선택하세요.",
-                MessageType.None
-            );
-
-            return;
-        }
-
-        SerializedProperty stepProperty =
-            eventStepsProperty
-                .GetArrayElementAtIndex(
-                    selectedIndex
-                );
-
-        if (stepProperty == null)
-        {
-            serializedObject
-                .ApplyModifiedProperties();
-
-            return;
-        }
-
-        EditorGUILayout.Space(8);
-
-        using (new EditorGUILayout.VerticalScope(
-                   EditorStyles.helpBox))
-        {
-            DrawSelectedEventStep(
-                selectedIndex,
-                stepProperty
-            );
-        }
-
-
-
-        serializedObject
-            .ApplyModifiedProperties();
+        // <변경부분>
+        // 긴 Sequence에서는 아래까지 내려온 상태에서도
+        // 다시 위로 올라갈 필요 없이 전체 상태를 변경할 수 있다.
+        DrawEventStepFoldoutControls(
+            eventStepsProperty.arraySize
+        );
     }
 
     // <변경부분>
-    // 선택한 Battle Event Step 하나만 편집한다.
+    // 펼쳐진 Battle Event Step의 실제 높이를 계산한다.
     //
-    // EventSequenceStepData 전체 필드를 펼치지 않고
-    // 현재 Step Type에 필요한 항목만 표시한다.
-    private void DrawSelectedEventStep(
-        int selectedIndex,
+    // ReorderableList 내부에서는 GUILayout 높이 측정을 사용하지 않고,
+    // 실제로 그릴 EditorGUI Property 높이를 그대로 합산한다.
+    private float GetExpandedEventStepHeight(
         SerializedProperty stepProperty)
     {
-        SerializedProperty stepNameProperty =
-            stepProperty.FindPropertyRelative(
-                "stepName"
+        Rect measureRect =
+            new Rect(
+                0f,
+                0f,
+                500f,
+                0f
             );
+
+        return
+            ProcessExpandedEventStep(
+                measureRect,
+                stepProperty,
+                false
+            );
+    }
+
+
+    // <변경부분>
+    // 펼쳐진 Battle Event Step을
+    // ReorderableList가 제공한 Rect 내부에 직접 그린다.
+    private void DrawExpandedEventStep(
+        Rect contentRect,
+        SerializedProperty stepProperty)
+    {
+        ProcessExpandedEventStep(
+            contentRect,
+            stepProperty,
+            true
+        );
+    }
+
+
+    // <변경부분>
+    // draw == false:
+    //   필요한 높이만 계산.
+    //
+    // draw == true:
+    //   동일한 계산 순서로 실제 EditorGUI를 출력.
+    //
+    // 높이 계산과 실제 Draw 순서를 하나의 함수에서 처리하므로
+    // 두 로직이 서로 어긋나지 않는다.
+    private float ProcessExpandedEventStep(
+        Rect contentRect,
+        SerializedProperty stepProperty,
+        bool draw)
+    {
+        float startY =
+            contentRect.y;
+
+        float currentY =
+            startY;
+
+        if (stepProperty == null)
+        {
+            ProcessEventStepHelpBox(
+                ref currentY,
+                contentRect,
+                "Event Step Property를 찾을 수 없습니다.",
+                MessageType.Error,
+                1,
+                draw
+            );
+
+            return
+                Mathf.Max(
+                    40f,
+                    currentY - startY
+                );
+        }
+
+        ProcessEventStepProperty(
+            ref currentY,
+            contentRect,
+            stepProperty,
+            "stepName",
+            "Step Name",
+            false,
+            draw
+        );
+
+        ProcessEventStepProperty(
+            ref currentY,
+            contentRect,
+            stepProperty,
+            "stepType",
+            "Step Type",
+            false,
+            draw
+        );
+
+        currentY +=
+            7f;
 
         SerializedProperty stepTypeProperty =
             stepProperty.FindPropertyRelative(
                 "stepType"
             );
 
-        if (stepNameProperty == null ||
-            stepTypeProperty == null)
+        if (stepTypeProperty == null)
         {
-            EditorGUILayout.HelpBox(
-                "Event Step의 Basic Property를 찾을 수 없습니다.",
-                MessageType.Error
+            ProcessEventStepHelpBox(
+                ref currentY,
+                contentRect,
+                "Step Type Property를 찾을 수 없습니다.",
+                MessageType.Error,
+                1,
+                draw
             );
 
-            return;
+            return
+                Mathf.Max(
+                    40f,
+                    currentY - startY
+                );
         }
-
-        string stepNumber =
-            (selectedIndex + 1).ToString(
-                "D2"
-            );
-
-        string stepDisplayName =
-            string.IsNullOrWhiteSpace(
-                stepNameProperty.stringValue)
-                ? stepTypeProperty.enumDisplayNames[
-                    stepTypeProperty.enumValueIndex]
-                : stepNameProperty.stringValue;
-
-        EditorGUILayout.LabelField(
-            $"Step{stepNumber} - {stepDisplayName}",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.PropertyField(
-            stepNameProperty,
-            new GUIContent(
-                "Step Name"
-            )
-        );
-
-        EditorGUILayout.PropertyField(
-            stepTypeProperty,
-            new GUIContent(
-                "Step Type"
-            )
-        );
-
-        EditorGUILayout.Space(7);
 
         EventSequenceStepType stepType =
             (EventSequenceStepType)
             stepTypeProperty.intValue;
 
-        DrawSelectedEventStepContents(
-            stepProperty,
-            stepType
-        );
-    }
-
-    // <변경부분>
-    // Step Type에 실제로 관계있는 설정만 표시한다.
-    //
-    // 다른 Step Type용 데이터는 삭제하지 않고
-    // 단순히 Inspector에서 숨긴다.
-    //
-    // 따라서 기존 EventSequenceData Asset의 값은 보존된다.
-    private void DrawSelectedEventStepContents(
-        SerializedProperty stepProperty,
-        EventSequenceStepType stepType)
-    {
         switch (stepType)
         {
             case EventSequenceStepType.None:
 
-                EditorGUILayout.HelpBox(
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
                     "아무 동작도 하지 않는 Step입니다.",
-                    MessageType.None
+                    MessageType.None,
+                    1,
+                    draw
                 );
 
                 break;
@@ -613,11 +806,15 @@ public class EventSequenceDataEditor : Editor
                         ? dialoguePagesProperty.arraySize
                         : 0;
 
-                EditorGUILayout.HelpBox(
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
                     "Dialogue 내용은 아래 Event Dialogue Localization의 " +
                     "Dialogue Pages 영역에서 관리합니다.\n" +
                     $"현재 Page: {dialoguePageCount}",
-                    MessageType.Info
+                    MessageType.Info,
+                    2,
+                    draw
                 );
 
                 break;
@@ -625,25 +822,38 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.ForcePieceSelect:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Piece Target",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "targetPieceTeam",
-                    "Target Team"
+                    "Target Team",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "targetPiecePosition",
-                    "Target Position"
+                    "Target Position",
+                    false,
+                    draw
                 );
 
-                DrawMarkerSettings(
-                    stepProperty
+                ProcessEventMarkerSettings(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw
                 );
 
                 break;
@@ -651,19 +861,28 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.ForceTileSelect:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Tile Target",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "targetTilePosition",
-                    "Target Position"
+                    "Target Position",
+                    false,
+                    draw
                 );
 
-                DrawMarkerSettings(
-                    stepProperty
+                ProcessEventMarkerSettings(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw
                 );
 
                 break;
@@ -671,19 +890,28 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.ForceButton:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Button Target",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "targetButton",
-                    "Target Button"
+                    "Target Button",
+                    false,
+                    draw
                 );
 
-                DrawMarkerSettings(
-                    stepProperty
+                ProcessEventMarkerSettings(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw
                 );
 
                 break;
@@ -691,44 +919,61 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.SpawnPiece:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Spawn Piece",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "spawnPieceData",
-                    "Piece Data"
+                    "Piece Data",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "spawnPieceTeam",
-                    "Team"
+                    "Team",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "spawnPosition",
-                    "Spawn Position"
+                    "Spawn Position",
+                    false,
+                    draw
                 );
 
-                EditorGUILayout.Space(5);
+                currentY +=
+                    5f;
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Spawn Override",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                // <변경부분>
-                // Spawn Override 안의 값들은 전부 SpawnPiece와 관계있으므로
-                // 해당 구조만 자식까지 표시한다.
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "spawnOverride",
                     "Override Settings",
-                    true
+                    true,
+                    draw
                 );
 
                 break;
@@ -736,15 +981,31 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.RemovePiece:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Remove Piece",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "removePiecePosition",
-                    "Piece Position"
+                    "Piece Position",
+                    false,
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "checkRemovePieceTeam",
+                    "Check Team",
+                    false,
+                    draw
                 );
 
                 SerializedProperty checkTeamProperty =
@@ -752,23 +1013,18 @@ public class EventSequenceDataEditor : Editor
                         "checkRemovePieceTeam"
                     );
 
-                if (checkTeamProperty != null)
+                if (checkTeamProperty != null &&
+                    checkTeamProperty.boolValue)
                 {
-                    EditorGUILayout.PropertyField(
-                        checkTeamProperty,
-                        new GUIContent(
-                            "Check Team"
-                        )
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "removePieceTeam",
+                        "Piece Team",
+                        false,
+                        draw
                     );
-
-                    if (checkTeamProperty.boolValue)
-                    {
-                        DrawStepProperty(
-                            stepProperty,
-                            "removePieceTeam",
-                            "Piece Team"
-                        );
-                    }
                 }
 
                 break;
@@ -776,15 +1032,21 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.Wait:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Wait",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "waitDuration",
-                    "Wait Duration"
+                    "Wait Duration",
+                    false,
+                    draw
                 );
 
                 break;
@@ -792,9 +1054,13 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.CompleteSequence:
 
-                EditorGUILayout.HelpBox(
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
                     "현재 Event Sequence를 즉시 완료합니다.",
-                    MessageType.Info
+                    MessageType.Info,
+                    1,
+                    draw
                 );
 
                 break;
@@ -802,10 +1068,14 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.CommitPlayerPiecesToRunState:
 
-                EditorGUILayout.HelpBox(
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
                     "현재 Board의 Player Piece 상태를 RunState에 저장합니다.\n" +
                     "추가 설정값은 없습니다.",
-                    MessageType.Info
+                    MessageType.Info,
+                    2,
+                    draw
                 );
 
                 break;
@@ -813,11 +1083,14 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.AdvanceBattleTurn:
 
-                EditorGUILayout.HelpBox(
-                    "BattleManager의 정상 EndTurn 흐름을 사용해 " +
-                    "다음 진영으로 Turn을 넘깁니다.\n" +
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "BattleManager의 정상 EndTurn 흐름을 사용해 다음 진영으로 Turn을 넘깁니다.\n" +
                     "추가 설정값은 없습니다.",
-                    MessageType.Info
+                    MessageType.Info,
+                    2,
+                    draw
                 );
 
                 break;
@@ -825,33 +1098,50 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.ExecutePieceAction:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Execute Piece Action",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "actionPieceTeam",
-                    "Piece Team"
+                    "Piece Team",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "actionPiecePosition",
-                    "Piece Position"
+                    "Piece Position",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "actionTargetPosition",
-                    "Target Position"
+                    "Target Position",
+                    false,
+                    draw
                 );
 
-                EditorGUILayout.HelpBox(
-                    "Target Position이 빈 Tile이면 이동, " +
-                    "상대 Piece가 있으면 공격으로 처리됩니다.",
-                    MessageType.None
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Target Position이 빈 Tile이면 이동하고, 상대 Piece가 있으면 공격으로 처리됩니다.",
+                    MessageType.None,
+                    2,
+                    draw
                 );
 
                 break;
@@ -859,26 +1149,40 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.ExecutePieceUniqueSkill:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Execute Piece Ability",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "uniqueSkillPieceTeam",
-                    "Piece Team"
+                    "Piece Team",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "uniqueSkillPiecePosition",
-                    "Piece Position"
+                    "Piece Position",
+                    false,
+                    draw
                 );
 
-                EditorGUILayout.HelpBox(
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
                     "지정한 Piece가 현재 보유한 Ability를 사용합니다.",
-                    MessageType.None
+                    MessageType.None,
+                    1,
+                    draw
                 );
 
                 break;
@@ -886,40 +1190,71 @@ public class EventSequenceDataEditor : Editor
 
             case EventSequenceStepType.SpeechBubble:
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Speech Bubble",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "speechBubblePieceTeam",
-                    "Piece Team"
+                    "Piece Team",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "speechBubblePiecePosition",
-                    "Piece Position"
+                    "Piece Position",
+                    false,
+                    draw
                 );
 
-                EditorGUILayout.Space(4);
+                currentY +=
+                    4f;
 
-                EditorGUILayout.LabelField(
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
                     "Presentation",
-                    EditorStyles.boldLabel
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "speechBubbleDuration",
-                    "Duration"
+                    "Duration",
+                    false,
+                    draw
                 );
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "speechBubbleTypingSpeed",
-                    "Typing Speed"
+                    "Typing Speed",
+                    false,
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "speechBubbleUseEmphasisShake",
+                    "Use Emphasis Shake",
+                    false,
+                    draw
                 );
 
                 SerializedProperty emphasisProperty =
@@ -927,55 +1262,63 @@ public class EventSequenceDataEditor : Editor
                         "speechBubbleUseEmphasisShake"
                     );
 
-                if (emphasisProperty != null)
+                if (emphasisProperty != null &&
+                    emphasisProperty.boolValue)
                 {
-                    EditorGUILayout.PropertyField(
-                        emphasisProperty,
-                        new GUIContent(
-                            "Use Emphasis Shake"
-                        )
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "speechBubbleEmphasisStrength",
+                        "Emphasis Strength",
+                        false,
+                        draw
                     );
-
-                    if (emphasisProperty.boolValue)
-                    {
-                        DrawStepProperty(
-                            stepProperty,
-                            "speechBubbleEmphasisStrength",
-                            "Emphasis Strength"
-                        );
-                    }
                 }
 
-                DrawStepProperty(
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
                     stepProperty,
                     "speechBubbleWaitForComplete",
-                    "Wait For Complete"
+                    "Wait For Complete",
+                    false,
+                    draw
                 );
 
-                EditorGUILayout.HelpBox(
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
                     "SpeechBubble의 Korean / English / Japanese Text는 " +
                     "아래 Speech Bubble Texts 영역에서 관리합니다.",
-                    MessageType.Info
+                    MessageType.Info,
+                    2,
+                    draw
                 );
 
                 break;
         }
+
+        return
+            Mathf.Max(
+                40f,
+                currentY - startY
+            );
     }
 
+
     // <변경부분>
-    // 선택한 Step 내부의 특정 Serialized Field만 표시한다.
+    // Rect 기반 PropertyField.
     //
-    // 직접 EventSequenceStepData 필드를 수정하지 않고
-    // SerializedProperty를 사용하므로:
-    // - Undo
-    // - Prefab/Asset Serialization
-    // - Unity Inspector 변경 감지
-    // 를 그대로 사용할 수 있다.
-    private void DrawStepProperty(
+    // 높이 계산과 실제 Draw에서 동일하게 사용한다.
+    private void ProcessEventStepProperty(
+        ref float currentY,
+        Rect contentRect,
         SerializedProperty stepProperty,
         string propertyName,
         string displayName,
-        bool includeChildren = false)
+        bool includeChildren,
+        bool draw)
     {
         if (stepProperty == null ||
             string.IsNullOrWhiteSpace(
@@ -991,36 +1334,156 @@ public class EventSequenceDataEditor : Editor
 
         if (property == null)
         {
-            EditorGUILayout.HelpBox(
+            ProcessEventStepHelpBox(
+                ref currentY,
+                contentRect,
                 $"Step Property를 찾을 수 없습니다: {propertyName}",
-                MessageType.Warning
+                MessageType.Warning,
+                1,
+                draw
             );
 
             return;
         }
 
-        EditorGUILayout.PropertyField(
-            property,
+        GUIContent label =
             new GUIContent(
                 displayName
-            ),
-            includeChildren
-        );
+            );
+
+        float propertyHeight =
+            EditorGUI.GetPropertyHeight(
+                property,
+                label,
+                includeChildren
+            );
+
+        if (draw)
+        {
+            Rect propertyRect =
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    propertyHeight
+                );
+
+            EditorGUI.PropertyField(
+                propertyRect,
+                property,
+                label,
+                includeChildren
+            );
+        }
+
+        currentY +=
+            propertyHeight +
+            EditorGUIUtility.standardVerticalSpacing;
     }
 
-    // <변경부분>
-    // ForcePieceSelect / ForceTileSelect / ForceButton에서만
-    // Marker 관련 설정을 표시한다.
-    //
-    // 다른 Step Type에서는 Marker 설정을 숨긴다.
-    private void DrawMarkerSettings(
-        SerializedProperty stepProperty)
-    {
-        EditorGUILayout.Space(5);
 
-        EditorGUILayout.LabelField(
+    // <변경부분>
+    // Rect 기반 Section Label.
+    private void ProcessEventStepSectionLabel(
+        ref float currentY,
+        Rect contentRect,
+        string label,
+        bool draw)
+    {
+        float lineHeight =
+            EditorGUIUtility.singleLineHeight;
+
+        if (draw)
+        {
+            EditorGUI.LabelField(
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    lineHeight
+                ),
+                label,
+                EditorStyles.boldLabel
+            );
+        }
+
+        currentY +=
+            lineHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+    }
+
+
+    // <변경부분>
+    // Rect 기반 HelpBox.
+    //
+    // lineCount를 사용해 ReorderableList의 높이 계산과
+    // 실제 HelpBox 높이를 동일하게 유지한다.
+    private void ProcessEventStepHelpBox(
+        ref float currentY,
+        Rect contentRect,
+        string message,
+        MessageType messageType,
+        int lineCount,
+        bool draw)
+    {
+        float helpBoxHeight =
+            Mathf.Max(
+                32f,
+                EditorGUIUtility.singleLineHeight *
+                Mathf.Max(
+                    1,
+                    lineCount
+                ) +
+                12f
+            );
+
+        if (draw)
+        {
+            EditorGUI.HelpBox(
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    helpBoxHeight
+                ),
+                message,
+                messageType
+            );
+        }
+
+        currentY +=
+            helpBoxHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+    }
+
+
+    // <변경부분>
+    // ForcePieceSelect / ForceTileSelect / ForceButton에서 사용하는
+    // Marker 설정을 Rect 기반으로 출력한다.
+    private void ProcessEventMarkerSettings(
+        ref float currentY,
+        Rect contentRect,
+        SerializedProperty stepProperty,
+        bool draw)
+    {
+        currentY +=
+            5f;
+
+        ProcessEventStepSectionLabel(
+            ref currentY,
+            contentRect,
             "Marker",
-            EditorStyles.boldLabel
+            draw
+        );
+
+        ProcessEventStepProperty(
+            ref currentY,
+            contentRect,
+            stepProperty,
+            "showMarker",
+            "Show Marker",
+            false,
+            draw
         );
 
         SerializedProperty showMarkerProperty =
@@ -1028,34 +1491,98 @@ public class EventSequenceDataEditor : Editor
                 "showMarker"
             );
 
-        if (showMarkerProperty == null)
+        if (showMarkerProperty == null ||
+            showMarkerProperty.boolValue == false)
         {
             return;
         }
 
-        EditorGUILayout.PropertyField(
-            showMarkerProperty,
-            new GUIContent(
-                "Show Marker"
-            )
-        );
-
-        if (showMarkerProperty.boolValue == false)
-        {
-            return;
-        }
-
-        DrawStepProperty(
+        ProcessEventStepProperty(
+            ref currentY,
+            contentRect,
             stepProperty,
             "markerDisplayType",
-            "Display Type"
+            "Display Type",
+            false,
+            draw
         );
 
-        DrawStepProperty(
+        ProcessEventStepProperty(
+            ref currentY,
+            contentRect,
             stepProperty,
             "markerPositionOffset",
-            "Position Offset"
+            "Position Offset",
+            false,
+            draw
         );
+    }
+
+    // <변경부분>
+    // Event Step 목록의 전체 펼치기 / 접기 버튼.
+    //
+    // 동일한 버튼을 목록 위와 아래 양쪽에서 사용한다.
+    private void DrawEventStepFoldoutControls(
+        int stepCount)
+    {
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button(
+                    "▼ 전체 펼치기"))
+            {
+                SetAllEventStepFoldouts(
+                    stepCount,
+                    true
+                );
+            }
+
+            if (GUILayout.Button(
+                    "▲ 전체 접기"))
+            {
+                SetAllEventStepFoldouts(
+                    stepCount,
+                    false
+                );
+            }
+        }
+    }
+
+    private void SetAllEventStepFoldouts(
+    int stepCount,
+    bool expanded)
+    {
+        eventStepFoldouts.Clear();
+
+        for (int i = 0;
+             i < stepCount;
+             i++)
+        {
+            eventStepFoldouts[i] =
+                expanded;
+        }
+
+        Repaint();
+    }
+
+
+    // <변경부분>
+    // 개별 Battle Event Step의 Foldout 상태.
+    //
+    // 기본값은 접힘으로 한다.
+    private bool GetEventStepFoldout(
+        int stepIndex)
+    {
+        if (eventStepFoldouts.TryGetValue(
+                stepIndex,
+                out bool expanded))
+        {
+            return expanded;
+        }
+
+        eventStepFoldouts[stepIndex] =
+            false;
+
+        return false;
     }
 
     // <변경부분>
@@ -1302,10 +1829,8 @@ public class EventSequenceDataEditor : Editor
         }
     }
 
-    // EventSequenceData 전체의 Dialogue Step을 모아
-    // 하나의 Inspector 영역에서 편집한다.
     private void DrawDialoguePages(
-        EventSequenceData sequenceData)
+    EventSequenceData sequenceData)
     {
         EditorGUILayout.LabelField(
             "Dialogue Pages",
@@ -1322,6 +1847,15 @@ public class EventSequenceDataEditor : Editor
 
             return;
         }
+
+        // <변경부분>
+        // Dialogue 목록 최상단에서도
+        // 전체 Dialogue Step을 한 번에 펼치거나 접을 수 있다.
+        DrawDialogueStepFoldoutControls(
+            sequenceData
+        );
+
+        EditorGUILayout.Space(4);
 
         bool foundDialogueStep =
             false;
@@ -1455,6 +1989,18 @@ public class EventSequenceDataEditor : Editor
             EditorGUILayout.Space(6);
         }
 
+        // <변경부분>
+        // Dialogue 목록 끝까지 내려온 상태에서도
+        // 위로 다시 올라가지 않고 전체 펼치기 / 접기를 사용할 수 있다.
+        if (foundDialogueStep)
+        {
+            EditorGUILayout.Space(4);
+
+            DrawDialogueStepFoldoutControls(
+                sequenceData
+            );
+        }
+
         if (foundDialogueStep == false)
         {
             EditorGUILayout.HelpBox(
@@ -1463,6 +2009,8 @@ public class EventSequenceDataEditor : Editor
             );
         }
     }
+
+
 
     // <변경부분>
     // 사용하지 않던 stepIndex 인자를 제거한다.

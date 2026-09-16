@@ -28,18 +28,24 @@ using UnityEditorInternal;
 public class EventSceneDataEditor : Editor
 {
     private const string TableCollectionName =
-        "EventScene_Dialogue";
+     "EventScene_Dialogue";
 
     private readonly Dictionary<int, bool>
-    stepFoldouts =
-        new Dictionary<int, bool>();
+        stepFoldouts =
+            new Dictionary<int, bool>();
+
+    // <변경부분>
+    // Event Scene Step Header 한 줄의 기본 높이.
+    private const float EventStepHeaderHeight =
+        24f;
+
 
     // <변경부분>
     // Event Step 목록과 별도로
     // Dialogue 관리 영역의 펼침 상태를 저장한다.
-   private readonly Dictionary<int, bool>
-    dialogueStepFoldouts =
-        new Dictionary<int, bool>();
+    private readonly Dictionary<int, bool>
+        dialogueStepFoldouts =
+            new Dictionary<int, bool>();
 
 
     // <변경부분>
@@ -177,12 +183,69 @@ public class EventSceneDataEditor : Editor
 
 
         // =====================================================
-        // Element
+        // Element Height
         // =====================================================
 
-        eventStepsReorderableList.elementHeight =
-            EditorGUIUtility.singleLineHeight +
-            6f;
+        // <변경부분>
+        // ReorderableList 내부에서는 GUILayout 높이 측정을 사용하지 않는다.
+        // 현재 Step Type과 SerializedProperty 상태를 기준으로
+        // 필요한 높이를 직접 계산한다.
+        eventStepsReorderableList.elementHeightCallback =
+            index =>
+            {
+                if (index < 0 ||
+                    index >=
+                        eventStepsProperty.arraySize)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                if (GetStepFoldout(
+                        index) == false)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                EventSceneData eventData =
+                    target as EventSceneData;
+
+                if (eventData == null ||
+                    eventData.steps == null ||
+                    index >= eventData.steps.Count)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                EventSceneStepData step =
+                    eventData.steps[index];
+
+                SerializedProperty stepProperty =
+                    eventStepsProperty
+                        .GetArrayElementAtIndex(
+                            index
+                        );
+
+                if (step == null ||
+                    stepProperty == null)
+                {
+                    return EventStepHeaderHeight;
+                }
+
+                return
+                    EventStepHeaderHeight +
+                    GetExpandedEventSceneStepHeight(
+                        eventData,
+                        step,
+                        stepProperty,
+                        index
+                    ) +
+                    8f;
+            };
+
+
+        // =====================================================
+        // Element
+        // =====================================================
 
         eventStepsReorderableList.drawElementCallback =
             (
@@ -199,28 +262,40 @@ public class EventSceneDataEditor : Editor
                     return;
                 }
 
+                EventSceneData eventData =
+                    target as EventSceneData;
+
+                if (eventData == null ||
+                    eventData.steps == null ||
+                    index >= eventData.steps.Count)
+                {
+                    return;
+                }
+
+                EventSceneStepData step =
+                    eventData.steps[index];
+
                 SerializedProperty stepProperty =
                     eventStepsProperty
                         .GetArrayElementAtIndex(
                             index
                         );
 
-                if (stepProperty == null)
+                if (step == null ||
+                    stepProperty == null)
                 {
                     return;
                 }
 
                 SerializedProperty stepNameProperty =
-                    stepProperty
-                        .FindPropertyRelative(
-                            "stepName"
-                        );
+                    stepProperty.FindPropertyRelative(
+                        "stepName"
+                    );
 
                 SerializedProperty stepTypeProperty =
-                    stepProperty
-                        .FindPropertyRelative(
-                            "stepType"
-                        );
+                    stepProperty.FindPropertyRelative(
+                        "stepType"
+                    );
 
                 string stepName =
                     stepNameProperty != null
@@ -229,27 +304,11 @@ public class EventSceneDataEditor : Editor
 
                 string stepTypeName =
                     stepTypeProperty != null
-                        ? stepTypeProperty
-                            .enumDisplayNames[
-                                stepTypeProperty.enumValueIndex
-                            ]
+                        ? ((EventSceneStepType)
+                            stepTypeProperty.intValue)
+                            .ToString()
                         : "None";
 
-                // <변경부분>
-                // 제작자가 다이어그램 / 기획서에서
-                // Event Step 위치를 빠르게 확인할 수 있도록
-                // 현재 리스트 순서를 기준으로 표시용 Step 번호를 붙인다.
-                //
-                // 실제 Data에 번호를 저장하지 않는다.
-                // Drag Reorder 후에는 현재 순서에 맞춰 자동으로 다시 계산된다.
-                //
-                // index는 0부터 시작하지만,
-                // 제작자 표시 번호는 1부터 시작한다.
-                //
-                // 예:
-                // Step01 - 데보리아 생성
-                // Step02 - 테스트 시작
-                // Step03 - 폰 생성
                 string stepNumber =
                     (index + 1).ToString(
                         "D2"
@@ -264,28 +323,77 @@ public class EventSceneDataEditor : Editor
                 string label =
                     $"Step{stepNumber} - {stepDisplayName}";
 
-                rect.y +=
-                    3f;
+                bool expanded =
+                    GetStepFoldout(
+                        index
+                    );
 
-                rect.height =
-                    EditorGUIUtility.singleLineHeight;
+                // <변경부분>
+                // ReorderableList Drag Handle과 Foldout 화살표가
+                // 겹치지 않도록 왼쪽 여백을 유지한다.
+                const float leftPadding =
+                    18f;
 
-                EditorGUI.LabelField(
-                    rect,
-                    label
+                Rect headerRect =
+                    new Rect(
+                        rect.x + leftPadding,
+                        rect.y + 2f,
+                        Mathf.Max(
+                            0f,
+                            rect.width - leftPadding
+                        ),
+                        EditorGUIUtility.singleLineHeight
+                    );
+
+                bool newExpanded =
+                    EditorGUI.Foldout(
+                        headerRect,
+                        expanded,
+                        label,
+                        true
+                    );
+
+                if (newExpanded != expanded)
+                {
+                    stepFoldouts[index] =
+                        newExpanded;
+
+                    Repaint();
+                }
+
+                if (newExpanded == false)
+                {
+                    return;
+                }
+
+                // <변경부분>
+                // Battle Event와 동일하게
+                // GUILayout / EditorGUILayout을 사용하지 않고
+                // ReorderableList Rect 안에 EditorGUI로 직접 그린다.
+                Rect contentRect =
+                    new Rect(
+                        rect.x + leftPadding,
+                        rect.y +
+                            EventStepHeaderHeight,
+                        Mathf.Max(
+                            0f,
+                            rect.width - leftPadding
+                        ),
+                        Mathf.Max(
+                            40f,
+                            rect.height -
+                            EventStepHeaderHeight -
+                            4f
+                        )
+                    );
+
+                DrawExpandedEventSceneStep(
+                    contentRect,
+                    eventData,
+                    step,
+                    stepProperty,
+                    index
                 );
-            };
-
-
-        // =====================================================
-        // Select
-        // =====================================================
-
-        eventStepsReorderableList.onSelectCallback =
-            list =>
-            {
-                // 선택된 Step 상세 Editor를 다시 그린다.
-                Repaint();
             };
 
 
@@ -324,8 +432,17 @@ public class EventSceneDataEditor : Editor
                 if (eventStepsProperty != null &&
                     eventStepsProperty.arraySize > 0)
                 {
+                    int newStepIndex =
+                        eventStepsProperty.arraySize -
+                        1;
+
                     list.index =
-                        eventStepsProperty.arraySize - 1;
+                        newStepIndex;
+
+                    // <변경부분>
+                    // 새로 만든 Step은 바로 수정할 수 있도록 펼친다.
+                    stepFoldouts[newStepIndex] =
+                        true;
                 }
 
                 Repaint();
@@ -385,9 +502,18 @@ public class EventSceneDataEditor : Editor
                         Mathf.Clamp(
                             removeIndex,
                             0,
-                            eventStepsProperty.arraySize - 1
+                            eventStepsProperty.arraySize -
+                            1
                         );
                 }
+
+                // <변경부분>
+                // 삭제하면 뒤쪽 Step Index가 당겨지므로
+                // Index 기반 Foldout 상태를 초기화한다.
+                stepFoldouts.Clear();
+
+                // Dialogue Foldout도 Step Index 기반이므로 같이 초기화한다.
+                dialogueStepFoldouts.Clear();
 
                 CancelAllEventSceneTileSelection();
 
@@ -422,6 +548,12 @@ public class EventSceneDataEditor : Editor
                 EditorUtility.SetDirty(
                     eventData
                 );
+
+                // <변경부분>
+                // Drag Reorder 후에는 Step Index가 달라지므로
+                // Index 기반 UI 상태를 전부 초기화한다.
+                stepFoldouts.Clear();
+                dialogueStepFoldouts.Clear();
 
                 // Scene View Tile 선택 중에 Step 순서가 바뀌면
                 // 이전 Index가 다른 Step을 가리킬 수 있으므로 안전하게 종료한다.
@@ -698,20 +830,8 @@ public class EventSceneDataEditor : Editor
     }
 
 
-    // <변경부분>
-    // Event Scene Steps 목록.
-    //
-    // Step 순서 변경은 Unity ReorderableList가 담당하고,
-    // 선택된 Step의 실제 전용 설정은 목록 아래에서 기존 방식으로 편집한다.
-    //
-    // 이렇게 분리하면:
-    // - 수십 개 Step을 빠르게 Drag Reorder 가능
-    // - 기존 Event Scene 전용 Inspector 기능 유지
-    // - Scene View Tile 선택 기능 유지
-    // - Spine Animation Dropdown 유지
-    // - Localization 구조 유지
     private void DrawEventSteps(
-        EventSceneData eventData)
+      EventSceneData eventData)
     {
         EditorGUILayout.LabelField(
             "Event Steps",
@@ -729,7 +849,8 @@ public class EventSceneDataEditor : Editor
             InitializeEventStepsReorderableList();
         }
 
-        if (eventStepsReorderableList == null)
+        if (eventStepsReorderableList == null ||
+            eventStepsProperty == null)
         {
             EditorGUILayout.HelpBox(
                 "EventSceneData.steps를 찾을 수 없습니다.",
@@ -739,10 +860,18 @@ public class EventSceneDataEditor : Editor
             return;
         }
 
-        // <변경부분>
-        // ReorderableList는 SerializedProperty 기반이므로
-        // Draw 직전에 최신 Serialized 상태를 읽는다.
         serializedObject.Update();
+
+        int stepCount =
+            eventStepsProperty.arraySize;
+
+        // <변경부분>
+        // Event Steps 최상단 전체 펼치기 / 접기.
+        DrawEventSceneStepFoldoutControls(
+            stepCount
+        );
+
+        EditorGUILayout.Space(3);
 
         eventStepsReorderableList
             .DoLayoutList();
@@ -750,10 +879,7 @@ public class EventSceneDataEditor : Editor
         serializedObject
             .ApplyModifiedProperties();
 
-        EditorGUILayout.Space(8);
-
-        if (eventData.steps == null ||
-            eventData.steps.Count == 0)
+        if (stepCount <= 0)
         {
             EditorGUILayout.HelpBox(
                 "Event Step이 없습니다.",
@@ -763,110 +889,1828 @@ public class EventSceneDataEditor : Editor
             return;
         }
 
-        int selectedIndex =
-            eventStepsReorderableList.index;
+        EditorGUILayout.Space(3);
 
-        if (selectedIndex < 0 ||
-            selectedIndex >=
-                eventData.steps.Count)
-        {
-            EditorGUILayout.HelpBox(
-                "위 Steps 목록에서 편집할 Step을 선택하세요.",
-                MessageType.None
+        // <변경부분>
+        // 긴 Step 목록의 최하단에서도
+        // 다시 위로 올라가지 않고 전체 상태를 바꿀 수 있다.
+        DrawEventSceneStepFoldoutControls(
+      eventStepsProperty.arraySize
+  );
+    }
+
+
+    // <변경부분>
+    // Event Scene Step 목록의
+    // 전체 펼치기 / 전체 접기 버튼.
+    //
+    // 동일한 버튼을 Steps 목록의
+    // 위와 아래 양쪽에서 사용한다.
+    // <변경부분>
+    // 펼쳐진 Event Scene Step의 높이를 Rect 기반으로 계산한다.
+    private float GetExpandedEventSceneStepHeight(
+        EventSceneData eventData,
+        EventSceneStepData step,
+        SerializedProperty stepProperty,
+        int stepIndex)
+    {
+        Rect measureRect =
+            new Rect(
+                0f,
+                0f,
+                Mathf.Max(
+                    320f,
+                    EditorGUIUtility.currentViewWidth - 80f
+                ),
+                0f
             );
 
-            return;
-        }
-
-        EventSceneStepData step =
-            eventData.steps[
-                selectedIndex
-            ];
-
-        if (step == null)
-        {
-            return;
-        }
-
-
-        // =====================================================
-        // Selected Step Detail
-        // =====================================================
-
-        using (new EditorGUILayout.VerticalScope(
-                   EditorStyles.helpBox))
-        {
-            // <변경부분>
-            // 위 Steps 목록과 동일하게
-            // 1부터 시작하는 두 자리 Step 번호를 표시한다.
-            //
-            // 예:
-            // Step01 - 데보리아 생성
-            // Step02 - 테스트 시작
-            string selectedStepNumber =
-                (selectedIndex + 1).ToString(
-                    "D2"
-                );
-
-            string selectedStepDisplayName =
-                string.IsNullOrWhiteSpace(
-                    step.stepName)
-                    ? step.stepType.ToString()
-                    : step.stepName;
-
-            string selectedStepTitle =
-                $"Step{selectedStepNumber} - " +
-                $"{selectedStepDisplayName}";
-
-            EditorGUILayout.LabelField(
-                selectedStepTitle,
-                EditorStyles.boldLabel
-            );
-
-            EditorGUILayout.Space(3);
-
-            EditorGUI.BeginChangeCheck();
-
-            string newStepName =
-                EditorGUILayout.TextField(
-                    "Step Name",
-                    step.stepName
-                );
-
-            EventSceneStepType newStepType =
-                (EventSceneStepType)
-                EditorGUILayout.EnumPopup(
-                    "Step Type",
-                    step.stepType
-                );
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(
-                    eventData,
-                    "Edit Event Scene Step"
-                );
-
-                step.stepName =
-                    newStepName;
-
-                step.stepType =
-                    newStepType;
-
-                EditorUtility.SetDirty(
-                    eventData
-                );
-            }
-
-            EditorGUILayout.Space(5);
-
-            // 기존 Step별 전용 UI를 그대로 사용한다.
-            DrawStepContents(
+        return
+            ProcessExpandedEventSceneStep(
+                measureRect,
                 eventData,
-                step
+                step,
+                stepProperty,
+                stepIndex,
+                false
+            );
+    }
+
+
+    // <변경부분>
+    // 펼쳐진 Event Scene Step을 ReorderableList 내부에 직접 그린다.
+    private void DrawExpandedEventSceneStep(
+        Rect contentRect,
+        EventSceneData eventData,
+        EventSceneStepData step,
+        SerializedProperty stepProperty,
+        int stepIndex)
+    {
+        ProcessExpandedEventSceneStep(
+            contentRect,
+            eventData,
+            step,
+            stepProperty,
+            stepIndex,
+            true
+        );
+    }
+
+
+    // <변경부분>
+    // draw == false : 필요한 높이 계산
+    // draw == true  : 같은 순서로 실제 EditorGUI 출력
+    private float ProcessExpandedEventSceneStep(
+        Rect contentRect,
+        EventSceneData eventData,
+        EventSceneStepData step,
+        SerializedProperty stepProperty,
+        int stepIndex,
+        bool draw)
+    {
+        float startY =
+            contentRect.y;
+
+        float currentY =
+            startY;
+
+        if (eventData == null ||
+            step == null ||
+            stepProperty == null)
+        {
+            ProcessEventSceneHelpBox(
+                ref currentY,
+                contentRect,
+                "Event Scene Step 정보를 찾을 수 없습니다.",
+                MessageType.Error,
+                draw
+            );
+
+            return
+                Mathf.Max(
+                    40f,
+                    currentY - startY
+                );
+        }
+
+        ProcessEventSceneProperties(
+            ref currentY,
+            contentRect,
+            stepProperty,
+            draw,
+            "stepName", "Step Name",
+            "stepType", "Step Type"
+        );
+
+        currentY +=
+            7f;
+
+        SerializedProperty stepTypeProperty =
+            stepProperty.FindPropertyRelative(
+                "stepType"
+            );
+
+        if (stepTypeProperty == null)
+        {
+            ProcessEventSceneHelpBox(
+                ref currentY,
+                contentRect,
+                "Step Type Property를 찾을 수 없습니다.",
+                MessageType.Error,
+                draw
+            );
+
+            return
+                Mathf.Max(
+                    40f,
+                    currentY - startY
+                );
+        }
+
+        EventSceneStepType stepType =
+            (EventSceneStepType)
+            stepTypeProperty.intValue;
+
+        switch (stepType)
+        {
+            case EventSceneStepType.None:
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "아무 동작도 하지 않는 Step입니다.",
+                    MessageType.None,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.Dialogue:
+
+                int dialoguePageCount =
+                    step.dialoguePages != null
+                        ? step.dialoguePages.Count
+                        : 0;
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Dialogue 내용은 아래 Dialogue Pages 영역에서 관리합니다.\n" +
+                    $"현재 Page: {dialoguePageCount}",
+                    MessageType.None,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.Wait:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Wait",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "waitDuration", "Wait Duration"
+                );
+
+                break;
+
+
+            case EventSceneStepType.SpawnActor:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Actor",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "spawnActorId", "Actor ID",
+                    "spawnActorPieceData", "Piece Data",
+                    "spawnActorTeam", "Visual Team"
+                );
+
+                SerializedProperty spawnTeamProperty =
+                    stepProperty.FindPropertyRelative(
+                        "spawnActorTeam"
+                    );
+
+                if (spawnTeamProperty != null &&
+                    spawnTeamProperty.intValue ==
+                        (int)PieceTeam.Player)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "spawnActorUseAbsorbedPlayerVisual",
+                        "Use Absorbed Player Visual"
+                    );
+                }
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "spawnActorVisualOffset", "Visual Offset",
+                    "spawnActorFlipX", "Flip X",
+                    "spawnActorFadeInDuration",
+                    "Fallback Fade In Duration"
+                );
+
+                currentY +=
+                    5f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Spawn Position",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "spawnActorPosition", "Background Tile"
+                );
+
+                bool isSpawnSelecting =
+                    isSelectingSpawnActorTile &&
+                    selectingSpawnActorStepIndex ==
+                        stepIndex;
+
+                if (ProcessEventSceneButton(
+                        ref currentY,
+                        contentRect,
+                        isSpawnSelecting
+                            ? "Scene 타일 선택 취소"
+                            : "Scene에서 타일 선택",
+                        draw))
+                {
+                    if (isSpawnSelecting)
+                    {
+                        isSelectingSpawnActorTile =
+                            false;
+
+                        selectingSpawnActorStepIndex =
+                            -1;
+                    }
+                    else
+                    {
+                        isSelectingMoveActorTile =
+                            false;
+
+                        selectingMoveActorStepIndex =
+                            -1;
+
+                        isSelectingSpawnActorTile =
+                            true;
+
+                        selectingSpawnActorStepIndex =
+                            stepIndex;
+
+                        SceneView.RepaintAll();
+                    }
+                }
+
+                if (isSpawnSelecting)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "Scene View에서 원하는 BackgroundTile을 클릭하세요.\n" +
+                        "Alt 입력은 Scene View 카메라 조작으로 유지됩니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+
+                SerializedProperty spawnActorIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "spawnActorId"
+                    );
+
+                if (spawnActorIdProperty != null &&
+                    string.IsNullOrWhiteSpace(
+                        spawnActorIdProperty.stringValue))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "SpawnActor를 실행하려면 Actor ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                SerializedProperty spawnPieceDataProperty =
+                    stepProperty.FindPropertyRelative(
+                        "spawnActorPieceData"
+                    );
+
+                if (spawnPieceDataProperty != null &&
+                    spawnPieceDataProperty.objectReferenceValue ==
+                        null)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "SpawnActor를 실행하려면 Piece Data가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                break;
+
+
+            case EventSceneStepType.MoveActor:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Actor",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "moveActorId", "Actor ID",
+                    "moveActorDuration", "Move Duration",
+                    "moveActorArcHeight", "Arc Height",
+                    "moveActorChangeFlipX", "Change Flip X"
+                );
+
+                SerializedProperty moveChangeFlipProperty =
+                    stepProperty.FindPropertyRelative(
+                        "moveActorChangeFlipX"
+                    );
+
+                if (moveChangeFlipProperty != null &&
+                    moveChangeFlipProperty.boolValue)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "moveActorFlipX", "Flip X"
+                    );
+                }
+
+                currentY +=
+                    5f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Destination",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "moveActorDestination", "Background Tile"
+                );
+
+                bool isMoveSelecting =
+                    isSelectingMoveActorTile &&
+                    selectingMoveActorStepIndex ==
+                        stepIndex;
+
+                if (ProcessEventSceneButton(
+                        ref currentY,
+                        contentRect,
+                        isMoveSelecting
+                            ? "Scene 타일 선택 취소"
+                            : "Scene에서 목적지 선택",
+                        draw))
+                {
+                    if (isMoveSelecting)
+                    {
+                        isSelectingMoveActorTile =
+                            false;
+
+                        selectingMoveActorStepIndex =
+                            -1;
+                    }
+                    else
+                    {
+                        isSelectingSpawnActorTile =
+                            false;
+
+                        selectingSpawnActorStepIndex =
+                            -1;
+
+                        isSelectingMoveActorTile =
+                            true;
+
+                        selectingMoveActorStepIndex =
+                            stepIndex;
+
+                        SceneView.RepaintAll();
+                    }
+                }
+
+                if (isMoveSelecting)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "Scene View에서 이동할 BackgroundTile을 클릭하세요.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "목적지를 Actor의 현재 좌표와 동일하게 지정하면 " +
+                    "제자리 점프로 처리됩니다.",
+                    MessageType.None,
+                    draw
+                );
+
+                SerializedProperty moveActorIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "moveActorId"
+                    );
+
+                if (moveActorIdProperty != null &&
+                    string.IsNullOrWhiteSpace(
+                        moveActorIdProperty.stringValue))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "MoveActor를 실행하려면 Actor ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                break;
+
+
+            case EventSceneStepType.AttackActor:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Attack Actor",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "attackActorId", "Attacker ID",
+                    "attackTargetActorId", "Target ID",
+                    "attackResult", "Attack Result"
+                );
+
+                currentY +=
+                    4f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Attack Movement",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "attackApproachDuration", "Attack Duration",
+                    "attackArcHeight", "Arc Height"
+                );
+
+                currentY +=
+                    4f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Impact Screen Shake",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "attackTargetShakeDuration", "Shake Duration",
+                    "attackTargetShakeIntensity", "Shake Strength"
+                );
+
+                SerializedProperty attackResultProperty =
+                    stepProperty.FindPropertyRelative(
+                        "attackResult"
+                    );
+
+                if (attackResultProperty != null &&
+                    attackResultProperty.intValue ==
+                        (int)EventSceneAttackResult.Failure)
+                {
+                    currentY +=
+                        4f;
+
+                    ProcessEventSceneSectionLabel(
+                        ref currentY,
+                        contentRect,
+                        "Failure Impact",
+                        draw
+                    );
+
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "attackApproachRatio", "Impact Ratio"
+                    );
+
+                    currentY +=
+                        4f;
+
+                    ProcessEventSceneSectionLabel(
+                        ref currentY,
+                        contentRect,
+                        "Defense Bounce",
+                        draw
+                    );
+
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "attackFailureFallShortDistance",
+                        "Fall Short Distance",
+
+                        "attackFailureFallBackDuration",
+                        "Fall Back Duration",
+
+                        "attackFailureFirstBounceDuration",
+                        "First Bounce Duration",
+
+                        "attackFailureFirstBounceHeight",
+                        "First Bounce Height",
+
+                        "attackFailureSecondBounceDuration",
+                        "Second Bounce Duration",
+
+                        "attackFailureSecondBounceHeight",
+                        "Second Bounce Height",
+
+                        "attackFailureFinalReturnDuration",
+                        "Final Return Duration"
+                    );
+                }
+
+                currentY +=
+                    4f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Direction",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "attackChangeFlipX", "Change Flip X"
+                );
+
+                SerializedProperty attackChangeFlipProperty =
+                    stepProperty.FindPropertyRelative(
+                        "attackChangeFlipX"
+                    );
+
+                if (attackChangeFlipProperty != null &&
+                    attackChangeFlipProperty.boolValue)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "attackFlipX", "Flip X"
+                    );
+                }
+
+                SerializedProperty attackerIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "attackActorId"
+                    );
+
+                SerializedProperty targetIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "attackTargetActorId"
+                    );
+
+                string attackerId =
+                    attackerIdProperty != null
+                        ? attackerIdProperty.stringValue
+                        : string.Empty;
+
+                string targetId =
+                    targetIdProperty != null
+                        ? targetIdProperty.stringValue
+                        : string.Empty;
+
+                if (string.IsNullOrWhiteSpace(
+                        attackerId))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "AttackActor를 실행하려면 Attacker ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                if (string.IsNullOrWhiteSpace(
+                        targetId))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "AttackActor를 실행하려면 Target ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                if (string.IsNullOrWhiteSpace(
+                        attackerId) == false &&
+                    attackerId ==
+                        targetId)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "Attacker와 Target에 동일한 Actor ID를 사용할 수 없습니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                if (attackResultProperty != null &&
+                    attackResultProperty.intValue ==
+                        (int)EventSceneAttackResult.Success)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "Success: Target 위치까지 공격한 뒤 Target을 즉시 제거하고 " +
+                        "공격자가 해당 위치를 점유합니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+
+                break;
+
+
+            case EventSceneStepType.AbsorbActor:
+
+                // 기존 enum 값은 유지하지만
+                // 현재 기능 자체는 의도적으로 보류 중이다.
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "AbsorbActor 기능은 현재 보류 상태입니다.",
+                    MessageType.Warning,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.PlayActorAnimation:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Actor Animation",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "playAnimationActorId", "Actor ID"
+                );
+
+                SerializedProperty animationActorIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "playAnimationActorId"
+                    );
+
+                SerializedProperty animationNameProperty =
+                    stepProperty.FindPropertyRelative(
+                        "playAnimationName"
+                    );
+
+                string animationActorId =
+                    animationActorIdProperty != null
+                        ? animationActorIdProperty.stringValue
+                        : string.Empty;
+
+                string currentAnimationName =
+                    animationNameProperty != null
+                        ? animationNameProperty.stringValue
+                        : string.Empty;
+
+                string[] animationNames =
+                    GetSpineAnimationNamesForActor(
+                        eventData,
+                        step,
+                        animationActorId,
+                        out string sourcePrefabName
+                    );
+
+                if (animationNames.Length > 0)
+                {
+                    List<string> popupOptions =
+                        new List<string>();
+
+                    popupOptions.Add(
+                        "<Select Animation>"
+                    );
+
+                    for (int i = 0;
+                         i < animationNames.Length;
+                         i++)
+                    {
+                        popupOptions.Add(
+                            animationNames[i]
+                        );
+                    }
+
+                    int currentPopupIndex =
+                        0;
+
+                    for (int i = 0;
+                         i < animationNames.Length;
+                         i++)
+                    {
+                        if (animationNames[i] ==
+                            currentAnimationName)
+                        {
+                            currentPopupIndex =
+                                i + 1;
+
+                            break;
+                        }
+                    }
+
+                    int selectedPopupIndex =
+                        ProcessEventScenePopup(
+                            ref currentY,
+                            contentRect,
+                            "Spine Animation",
+                            currentPopupIndex,
+                            popupOptions.ToArray(),
+                            draw
+                        );
+
+                    if (draw &&
+                        animationNameProperty != null &&
+                        selectedPopupIndex > 0 &&
+                        selectedPopupIndex <=
+                            animationNames.Length)
+                    {
+                        animationNameProperty.stringValue =
+                            animationNames[
+                                selectedPopupIndex - 1];
+
+                        currentAnimationName =
+                            animationNameProperty.stringValue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(
+                            sourcePrefabName) == false)
+                    {
+                        ProcessEventSceneValueLabel(
+                            ref currentY,
+                            contentRect,
+                            "Source Prefab",
+                            sourcePrefabName,
+                            draw
+                        );
+                    }
+
+                    if (string.IsNullOrWhiteSpace(
+                            currentAnimationName) == false &&
+                        currentPopupIndex == 0)
+                    {
+                        ProcessEventSceneHelpBox(
+                            ref currentY,
+                            contentRect,
+                            $"현재 Animation '{currentAnimationName}'을 " +
+                            "Spine Prefab에서 찾을 수 없습니다.",
+                            MessageType.Warning,
+                            draw
+                        );
+                    }
+                }
+                else
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "playAnimationName", "Animation Name"
+                    );
+
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "이 Actor ID와 연결된 이전 SpawnActor의 " +
+                        "Spine Prefab을 찾지 못했습니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "playAnimationMixDuration", "Mix Duration",
+                    "playAnimationLoop", "Loop"
+                );
+
+                SerializedProperty loopProperty =
+                    stepProperty.FindPropertyRelative(
+                        "playAnimationLoop"
+                    );
+
+                SerializedProperty waitProperty =
+                    stepProperty.FindPropertyRelative(
+                        "playAnimationWaitForComplete"
+                    );
+
+                SerializedProperty returnToIdleProperty =
+                    stepProperty.FindPropertyRelative(
+                        "playAnimationReturnToIdle"
+                    );
+
+                bool isLoop =
+                    loopProperty != null &&
+                    loopProperty.boolValue;
+
+                if (isLoop == false)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "playAnimationWaitForComplete",
+                        "Wait Until Complete"
+                    );
+
+                    if (waitProperty != null &&
+                        waitProperty.boolValue)
+                    {
+                        ProcessEventSceneProperties(
+                            ref currentY,
+                            contentRect,
+                            stepProperty,
+                            draw,
+                            "playAnimationReturnToIdle",
+                            "Auto Return To Idle"
+                        );
+                    }
+                }
+                else if (draw)
+                {
+                    // 기존 Editor와 동일하게
+                    // Loop에서는 Wait / Idle Return을 사용하지 않는다.
+                    if (waitProperty != null)
+                    {
+                        waitProperty.boolValue =
+                            false;
+                    }
+
+                    if (returnToIdleProperty != null)
+                    {
+                        returnToIdleProperty.boolValue =
+                            false;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(
+                        animationActorId))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "PlayActorAnimation을 실행하려면 Actor ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                if (string.IsNullOrWhiteSpace(
+                        currentAnimationName))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "실행할 Spine Animation을 선택해주세요.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                bool waitForAnimation =
+                    waitProperty != null &&
+                    waitProperty.boolValue;
+
+                bool returnToIdle =
+                    returnToIdleProperty != null &&
+                    returnToIdleProperty.boolValue;
+
+                if (isLoop)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "Loop Animation은 반복 재생을 시작한 뒤 " +
+                        "즉시 다음 Event Step으로 진행합니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+                else if (waitForAnimation)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        returnToIdle
+                            ? "Animation 완료까지 기다린 뒤 Mix를 적용하여 Idle로 자동 복귀합니다."
+                            : "Animation 완료 후 Idle로 복귀하지 않고 마지막 Pose를 유지합니다. " +
+                              "다음 Animation Step은 이 Pose에서 바로 연결됩니다.",
+                        MessageType.None,
+                        draw
+                    );
+                }
+                else
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "Animation 재생을 시작한 뒤 완료를 기다리지 않고 " +
+                        "즉시 다음 Event Step으로 진행합니다.",
+                        MessageType.None,
+                        draw
+                    );
+                }
+
+                break;
+
+
+            case EventSceneStepType.SpeechBubble:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Speech Bubble",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "speechBubbleActorId", "Actor ID",
+                    "speechBubbleDuration", "Duration",
+                    "speechBubbleTypingSpeed", "Typing Speed",
+                    "speechBubbleUseEmphasisShake",
+                    "Use Emphasis Shake"
+                );
+
+                SerializedProperty emphasisProperty =
+                    stepProperty.FindPropertyRelative(
+                        "speechBubbleUseEmphasisShake"
+                    );
+
+                if (emphasisProperty != null &&
+                    emphasisProperty.boolValue)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "speechBubbleEmphasisStrength",
+                        "Emphasis Strength"
+                    );
+                }
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "speechBubbleWaitForComplete",
+                    "Wait For Complete"
+                );
+
+                SerializedProperty speechActorIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "speechBubbleActorId"
+                    );
+
+                if (speechActorIdProperty != null &&
+                    string.IsNullOrWhiteSpace(
+                        speechActorIdProperty.stringValue))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "SpeechBubble을 실행하려면 이전 SpawnActor에서 생성한 Actor ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Korean / English / Japanese Text는 " +
+                    "아래 Speech Bubble Texts 영역에서 관리합니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.RemoveActor:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Remove Actor",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "removeActorId", "Actor ID",
+                    "removeActorMode", "Remove Mode"
+                );
+
+                SerializedProperty removeModeProperty =
+                    stepProperty.FindPropertyRelative(
+                        "removeActorMode"
+                    );
+
+                bool useFadeOut =
+                    removeModeProperty != null &&
+                    removeModeProperty.intValue ==
+                        (int)EventSceneRemoveMode.FadeOut;
+
+                if (useFadeOut)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "removeActorFadeOutDuration",
+                        "Fade Out Duration"
+                    );
+                }
+
+                SerializedProperty removeActorIdProperty =
+                    stepProperty.FindPropertyRelative(
+                        "removeActorId"
+                    );
+
+                if (removeActorIdProperty != null &&
+                    string.IsNullOrWhiteSpace(
+                        removeActorIdProperty.stringValue))
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "RemoveActor를 실행하려면 Actor ID가 필요합니다.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    useFadeOut
+                        ? "Actor가 지정 시간 동안 Fade Out된 뒤 Event Scene에서 제거됩니다."
+                        : "Actor를 Fade 없이 즉시 Event Scene에서 제거합니다.",
+                    MessageType.None,
+                    draw
+                );
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Death 등의 Animation이 필요하면 RemoveActor 전에 " +
+                    "PlayActorAnimation Step을 배치해주세요.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.CameraShot:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Camera Shot",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "cameraShotTargetType", "Target Type"
+                );
+
+                SerializedProperty cameraTargetTypeProperty =
+                    stepProperty.FindPropertyRelative(
+                        "cameraShotTargetType"
+                    );
+
+                bool isBackgroundTileTarget =
+                    cameraTargetTypeProperty != null &&
+                    cameraTargetTypeProperty.intValue ==
+                        (int)EventSceneCameraShotTargetType.BackgroundTile;
+
+                currentY +=
+                    4f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Target",
+                    draw
+                );
+
+                if (isBackgroundTileTarget)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "cameraShotTargetPosition",
+                        "Background Tile"
+                    );
+
+                    bool isCameraSelecting =
+                        isSelectingCameraShotTile &&
+                        selectingCameraShotStepIndex ==
+                            stepIndex;
+
+                    if (ProcessEventSceneButton(
+                            ref currentY,
+                            contentRect,
+                            isCameraSelecting
+                                ? "Scene 타일 선택 취소"
+                                : "Scene에서 Camera Target 선택",
+                            draw))
+                    {
+                        if (isCameraSelecting)
+                        {
+                            CancelCameraShotTileSelection();
+                        }
+                        else
+                        {
+                            isSelectingSpawnActorTile =
+                                false;
+
+                            selectingSpawnActorStepIndex =
+                                -1;
+
+                            isSelectingMoveActorTile =
+                                false;
+
+                            selectingMoveActorStepIndex =
+                                -1;
+
+                            isSelectingCameraShotTile =
+                                true;
+
+                            selectingCameraShotStepIndex =
+                                stepIndex;
+
+                            SceneView.RepaintAll();
+                        }
+                    }
+
+                    if (isCameraSelecting)
+                    {
+                        ProcessEventSceneHelpBox(
+                            ref currentY,
+                            contentRect,
+                            "Scene View에서 화면 중앙에 표시할 " +
+                            "BackgroundTile을 클릭하세요.",
+                            MessageType.Info,
+                            draw
+                        );
+                    }
+                }
+                else
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "cameraShotTargetActorId",
+                        "Actor ID"
+                    );
+
+                    SerializedProperty targetActorIdProperty =
+                        stepProperty.FindPropertyRelative(
+                            "cameraShotTargetActorId"
+                        );
+
+                    if (targetActorIdProperty != null &&
+                        string.IsNullOrWhiteSpace(
+                            targetActorIdProperty.stringValue))
+                    {
+                        ProcessEventSceneHelpBox(
+                            ref currentY,
+                            contentRect,
+                            "Actor Target을 사용하려면 이전 SpawnActor에서 " +
+                            "생성한 Actor ID가 필요합니다.",
+                            MessageType.Warning,
+                            draw
+                        );
+                    }
+                }
+
+                currentY +=
+                    4f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Camera",
+                    draw
+                );
+
+                // cameraShotWorldOffset은 Serialized 호환을 위해 유지하지만
+                // 현재 Event CameraShot Inspector에서는 노출하지 않는다.
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "cameraShotWorldScale", "Zoom Scale",
+                    "cameraShotDuration", "Move Duration",
+                    "cameraShotWaitForComplete",
+                    "Wait For Complete"
+                );
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    isBackgroundTileTarget
+                        ? "현재 Camera 위치에서 선택한 BackgroundTile 중심으로 이동하며, " +
+                          "선택한 Tile이 화면 정중앙에 표시됩니다.\n" +
+                          "Zoom Scale 값이 커질수록 화면이 확대됩니다."
+                        : "현재 Camera 위치에서 선택한 Actor 위치로 이동하며, " +
+                          "Actor가 화면 정중앙에 표시됩니다.\n" +
+                          "Zoom Scale 값이 커질수록 화면이 확대됩니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.ScreenShake:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Screen Shake",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "screenShakeDuration", "Shake Duration",
+                    "screenShakeStrength", "Shake Strength",
+                    "screenShakeWaitForComplete",
+                    "Wait For Complete"
+                );
+
+                SerializedProperty screenShakeWaitProperty =
+                    stepProperty.FindPropertyRelative(
+                        "screenShakeWaitForComplete"
+                    );
+
+                bool waitForShake =
+                    screenShakeWaitProperty != null &&
+                    screenShakeWaitProperty.boolValue;
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    waitForShake
+                        ? "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다."
+                        : "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.CompleteSequence:
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "현재 Event Scene Sequence를 완료합니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+        }
+
+        return
+            Mathf.Max(
+                40f,
+                currentY - startY
+            );
+    }
+
+
+    // <변경부분>
+    // propertyName / displayName을 한 쌍으로 받아
+    // 여러 SerializedProperty를 연속으로 출력한다.
+    private void ProcessEventSceneProperties(
+        ref float currentY,
+        Rect contentRect,
+        SerializedProperty stepProperty,
+        bool draw,
+        params string[] propertyAndLabelPairs)
+    {
+        if (propertyAndLabelPairs == null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i + 1 < propertyAndLabelPairs.Length;
+             i += 2)
+        {
+            ProcessEventSceneProperty(
+                ref currentY,
+                contentRect,
+                stepProperty,
+                propertyAndLabelPairs[i],
+                propertyAndLabelPairs[i + 1],
+                draw
             );
         }
     }
+
+
+    // <변경부분>
+    // Rect 기반 SerializedProperty 출력.
+    private void ProcessEventSceneProperty(
+        ref float currentY,
+        Rect contentRect,
+        SerializedProperty stepProperty,
+        string propertyName,
+        string displayName,
+        bool draw)
+    {
+        if (stepProperty == null ||
+            string.IsNullOrWhiteSpace(
+                propertyName))
+        {
+            return;
+        }
+
+        SerializedProperty property =
+            stepProperty.FindPropertyRelative(
+                propertyName
+            );
+
+        if (property == null)
+        {
+            ProcessEventSceneHelpBox(
+                ref currentY,
+                contentRect,
+                $"Step Property를 찾을 수 없습니다: {propertyName}",
+                MessageType.Warning,
+                draw
+            );
+
+            return;
+        }
+
+        GUIContent label =
+            new GUIContent(
+                displayName
+            );
+
+        // Min / Range 등의 기존 Property Attribute도
+        // SerializedProperty를 통해 그대로 적용된다.
+        float propertyHeight =
+            EditorGUI.GetPropertyHeight(
+                property,
+                label,
+                false
+            );
+
+        if (draw)
+        {
+            EditorGUI.PropertyField(
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    propertyHeight
+                ),
+                property,
+                label,
+                false
+            );
+        }
+
+        currentY +=
+            propertyHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+    }
+
+
+    // <변경부분>
+    // Rect 기반 Section Label.
+    private void ProcessEventSceneSectionLabel(
+        ref float currentY,
+        Rect contentRect,
+        string label,
+        bool draw)
+    {
+        float lineHeight =
+            EditorGUIUtility.singleLineHeight;
+
+        if (draw)
+        {
+            EditorGUI.LabelField(
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    lineHeight
+                ),
+                label,
+                EditorStyles.boldLabel
+            );
+        }
+
+        currentY +=
+            lineHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+    }
+
+
+    // <변경부분>
+    // Rect 기반 HelpBox.
+    private void ProcessEventSceneHelpBox(
+        ref float currentY,
+        Rect contentRect,
+        string message,
+        MessageType messageType,
+        bool draw)
+    {
+        float helpBoxHeight =
+            Mathf.Max(
+                32f,
+                EditorStyles.helpBox.CalcHeight(
+                    new GUIContent(
+                        message
+                    ),
+                    Mathf.Max(
+                        120f,
+                        contentRect.width
+                    )
+                ) +
+                6f
+            );
+
+        if (draw)
+        {
+            EditorGUI.HelpBox(
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    helpBoxHeight
+                ),
+                message,
+                messageType
+            );
+        }
+
+        currentY +=
+            helpBoxHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+    }
+
+
+    // <변경부분>
+    // Rect 기반 Button.
+    private bool ProcessEventSceneButton(
+        ref float currentY,
+        Rect contentRect,
+        string label,
+        bool draw)
+    {
+        float buttonHeight =
+            EditorGUIUtility.singleLineHeight +
+            2f;
+
+        bool clicked =
+            false;
+
+        if (draw)
+        {
+            clicked =
+                GUI.Button(
+                    new Rect(
+                        contentRect.x,
+                        currentY,
+                        contentRect.width,
+                        buttonHeight
+                    ),
+                    label
+                );
+        }
+
+        currentY +=
+            buttonHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+
+        return clicked;
+    }
+
+
+    // <변경부분>
+    // Rect 기반 Popup.
+    private int ProcessEventScenePopup(
+        ref float currentY,
+        Rect contentRect,
+        string displayName,
+        int selectedIndex,
+        string[] options,
+        bool draw)
+    {
+        float lineHeight =
+            EditorGUIUtility.singleLineHeight;
+
+        int result =
+            selectedIndex;
+
+        if (draw)
+        {
+            result =
+                EditorGUI.Popup(
+                    new Rect(
+                        contentRect.x,
+                        currentY,
+                        contentRect.width,
+                        lineHeight
+                    ),
+                    displayName,
+                    selectedIndex,
+                    options
+                );
+        }
+
+        currentY +=
+            lineHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+
+        return result;
+    }
+
+
+    // <변경부분>
+    // Source Prefab 같은 읽기 전용 값을 한 줄로 표시한다.
+    private void ProcessEventSceneValueLabel(
+        ref float currentY,
+        Rect contentRect,
+        string label,
+        string value,
+        bool draw)
+    {
+        float lineHeight =
+            EditorGUIUtility.singleLineHeight;
+
+        if (draw)
+        {
+            EditorGUI.LabelField(
+                new Rect(
+                    contentRect.x,
+                    currentY,
+                    contentRect.width,
+                    lineHeight
+                ),
+                label,
+                value
+            );
+        }
+
+        currentY +=
+            lineHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+    }
+
+
+    private void DrawEventSceneStepFoldoutControls(
+        int stepCount)
+    {
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button(
+                    "▼ 전체 펼치기"))
+            {
+                SetAllEventSceneStepFoldouts(
+                    stepCount,
+                    true
+                );
+            }
+
+            if (GUILayout.Button(
+                    "▲ 전체 접기"))
+            {
+                SetAllEventSceneStepFoldouts(
+                    stepCount,
+                    false
+                );
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // 모든 Event Scene Step Foldout 상태를
+    // 한 번에 변경한다.
+    private void SetAllEventSceneStepFoldouts(
+     int stepCount,
+     bool expanded)
+    {
+        stepFoldouts.Clear();
+
+        for (int i = 0;
+             i < stepCount;
+             i++)
+        {
+            stepFoldouts[i] =
+                expanded;
+        }
+
+        Repaint();
+    }
+
+
+    // <변경부분>
+    // Event Scene의 Dialogue Step만 대상으로
+    // 전체 펼치기 / 전체 접기 버튼을 표시한다.
+    //
+    // 메인 Event Steps Foldout과는 별개의 상태이며,
+    // SpeechBubble Foldout에는 영향을 주지 않는다.
+    private void DrawDialogueStepFoldoutControls(
+        EventSceneData eventData)
+    {
+        if (eventData == null ||
+            eventData.steps == null)
+        {
+            return;
+        }
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button(
+                    "▼ Dialogue 전체 펼치기"))
+            {
+                SetAllDialogueStepFoldouts(
+                    eventData,
+                    true
+                );
+            }
+
+            if (GUILayout.Button(
+                    "▲ Dialogue 전체 접기"))
+            {
+                SetAllDialogueStepFoldouts(
+                    eventData,
+                    false
+                );
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // Dialogue 타입인 Step의 Foldout 상태만
+    // 한 번에 변경한다.
+    private void SetAllDialogueStepFoldouts(
+        EventSceneData eventData,
+        bool expanded)
+    {
+        if (eventData == null ||
+            eventData.steps == null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i < eventData.steps.Count;
+             i++)
+        {
+            EventSceneStepData step =
+                eventData.steps[i];
+
+            if (step == null ||
+                step.stepType !=
+                    EventSceneStepType.Dialogue)
+            {
+                continue;
+            }
+
+            dialogueStepFoldouts[i] =
+                expanded;
+        }
+
+        Repaint();
+    }
+
 
     // <변경부분>
     // Event Scene 전체의 Dialogue Step만 따로 모아서 관리한다.
@@ -883,8 +2727,8 @@ public class EventSceneDataEditor : Editor
         );
 
         if (eventData == null ||
-            eventData.steps == null ||
-            eventData.steps.Count == 0)
+    eventData.steps == null ||
+    eventData.steps.Count == 0)
         {
             EditorGUILayout.HelpBox(
                 "Event Step이 없습니다.",
@@ -893,6 +2737,15 @@ public class EventSceneDataEditor : Editor
 
             return;
         }
+
+        // <변경부분>
+        // Dialogue 목록 최상단에서도
+        // 모든 Dialogue Step을 한 번에 펼치거나 접을 수 있다.
+        DrawDialogueStepFoldoutControls(
+            eventData
+        );
+
+        EditorGUILayout.Space(4);
 
         StringTableCollection collection =
             DevoryaLocalizationEditorUtility
@@ -926,13 +2779,25 @@ public class EventSceneDataEditor : Editor
                 );
 
             string safeStepName =
-                string.IsNullOrWhiteSpace(
-                    step.stepName)
-                    ? "Dialogue"
-                    : step.stepName;
+     string.IsNullOrWhiteSpace(
+         step.stepName)
+         ? "Dialogue"
+         : step.stepName;
+
+            // <변경부분>
+            // 메인 Event Steps와 동일하게
+            // 1부터 시작하는 두 자리 Step 번호를 표시한다.
+            //
+            // 예:
+            // Step01 - 시작 대사
+            // Step02 - 설명
+            string stepNumber =
+                (stepIndex + 1).ToString(
+                    "D2"
+                );
 
             string stepLabel =
-                $"Step {stepIndex} - {safeStepName}";
+                $"Step{stepNumber} - {safeStepName}";
 
             expanded =
                 EditorGUILayout.Foldout(
@@ -1022,6 +2887,18 @@ public class EventSceneDataEditor : Editor
             EditorGUILayout.Space(6);
         }
 
+        // <변경부분>
+        // Dialogue 목록 맨 아래까지 내려온 상태에서도
+        // 다시 위로 올라가지 않고 전체 펼치기 / 접기를 사용할 수 있다.
+        if (foundDialogueStep)
+        {
+            EditorGUILayout.Space(4);
+
+            DrawDialogueStepFoldoutControls(
+                eventData
+            );
+        }
+
         if (foundDialogueStep == false)
         {
             EditorGUILayout.HelpBox(
@@ -1090,15 +2967,23 @@ public class EventSceneDataEditor : Editor
                 );
 
             string safeStepName =
-                string.IsNullOrWhiteSpace(
-                    step.stepName)
-                    ? "SpeechBubble"
-                    : step.stepName;
+    string.IsNullOrWhiteSpace(
+        step.stepName)
+        ? "SpeechBubble"
+        : step.stepName;
+
+            // <변경부분>
+            // 메인 Event Steps와 동일한
+            // 1-based 두 자리 Step 번호를 사용한다.
+            string stepNumber =
+                (stepIndex + 1).ToString(
+                    "D2"
+                );
 
             expanded =
                 EditorGUILayout.Foldout(
                     expanded,
-                    $"Step {stepIndex} - {safeStepName}",
+                    $"Step{stepNumber} - {safeStepName}",
                     true
                 );
 
@@ -1228,1733 +3113,6 @@ public class EventSceneDataEditor : Editor
                 MessageType.Info
             );
         }
-    }
-
-    // <변경부분>
-    // Step Type별 필요한 설정만 표시한다.
-    private void DrawStepContents(
-     EventSceneData eventData,
-     EventSceneStepData step)
-    {
-        switch (step.stepType)
-        {
-            case EventSceneStepType.None:
-
-                EditorGUILayout.HelpBox(
-                    "아무 동작도 하지 않는 Step입니다.",
-                    MessageType.None
-                );
-
-                break;
-
-            case EventSceneStepType.Dialogue:
-
-                // <변경부분>
-                // Dialogue 실제 내용은 Step 내부에 펼치지 않는다.
-                // 아래 Dialogue Pages 전용 영역에서 통합 관리한다.
-                int dialoguePageCount =
-                    step.dialoguePages != null
-                        ? step.dialoguePages.Count
-                        : 0;
-
-                EditorGUILayout.HelpBox(
-                    $"Dialogue 내용은 아래 Dialogue Pages 영역에서 관리합니다.\n" +
-                    $"현재 Page: {dialoguePageCount}",
-                    MessageType.None
-                );
-
-                break;
-
-
-            case EventSceneStepType.SpawnActor:
-
-                DrawSpawnActorStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            case EventSceneStepType.MoveActor:
-
-                DrawMoveActorStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            // <변경부분>
-            // Event Scene 전용 공격 연출.
-            case EventSceneStepType.AttackActor:
-
-                DrawAttackActorStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            // Event Actor의 Spine Animation...
-            case EventSceneStepType.PlayActorAnimation:
-
-                DrawPlayActorAnimationStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            // <변경부분>
-            // Event Actor 위에 표시할 SpeechBubble을 설정한다.
-            case EventSceneStepType.SpeechBubble:
-
-                DrawSpeechBubbleStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            // Event Scene에서 지정 Actor를 제거한다.
-            case EventSceneStepType.RemoveActor:
-
-                DrawRemoveActorStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            // <변경부분>
-            // Event Scene Camera 위치 / Zoom 연출.
-            case EventSceneStepType.CameraShot:
-
-                DrawCameraShotStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            // Event Scene 독립 화면 흔들림 연출.
-            case EventSceneStepType.ScreenShake:
-
-                DrawScreenShakeStep(
-                    eventData,
-                    step
-                );
-
-                break;
-
-
-            case EventSceneStepType.Wait:
-
-                EditorGUI.BeginChangeCheck();
-
-                float newWaitDuration =
-                    EditorGUILayout.FloatField(
-                        "Wait Duration",
-                        step.waitDuration
-                    );
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    Undo.RecordObject(
-                        eventData,
-                        "Edit Event Wait Duration"
-                    );
-
-                    step.waitDuration =
-                        Mathf.Max(
-                            0f,
-                            newWaitDuration
-                        );
-
-                    EditorUtility.SetDirty(
-                        eventData
-                    );
-                }
-
-                break;
-
-            case EventSceneStepType.CompleteSequence:
-
-                EditorGUILayout.HelpBox(
-                    "현재 Event Scene Sequence를 완료합니다.",
-                    MessageType.Info
-                );
-
-                break;
-
-            default:
-
-                // <변경부분>
-                // Actor / Camera 기능은 enum만 확보된 상태.
-                // 실제 필드는 기능 구현 단계에서 하나씩 추가한다.
-                EditorGUILayout.HelpBox(
-                    $"{step.stepType} 기능은 아직 구현 전입니다.",
-                    MessageType.Warning
-                );
-
-                break;
-        }
-    }
-
-    // <변경부분>
-    // SpawnActor Step 전용 제작 UI.
-    private void DrawSpawnActorStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-    "Actor",
-    EditorStyles.boldLabel
-);
-
-        EditorGUI.BeginChangeCheck();
-
-        // <변경부분>
-        // 이후 다른 Event Step에서 동일 Actor를 참조하기 위한 고유 ID.
-        string newActorId =
-            EditorGUILayout.TextField(
-                "Actor ID",
-                step.spawnActorId
-            );
-
-        PieceData newPieceData =
-                    (PieceData)
-            EditorGUILayout.ObjectField(
-                "Piece Data",
-                step.spawnActorPieceData,
-                typeof(PieceData),
-                false
-            );
-
-        PieceTeam newTeam =
-            (PieceTeam)
-            EditorGUILayout.EnumPopup(
-                "Visual Team",
-                step.spawnActorTeam
-            );
-
-        bool newUseAbsorbedVisual =
-    step.spawnActorUseAbsorbedPlayerVisual;
-
-        // <변경부분>
-        // 흡수 Player 외형은 Player Visual일 때만 의미가 있으므로
-        // Player 선택 시에만 Inspector에 표시한다.
-        if (newTeam ==
-            PieceTeam.Player)
-        {
-            newUseAbsorbedVisual =
-                EditorGUILayout.Toggle(
-                    "Use Absorbed Player Visual",
-                    step.spawnActorUseAbsorbedPlayerVisual
-                );
-        }
-
-        // <변경부분>
-        // Visual Prefab의 Pivot 위치를 Event Scene에서만 보정한다.
-        Vector2 newVisualOffset =
-            EditorGUILayout.Vector2Field(
-                "Visual Offset",
-                step.spawnActorVisualOffset
-            );
-
-        // <변경부분>
-        // Event Scene 연출용 좌우 반전.
-        bool newFlipX =
-    EditorGUILayout.Toggle(
-        "Flip X",
-        step.spawnActorFlipX
-    );
-
-        // <변경부분>
-        // Actor가 생성될 때 Fade In되는 시간을 설정한다.
-        // <변경부분>
-        // Born Clip이 없는 Actor에게만 적용되는 fallback Fade 시간.
-        float newFadeInDuration =
-            EditorGUILayout.FloatField(
-                "Fallback Fade In Duration",
-                step.spawnActorFadeInDuration
-            );
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Spawn Actor"
-            );
-
-            // <변경부분>
-            step.spawnActorId =
-                newActorId;
-
-            step.spawnActorPieceData =
-                newPieceData;
-
-            step.spawnActorTeam =
-                newTeam;
-
-            step.spawnActorUseAbsorbedPlayerVisual =
-    newUseAbsorbedVisual;
-
-            // <변경부분>
-            step.spawnActorVisualOffset =
-    newVisualOffset;
-
-            step.spawnActorFlipX =
-                newFlipX;
-
-            // <변경부분>
-            step.spawnActorFadeInDuration =
-                Mathf.Max(
-                    0f,
-                    newFadeInDuration
-                );
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(5);
-
-        EditorGUILayout.LabelField(
-            "Spawn Position",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        Vector2Int newPosition =
-            EditorGUILayout.Vector2IntField(
-                "Background Tile",
-                step.spawnActorPosition
-            );
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Spawn Position"
-            );
-
-            step.spawnActorPosition =
-                newPosition;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(3);
-
-        bool isThisStepSelecting =
-            isSelectingSpawnActorTile &&
-            selectingSpawnActorStepIndex ==
-                GetStepIndex(
-                    eventData,
-                    step
-                );
-
-        string buttonLabel =
-            isThisStepSelecting
-                ? "Scene 타일 선택 취소"
-                : "Scene에서 타일 선택";
-
-        if (GUILayout.Button(
-                buttonLabel))
-        {
-            int stepIndex =
-                GetStepIndex(
-                    eventData,
-                    step
-                );
-
-            if (isThisStepSelecting)
-            {
-                isSelectingSpawnActorTile =
-                    false;
-
-                selectingSpawnActorStepIndex =
-                    -1;
-            }
-            else
-            {
-                // <변경부분>
-                // MoveActor 목적지 선택 상태가 남아 있으면
-                // HandleSceneGUI에서 MoveActor 입력이 우선 처리되므로
-                // SpawnActor 선택 시작 시 반드시 해제한다.
-                isSelectingMoveActorTile =
-                    false;
-
-                selectingMoveActorStepIndex =
-                    -1;
-
-                isSelectingSpawnActorTile =
-                    true;
-
-                selectingSpawnActorStepIndex =
-                    stepIndex;
-
-                SceneView.RepaintAll();
-            }
-        }
-
-        if (isThisStepSelecting)
-        {
-            EditorGUILayout.HelpBox(
-                "Scene View에서 원하는 BackgroundTile을 클릭하세요.\n" +
-                "Alt 입력은 Scene View 카메라 조작으로 유지됩니다.",
-                MessageType.Info
-            );
-        }
-
-        if (string.IsNullOrWhiteSpace(
-        step.spawnActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "SpawnActor를 실행하려면 Actor ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        if (step.spawnActorPieceData == null)
-        {
-            EditorGUILayout.HelpBox(
-                "SpawnActor를 실행하려면 Piece Data가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-    }
-
-    // <변경부분>
-    // MoveActor Step 전용 제작 UI.
-    //
-    // Actor ID와 목적지 BackgroundTile,
-    // 이동 시간 / 포물선 높이를 설정한다.
-    private void DrawMoveActorStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Actor",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        string newActorId =
-            EditorGUILayout.TextField(
-                "Actor ID",
-                step.moveActorId
-            );
-
-        float newDuration =
-            EditorGUILayout.FloatField(
-                "Move Duration",
-                step.moveActorDuration
-            );
-
-        float newArcHeight =
-            EditorGUILayout.FloatField(
-                "Arc Height",
-                step.moveActorArcHeight
-            );
-
-        // <변경부분>
-        // 현재 MoveActor Step에서
-        // Actor 방향을 새로 지정할지 선택한다.
-        bool newChangeFlipX =
-            EditorGUILayout.Toggle(
-                "Change Flip X",
-                step.moveActorChangeFlipX
-            );
-
-        bool newFlipX =
-            step.moveActorFlipX;
-
-        // <변경부분>
-        // 방향을 변경하도록 설정한 경우에만
-        // 실제 Flip X 값을 표시한다.
-        if (newChangeFlipX)
-        {
-            newFlipX =
-                EditorGUILayout.Toggle(
-                    "Flip X",
-                    step.moveActorFlipX
-                );
-        }
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Move Actor"
-            );
-
-            step.moveActorId =
-                newActorId;
-
-            step.moveActorDuration =
-                Mathf.Max(
-                    0f,
-                    newDuration
-                );
-
-            step.moveActorArcHeight =
-                Mathf.Max(
-                    0f,
-                    newArcHeight
-                );
-
-            // <변경부분>
-            step.moveActorChangeFlipX =
-                newChangeFlipX;
-
-            step.moveActorFlipX =
-                newFlipX;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(5);
-
-        EditorGUILayout.LabelField(
-            "Destination",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        Vector2Int newDestination =
-            EditorGUILayout.Vector2IntField(
-                "Background Tile",
-                step.moveActorDestination
-            );
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Move Destination"
-            );
-
-            step.moveActorDestination =
-                newDestination;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        int stepIndex =
-            GetStepIndex(
-                eventData,
-                step
-            );
-
-        bool isThisStepSelecting =
-            isSelectingMoveActorTile &&
-            selectingMoveActorStepIndex ==
-                stepIndex;
-
-        string buttonLabel =
-            isThisStepSelecting
-                ? "Scene 타일 선택 취소"
-                : "Scene에서 목적지 선택";
-
-        if (GUILayout.Button(
-                buttonLabel))
-        {
-            if (isThisStepSelecting)
-            {
-                isSelectingMoveActorTile =
-                    false;
-
-                selectingMoveActorStepIndex =
-                    -1;
-            }
-            else
-            {
-                // <변경부분>
-                // SpawnActor 좌표 선택과 동시에 실행되지 않도록 정리한다.
-                isSelectingSpawnActorTile =
-                    false;
-
-                selectingSpawnActorStepIndex =
-                    -1;
-
-                isSelectingMoveActorTile =
-                    true;
-
-                selectingMoveActorStepIndex =
-                    stepIndex;
-
-                SceneView.RepaintAll();
-            }
-        }
-
-        if (isThisStepSelecting)
-        {
-            EditorGUILayout.HelpBox(
-                "Scene View에서 이동할 BackgroundTile을 클릭하세요.",
-                MessageType.Info
-            );
-        }
-
-        EditorGUILayout.HelpBox(
-            "목적지를 Actor의 현재 좌표와 동일하게 지정하면 " +
-            "다른 타일로 이동하지 않고 제자리에서 위로 뛰었다 내려옵니다.",
-            MessageType.None
-        );
-
-        if (string.IsNullOrWhiteSpace(
-                step.moveActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "MoveActor를 실행하려면 Actor ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-    }
-
-    // <변경부분>
-    // AttackActor Step 전용 제작 UI.
-    //
-    // Success:
-    // Target 위치까지 이동
-    // → Target 즉시 제거
-    // → 공격자가 해당 위치를 점유.
-    //
-    // Failure:
-    // Target 앞 충돌 지점까지 이동
-    // → Target Shake
-    // → Defense 방식의 2단 Bounce
-    // → 원래 위치 복귀.
-    private void DrawAttackActorStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Attack Actor",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        string newActorId =
-            EditorGUILayout.TextField(
-                "Attacker ID",
-                step.attackActorId
-            );
-
-        string newTargetActorId =
-            EditorGUILayout.TextField(
-                "Target ID",
-                step.attackTargetActorId
-            );
-
-        EventSceneAttackResult newResult =
-            (EventSceneAttackResult)
-            EditorGUILayout.EnumPopup(
-                "Attack Result",
-                step.attackResult
-            );
-
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.LabelField(
-            "Attack Movement",
-            EditorStyles.boldLabel
-        );
-
-        float newApproachDuration =
-            EditorGUILayout.FloatField(
-                "Attack Duration",
-                step.attackApproachDuration
-            );
-
-        float newArcHeight =
-            EditorGUILayout.FloatField(
-                "Arc Height",
-                step.attackArcHeight
-            );
-
-        float newApproachRatio =
-            step.attackApproachRatio;
-
-        float newShakeDuration =
-            step.attackTargetShakeDuration;
-
-        float newShakeIntensity =
-            step.attackTargetShakeIntensity;
-
-        float newFallShortDistance =
-            step.attackFailureFallShortDistance;
-
-        float newFallBackDuration =
-            step.attackFailureFallBackDuration;
-
-        float newFirstBounceDuration =
-            step.attackFailureFirstBounceDuration;
-
-        float newFirstBounceHeight =
-            step.attackFailureFirstBounceHeight;
-
-        float newSecondBounceDuration =
-            step.attackFailureSecondBounceDuration;
-
-        float newSecondBounceHeight =
-            step.attackFailureSecondBounceHeight;
-
-        float newFinalReturnDuration =
-            step.attackFailureFinalReturnDuration;
-
-        // <변경부분>
-        // Failure일 때만 Defense Bounce 관련 값을 표시한다.
-        // <변경부분>
-        // 공격 성공/실패 모두 실제 충돌 순간
-        // 화면 흔들림을 사용한다.
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.LabelField(
-            "Impact Screen Shake",
-            EditorStyles.boldLabel
-        );
-
-        newShakeDuration =
-            EditorGUILayout.FloatField(
-                "Shake Duration",
-                step.attackTargetShakeDuration
-            );
-
-        newShakeIntensity =
-            EditorGUILayout.FloatField(
-                "Shake Strength",
-                step.attackTargetShakeIntensity
-            );
-
-
-        // <변경부분>
-        // Failure일 때만 충돌 위치와 Defense Bounce 설정을 표시한다.
-        if (newResult ==
-            EventSceneAttackResult.Failure)
-        {
-            EditorGUILayout.Space(4);
-
-            EditorGUILayout.LabelField(
-                "Failure Impact",
-                EditorStyles.boldLabel
-            );
-
-            newApproachRatio =
-                EditorGUILayout.Slider(
-                    "Impact Ratio",
-                    step.attackApproachRatio,
-                    0f,
-                    1f
-                );
-
-            EditorGUILayout.Space(4);
-
-            EditorGUILayout.LabelField(
-                "Defense Bounce",
-                EditorStyles.boldLabel
-            );
-
-            newFallShortDistance =
-                EditorGUILayout.FloatField(
-                    "Fall Short Distance",
-                    step.attackFailureFallShortDistance
-                );
-
-            newFallBackDuration =
-                EditorGUILayout.FloatField(
-                    "Fall Back Duration",
-                    step.attackFailureFallBackDuration
-                );
-
-            newFirstBounceDuration =
-                EditorGUILayout.FloatField(
-                    "First Bounce Duration",
-                    step.attackFailureFirstBounceDuration
-                );
-
-            newFirstBounceHeight =
-                EditorGUILayout.FloatField(
-                    "First Bounce Height",
-                    step.attackFailureFirstBounceHeight
-                );
-
-            newSecondBounceDuration =
-                EditorGUILayout.FloatField(
-                    "Second Bounce Duration",
-                    step.attackFailureSecondBounceDuration
-                );
-
-            newSecondBounceHeight =
-                EditorGUILayout.FloatField(
-                    "Second Bounce Height",
-                    step.attackFailureSecondBounceHeight
-                );
-
-            newFinalReturnDuration =
-                EditorGUILayout.FloatField(
-                    "Final Return Duration",
-                    step.attackFailureFinalReturnDuration
-                );
-        }
-
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.LabelField(
-            "Direction",
-            EditorStyles.boldLabel
-        );
-
-        bool newChangeFlipX =
-            EditorGUILayout.Toggle(
-                "Change Flip X",
-                step.attackChangeFlipX
-            );
-
-        bool newFlipX =
-            step.attackFlipX;
-
-        if (newChangeFlipX)
-        {
-            newFlipX =
-                EditorGUILayout.Toggle(
-                    "Flip X",
-                    step.attackFlipX
-                );
-        }
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Attack Actor"
-            );
-
-            step.attackActorId =
-                newActorId;
-
-            step.attackTargetActorId =
-                newTargetActorId;
-
-            step.attackResult =
-                newResult;
-
-            step.attackApproachDuration =
-                Mathf.Max(
-                    0f,
-                    newApproachDuration
-                );
-
-            step.attackArcHeight =
-                Mathf.Max(
-                    0f,
-                    newArcHeight
-                );
-
-            step.attackApproachRatio =
-                Mathf.Clamp01(
-                    newApproachRatio
-                );
-
-            step.attackTargetShakeDuration =
-                Mathf.Max(
-                    0f,
-                    newShakeDuration
-                );
-
-            step.attackTargetShakeIntensity =
-                Mathf.Max(
-                    0f,
-                    newShakeIntensity
-                );
-
-            step.attackFailureFallShortDistance =
-                Mathf.Max(
-                    0f,
-                    newFallShortDistance
-                );
-
-            step.attackFailureFallBackDuration =
-                Mathf.Max(
-                    0f,
-                    newFallBackDuration
-                );
-
-            step.attackFailureFirstBounceDuration =
-                Mathf.Max(
-                    0f,
-                    newFirstBounceDuration
-                );
-
-            step.attackFailureFirstBounceHeight =
-                Mathf.Max(
-                    0f,
-                    newFirstBounceHeight
-                );
-
-            step.attackFailureSecondBounceDuration =
-                Mathf.Max(
-                    0f,
-                    newSecondBounceDuration
-                );
-
-            step.attackFailureSecondBounceHeight =
-                Mathf.Max(
-                    0f,
-                    newSecondBounceHeight
-                );
-
-            step.attackFailureFinalReturnDuration =
-                Mathf.Max(
-                    0f,
-                    newFinalReturnDuration
-                );
-
-            step.attackChangeFlipX =
-                newChangeFlipX;
-
-            step.attackFlipX =
-                newFlipX;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(4);
-
-        if (string.IsNullOrWhiteSpace(
-                step.attackActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "AttackActor를 실행하려면 Attacker ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        if (string.IsNullOrWhiteSpace(
-                step.attackTargetActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "AttackActor를 실행하려면 Target ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        if (string.IsNullOrWhiteSpace(
-                step.attackActorId) == false &&
-            step.attackActorId ==
-                step.attackTargetActorId)
-        {
-            EditorGUILayout.HelpBox(
-                "Attacker와 Target에 동일한 Actor ID를 사용할 수 없습니다.",
-                MessageType.Warning
-            );
-        }
-
-        if (step.attackResult ==
-            EventSceneAttackResult.Success)
-        {
-            EditorGUILayout.HelpBox(
-                "Success: Target 위치까지 공격한 뒤 Target을 즉시 제거하고 공격자가 해당 위치를 점유합니다.",
-                MessageType.Info
-            );
-        }
-    }
-
-    // <변경부분>
-    // Standalone Event Scene CameraShot Step 제작 UI.
-    //
-    // BackgroundTile 또는 현재 Spawn된 Actor를 중심으로
-    // Camera 이동 + WorldRoot Zoom을 설정한다.
-    private void DrawCameraShotStep(
-     EventSceneData eventData,
-     EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Camera Shot",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        EventSceneCameraShotTargetType newTargetType =
-            (EventSceneCameraShotTargetType)
-            EditorGUILayout.EnumPopup(
-                "Target Type",
-                step.cameraShotTargetType
-            );
-
-        Vector2Int newTargetPosition =
-            step.cameraShotTargetPosition;
-
-        string newTargetActorId =
-            step.cameraShotTargetActorId;
-
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.LabelField(
-            "Target",
-            EditorStyles.boldLabel
-        );
-
-        if (newTargetType ==
-            EventSceneCameraShotTargetType.BackgroundTile)
-        {
-            newTargetPosition =
-                EditorGUILayout.Vector2IntField(
-                    "Background Tile",
-                    step.cameraShotTargetPosition
-                );
-
-            EditorGUILayout.Space(3);
-
-            int stepIndex =
-                GetStepIndex(
-                    eventData,
-                    step
-                );
-
-            bool isThisStepSelecting =
-                isSelectingCameraShotTile &&
-                selectingCameraShotStepIndex ==
-                    stepIndex;
-
-            string buttonLabel =
-                isThisStepSelecting
-                    ? "Scene 타일 선택 취소"
-                    : "Scene에서 Camera Target 선택";
-
-            if (GUILayout.Button(
-                    buttonLabel))
-            {
-                if (isThisStepSelecting)
-                {
-                    CancelCameraShotTileSelection();
-                }
-                else
-                {
-                    // <변경부분>
-                    // Scene View 좌표 선택은 동시에 하나만 활성화한다.
-                    isSelectingSpawnActorTile =
-                        false;
-
-                    selectingSpawnActorStepIndex =
-                        -1;
-
-                    isSelectingMoveActorTile =
-                        false;
-
-                    selectingMoveActorStepIndex =
-                        -1;
-
-                    isSelectingCameraShotTile =
-                        true;
-
-                    selectingCameraShotStepIndex =
-                        stepIndex;
-
-                    SceneView.RepaintAll();
-                }
-            }
-
-            if (isThisStepSelecting)
-            {
-                EditorGUILayout.HelpBox(
-                    "Scene View에서 화면 중앙에 표시할 BackgroundTile을 클릭하세요.",
-                    MessageType.Info
-                );
-            }
-        }
-        else if (newTargetType ==
-                 EventSceneCameraShotTargetType.Actor)
-        {
-            newTargetActorId =
-                EditorGUILayout.TextField(
-                    "Actor ID",
-                    step.cameraShotTargetActorId
-                );
-        }
-
-        EditorGUILayout.Space(4);
-
-        EditorGUILayout.LabelField(
-            "Camera",
-            EditorStyles.boldLabel
-        );
-
-        // <변경부분>
-        // 내부적으로는 WorldRoot Scale을 사용하지만
-        // Event 제작자가 이해하기 쉬운 이름으로 표시한다.
-        float newWorldScale =
-            EditorGUILayout.FloatField(
-                "Zoom Scale",
-                step.cameraShotWorldScale
-            );
-
-        float newDuration =
-            EditorGUILayout.FloatField(
-                "Move Duration",
-                step.cameraShotDuration
-            );
-
-        bool newWaitForComplete =
-            EditorGUILayout.Toggle(
-                "Wait For Complete",
-                step.cameraShotWaitForComplete
-            );
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Camera Shot"
-            );
-
-            step.cameraShotTargetType =
-                newTargetType;
-
-            step.cameraShotTargetPosition =
-                newTargetPosition;
-
-            step.cameraShotTargetActorId =
-                newTargetActorId;
-
-            step.cameraShotWorldScale =
-                Mathf.Max(
-                    0.01f,
-                    newWorldScale
-                );
-
-            step.cameraShotDuration =
-                Mathf.Max(
-                    0f,
-                    newDuration
-                );
-
-            step.cameraShotWaitForComplete =
-                newWaitForComplete;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(4);
-
-        if (newTargetType ==
-                EventSceneCameraShotTargetType.Actor &&
-            string.IsNullOrWhiteSpace(
-                newTargetActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "Actor Target을 사용하려면 이전 SpawnActor에서 생성한 Actor ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        // <변경부분>
-        // CameraShot의 동작을 제작자가 바로 이해할 수 있도록
-        // Target 중심 이동 규칙을 명확히 표시한다.
-        if (newTargetType ==
-            EventSceneCameraShotTargetType.BackgroundTile)
-        {
-            EditorGUILayout.HelpBox(
-                "현재 Camera 위치에서 선택한 BackgroundTile 중심으로 이동하며, " +
-                "선택한 Tile이 화면 정중앙에 표시됩니다.\n" +
-                "Zoom Scale 값이 커질수록 화면이 확대됩니다.",
-                MessageType.Info
-            );
-        }
-        else
-        {
-            EditorGUILayout.HelpBox(
-                "현재 Camera 위치에서 선택한 Actor 위치로 이동하며, " +
-                "Actor가 화면 정중앙에 표시됩니다.\n" +
-                "Zoom Scale 값이 커질수록 화면이 확대됩니다.",
-                MessageType.Info
-            );
-        }
-    }
-
-    // <변경부분>
-    // ScreenShake Step 전용 제작 UI.
-    //
-    // AttackActor에서 이미 사용 중인
-    // Event Scene 공용 Camera Shake를
-    // 독립 Step으로 실행하기 위한 설정이다.
-    private void DrawScreenShakeStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Screen Shake",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        float newDuration =
-            EditorGUILayout.FloatField(
-                "Shake Duration",
-                step.screenShakeDuration
-            );
-
-        float newStrength =
-            EditorGUILayout.FloatField(
-                "Shake Strength",
-                step.screenShakeStrength
-            );
-
-        bool newWaitForComplete =
-            EditorGUILayout.Toggle(
-                "Wait For Complete",
-                step.screenShakeWaitForComplete
-            );
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Screen Shake"
-            );
-
-            step.screenShakeDuration =
-                Mathf.Max(
-                    0f,
-                    newDuration
-                );
-
-            step.screenShakeStrength =
-                Mathf.Max(
-                    0f,
-                    newStrength
-                );
-
-            step.screenShakeWaitForComplete =
-                newWaitForComplete;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(4);
-
-        if (step.screenShakeWaitForComplete)
-        {
-            EditorGUILayout.HelpBox(
-                "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다.",
-                MessageType.Info
-            );
-        }
-        else
-        {
-            EditorGUILayout.HelpBox(
-                "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
-                MessageType.Info
-            );
-        }
-    }
-
-    // <변경부분>
-    // Standalone Event Scene SpeechBubble Step의
-    // Actor / 연출 파라미터만 편집한다.
-    //
-    // 실제 KR / EN / JA Text는 아래
-    // Speech Bubble Texts Localization 영역에서 통합 관리한다.
-    private void DrawSpeechBubbleStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Speech Bubble",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        string newActorId =
-            EditorGUILayout.TextField(
-                "Actor ID",
-                step.speechBubbleActorId
-            );
-
-        float newDuration =
-            EditorGUILayout.FloatField(
-                "Duration",
-                step.speechBubbleDuration
-            );
-
-        float newTypingSpeed =
-            EditorGUILayout.FloatField(
-                "Typing Speed",
-                step.speechBubbleTypingSpeed
-            );
-
-        bool newUseEmphasisShake =
-            EditorGUILayout.Toggle(
-                "Use Emphasis Shake",
-                step.speechBubbleUseEmphasisShake
-            );
-
-        float newEmphasisStrength =
-            step.speechBubbleEmphasisStrength;
-
-        if (newUseEmphasisShake)
-        {
-            newEmphasisStrength =
-                EditorGUILayout.FloatField(
-                    "Emphasis Strength",
-                    step.speechBubbleEmphasisStrength
-                );
-        }
-
-        bool newWaitForComplete =
-            EditorGUILayout.Toggle(
-                "Wait For Complete",
-                step.speechBubbleWaitForComplete
-            );
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Scene Speech Bubble"
-            );
-
-            step.speechBubbleActorId =
-                newActorId;
-
-            step.speechBubbleDuration =
-                Mathf.Max(
-                    0f,
-                    newDuration
-                );
-
-            step.speechBubbleTypingSpeed =
-                Mathf.Max(
-                    0f,
-                    newTypingSpeed
-                );
-
-            step.speechBubbleUseEmphasisShake =
-                newUseEmphasisShake;
-
-            step.speechBubbleEmphasisStrength =
-                Mathf.Max(
-                    0f,
-                    newEmphasisStrength
-                );
-
-            step.speechBubbleWaitForComplete =
-                newWaitForComplete;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(4);
-
-        if (string.IsNullOrWhiteSpace(
-                step.speechBubbleActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "SpeechBubble을 실행하려면 이전 SpawnActor에서 생성한 Actor ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        EditorGUILayout.HelpBox(
-            "SpeechBubble의 Korean / English / Japanese Text는 " +
-            "아래 Speech Bubble Texts 영역에서 관리합니다.",
-            MessageType.Info
-        );
-    }
-
-
-    // <변경부분>
-    // PlayActorAnimation Step 전용 제작 UI.
-    //
-    // 지정 Actor의 이전 SpawnActor를 추적하여
-    // 실제 PieceData의 Spine Visual Prefab에서
-    // Animation 목록을 읽어 Dropdown으로 표시한다.
-    //
-    // Loop / 완료 대기 / Idle 복귀 / Mix 시간도 함께 설정한다.
-    private void DrawPlayActorAnimationStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Actor Animation",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        string newActorId =
-            EditorGUILayout.TextField(
-                "Actor ID",
-                step.playAnimationActorId
-            );
-
-        string newAnimationName =
-            step.playAnimationName;
-
-        // <변경부분>
-        // 현재 Step보다 앞에 있는 SpawnActor를 추적하여
-        // 실제 Spine Prefab Animation 목록을 가져온다.
-        string[] animationNames =
-            GetSpineAnimationNamesForActor(
-                eventData,
-                step,
-                newActorId,
-                out string sourcePrefabName
-            );
-
-        if (animationNames.Length > 0)
-        {
-            List<string> popupOptions =
-                new List<string>();
-
-            popupOptions.Add(
-                "<Select Animation>"
-            );
-
-            for (int i = 0;
-                 i < animationNames.Length;
-                 i++)
-            {
-                popupOptions.Add(
-                    animationNames[i]
-                );
-            }
-
-            int currentPopupIndex =
-                0;
-
-            for (int i = 0;
-                 i < animationNames.Length;
-                 i++)
-            {
-                if (animationNames[i] ==
-                    step.playAnimationName)
-                {
-                    currentPopupIndex =
-                        i + 1;
-
-                    break;
-                }
-            }
-
-            int selectedPopupIndex =
-                EditorGUILayout.Popup(
-                    "Spine Animation",
-                    currentPopupIndex,
-                    popupOptions.ToArray()
-                );
-
-            if (selectedPopupIndex > 0 &&
-                selectedPopupIndex <=
-                    animationNames.Length)
-            {
-                newAnimationName =
-                    animationNames[
-                        selectedPopupIndex - 1];
-            }
-
-            if (string.IsNullOrWhiteSpace(
-                    sourcePrefabName) == false)
-            {
-                EditorGUILayout.LabelField(
-                    "Source Prefab",
-                    sourcePrefabName
-                );
-            }
-
-            // <변경부분>
-            // 기존 문자열 값이 현재 Spine Prefab에 없다면
-            // 값을 임의 삭제하지 않고 경고만 표시한다.
-            if (string.IsNullOrWhiteSpace(
-                    step.playAnimationName) == false &&
-                currentPopupIndex == 0)
-            {
-                EditorGUILayout.HelpBox(
-                    $"현재 Animation '{step.playAnimationName}'을 " +
-                    "Spine Prefab에서 찾을 수 없습니다. " +
-                    "Dropdown에서 다시 선택해주세요.",
-                    MessageType.Warning
-                );
-            }
-        }
-        else
-        {
-            // <변경부분>
-            // 아직 이전 SpawnActor를 찾을 수 없거나
-            // Spine Prefab을 읽지 못하는 경우에는
-            // 기존 문자열 입력 방식을 fallback으로 유지한다.
-            newAnimationName =
-                EditorGUILayout.TextField(
-                    "Animation Name",
-                    step.playAnimationName
-                );
-
-            EditorGUILayout.HelpBox(
-                "이 Actor ID와 연결된 이전 SpawnActor의 " +
-                "Spine Prefab을 찾지 못해 Animation Dropdown을 표시할 수 없습니다.",
-                MessageType.Info
-            );
-        }
-
-        float newMixDuration =
-            EditorGUILayout.FloatField(
-                "Mix Duration",
-                step.playAnimationMixDuration
-            );
-
-        bool newLoop =
-            EditorGUILayout.Toggle(
-                "Loop",
-                step.playAnimationLoop
-            );
-
-        bool newWaitForComplete =
-            step.playAnimationWaitForComplete;
-
-        bool newReturnToIdle =
-            step.playAnimationReturnToIdle;
-
-        if (newLoop == false)
-        {
-            newWaitForComplete =
-                EditorGUILayout.Toggle(
-                    "Wait Until Complete",
-                    step.playAnimationWaitForComplete
-                );
-
-            if (newWaitForComplete)
-            {
-                // <변경부분>
-                // Animation 종료 후 자동으로 Idle로 복귀할지 결정한다.
-                //
-                // OFF이면 현재 Animation의 마지막 Pose를 유지하여
-                // 다음 PlayActorAnimation Step과 바로 연결할 수 있다.
-                newReturnToIdle =
-                    EditorGUILayout.Toggle(
-                        "Auto Return To Idle",
-                        step.playAnimationReturnToIdle
-                    );
-            }
-        }
-        else
-        {
-            newWaitForComplete =
-                false;
-
-            newReturnToIdle =
-                false;
-        }
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Actor Animation"
-            );
-
-            step.playAnimationActorId =
-                newActorId;
-
-            step.playAnimationName =
-                newAnimationName;
-
-            step.playAnimationMixDuration =
-                Mathf.Max(
-                    0f,
-                    newMixDuration
-                );
-
-            step.playAnimationLoop =
-                newLoop;
-
-            step.playAnimationWaitForComplete =
-                newWaitForComplete;
-
-            step.playAnimationReturnToIdle =
-                newReturnToIdle;
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(4);
-
-        if (string.IsNullOrWhiteSpace(
-                step.playAnimationActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "PlayActorAnimation을 실행하려면 Actor ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        if (string.IsNullOrWhiteSpace(
-                step.playAnimationName))
-        {
-            EditorGUILayout.HelpBox(
-                "실행할 Spine Animation을 선택해주세요.",
-                MessageType.Warning
-            );
-        }
-
-        if (step.playAnimationLoop)
-        {
-            EditorGUILayout.HelpBox(
-                "Loop Animation은 반복 재생을 시작한 뒤 " +
-                "즉시 다음 Event Step으로 진행합니다.",
-                MessageType.Info
-            );
-        }
-        else if (step.playAnimationWaitForComplete)
-        {
-            EditorGUILayout.HelpBox(
-                step.playAnimationReturnToIdle
-                    ? "Animation 완료까지 기다린 뒤 Mix를 적용하여 Idle로 자동 복귀합니다."
-                    : "Animation 완료 후 Idle로 복귀하지 않고 마지막 Pose를 유지합니다. 다음 Animation Step은 이 Pose에서 바로 연결됩니다.",
-                MessageType.None
-            );
-        }
-        else
-        {
-            EditorGUILayout.HelpBox(
-                "Animation 재생을 시작한 뒤 완료를 기다리지 않고 " +
-                "즉시 다음 Event Step으로 진행합니다.",
-                MessageType.None
-            );
-        }
-    }
-
-    // <변경부분>
-    // RemoveActor Step 전용 제작 UI.
-    //
-    // Actor ID와 제거 방식을 설정한다.
-    // FadeOut일 때만 Fade Duration을 표시한다.
-    private void DrawRemoveActorStep(
-        EventSceneData eventData,
-        EventSceneStepData step)
-    {
-        EditorGUILayout.LabelField(
-            "Remove Actor",
-            EditorStyles.boldLabel
-        );
-
-        EditorGUI.BeginChangeCheck();
-
-        string newActorId =
-            EditorGUILayout.TextField(
-                "Actor ID",
-                step.removeActorId
-            );
-
-        EventSceneRemoveMode newRemoveMode =
-            (EventSceneRemoveMode)
-            EditorGUILayout.EnumPopup(
-                "Remove Mode",
-                step.removeActorMode
-            );
-
-        float newFadeOutDuration =
-            step.removeActorFadeOutDuration;
-
-        // <변경부분>
-        // FadeOut일 때만 Fade 시간을 표시한다.
-        if (newRemoveMode ==
-            EventSceneRemoveMode.FadeOut)
-        {
-            newFadeOutDuration =
-                EditorGUILayout.FloatField(
-                    "Fade Out Duration",
-                    step.removeActorFadeOutDuration
-                );
-        }
-
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(
-                eventData,
-                "Edit Event Remove Actor"
-            );
-
-            step.removeActorId =
-                newActorId;
-
-            step.removeActorMode =
-                newRemoveMode;
-
-            step.removeActorFadeOutDuration =
-                Mathf.Max(
-                    0f,
-                    newFadeOutDuration
-                );
-
-            EditorUtility.SetDirty(
-                eventData
-            );
-        }
-
-        EditorGUILayout.Space(4);
-
-        if (string.IsNullOrWhiteSpace(
-                step.removeActorId))
-        {
-            EditorGUILayout.HelpBox(
-                "RemoveActor를 실행하려면 Actor ID가 필요합니다.",
-                MessageType.Warning
-            );
-        }
-
-        if (step.removeActorMode ==
-            EventSceneRemoveMode.FadeOut)
-        {
-            EditorGUILayout.HelpBox(
-                "Actor가 지정 시간 동안 Fade Out된 뒤 Event Scene에서 제거됩니다.",
-                MessageType.None
-            );
-        }
-        else
-        {
-            EditorGUILayout.HelpBox(
-                "Actor를 Fade 없이 즉시 Event Scene에서 제거합니다.",
-                MessageType.None
-            );
-        }
-
-        EditorGUILayout.HelpBox(
-            "Death 등의 Animation이 필요하면 RemoveActor 전에 " +
-            "PlayActorAnimation Step을 배치해주세요.",
-            MessageType.Info
-        );
     }
 
     // <변경부분>
@@ -4390,7 +4548,7 @@ public class EventSceneDataEditor : Editor
     }
 
     private bool GetStepFoldout(
-        int stepIndex)
+     int stepIndex)
     {
         if (stepFoldouts.TryGetValue(
                 stepIndex,
@@ -4399,10 +4557,14 @@ public class EventSceneDataEditor : Editor
             return expanded;
         }
 
+        // <변경부분>
+        // Event Scene을 처음 열었을 때는
+        // Step 수가 많아도 Inspector가 지나치게 길어지지 않도록
+        // 기본 상태를 접힘으로 시작한다.
         stepFoldouts[stepIndex] =
-            true;
+            false;
 
-        return true;
+        return false;
     }
 
     // <변경부분>
