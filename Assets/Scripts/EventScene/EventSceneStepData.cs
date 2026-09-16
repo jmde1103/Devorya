@@ -82,7 +82,19 @@ public enum EventSceneAttackResult
     Failure = 1
 }
 
+
 // <변경부분>
+// CameraShot Step에서 어떤 대상을 화면 중심으로 잡을지 정의한다.
+//
+// 기존 EventSceneStepType enum과는 별개의 신규 enum이므로
+// 기존 Serialized Step Type 숫자에는 영향을 주지 않는다.
+public enum EventSceneCameraShotTargetType
+{
+    BackgroundTile = 0,
+    Actor = 1
+}
+
+
 // Event Scene Dialogue 한 Page의 Localization Metadata.
 //
 // 실제 한국어 원문은 dialoguePages에 유지하고,
@@ -545,7 +557,65 @@ public class EventSceneStepData
     // Immediate에서는 사용하지 않는다.
     [Min(0f)]
     public float removeActorFadeOutDuration =
-        0.35f;
+    0.35f;
+
+
+    // =====================================================
+    // Camera Shot
+    // =====================================================
+
+    [Header("Camera Shot")]
+
+    // <변경부분>
+    // CameraShot이 BackgroundTile을 볼지
+    // 현재 Event Scene에 Spawn되어 있는 Actor를 볼지 선택한다.
+    public EventSceneCameraShotTargetType cameraShotTargetType =
+        EventSceneCameraShotTargetType.BackgroundTile;
+
+    // <변경부분>
+    // BackgroundTile Target일 때 사용할 좌표.
+    public Vector2Int cameraShotTargetPosition =
+        Vector2Int.zero;
+
+    // <변경부분>
+    // Actor Target일 때 사용할 Event Actor ID.
+    //
+    // SpawnActor에서 등록한 Actor ID를 사용한다.
+    public string cameraShotTargetActorId =
+        string.Empty;
+
+    // <변경부분>
+    // 타깃 위치에서 카메라 중심을 추가로 보정할 World Offset.
+    //
+    // 예:
+    // 캐릭터보다 조금 위를 보여주고 싶다면 Y 값을 조정한다.
+    public Vector2 cameraShotWorldOffset =
+        Vector2.zero;
+
+    // <변경부분>
+    // PixelCameraController의 WorldRoot Scale 기준 Zoom 값.
+    //
+    // 실제 Runtime에서는 PixelCameraController의
+    // minWorldScale / maxWorldScale 범위 안으로 Clamp된다.
+    [Min(0.01f)]
+    public float cameraShotWorldScale =
+        1.2f;
+
+    // <변경부분>
+    // 현재 카메라 위치/Zoom에서 목표 Shot까지 이동하는 전체 시간.
+    [Min(0f)]
+    public float cameraShotDuration =
+        0.6f;
+
+    // <변경부분>
+    // true:
+    // 카메라 이동과 Zoom이 모두 완료된 뒤 다음 Step 진행.
+    //
+    // false:
+    // CameraShot은 독립적으로 계속 진행하고
+    // Sequence는 즉시 다음 Step으로 진행한다.
+    public bool cameraShotWaitForComplete =
+        true;
 
 
     // =====================================================

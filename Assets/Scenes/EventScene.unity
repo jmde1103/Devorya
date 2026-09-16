@@ -147128,6 +147128,7 @@ MonoBehaviour:
   eventActorsRoot: {fileID: 947132297}
   actorSpeechBubblePrefab: {fileID: 5673670882893842778, guid: 5d020f5c56c19ee4e844f528f7d94ea5, type: 3}
   cameraShakeTarget: {fileID: 0}
+  pixelCameraController: {fileID: 330585549}
 --- !u!1 &1558219992
 GameObject:
   m_ObjectHideFlags: 0

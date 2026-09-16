@@ -59,6 +59,15 @@ public class EventSceneSequenceController : MonoBehaviour
 
 
     // <변경부분>
+    // Standalone Event Scene CameraShot에서 사용할
+    // 실제 PixelCameraController.
+    //
+    // Inspector 연결을 우선 사용하고,
+    // 비어 있으면 Main Camera에서 자동 탐색한다.
+    [SerializeField]
+    private PixelCameraController pixelCameraController;
+
+
     // 현재 실행 중인 Event Scene Camera Shake Coroutine.
     //
     // 새로운 충격이 들어오면 기존 Shake를 정리한 뒤
@@ -137,6 +146,15 @@ public class EventSceneSequenceController : MonoBehaviour
         }
 
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // Standalone Event Scene이 시작되면
+        // 플레이어의 수동 Camera 이동 / 확대 / 축소를 잠근다.
+        //
+        // CameraShot 같은 Event 연출용 Camera 제어는 계속 사용 가능하다.
+        SetEventSceneManualCameraInputLocked(
+            true
+        );
 
         // <변경부분>
         // 실행 중에만 현재 EventSceneData를 보관한다.
@@ -348,6 +366,19 @@ public class EventSceneSequenceController : MonoBehaviour
 
             // <변경부분>
             // 독립 Screen Shake 연출.
+            // <변경부분>
+            // Event Scene 전용 Camera 위치 / Zoom 연출.
+            case EventSceneStepType.CameraShot:
+
+                yield return
+                    ExecuteCameraShotStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            // 독립 Screen Shake 연출.
             case EventSceneStepType.ScreenShake:
 
                 yield return
@@ -371,7 +402,6 @@ public class EventSceneSequenceController : MonoBehaviour
 
 
             case EventSceneStepType.AbsorbActor:
-            case EventSceneStepType.CameraShot:
 
                 Debug.LogWarning(
                     $"Event Scene Step 미구현: " +
@@ -1045,6 +1075,245 @@ attacker.PlayAttackRoutine(
         );
     }
 
+    // =====================================================
+    // Camera Shot
+    // =====================================================
+
+    // <변경부분>
+    // Standalone Event Scene CameraShot Step 실행.
+    //
+    // BackgroundTile:
+    // BackgroundManager의 기존 좌표 조회를 그대로 재사용한다.
+    //
+    // Actor:
+    // activeActors Dictionary에 현재 존재하는 EventSceneActor를 사용한다.
+    //
+    // 실제 Camera 이동 / WorldRoot Zoom은
+    // PixelCameraController 한 곳에서만 담당한다.
+    private IEnumerator ExecuteCameraShotStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        PixelCameraController cameraController =
+            GetEventPixelCameraController();
+
+        if (cameraController == null)
+        {
+            Debug.LogWarning(
+                $"Event Scene CameraShot 실행 실패: " +
+                $"PixelCameraController를 찾을 수 없습니다. / " +
+                $"{step.stepName}"
+            );
+
+            yield break;
+        }
+
+        Transform targetTransform =
+            null;
+
+        switch (step.cameraShotTargetType)
+        {
+            case EventSceneCameraShotTargetType.BackgroundTile:
+
+                if (backgroundManager == null)
+                {
+                    Debug.LogWarning(
+                        $"Event Scene CameraShot 실행 실패: " +
+                        $"BackgroundManager가 연결되지 않았습니다. / " +
+                        $"{step.stepName}"
+                    );
+
+                    yield break;
+                }
+
+                BackgroundTile targetTile =
+                    backgroundManager
+                        .GetBackgroundTileAt(
+                            step.cameraShotTargetPosition.x,
+                            step.cameraShotTargetPosition.y
+                        );
+
+                if (targetTile == null)
+                {
+                    Debug.LogWarning(
+                        $"Event Scene CameraShot 실행 실패: " +
+                        $"BackgroundTile " +
+                        $"({step.cameraShotTargetPosition.x}, " +
+                        $"{step.cameraShotTargetPosition.y})를 찾을 수 없습니다. / " +
+                        $"{step.stepName}"
+                    );
+
+                    yield break;
+                }
+
+                targetTransform =
+                    targetTile.transform;
+
+                break;
+
+
+            case EventSceneCameraShotTargetType.Actor:
+
+                if (string.IsNullOrWhiteSpace(
+                        step.cameraShotTargetActorId))
+                {
+                    Debug.LogWarning(
+                        $"Event Scene CameraShot 실행 실패: " +
+                        $"Actor ID가 비어 있습니다. / " +
+                        $"{step.stepName}"
+                    );
+
+                    yield break;
+                }
+
+                if (activeActors.TryGetValue(
+                        step.cameraShotTargetActorId,
+                        out EventSceneActor targetActor) == false ||
+                    targetActor == null)
+                {
+                    Debug.LogWarning(
+                        $"Event Scene CameraShot 실행 실패: " +
+                        $"Actor ID '{step.cameraShotTargetActorId}'를 " +
+                        $"찾을 수 없습니다. / " +
+                        $"{step.stepName}"
+                    );
+
+                    yield break;
+                }
+
+                targetTransform =
+                    targetActor.transform;
+
+                break;
+
+
+            default:
+
+                Debug.LogWarning(
+                    $"Event Scene CameraShot 실행 실패: " +
+                    $"지원하지 않는 Target Type입니다. " +
+                    $"{step.cameraShotTargetType}"
+                );
+
+                yield break;
+        }
+
+        // <변경부분>
+        // 기존 ScreenShake가 남아 있는 상태에서 CameraShot이 시작되면
+        // 두 Coroutine이 Camera Transform을 동시에 수정할 수 있으므로
+        // 먼저 Shake 기준 위치로 정확하게 복구한다.
+        StopCameraShakeImmediately();
+
+        // <변경부분>
+        // Event CameraShot의 기본 규칙:
+        //
+        // BackgroundTile Target
+        // → 선택한 Tile 중심을 화면 정중앙에 표시.
+        //
+        // Actor Target
+        // → 선택한 Actor 위치를 화면 정중앙에 표시.
+        //
+        // 과거 cameraShotWorldOffset 값은
+        // Serialized Asset 보호를 위해 Data에는 유지하지만
+        // Event CameraShot Runtime에서는 더 이상 사용하지 않는다.
+        cameraController.StartEventCameraShot(
+            targetTransform,
+            Vector2.zero,
+            step.cameraShotWorldScale,
+            step.cameraShotDuration
+        );
+
+        if (step.cameraShotWaitForComplete == false)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // PixelCameraController가 Shot을 완료할 때까지
+        // 현재 Event Step을 유지한다.
+        while (cameraController.IsEventCameraShotPlaying)
+        {
+            if (isSequenceActive == false)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+
+    // <변경부분>
+    // Inspector 연결을 우선 사용하고,
+    // 연결이 없을 경우 Main Camera에서 PixelCameraController를 찾는다.
+    private PixelCameraController GetEventPixelCameraController()
+    {
+        if (pixelCameraController != null)
+        {
+            return pixelCameraController;
+        }
+
+        if (Camera.main == null)
+        {
+            return null;
+        }
+
+        pixelCameraController =
+            Camera.main
+                .GetComponent<
+                    PixelCameraController
+                >();
+
+        return pixelCameraController;
+    }
+
+
+    // <변경부분>
+    // Event Scene 전체에서 플레이어의 수동 Camera 입력을
+    // 잠그거나 해제한다.
+    //
+    // CameraShot / ScreenShake 같은 연출 Camera 제어는
+    // 별도 Runtime API이므로 그대로 사용할 수 있다.
+    private void SetEventSceneManualCameraInputLocked(
+        bool isLocked)
+    {
+        PixelCameraController cameraController =
+            GetEventPixelCameraController();
+
+        if (cameraController == null)
+        {
+            return;
+        }
+
+        cameraController
+            .SetManualCameraInputLocked(
+                isLocked
+            );
+    }
+
+    // <변경부분>
+    // Sequence 종료/비활성화 등에서 Detached CameraShot이 남지 않도록
+    // 현재 Shot만 중지한다.
+    //
+    // Camera 위치/Zoom은 현재 프레임 상태를 유지한다.
+    private void StopEventCameraShotImmediately()
+    {
+        PixelCameraController cameraController =
+            GetEventPixelCameraController();
+
+        if (cameraController == null)
+        {
+            return;
+        }
+
+        cameraController
+            .StopEventCameraShotImmediately();
+    }
+
     // <변경부분>
     // 독립 ScreenShake Step 실행.
     //
@@ -1103,10 +1372,26 @@ attacker.PlayAttackRoutine(
     // 기존 Camera를 먼저 정확한 기준 위치로 복구한 뒤
     // 새로운 Shake를 시작한다.
     private void StartCameraShake(
-        float duration,
-        float strength)
+    float duration,
+    float strength)
     {
         StopCameraShakeImmediately();
+
+        // <변경부분>
+        // Wait For Complete = false인 CameraShot과
+        // ScreenShake가 같은 Camera Transform을 동시에 수정하지 않도록
+        // CameraShot을 현재 프레임 위치에서 먼저 확정한다.
+        //
+        // Camera는 이전 위치로 돌아가지 않는다.
+        PixelCameraController cameraController =
+            GetEventPixelCameraController();
+
+        if (cameraController != null &&
+            cameraController.IsEventCameraShotPlaying)
+        {
+            cameraController
+                .StopEventCameraShotImmediately();
+        }
 
         Transform shakeTarget =
             cameraShakeTarget;
@@ -1596,6 +1881,10 @@ attacker.PlayAttackRoutine(
 
         StopSequenceCoroutine();
 
+        // <변경부분>
+        // Detached CameraShot이 Sequence 종료 후에도 남지 않도록 정리.
+        StopEventCameraShotImmediately();
+
         if (eventGuideUI != null)
         {
             eventGuideUI.HideImmediately();
@@ -1633,9 +1922,20 @@ attacker.PlayAttackRoutine(
         StopSequenceCoroutine();
 
         // <변경부분>
+        // Event Scene Controller가 비활성화될 때
+        // Detached CameraShot Coroutine도 남기지 않는다.
+        StopEventCameraShotImmediately();
+
         // Camera Shake 도중 Scene 전환 또는 비활성화가 발생해도
         // Camera가 흔들린 좌표에 남지 않도록 즉시 원위치 복구.
         StopCameraShakeImmediately();
+
+        // <변경부분>
+        // Event Scene을 실제로 벗어나는 시점에만
+        // 일반 Camera 입력 Lock을 해제한다.
+        SetEventSceneManualCameraInputLocked(
+            false
+        );
 
         isSequenceActive =
             false;

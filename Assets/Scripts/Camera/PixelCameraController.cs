@@ -74,6 +74,73 @@ public class PixelCameraController : MonoBehaviour
     // <변경부분> 현재 실행 중인 시작 확대 코루틴
     private Coroutine startZoomCoroutine;
 
+
+    // =====================================================
+    // Event Camera Shot
+    // =====================================================
+
+    // <변경부분>
+    // Standalone Event Scene의 CameraShot Step이
+    // 현재 카메라를 직접 제어하고 있는지 여부.
+    //
+    // CameraShot 진행 중에는 일반 Drag / Wheel / Pinch가
+    // 카메라 연출을 덮어쓰지 못하게 한다.
+    private bool isPlayingEventCameraShot =
+        false;
+
+    // <변경부분>
+    // 현재 실행 중인 Event CameraShot Coroutine.
+    private Coroutine eventCameraShotCoroutine =
+        null;
+
+    // <변경부분>
+    // EventSceneSequenceController가
+    // Wait For Complete를 판단할 때 사용한다.
+    public bool IsEventCameraShotPlaying =>
+        isPlayingEventCameraShot;
+
+    // <변경부분>
+    // 현재 WorldRoot Zoom 상태를 외부에서 읽기만 할 수 있게 한다.
+    // 직접 Set은 제공하지 않는다.
+    public float CurrentWorldScale =>
+     currentWorldScale;
+
+
+    // <변경부분>
+    // Standalone Event Scene에서는 플레이어가
+    // Camera Drag / Wheel Zoom / Pinch Zoom을 직접 사용할 수 없도록 한다.
+    //
+    // CameraShot / ScreenShake 같은 연출용 Camera 제어는
+    // 이 Lock의 영향을 받지 않는다.
+    private bool isManualCameraInputLocked =
+        false;
+
+    public bool IsManualCameraInputLocked =>
+        isManualCameraInputLocked;
+
+
+    // <변경부분>
+    // EventSceneSequenceController가 Event Scene의 생명주기에 맞춰
+    // 수동 Camera 입력을 잠그거나 해제할 때 사용한다.
+    public void SetManualCameraInputLocked(
+        bool isLocked)
+    {
+        isManualCameraInputLocked =
+            isLocked;
+
+        // 잠금 직전에 남아 있던 Zoom 목표값 때문에
+        // Event Scene 진입 후에도 Scale이 계속 움직이지 않도록
+        // 현재 Scale에서 목표값을 고정한다.
+        targetWorldScale =
+            currentWorldScale;
+
+        // 이전 Scene에서 시작된 Drag / Touch 상태가
+        // Event Scene으로 이어지지 않도록 입력 상태도 초기화한다.
+        ResetPCDragState();
+        ResetMobileGestureState();
+    }
+
+
     [Header("Piece Selection Focus")]
     // <변경부분> 기물을 클릭했을 때 카메라 중심을 기물 위치로 이동할지 여부
     [SerializeField]
@@ -289,8 +356,15 @@ public class PixelCameraController : MonoBehaviour
     {
         get
         {
-            if (isPlayingStartZoomAnimation ||
-                isPlayingLastPieceAttackCinematic)
+            // <변경부분>
+            // Event CameraShot 연출 중에도
+            // 사용자의 Drag가 카메라 이동을 덮어쓰지 못하게 한다.
+            // <변경부분>
+            // Event Scene 전체 수동 Camera Lock도 함께 확인한다.
+            if (isManualCameraInputLocked ||
+                isPlayingStartZoomAnimation ||
+                isPlayingLastPieceAttackCinematic ||
+                isPlayingEventCameraShot)
             {
                 return false;
             }
@@ -328,6 +402,11 @@ public class PixelCameraController : MonoBehaviour
         // <변경부분> 모바일 Tap / Drag / Pinch 상태도
         // 다음 활성화까지 남지 않도록 함께 초기화한다.
         ResetMobileGestureState();
+
+        // <변경부분>
+        // Scene 전환 / Camera 비활성화 중 Event CameraShot이 남지 않도록
+        // Coroutine과 Runtime 상태를 즉시 정리한다.
+        StopEventCameraShotImmediately();
 
         // 마지막 적 공격 Cinematic 도중 종료되었을 경우
         // TimeScale과 카메라 상태를 즉시 복원한다.
@@ -521,6 +600,333 @@ public class PixelCameraController : MonoBehaviour
             null;
     }
 
+    // =====================================================
+    // Event Camera Shot
+    // =====================================================
+
+    // <변경부분>
+    // Standalone Event Scene의 CameraShot을 시작한다.
+    //
+    // targetTransform:
+    // - BackgroundTile Transform
+    // - EventSceneActor Transform
+    //
+    // worldOffset:
+    // 타깃 중심에서 카메라를 추가로 보정할 World Offset.
+    //
+    // requestedWorldScale:
+    // WorldRoot Scale 기반 Zoom 목표값.
+    //
+    // duration:
+    // 현재 Camera / Zoom 상태에서 목표 Shot까지 이동하는 시간.
+    public void StartEventCameraShot(
+    Transform targetTransform,
+    Vector2 worldOffset,
+    float requestedWorldScale,
+    float duration)
+    {
+        if (targetTransform == null)
+        {
+            Debug.LogWarning(
+                "Event CameraShot 시작 실패: " +
+                "Target Transform이 null입니다."
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 이전 CameraShot이 아직 진행 중이었다면
+        // 현재 Camera / Zoom 상태를 유지한 채 새 Shot으로 교체한다.
+        StopEventCameraShotImmediately();
+
+        // Battle Start Zoom과 동시에 WorldRoot Scale을
+        // 제어하지 않도록 기존 Coroutine을 정리한다.
+        if (startZoomCoroutine != null)
+        {
+            StopCoroutine(
+                startZoomCoroutine
+            );
+
+            startZoomCoroutine =
+                null;
+        }
+
+        isPlayingStartZoomAnimation =
+            false;
+
+        // 기존 Piece Focus가 진행 중이라면
+        // Event CameraShot이 Camera 제어권을 가져간다.
+        if (pieceFocusCoroutine != null)
+        {
+            StopCoroutine(
+                pieceFocusCoroutine
+            );
+
+            pieceFocusCoroutine =
+                null;
+        }
+
+        // 이동 중 Tile Follow도 함께 정리한다.
+        if (movingTileFollowCoroutine != null)
+        {
+            StopCoroutine(
+                movingTileFollowCoroutine
+            );
+
+            movingTileFollowCoroutine =
+                null;
+        }
+
+        movingTileFollowTarget =
+            null;
+
+        // Battle Cinematic이 진행 중이었다면
+        // 먼저 정상 상태로 복구한다.
+        if (isPlayingLastPieceAttackCinematic)
+        {
+            RestoreLastPieceAttackCinematicImmediately();
+        }
+
+        float safeTargetScale =
+            Mathf.Clamp(
+                requestedWorldScale,
+                minWorldScale,
+                maxWorldScale
+            );
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                duration
+            );
+
+        // <변경부분>
+        // Duration 0이면 즉시:
+        //
+        // 1. Zoom 적용
+        // 2. Target의 최종 World Position 확인
+        // 3. 해당 Target을 화면 정중앙으로 이동
+        //
+        // Event CameraShot에서는 Battle Camera Bounds를 적용하지 않는다.
+        if (safeDuration <= 0f)
+        {
+            currentWorldScale =
+                safeTargetScale;
+
+            targetWorldScale =
+                safeTargetScale;
+
+            ApplyWorldZoom();
+
+            Vector3 targetWorldPosition =
+                targetTransform.position;
+
+            transform.position =
+                new Vector3(
+                    targetWorldPosition.x +
+                        worldOffset.x,
+                    targetWorldPosition.y +
+                        worldOffset.y,
+                    cameraZPosition
+                );
+
+            isPlayingEventCameraShot =
+                false;
+
+            eventCameraShotCoroutine =
+                null;
+
+            return;
+        }
+
+        isPlayingEventCameraShot =
+            true;
+
+        eventCameraShotCoroutine =
+            StartCoroutine(
+                PlayEventCameraShotRoutine(
+                    targetTransform,
+                    worldOffset,
+                    safeTargetScale,
+                    safeDuration
+                )
+            );
+    }
+
+
+    // <변경부분>
+    // Camera 위치와 WorldRoot Zoom을 같은 시간축에서 보간한다.
+    //
+    // Target이 Actor일 경우 CameraShot 도중 Actor가 제거되어도
+    // 마지막으로 확인한 World Position을 유지하여
+    // Coroutine이 오류 없이 끝까지 진행된다.
+    private IEnumerator PlayEventCameraShotRoutine(
+     Transform targetTransform,
+     Vector2 worldOffset,
+     float finalWorldScale,
+     float duration)
+    {
+        // <변경부분>
+        // CameraShot은 항상 현재 Camera 위치에서 시작한다.
+        Vector3 startCameraPosition =
+            transform.position;
+
+        float startWorldScale =
+            currentWorldScale;
+
+        Vector3 lastTargetWorldPosition =
+            targetTransform != null
+                ? targetTransform.position
+                : Vector3.zero;
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime < duration &&
+               isPlayingEventCameraShot)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                duration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(
+                        elapsedTime /
+                        duration
+                    );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            // <변경부분>
+            // Camera 이동과 동시에 Zoom도 보간한다.
+            currentWorldScale =
+                Mathf.Lerp(
+                    startWorldScale,
+                    finalWorldScale,
+                    smoothTime
+                );
+
+            targetWorldScale =
+                currentWorldScale;
+
+            ApplyWorldZoom();
+
+            // <변경부분>
+            // WorldRoot Scale이 변경되면 그 자식인
+            // BackgroundTile / Actor의 실제 World Position도 달라질 수 있다.
+            //
+            // 따라서 Zoom을 적용한 뒤 매 Frame 실제 Target 위치를 다시 읽는다.
+            if (targetTransform != null)
+            {
+                lastTargetWorldPosition =
+                    targetTransform.position;
+            }
+
+            // <변경부분>
+            // Event CameraShot은 Battle용 Camera Bounds를 사용하지 않는다.
+            //
+            // 선택한 BackgroundTile 또는 Actor가
+            // 실제 화면 정중앙에 오도록 Target World Position을
+            // Camera Position으로 직접 사용한다.
+            Vector3 targetCameraPosition =
+                new Vector3(
+                    lastTargetWorldPosition.x +
+                        worldOffset.x,
+                    lastTargetWorldPosition.y +
+                        worldOffset.y,
+                    cameraZPosition
+                );
+
+            // <변경부분>
+            // 현재 Camera 위치 → Target 중심으로 부드럽게 이동한다.
+            transform.position =
+                Vector3.Lerp(
+                    startCameraPosition,
+                    targetCameraPosition,
+                    smoothTime
+                );
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // 정상 완료 시 Target을 정확히 화면 중앙에 고정한다.
+        if (isPlayingEventCameraShot)
+        {
+            currentWorldScale =
+                finalWorldScale;
+
+            targetWorldScale =
+                finalWorldScale;
+
+            ApplyWorldZoom();
+
+            if (targetTransform != null)
+            {
+                lastTargetWorldPosition =
+                    targetTransform.position;
+            }
+
+            transform.position =
+                new Vector3(
+                    lastTargetWorldPosition.x +
+                        worldOffset.x,
+                    lastTargetWorldPosition.y +
+                        worldOffset.y,
+                    cameraZPosition
+                );
+        }
+
+        isPlayingEventCameraShot =
+            false;
+
+        eventCameraShotCoroutine =
+            null;
+    }
+
+
+    // <변경부분>
+    // 현재 진행 중인 Event CameraShot을 즉시 정지한다.
+    //
+    // 이전 위치로 되돌리지 않고,
+    // 중지된 순간의 Camera / WorldRoot 상태를 그대로 유지한다.
+    //
+    // 이를 통해:
+    // - 연속 CameraShot
+    // - CameraShot → ScreenShake
+    // - Sequence 강제 종료
+    //
+    // 에서 갑작스러운 Camera 복귀가 발생하지 않는다.
+    public void StopEventCameraShotImmediately()
+    {
+        if (eventCameraShotCoroutine != null)
+        {
+            StopCoroutine(
+                eventCameraShotCoroutine
+            );
+
+            eventCameraShotCoroutine =
+                null;
+        }
+
+        isPlayingEventCameraShot =
+            false;
+
+        // 일반 Zoom Update가 이전 목표값으로 되돌아가지 않도록
+        // 현재 Scale을 새로운 목표값으로 확정한다.
+        targetWorldScale =
+            currentWorldScale;
+
+        ApplyWorldZoom();
+    }
+
     private void Update()
     {
         // 시작 확대 애니메이션 중에는
@@ -538,6 +944,31 @@ public class PixelCameraController : MonoBehaviour
         //
         // 따라서 일반 사용자 입력은 받지 않는다.
         if (isPlayingLastPieceAttackCinematic)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // Event CameraShot 진행 중에는 전용 Coroutine이
+        // Camera Transform과 WorldRoot Scale을 직접 제어한다.
+        //
+        // 일반 Drag / Zoom / Clamp가 같은 프레임에 값을 덮어쓰지 않도록
+        // Update의 나머지 Camera 입력 처리를 중단한다.
+        if (isPlayingEventCameraShot)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // Standalone Event Scene에서는 플레이어의
+        // Drag / Wheel / Pinch 입력을 전부 차단한다.
+        //
+        // 여기서는 ClampCameraByZoom()도 호출하지 않는다.
+        // ScreenShake 같은 연출이 Camera Transform을 직접 움직일 때
+        // 같은 프레임에 위치를 덮어쓰지 않도록 하기 위함이다.
+        //
+        // CameraShot은 위에서 별도로 처리되므로 정상 동작한다.
+        if (isManualCameraInputLocked)
         {
             return;
         }

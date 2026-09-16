@@ -7,6 +7,9 @@ using UnityEditor.Localization;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
+// < 변경부분 >
+// Event Step을 Unity 기본 방식으로 부드럽게 Drag Reorder하기 위해 사용.
+using UnityEditorInternal;
 
 // <변경부분>
 // EventSceneData 하나에서
@@ -34,9 +37,22 @@ public class EventSceneDataEditor : Editor
     // <변경부분>
     // Event Step 목록과 별도로
     // Dialogue 관리 영역의 펼침 상태를 저장한다.
-    private readonly Dictionary<int, bool>
-        dialogueStepFoldouts =
-            new Dictionary<int, bool>();
+   private readonly Dictionary<int, bool>
+    dialogueStepFoldouts =
+        new Dictionary<int, bool>();
+
+
+    // <변경부분>
+    // Event Scene Steps를 Unity 기본 ReorderableList로 관리한다.
+    //
+    // 기존 직접 구현한 Drag & Drop과 달리,
+    // Unity가 Drag 중 Element 위치 이동 / 삽입 위치 / 시각 피드백을
+    // 직접 처리하므로 Battle Event Steps와 같은 부드러운 조작감을 사용한다.
+    private ReorderableList eventStepsReorderableList;
+
+    // <변경부분>
+    // EventSceneData.steps의 SerializedProperty.
+    private SerializedProperty eventStepsProperty;
 
     // <변경부분>
     // Scene View에서 SpawnActor의 BackgroundTile 좌표를
@@ -57,13 +73,31 @@ public class EventSceneDataEditor : Editor
     // <변경부분>
     // 현재 목적지 좌표 선택을 요청한 MoveActor Step Index.
     private int selectingMoveActorStepIndex =
+     -1;
+
+
+    // <변경부분>
+    // Scene View에서 CameraShot의 BackgroundTile Target을
+    // 선택하고 있는지 여부.
+    private bool isSelectingCameraShotTile =
+        false;
+
+    // <변경부분>
+    // 현재 CameraShot Target 선택을 요청한 Step Index.
+    private int selectingCameraShotStepIndex =
         -1;
+
 
     // <변경부분>
     // EventSceneData Inspector가 활성화되면
     // Scene View 입력을 감지한다.
     private void OnEnable()
     {
+        // <변경부분>
+        // Battle Event Steps처럼 Unity가 직접 관리하는
+        // 부드러운 Drag Reorder List를 생성한다.
+        InitializeEventStepsReorderableList();
+
         SceneView.duringSceneGui +=
             HandleSceneGUI;
     }
@@ -82,11 +116,343 @@ public class EventSceneDataEditor : Editor
         selectingSpawnActorStepIndex =
             -1;
 
-        // <변경부분>
+        isSelectingMoveActorTile =
+    false;
+
+        selectingMoveActorStepIndex =
+            -1;
+
+        isSelectingCameraShotTile =
+    false;
+
+        selectingCameraShotStepIndex =
+            -1;
+    }
+
+    // <변경부분>
+    // EventSceneData.steps를 Unity ReorderableList에 연결한다.
+    //
+    // 목적:
+    // - Battle Event Steps와 동일한 자연스러운 Drag Reorder
+    // - 왼쪽 Drag Handle 제공
+    // - Drag 중 다른 Step이 실시간으로 자리를 이동
+    // - SerializedProperty 기반 Undo / Serialization 유지
+    private void InitializeEventStepsReorderableList()
+    {
+        eventStepsProperty =
+            serializedObject.FindProperty(
+                "steps"
+            );
+
+        if (eventStepsProperty == null)
+        {
+            eventStepsReorderableList =
+                null;
+
+            return;
+        }
+
+        eventStepsReorderableList =
+            new ReorderableList(
+                serializedObject,
+                eventStepsProperty,
+                true,   // draggable
+                true,   // displayHeader
+                true,   // displayAddButton
+                true    // displayRemoveButton
+            );
+
+        // =====================================================
+        // Header
+        // =====================================================
+
+        eventStepsReorderableList.drawHeaderCallback =
+            rect =>
+            {
+                EditorGUI.LabelField(
+                    rect,
+                    $"Steps    {eventStepsProperty.arraySize}"
+                );
+            };
+
+
+        // =====================================================
+        // Element
+        // =====================================================
+
+        eventStepsReorderableList.elementHeight =
+            EditorGUIUtility.singleLineHeight +
+            6f;
+
+        eventStepsReorderableList.drawElementCallback =
+            (
+                rect,
+                index,
+                isActive,
+                isFocused
+            ) =>
+            {
+                if (index < 0 ||
+                    index >=
+                        eventStepsProperty.arraySize)
+                {
+                    return;
+                }
+
+                SerializedProperty stepProperty =
+                    eventStepsProperty
+                        .GetArrayElementAtIndex(
+                            index
+                        );
+
+                if (stepProperty == null)
+                {
+                    return;
+                }
+
+                SerializedProperty stepNameProperty =
+                    stepProperty
+                        .FindPropertyRelative(
+                            "stepName"
+                        );
+
+                SerializedProperty stepTypeProperty =
+                    stepProperty
+                        .FindPropertyRelative(
+                            "stepType"
+                        );
+
+                string stepName =
+                    stepNameProperty != null
+                        ? stepNameProperty.stringValue
+                        : string.Empty;
+
+                string stepTypeName =
+                    stepTypeProperty != null
+                        ? stepTypeProperty
+                            .enumDisplayNames[
+                                stepTypeProperty.enumValueIndex
+                            ]
+                        : "None";
+
+                // <변경부분>
+                // 제작자가 다이어그램 / 기획서에서
+                // Event Step 위치를 빠르게 확인할 수 있도록
+                // 현재 리스트 순서를 기준으로 표시용 Step 번호를 붙인다.
+                //
+                // 실제 Data에 번호를 저장하지 않는다.
+                // Drag Reorder 후에는 현재 순서에 맞춰 자동으로 다시 계산된다.
+                //
+                // index는 0부터 시작하지만,
+                // 제작자 표시 번호는 1부터 시작한다.
+                //
+                // 예:
+                // Step01 - 데보리아 생성
+                // Step02 - 테스트 시작
+                // Step03 - 폰 생성
+                string stepNumber =
+                    (index + 1).ToString(
+                        "D2"
+                    );
+
+                string stepDisplayName =
+                    string.IsNullOrWhiteSpace(
+                        stepName)
+                        ? stepTypeName
+                        : stepName;
+
+                string label =
+                    $"Step{stepNumber} - {stepDisplayName}";
+
+                rect.y +=
+                    3f;
+
+                rect.height =
+                    EditorGUIUtility.singleLineHeight;
+
+                EditorGUI.LabelField(
+                    rect,
+                    label
+                );
+            };
+
+
+        // =====================================================
+        // Select
+        // =====================================================
+
+        eventStepsReorderableList.onSelectCallback =
+            list =>
+            {
+                // 선택된 Step 상세 Editor를 다시 그린다.
+                Repaint();
+            };
+
+
+        // =====================================================
+        // Add
+        // =====================================================
+
+        eventStepsReorderableList.onAddCallback =
+            list =>
+            {
+                EventSceneData eventData =
+                    target as EventSceneData;
+
+                if (eventData == null)
+                {
+                    return;
+                }
+
+                // 현재 Serialized 변경을 먼저 반영한다.
+                serializedObject
+                    .ApplyModifiedProperties();
+
+                AddStep(
+                    eventData
+                );
+
+                // 직접 List를 수정했으므로
+                // SerializedProperty를 다시 동기화한다.
+                serializedObject.Update();
+
+                eventStepsProperty =
+                    serializedObject.FindProperty(
+                        "steps"
+                    );
+
+                if (eventStepsProperty != null &&
+                    eventStepsProperty.arraySize > 0)
+                {
+                    list.index =
+                        eventStepsProperty.arraySize - 1;
+                }
+
+                Repaint();
+            };
+
+
+        // =====================================================
+        // Remove
+        // =====================================================
+
+        eventStepsReorderableList.onRemoveCallback =
+            list =>
+            {
+                EventSceneData eventData =
+                    target as EventSceneData;
+
+                if (eventData == null ||
+                    eventData.steps == null ||
+                    list.index < 0 ||
+                    list.index >=
+                        eventData.steps.Count)
+                {
+                    return;
+                }
+
+                int removeIndex =
+                    list.index;
+
+                serializedObject
+                    .ApplyModifiedProperties();
+
+                // 기존 RemoveStep을 그대로 재사용한다.
+                //
+                // Localization Table Entry를 즉시 지우지 않는
+                // 기존 안전 정책도 그대로 유지된다.
+                RemoveStep(
+                    eventData,
+                    removeIndex
+                );
+
+                serializedObject.Update();
+
+                eventStepsProperty =
+                    serializedObject.FindProperty(
+                        "steps"
+                    );
+
+                if (eventStepsProperty == null ||
+                    eventStepsProperty.arraySize <= 0)
+                {
+                    list.index =
+                        -1;
+                }
+                else
+                {
+                    list.index =
+                        Mathf.Clamp(
+                            removeIndex,
+                            0,
+                            eventStepsProperty.arraySize - 1
+                        );
+                }
+
+                CancelAllEventSceneTileSelection();
+
+                Repaint();
+                SceneView.RepaintAll();
+            };
+
+
+        // =====================================================
+        // Reorder
+        // =====================================================
+
+        eventStepsReorderableList.onReorderCallback =
+            list =>
+            {
+                EventSceneData eventData =
+                    target as EventSceneData;
+
+                if (eventData == null)
+                {
+                    return;
+                }
+
+                // <변경부분>
+                // SerializedProperty 기반 Reorder라
+                // 실제 순서 변경은 Unity가 수행한다.
+                //
+                // 별도의 RemoveAt / Insert 계산은 하지 않는다.
+                serializedObject
+                    .ApplyModifiedProperties();
+
+                EditorUtility.SetDirty(
+                    eventData
+                );
+
+                // Scene View Tile 선택 중에 Step 순서가 바뀌면
+                // 이전 Index가 다른 Step을 가리킬 수 있으므로 안전하게 종료한다.
+                CancelAllEventSceneTileSelection();
+
+                Repaint();
+                SceneView.RepaintAll();
+            };
+    }
+
+    // <변경부분>
+    // Step 순서 변경 / 삭제 시
+    // 기존 Step Index를 사용하는 Scene View 선택 상태를 모두 해제한다.
+    private void CancelAllEventSceneTileSelection()
+    {
+        isSelectingSpawnActorTile =
+            false;
+
+        selectingSpawnActorStepIndex =
+            -1;
+
         isSelectingMoveActorTile =
             false;
 
         selectingMoveActorStepIndex =
+            -1;
+
+        isSelectingCameraShotTile =
+            false;
+
+        selectingCameraShotStepIndex =
             -1;
     }
 
@@ -333,7 +699,17 @@ public class EventSceneDataEditor : Editor
 
 
     // <변경부분>
-    // Event Step 전체 목록을 제작한다.
+    // Event Scene Steps 목록.
+    //
+    // Step 순서 변경은 Unity ReorderableList가 담당하고,
+    // 선택된 Step의 실제 전용 설정은 목록 아래에서 기존 방식으로 편집한다.
+    //
+    // 이렇게 분리하면:
+    // - 수십 개 Step을 빠르게 Drag Reorder 가능
+    // - 기존 Event Scene 전용 Inspector 기능 유지
+    // - Scene View Tile 선택 기능 유지
+    // - Spine Animation Dropdown 유지
+    // - Localization 구조 유지
     private void DrawEventSteps(
         EventSceneData eventData)
     {
@@ -342,185 +718,155 @@ public class EventSceneDataEditor : Editor
             EditorStyles.boldLabel
         );
 
-        if (eventData.steps == null)
+        if (eventData == null)
         {
-            Undo.RecordObject(
-                eventData,
-                "Initialize Event Steps"
-            );
-
-            eventData.steps =
-                new List<EventSceneStepData>();
-
-            EditorUtility.SetDirty(
-                eventData
-            );
+            return;
         }
 
-        for (int stepIndex = 0;
-             stepIndex < eventData.steps.Count;
-             stepIndex++)
+        if (eventStepsReorderableList == null ||
+            eventStepsProperty == null)
         {
-            EventSceneStepData step =
-                eventData.steps[stepIndex];
+            InitializeEventStepsReorderableList();
+        }
 
-            if (step == null)
+        if (eventStepsReorderableList == null)
+        {
+            EditorGUILayout.HelpBox(
+                "EventSceneData.steps를 찾을 수 없습니다.",
+                MessageType.Error
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // ReorderableList는 SerializedProperty 기반이므로
+        // Draw 직전에 최신 Serialized 상태를 읽는다.
+        serializedObject.Update();
+
+        eventStepsReorderableList
+            .DoLayoutList();
+
+        serializedObject
+            .ApplyModifiedProperties();
+
+        EditorGUILayout.Space(8);
+
+        if (eventData.steps == null ||
+            eventData.steps.Count == 0)
+        {
+            EditorGUILayout.HelpBox(
+                "Event Step이 없습니다.",
+                MessageType.Info
+            );
+
+            return;
+        }
+
+        int selectedIndex =
+            eventStepsReorderableList.index;
+
+        if (selectedIndex < 0 ||
+            selectedIndex >=
+                eventData.steps.Count)
+        {
+            EditorGUILayout.HelpBox(
+                "위 Steps 목록에서 편집할 Step을 선택하세요.",
+                MessageType.None
+            );
+
+            return;
+        }
+
+        EventSceneStepData step =
+            eventData.steps[
+                selectedIndex
+            ];
+
+        if (step == null)
+        {
+            return;
+        }
+
+
+        // =====================================================
+        // Selected Step Detail
+        // =====================================================
+
+        using (new EditorGUILayout.VerticalScope(
+                   EditorStyles.helpBox))
+        {
+            // <변경부분>
+            // 위 Steps 목록과 동일하게
+            // 1부터 시작하는 두 자리 Step 번호를 표시한다.
+            //
+            // 예:
+            // Step01 - 데보리아 생성
+            // Step02 - 테스트 시작
+            string selectedStepNumber =
+                (selectedIndex + 1).ToString(
+                    "D2"
+                );
+
+            string selectedStepDisplayName =
+                string.IsNullOrWhiteSpace(
+                    step.stepName)
+                    ? step.stepType.ToString()
+                    : step.stepName;
+
+            string selectedStepTitle =
+                $"Step{selectedStepNumber} - " +
+                $"{selectedStepDisplayName}";
+
+            EditorGUILayout.LabelField(
+                selectedStepTitle,
+                EditorStyles.boldLabel
+            );
+
+            EditorGUILayout.Space(3);
+
+            EditorGUI.BeginChangeCheck();
+
+            string newStepName =
+                EditorGUILayout.TextField(
+                    "Step Name",
+                    step.stepName
+                );
+
+            EventSceneStepType newStepType =
+                (EventSceneStepType)
+                EditorGUILayout.EnumPopup(
+                    "Step Type",
+                    step.stepType
+                );
+
+            if (EditorGUI.EndChangeCheck())
             {
-                step =
-                    new EventSceneStepData();
+                Undo.RecordObject(
+                    eventData,
+                    "Edit Event Scene Step"
+                );
 
-                eventData.steps[stepIndex] =
-                    step;
+                step.stepName =
+                    newStepName;
+
+                step.stepType =
+                    newStepType;
 
                 EditorUtility.SetDirty(
                     eventData
                 );
             }
 
-            bool expanded =
-                GetStepFoldout(
-                    stepIndex
-                );
-
-            using (new EditorGUILayout.VerticalScope(
-                       EditorStyles.helpBox))
-            {
-                EditorGUILayout.BeginHorizontal();
-
-                string stepLabel =
-                    string.IsNullOrWhiteSpace(
-                        step.stepName)
-                        ? $"Step {stepIndex}"
-                        : $"Step {stepIndex} - {step.stepName}";
-
-                expanded =
-                    EditorGUILayout.Foldout(
-                        expanded,
-                        stepLabel,
-                        true
-                    );
-
-                stepFoldouts[stepIndex] =
-                    expanded;
-
-                using (new EditorGUI.DisabledScope(
-                           stepIndex <= 0))
-                {
-                    if (GUILayout.Button(
-                            "↑",
-                            GUILayout.Width(28)))
-                    {
-                        MoveStep(
-                            eventData,
-                            stepIndex,
-                            stepIndex - 1
-                        );
-
-                        EditorGUILayout.EndHorizontal();
-
-                        GUIUtility.ExitGUI();
-                        return;
-                    }
-                }
-
-                using (new EditorGUI.DisabledScope(
-                           stepIndex >=
-                           eventData.steps.Count - 1))
-                {
-                    if (GUILayout.Button(
-                            "↓",
-                            GUILayout.Width(28)))
-                    {
-                        MoveStep(
-                            eventData,
-                            stepIndex,
-                            stepIndex + 1
-                        );
-
-                        EditorGUILayout.EndHorizontal();
-
-                        GUIUtility.ExitGUI();
-                        return;
-                    }
-                }
-
-                if (GUILayout.Button(
-                        "삭제",
-                        GUILayout.Width(45)))
-                {
-                    RemoveStep(
-                        eventData,
-                        stepIndex
-                    );
-
-                    EditorGUILayout.EndHorizontal();
-
-                    GUIUtility.ExitGUI();
-                    return;
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-                if (expanded == false)
-                {
-                    continue;
-                }
-
-                EditorGUI.BeginChangeCheck();
-
-                string newStepName =
-                    EditorGUILayout.TextField(
-                        "Step Name",
-                        step.stepName
-                    );
-
-                EventSceneStepType newStepType =
-                    (EventSceneStepType)
-                    EditorGUILayout.EnumPopup(
-                        "Step Type",
-                        step.stepType
-                    );
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    Undo.RecordObject(
-                        eventData,
-                        "Edit Event Scene Step"
-                    );
-
-                    step.stepName =
-                        newStepName;
-
-                    step.stepType =
-                        newStepType;
-
-                    EditorUtility.SetDirty(
-                        eventData
-                    );
-                }
-
-                EditorGUILayout.Space(5);
-
-                DrawStepContents(
-    eventData,
-    step
-);
-            }
-
             EditorGUILayout.Space(5);
-        }
 
-        if (GUILayout.Button(
-                "+ Event Step 추가"))
-        {
-            AddStep(
-                eventData
+            // 기존 Step별 전용 UI를 그대로 사용한다.
+            DrawStepContents(
+                eventData,
+                step
             );
-
-            GUIUtility.ExitGUI();
         }
     }
-
 
     // <변경부분>
     // Event Scene 전체의 Dialogue Step만 따로 모아서 관리한다.
@@ -987,6 +1333,17 @@ public class EventSceneDataEditor : Editor
 
 
             // <변경부분>
+            // Event Scene Camera 위치 / Zoom 연출.
+            case EventSceneStepType.CameraShot:
+
+                DrawCameraShotStep(
+                    eventData,
+                    step
+                );
+
+                break;
+
+
             // Event Scene 독립 화면 흔들림 연출.
             case EventSceneStepType.ScreenShake:
 
@@ -1823,12 +2180,228 @@ public class EventSceneDataEditor : Editor
             );
         }
     }
-            // <변경부분>
-            // ScreenShake Step 전용 제작 UI.
-            //
-            // AttackActor에서 이미 사용 중인
-            // Event Scene 공용 Camera Shake를
-            // 독립 Step으로 실행하기 위한 설정이다.
+
+    // <변경부분>
+    // Standalone Event Scene CameraShot Step 제작 UI.
+    //
+    // BackgroundTile 또는 현재 Spawn된 Actor를 중심으로
+    // Camera 이동 + WorldRoot Zoom을 설정한다.
+    private void DrawCameraShotStep(
+     EventSceneData eventData,
+     EventSceneStepData step)
+    {
+        EditorGUILayout.LabelField(
+            "Camera Shot",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUI.BeginChangeCheck();
+
+        EventSceneCameraShotTargetType newTargetType =
+            (EventSceneCameraShotTargetType)
+            EditorGUILayout.EnumPopup(
+                "Target Type",
+                step.cameraShotTargetType
+            );
+
+        Vector2Int newTargetPosition =
+            step.cameraShotTargetPosition;
+
+        string newTargetActorId =
+            step.cameraShotTargetActorId;
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField(
+            "Target",
+            EditorStyles.boldLabel
+        );
+
+        if (newTargetType ==
+            EventSceneCameraShotTargetType.BackgroundTile)
+        {
+            newTargetPosition =
+                EditorGUILayout.Vector2IntField(
+                    "Background Tile",
+                    step.cameraShotTargetPosition
+                );
+
+            EditorGUILayout.Space(3);
+
+            int stepIndex =
+                GetStepIndex(
+                    eventData,
+                    step
+                );
+
+            bool isThisStepSelecting =
+                isSelectingCameraShotTile &&
+                selectingCameraShotStepIndex ==
+                    stepIndex;
+
+            string buttonLabel =
+                isThisStepSelecting
+                    ? "Scene 타일 선택 취소"
+                    : "Scene에서 Camera Target 선택";
+
+            if (GUILayout.Button(
+                    buttonLabel))
+            {
+                if (isThisStepSelecting)
+                {
+                    CancelCameraShotTileSelection();
+                }
+                else
+                {
+                    // <변경부분>
+                    // Scene View 좌표 선택은 동시에 하나만 활성화한다.
+                    isSelectingSpawnActorTile =
+                        false;
+
+                    selectingSpawnActorStepIndex =
+                        -1;
+
+                    isSelectingMoveActorTile =
+                        false;
+
+                    selectingMoveActorStepIndex =
+                        -1;
+
+                    isSelectingCameraShotTile =
+                        true;
+
+                    selectingCameraShotStepIndex =
+                        stepIndex;
+
+                    SceneView.RepaintAll();
+                }
+            }
+
+            if (isThisStepSelecting)
+            {
+                EditorGUILayout.HelpBox(
+                    "Scene View에서 화면 중앙에 표시할 BackgroundTile을 클릭하세요.",
+                    MessageType.Info
+                );
+            }
+        }
+        else if (newTargetType ==
+                 EventSceneCameraShotTargetType.Actor)
+        {
+            newTargetActorId =
+                EditorGUILayout.TextField(
+                    "Actor ID",
+                    step.cameraShotTargetActorId
+                );
+        }
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.LabelField(
+            "Camera",
+            EditorStyles.boldLabel
+        );
+
+        // <변경부분>
+        // 내부적으로는 WorldRoot Scale을 사용하지만
+        // Event 제작자가 이해하기 쉬운 이름으로 표시한다.
+        float newWorldScale =
+            EditorGUILayout.FloatField(
+                "Zoom Scale",
+                step.cameraShotWorldScale
+            );
+
+        float newDuration =
+            EditorGUILayout.FloatField(
+                "Move Duration",
+                step.cameraShotDuration
+            );
+
+        bool newWaitForComplete =
+            EditorGUILayout.Toggle(
+                "Wait For Complete",
+                step.cameraShotWaitForComplete
+            );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                eventData,
+                "Edit Event Camera Shot"
+            );
+
+            step.cameraShotTargetType =
+                newTargetType;
+
+            step.cameraShotTargetPosition =
+                newTargetPosition;
+
+            step.cameraShotTargetActorId =
+                newTargetActorId;
+
+            step.cameraShotWorldScale =
+                Mathf.Max(
+                    0.01f,
+                    newWorldScale
+                );
+
+            step.cameraShotDuration =
+                Mathf.Max(
+                    0f,
+                    newDuration
+                );
+
+            step.cameraShotWaitForComplete =
+                newWaitForComplete;
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+
+        EditorGUILayout.Space(4);
+
+        if (newTargetType ==
+                EventSceneCameraShotTargetType.Actor &&
+            string.IsNullOrWhiteSpace(
+                newTargetActorId))
+        {
+            EditorGUILayout.HelpBox(
+                "Actor Target을 사용하려면 이전 SpawnActor에서 생성한 Actor ID가 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        // <변경부분>
+        // CameraShot의 동작을 제작자가 바로 이해할 수 있도록
+        // Target 중심 이동 규칙을 명확히 표시한다.
+        if (newTargetType ==
+            EventSceneCameraShotTargetType.BackgroundTile)
+        {
+            EditorGUILayout.HelpBox(
+                "현재 Camera 위치에서 선택한 BackgroundTile 중심으로 이동하며, " +
+                "선택한 Tile이 화면 정중앙에 표시됩니다.\n" +
+                "Zoom Scale 값이 커질수록 화면이 확대됩니다.",
+                MessageType.Info
+            );
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                "현재 Camera 위치에서 선택한 Actor 위치로 이동하며, " +
+                "Actor가 화면 정중앙에 표시됩니다.\n" +
+                "Zoom Scale 값이 커질수록 화면이 확대됩니다.",
+                MessageType.Info
+            );
+        }
+    }
+
+    // <변경부분>
+    // ScreenShake Step 전용 제작 UI.
+    //
+    // AttackActor에서 이미 사용 중인
+    // Event Scene 공용 Camera Shake를
+    // 독립 Step으로 실행하기 위한 설정이다.
     private void DrawScreenShakeStep(
         EventSceneData eventData,
         EventSceneStepData step)
@@ -2922,44 +3495,6 @@ public class EventSceneDataEditor : Editor
     }
 
 
-    private void MoveStep(
-        EventSceneData eventData,
-        int fromIndex,
-        int toIndex)
-    {
-        if (eventData.steps == null ||
-            fromIndex < 0 ||
-            fromIndex >= eventData.steps.Count ||
-            toIndex < 0 ||
-            toIndex >= eventData.steps.Count ||
-            fromIndex == toIndex)
-        {
-            return;
-        }
-
-        Undo.RecordObject(
-            eventData,
-            "Move Event Scene Step"
-        );
-
-        EventSceneStepData step =
-            eventData.steps[fromIndex];
-
-        eventData.steps.RemoveAt(
-            fromIndex
-        );
-
-        eventData.steps.Insert(
-            toIndex,
-            step
-        );
-
-        EditorUtility.SetDirty(
-            eventData
-        );
-    }
-
-
     private void AddDialoguePage(
         EventSceneData eventData,
         EventSceneStepData step)
@@ -3922,11 +4457,9 @@ public class EventSceneDataEditor : Editor
 
 
     // <변경부분>
-    // EventSceneData의 SpawnActor 위치를 Scene View에 표시하고,
-    // 타일 선택 모드에서는 BackgroundTile 클릭 입력도 처리한다.
-    //
-    // Spawn Marker는 Handles로만 그리므로
-    // Scene GameObject / Runtime / Build에는 아무 영향이 없다.
+    // EventSceneData의 Spawn / Move / CameraShot 위치를
+    // Scene View Marker로 표시하고,
+    // 각 Step의 BackgroundTile 좌표 선택 입력을 처리한다.
     private void HandleSceneGUI(
         SceneView sceneView)
     {
@@ -3945,9 +4478,6 @@ public class EventSceneDataEditor : Editor
                     BackgroundManager
                 >();
 
-        // <변경부분>
-        // 타일 선택 모드 여부와 관계없이
-        // 현재 EventSceneData의 모든 SpawnActor 위치를 표시한다.
         if (backgroundManager != null)
         {
             DrawSpawnActorMarkers(
@@ -3955,16 +4485,32 @@ public class EventSceneDataEditor : Editor
                 backgroundManager
             );
 
-            // <변경부분>
-            // MoveActor 목적지도 Scene View에 표시한다.
             DrawMoveActorMarkers(
+                eventData,
+                backgroundManager
+            );
+
+            // <변경부분>
+            // CameraShot BackgroundTile Target도
+            // 별도의 Camera Marker로 항상 표시한다.
+            DrawCameraShotMarkers(
                 eventData,
                 backgroundManager
             );
         }
 
         // <변경부분>
-        // MoveActor 목적지 선택 모드가 먼저 처리된다.
+        // 각 좌표 선택 모드는 동시에 하나만 존재한다.
+        if (isSelectingCameraShotTile)
+        {
+            HandleCameraShotTileSelection(
+                eventData,
+                backgroundManager
+            );
+
+            return;
+        }
+
         if (isSelectingMoveActorTile)
         {
             HandleMoveActorTileSelection(
@@ -4001,8 +4547,6 @@ public class EventSceneDataEditor : Editor
             return;
         }
 
-        // <변경부분>
-        // Scene View 좌측 상단에 현재 타일 선택 상태를 표시한다.
         Handles.BeginGUI();
 
         GUI.Box(
@@ -4068,8 +4612,6 @@ public class EventSceneDataEditor : Editor
             return;
         }
 
-        // <변경부분>
-        // BackgroundManager의 공용 좌표 조회를 그대로 사용한다.
         BackgroundTile selectedTile =
             backgroundManager
                 .GetBackgroundTileAt(
@@ -4104,6 +4646,151 @@ public class EventSceneDataEditor : Editor
             -1;
 
         currentEvent.Use();
+
+        Repaint();
+        SceneView.RepaintAll();
+    }
+
+    // <변경부분>
+    // CameraShot Step의 BackgroundTile Target을
+    // Scene View 클릭으로 선택한다.
+    private void HandleCameraShotTileSelection(
+        EventSceneData eventData,
+        BackgroundManager backgroundManager)
+    {
+        if (eventData == null ||
+            eventData.steps == null ||
+            selectingCameraShotStepIndex < 0 ||
+            selectingCameraShotStepIndex >=
+                eventData.steps.Count)
+        {
+            CancelCameraShotTileSelection();
+            return;
+        }
+
+        EventSceneStepData step =
+            eventData.steps[
+                selectingCameraShotStepIndex];
+
+        if (step == null ||
+            step.stepType !=
+                EventSceneStepType.CameraShot ||
+            step.cameraShotTargetType !=
+                EventSceneCameraShotTargetType.BackgroundTile)
+        {
+            CancelCameraShotTileSelection();
+            return;
+        }
+
+        Handles.BeginGUI();
+
+        GUI.Box(
+            new Rect(
+                10f,
+                10f,
+                320f,
+                50f
+            ),
+            "CameraShot Target 선택 중\n" +
+            "Camera가 바라볼 BackgroundTile을 클릭하세요."
+        );
+
+        Handles.EndGUI();
+
+        Event currentEvent =
+            Event.current;
+
+        if (currentEvent == null ||
+            currentEvent.alt)
+        {
+            return;
+        }
+
+        if (currentEvent.type !=
+                EventType.MouseDown ||
+            currentEvent.button != 0)
+        {
+            return;
+        }
+
+        if (backgroundManager == null)
+        {
+            Debug.LogWarning(
+                "Event Scene CameraShot 타일 선택 실패: " +
+                "BackgroundManager를 찾을 수 없습니다."
+            );
+
+            CancelCameraShotTileSelection();
+            return;
+        }
+
+        Ray mouseRay =
+            HandleUtility
+                .GUIPointToWorldRay(
+                    currentEvent.mousePosition
+                );
+
+        Vector3 worldPosition =
+            mouseRay.origin;
+
+        if (backgroundManager
+                .TryGetBackgroundGridPosition(
+                    worldPosition,
+                    out int gridX,
+                    out int gridY) == false)
+        {
+            return;
+        }
+
+        BackgroundTile selectedTile =
+            backgroundManager
+                .GetBackgroundTileAt(
+                    gridX,
+                    gridY
+                );
+
+        if (selectedTile == null)
+        {
+            return;
+        }
+
+        Undo.RecordObject(
+            eventData,
+            "Select Event Camera Shot Tile"
+        );
+
+        step.cameraShotTargetPosition =
+            new Vector2Int(
+                selectedTile.X,
+                selectedTile.Y
+            );
+
+        EditorUtility.SetDirty(
+            eventData
+        );
+
+        isSelectingCameraShotTile =
+            false;
+
+        selectingCameraShotStepIndex =
+            -1;
+
+        currentEvent.Use();
+
+        Repaint();
+        SceneView.RepaintAll();
+    }
+
+
+    // <변경부분>
+    // CameraShot Scene View 타일 선택 상태를 종료한다.
+    private void CancelCameraShotTileSelection()
+    {
+        isSelectingCameraShotTile =
+            false;
+
+        selectingCameraShotStepIndex =
+            -1;
 
         Repaint();
         SceneView.RepaintAll();
@@ -4647,6 +5334,192 @@ public class EventSceneDataEditor : Editor
             GUI.Box(
                 labelRect,
                 moveLabel,
+                labelStyle
+            );
+
+            Handles.EndGUI();
+        }
+
+        Handles.color =
+            previousColor;
+    }
+
+    // <변경부분>
+    // BackgroundTile을 Target으로 사용하는 모든 CameraShot 위치를
+    // Scene View에 Camera 전용 Marker로 표시한다.
+    //
+    // SpawnActor의 원형 Marker와 혼동되지 않도록
+    // 마름모 형태의 Outline Marker를 사용한다.
+    private void DrawCameraShotMarkers(
+        EventSceneData eventData,
+        BackgroundManager backgroundManager)
+    {
+        if (eventData == null ||
+            eventData.steps == null ||
+            backgroundManager == null)
+        {
+            return;
+        }
+
+        Color previousColor =
+            Handles.color;
+
+        GUIStyle labelStyle =
+            new GUIStyle(
+                EditorStyles.helpBox
+            );
+
+        labelStyle.alignment =
+            TextAnchor.MiddleCenter;
+
+        labelStyle.normal.textColor =
+            Color.white;
+
+        labelStyle.fontStyle =
+            FontStyle.Bold;
+
+        labelStyle.fontSize =
+            12;
+
+        labelStyle.padding =
+            new RectOffset(
+                7,
+                7,
+                4,
+                4
+            );
+
+        for (int stepIndex = 0;
+             stepIndex < eventData.steps.Count;
+             stepIndex++)
+        {
+            EventSceneStepData step =
+                eventData.steps[stepIndex];
+
+            if (step == null ||
+                step.stepType !=
+                    EventSceneStepType.CameraShot ||
+                step.cameraShotTargetType !=
+                    EventSceneCameraShotTargetType.BackgroundTile)
+            {
+                continue;
+            }
+
+            BackgroundTile targetTile =
+                backgroundManager
+                    .GetBackgroundTileAt(
+                        step.cameraShotTargetPosition.x,
+                        step.cameraShotTargetPosition.y
+                    );
+
+            if (targetTile == null)
+            {
+                continue;
+            }
+
+            Vector3 markerPosition =
+                targetTile.transform.position;
+
+            bool isCurrentSelectingStep =
+                isSelectingCameraShotTile &&
+                selectingCameraShotStepIndex ==
+                    stepIndex;
+
+            float markerSize =
+                HandleUtility.GetHandleSize(
+                    markerPosition
+                ) *
+                (
+                    isCurrentSelectingStep
+                        ? 0.18f
+                        : 0.14f
+                );
+
+            // <변경부분>
+            // Spawn의 원형 Marker와 시각적으로 완전히 구분되는
+            // 마름모 Camera Target Marker.
+            Handles.color =
+                isCurrentSelectingStep
+                    ? new Color(
+                        1f,
+                        0.75f,
+                        0.15f,
+                        1f
+                    )
+                    : new Color(
+                        0.85f,
+                        0.35f,
+                        1f,
+                        1f
+                    );
+
+            Vector3 top =
+                markerPosition +
+                Vector3.up *
+                markerSize;
+
+            Vector3 right =
+                markerPosition +
+                Vector3.right *
+                markerSize;
+
+            Vector3 bottom =
+                markerPosition +
+                Vector3.down *
+                markerSize;
+
+            Vector3 left =
+                markerPosition +
+                Vector3.left *
+                markerSize;
+
+            Handles.DrawAAPolyLine(
+                4f,
+                top,
+                right,
+                bottom,
+                left,
+                top
+            );
+
+            // Camera Target의 정확한 중심을 작은 점으로 표시한다.
+            Handles.DrawSolidDisc(
+                markerPosition,
+                Vector3.forward,
+                markerSize * 0.16f
+            );
+
+            string labelText =
+                $"Camera {stepIndex}";
+
+            Vector2 guiPosition =
+                HandleUtility.WorldToGUIPoint(
+                    markerPosition
+                );
+
+            Vector2 labelSize =
+                labelStyle.CalcSize(
+                    new GUIContent(
+                        labelText
+                    )
+                );
+
+            Rect labelRect =
+                new Rect(
+                    guiPosition.x -
+                        labelSize.x * 0.5f,
+                    guiPosition.y -
+                        labelSize.y -
+                        24f,
+                    labelSize.x,
+                    labelSize.y
+                );
+
+            Handles.BeginGUI();
+
+            GUI.Box(
+                labelRect,
+                labelText,
                 labelStyle
             );
 

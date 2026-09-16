@@ -6,6 +6,10 @@ using UnityEditor.Localization;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
+// <변경부분>
+// Battle Event Step 목록을
+// 부드러운 Drag Reorder 방식으로 표시하기 위해 사용.
+using UnityEditorInternal;
 
 // <변경부분>
 // EventSequenceData의 Dialogue 제작과 Localization을
@@ -32,18 +36,45 @@ public class EventSequenceDataEditor : Editor
         dialogueStepFoldouts =
             new Dictionary<int, bool>();
 
+    // <변경부분>
+    // Battle Event Sequence의 Steps를
+    // Unity ReorderableList로 표시한다.
+    //
+    // Event Scene Editor와 동일하게
+    // Drag 중 다른 Step들이 자연스럽게 밀리면서
+    // 순서를 재배치할 수 있다.
+    private ReorderableList eventStepsReorderableList;
+
+    // <변경부분>
+    // EventSequenceData.steps SerializedProperty.
+    private SerializedProperty eventStepsProperty;
+
+    // <변경부분>
+    // Inspector가 활성화될 때
+    // Battle Event Step ReorderableList를 준비한다.
+    private void OnEnable()
+    {
+        InitializeEventStepsReorderableList();
+    }
+
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        // 기존 EventSequenceData / Step 설정은 그대로 표시한다.
+        // <변경부분>
+        // Steps는 Unity 기본 PropertyField로 표시하지 않는다.
         //
-        // localizationId는 아래 전용 Localization 영역에서
-        // 별도로 관리한다.
+        // 아래 DrawEventSteps()에서
+        // Event Scene과 동일한 ReorderableList +
+        // Step Type 전용 상세 Editor로 관리한다.
+        //
+        // localizationId 역시 기존처럼
+        // Localization 전용 영역에서 관리한다.
         DrawPropertiesExcluding(
             serializedObject,
             "m_Script",
-            "localizationId"
+            "localizationId",
+            "steps"
         );
 
         serializedObject.ApplyModifiedProperties();
@@ -53,7 +84,1046 @@ public class EventSequenceDataEditor : Editor
 
         EditorGUILayout.Space(12);
 
+        // <변경부분>
+        // Battle Event Step 목록 / 선택 Step 상세 편집.
+        DrawEventSteps(
+            sequenceData
+        );
+
+        EditorGUILayout.Space(12);
+
+        // 기존 Dialogue / SpeechBubble / Localization 구조 유지.
         DrawLocalizationInspector(
+            sequenceData
+        );
+    }
+
+    // <변경부분>
+    // EventSequenceData.steps를
+    // Unity ReorderableList에 연결한다.
+    //
+    // 기존 Event Scene Editor와 동일하게:
+    // - 부드러운 Drag Reorder
+    // - 왼쪽 Drag Handle
+    // - Step01 / Step02 번호
+    // - + / - 추가 삭제
+    // 구조를 사용한다.
+    private void InitializeEventStepsReorderableList()
+    {
+        eventStepsProperty =
+            serializedObject.FindProperty(
+                "steps"
+            );
+
+        if (eventStepsProperty == null)
+        {
+            eventStepsReorderableList =
+                null;
+
+            return;
+        }
+
+        eventStepsReorderableList =
+            new ReorderableList(
+                serializedObject,
+                eventStepsProperty,
+                true,   // draggable
+                true,   // displayHeader
+                true,   // displayAddButton
+                true    // displayRemoveButton
+            );
+
+
+        // =====================================================
+        // Header
+        // =====================================================
+
+        eventStepsReorderableList.drawHeaderCallback =
+            rect =>
+            {
+                EditorGUI.LabelField(
+                    rect,
+                    $"Steps    {eventStepsProperty.arraySize}"
+                );
+            };
+
+
+        // =====================================================
+        // Element
+        // =====================================================
+
+        eventStepsReorderableList.elementHeight =
+            EditorGUIUtility.singleLineHeight +
+            6f;
+
+        eventStepsReorderableList.drawElementCallback =
+            (
+                rect,
+                index,
+                isActive,
+                isFocused
+            ) =>
+            {
+                if (index < 0 ||
+                    index >=
+                        eventStepsProperty.arraySize)
+                {
+                    return;
+                }
+
+                SerializedProperty stepProperty =
+                    eventStepsProperty
+                        .GetArrayElementAtIndex(
+                            index
+                        );
+
+                if (stepProperty == null)
+                {
+                    return;
+                }
+
+                SerializedProperty stepNameProperty =
+                    stepProperty
+                        .FindPropertyRelative(
+                            "stepName"
+                        );
+
+                SerializedProperty stepTypeProperty =
+                    stepProperty
+                        .FindPropertyRelative(
+                            "stepType"
+                        );
+
+                string stepName =
+                    stepNameProperty != null
+                        ? stepNameProperty.stringValue
+                        : string.Empty;
+
+                string stepTypeName =
+                    stepTypeProperty != null &&
+                    stepTypeProperty.enumValueIndex >= 0 &&
+                    stepTypeProperty.enumValueIndex <
+                        stepTypeProperty.enumDisplayNames.Length
+                        ? stepTypeProperty
+                            .enumDisplayNames[
+                                stepTypeProperty.enumValueIndex
+                            ]
+                        : "None";
+
+                // <변경부분>
+                // 실제 Data에 번호를 저장하지 않고
+                // 현재 List 순서를 기준으로 표시용 번호만 생성한다.
+                //
+                // Drag Reorder 후 자동으로 다시 계산된다.
+                string stepNumber =
+                    (index + 1).ToString(
+                        "D2"
+                    );
+
+                string stepDisplayName =
+                    string.IsNullOrWhiteSpace(
+                        stepName)
+                        ? stepTypeName
+                        : stepName;
+
+                string label =
+                    $"Step{stepNumber} - " +
+                    $"{stepDisplayName}";
+
+                rect.y +=
+                    3f;
+
+                rect.height =
+                    EditorGUIUtility.singleLineHeight;
+
+                EditorGUI.LabelField(
+                    rect,
+                    label
+                );
+            };
+
+
+        // =====================================================
+        // Select
+        // =====================================================
+
+        eventStepsReorderableList.onSelectCallback =
+            list =>
+            {
+                Repaint();
+            };
+
+
+        // =====================================================
+        // Add
+        // =====================================================
+
+        eventStepsReorderableList.onAddCallback =
+            list =>
+            {
+                EventSequenceData sequenceData =
+                    target as EventSequenceData;
+
+                if (sequenceData == null)
+                {
+                    return;
+                }
+
+                // 현재 Serialized 변경부터 확정한다.
+                serializedObject
+                    .ApplyModifiedProperties();
+
+                AddEventStep(
+                    sequenceData
+                );
+
+                serializedObject.Update();
+
+                eventStepsProperty =
+                    serializedObject.FindProperty(
+                        "steps"
+                    );
+
+                if (eventStepsProperty != null &&
+                    eventStepsProperty.arraySize > 0)
+                {
+                    list.index =
+                        eventStepsProperty.arraySize -
+                        1;
+                }
+
+                Repaint();
+            };
+
+
+        // =====================================================
+        // Remove
+        // =====================================================
+
+        eventStepsReorderableList.onRemoveCallback =
+            list =>
+            {
+                EventSequenceData sequenceData =
+                    target as EventSequenceData;
+
+                if (sequenceData == null ||
+                    sequenceData.steps == null ||
+                    list.index < 0 ||
+                    list.index >=
+                        sequenceData.steps.Count)
+                {
+                    return;
+                }
+
+                int removeIndex =
+                    list.index;
+
+                serializedObject
+                    .ApplyModifiedProperties();
+
+                RemoveEventStep(
+                    sequenceData,
+                    removeIndex
+                );
+
+                serializedObject.Update();
+
+                eventStepsProperty =
+                    serializedObject.FindProperty(
+                        "steps"
+                    );
+
+                if (eventStepsProperty == null ||
+                    eventStepsProperty.arraySize <= 0)
+                {
+                    list.index =
+                        -1;
+                }
+                else
+                {
+                    list.index =
+                        Mathf.Clamp(
+                            removeIndex,
+                            0,
+                            eventStepsProperty.arraySize -
+                            1
+                        );
+                }
+
+                // Step Index 기반 Foldout 표시 상태는
+                // 순서가 달라졌으므로 초기화한다.
+                dialogueStepFoldouts.Clear();
+
+                Repaint();
+            };
+
+
+        // =====================================================
+        // Reorder
+        // =====================================================
+
+        eventStepsReorderableList.onReorderCallback =
+            list =>
+            {
+                EventSequenceData sequenceData =
+                    target as EventSequenceData;
+
+                if (sequenceData == null)
+                {
+                    return;
+                }
+
+                // <변경부분>
+                // 실제 List Reorder는 Unity가 수행한다.
+                //
+                // EventSequenceStepData 객체 전체가 이동하므로
+                // Dialogue / SpeechBubble Stable Localization ID도
+                // 해당 Step과 같이 이동한다.
+                serializedObject
+                    .ApplyModifiedProperties();
+
+                EditorUtility.SetDirty(
+                    sequenceData
+                );
+
+                // 기존 Foldout은 Index 기준이므로
+                // 잘못된 Step에 붙지 않도록 초기화한다.
+                dialogueStepFoldouts.Clear();
+
+                Repaint();
+            };
+    }
+
+    // <변경부분>
+    // Battle Event Steps 목록과
+    // 현재 선택한 Step의 전용 설정을 표시한다.
+    //
+    // 목록:
+    // Step01 - 이름
+    // Step02 - 이름
+    //
+    // 상세:
+    // 선택한 Step Type과 관계있는 필드만 표시한다.
+    private void DrawEventSteps(
+        EventSequenceData sequenceData)
+    {
+        EditorGUILayout.LabelField(
+            "Event Steps",
+            EditorStyles.boldLabel
+        );
+
+        if (sequenceData == null)
+        {
+            return;
+        }
+
+        if (eventStepsReorderableList == null ||
+            eventStepsProperty == null)
+        {
+            InitializeEventStepsReorderableList();
+        }
+
+        if (eventStepsReorderableList == null ||
+            eventStepsProperty == null)
+        {
+            EditorGUILayout.HelpBox(
+                "EventSequenceData.steps를 찾을 수 없습니다.",
+                MessageType.Error
+            );
+
+            return;
+        }
+
+        serializedObject.Update();
+
+        eventStepsReorderableList
+            .DoLayoutList();
+
+        if (eventStepsProperty.arraySize <= 0)
+        {
+            serializedObject
+                .ApplyModifiedProperties();
+
+            EditorGUILayout.HelpBox(
+                "Event Step이 없습니다.",
+                MessageType.Info
+            );
+
+            return;
+        }
+
+        int selectedIndex =
+            eventStepsReorderableList.index;
+
+        if (selectedIndex < 0 ||
+            selectedIndex >=
+                eventStepsProperty.arraySize)
+        {
+            serializedObject
+                .ApplyModifiedProperties();
+
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.HelpBox(
+                "위 Steps 목록에서 편집할 Step을 선택하세요.",
+                MessageType.None
+            );
+
+            return;
+        }
+
+        SerializedProperty stepProperty =
+            eventStepsProperty
+                .GetArrayElementAtIndex(
+                    selectedIndex
+                );
+
+        if (stepProperty == null)
+        {
+            serializedObject
+                .ApplyModifiedProperties();
+
+            return;
+        }
+
+        EditorGUILayout.Space(8);
+
+        using (new EditorGUILayout.VerticalScope(
+                   EditorStyles.helpBox))
+        {
+            DrawSelectedEventStep(
+                selectedIndex,
+                stepProperty
+            );
+        }
+
+
+
+        serializedObject
+            .ApplyModifiedProperties();
+    }
+
+    // <변경부분>
+    // 선택한 Battle Event Step 하나만 편집한다.
+    //
+    // EventSequenceStepData 전체 필드를 펼치지 않고
+    // 현재 Step Type에 필요한 항목만 표시한다.
+    private void DrawSelectedEventStep(
+        int selectedIndex,
+        SerializedProperty stepProperty)
+    {
+        SerializedProperty stepNameProperty =
+            stepProperty.FindPropertyRelative(
+                "stepName"
+            );
+
+        SerializedProperty stepTypeProperty =
+            stepProperty.FindPropertyRelative(
+                "stepType"
+            );
+
+        if (stepNameProperty == null ||
+            stepTypeProperty == null)
+        {
+            EditorGUILayout.HelpBox(
+                "Event Step의 Basic Property를 찾을 수 없습니다.",
+                MessageType.Error
+            );
+
+            return;
+        }
+
+        string stepNumber =
+            (selectedIndex + 1).ToString(
+                "D2"
+            );
+
+        string stepDisplayName =
+            string.IsNullOrWhiteSpace(
+                stepNameProperty.stringValue)
+                ? stepTypeProperty.enumDisplayNames[
+                    stepTypeProperty.enumValueIndex]
+                : stepNameProperty.stringValue;
+
+        EditorGUILayout.LabelField(
+            $"Step{stepNumber} - {stepDisplayName}",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUILayout.Space(4);
+
+        EditorGUILayout.PropertyField(
+            stepNameProperty,
+            new GUIContent(
+                "Step Name"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            stepTypeProperty,
+            new GUIContent(
+                "Step Type"
+            )
+        );
+
+        EditorGUILayout.Space(7);
+
+        EventSequenceStepType stepType =
+            (EventSequenceStepType)
+            stepTypeProperty.intValue;
+
+        DrawSelectedEventStepContents(
+            stepProperty,
+            stepType
+        );
+    }
+
+    // <변경부분>
+    // Step Type에 실제로 관계있는 설정만 표시한다.
+    //
+    // 다른 Step Type용 데이터는 삭제하지 않고
+    // 단순히 Inspector에서 숨긴다.
+    //
+    // 따라서 기존 EventSequenceData Asset의 값은 보존된다.
+    private void DrawSelectedEventStepContents(
+        SerializedProperty stepProperty,
+        EventSequenceStepType stepType)
+    {
+        switch (stepType)
+        {
+            case EventSequenceStepType.None:
+
+                EditorGUILayout.HelpBox(
+                    "아무 동작도 하지 않는 Step입니다.",
+                    MessageType.None
+                );
+
+                break;
+
+
+            case EventSequenceStepType.Dialogue:
+
+                SerializedProperty dialoguePagesProperty =
+                    stepProperty.FindPropertyRelative(
+                        "dialoguePages"
+                    );
+
+                int dialoguePageCount =
+                    dialoguePagesProperty != null
+                        ? dialoguePagesProperty.arraySize
+                        : 0;
+
+                EditorGUILayout.HelpBox(
+                    "Dialogue 내용은 아래 Event Dialogue Localization의 " +
+                    "Dialogue Pages 영역에서 관리합니다.\n" +
+                    $"현재 Page: {dialoguePageCount}",
+                    MessageType.Info
+                );
+
+                break;
+
+
+            case EventSequenceStepType.ForcePieceSelect:
+
+                EditorGUILayout.LabelField(
+                    "Piece Target",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "targetPieceTeam",
+                    "Target Team"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "targetPiecePosition",
+                    "Target Position"
+                );
+
+                DrawMarkerSettings(
+                    stepProperty
+                );
+
+                break;
+
+
+            case EventSequenceStepType.ForceTileSelect:
+
+                EditorGUILayout.LabelField(
+                    "Tile Target",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "targetTilePosition",
+                    "Target Position"
+                );
+
+                DrawMarkerSettings(
+                    stepProperty
+                );
+
+                break;
+
+
+            case EventSequenceStepType.ForceButton:
+
+                EditorGUILayout.LabelField(
+                    "Button Target",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "targetButton",
+                    "Target Button"
+                );
+
+                DrawMarkerSettings(
+                    stepProperty
+                );
+
+                break;
+
+
+            case EventSequenceStepType.SpawnPiece:
+
+                EditorGUILayout.LabelField(
+                    "Spawn Piece",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "spawnPieceData",
+                    "Piece Data"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "spawnPieceTeam",
+                    "Team"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "spawnPosition",
+                    "Spawn Position"
+                );
+
+                EditorGUILayout.Space(5);
+
+                EditorGUILayout.LabelField(
+                    "Spawn Override",
+                    EditorStyles.boldLabel
+                );
+
+                // <변경부분>
+                // Spawn Override 안의 값들은 전부 SpawnPiece와 관계있으므로
+                // 해당 구조만 자식까지 표시한다.
+                DrawStepProperty(
+                    stepProperty,
+                    "spawnOverride",
+                    "Override Settings",
+                    true
+                );
+
+                break;
+
+
+            case EventSequenceStepType.RemovePiece:
+
+                EditorGUILayout.LabelField(
+                    "Remove Piece",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "removePiecePosition",
+                    "Piece Position"
+                );
+
+                SerializedProperty checkTeamProperty =
+                    stepProperty.FindPropertyRelative(
+                        "checkRemovePieceTeam"
+                    );
+
+                if (checkTeamProperty != null)
+                {
+                    EditorGUILayout.PropertyField(
+                        checkTeamProperty,
+                        new GUIContent(
+                            "Check Team"
+                        )
+                    );
+
+                    if (checkTeamProperty.boolValue)
+                    {
+                        DrawStepProperty(
+                            stepProperty,
+                            "removePieceTeam",
+                            "Piece Team"
+                        );
+                    }
+                }
+
+                break;
+
+
+            case EventSequenceStepType.Wait:
+
+                EditorGUILayout.LabelField(
+                    "Wait",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "waitDuration",
+                    "Wait Duration"
+                );
+
+                break;
+
+
+            case EventSequenceStepType.CompleteSequence:
+
+                EditorGUILayout.HelpBox(
+                    "현재 Event Sequence를 즉시 완료합니다.",
+                    MessageType.Info
+                );
+
+                break;
+
+
+            case EventSequenceStepType.CommitPlayerPiecesToRunState:
+
+                EditorGUILayout.HelpBox(
+                    "현재 Board의 Player Piece 상태를 RunState에 저장합니다.\n" +
+                    "추가 설정값은 없습니다.",
+                    MessageType.Info
+                );
+
+                break;
+
+
+            case EventSequenceStepType.AdvanceBattleTurn:
+
+                EditorGUILayout.HelpBox(
+                    "BattleManager의 정상 EndTurn 흐름을 사용해 " +
+                    "다음 진영으로 Turn을 넘깁니다.\n" +
+                    "추가 설정값은 없습니다.",
+                    MessageType.Info
+                );
+
+                break;
+
+
+            case EventSequenceStepType.ExecutePieceAction:
+
+                EditorGUILayout.LabelField(
+                    "Execute Piece Action",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "actionPieceTeam",
+                    "Piece Team"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "actionPiecePosition",
+                    "Piece Position"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "actionTargetPosition",
+                    "Target Position"
+                );
+
+                EditorGUILayout.HelpBox(
+                    "Target Position이 빈 Tile이면 이동, " +
+                    "상대 Piece가 있으면 공격으로 처리됩니다.",
+                    MessageType.None
+                );
+
+                break;
+
+
+            case EventSequenceStepType.ExecutePieceUniqueSkill:
+
+                EditorGUILayout.LabelField(
+                    "Execute Piece Ability",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "uniqueSkillPieceTeam",
+                    "Piece Team"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "uniqueSkillPiecePosition",
+                    "Piece Position"
+                );
+
+                EditorGUILayout.HelpBox(
+                    "지정한 Piece가 현재 보유한 Ability를 사용합니다.",
+                    MessageType.None
+                );
+
+                break;
+
+
+            case EventSequenceStepType.SpeechBubble:
+
+                EditorGUILayout.LabelField(
+                    "Speech Bubble",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "speechBubblePieceTeam",
+                    "Piece Team"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "speechBubblePiecePosition",
+                    "Piece Position"
+                );
+
+                EditorGUILayout.Space(4);
+
+                EditorGUILayout.LabelField(
+                    "Presentation",
+                    EditorStyles.boldLabel
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "speechBubbleDuration",
+                    "Duration"
+                );
+
+                DrawStepProperty(
+                    stepProperty,
+                    "speechBubbleTypingSpeed",
+                    "Typing Speed"
+                );
+
+                SerializedProperty emphasisProperty =
+                    stepProperty.FindPropertyRelative(
+                        "speechBubbleUseEmphasisShake"
+                    );
+
+                if (emphasisProperty != null)
+                {
+                    EditorGUILayout.PropertyField(
+                        emphasisProperty,
+                        new GUIContent(
+                            "Use Emphasis Shake"
+                        )
+                    );
+
+                    if (emphasisProperty.boolValue)
+                    {
+                        DrawStepProperty(
+                            stepProperty,
+                            "speechBubbleEmphasisStrength",
+                            "Emphasis Strength"
+                        );
+                    }
+                }
+
+                DrawStepProperty(
+                    stepProperty,
+                    "speechBubbleWaitForComplete",
+                    "Wait For Complete"
+                );
+
+                EditorGUILayout.HelpBox(
+                    "SpeechBubble의 Korean / English / Japanese Text는 " +
+                    "아래 Speech Bubble Texts 영역에서 관리합니다.",
+                    MessageType.Info
+                );
+
+                break;
+        }
+    }
+
+    // <변경부분>
+    // 선택한 Step 내부의 특정 Serialized Field만 표시한다.
+    //
+    // 직접 EventSequenceStepData 필드를 수정하지 않고
+    // SerializedProperty를 사용하므로:
+    // - Undo
+    // - Prefab/Asset Serialization
+    // - Unity Inspector 변경 감지
+    // 를 그대로 사용할 수 있다.
+    private void DrawStepProperty(
+        SerializedProperty stepProperty,
+        string propertyName,
+        string displayName,
+        bool includeChildren = false)
+    {
+        if (stepProperty == null ||
+            string.IsNullOrWhiteSpace(
+                propertyName))
+        {
+            return;
+        }
+
+        SerializedProperty property =
+            stepProperty.FindPropertyRelative(
+                propertyName
+            );
+
+        if (property == null)
+        {
+            EditorGUILayout.HelpBox(
+                $"Step Property를 찾을 수 없습니다: {propertyName}",
+                MessageType.Warning
+            );
+
+            return;
+        }
+
+        EditorGUILayout.PropertyField(
+            property,
+            new GUIContent(
+                displayName
+            ),
+            includeChildren
+        );
+    }
+
+    // <변경부분>
+    // ForcePieceSelect / ForceTileSelect / ForceButton에서만
+    // Marker 관련 설정을 표시한다.
+    //
+    // 다른 Step Type에서는 Marker 설정을 숨긴다.
+    private void DrawMarkerSettings(
+        SerializedProperty stepProperty)
+    {
+        EditorGUILayout.Space(5);
+
+        EditorGUILayout.LabelField(
+            "Marker",
+            EditorStyles.boldLabel
+        );
+
+        SerializedProperty showMarkerProperty =
+            stepProperty.FindPropertyRelative(
+                "showMarker"
+            );
+
+        if (showMarkerProperty == null)
+        {
+            return;
+        }
+
+        EditorGUILayout.PropertyField(
+            showMarkerProperty,
+            new GUIContent(
+                "Show Marker"
+            )
+        );
+
+        if (showMarkerProperty.boolValue == false)
+        {
+            return;
+        }
+
+        DrawStepProperty(
+            stepProperty,
+            "markerDisplayType",
+            "Display Type"
+        );
+
+        DrawStepProperty(
+            stepProperty,
+            "markerPositionOffset",
+            "Position Offset"
+        );
+    }
+
+    // <변경부분>
+    // 새 Battle Event Step을 추가한다.
+    //
+    // ReorderableList 기본 Add를 사용하면
+    // 직전 Element의 값이 복제될 가능성이 있으므로,
+    // 항상 완전히 새로운 EventSequenceStepData를 생성한다.
+    //
+    // 특히 Dialogue / SpeechBubble Stable ID가
+    // 복제되는 문제를 방지한다.
+    private void AddEventStep(
+        EventSequenceData sequenceData)
+    {
+        if (sequenceData == null)
+        {
+            return;
+        }
+
+        Undo.RecordObject(
+            sequenceData,
+            "Add Event Sequence Step"
+        );
+
+        if (sequenceData.steps == null)
+        {
+            sequenceData.steps =
+                new List<EventSequenceStepData>();
+        }
+
+        sequenceData.steps.Add(
+            new EventSequenceStepData()
+        );
+
+        EditorUtility.SetDirty(
+            sequenceData
+        );
+    }
+
+
+    // <변경부분>
+    // 선택한 Battle Event Step을 제거한다.
+    //
+    // Localization Table Entry 자체는 즉시 제거하지 않는다.
+    // 기존 안정성 정책을 그대로 유지한다.
+    private void RemoveEventStep(
+        EventSequenceData sequenceData,
+        int stepIndex)
+    {
+        if (sequenceData == null ||
+            sequenceData.steps == null ||
+            stepIndex < 0 ||
+            stepIndex >=
+                sequenceData.steps.Count)
+        {
+            return;
+        }
+
+        Undo.RecordObject(
+            sequenceData,
+            "Remove Event Sequence Step"
+        );
+
+        sequenceData.steps.RemoveAt(
+            stepIndex
+        );
+
+        EditorUtility.SetDirty(
             sequenceData
         );
     }
@@ -290,8 +1360,15 @@ public class EventSequenceDataEditor : Editor
         ? "Dialogue"
         : step.stepName;
 
+            // <변경부분>
+            // 위 Event Steps 목록과 동일한 1-based 번호를 사용한다.
+            string stepNumber =
+                (stepIndex + 1).ToString(
+                    "D2"
+                );
+
             string stepLabel =
-                $"Step {stepIndex} - {safeStepName}";
+                $"Step{stepNumber} - {safeStepName}";
 
             expanded =
                 EditorGUILayout.Foldout(
@@ -345,13 +1422,12 @@ public class EventSequenceDataEditor : Editor
                          pageIndex++)
                     {
                         bool listChanged =
-                            DrawDialoguePage(
-                                sequenceData,
-                                step,
-                                stepIndex,
-                                pageIndex,
-                                collection
-                            );
+                        DrawDialoguePage(
+                        sequenceData,
+                        step,
+                        pageIndex,
+                        collection
+                        );
 
                         if (listChanged)
                         {
@@ -388,10 +1464,11 @@ public class EventSequenceDataEditor : Editor
         }
     }
 
+    // <변경부분>
+    // 사용하지 않던 stepIndex 인자를 제거한다.
     private bool DrawDialoguePage(
         EventSequenceData sequenceData,
         EventSequenceStepData step,
-        int stepIndex,
         int pageIndex,
         StringTableCollection collection)
     {
@@ -611,10 +1688,17 @@ public class EventSequenceDataEditor : Editor
                     ? "SpeechBubble"
                     : step.stepName;
 
+            // <변경부분>
+            // Event Steps 목록과 동일한 번호 체계를 사용한다.
+            string stepNumber =
+                (stepIndex + 1).ToString(
+                    "D2"
+                );
+
             expanded =
                 EditorGUILayout.Foldout(
                     expanded,
-                    $"Step {stepIndex} - {safeStepName}",
+                    $"Step{stepNumber} - {safeStepName}",
                     true
                 );
 
