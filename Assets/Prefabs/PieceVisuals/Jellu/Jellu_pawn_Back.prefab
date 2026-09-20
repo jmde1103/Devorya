@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3643719290878690321}
   - component: {fileID: 9109515360411505765}
   m_Layer: 0
-  m_Name: Jellu_Pawn_Back
+  m_Name: Jellu_pawn_Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,8 +115,8 @@ MonoBehaviour:
     tintBlack: 0
     canvasGroupCompatible: 0
     pmaVertexColors: 1
-    addNormals: 0
-    calculateTangents: 0
+    addNormals: 1
+    calculateTangents: 1
     immutableTriangles: 0
   updateWhenInvisible: 3
   clearStateOnDisable: 0

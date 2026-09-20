@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.esotericsoftware.spine.urp-shaders": "file:C:/Users/zntif/Downloads/com.esotericsoftware.spine.urp-shaders-4.3-Unity2019.3-2026-05-18/com.esotericsoftware.spine.urp-shaders-4.3-2019.1",
     "com.unity.2d.pixel-perfect": "5.1.1",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
