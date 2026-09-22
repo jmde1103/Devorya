@@ -1,13 +1,23 @@
 using UnityEngine;
 
 // <변경부분> PieceFormationData가 기물을 배치하는 방식을 구분한다.
+// <변경부분> PieceFormationData가 기물을 배치하는 방식을 구분한다.
 public enum PieceFormationSpawnMode
 {
     // 기존처럼 각 기물의 좌표를 직접 지정하는 방식
     Manual,
 
     // 상대 진영 시작 10칸 안에 등록 기물을 비율에 따라 랜덤 배치
-    RandomEnemyStartZone
+    RandomEnemyStartZone,
+
+    // <변경부분>
+    // 전투 시작 시 의도적으로 아무 기물도 배치하지 않는 방식.
+    //
+    // 튜토리얼처럼 빈 보드에서 시작한 뒤
+    // EventSequence의 SpawnPiece Step으로 기물을 생성하는 전투에서 사용한다.
+    //
+    // 기존 enum 직렬화 호환을 위해 반드시 마지막에 추가한다.
+    Empty
 }
 
 // <변경부분> 랜덤 편성에서 사용할 PieceData와 출현 비율을 저장한다.
@@ -62,9 +72,10 @@ public class PieceFormationData : ScriptableObject
     public string description;
 
     [Header("Spawn Mode")]
-    // <변경부분> 직접 좌표 배치 또는 상대 시작 영역 랜덤 배치 선택
+    // <변경부분>
+    // 직접 좌표 배치 / 상대 시작 영역 랜덤 배치 / 빈 시작 편성을 선택한다.
     public PieceFormationSpawnMode spawnMode =
-        PieceFormationSpawnMode.Manual;
+     PieceFormationSpawnMode.Manual;
 
     [Header("Manual Spawn Data")]
     // <변경부분> Manual 모드에서 사용하는 기존 기물 배치 목록
@@ -83,12 +94,47 @@ public class PieceFormationData : ScriptableObject
     // <변경부분> 현재 모드의 편성 데이터가 실제 사용 가능한지 확인한다.
     public bool IsValid()
     {
+        // <변경부분>
+        // Empty는 "기물 데이터가 없는 것" 자체가 정상 상태다.
+        //
+        // 튜토리얼처럼 전투 시작 후 EventSequence에서
+        // SpawnPiece Step으로 기물을 생성하는 경우에 사용한다.
+        if (spawnMode ==
+            PieceFormationSpawnMode.Empty)
+        {
+            return true;
+        }
+
         if (spawnMode ==
             PieceFormationSpawnMode.Manual)
         {
-            return
-                spawnDataList != null &&
-                spawnDataList.Length > 0;
+            if (spawnDataList == null ||
+                spawnDataList.Length == 0)
+            {
+                return false;
+            }
+
+            // <변경부분>
+            // Manual 모드는 모든 배치 데이터에
+            // 실제 PieceData가 연결되어 있어야 한다.
+            //
+            // 빈 편성을 만들기 위해 null PieceData 더미를 넣는 방식은
+            // 더 이상 사용하지 않고 Empty 모드를 사용한다.
+            for (int i = 0;
+                 i < spawnDataList.Length;
+                 i++)
+            {
+                BattlePieceSpawnData spawnData =
+                    spawnDataList[i];
+
+                if (spawnData == null ||
+                    spawnData.pieceData == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         if (randomPieceCount <= 0 ||

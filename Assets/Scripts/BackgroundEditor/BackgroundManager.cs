@@ -772,43 +772,159 @@ public class BackgroundManager : MonoBehaviour
     // <변경부분> 씬에 이미 생성된 배경 타일을 배열 정보로 다시 연결
     private void RebuildBackgroundTileArrayFromScene()
     {
-        // 배경 타일 배열을 새로 준비
-        backgroundTiles = new BackgroundTile[backgroundWidth, backgroundHeight];
+        backgroundTiles =
+            new BackgroundTile[
+                backgroundWidth,
+                backgroundHeight
+            ];
 
-        // 배경 타일 부모가 없으면 복구 중단
         if (backgroundTileParent == null)
         {
             return;
         }
 
-        for (int i = 0; i < backgroundTileParent.childCount; i++)
+        for (int i = 0;
+             i < backgroundTileParent.childCount;
+             i++)
         {
-            BackgroundTile backgroundTile = backgroundTileParent.GetChild(i).GetComponent<BackgroundTile>();
+            BackgroundTile backgroundTile =
+                backgroundTileParent
+                    .GetChild(i)
+                    .GetComponent<BackgroundTile>();
 
             if (backgroundTile == null)
             {
                 continue;
             }
 
-            // <변경부분> 좌표 정보가 범위를 벗어난 타일은 삭제하지 않고 배열 연결만 건너뜀
-            if (backgroundTile.X < 0 || backgroundTile.X >= backgroundWidth ||
-                backgroundTile.Y < 0 || backgroundTile.Y >= backgroundHeight)
+            if (backgroundTile.X < 0 ||
+                backgroundTile.X >= backgroundWidth ||
+                backgroundTile.Y < 0 ||
+                backgroundTile.Y >= backgroundHeight)
             {
-                Debug.LogWarning($"{backgroundTile.name}의 배경 좌표가 범위를 벗어났습니다. 삭제하지 않고 건너뜁니다.");
+                Debug.LogWarning(
+                    $"{backgroundTile.name}의 배경 좌표가 범위를 벗어났습니다. " +
+                    $"삭제하지 않고 건너뜁니다."
+                );
+
                 continue;
             }
 
-            // <변경부분> 같은 좌표에 이미 등록된 타일이 있어도 삭제하지 않고 첫 번째 타일만 배열에 연결
-            if (backgroundTiles[backgroundTile.X, backgroundTile.Y] != null)
+            if (backgroundTiles[
+                    backgroundTile.X,
+                    backgroundTile.Y
+                ] != null)
             {
-                Debug.LogWarning($"배경 좌표 ({backgroundTile.X}, {backgroundTile.Y})에 중복 타일이 있습니다. 삭제하지 않고 건너뜁니다.");
+                Debug.LogWarning(
+                    $"배경 좌표 " +
+                    $"({backgroundTile.X}, {backgroundTile.Y})에 " +
+                    $"중복 타일이 있습니다. " +
+                    $"삭제하지 않고 건너뜁니다."
+                );
+
                 continue;
             }
 
-            // 씬에 남아 있는 배경 타일을 배열 좌표에 다시 연결
-            backgroundTiles[backgroundTile.X, backgroundTile.Y] = backgroundTile;
+            backgroundTiles[
+                backgroundTile.X,
+                backgroundTile.Y
+            ] =
+                backgroundTile;
         }
     }
+
+
+    // <변경부분>
+    // DecorationType에 대응하는 현재 DecorationSet을 반환한다.
+    //
+    // Occlusion 설정도 DecorationSet에서 관리하므로
+    // Sprite 목록과 동일한 데이터 소스를 그대로 사용한다.
+    private DecorationSet GetDecorationSet(
+        DecorationType decorationType)
+    {
+        if (decorationSets == null)
+        {
+            return null;
+        }
+
+        for (int i = 0;
+             i < decorationSets.Count;
+             i++)
+        {
+            DecorationSet decorationSet =
+                decorationSets[i];
+
+            if (decorationSet == null)
+            {
+                continue;
+            }
+
+            if (decorationSet.DecorationType ==
+                decorationType)
+            {
+                return decorationSet;
+            }
+        }
+
+        return null;
+    }
+
+
+    // <변경부분>
+    // 지정한 Event Actor Grid가
+    // 이 Decoration의 가림 영향권 안에 있는지 확인한다.
+    //
+    // Decoration 자신의 배치 타일은 항상 영향권으로 처리하고,
+    // 그 외의 타일은 DecorationSet.ActorOcclusionOffsets를 사용한다.
+    private bool IsGridInsideDecorationOcclusion(
+        Decoration decoration,
+        DecorationSet decorationSet,
+        int actorGridX,
+        int actorGridY)
+    {
+        if (decoration == null)
+        {
+            return false;
+        }
+
+        // Decoration 자신의 타일은 항상 Actor를 가릴 수 있다.
+        if (actorGridX == decoration.X &&
+            actorGridY == decoration.Y)
+        {
+            return true;
+        }
+
+        if (decorationSet == null ||
+            decorationSet.ActorOcclusionOffsets == null)
+        {
+            return false;
+        }
+
+        for (int i = 0;
+             i < decorationSet.ActorOcclusionOffsets.Count;
+             i++)
+        {
+            Vector2Int offset =
+                decorationSet.ActorOcclusionOffsets[i];
+
+            int occlusionGridX =
+                decoration.X +
+                offset.x;
+
+            int occlusionGridY =
+                decoration.Y +
+                offset.y;
+
+            if (actorGridX == occlusionGridX &&
+                actorGridY == occlusionGridY)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     // <변경부분> 장식물 타입별 스프라이트 목록을 Dictionary로 정리
     private void BuildDecorationSpriteDictionary()
@@ -1195,14 +1311,17 @@ public class BackgroundManager : MonoBehaviour
     // Sorting Layer는 Scene 이름이나 문자열을 하드코딩하지 않고
     // 실제 Decoration Prefab의 SpriteRenderer 설정을 기준으로 가져온다.
     public bool TryGetEventActorSortingSettings(
-        int x,
-        int y,
-        out int sortingLayerId,
-        out int sortingOrder)
+    int x,
+    int y,
+    out int sortingLayerId,
+    out int sortingOrder)
     {
         sortingLayerId =
             0;
 
+        // <변경부분>
+        // 우선 Actor 자신의 Grid Depth를 기준으로
+        // 기존 아이소메트릭 Sorting 값을 계산한다.
         sortingOrder =
             GetEventWorldSortingOrder(
                 x,
@@ -1224,8 +1343,86 @@ public class BackgroundManager : MonoBehaviour
             return false;
         }
 
+        // Event Actor와 Decoration이 서로 Order로 교차될 수 있도록
+        // 동일한 Sorting Layer를 사용한다.
         sortingLayerId =
             decorationRenderer.sortingLayerID;
+
+
+        // <변경부분>
+        // 현재 Actor가 어떤 Decoration의 가림 영향권 안에 있다면
+        // 해당 Decoration보다 Actor가 반드시 뒤에 그려지도록 한다.
+        //
+        // 여러 Decoration의 영향권이 겹친 경우에는
+        // Actor를 그중 가장 뒤에 필요한 Order까지 내려
+        // 모든 해당 Decoration이 Actor 앞에 보이도록 한다.
+        if (decorationParent == null)
+        {
+            return true;
+        }
+
+        for (int i = 0;
+             i < decorationParent.childCount;
+             i++)
+        {
+            Transform decorationTransform =
+                decorationParent.GetChild(i);
+
+            if (decorationTransform == null)
+            {
+                continue;
+            }
+
+            Decoration decoration =
+                decorationTransform
+                    .GetComponent<Decoration>();
+
+            if (decoration == null)
+            {
+                continue;
+            }
+
+            DecorationSet decorationSet =
+                GetDecorationSet(
+                    decoration.DecorationType
+                );
+
+            if (IsGridInsideDecorationOcclusion(
+                    decoration,
+                    decorationSet,
+                    x,
+                    y) == false)
+            {
+                continue;
+            }
+
+            SpriteRenderer activeDecorationRenderer =
+                decorationTransform
+                    .GetComponent<SpriteRenderer>();
+
+            if (activeDecorationRenderer == null)
+            {
+                continue;
+            }
+
+            // 다른 Sorting Layer라면 Order 비교 자체가 의미가 없으므로
+            // 현재 Event World Layer와 동일한 Decoration만 처리한다.
+            if (activeDecorationRenderer.sortingLayerID !=
+                sortingLayerId)
+            {
+                continue;
+            }
+
+            int behindDecorationOrder =
+                activeDecorationRenderer.sortingOrder -
+                1;
+
+            sortingOrder =
+                Mathf.Min(
+                    sortingOrder,
+                    behindDecorationOrder
+                );
+        }
 
         return true;
     }
@@ -1737,6 +1934,29 @@ public class DecorationSet
 
     // 같은 타입 안에서 랜덤으로 사용할 여러 장식물 스프라이트
     public List<Sprite> DecorationSprites = new List<Sprite>();
+
+
+    // <변경부분>
+    // 이 Decoration이 자신의 배치 타일 이외에
+    // 추가로 어떤 Background Grid 위의 Event Actor를
+    // 자신의 뒤로 가릴 수 있는지 지정한다.
+    //
+    // 좌표는 Decoration이 배치된 Grid를 (0, 0)으로 보는 상대 좌표다.
+    //
+    // 자기 자신의 타일 (0, 0)은 코드에서 항상 자동으로 포함되므로
+    // 이 목록에는 "추가 영향 타일"만 넣으면 된다.
+    //
+    // 현재 DEVORYA 아이소메트릭 기준으로
+    // 바로 위쪽의 3개 인접 타일은:
+    //
+    // (1, 0)
+    // (0, 1)
+    // (1, 1)
+    //
+    // 큰 나무처럼 더 넓은 Decoration은
+    // 필요한 좌표를 추가해서 영향권을 자유롭게 확장할 수 있다.
+    public List<Vector2Int> ActorOcclusionOffsets =
+        new List<Vector2Int>();
 }
 
 [System.Serializable]

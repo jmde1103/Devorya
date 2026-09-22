@@ -364,20 +364,52 @@ public class BattleSetupManager : MonoBehaviour
             return;
         }
 
-        pieceManager.SpawnPiecesFromDataList(
-            stageBattleData
-                .playerFormationData
-                .spawnDataList
-        );
+        PieceFormationData playerFormationData =
+            stageBattleData.playerFormationData;
 
-        Debug.Log(
-            $"StageBattleData 기본 플레이어 편성 배치 완료: " +
-            $"{stageBattleData.playerFormationData.formationName}"
+        // <변경부분>
+        // Empty 편성은 전투 시작 시 아무 기물도 생성하지 않는 것이 정상이다.
+        //
+        // 이후 튜토리얼 EventSequence의 SpawnPiece Step 등에서
+        // 필요한 기물을 별도로 생성할 수 있다.
+        if (playerFormationData.spawnMode ==
+            PieceFormationSpawnMode.Empty)
+        {
+            Debug.Log(
+                $"플레이어 빈 편성 적용 완료: " +
+                $"{playerFormationData.formationName}"
+            );
+
+            return;
+        }
+
+        if (playerFormationData.spawnMode ==
+            PieceFormationSpawnMode.Manual)
+        {
+            pieceManager.SpawnPiecesFromDataList(
+                playerFormationData.spawnDataList
+            );
+
+            Debug.Log(
+                $"StageBattleData 기본 플레이어 편성 배치 완료: " +
+                $"{playerFormationData.formationName}"
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // RandomEnemyStartZone는 Enemy 전용 배치 방식이므로
+        // Player Formation에 잘못 지정된 경우 조용히 잘못된 데이터를 사용하지 않는다.
+        Debug.LogWarning(
+            $"플레이어 편성 배치 실패: " +
+            $"{playerFormationData.formationName}의 Spawn Mode " +
+            $"{playerFormationData.spawnMode}는 Player에서 지원하지 않습니다."
         );
     }
 
     // <변경부분> 현재 적 PieceFormationData의 배치 방식에 따라
-    // 기존 수동 좌표 배치 또는 상대 시작 진영 랜덤 배치를 실행한다.
+    // 기존 수동 좌표 배치 / 상대 시작 진영 랜덤 배치 / 빈 편성을 실행한다.
     private void SpawnEnemyPieces()
     {
         PieceFormationData enemyFormationData =
@@ -387,6 +419,22 @@ public class BattleSetupManager : MonoBehaviour
         {
             Debug.LogWarning(
                 "적 기물 배치 실패: enemyFormationData가 없습니다."
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // Empty 편성은 전투 시작 시 적 기물을 생성하지 않는다.
+        //
+        // 튜토리얼 EventSequence에서 이후 SpawnPiece Step으로
+        // 적 기물을 생성하는 흐름에 사용한다.
+        if (enemyFormationData.spawnMode ==
+            PieceFormationSpawnMode.Empty)
+        {
+            Debug.Log(
+                $"적 빈 편성 적용 완료: " +
+                $"{enemyFormationData.formationName}"
             );
 
             return;
