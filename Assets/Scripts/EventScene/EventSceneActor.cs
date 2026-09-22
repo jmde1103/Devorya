@@ -23,11 +23,29 @@ public class EventSceneActor : MonoBehaviour
 
     private GameObject visualObject;
 
+
+    // <변경부분>
+    // Event Scene Actor의 위치를 Background Decoration과
+    // 동일한 아이소메트릭 Depth 공간에서 정렬하기 위해 사용한다.
+    private BackgroundManager backgroundManager;
+
+
+    // <변경부분>
+    // 공용 Piece Visual Prefab 내부 Renderer 목록.
+    //
+    // Prefab Asset 자체의 Sorting 값을 변경하지 않고,
+    // Event Scene에 Instantiate된 Runtime Instance만 변경한다.
+    private Renderer[] visualRenderers;
+
+
+    // <변경부분>
+    // Visual Prefab 내부에 Renderer가 여러 개 있을 경우
+    // Renderer 사이의 기존 상대 Sorting Order 차이를 보존한다.
+    private int[] visualRendererSortingOffsets;
+
+
     // <변경부분>
     // Event Scene Actor가 소유하는 공용 SpeechBubble UI.
-    //
-    // Battle Piece와 동일한 ActorSpeechBubbleUI를 재사용하지만
-    // Battle Piece 시스템에는 의존하지 않는다.
     private ActorSpeechBubbleUI speechBubbleUI;
 
     // <변경부분>
@@ -92,7 +110,8 @@ public class EventSceneActor : MonoBehaviour
      Vector2Int newGridPosition,
      Vector2 newVisualOffset,
      bool newFlipX,
-     GameObject newVisualObject)
+     GameObject newVisualObject,
+     BackgroundManager newBackgroundManager)
     {
         actorId =
             newActorId;
@@ -107,24 +126,24 @@ public class EventSceneActor : MonoBehaviour
             newUseAbsorbedPlayerVisual;
 
         gridPosition =
-    newGridPosition;
+            newGridPosition;
 
         visualObject =
             newVisualObject;
 
         // <변경부분>
+        // Event Scene에서만 사용하는 Background / Decoration Depth 기준.
+        backgroundManager =
+            newBackgroundManager;
+
         visualOffset =
             newVisualOffset;
 
         isFlippedX =
             newFlipX;
 
-        // <변경부분>
-        // PieceData Visual Prefab에 지정되어 있던 원래 Scale을 보존한다.
         if (visualObject != null)
         {
-            // <변경부분>
-            // Instantiate된 Visual Prefab의 원래 Local Position을 보존한다.
             visualBaseLocalPosition =
                 visualObject.transform.localPosition;
 
@@ -132,22 +151,192 @@ public class EventSceneActor : MonoBehaviour
                 visualObject.transform.localScale;
 
             ApplyVisualTransform();
+
+            // <변경부분>
+            // Prefab 내부 Renderer들의 기존 상대 Order를 먼저 저장한 뒤
+            // 현재 Event Grid 위치 기준 Sorting을 적용한다.
+            CacheVisualSortingState();
+
+            ApplySortingForGridPosition(
+                gridPosition
+            );
         }
 
         gameObject.name =
-            $"EventActor_{actorId}";
+    $"EventActor_{actorId}";
+    }
+
+
+    // <변경부분>
+    // Instantiate된 Piece Visual Prefab 내부 Renderer들의
+    // 원래 상대 Sorting Order를 저장한다.
+    //
+    // Event Scene에서는 최종 Base Order만 Background 기준으로 덮어쓰고,
+    // Prefab 내부 Renderer끼리의 앞뒤 차이는 그대로 유지한다.
+    private void CacheVisualSortingState()
+    {
+        if (visualObject == null)
+        {
+            visualRenderers =
+                null;
+
+            visualRendererSortingOffsets =
+                null;
+
+            return;
+        }
+
+        visualRenderers =
+            visualObject
+                .GetComponentsInChildren<Renderer>(
+                    true
+                );
+
+        if (visualRenderers == null ||
+            visualRenderers.Length == 0)
+        {
+            visualRendererSortingOffsets =
+                null;
+
+            return;
+        }
+
+        visualRendererSortingOffsets =
+            new int[
+                visualRenderers.Length
+            ];
+
+        int referenceSortingOrder =
+            visualRenderers[0] != null
+                ? visualRenderers[0].sortingOrder
+                : 0;
+
+        for (int i = 0;
+             i < visualRenderers.Length;
+             i++)
+        {
+            Renderer renderer =
+                visualRenderers[i];
+
+            if (renderer == null)
+            {
+                visualRendererSortingOffsets[i] =
+                    0;
+
+                continue;
+            }
+
+            visualRendererSortingOffsets[i] =
+                renderer.sortingOrder -
+                referenceSortingOrder;
+        }
+    }
+
+
+    // <변경부분>
+    // 지정한 Background Grid 좌표 기준으로
+    // Event Actor Visual 전체의 Sorting Layer / Order를 갱신한다.
+    private void ApplySortingForGridPosition(
+        Vector2Int targetGridPosition)
+    {
+        if (backgroundManager == null)
+        {
+            return;
+        }
+
+        if (backgroundManager
+                .TryGetEventActorSortingSettings(
+                    targetGridPosition.x,
+                    targetGridPosition.y,
+                    out int sortingLayerId,
+                    out int sortingOrder) == false)
+        {
+            return;
+        }
+
+        ApplyVisualSorting(
+            sortingLayerId,
+            sortingOrder
+        );
+    }
+
+
+    // <변경부분>
+    // 이동 중 Actor의 지면 World Position 기준으로
+    // 현재 Background Grid Depth를 계산해서 Sorting을 갱신한다.
+    //
+    // 점프 Arc가 적용된 실제 Transform Y가 아니라
+    // Arc 적용 전의 지면 이동 좌표를 전달해야 한다.
+    private void ApplySortingForGroundWorldPosition(
+        Vector3 groundWorldPosition)
+    {
+        if (backgroundManager == null)
+        {
+            return;
+        }
+
+        if (backgroundManager
+                .TryGetEventActorSortingSettings(
+                    groundWorldPosition,
+                    out int sortingLayerId,
+                    out int sortingOrder) == false)
+        {
+            return;
+        }
+
+        ApplyVisualSorting(
+            sortingLayerId,
+            sortingOrder
+        );
+    }
+
+
+    // <변경부분>
+    // Event Scene에 생성된 Runtime Visual Instance에만
+    // Sorting Layer / Order를 적용한다.
+    //
+    // 공용 PieceVisual Prefab Asset은 수정하지 않으므로
+    // Battle Scene에서는 기존 PieceManager Sorting이 그대로 유지된다.
+    private void ApplyVisualSorting(
+        int sortingLayerId,
+        int baseSortingOrder)
+    {
+        if (visualRenderers == null ||
+            visualRenderers.Length == 0)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i < visualRenderers.Length;
+             i++)
+        {
+            Renderer renderer =
+                visualRenderers[i];
+
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            renderer.sortingLayerID =
+                sortingLayerId;
+
+            int rendererOffset =
+                visualRendererSortingOffsets != null &&
+                i < visualRendererSortingOffsets.Length
+                    ? visualRendererSortingOffsets[i]
+                    : 0;
+
+            renderer.sortingOrder =
+                baseSortingOrder +
+                rendererOffset;
+        }
     }
 
 
     // <변경부분>
     // Event Actor Visual의 Offset과 좌우 반전을 적용한다.
-    //
-    // X Flip 시 단순히 Scale만 반전하면
-    // Prefab Pivot이 캐릭터 중앙에서 벗어나 있는 경우
-    // 실제 그림이 Pivot 반대편으로 크게 이동한다.
-    //
-    // 따라서 Flip 전후 Renderer Bounds 중심을 비교해서
-    // 실제 캐릭터가 화면상 같은 위치를 유지하도록 자동 보정한다.
     private void ApplyVisualTransform()
     {
         if (visualObject == null)
@@ -1164,13 +1353,20 @@ public class EventSceneActor : MonoBehaviour
         // 부동소수점 누적 오차 없이
         // 최종 위치를 목적지 BackgroundTile에 정확히 고정한다.
         transform.position =
-            targetWorldPosition;
+    targetWorldPosition;
 
         // <변경부분>
         // 이후 MoveActor / AttackActor 등의 Step에서
         // 현재 위치를 참조할 수 있도록 Grid 좌표를 갱신한다.
         gridPosition =
             targetGridPosition;
+
+        // <변경부분>
+        // 이동 종료 시 정확한 목표 Grid 기준으로
+        // 최종 Sorting Order를 한 번 더 확정한다.
+        ApplySortingForGridPosition(
+            gridPosition
+        );
     }
 
     // <변경부분>
@@ -1258,7 +1454,7 @@ public class EventSceneActor : MonoBehaviour
                 );
 
             transform.position =
-                targetWorldPosition;
+     targetWorldPosition;
 
             // <변경부분>
             // 공격자가 제거된 Target의 Tile을 점유한다.
@@ -1266,9 +1462,18 @@ public class EventSceneActor : MonoBehaviour
                 targetGridPosition;
 
             // <변경부분>
+            // Target Tile을 실제 점유한 뒤
+            // 해당 Grid Depth 기준으로 최종 Sorting을 확정한다.
+            ApplySortingForGridPosition(
+                gridPosition
+            );
+
+            // <변경부분>
             // 충돌 순간 Controller에서
             // Screen Shake와 Target 제거를 처리한다.
             onSuccessImpact?.Invoke();
+
+            yield break;
 
             yield break;
         }
@@ -1410,10 +1615,17 @@ public class EventSceneActor : MonoBehaviour
             );
 
         transform.position =
-            startWorldPosition;
+    startWorldPosition;
 
         // Failure에서는 실제 Tile 이동이 아니므로
         // gridPosition은 기존 값을 유지한다.
+
+        // <변경부분>
+        // Bounce 이동 중 임시로 변경됐던 Sorting을
+        // 원래 Actor Grid 위치 기준으로 정확히 복원한다.
+        ApplySortingForGridPosition(
+            gridPosition
+        );
     }
     // <변경부분>
     // Event Actor 전용 포물선 이동.
@@ -1422,13 +1634,20 @@ public class EventSceneActor : MonoBehaviour
     // Sin 곡선의 Y Offset은 유지되므로
     // 자연스럽게 제자리 수직 Jump가 된다.
     private IEnumerator MoveArcRoutine(
-        Vector3 startPosition,
-        Vector3 endPosition,
-        float duration,
-        float arcHeight)
+      Vector3 startPosition,
+      Vector3 endPosition,
+      float duration,
+      float arcHeight)
     {
         if (duration <= 0f)
         {
+            // <변경부분>
+            // 즉시 이동에서도 Arc가 없는 지면 위치 기준으로
+            // Sorting을 먼저 확정한다.
+            ApplySortingForGroundWorldPosition(
+                endPosition
+            );
+
             transform.position =
                 endPosition;
 
@@ -1457,12 +1676,24 @@ public class EventSceneActor : MonoBehaviour
                     normalizedTime
                 );
 
-            Vector3 currentPosition =
+            // <변경부분>
+            // 먼저 지면상의 이동 위치를 계산한다.
+            //
+            // Sorting은 이 좌표를 기준으로 계산해야 하며,
+            // 아래에서 추가되는 Jump Arc 높이는 Depth 판정에 사용하지 않는다.
+            Vector3 groundPosition =
                 Vector3.Lerp(
                     startPosition,
                     endPosition,
                     easedTime
                 );
+
+            ApplySortingForGroundWorldPosition(
+                groundPosition
+            );
+
+            Vector3 currentPosition =
+                groundPosition;
 
             float arcOffset =
                 Mathf.Sin(
@@ -1480,6 +1711,10 @@ public class EventSceneActor : MonoBehaviour
             yield return null;
         }
 
+        ApplySortingForGroundWorldPosition(
+            endPosition
+        );
+
         transform.position =
             endPosition;
     }
@@ -1488,9 +1723,16 @@ public class EventSceneActor : MonoBehaviour
     // 이후 MoveActor 구현 시
     // Actor의 현재 BackgroundTile 좌표를 갱신한다.
     public void SetGridPosition(
-        Vector2Int newGridPosition)
+    Vector2Int newGridPosition)
     {
         gridPosition =
             newGridPosition;
+
+        // <변경부분>
+        // 외부에서 Grid Position만 갱신하는 경로가 생겨도
+        // Visual Sorting이 논리 좌표와 어긋나지 않도록 함께 갱신한다.
+        ApplySortingForGridPosition(
+            gridPosition
+        );
     }
 }

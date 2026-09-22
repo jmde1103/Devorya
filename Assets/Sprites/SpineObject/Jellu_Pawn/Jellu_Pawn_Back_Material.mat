@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 99976f1841cc829499afc0b02cb1dcbe, type: 3}
+        m_Texture: {fileID: 2800000, guid: 41faf83357b44ef4aadda9e7df972f75, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -64,7 +64,7 @@ Material:
     - PixelSnap: 0
     - _BlendAmount: 0
     - _Brightness: 1
-    - _BumpScale: 1
+    - _BumpScale: 0.15
     - _Cull: 0
     - _CustomRenderQueue: 0
     - _Cutoff: 0.1

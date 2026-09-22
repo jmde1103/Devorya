@@ -108,12 +108,40 @@ public class BackgroundManager : MonoBehaviour
     // <변경부분> 배경 타일 타입별 스프라이트 목록을 빠르게 찾기 위한 캐시
     private Dictionary<BackgroundTileType, List<Sprite>> tileSpriteDictionary;
 
+
+    // <변경부분>
+    // Standalone Event Scene에서 Decoration과 Event Actor가
+    // 동일한 아이소메트릭 깊이 공간 안에서 서로 앞뒤로 교차할 수 있도록
+    // 공용 World Sorting 기준을 정의한다.
+    //
+    // Background Tile은 기존 -10000 영역,
+    // Battle Tile / Battle Piece는 0 / 100 영역을 사용하므로
+    // Event World는 기존 Decoration 영역인 -5000대를 그대로 사용한다.
+    private const int EventWorldBaseSortingOrder =
+        -5000;
+
+    // 한 Grid Depth마다 Actor / Decoration 두 칸을 확보한다.
+    //
+    // 예:
+    // Actor      = depth 기준값
+    // Decoration = depth 기준값 + 1
+    //
+    // 따라서 같은 타일에서는 Decoration이 Actor보다 앞에 보이지만,
+    // Actor가 화면 아래쪽 타일로 이동하면 자연스럽게 Decoration 앞으로 나온다.
+    private const int EventWorldDepthStep =
+        2;
+
+    private const int EventActorSortingOffset =
+        0;
+
+    private const int DecorationSortingOffset =
+        1;
+
+
     private void Awake()
     {
-        // 배경 타일 타입별 스프라이트 목록을 준비
         BuildTileSpriteDictionary();
 
-        // <변경부분> 장식물 타입별 스프라이트 목록을 준비
         BuildDecorationSpriteDictionary();
     }
 
@@ -1112,20 +1140,129 @@ public class BackgroundManager : MonoBehaviour
     }
 
     // <변경부분> 장식물이 배경 타일 위에 보이도록 아이소메트릭 정렬 순서 계산
-    private void SetDecorationSortingOrder(GameObject decorationObject, int x, int y)
+    private void SetDecorationSortingOrder(
+    GameObject decorationObject,
+    int x,
+    int y)
     {
-        SpriteRenderer spriteRenderer = decorationObject.GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer =
+            decorationObject.GetComponent<SpriteRenderer>();
 
         if (spriteRenderer == null)
         {
             return;
         }
 
-        // 장식물은 배경 타일보다 앞, 전투 타일보다 뒤에 보이도록 정렬
-        int decorationBaseOrder = -5000;
+        // <변경부분>
+        // Decoration과 Event Actor가 같은 -5000대 World Depth 공간을 공유한다.
+        //
+        // 동일한 Grid Depth 안에서는 Decoration에 +1 Offset을 주어
+        // 같은 타일에 서 있는 Event Actor보다 Decoration이 앞에 보이게 한다.
+        spriteRenderer.sortingOrder =
+            GetEventWorldSortingOrder(
+                x,
+                y,
+                DecorationSortingOffset
+            );
+    }
 
-        // 아래쪽에 있는 장식물이 위쪽 장식물보다 앞에 보이도록 정렬
-        spriteRenderer.sortingOrder = decorationBaseOrder - (x + y);
+
+    // <변경부분>
+    // Event Scene의 Actor / Decoration이 공통으로 사용할
+    // 아이소메트릭 World Sorting Order를 계산한다.
+    private int GetEventWorldSortingOrder(
+        int x,
+        int y,
+        int localOffset)
+    {
+        int depth =
+            x + y;
+
+        return
+            EventWorldBaseSortingOrder -
+            (
+                depth *
+                EventWorldDepthStep
+            ) +
+            localOffset;
+    }
+
+
+    // <변경부분>
+    // EventSceneActor가 현재 Background World와 동일한
+    // Sorting Layer / Order를 사용할 수 있도록 정렬 정보를 제공한다.
+    //
+    // Sorting Layer는 Scene 이름이나 문자열을 하드코딩하지 않고
+    // 실제 Decoration Prefab의 SpriteRenderer 설정을 기준으로 가져온다.
+    public bool TryGetEventActorSortingSettings(
+        int x,
+        int y,
+        out int sortingLayerId,
+        out int sortingOrder)
+    {
+        sortingLayerId =
+            0;
+
+        sortingOrder =
+            GetEventWorldSortingOrder(
+                x,
+                y,
+                EventActorSortingOffset
+            );
+
+        if (decorationPrefab == null)
+        {
+            return false;
+        }
+
+        SpriteRenderer decorationRenderer =
+            decorationPrefab
+                .GetComponent<SpriteRenderer>();
+
+        if (decorationRenderer == null)
+        {
+            return false;
+        }
+
+        sortingLayerId =
+            decorationRenderer.sortingLayerID;
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // 이동 중인 Event Actor의 지면 World Position을
+    // 현재 Background Grid 좌표로 변환한 뒤 정렬 정보를 반환한다.
+    //
+    // EventSceneActor의 점프 Arc 높이는 이 함수에 전달하지 않고,
+    // 포물선 높이를 더하기 전의 지면 위치만 전달한다.
+    public bool TryGetEventActorSortingSettings(
+        Vector3 groundWorldPosition,
+        out int sortingLayerId,
+        out int sortingOrder)
+    {
+        sortingLayerId =
+            0;
+
+        sortingOrder =
+            0;
+
+        if (TryGetBackgroundGridPosition(
+                groundWorldPosition,
+                out int gridX,
+                out int gridY) == false)
+        {
+            return false;
+        }
+
+        return
+            TryGetEventActorSortingSettings(
+                gridX,
+                gridY,
+                out sortingLayerId,
+                out sortingOrder
+            );
     }
 
     // <변경부분> 인스펙터에 입력한 좌표와 타입으로 장식물 생성 테스트

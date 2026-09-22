@@ -556,15 +556,16 @@ public class EventSceneSequenceController : MonoBehaviour
     >();
 
         actor.Initialize(
-            step.spawnActorId,
-            step.spawnActorPieceData,
-            step.spawnActorTeam,
-            step.spawnActorUseAbsorbedPlayerVisual,
-            step.spawnActorPosition,
-            step.spawnActorVisualOffset,
-            step.spawnActorFlipX,
-            visualObject
-        );
+    step.spawnActorId,
+    step.spawnActorPieceData,
+    step.spawnActorTeam,
+    step.spawnActorUseAbsorbedPlayerVisual,
+    step.spawnActorPosition,
+    step.spawnActorVisualOffset,
+    step.spawnActorFlipX,
+    visualObject,
+    backgroundManager
+);
 
 
         // <변경부분>
