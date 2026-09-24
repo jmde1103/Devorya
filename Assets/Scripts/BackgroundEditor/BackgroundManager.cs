@@ -88,11 +88,24 @@ public class BackgroundManager : MonoBehaviour
     [SerializeField] private List<DecorationSpawnRule> decorationSpawnRules = new List<DecorationSpawnRule>();
 
     [Header("배경 맵 데이터 저장/불러오기")]
-    // <변경부분> 현재 배경과 장식물 배치를 저장하거나 불러올 데이터 에셋
+    // 현재 배경과 장식물 배치를 저장하거나 불러올 데이터 에셋
     [SerializeField] private BackgroundMapData currentMapData;
 
+
+    [Header("Environment Lighting")]
+
+    // <변경부분>
+    // 현재 Scene의 공용 EnvironmentLightingRig에 붙어 있는 Controller.
+    //
+    // BackgroundMapData를 불러올 때
+    // 해당 Map의 EnvironmentVisualProfile을 자동 적용한다.
+    [SerializeField]
+    private EnvironmentLightingController
+        environmentLightingController;
+
+
     [Header("맵 데이터 자동 생성 설정")]
-    // <변경부분> 새 맵 데이터 에셋을 만들 때 사용할 파일 이름
+    // 새 맵 데이터 에셋을 만들 때 사용할 파일 이름
     [SerializeField] private string newMapDataName = "NewBackgroundMapData";
 
     // <변경부분> 새 맵 데이터 에셋이 저장될 폴더 경로
@@ -1465,10 +1478,162 @@ public class BackgroundManager : MonoBehaviour
     // <변경부분> 인스펙터에 입력한 좌표와 타입으로 장식물 생성 테스트
     public void SpawnTestDecoration()
     {
-        SpawnDecoration(testDecorationType, testDecorationX, testDecorationY);
+        SpawnDecoration(
+            testDecorationType,
+            testDecorationX,
+            testDecorationY
+        );
     }
 
-    // <변경부분> 현재 씬에 배치된 배경 타일과 장식물을 맵 데이터에 저장
+
+    // <변경부분>
+    // 현재 BackgroundMapData에 연결된 EnvironmentVisualProfile을
+    // EnvironmentLightingRig에 적용한다.
+    //
+    // Inspector 버튼을 통한 Editor Preview에서도 재사용한다.
+    public void ApplyCurrentLightingProfile()
+    {
+        if (currentMapData == null)
+        {
+            Debug.LogWarning(
+                "환경 조명 적용 실패: " +
+                "Current Map Data가 연결되어 있지 않습니다."
+            );
+
+            return;
+        }
+
+        if (currentMapData.VisualProfile == null)
+        {
+            Debug.LogWarning(
+                $"환경 조명 적용 실패: " +
+                $"{currentMapData.name}에 " +
+                "EnvironmentVisualProfile이 연결되어 있지 않습니다."
+            );
+
+            return;
+        }
+
+        if (environmentLightingController == null)
+        {
+            Debug.LogWarning(
+                "환경 조명 적용 실패: " +
+                "BackgroundManager의 EnvironmentLightingController가 연결되어 있지 않습니다."
+            );
+
+            return;
+        }
+
+        environmentLightingController.ApplyProfile(
+            currentMapData.VisualProfile
+        );
+    }
+
+
+    // <변경부분>
+    // Runtime의 자동 Map Load에서는
+    // 기존 BackgroundMapData에 아직 Profile이 없는 경우도 허용한다.
+    //
+    // 따라서 Profile이 없는 Map은 경고 없이
+    // 현재 EnvironmentLightingRig 설정을 그대로 유지한다.
+    private void ApplyEnvironmentVisualProfileFromCurrentMap()
+    {
+        if (currentMapData == null ||
+            currentMapData.VisualProfile == null)
+        {
+            return;
+        }
+
+        if (environmentLightingController == null)
+        {
+            Debug.LogWarning(
+                $"환경 조명 자동 적용 실패: " +
+                $"{currentMapData.name}에는 EnvironmentVisualProfile이 있지만 " +
+                "EnvironmentLightingController가 연결되어 있지 않습니다."
+            );
+
+            return;
+        }
+
+        environmentLightingController.ApplyProfile(
+            currentMapData.VisualProfile
+        );
+    }
+
+
+    // <변경부분>
+    // 현재 Scene에서 직접 튜닝한 EnvironmentLightingRig 값을
+    // 현재 BackgroundMapData의 EnvironmentVisualProfile Asset에 저장한다.
+    public void SaveCurrentLightingToProfile()
+    {
+#if UNITY_EDITOR
+        if (currentMapData == null)
+        {
+            Debug.LogWarning(
+                "환경 조명 저장 실패: " +
+                "Current Map Data가 연결되어 있지 않습니다."
+            );
+
+            return;
+        }
+
+        EnvironmentVisualProfile visualProfile =
+            currentMapData.VisualProfile;
+
+        if (visualProfile == null)
+        {
+            Debug.LogWarning(
+                $"환경 조명 저장 실패: " +
+                $"{currentMapData.name}에 " +
+                "EnvironmentVisualProfile을 먼저 연결하세요."
+            );
+
+            return;
+        }
+
+        if (environmentLightingController == null)
+        {
+            Debug.LogWarning(
+                "환경 조명 저장 실패: " +
+                "EnvironmentLightingController가 연결되어 있지 않습니다."
+            );
+
+            return;
+        }
+
+        UnityEditor.Undo.RecordObject(
+            visualProfile,
+            "Save Environment Lighting Profile"
+        );
+
+        if (environmentLightingController
+            .CaptureCurrentToProfile(
+                visualProfile
+            ) == false)
+        {
+            return;
+        }
+
+        UnityEditor.EditorUtility.SetDirty(
+            visualProfile
+        );
+
+        UnityEditor.AssetDatabase.SaveAssets();
+
+        Debug.Log(
+            $"환경 조명 Profile 저장 완료: " +
+            $"{visualProfile.name}"
+        );
+#else
+    Debug.LogWarning(
+        "환경 조명 Profile Asset 저장은 " +
+        "Unity Editor에서만 사용할 수 있습니다."
+    );
+#endif
+    }
+
+
+    // 현재 씬에 배치된 배경 타일과 장식물을 맵 데이터에 저장
     public void SaveCurrentMapToData()
     {
         if (currentMapData == null)
@@ -1677,6 +1842,16 @@ public class BackgroundManager : MonoBehaviour
             }
         }
 
+
+        // <변경부분>
+        // 배경과 Decoration 구성이 완료된 뒤
+        // 이 BackgroundMapData 전용 환경 조명 Profile을 적용한다.
+        //
+        // Event Scene / Battle Scene 모두 BackgroundManager.LoadMapFromData()를
+        // 공통으로 사용하므로 별도 Scene별 조명 코드를 만들 필요가 없다.
+        ApplyEnvironmentVisualProfileFromCurrentMap();
+
+
         Debug.Log(
             "배경 맵 데이터를 불러왔습니다."
         );
@@ -1836,13 +2011,32 @@ public class BackgroundManagerEditor : Editor
             manager.CreateNewMapDataAsset();
         }
 
-        // <변경부분> 현재 배경과 장식물 배치를 연결된 데이터 에셋에 저장
+        // 현재 배경과 장식물 배치를 연결된 데이터 에셋에 저장
         if (GUILayout.Button("Save Current Map To Data"))
         {
             manager.SaveCurrentMapToData();
         }
 
-        // <변경부분> 연결된 데이터 에셋에서 배경과 장식물 배치를 불러오기
+
+        // <변경부분>
+        // 현재 Scene에서 직접 맞춘 LightingRig 값을
+        // BackgroundMapData에 연결된 EnvironmentVisualProfile로 저장한다.
+        if (GUILayout.Button("Save Current Lighting To Profile"))
+        {
+            manager.SaveCurrentLightingToProfile();
+        }
+
+
+        // <변경부분>
+        // 현재 BackgroundMapData의 EnvironmentVisualProfile을
+        // Scene의 LightingRig에 즉시 적용하여 Editor에서 미리 확인한다.
+        if (GUILayout.Button("Apply Current Lighting Profile"))
+        {
+            manager.ApplyCurrentLightingProfile();
+        }
+
+
+        // 연결된 데이터 에셋에서 배경과 장식물 배치를 불러오기
         if (GUILayout.Button("Load Map From Data"))
         {
             manager.LoadMapFromData();

@@ -14,6 +14,18 @@ public class BackgroundMapData : ScriptableObject
     // 배경 전체 위치 보정값 저장
     public Vector3 BackgroundOriginOffset;
 
+
+    [Header("Environment Visual")]
+
+    // <변경부분>
+    // 이 BackgroundMapData를 사용할 때 함께 적용할
+    // 환경 조명 Profile.
+    //
+    // Event Scene과 Battle Scene 모두 동일한 BackgroundMapData를 사용하면
+    // 동일한 환경 조명이 자동으로 적용된다.
+    public EnvironmentVisualProfile VisualProfile;
+
+
     [Header("배경 타일 데이터")]
     // 배경 타일 타입을 1차원 리스트로 저장
     public List<BackgroundTileSaveData> Tiles = new List<BackgroundTileSaveData>();
