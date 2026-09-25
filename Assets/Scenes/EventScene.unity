@@ -109816,6 +109816,7 @@ MonoBehaviour:
     DecorationType: 1
     SpawnChance: 0.1
   currentMapData: {fileID: 11400000, guid: 74b4542356006434dadb7f8b38eaadae, type: 2}
+  environmentLightingController: {fileID: 9050744399186627120}
   newMapDataName: TutorialStage
   mapDataSaveFolder: Assets/Devorya/BackgroundMaps
 --- !u!4 &1113883778
@@ -201353,8 +201354,64 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2457590126232961902, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9050744399186627120}
   m_SourcePrefab: {fileID: 100100000, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+--- !u!1 &9050744399186627116 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2457590126232961902, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+  m_PrefabInstance: {fileID: 9050744399186627115}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9050744399186627117 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8125320256241508038, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+  m_PrefabInstance: {fileID: 9050744399186627115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+--- !u!114 &9050744399186627118 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4434807248119214617, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+  m_PrefabInstance: {fileID: 9050744399186627115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+--- !u!114 &9050744399186627119 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6395773882488420422, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+  m_PrefabInstance: {fileID: 9050744399186627115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+--- !u!114 &9050744399186627120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9050744399186627116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4cd5b19e7653c142bfb7085577a020f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentLightingController
+  globalAmbient: {fileID: 9050744399186627119}
+  sunKey: {fileID: 9050744399186627118}
+  skyFill: {fileID: 9050744399186627117}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

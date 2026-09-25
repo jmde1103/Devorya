@@ -27,6 +27,16 @@ public static class WorldMapRuntimeState
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
     private static bool hasPendingBattleWin;
 
+
+    // <변경부분>
+    // 현재 Battle이 WorldMap Node에서 진입한 일반 Battle이 아니라
+    // BeginDirectBattle()을 통해 직접 시작된 Battle인지 저장한다.
+    //
+    // 현재는 엔드 타이머 만료 후 진입하는 End Stage를
+    // 일반 Battle과 구분하는 용도로 사용한다.
+    private static bool isDirectBattle;
+
+
     // 런타임에서 클리어한 노드 ID 목록
     //
     // 시작 노드와 전투에서 승리한 노드를 저장하여
@@ -85,6 +95,19 @@ public static class WorldMapRuntimeState
         get { return pendingStageBattleData; }
     }
 
+
+    // <변경부분>
+    // 현재 Battle이 BeginDirectBattle()을 통해
+    // 직접 시작된 Battle인지 반환한다.
+    //
+    // End Stage에서 타이머가 계속 0인 상태여도
+    // 다시 End Stage로 진입하는 것을 막을 때 사용한다.
+    public static bool IsDirectBattle
+    {
+        get { return isDirectBattle; }
+    }
+
+
     // 월드맵을 처음 열었거나 런타임 상태가 비어 있을 때
     // 시작 노드의 초기 상태를 등록한다.
     public static void InitializeStartNode(
@@ -138,10 +161,82 @@ public static class WorldMapRuntimeState
         // 다음 BattleScene의 BattleSetupManager가
         // 이 데이터를 직접 가져와 전투를 구성한다.
         pendingStageBattleData =
-            stageBattleData;
+     stageBattleData;
 
         hasPendingBattleWin =
             false;
+
+
+        // <변경부분>
+        // WorldMap Node에서 정상적으로 진입한 Battle이므로
+        // Direct Battle 상태를 해제한다.
+        isDirectBattle =
+            false;
+    }
+
+
+    // <변경부분>
+    // WorldMap Node를 거치지 않고
+    // StageBattleData를 직접 다음 BattleScene으로 전달한다.
+    //
+    // 엔드 타이머가 0이 된 뒤 현재 Battle의 보상 정산까지 끝나면
+    // End Stage를 강제로 시작할 때 사용한다.
+    //
+    // 일반 월드맵 Battle과 달리 특정 Node를 클리어 대상으로
+    // 등록하면 안 되므로 enteredBattleNodeId는 비운다.
+    public static bool BeginDirectBattle(
+        StageBattleData stageBattleData)
+    {
+        if (stageBattleData == null)
+        {
+            Debug.LogWarning(
+                "직접 전투 시작 데이터 등록 실패: " +
+                "StageBattleData가 없습니다."
+            );
+
+            return false;
+        }
+
+
+        // <변경부분>
+        // 직접 시작하는 전투는 특정 WorldMap Node에서
+        // 진입한 전투가 아니므로 이전 Node 참조를 제거한다.
+        //
+        // 이렇게 해야 End Stage 승리 후
+        // 기존 월드맵 Node가 잘못 클리어되는 것을 막을 수 있다.
+        enteredBattleNodeId =
+            null;
+
+
+        // <변경부분>
+        // 다음 BattleScene의 BattleSetupManager가
+        // 기존과 동일한 PendingStageBattleData 경로로 읽는다.
+        pendingStageBattleData =
+            stageBattleData;
+
+
+        // 새 Battle이므로 이전 승리 대기 상태도 초기화한다.
+        hasPendingBattleWin =
+            false;
+
+
+        // <변경부분>
+        // 이 전투가 WorldMap Node와 무관하게
+        // 직접 시작된 Battle임을 기록한다.
+        //
+        // End Stage 종료 시 타이머가 계속 0이어도
+        // 다시 End Stage를 호출하지 않도록 구분하는 값이다.
+        isDirectBattle =
+            true;
+
+
+        Debug.Log(
+            $"직접 전투 데이터 등록 완료: " +
+            $"{stageBattleData.name}"
+        );
+
+
+        return true;
     }
 
     // 전투 승리 후 월드맵으로 돌아가기 직전에
@@ -440,6 +535,13 @@ public static class WorldMapRuntimeState
 
         hasPendingBattleWin =
             false;
+
+
+        // <변경부분>
+        // 새 Run에서는 이전 Direct Battle 상태도 제거한다.
+        isDirectBattle =
+            false;
+
 
         clearedNodeIds.Clear();
         unlockedNodeIds.Clear();

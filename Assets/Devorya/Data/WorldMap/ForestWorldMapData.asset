@@ -21,10 +21,10 @@ MonoBehaviour:
   - nodeId: ForestMap_01_Battle_02
     nodeDisplayName: "\uD29C\uD1A0\uB9AC\uC5BC"
     gridPosition: {x: 23, y: 14}
-    nodeType: 2
-    nodeStyleData: {fileID: 11400000, guid: ca1d7159da3d76b4cb26be4415084675, type: 2}
+    nodeType: 0
+    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: a61c2e4305ca80a4e8aff3360c54ce30, type: 2}
+    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:

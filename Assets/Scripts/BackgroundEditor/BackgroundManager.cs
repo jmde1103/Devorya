@@ -1973,96 +1973,475 @@ public class BackgroundManagerEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
+        serializedObject.Update();
 
-        BackgroundManager manager = (BackgroundManager)target;
+        BackgroundManager manager =
+            (BackgroundManager)target;
+
+
+        // =========================================================
+        // 맵 타일
+        // =========================================================
+        EditorGUILayout.BeginVertical(
+            EditorStyles.helpBox
+        );
+
+        EditorGUILayout.LabelField(
+            "맵 타일",
+            EditorStyles.boldLabel
+        );
+
+        GUILayout.Space(5);
+
+
+        // 맵 기본 설정
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "backgroundWidth"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "backgroundHeight"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "xOffset"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "yOffset"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 배경 위치
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "backgroundOriginOffset"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 배경 타일 기본 구성
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "backgroundTileParent"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "backgroundTilePrefab"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "backgroundTileSets"
+            ),
+            true
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 배경 타일 색상
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "useDarkBackground"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "darkBackgroundColor"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 타일 페인트 설정
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "paintTileType"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "paintX"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "paintY"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "brushSize"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // All 타입 랜덤 생성 비율
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "allTileWeights"
+            ),
+            true
+        );
+
+
+        GUILayout.Space(8);
+
+
+        EditorGUILayout.LabelField(
+            "맵 데이터",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "currentMapData"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "newMapDataName"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "mapDataSaveFolder"
+            )
+        );
+
+
+        // 버튼을 누르기 전에
+        // 위 Inspector에서 변경한 값을 실제 Object에 먼저 반영한다.
+        serializedObject.ApplyModifiedProperties();
+
 
         GUILayout.Space(10);
 
-        if (GUILayout.Button("Generate All Background"))
+
+        if (GUILayout.Button(
+                "전체 배경 생성"))
         {
-            Debug.Log("Generate All Background 버튼 클릭됨");
-            manager.GenerateBackground(BackgroundTileType.All);
+            Debug.Log(
+                "전체 배경 생성 버튼 클릭됨"
+            );
+
+            manager.GenerateBackground(
+                BackgroundTileType.All
+            );
         }
 
 
-        if (GUILayout.Button("Clear Background"))
+        if (GUILayout.Button(
+                "배경 타일 전체 삭제"))
         {
             manager.ClearBackground();
         }
 
-        if (GUILayout.Button("Clear Decorations"))
-        {
-            manager.ClearDecorations();
-        }
 
-        // <변경부분> 현재 배경 타일 타입에 맞춰 장식물을 자동 생성
-        if (GUILayout.Button("Generate Decorations By Rules"))
-        {
-            Debug.Log("Generate Decorations By Rules 버튼 클릭됨");
-            manager.GenerateDecorationsByRules();
-        }
+        GUILayout.Space(5);
 
-        GUILayout.Space(10);
 
-        // <변경부분> 새 BackgroundMapData 에셋을 생성하고 자동 연결
-        if (GUILayout.Button("Create New Map Data Asset"))
+        if (GUILayout.Button(
+                "새 맵 데이터 생성"))
         {
             manager.CreateNewMapDataAsset();
         }
 
-        // 현재 배경과 장식물 배치를 연결된 데이터 에셋에 저장
-        if (GUILayout.Button("Save Current Map To Data"))
+
+        if (GUILayout.Button(
+                "현재 맵 데이터 저장"))
         {
             manager.SaveCurrentMapToData();
         }
 
 
-        // <변경부분>
-        // 현재 Scene에서 직접 맞춘 LightingRig 값을
-        // BackgroundMapData에 연결된 EnvironmentVisualProfile로 저장한다.
-        if (GUILayout.Button("Save Current Lighting To Profile"))
+        if (GUILayout.Button(
+                "맵 데이터 불러오기"))
+        {
+            manager.LoadMapFromData();
+        }
+
+
+        GUILayout.Space(5);
+
+
+        if (GUILayout.Button(
+                "입력 좌표 타일 칠하기"))
+        {
+            manager.PaintSelectedTileByInput();
+        }
+
+
+        isScenePaintMode =
+            GUILayout.Toggle(
+                isScenePaintMode,
+                "씬 페인트 모드",
+                "Button"
+            );
+
+
+        EditorGUILayout.EndVertical();
+
+
+        GUILayout.Space(10);
+
+
+        // 다음 Serialized Property를 그리기 전에
+        // SerializedObject 상태를 다시 동기화한다.
+        serializedObject.Update();
+
+
+        // =========================================================
+        // 데코레이션
+        // =========================================================
+        EditorGUILayout.BeginVertical(
+            EditorStyles.helpBox
+        );
+
+        EditorGUILayout.LabelField(
+            "데코레이션",
+            EditorStyles.boldLabel
+        );
+
+        GUILayout.Space(5);
+
+
+        // 데코레이션 기본 설정
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "decorationPrefab"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "decorationParent"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "decorationSets"
+            ),
+            true
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 데코레이션 위치 / 테스트 설정
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "testDecorationType"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "testDecorationX"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "testDecorationY"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "decorationOffset"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 데코레이션 색상 설정
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "useDarkDecoration"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "decorationBrightness"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 데코레이션 브러시 설정
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "paintDecorationType"
+            )
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "preventDuplicateDecoration"
+            )
+        );
+
+
+        GUILayout.Space(5);
+
+
+        // 자동 생성 규칙
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "decorationSpawnRules"
+            ),
+            true
+        );
+
+
+        serializedObject.ApplyModifiedProperties();
+
+
+        GUILayout.Space(10);
+
+
+        if (GUILayout.Button(
+                "데코레이션 전체 삭제"))
+        {
+            manager.ClearDecorations();
+        }
+
+
+        if (GUILayout.Button(
+                "규칙 기반 데코레이션 생성"))
+        {
+            Debug.Log(
+                "규칙 기반 데코레이션 생성 버튼 클릭됨"
+            );
+
+            manager.GenerateDecorationsByRules();
+        }
+
+
+        if (GUILayout.Button(
+                "테스트 데코레이션 생성"))
+        {
+            manager.SpawnTestDecoration();
+        }
+
+
+        GUILayout.Space(5);
+
+
+        isDecorationPaintMode =
+            GUILayout.Toggle(
+                isDecorationPaintMode,
+                "데코레이션 배치 모드",
+                "Button"
+            );
+
+
+        isDecorationEraseMode =
+            GUILayout.Toggle(
+                isDecorationEraseMode,
+                "데코레이션 삭제 모드",
+                "Button"
+            );
+
+
+        EditorGUILayout.EndVertical();
+
+
+        GUILayout.Space(10);
+
+
+        serializedObject.Update();
+
+
+        // =========================================================
+        // 라이트 환경값
+        // =========================================================
+        EditorGUILayout.BeginVertical(
+            EditorStyles.helpBox
+        );
+
+        EditorGUILayout.LabelField(
+            "라이트 환경값",
+            EditorStyles.boldLabel
+        );
+
+        GUILayout.Space(5);
+
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "environmentLightingController"
+            )
+        );
+
+
+        serializedObject.ApplyModifiedProperties();
+
+
+        GUILayout.Space(10);
+
+
+        // 현재 Scene의 LightingRig 값을
+        // EnvironmentVisualProfile에 저장한다.
+        if (GUILayout.Button(
+                "조명 프로필 저장"))
         {
             manager.SaveCurrentLightingToProfile();
         }
 
 
-        // <변경부분>
-        // 현재 BackgroundMapData의 EnvironmentVisualProfile을
-        // Scene의 LightingRig에 즉시 적용하여 Editor에서 미리 확인한다.
-        if (GUILayout.Button("Apply Current Lighting Profile"))
+        // EnvironmentVisualProfile의 값을
+        // 현재 Scene LightingRig로 다시 불러온다.
+        if (GUILayout.Button(
+                "조명 프로필 로드"))
         {
             manager.ApplyCurrentLightingProfile();
         }
 
 
-        // 연결된 데이터 에셋에서 배경과 장식물 배치를 불러오기
-        if (GUILayout.Button("Load Map From Data"))
-        {
-            manager.LoadMapFromData();
-        }
-
-        // <변경부분> 입력한 좌표의 배경 타일을 현재 선택한 타입으로 교체
-        if (GUILayout.Button("Paint Selected Tile By Input"))
-        {
-            manager.PaintSelectedTileByInput();
-        }
-
-        if (GUILayout.Button("Spawn Test Decoration"))
-        {
-            manager.SpawnTestDecoration();
-        }
-
-        GUILayout.Space(10);
-
-        // <변경부분> 씬뷰에서 직접 배경 타일을 칠할지 선택
-        isScenePaintMode = GUILayout.Toggle(isScenePaintMode, "Scene Paint Mode", "Button");
-
-        // <변경부분> 씬뷰에서 직접 장식물을 배치할지 선택
-        isDecorationPaintMode = GUILayout.Toggle(isDecorationPaintMode, "Decoration Paint Mode", "Button");
-
-        // <변경부분> 씬뷰에서 직접 장식물을 삭제할지 선택
-        isDecorationEraseMode = GUILayout.Toggle(isDecorationEraseMode, "Decoration Erase Mode", "Button");
+        EditorGUILayout.EndVertical();
     }
 
 

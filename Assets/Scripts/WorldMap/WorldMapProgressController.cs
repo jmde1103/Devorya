@@ -94,12 +94,46 @@ public class WorldMapProgressController : MonoBehaviour
     // 노드 사이 이동이 지나치게 느리지 않도록 한다.
     [SerializeField, Min(0.01f)]
     private float markerMoveSpeed =
-    5f;
+      5f;
+
 
     // 목적지에 도착한 뒤 전투 씬으로 이동하기 전 대기 시간
     [SerializeField, Min(0f)]
     private float waitBeforeSceneMove =
         0.25f;
+
+
+    // <변경부분>
+    [Header("엔드 타이머")]
+    // 월드맵에서 노드 하나를 실제로 이동 완료했을 때
+    // Run 엔드 타이머에서 소비할 눈금 수.
+    //
+    // 현재 기본 기획:
+    // 노드 이동 1회 = 1 Tick
+    [SerializeField, Min(1)]
+    private int worldMapMoveTickCost =
+        1;
+
+
+    // <변경부분>
+    // 이전 WorldMapProgressController Inspector에서 사용하던
+    // End Stage 설정은 Serialized 호환을 위해 당분간 보존한다.
+    //
+    // 실제 Runtime의 End Stage 설정 SSOT는
+    // 이제 RunStateManager 하나만 사용한다.
+    [SerializeField, HideInInspector]
+    private StageBattleData endStageBattleData;
+
+
+    // <변경부분>
+    // 이전 WorldMapProgressController의 End Stage Scene 설정.
+    //
+    // 기존 Scene / Prefab Serialized 데이터를 즉시 제거하지 않고
+    // Runtime 검증이 끝날 때까지 숨긴 상태로 보존한다.
+    [SerializeField, HideInInspector]
+    private string endStageBattleSceneName =
+        "BattleScene";
+
 
     [Header("Scene Transition")]
     // 전투 / 이벤트 Scene으로 이동하기 직전에 실행되는
@@ -149,6 +183,159 @@ public class WorldMapProgressController : MonoBehaviour
                 null;
         }
     }
+
+
+    // <변경부분>
+    // 실제 월드맵 노드 이동이 완료된 뒤
+    // Run 엔드 타이머를 설정된 비용만큼 진행한다.
+    //
+    // 단순 Node 클릭이나 이동 실패에서는 호출하지 않고,
+    // Player Marker가 목적지까지 실제 도착한 뒤에만 호출한다.
+    private bool AdvanceEndTimerForWorldMapMove()
+    {
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "월드맵 엔드 타이머 진행 생략: " +
+                "RunStateManager가 없습니다."
+            );
+
+            return false;
+        }
+
+
+        RunStateManager.Instance.AdvanceEndTimer(
+            worldMapMoveTickCost
+        );
+
+
+        bool isExpired =
+            RunStateManager.Instance
+                .IsEndTimerExpired;
+
+
+        Debug.Log(
+            $"월드맵 이동 시간 진행: " +
+            $"{worldMapMoveTickCost} Tick / " +
+            $"남은 사이클 " +
+            $"{RunStateManager.Instance.RemainingEndTimerCycles} / " +
+            $"현재 눈금 " +
+            $"{RunStateManager.Instance.CurrentEndTimerTick}/" +
+            $"{RunStateManager.EndTimerTicksPerCycle}"
+        );
+
+
+        return isExpired;
+    }
+
+
+    // <변경부분>
+    // 월드맵 상태에서 엔드 타이머가 만료된 경우
+    // End Stage Battle을 직접 시작한다.
+    //
+    // 사용 시점:
+    // 1. 마지막 이동이 이미 클리어된 노드에서 끝난 경우
+    // 2. 마지막 이동으로 들어간 Event / Shop 등의 처리가 끝나
+    //    WorldMap으로 다시 돌아온 경우
+    private bool TryEnterEndStageFromWorldMap()
+    {
+        // <변경부분>
+        // End Timer 상태와 End Stage 설정은
+        // RunStateManager 하나를 SSOT로 사용한다.
+        RunStateManager runStateManager =
+            RunStateManager.Instance;
+
+
+        if (runStateManager == null ||
+            runStateManager.IsEndTimerExpired ==
+            false)
+        {
+            return false;
+        }
+
+
+        // 이미 BeginDirectBattle()로 시작된 End Stage가
+        // 다시 WorldMap으로 돌아온 특수 상황에서는
+        // 자기 자신을 반복 호출하지 않는다.
+        if (WorldMapRuntimeState.IsDirectBattle)
+        {
+            return false;
+        }
+
+
+        // <변경부분>
+        // WorldMapProgressController가 별도 End Stage 설정을
+        // 소유하지 않고 RunStateManager의 공통 설정을 사용한다.
+        StageBattleData targetEndStageBattleData =
+            runStateManager.EndStageBattleData;
+
+        string targetEndStageSceneName =
+            runStateManager.EndStageBattleSceneName;
+
+
+        // 여기까지 왔다면
+        // Run 시간은 이미 완전히 소진된 상태다.
+        //
+        // 설정 오류가 있더라도 일반 월드맵 진행으로
+        // 잘못 떨어지지 않도록 현재 흐름을 중단한다.
+        if (targetEndStageBattleData == null)
+        {
+            Debug.LogError(
+                "월드맵 End Stage 진입 실패: " +
+                "RunStateManager의 " +
+                "End Stage Battle Data가 연결되지 않았습니다."
+            );
+
+            return true;
+        }
+
+
+        if (string.IsNullOrWhiteSpace(
+                targetEndStageSceneName))
+        {
+            Debug.LogError(
+                "월드맵 End Stage 진입 실패: " +
+                "RunStateManager의 " +
+                "End Stage Battle Scene Name이 비어 있습니다."
+            );
+
+            return true;
+        }
+
+
+        bool registered =
+            WorldMapRuntimeState.BeginDirectBattle(
+                targetEndStageBattleData
+            );
+
+
+        if (registered == false)
+        {
+            Debug.LogError(
+                "월드맵 End Stage 진입 실패: " +
+                "StageBattleData 등록에 실패했습니다."
+            );
+
+            return true;
+        }
+
+
+        Debug.Log(
+            $"월드맵 엔드 타이머 만료: " +
+            $"End Stage로 이동합니다. / " +
+            $"{targetEndStageBattleData.name} / " +
+            $"{targetEndStageSceneName}"
+        );
+
+
+        SceneManager.LoadScene(
+            targetEndStageSceneName
+        );
+
+
+        return true;
+    }
+
 
     private IEnumerator InitializeWorldMapRoutine()
     {
@@ -223,6 +410,18 @@ public class WorldMapProgressController : MonoBehaviour
         // 현재 탐사 완료 노드 주변을 밝히고,
         // 해당 노드와 연결된 미탐사 노드·길을 Preview 상태로 표시한다.
         RefreshFogForCurrentNode();
+
+
+        // <변경부분>
+        // 이전 이동에서 엔드 타이머가 0이 되었지만
+        // 해당 목적지의 Event / Shop / 기타 Scene을 먼저 처리한 뒤
+        // WorldMap으로 돌아온 상태라면
+        // 새로운 이동을 허용하기 전에 End Stage로 진행한다.
+        if (TryEnterEndStageFromWorldMap())
+        {
+            yield break;
+        }
+
 
         // 맵이 시작될 때도 이동 중과 동일하게
         // Player Marker 전용 밝기 반경을 즉시 적용한다.
@@ -900,6 +1099,21 @@ public class WorldMapProgressController : MonoBehaviour
             targetNodeId
         );
 
+
+        // <변경부분>
+        // Player Marker가 목적지 노드 중심까지 실제로 도착했고
+        // 현재 위치 데이터까지 확정된 시점에
+        // 월드맵 이동 비용만큼 엔드 타이머를 진행한다.
+        //
+        // 따라서:
+        // 클릭만 한 경우 X
+        // 잠긴 노드 X
+        // Connection이 없는 경우 X
+        // 실제 이동 완료 O
+        bool endTimerExpiredAfterMove =
+            AdvanceEndTimerForWorldMapMove();
+
+
         // 이미 클리어된 노드는 Target Scene Name이 없어도 정상 이동한다.
         //
         // 전투 씬에 다시 들어가지 않고,
@@ -919,6 +1133,20 @@ public class WorldMapProgressController : MonoBehaviour
                         false
                     );
             }
+
+
+            // <변경부분>
+            // 이번 이동으로 엔드 타이머가 0이 되었고
+            // 목적지가 이미 클리어된 노드라면
+            // 실행해야 할 Node 콘텐츠가 없으므로 바로 End Stage로 진행한다.
+            if (endTimerExpiredAfterMove)
+            {
+                if (TryEnterEndStageFromWorldMap())
+                {
+                    yield break;
+                }
+            }
+
 
             // 클리어된 노드로 이동한 경우
             // 해당 노드를 기준으로 새로 연결된 미탐사 노드와 길을 표시한다.

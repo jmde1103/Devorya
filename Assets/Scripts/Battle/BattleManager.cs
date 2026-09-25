@@ -139,12 +139,35 @@ public class BattleManager : MonoBehaviour
         null;
 
     // 현재 전투 턴 주체
-    [SerializeField] private BattleTurn currentTurn = BattleTurn.Player;
-    //현재 전투 결과 상태
-    private BattleResult battleResult = BattleResult.None;
+    [SerializeField]
+    private BattleTurn currentTurn =
+        BattleTurn.Player;
 
-    // <변경부분> 현재 전투 턴 번호
-    [SerializeField] private int turnCount = 1;
+    //현재 전투 결과 상태
+    private BattleResult battleResult =
+        BattleResult.None;
+
+
+    // <변경부분>
+    // 현재 전투 턴 번호.
+    //
+    // 기존 TurnInfo UI를 제거하더라도
+    // 실제 전투 진행 데이터는 BattleManager에 그대로 유지한다.
+    [SerializeField]
+    private int turnCount =
+        1;
+
+
+    // <변경부분>
+    // 현재 전투의 Stage 이름.
+    //
+    // 기존 좌상단 TurnInfo UI는 제거하더라도
+    // Stage 이름 데이터 자체는 이후 다른 UI나 시스템에서
+    // 재사용할 수 있도록 BattleManager가 보관한다.
+    [SerializeField]
+    private string currentStageName =
+        string.Empty;
+
 
     // <변경부분> 현재 전투에서 사용할 플레이어 진영 패배 조건
     // StageBattleData가 BattleSetupManager를 통해 SetBattleEndCondition()으로 덮어쓴다.
@@ -230,6 +253,25 @@ public class BattleManager : MonoBehaviour
     {
         get { return currentTurn; }
     }
+
+
+    // <변경부분>
+    // 기존 TurnInfo UI가 없어져도
+    // 다른 시스템에서 현재 전투 턴 번호를 사용할 수 있도록 공개한다.
+    public int TurnCount
+    {
+        get { return turnCount; }
+    }
+
+
+    // <변경부분>
+    // 기존 Stage Name UI가 없어져도
+    // 다른 시스템에서 현재 Stage 이름을 사용할 수 있도록 공개한다.
+    public string CurrentStageName
+    {
+        get { return currentStageName; }
+    }
+
 
     // <변경부분> AI 매니저가 전투 종료 상태를 확인할 수 있도록 공개한다.
     public bool IsBattleEnded
@@ -2842,32 +2884,36 @@ public class BattleManager : MonoBehaviour
     // BattleManager가 StageBattleData 자체를 직접 참조하지 않고,
     // 실제 데이터 소유자인 BattleSetupManager가 이름만 전달한다.
     public void SetStageName(
-        string stageName)
+      string stageName)
     {
-        if (turnInfoUIController == null)
-        {
-            Debug.LogWarning(
-                "스테이지 이름 표시 실패: " +
-                "TurnInfoUIController가 연결되지 않았습니다."
-            );
-
-            return;
-        }
-
-        // <변경부분> 데이터의 Stage Name이 비어 있는 경우
-        // 빈 문자열로 안전하게 표시한다.
-        string safeStageName =
-            string.IsNullOrWhiteSpace(stageName)
+        // <변경부분>
+        // Stage 이름은 UI의 표시값이 아니라
+        // BattleManager가 소유하는 전투 진행 데이터로 보관한다.
+        currentStageName =
+            string.IsNullOrWhiteSpace(
+                stageName
+            )
                 ? string.Empty
                 : stageName;
 
-        turnInfoUIController.SetStageName(
-            safeStageName
-        );
+
+        // <변경부분>
+        // 기존 TurnInfo UI가 아직 Scene에 존재하는 동안에는
+        // 기존 표시도 그대로 지원한다.
+        //
+        // 해당 UI를 제거한 뒤에는 null이므로
+        // 아무 작업도 하지 않고 데이터만 유지한다.
+        if (turnInfoUIController != null)
+        {
+            turnInfoUIController.SetStageName(
+                currentStageName
+            );
+        }
+
 
         Debug.Log(
             $"전투 스테이지 이름 적용: " +
-            $"{safeStageName}"
+            $"{currentStageName}"
         );
     }
 
@@ -5066,18 +5112,40 @@ public class BattleManager : MonoBehaviour
 
         if (currentTurn == BattleTurn.Player)
         {
-            currentTurn = BattleTurn.Enemy;
+            currentTurn =
+                BattleTurn.Enemy;
         }
         else
         {
-            currentTurn = BattleTurn.Player;
+            currentTurn =
+                BattleTurn.Player;
+
             turnCount++;
+
+
+            // <변경부분>
+            // 기존 Battle의 1턴 계산 기준과 정확히 동일한 시점에
+            // Run 전체 엔드 타이머를 1눈금 진행한다.
+            //
+            // Player Turn + Enemy Turn이 모두 끝나
+            // 다시 Player Turn으로 돌아오는 순간을
+            // Battle 1턴 완료로 취급한다.
+            //
+            // RunStateManager가 없는 Battle Scene 단독 테스트에서는
+            // 기존 전투 자체가 멈추지 않도록 안전하게 건너뛴다.
+            if (RunStateManager.Instance != null)
+            {
+                RunStateManager.Instance
+                    .AdvanceEndTimer(1);
+            }
         }
+
 
         // <변경부분> 새 플레이어 턴이 시작되면 흡수 유물 찬스어택 발동 여부 초기화
         if (currentTurn == BattleTurn.Player)
         {
-            hasUsedAbsorbChanceAttackRelicThisTurn = false;
+            hasUsedAbsorbChanceAttackRelicThisTurn =
+                false;
         }
 
         // <변경부분> 턴이 바뀐 뒤 고유 스킬 사용 상태와 쿨타임 갱신

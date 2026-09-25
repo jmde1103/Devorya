@@ -7,6 +7,16 @@ public class RunStateManager : MonoBehaviour
 {
     public static RunStateManager Instance { get; private set; }
 
+
+    // <변경부분>
+    // 엔드 타이머의 실제 값이 변경되었을 때
+    // Battle / WorldMap UI에 갱신을 알리는 이벤트.
+    //
+    // UI는 타이머 데이터를 직접 저장하지 않고
+    // 이 이벤트를 받은 뒤 RunStateManager의 현재 값을 다시 읽는다.
+    public event System.Action EndTimerChanged;
+
+
     [Header("Player Runtime Pieces")]
     // <변경부분> 현재 런에서 유지되는 플레이어 기물 상태 목록
     [SerializeField]
@@ -29,7 +39,74 @@ public class RunStateManager : MonoBehaviour
     // 유물은 같은 BattleRelicType을 중복 보유하지 않는다.
     [SerializeField]
     private List<BattleRelicData> battleRelicDataList =
-        new List<BattleRelicData>();
+    new List<BattleRelicData>();
+
+
+    // <변경부분>
+    // 엔드 타이머 한 바퀴를 구성하는 고정 눈금 수.
+    //
+    // Battle / WorldMap 어디에서 시간이 진행되더라도
+    // 동일하게 24눈금을 기준으로 한 사이클을 계산한다.
+    public const int EndTimerTicksPerCycle =
+        24;
+
+
+    // <변경부분>
+    // 새 Run 시작 시 사용할 엔드 타이머 사이클 수.
+    //
+    // 현재 기획 기본값은 15이며,
+    // Inspector에서 밸런싱 단계에 맞춰 변경할 수 있다.
+    [Header("엔드 타이머")]
+    [SerializeField]
+    [Min(1)]
+    private int initialEndTimerCycles =
+        15;
+
+
+    // <변경부분>
+    // 현재 Run에서 실제로 남아 있는 엔드 타이머 사이클 수.
+    //
+    // 이 값과 currentEndTimerTick은
+    // Battle / WorldMap Scene 이동 사이에도 유지된다.
+    [SerializeField]
+    [Min(0)]
+    private int remainingEndTimerCycles =
+        15;
+
+
+    // <변경부분>
+    // 현재 사이클에서 진행된 눈금.
+    //
+    // 범위:
+    // 0 ~ 23
+    //
+    // 24번째 눈금이 진행되는 순간 0으로 돌아가며
+    // remainingEndTimerCycles가 1 감소한다.
+    [SerializeField]
+    [Range(0, EndTimerTicksPerCycle - 1)]
+    private int currentEndTimerTick =
+        0;
+
+
+    // <변경부분>
+    // Run 전체에서 공통으로 사용할 End Stage 설정.
+    //
+    // Battle / WorldMap이 각각 최종 스테이지 데이터를
+    // 따로 보관하지 않고 RunStateManager의 이 값을 공통으로 사용한다.
+    [Header("엔드 스테이지")]
+    [SerializeField]
+    private StageBattleData endStageBattleData;
+
+
+    // <변경부분>
+    // End Stage를 실행할 Battle Scene 이름.
+    //
+    // 현재 일반 전투와 동일한 BattleScene을 사용하므로
+    // 기본값을 BattleScene으로 둔다.
+    [SerializeField]
+    private string endStageBattleSceneName =
+        "BattleScene";
+
 
     // <변경부분> 저장된 플레이어 기물 데이터가 있는지 여부
     public bool HasPlayerPieceRuntimeData
@@ -40,6 +117,163 @@ public class RunStateManager : MonoBehaviour
                    playerPieceRuntimeDataList.Count > 0;
         }
     }
+
+
+    // <변경부분>
+    // 현재 남아 있는 엔드 타이머 사이클 수.
+    public int RemainingEndTimerCycles
+    {
+        get
+        {
+            return remainingEndTimerCycles;
+        }
+    }
+
+
+    // <변경부분>
+    // 현재 사이클에서 진행된 눈금.
+    //
+    // UI는 이 값을 이용해
+    // 24눈금 중 현재 바늘 위치를 계산한다.
+    public int CurrentEndTimerTick
+    {
+        get
+        {
+            return currentEndTimerTick;
+        }
+    }
+
+
+    // <변경부분>
+    // Run 전체에서 공통으로 사용할
+    // End Stage의 StageBattleData를 반환한다.
+    public StageBattleData EndStageBattleData
+    {
+        get
+        {
+            return endStageBattleData;
+        }
+    }
+
+
+    // <변경부분>
+    // Run 전체에서 공통으로 사용할
+    // End Stage Battle Scene 이름을 반환한다.
+    public string EndStageBattleSceneName
+    {
+        get
+        {
+            return endStageBattleSceneName;
+        }
+    }
+
+
+    // <변경부분>
+    // 엔드 타이머가 모두 소진되었는지 여부.
+    //
+    // Battle / WorldMap은 이 값을 확인한 뒤
+    // 각자의 현재 콘텐츠가 끝나는 시점에
+    // End Stage 진입 여부를 결정한다.
+    public bool IsEndTimerExpired
+    {
+        get
+        {
+            return remainingEndTimerCycles <= 0;
+        }
+    }
+
+
+    // <변경부분>
+    // Battle Turn, WorldMap 이동 등에서 공통으로 사용하는
+    // Run 시간 진행 함수.
+    //
+    // 시간의 실제 소유자는 RunStateManager 하나뿐이며,
+    // Battle / WorldMap은 각자 타이머를 계산하지 않고
+    // 이 함수에 소모할 눈금 수만 전달한다.
+    public bool AdvanceEndTimer(
+        int tickAmount)
+    {
+        if (tickAmount <= 0)
+        {
+            Debug.LogWarning(
+                $"엔드 타이머 진행 실패: " +
+                $"tickAmount는 1 이상이어야 합니다. / " +
+                $"{tickAmount}"
+            );
+
+            return false;
+        }
+
+
+        // 이미 시간이 모두 소진된 Run에서는
+        // 추가 시간 진행을 허용하지 않는다.
+        if (remainingEndTimerCycles <= 0)
+        {
+            remainingEndTimerCycles =
+                0;
+
+            currentEndTimerTick =
+                0;
+
+            return false;
+        }
+
+
+        int totalTick =
+            currentEndTimerTick +
+            tickAmount;
+
+
+        // 한 번에 여러 눈금이 들어오는 경우도 지원한다.
+        //
+        // 예:
+        // 현재 23눈금 + 2
+        // → 사이클 1 감소
+        // → 현재 눈금 1
+        while (totalTick >= EndTimerTicksPerCycle &&
+               remainingEndTimerCycles > 0)
+        {
+            totalTick -=
+                EndTimerTicksPerCycle;
+
+            remainingEndTimerCycles--;
+        }
+
+
+        // 마지막 사이클까지 모두 소모되면
+        // 상태를 정확히 0 / 0으로 고정한다.
+        if (remainingEndTimerCycles <= 0)
+        {
+            remainingEndTimerCycles =
+                0;
+
+            currentEndTimerTick =
+                0;
+        }
+        else
+        {
+            currentEndTimerTick =
+                totalTick;
+        }
+
+
+        Debug.Log(
+     $"런 엔드 타이머 진행: " +
+     $"남은 사이클 {remainingEndTimerCycles}, " +
+     $"현재 눈금 {currentEndTimerTick}/" +
+     $"{EndTimerTicksPerCycle}"
+ );
+
+
+        // <변경부분>
+        // 실제 엔드 타이머 값이 변경되었으므로
+        // 현재 Scene의 타이머 UI에 즉시 갱신을 알린다.
+        EndTimerChanged?.Invoke();
+
+
+        return true;
+    }
+
 
     private void Awake()
     {
@@ -317,6 +551,32 @@ public class RunStateManager : MonoBehaviour
         // <변경부분> 새 런 시작 시 금화도 초기화
         goldAmount = 0;
 
-        Debug.Log("런 상태 초기화 완료");
+
+        // <변경부분>
+        // 새 Run 시작 시 엔드 타이머도
+        // 초기 사이클 / 첫 번째 눈금 상태로 되돌린다.
+        remainingEndTimerCycles =
+            Mathf.Max(
+                1,
+                initialEndTimerCycles
+            );
+
+        currentEndTimerTick =
+            0;
+
+
+        Debug.Log(
+    $"런 상태 초기화 완료 / " +
+    $"엔드 타이머 " +
+    $"{remainingEndTimerCycles}, " +
+    $"눈금 {currentEndTimerTick}/" +
+    $"{EndTimerTicksPerCycle}"
+);
+
+
+        // <변경부분>
+        // Run 초기화로 엔드 타이머 값이 변경되었으므로
+        // 현재 표시 중인 타이머 UI도 즉시 초기 상태로 갱신한다.
+        EndTimerChanged?.Invoke();
     }
 }

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d7d51e7d35e9384eac34561de462265, type: 3}
+  m_Name: EnvironmentVisualProfile
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentVisualProfile
+  globalAmbient:
+    enabled: 1
+    color: {r: 1, g: 0.98717314, b: 0.9025157, a: 1}
+    intensity: 0.85
+  sunKey:
+    enabled: 1
+    color: {r: 1, g: 0.9375423, b: 0.7012578, a: 1}
+    intensity: 1.8
+    falloffIntensity: 0.18
+    localPosition: {x: 8.01, y: 10.48, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 316.36832}
+    innerRadius: 6.6250644
+    outerRadius: 17.875149
+    innerAngle: 360
+    outerAngle: 360
+  skyFill:
+    enabled: 1
+    color: {r: 0.7483287, g: 0.9695962, b: 0.98742133, a: 1}
+    intensity: 1
+    falloffIntensity: 0.53
+    localPosition: {x: -8.01, y: -5.94, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 307.57028}
+    innerRadius: 4.703012
+    outerRadius: 17.700706
+    innerAngle: 360
+    outerAngle: 360
