@@ -12,6 +12,14 @@ public class BattleItemSlotUI : MonoBehaviour
     // 이 슬롯의 번호
     private int slotIndex;
 
+
+    // <변경부분>
+    // Battle이 아닌 WorldMap 등의 화면에서
+    // 아이템을 표시/Tooltip 확인만 허용하고
+    // 실제 사용 입력은 막을 때 사용하는 읽기 전용 상태.
+    private bool isReadOnlyMode;
+
+
     // <변경부분> 현재 슬롯에 연결되어 있는 아이템 데이터.
     //
     // Locale이 변경되었을 때 TooltipViewData를
@@ -52,6 +60,13 @@ public class BattleItemSlotUI : MonoBehaviour
     // <변경부분> 슬롯 번호와 상위 UI를 저장하고 버튼 클릭 이벤트를 연결하는 함수
     public void Initialize(BattleUIController owner, int index)
     {
+        // <변경부분>
+        // Battle에서 사용하는 일반 슬롯이므로
+        // 실제 아이템 사용 입력을 허용한다.
+        isReadOnlyMode =
+            false;
+
+
         // 상위 전투 UI 컨트롤러 저장
         battleUIController = owner;
 
@@ -71,23 +86,79 @@ public class BattleItemSlotUI : MonoBehaviour
 
             if (tooltipTrigger == null)
             {
-                tooltipTrigger = GetComponentInChildren<TooltipTrigger>();
+                tooltipTrigger =
+                    GetComponentInChildren<TooltipTrigger>();
             }
         }
 
         // 슬롯 버튼 클릭 시 OnClickSlot이 실행되도록 연결
         if (slotButton != null)
         {
-            slotButton.onClick.RemoveListener(OnClickSlot);
-            slotButton.onClick.AddListener(OnClickSlot);
+            slotButton.onClick.RemoveListener(
+                OnClickSlot
+            );
+
+            slotButton.onClick.AddListener(
+                OnClickSlot
+            );
         }
     }
 
+
+    // <변경부분>
+    // WorldMap 등에서 아이템을 실제로 사용하지 않고
+    // 아이콘 표시와 Tooltip 확인만 허용하기 위한 읽기 전용 초기화.
+    //
+    // BattleItemSlotUI의 기존 표시/Localization/Tooltip 기능은 그대로 재사용하고,
+    // BattleUIController로 전달되는 사용 입력만 차단한다.
+    public void InitializeReadOnly()
+    {
+        isReadOnlyMode =
+            true;
+
+
+        // Battle 전용 Owner를 사용하지 않는다.
+        battleUIController =
+            null;
+
+        slotIndex =
+            -1;
+
+
+        if (slotButton == null)
+        {
+            slotButton =
+                GetComponent<Button>();
+        }
+
+
+        if (tooltipTrigger == null)
+        {
+            tooltipTrigger =
+                GetComponent<TooltipTrigger>();
+
+            if (tooltipTrigger == null)
+            {
+                tooltipTrigger =
+                    GetComponentInChildren<TooltipTrigger>();
+            }
+        }
+
+
+        // <변경부분>
+        // 같은 Prefab이 이전에 Battle용으로 초기화된 경우까지 고려하여
+        // 실제 아이템 사용 Listener를 확실하게 제거한다.
+        if (slotButton != null)
+        {
+            slotButton.onClick.RemoveListener(
+                OnClickSlot
+            );
+        }
+    }
+
+
     // <변경부분> 현재 슬롯에 들어있는 아이템 데이터에 맞게
     // 아이콘, 버튼 클릭 가능 여부, Tooltip을 갱신한다.
-    //
-    // 개별 슬롯 오브젝트는 숨기지 않는다.
-    // 아이템 바 전체 표시 여부는 BattleUIController에서 별도로 처리한다.
     public void Refresh(BattleItemData itemData)
     {
         bool hasItem =
@@ -161,14 +232,29 @@ public class BattleItemSlotUI : MonoBehaviour
     // <변경부분> 슬롯 클릭 시 상위 BattleUIController에 슬롯 번호를 전달하는 함수
     private void OnClickSlot()
     {
-        // 상위 전투 UI 컨트롤러가 없으면 아이템 사용 요청 불가
-        if (battleUIController == null)
+        // <변경부분>
+        // WorldMap 등의 읽기 전용 슬롯에서는
+        // Tooltip 확인만 허용하고 실제 아이템 사용 요청은 보내지 않는다.
+        if (isReadOnlyMode)
         {
-            Debug.LogWarning("BattleUIController가 연결되지 않았습니다.");
             return;
         }
 
+
+        // 상위 전투 UI 컨트롤러가 없으면 아이템 사용 요청 불가
+        if (battleUIController == null)
+        {
+            Debug.LogWarning(
+                "BattleUIController가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+
         // 클릭한 슬롯 번호를 BattleUIController에 전달
-        battleUIController.OnClickItemSlot(slotIndex);
+        battleUIController.OnClickItemSlot(
+            slotIndex
+        );
     }
 }
