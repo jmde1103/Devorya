@@ -13,6 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_VERTEX_ONLY
+  - _COLOR_ADJUST
   - _NORMALMAP
   - _STRAIGHT_ALPHA_INPUT
   m_InvalidKeywords:
@@ -78,7 +79,7 @@ Material:
     - _OutlineOpaqueAlpha: 1
     - _OutlineReferenceTexWidth: 1024
     - _OutlineSmoothness: 1
-    - _OutlineWidth: 3
+    - _OutlineWidth: 0
     - _RenderQueue: 0
     - _RimPower: 2
     - _Saturation: 1
@@ -96,7 +97,7 @@ Material:
     - _Black: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
-    - _FixedNormal: {r: 0, g: 0, b: 1, a: 1}
+    - _FixedNormal: {r: 0, g: 0, b: -1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 0, a: 1}
     - _OverlayColor: {r: 0, g: 0, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}

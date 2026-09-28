@@ -3398,10 +3398,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2083845400}
     m_Modifications:
-    - target: {fileID: 286966432795413037, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: a159307e93ebf1c41bdbdc1e9a9d25b5, type: 3}
     - target: {fileID: 388322334683765655, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
       propertyPath: colorFlashRoot
       value: 
@@ -3493,22 +3489,6 @@ PrefabInstance:
     - target: {fileID: 538148410850064472, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5995860254088861203, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
-      propertyPath: m_fontColor.b
-      value: 0.09019608
-      objectReference: {fileID: 0}
-    - target: {fileID: 5995860254088861203, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
-      propertyPath: m_fontColor.g
-      value: 0.08627451
-      objectReference: {fileID: 0}
-    - target: {fileID: 5995860254088861203, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
-      propertyPath: m_fontColor.r
-      value: 0.08627451
-      objectReference: {fileID: 0}
-    - target: {fileID: 5995860254088861203, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 4279703062
       objectReference: {fileID: 0}
     - target: {fileID: 8058282787973246563, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
       propertyPath: m_Name

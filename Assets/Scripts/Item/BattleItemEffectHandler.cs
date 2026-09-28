@@ -144,8 +144,28 @@ public class BattleItemEffectHandler : MonoBehaviour
             targetPiece
         );
 
+
+        // <변경부분>
+        // 현재 아이템 변형에는 별도의 Born / Fade 연출이 없으므로
+        // 외형 교체 직후 원본 색상에서 목표 회색으로 전환한다.
+        //
+        // 추후 아이템 전용 변형 연출이 추가되면
+        // Start 호출 위치만 해당 연출 종료 뒤로 이동하면 된다.
+        PieceVisualController visualController =
+            targetPiece.GetComponent<PieceVisualController>();
+
+        if (visualController != null)
+        {
+            visualController
+                .PreparePlayerColorAdjustmentTransition();
+
+            visualController
+                .StartPreparedPlayerColorAdjustmentTransition();
+        }
+
+
         Debug.Log(
-            $"아이템 효과 성공: {itemData.itemName} / " +
+                    $"아이템 효과 성공: {itemData.itemName} / " +
             $"변경 타입 {itemData.changeTargetPieceType} / " +
             $"고유스킬 {itemData.changeTargetUniqueSkill}"
         );

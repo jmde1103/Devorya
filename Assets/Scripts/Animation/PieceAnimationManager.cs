@@ -1045,15 +1045,59 @@ public class PieceAnimationManager : MonoBehaviour
     // Born 애니메이션을 재생하는 함수
     public IEnumerator PlayPieceBornAnimation(Piece piece)
     {
-        PieceSpineAnimationController spineAnimator =
-            GetSpineAnimator(piece);
-
-        if (spineAnimator == null)
+        if (piece == null)
         {
             yield break;
         }
 
-        yield return spineAnimator.PlayBornRoutine();
+
+        PieceVisualController visualController =
+            piece.GetComponent<PieceVisualController>();
+
+
+        // <변경부분>
+        // 호출자가 미리 준비하지 않았더라도
+        // Born이 시작될 때 원본 색상을 확실하게 유지한다.
+        if (visualController != null)
+        {
+            visualController
+                .PreparePlayerColorAdjustmentTransition();
+        }
+
+
+        PieceSpineAnimationController spineAnimator =
+            GetSpineAnimator(piece);
+
+
+        if (spineAnimator == null)
+        {
+            // <변경부분>
+            // Born Controller가 없는 예외 상황에서는
+            // 기다릴 등장 연출이 없으므로 바로 색상 전환을 시작한다.
+            if (visualController != null)
+            {
+                visualController
+                    .StartPreparedPlayerColorAdjustmentTransition();
+            }
+
+            yield break;
+        }
+
+
+        // 기존 Born 연출이 완전히 끝날 때까지 기다린다.
+        yield return
+            spineAnimator.PlayBornRoutine();
+
+
+        // <변경부분>
+        // Born → Idle 전환이 끝난 뒤
+        // 원본 색상에서 목표 회색값으로 천천히 변화한다.
+        if (visualController != null)
+        {
+            yield return
+                visualController
+                    .PlayPreparedPlayerColorAdjustmentTransitionRoutine();
+        }
     }
 
 

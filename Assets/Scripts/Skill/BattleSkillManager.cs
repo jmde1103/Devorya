@@ -977,6 +977,20 @@ public class BattleSkillManager : MonoBehaviour
             yield break;
         }
 
+
+        // <변경부분>
+        // 승급으로 새 Spine 외형이 생성된 뒤
+        // Born을 재생한다.
+        //
+        // PieceManager에서 이미 원본 색상 상태로 준비되어 있으며,
+        // PlayPieceBornAnimation 내부에서 Born이 끝난 뒤
+        // Color Adjustment 전환까지 순서대로 처리된다.
+        yield return
+            pieceManager.PlayPieceBornAnimation(
+                piece
+            );
+
+
         Debug.Log(
             $"젤루 합성 성공: " +
             $"아군/중립 젤루 소재 2개 이동 및 제거 후 " +

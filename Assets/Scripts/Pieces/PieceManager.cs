@@ -747,6 +747,23 @@ public class PieceManager : MonoBehaviour
         // <변경부분> 흡수 후 외형/상태 UI/타입 아이콘 위치를 PieceData 기준으로 갱신
         // CurrentPieceData가 없는 레거시 기물은 RefreshPieceVisual 내부 fallback으로 기존 방식 처리
         RefreshPieceVisual(absorber);
+
+
+        // <변경부분>
+        // 새 흡수 외형이 생성된 직후에는
+        // 최종 회색을 바로 표시하지 않고 원본 색상으로 준비한다.
+        //
+        // 이후 BattleManager의 기존 흐름에서
+        // PlayPieceBornAnimation()이 끝난 다음
+        // 실제 Color Adjustment 전환을 시작한다.
+        PieceVisualController visualController =
+            absorber.GetComponent<PieceVisualController>();
+
+        if (visualController != null)
+        {
+            visualController
+                .PreparePlayerColorAdjustmentTransition();
+        }
     }
 
     // <변경부분> King 전용 흡수 처리 함수
@@ -1556,11 +1573,35 @@ public class PieceManager : MonoBehaviour
             return false;
         }
 
-        piece.ChangePieceData(promotedPieceData, useBackSprite);
+        piece.ChangePieceData(
+      promotedPieceData,
+      useBackSprite
+  );
 
-        RefreshPieceVisual(piece);
+        RefreshPieceVisual(
+            piece
+        );
 
-        Debug.Log($"젤루 합성 승급 완료: {promotedType}");
+
+        // <변경부분>
+        // 합성 승급으로 새 Spine 외형이 만들어진 직후에는
+        // 원래 색상으로 준비한다.
+        //
+        // BattleSkillManager에서 이어서 Born을 재생하고,
+        // Born 종료 후 Color Adjustment 전환을 실행한다.
+        PieceVisualController visualController =
+            piece.GetComponent<PieceVisualController>();
+
+        if (visualController != null)
+        {
+            visualController
+                .PreparePlayerColorAdjustmentTransition();
+        }
+
+
+        Debug.Log(
+            $"젤루 합성 승급 완료: {promotedType}"
+        );
 
         return true;
     }

@@ -1026,6 +1026,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceVisualController
   spriteRenderer: {fileID: 7671137728747154121}
   spineVisualRoot: {fileID: 2537530555151445295}
+  usePlayerSpineColorAdjustment: 1
+  applyOnlyToAbsorbedPlayerVisual: 1
+  playerHue: 0
+  playerSaturation: 0
+  playerBrightness: 0.8
 --- !u!114 &8909022500806026355
 MonoBehaviour:
   m_ObjectHideFlags: 0
