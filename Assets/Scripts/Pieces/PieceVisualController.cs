@@ -210,16 +210,22 @@ public class PieceVisualController : MonoBehaviour
     // Spine Shader의 Material Inspector에 있는
     // "Color Adjustment" 체크박스에 대응하는 Shader Keyword.
     //
-    // 체크되어 있지 않은 Material도
-    // 런타임에서 자동으로 활성화한다.
+    // 공용 원본 Material은 수정하지 않고,
+    // 필요한 경우 기물 전용 Runtime Material에서만 활성화한다.
     private const string ColorAdjustmentKeyword =
         "_COLOR_ADJUST";
 
 
     // <변경부분>
-    // Renderer마다 별도의 Material을 생성하지 않고
-    // 기존 Material 위에 표시값만 덮어쓰기 위한 PropertyBlock.
-    private MaterialPropertyBlock colorAdjustmentPropertyBlock;
+    // 흡수 Player 전용 Color Adjustment를 적용하기 위해
+    // 원본 Spine Material과 기물 전용 Runtime Material의 대응을 저장한다.
+    //
+    // MaterialPropertyBlock은 사용하지 않고
+    // SkeletonRenderer.CustomMaterialOverride로
+    // 기물별 Material을 분리하여 적용한다.
+    private readonly Dictionary<Material, Material>
+        playerColorRuntimeMaterials =
+            new Dictionary<Material, Material>(4);
 
 
     public PieceSpineAnimationController CurrentSpineAnimationController =>
@@ -255,6 +261,18 @@ public class PieceVisualController : MonoBehaviour
             }
         }
     }
+
+
+    // <변경부분>
+    // PieceObject가 파괴될 때 생성했던
+    // 기물 전용 Runtime Material도 함께 정리한다.
+    private void OnDestroy()
+    {
+        StopPlayerColorAdjustmentTransition();
+
+        ClearPlayerColorRuntimeMaterials();
+    }
+
 
     // <변경부분> PieceData 기준으로 Sprite 또는 Spine 외형을 적용
     public void ApplyVisual(
@@ -380,28 +398,38 @@ public class PieceVisualController : MonoBehaviour
 
 
             // <변경부분>
-            // 색상 전환을 준비 중이거나 실제 전환 중이라면
-            // RefreshPieceVisual이 다시 호출되더라도
-            // 최종 회색값으로 갑자기 점프하지 않고
-            // 현재 진행 중인 값을 그대로 유지한다.
-            if (shouldApplyPlayerColorAdjustment == false)
+            // 색상 보정 대상인 Spine에만
+            // 기물 전용 Runtime Material Override를 적용한다.
+            //
+            // 색상 보정 대상이 아닌 일반 기물은
+            // 원본 Spine Material 상태를 그대로 사용한다.
+            if (shouldApplyPlayerColorAdjustment)
             {
-                ApplySpineColorAdjustment(
-                    false
-                );
-            }
-            else if (isPlayerColorTransitionPrepared ||
-                     playerColorTransitionCoroutine != null)
-            {
-                ApplySpineColorAdjustmentProgress(
-                    currentPlayerColorAdjustmentProgress
-                );
+                // 색상 전환을 준비 중이거나 실제 전환 중이라면
+                // RefreshPieceVisual이 다시 호출되더라도
+                // 최종 회색값으로 갑자기 점프하지 않고
+                // 현재 진행 중인 값을 그대로 유지한다.
+                if (isPlayerColorTransitionPrepared ||
+                    playerColorTransitionCoroutine != null)
+                {
+                    ApplySpineColorAdjustmentProgress(
+                        currentPlayerColorAdjustmentProgress
+                    );
+                }
+                else
+                {
+                    ApplySpineColorAdjustment(
+                        true
+                    );
+                }
             }
             else
             {
-                ApplySpineColorAdjustment(
-                    true
-                );
+                // <변경부분>
+                // 같은 Spine Visual을 계속 사용하더라도
+                // 더 이상 색상 보정 대상이 아니면
+                // CustomMaterialOverride를 제거하고 원본 Material로 복구한다.
+                ClearPlayerColorRuntimeMaterials();
             }
 
 
@@ -464,11 +492,18 @@ public class PieceVisualController : MonoBehaviour
         }
 
 
-        // 새로 생성된 Spine Renderer에
-        // 현재 진영/흡수 상태에 맞는 Color Adjustment를 즉시 적용한다.
-        ApplySpineColorAdjustment(
-            shouldApplyPlayerColorAdjustment
-        );
+        // <변경부분>
+        // 실제 Color Adjustment 대상인 Spine에만
+        // 기물 전용 Runtime Material Override를 적용한다.
+        //
+        // 일반 Enemy / Neutral / 흡수 전 Player는
+        // 원본 Spine Renderer 상태를 그대로 유지한다.
+        if (shouldApplyPlayerColorAdjustment)
+        {
+            ApplySpineColorAdjustment(
+                true
+            );
+        }
     }
 
     // <변경부분>
@@ -909,101 +944,75 @@ public class PieceVisualController : MonoBehaviour
 
 
     // <변경부분>
-    // 현재 생성된 Spine Visual 아래의 모든 Renderer에
-    // Color Adjustment 진행도를 적용한다.
+    // 현재 SkeletonRenderer의 SkeletonDataAsset에 등록된
+    // 원본 Atlas Material을 기준으로
+    // 기물 전용 Runtime Material을 생성하고
+    // CustomMaterialOverride에 등록한다.
     //
-    // progress:
-    // 0 = Material의 원래 Hue / Saturation / Brightness
-    // 1 = Inspector에 설정된 Player 보정값
-    private void ApplySpineColorAdjustmentProgress(
-        float progress)
+    // Material을 그대로 복제하므로
+    // Shader / Normal Map / Texture / Keyword 설정은
+    // 원본 Material 상태를 그대로 유지한다.
+    private void EnsurePlayerColorRuntimeMaterials()
     {
-        if (currentSpineVisualObject == null)
+        if (currentSkeletonRenderer == null ||
+            playerColorRuntimeMaterials.Count > 0)
         {
             return;
         }
 
 
-        progress =
-            Mathf.Clamp01(
-                progress
-            );
+        SkeletonDataAsset skeletonDataAsset =
+            currentSkeletonRenderer.SkeletonDataAsset;
 
 
-        if (colorAdjustmentPropertyBlock == null)
-        {
-            colorAdjustmentPropertyBlock =
-                new MaterialPropertyBlock();
-        }
-
-
-        if (currentSpineRenderers == null ||
-            currentSpineRenderers.Length == 0)
-        {
-            CacheCurrentSpineRendererState();
-        }
-
-
-        if (currentSpineRenderers == null)
+        if (skeletonDataAsset == null ||
+            skeletonDataAsset.atlasAssets == null)
         {
             return;
         }
 
 
-        for (int rendererIndex = 0;
-             rendererIndex < currentSpineRenderers.Length;
-             rendererIndex++)
+        Dictionary<Material, Material> customMaterialOverride =
+            null;
+
+
+        for (int atlasIndex = 0;
+             atlasIndex < skeletonDataAsset.atlasAssets.Length;
+             atlasIndex++)
         {
-            Renderer targetRenderer =
-                currentSpineRenderers[rendererIndex];
+            AtlasAssetBase atlasAsset =
+                skeletonDataAsset.atlasAssets[atlasIndex];
 
 
-            if (targetRenderer == null)
+            if (atlasAsset == null)
             {
                 continue;
             }
 
 
-            sharedMaterialBuffer.Clear();
-
-
-            targetRenderer.GetSharedMaterials(
-                sharedMaterialBuffer
-            );
-
-
-            if (sharedMaterialBuffer.Count == 0)
+            foreach (Material originalMaterial in atlasAsset.Materials)
             {
-                continue;
-            }
-
-
-            for (int materialIndex = 0;
-                 materialIndex < sharedMaterialBuffer.Count;
-                 materialIndex++)
-            {
-                Material sharedMaterial =
-                    sharedMaterialBuffer[materialIndex];
-
-
-                if (sharedMaterial == null)
+                if (originalMaterial == null ||
+                    playerColorRuntimeMaterials.ContainsKey(
+                        originalMaterial
+                    ))
                 {
                     continue;
                 }
 
 
                 bool hasHue =
-                    sharedMaterial.HasProperty(
+                    originalMaterial.HasProperty(
                         HuePropertyId
                     );
 
                 bool hasSaturation =
-                    sharedMaterial.HasProperty(
+                    originalMaterial.HasProperty(
                         SaturationPropertyId
                     );
 
                 bool hasBrightness =
-                    sharedMaterial.HasProperty(
+                    originalMaterial.HasProperty(
                         BrightnessPropertyId
                     );
 
@@ -1016,78 +1025,196 @@ public class PieceVisualController : MonoBehaviour
                 }
 
 
-                if (sharedMaterial.IsKeywordEnabled(
+                // <변경부분>
+                // 원본 Material 전체를 복제하므로
+                // Normal Map을 포함한 기존 Material 설정을 보존한다.
+                Material runtimeMaterial =
+                    new Material(
+                        originalMaterial
+                    );
+
+
+                runtimeMaterial.name =
+                    originalMaterial.name +
+                    " (Player Color Runtime)";
+
+
+                // 공용 원본 Material은 절대 수정하지 않고
+                // 필요한 Keyword는 기물 전용 복제본에서만 활성화한다.
+                if (runtimeMaterial.IsKeywordEnabled(
                         ColorAdjustmentKeyword) == false)
                 {
-                    sharedMaterial.EnableKeyword(
+                    runtimeMaterial.EnableKeyword(
                         ColorAdjustmentKeyword
                     );
                 }
 
 
-                float originalHue =
-                    sharedMaterial.GetFloat(
-                        HuePropertyId
+                playerColorRuntimeMaterials.Add(
+                    originalMaterial,
+                    runtimeMaterial
+                );
+
+
+                if (customMaterialOverride == null)
+                {
+                    customMaterialOverride =
+                        currentSkeletonRenderer
+                            .CustomMaterialOverride;
+                }
+
+
+                customMaterialOverride[
+                    originalMaterial
+                ] =
+                    runtimeMaterial;
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // 현재 기물에 등록한 Spine Material Override를 제거하고
+    // 생성했던 Runtime Material을 함께 파괴한다.
+    private void ClearPlayerColorRuntimeMaterials()
+    {
+        if (playerColorRuntimeMaterials.Count == 0)
+        {
+            return;
+        }
+
+
+        if (currentSkeletonRenderer != null)
+        {
+            Dictionary<Material, Material> customMaterialOverride =
+                currentSkeletonRenderer
+                    .CustomMaterialOverride;
+
+
+            foreach (KeyValuePair<Material, Material> materialPair
+                     in playerColorRuntimeMaterials)
+            {
+                if (materialPair.Key != null)
+                {
+                    customMaterialOverride.Remove(
+                        materialPair.Key
                     );
-
-                float originalSaturation =
-                    sharedMaterial.GetFloat(
-                        SaturationPropertyId
-                    );
-
-                float originalBrightness =
-                    sharedMaterial.GetFloat(
-                        BrightnessPropertyId
-                    );
+                }
+            }
+        }
 
 
-                colorAdjustmentPropertyBlock.Clear();
-
-
-                targetRenderer.GetPropertyBlock(
-                    colorAdjustmentPropertyBlock,
-                    materialIndex
-                );
-
-
-                // <변경부분>
-                // 원래 Material 값에서
-                // Player용 목표값까지 Progress 기준으로 보간한다.
-                colorAdjustmentPropertyBlock.SetFloat(
-                    HuePropertyId,
-                    Mathf.Lerp(
-                        originalHue,
-                        playerHue,
-                        progress
-                    )
-                );
-
-
-                colorAdjustmentPropertyBlock.SetFloat(
-                    SaturationPropertyId,
-                    Mathf.Lerp(
-                        originalSaturation,
-                        playerSaturation,
-                        progress
-                    )
-                );
-
-
-                colorAdjustmentPropertyBlock.SetFloat(
-                    BrightnessPropertyId,
-                    Mathf.Lerp(
-                        originalBrightness,
-                        playerBrightness,
-                        progress
-                    )
-                );
-
-
-                targetRenderer.SetPropertyBlock(
-                    colorAdjustmentPropertyBlock,
-                    materialIndex
+        foreach (KeyValuePair<Material, Material> materialPair
+                 in playerColorRuntimeMaterials)
+        {
+            if (materialPair.Value != null)
+            {
+                Destroy(
+                    materialPair.Value
                 );
             }
+        }
+
+
+        playerColorRuntimeMaterials.Clear();
+    }
+
+
+    // <변경부분>
+    // 현재 생성된 Spine Visual의
+    // 기물 전용 Runtime Material에
+    // Color Adjustment 진행도를 적용한다.
+    //
+    // progress:
+    // 0 = 원본 Material의 Hue / Saturation / Brightness
+    // 1 = Inspector에 설정된 Player 보정값
+    private void ApplySpineColorAdjustmentProgress(
+        float progress)
+    {
+        if (usePlayerSpineColorAdjustment == false ||
+            currentSpineVisualObject == null ||
+            currentSkeletonRenderer == null)
+        {
+            return;
+        }
+
+
+        progress =
+            Mathf.Clamp01(
+                progress
+            );
+
+
+        EnsurePlayerColorRuntimeMaterials();
+
+
+        if (playerColorRuntimeMaterials.Count == 0)
+        {
+            return;
+        }
+
+
+        foreach (KeyValuePair<Material, Material> materialPair
+                 in playerColorRuntimeMaterials)
+        {
+            Material originalMaterial =
+                materialPair.Key;
+
+            Material runtimeMaterial =
+                materialPair.Value;
+
+
+            if (originalMaterial == null ||
+                runtimeMaterial == null)
+            {
+                continue;
+            }
+
+
+            float originalHue =
+                originalMaterial.GetFloat(
+                    HuePropertyId
+                );
+
+            float originalSaturation =
+                originalMaterial.GetFloat(
+                    SaturationPropertyId
+                );
+
+            float originalBrightness =
+                originalMaterial.GetFloat(
+                    BrightnessPropertyId
+                );
+
+
+            runtimeMaterial.SetFloat(
+                HuePropertyId,
+                Mathf.Lerp(
+                    originalHue,
+                    playerHue,
+                    progress
+                )
+            );
+
+
+            runtimeMaterial.SetFloat(
+                SaturationPropertyId,
+                Mathf.Lerp(
+                    originalSaturation,
+                    playerSaturation,
+                    progress
+                )
+            );
+
+
+            runtimeMaterial.SetFloat(
+                BrightnessPropertyId,
+                Mathf.Lerp(
+                    originalBrightness,
+                    playerBrightness,
+                    progress
+                )
+            );
         }
     }
     private void ClearSpineVisual()
@@ -1116,6 +1243,13 @@ public class PieceVisualController : MonoBehaviour
                 .OnMeshAndMaterialsUpdated -=
                 HandleSpineMeshAndMaterialsUpdated;
         }
+
+
+        // <변경부분>
+        // SkeletonRenderer 참조를 비우기 전에
+        // 현재 기물에 등록한 Material Override와
+        // Runtime Material을 먼저 정리한다.
+        ClearPlayerColorRuntimeMaterials();
 
 
         currentSkeletonRenderer =

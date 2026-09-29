@@ -73947,6 +73947,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnvironmentLightingRig
       objectReference: {fileID: 0}
+    - target: {fileID: 4434807248119214617, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      propertyPath: m_LightVolumeEnabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4434807248119214617, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      propertyPath: m_LightVolumeIntensity
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4434807248119214617, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      propertyPath: m_ShadowVolumeIntensity
+      value: 0.672
+      objectReference: {fileID: 0}
+    - target: {fileID: 4434807248119214617, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      propertyPath: m_ShadowVolumeIntensityEnabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4975827627743828741, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.65377
