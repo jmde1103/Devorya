@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4975827627743828741}
   - component: {fileID: 815480652684249225}
+  - component: {fileID: 6141722404799669704}
   m_Layer: 0
   m_Name: EnvironmentLightingRig
   m_TagString: Untagged
@@ -133,6 +134,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentLightingCameraFollower
   cameraTarget: {fileID: 0}
   preserveInitialOffset: 1
+--- !u!114 &6141722404799669704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2457590126232961902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4cd5b19e7653c142bfb7085577a020f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentLightingController
+  globalAmbient: {fileID: 6395773882488420422}
+  sunKey: {fileID: 4434807248119214617}
+  skyFill: {fileID: 8125320256241508038}
 --- !u!1 &4446931198247427190
 GameObject:
   m_ObjectHideFlags: 0

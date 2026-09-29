@@ -67,6 +67,41 @@ public class EnvironmentPointLightSettings
         360f;
 }
 
+// <변경부분>
+// 구름 그림자의 맵별 환경 설정.
+//
+// 실제 Cloud Sprite 구성과 이동 Bounds는
+// 공용 CloudShadowRig Prefab이 담당하고,
+// 맵마다 달라질 환경값만 Profile에 저장한다.
+[System.Serializable]
+public class EnvironmentCloudShadowSettings
+{
+    // 이 환경에서 구름 그림자를 사용할지 여부.
+    public bool enabled =
+        false;
+
+
+    // 구름이 흘러갈 월드 방향.
+    public Vector2 moveDirection =
+        new Vector2(
+            1f,
+            -0.2f
+        );
+
+
+    // 초당 구름 이동 속도.
+    [Min(0f)]
+    public float moveSpeed =
+        0.25f;
+
+
+    // PNG 자체 Alpha 위에 추가로 곱해질
+    // 전체 구름 그림자 불투명도.
+    [Range(0f, 1f)]
+    public float opacity =
+        1f;
+}
+
 
 // <변경부분>
 // BackgroundMapData마다 연결하여 사용할
@@ -93,4 +128,10 @@ public class EnvironmentVisualProfile : ScriptableObject
     [Header("Sky Fill")]
     public EnvironmentPointLightSettings skyFill =
         new EnvironmentPointLightSettings();
+
+
+    // <변경부분>
+    [Header("Cloud Shadow")]
+    public EnvironmentCloudShadowSettings cloudShadow =
+        new EnvironmentCloudShadowSettings();
 }

@@ -38,3 +38,8 @@ MonoBehaviour:
     outerRadius: 17.700706
     innerAngle: 360
     outerAngle: 360
+  cloudShadow:
+    enabled: 1
+    moveDirection: {x: 1, y: -0.2}
+    moveSpeed: 0.25
+    opacity: 0.15

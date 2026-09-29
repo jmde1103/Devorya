@@ -94,14 +94,17 @@ public class BackgroundManager : MonoBehaviour
 
     [Header("Environment Lighting")]
 
-    // <변경부분>
-    // 현재 Scene의 공용 EnvironmentLightingRig에 붙어 있는 Controller.
-    //
-    // BackgroundMapData를 불러올 때
-    // 해당 Map의 EnvironmentVisualProfile을 자동 적용한다.
     [SerializeField]
     private EnvironmentLightingController
-        environmentLightingController;
+     environmentLightingController;
+
+
+    // <변경부분>
+    [Header("Environment Cloud Shadow")]
+
+    [SerializeField]
+    private CloudShadowController
+        cloudShadowController;
 
 
     [Header("맵 데이터 자동 생성 설정")]
@@ -1496,37 +1499,75 @@ public class BackgroundManager : MonoBehaviour
         if (currentMapData == null)
         {
             Debug.LogWarning(
-                "환경 조명 적용 실패: " +
+                "환경 비주얼 적용 실패: " +
                 "Current Map Data가 연결되어 있지 않습니다."
             );
 
             return;
         }
 
-        if (currentMapData.VisualProfile == null)
+
+        EnvironmentVisualProfile visualProfile =
+            currentMapData.VisualProfile;
+
+
+        if (visualProfile == null)
         {
             Debug.LogWarning(
-                $"환경 조명 적용 실패: " +
+                $"환경 비주얼 적용 실패: " +
                 $"{currentMapData.name}에 " +
                 "EnvironmentVisualProfile이 연결되어 있지 않습니다."
             );
 
+
+            // <변경부분>
+            // 이전 Map의 Cloud Shadow가 남아 있지 않도록
+            // Profile이 없는 경우에는 구름만 명시적으로 종료한다.
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.ApplyProfile(
+                    null
+                );
+            }
+
+
             return;
         }
 
-        if (environmentLightingController == null)
+
+        // 기존 Lighting Profile 적용.
+        if (environmentLightingController != null)
+        {
+            environmentLightingController.ApplyProfile(
+                visualProfile
+            );
+        }
+        else
         {
             Debug.LogWarning(
                 "환경 조명 적용 실패: " +
                 "BackgroundManager의 EnvironmentLightingController가 연결되어 있지 않습니다."
             );
-
-            return;
         }
 
-        environmentLightingController.ApplyProfile(
-            currentMapData.VisualProfile
-        );
+
+        // <변경부분>
+        // 동일한 EnvironmentVisualProfile의
+        // Cloud Shadow 설정을 공용 CloudShadowRig에도 적용한다.
+        if (cloudShadowController != null)
+        {
+            cloudShadowController.ApplyProfile(
+                visualProfile
+            );
+        }
+        else if (visualProfile.cloudShadow != null &&
+                 visualProfile.cloudShadow.enabled)
+        {
+            Debug.LogWarning(
+                "Cloud Shadow 적용 실패: " +
+                "BackgroundManager의 CloudShadowController가 연결되어 있지 않습니다."
+            );
+        }
     }
 
 
@@ -1538,28 +1579,76 @@ public class BackgroundManager : MonoBehaviour
     // 현재 EnvironmentLightingRig 설정을 그대로 유지한다.
     private void ApplyEnvironmentVisualProfileFromCurrentMap()
     {
-        if (currentMapData == null ||
-            currentMapData.VisualProfile == null)
+        if (currentMapData == null)
         {
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.ApplyProfile(
+                    null
+                );
+            }
+
             return;
         }
 
-        if (environmentLightingController == null)
+
+        EnvironmentVisualProfile visualProfile =
+            currentMapData.VisualProfile;
+
+
+        if (visualProfile == null)
+        {
+            // <변경부분>
+            // Profile이 없는 Map으로 교체될 때
+            // 이전 Map의 구름이 계속 남아 있는 것을 방지한다.
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.ApplyProfile(
+                    null
+                );
+            }
+
+            return;
+        }
+
+
+        // 기존 환경 Lighting.
+        if (environmentLightingController != null)
+        {
+            environmentLightingController.ApplyProfile(
+                visualProfile
+            );
+        }
+        else
         {
             Debug.LogWarning(
                 $"환경 조명 자동 적용 실패: " +
                 $"{currentMapData.name}에는 EnvironmentVisualProfile이 있지만 " +
                 "EnvironmentLightingController가 연결되어 있지 않습니다."
             );
-
-            return;
         }
 
-        environmentLightingController.ApplyProfile(
-            currentMapData.VisualProfile
-        );
-    }
 
+        // <변경부분>
+        // Battle Scene / Event Scene 모두
+        // BackgroundManager의 동일한 Map Load 경로를 이용해
+        // Cloud Shadow 설정을 자동 적용한다.
+        if (cloudShadowController != null)
+        {
+            cloudShadowController.ApplyProfile(
+                visualProfile
+            );
+        }
+        else if (visualProfile.cloudShadow != null &&
+                 visualProfile.cloudShadow.enabled)
+        {
+            Debug.LogWarning(
+                $"Cloud Shadow 자동 적용 실패: " +
+                $"{currentMapData.name}에는 Cloud Shadow가 활성화되어 있지만 " +
+                "CloudShadowController가 연결되어 있지 않습니다."
+            );
+        }
+    }
 
     // <변경부분>
     // 현재 Scene에서 직접 튜닝한 EnvironmentLightingRig 값을
@@ -2411,8 +2500,18 @@ public class BackgroundManagerEditor : Editor
 
 
         EditorGUILayout.PropertyField(
+    serializedObject.FindProperty(
+        "environmentLightingController"
+    )
+);
+
+
+        // <변경부분>
+        // 현재 Scene에서 사용할 공용 CloudShadowRig의
+        // CloudShadowController 연결.
+        EditorGUILayout.PropertyField(
             serializedObject.FindProperty(
-                "environmentLightingController"
+                "cloudShadowController"
             )
         );
 
