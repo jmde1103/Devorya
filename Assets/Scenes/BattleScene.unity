@@ -57591,7 +57591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87dc8cfc1004eea4f8afb1e2799f49ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetupManager
-  directTestStageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+  directTestStageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
   battleManager: {fileID: 52600099}
@@ -73943,6 +73943,10 @@ PrefabInstance:
       propertyPath: cameraTarget
       value: 
       objectReference: {fileID: 330585546}
+    - target: {fileID: 841700559471569856, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2457590126232961902, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_Name
       value: EnvironmentLightingRig
@@ -73962,6 +73966,10 @@ PrefabInstance:
     - target: {fileID: 4434807248119214617, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_ShadowVolumeIntensityEnabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4446931198247427190, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4975827627743828741, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_LocalPosition.x
