@@ -1,6 +1,6 @@
 {
 "skeleton": {
-	"hash": "HxxZHUxJ6Tw",
+	"hash": "qqzmm8k7a7E",
 	"spine": "4.3.26",
 	"x": 16.246923,
 	"y": -46.01287,
@@ -21,8 +21,8 @@
 "slots": [
 	{ "name": "Shadow", "bone": "Shadow", "attachment": "Shadow" },
 	{ "name": "Body", "bone": "Body", "attachment": "Body" },
-	{ "name": "Eye_Body", "bone": "Eye", "attachment": "Eye_Body" },
-	{ "name": "Eye", "bone": "Eye", "attachment": "Eye_Green" },
+	{ "name": "Eye_Body", "bone": "Eye" },
+	{ "name": "Eye", "bone": "Eye" },
 	{ "name": "Effect1", "bone": "Effect_Body1", "color": "ffffff00", "attachment": "Effect9" },
 	{ "name": "Effect11", "bone": "Effect_Body3", "color": "ffffff00", "attachment": "Effect11" }
 ],

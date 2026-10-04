@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1b3b4b945939a54ea0b23d3396115fb, type: 3}
-  m_Name: Dummy_Rook_SkeletonData
+  m_Name: Dummy_Rook_Back_SkeletonData
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonDataAsset
   atlasAssets:
-  - {fileID: 11400000, guid: c7c9259e5d34bf94e980d140ad28ca90, type: 2}
+  - {fileID: 11400000, guid: 8d9bb0abe8a83b5428d83e4442513409, type: 2}
   scale: 0.0165
-  skeletonJSON: {fileID: 4900000, guid: a77f4f7256391aa44a0953af21ea0beb, type: 3}
+  skeletonJSON: {fileID: 4900000, guid: 032b99a340380554fb485d457f30ec30, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0

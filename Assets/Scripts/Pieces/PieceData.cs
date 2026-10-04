@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.Serialization;
 
 // <변경부분> 기물 1종의 기본 원형 데이터를 관리하는 ScriptableObject
 // 적/플레이어/흡수 외형, 기본 고유스킬, 종족 태그, 기본 일반스킬을 한곳에서 관리한다.
@@ -110,34 +111,93 @@ public class PieceData : ScriptableObject
     // <변경부분> 흡수된 플레이어 상태 UI에서 사용할 스프라이트
     public Sprite absorbedPlayerStatusSprite;
 
-    [Header("Type Icon Positions")]
-    // <변경부분> 플레이어 진영 타입 아이콘 위치
-    public Vector3 playerTypeIconPosition;
+    // =====================================================
+    // Field Icon Positions
+    // =====================================================
 
-    // <변경부분> 적 진영 타입 아이콘 위치
-    public Vector3 enemyTypeIconPosition;
-
-    // <변경부분> 중립 진영 타입 아이콘 위치
-    public Vector3 neutralTypeIconPosition;
-
-    // <변경부분> 흡수된 플레이어 외형 타입 아이콘 위치
-    public Vector3 absorbedPlayerTypeIconPosition;
-
+    [Header("Type Icon Position")]
 
     // <변경부분>
-    // 기존 Field Status Effect Icon 위치 데이터 복구.
+    // 이 PieceData를 사용하는 모든 Team / 흡수 외형이
+    // 공통으로 사용하는 타입 아이콘 위치.
     //
-    // Speech Bubble Position을 추가하면서 삭제되면 안 되는
-    // 기존 Serialized 필드들이므로 이름을 변경하지 않고 그대로 유지한다.
-    [Header("Field Status Effect Icon Positions")]
+    // 기존 PieceData Asset의 Player 위치값을
+    // 통합 필드로 자동 이전한다.
+    [FormerlySerializedAs("playerTypeIconPosition")]
+    public Vector3 typeIconPosition;
 
-    public Vector3 playerFieldStatusEffectPosition;
 
-    public Vector3 enemyFieldStatusEffectPosition;
+    [Header("Field Status Effect Icon Position")]
 
-    public Vector3 neutralFieldStatusEffectPosition;
+    // <변경부분>
+    // 이 PieceData를 사용하는 모든 Team / 흡수 외형이
+    // 공통으로 사용하는 필드 상태효과 아이콘 위치.
+    //
+    // 기존 PieceData Asset의 Player 위치값을
+    // 통합 필드로 자동 이전한다.
+    [FormerlySerializedAs("playerFieldStatusEffectPosition")]
+    public Vector3 fieldStatusEffectPosition;
 
-    public Vector3 absorbedPlayerFieldStatusEffectPosition;
+
+    // =====================================================
+    // Legacy Position API Compatibility
+    // =====================================================
+
+    // <변경부분>
+    // 기존 코드가 예전 Team별 public 필드 이름을 직접 참조하더라도
+    // 컴파일이 깨지지 않도록 통합 위치값으로 연결한다.
+    //
+    // 실제 Serialized SSOT는 위의
+    // typeIconPosition / fieldStatusEffectPosition 두 값뿐이다.
+
+    public Vector3 playerTypeIconPosition
+    {
+        get => typeIconPosition;
+        set => typeIconPosition = value;
+    }
+
+    public Vector3 enemyTypeIconPosition
+    {
+        get => typeIconPosition;
+        set => typeIconPosition = value;
+    }
+
+    public Vector3 neutralTypeIconPosition
+    {
+        get => typeIconPosition;
+        set => typeIconPosition = value;
+    }
+
+    public Vector3 absorbedPlayerTypeIconPosition
+    {
+        get => typeIconPosition;
+        set => typeIconPosition = value;
+    }
+
+
+    public Vector3 playerFieldStatusEffectPosition
+    {
+        get => fieldStatusEffectPosition;
+        set => fieldStatusEffectPosition = value;
+    }
+
+    public Vector3 enemyFieldStatusEffectPosition
+    {
+        get => fieldStatusEffectPosition;
+        set => fieldStatusEffectPosition = value;
+    }
+
+    public Vector3 neutralFieldStatusEffectPosition
+    {
+        get => fieldStatusEffectPosition;
+        set => fieldStatusEffectPosition = value;
+    }
+
+    public Vector3 absorbedPlayerFieldStatusEffectPosition
+    {
+        get => fieldStatusEffectPosition;
+        set => fieldStatusEffectPosition = value;
+    }
 
 
     // =====================================================
@@ -304,56 +364,30 @@ public class PieceData : ScriptableObject
         return null;
     }
 
-    // <변경부분> 팀과 외형 상태에 맞는 타입 아이콘 위치 반환
-    public Vector3 GetTypeIconPosition(PieceTeam team, bool isAbsorbedPlayerVisual)
+    // <변경부분>
+    // Team / 흡수 외형과 관계없이
+    // 이 PieceData에 설정된 공통 타입 아이콘 위치를 반환한다.
+    //
+    // 기존 호출 구조를 깨뜨리지 않기 위해
+    // 파라미터 시그니처는 그대로 유지한다.
+    public Vector3 GetTypeIconPosition(
+        PieceTeam team,
+        bool isAbsorbedPlayerVisual)
     {
-        if (team == PieceTeam.Player && isAbsorbedPlayerVisual)
-        {
-            return absorbedPlayerTypeIconPosition;
-        }
-
-        switch (team)
-        {
-            case PieceTeam.Player:
-                return playerTypeIconPosition;
-
-            case PieceTeam.Enemy:
-                return enemyTypeIconPosition;
-
-            case PieceTeam.Neutral:
-                return neutralTypeIconPosition;
-        }
-
-        return Vector3.zero;
+        return typeIconPosition;
     }
 
-    // <변경부분> 팀과 외형 상태에 맞는
-    // 필드 상태효과 아이콘 위치를 반환한다.
-    // 타입 아이콘 위치와 동일한 기준으로 관리한다.
+
+    // <변경부분>
+    // Team / 흡수 외형과 관계없이
+    // 이 PieceData에 설정된 공통 필드 상태효과 아이콘 위치를 반환한다.
+    //
+    // 기존 호출 구조를 깨뜨리지 않기 위해
+    // 파라미터 시그니처는 그대로 유지한다.
     public Vector3 GetFieldStatusEffectPosition(
         PieceTeam team,
         bool isAbsorbedPlayerVisual)
     {
-        // 플레이어가 흡수 외형을 사용 중이면
-        // 흡수 외형 전용 상태효과 아이콘 위치를 반환한다.
-        if (team == PieceTeam.Player &&
-            isAbsorbedPlayerVisual)
-        {
-            return absorbedPlayerFieldStatusEffectPosition;
-        }
-
-        switch (team)
-        {
-            case PieceTeam.Player:
-                return playerFieldStatusEffectPosition;
-
-            case PieceTeam.Enemy:
-                return enemyFieldStatusEffectPosition;
-
-            case PieceTeam.Neutral:
-                return neutralFieldStatusEffectPosition;
-        }
-
-        return Vector3.zero;
+        return fieldStatusEffectPosition;
     }
 }
