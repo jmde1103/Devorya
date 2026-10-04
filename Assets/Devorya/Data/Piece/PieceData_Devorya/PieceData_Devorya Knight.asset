@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 08ed7db2f7c3c7a4e9cdba94d9f9cd66, type: 3}
-  m_Name: PieceData_Devorya Bishop
+  m_Name: PieceData_Devorya Knight
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
-  pieceId: Devorya Bishop
-  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uBE44\uC20D]"
+  pieceId: Devorya Knight
+  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uB098\uC774\uD2B8]"
   description: "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4\uCCB4 \uD0C0\uC785 :
-    [\uBE44\uC20D]"
-  pieceType: 3
+    [\uB098\uC774\uD2B8]"
+  pieceType: 2
   uniqueSkill: 0
   canMove: 1
   localizedDisplayName:
     m_TableReference:
       m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 663359488
+      m_KeyId: 292290971701248
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -32,33 +32,34 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 332976420950016
+      m_KeyId: 335738714066944
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  speciesTags: 
+  speciesTags: 01000000
   defaultGeneralSkills: []
-  playerSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  enemySprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
+  playerSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
+  enemySprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
   neutralSprite: {fileID: 0}
-  absorbedPlayerBackSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  playerSpineVisualPrefab: {fileID: 1222005273642654341, guid: 898aa6a5581b3a443a2466ce925cb64f, type: 3}
-  enemySpineVisualPrefab: {fileID: 1222005273642654341, guid: 898aa6a5581b3a443a2466ce925cb64f, type: 3}
+  absorbedPlayerBackSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
+  playerSpineVisualPrefab: {fileID: 4279034846795193604, guid: 9c234633e4e0df740b0db7daa7a65165, type: 3}
+  enemySpineVisualPrefab: {fileID: 4279034846795193604, guid: 9c234633e4e0df740b0db7daa7a65165, type: 3}
   neutralSpineVisualPrefab: {fileID: 0}
-  absorbedPlayerBackSpineVisualPrefab: {fileID: 1222005273642654341, guid: 898aa6a5581b3a443a2466ce925cb64f, type: 3}
-  playerStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  enemyStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
+  absorbedPlayerBackSpineVisualPrefab: {fileID: 4279034846795193604, guid: 9c234633e4e0df740b0db7daa7a65165, type: 3}
+  playerStatusSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
+  enemyStatusSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
   neutralStatusSprite: {fileID: 0}
-  absorbedPlayerStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  playerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  enemyTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  neutralTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  absorbedPlayerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
+  absorbedPlayerStatusSprite: {fileID: 21300000, guid: 7ee64ad4eb71d7e4691dcf5e8e51f20f, type: 3}
+  playerTypeIconPosition: {x: 0.23, y: 0.23, z: 0}
+  enemyTypeIconPosition: {x: 0.23, y: 0.23, z: 0}
+  neutralTypeIconPosition: {x: 0, y: 0, z: 0}
+  absorbedPlayerTypeIconPosition: {x: 0.23, y: 0.23, z: 0}
   playerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  speechBubbleOffsetY: 0
   references:
     version: 2
     RefIds: []

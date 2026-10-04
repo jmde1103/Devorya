@@ -4,6 +4,7 @@ public enum PieceSpeciesTag
 {
     None,
 
-    // <변경부분> 젤루 종족 태그
+    Devorya,
+    Dummy,
     Jellu
 }

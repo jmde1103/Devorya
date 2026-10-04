@@ -38,16 +38,16 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  speciesTags: 
+  speciesTags: 02000000
   defaultGeneralSkills: []
   playerSprite: {fileID: 0}
   enemySprite: {fileID: 0}
   neutralSprite: {fileID: 0}
   absorbedPlayerBackSprite: {fileID: 0}
-  playerSpineVisualPrefab: {fileID: 1686307025096751269, guid: 244cdc473e9898047b7f22b4991a3bb7, type: 3}
+  playerSpineVisualPrefab: {fileID: 2899614633198486038, guid: 4d351f37ed9a3dc498cd4759a85a5c4e, type: 3}
   enemySpineVisualPrefab: {fileID: 1686307025096751269, guid: 244cdc473e9898047b7f22b4991a3bb7, type: 3}
   neutralSpineVisualPrefab: {fileID: 1686307025096751269, guid: 244cdc473e9898047b7f22b4991a3bb7, type: 3}
-  absorbedPlayerBackSpineVisualPrefab: {fileID: 1686307025096751269, guid: 244cdc473e9898047b7f22b4991a3bb7, type: 3}
+  absorbedPlayerBackSpineVisualPrefab: {fileID: 2899614633198486038, guid: 4d351f37ed9a3dc498cd4759a85a5c4e, type: 3}
   playerStatusSprite: {fileID: 0}
   enemyStatusSprite: {fileID: 0}
   neutralStatusSprite: {fileID: 0}
