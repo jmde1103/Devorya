@@ -54,9 +54,9 @@ Material:
     m_Ints: []
     m_Floats:
     - PixelSnap: 0
-    - _BlendAmount: 0
+    - _BlendAmount: 0.561
     - _Brightness: 1
-    - _BumpScale: 1
+    - _BumpScale: 0.15
     - _Cull: 0
     - _CustomRenderQueue: 0
     - _Cutoff: 0.1
