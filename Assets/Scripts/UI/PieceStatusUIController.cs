@@ -10,7 +10,20 @@ using static UnityEngine.Audio.ProcessorInstance;
 public class PieceStatusUIController : MonoBehaviour
 {
     [Header("Piece Image")]
-    [SerializeField] private Image pieceImage;
+
+    // <변경부분>
+    // Spine Visual Prefab을 Idle 상태로 표시하는
+    // Status UI 전용 Preview.
+    [SerializeField]
+    private PieceSpinePreviewUI pieceSpinePreview;
+
+
+    // <변경부분>
+    // Spine Preview 전환 검증이 끝날 때까지
+    // 기존 Status Sprite 경로를 fallback으로 유지한다.
+    [SerializeField]
+    private Image pieceImage;
+
 
     [Header("Piece Type Icon")]
     [SerializeField] private Image pieceTypeIconImage;
@@ -204,28 +217,77 @@ public class PieceStatusUIController : MonoBehaviour
         PlayStatusOpenAnimation();
     }
 
-    // <변경부분> 선택한 필드 기물의 현재 SpriteRenderer 이미지를 UI에 복사하는 함수
-    private void SetPieceImageFromSelectedPiece(Piece selectedPiece)
+    // <변경부분>
+    // 선택한 필드 기물의 현재 Spine Visual을
+    // Status UI에서 Idle Preview로 표시한다.
+    //
+    // Spine Preview를 사용할 수 없는 레거시 데이터는
+    // 기존 Status Sprite를 fallback으로 사용한다.
+    private void SetPieceImageFromSelectedPiece(
+        Piece selectedPiece)
     {
+        if (pieceSpinePreview != null)
+        {
+            bool previewApplied =
+                pieceSpinePreview.Show(
+                    selectedPiece
+                );
+
+
+            if (previewApplied)
+            {
+                if (pieceImage != null)
+                {
+                    pieceImage.sprite =
+                        null;
+
+                    pieceImage.enabled =
+                        false;
+                }
+
+
+                return;
+            }
+
+
+            pieceSpinePreview.Hide();
+        }
+
+
+        // =================================================
+        // Legacy Status Sprite Fallback
+        // =================================================
+
         if (pieceImage == null)
         {
             return;
         }
 
-        // <변경부분> 필드 이미지가 아니라 PieceManager가 넣어준 스테이터스 UI용 이미지를 가져옴
-        Sprite statusSprite = selectedPiece.GetStatusUISprite();
+
+        Sprite statusSprite =
+            selectedPiece.GetStatusUISprite();
+
 
         if (statusSprite == null)
         {
-            pieceImage.sprite = null;
-            pieceImage.enabled = false;
+            pieceImage.sprite =
+                null;
+
+            pieceImage.enabled =
+                false;
+
             return;
         }
 
-        // <변경부분> 필드 스프라이트가 아니라 UI용 앞면 스프라이트를 표시
-        pieceImage.sprite = statusSprite;
-        pieceImage.enabled = true;
-        pieceImage.preserveAspect = true;
+
+        pieceImage.sprite =
+            statusSprite;
+
+        pieceImage.enabled =
+            true;
+
+        pieceImage.preserveAspect =
+            true;
     }
 
     // <변경부분> 선택한 필드 기물의 현재 타입 아이콘을 UI에 복사하는 함수
@@ -686,6 +748,12 @@ public class PieceStatusUIController : MonoBehaviour
             );
         }
 
+        if (pieceSpinePreview != null)
+        {
+            pieceSpinePreview.Hide();
+        }
+
+
         if (pieceImage != null)
         {
             pieceImage.sprite =
@@ -694,6 +762,7 @@ public class PieceStatusUIController : MonoBehaviour
             pieceImage.enabled =
                 false;
         }
+
 
         if (pieceTypeIconImage != null)
         {

@@ -13,10 +13,30 @@ MonoBehaviour:
   m_Name: PieceData_Jellu Pawn
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Jellu Pawn
+  displayName: 
+  description: 
   pieceType: 0
   uniqueSkill: 4
   canMove: 1
-  speciesTags: 01000000
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  speciesTags: 03000000
   defaultGeneralSkills: []
   playerSprite: {fileID: 21300000, guid: 9785b8fdc85d1b6439dc333f43817ad4, type: 3}
   enemySprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
@@ -30,11 +50,9 @@ MonoBehaviour:
   enemyStatusSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
   neutralStatusSprite: {fileID: 0}
   absorbedPlayerStatusSprite: {fileID: 21300000, guid: 430f13ea2be62274aa4fc96aee5cd34f, type: 3}
-  playerTypeIconPosition: {x: 0.32, y: 0.16, z: 0}
-  enemyTypeIconPosition: {x: 0.32, y: 0.16, z: 0}
-  neutralTypeIconPosition: {x: 0, y: 0, z: 0}
-  absorbedPlayerTypeIconPosition: {x: 0.32, y: 0.16, z: 0}
-  playerFieldStatusEffectPosition: {x: -0.2, y: 0.15, z: 0}
-  enemyFieldStatusEffectPosition: {x: -0.2, y: 0.15, z: 0}
-  neutralFieldStatusEffectPosition: {x: 0, y: 0, z: 0}
-  absorbedPlayerFieldStatusEffectPosition: {x: -0.2, y: 0.15, z: 0}
+  typeIconPosition: {x: 0.32, y: 0.16, z: 0}
+  fieldStatusEffectPosition: {x: -0.2, y: 0.15, z: 0}
+  speechBubbleOffsetY: 0
+  references:
+    version: 2
+    RefIds: []

@@ -224,12 +224,64 @@ public class PieceVisualController : MonoBehaviour
     // SkeletonRenderer.CustomMaterialOverride로
     // 기물별 Material을 분리하여 적용한다.
     private readonly Dictionary<Material, Material>
-        playerColorRuntimeMaterials =
-            new Dictionary<Material, Material>(4);
+     playerColorRuntimeMaterials =
+         new Dictionary<Material, Material>(4);
 
 
     public PieceSpineAnimationController CurrentSpineAnimationController =>
         currentSpineAnimationController;
+
+
+    // <변경부분>
+    // Status UI의 Spine Preview가
+    // 필드 Piece와 동일한 Player Color Adjustment 설정을
+    // 사용하기 위한 공용 조회 함수.
+    //
+    // 실제 회색조 기준은 계속 PieceVisualController가 SSOT로 유지한다.
+    public bool TryGetPlayerColorAdjustmentForPreview(
+        PieceTeam team,
+        bool isAbsorbedPlayerVisual,
+        out float hue,
+        out float saturation,
+        out float brightness)
+    {
+        hue =
+            0f;
+
+        saturation =
+            1f;
+
+        brightness =
+            1f;
+
+
+        if (ShouldApplyPlayerColorAdjustment(
+                team,
+                isAbsorbedPlayerVisual
+            ) == false)
+        {
+            return false;
+        }
+
+
+        if (useAdjustedPlayerColor == false)
+        {
+            return false;
+        }
+
+
+        hue =
+            playerHue;
+
+        saturation =
+            playerSaturation;
+
+        brightness =
+            playerBrightness;
+
+
+        return true;
+    }
 
 
     private void Awake()
