@@ -74021,15 +74021,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6395773882488420422, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_Color.b
-      value: 0.6037736
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6395773882488420422, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_Color.g
-      value: 0.38542777
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6395773882488420422, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_Color.r
-      value: 0.40523523
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6395773882488420422, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_ApplyToSortingLayers.Array.size

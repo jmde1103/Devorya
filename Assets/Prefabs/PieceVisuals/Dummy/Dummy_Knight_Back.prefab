@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3795011089088229075
+--- !u!1 &2857067037681828517
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,50 +8,108 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7231210199849778369}
-  - component: {fileID: 6540181835993250311}
-  - component: {fileID: 5467781455437797322}
-  - component: {fileID: 7057652845335288101}
-  - component: {fileID: 7651388511564825351}
-  - component: {fileID: 1280080240642360350}
+  - component: {fileID: 824260024926406277}
+  - component: {fileID: 3549647561273481409}
   m_Layer: 0
-  m_Name: Dummy_Rook_Back
+  m_Name: LensLightRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7231210199849778369
+--- !u!4 &824260024926406277
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795011089088229075}
+  m_GameObject: {fileID: 2857067037681828517}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0.7044231, w: 0.7097803}
+  m_LocalPosition: {x: 0.5601961, y: -0.54315925, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4394273058594443486}
+  m_Father: {fileID: 406683743246340271}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3549647561273481409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2857067037681828517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1fd8daaed7b64148a34acb96ba14ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: spine-unity::Spine.Unity.BoneFollower
+  skeletonRenderer: {fileID: 7895275323033971984}
+  boneName: Eye_Body
+  followXYPosition: 1
+  followZPosition: 1
+  followAttachmentZSpacing: 0
+  followBoneRotation: 1
+  followSkeletonFlip: 1
+  followLocalScale: 0
+  followParentWorldScale: 0
+  maintainedAxisOrientation: 1
+  initializeOnAwake: 1
+  previousSkeletonRenderer: {fileID: 0}
+  wasUpgradedTo43: 1
+--- !u!1 &3342717971219110167
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 406683743246340271}
+  - component: {fileID: 508237827196674699}
+  - component: {fileID: 5538040703269681457}
+  - component: {fileID: 7895275323033971984}
+  - component: {fileID: 6702148909694691532}
+  - component: {fileID: 7121931140166348676}
+  m_Layer: 0
+  m_Name: Dummy_Knight_Back
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &406683743246340271
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3342717971219110167}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.52, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2719787070038549427}
+  - {fileID: 824260024926406277}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &6540181835993250311
+--- !u!33 &508237827196674699
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795011089088229075}
+  m_GameObject: {fileID: 3342717971219110167}
   m_Mesh: {fileID: 0}
---- !u!23 &5467781455437797322
+--- !u!23 &5538040703269681457
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795011089088229075}
+  m_GameObject: {fileID: 3342717971219110167}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -70,7 +128,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b059c7f186f294649930dc547f206238, type: 2}
+  - {fileID: 2100000, guid: 19f0dbe69b54aea409ac945560228568, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -94,19 +152,19 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7057652845335288101
+--- !u!114 &7895275323033971984
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795011089088229075}
+  m_GameObject: {fileID: 3342717971219110167}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e075b9a3e08e2f74fbd651c858ab16ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonRenderer
-  skeletonDataAsset: {fileID: 11400000, guid: 8675ba173b7ef834d9257edbbb43e74a, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: dfc5856741081094a81e5c7dd6bbd466, type: 2}
   initialSkinName: 
   initialFlipX: 0
   initialFlipY: 0
@@ -142,13 +200,13 @@ MonoBehaviour:
   tintBlackDeprecated: 0
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
---- !u!114 &7651388511564825351
+--- !u!114 &6702148909694691532
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795011089088229075}
+  m_GameObject: {fileID: 3342717971219110167}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
@@ -179,25 +237,25 @@ MonoBehaviour:
   addNormalsDeprecated: 0
   calculateTangentsDeprecated: 0
   maskInteractionDeprecated: 0
---- !u!114 &1280080240642360350
+--- !u!114 &7121931140166348676
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3795011089088229075}
+  m_GameObject: {fileID: 3342717971219110167}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c90fbdf7f765db43aaa1efa9bf93329, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpineLightController
-  skeletonRenderer: {fileID: 7057652845335288101}
+  skeletonRenderer: {fileID: 7895275323033971984}
   controlSlotName: Eye
   targetLights:
-  - light: {fileID: 6478958352681527301}
+  - light: {fileID: 8333955473058934949}
     maxIntensity: 1
   setIntensityToZeroOnDisable: 1
---- !u!1 &5209226022106630850
+--- !u!1 &7390785549525718325
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -205,66 +263,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2719787070038549427}
-  - component: {fileID: 114606856643548606}
-  m_Layer: 0
-  m_Name: LensLightRoot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2719787070038549427
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5209226022106630850}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.000000006519026, w: 1}
-  m_LocalPosition: {x: 0.57712615, y: -0.5601765, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 967737329192033807}
-  m_Father: {fileID: 7231210199849778369}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114606856643548606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5209226022106630850}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1fd8daaed7b64148a34acb96ba14ce1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: spine-unity::Spine.Unity.BoneFollower
-  skeletonRenderer: {fileID: 7057652845335288101}
-  boneName: Eye
-  followXYPosition: 1
-  followZPosition: 1
-  followAttachmentZSpacing: 0
-  followBoneRotation: 1
-  followSkeletonFlip: 1
-  followLocalScale: 0
-  followParentWorldScale: 0
-  maintainedAxisOrientation: 1
-  initializeOnAwake: 1
-  previousSkeletonRenderer: {fileID: 0}
-  wasUpgradedTo43: 1
---- !u!1 &7061852975648689813
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 967737329192033807}
-  - component: {fileID: 6478958352681527301}
+  - component: {fileID: 4394273058594443486}
+  - component: {fileID: 8333955473058934949}
   m_Layer: 0
   m_Name: Spot Light 2D
   m_TagString: Untagged
@@ -272,28 +272,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &967737329192033807
+--- !u!4 &4394273058594443486
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7061852975648689813}
+  m_GameObject: {fileID: 7390785549525718325}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.092, y: 0.047, z: 0}
+  m_LocalPosition: {x: 0.037, y: 0.081, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2719787070038549427}
+  m_Father: {fileID: 824260024926406277}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6478958352681527301
+--- !u!114 &8333955473058934949
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7061852975648689813}
+  m_GameObject: {fileID: 7390785549525718325}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}

@@ -13,6 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_VERTEX_ONLY
+  - _NORMALMAP
   m_InvalidKeywords:
   - _FULLRANGE_HARD_RAMP
   - _USE8NEIGHBOURHOOD_ON
@@ -34,7 +35,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 0f3176c3d5d8e6341bb4aec41352d697, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -54,7 +55,7 @@ Material:
     - PixelSnap: 0
     - _BlendAmount: 0
     - _Brightness: 1
-    - _BumpScale: 1
+    - _BumpScale: 0.1
     - _Cull: 0
     - _CustomRenderQueue: 0
     - _Cutoff: 0.1

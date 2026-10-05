@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1b3b4b945939a54ea0b23d3396115fb, type: 3}
-  m_Name: Dummy_Knight_SkeletonData
+  m_Name: Dummy_Knight_Back_SkeletonData
   m_EditorClassIdentifier: spine-unity::Spine.Unity.SkeletonDataAsset
   atlasAssets:
-  - {fileID: 11400000, guid: af8509a0649142547a81a1b47b7e0313, type: 2}
-  scale: 0.01
-  skeletonJSON: {fileID: 4900000, guid: cb48e70ebd944dc47a7398f3360c014f, type: 3}
+  - {fileID: 11400000, guid: 034315a5e4313a2489de867a57dd230c, type: 2}
+  scale: 0.0165
+  skeletonJSON: {fileID: 4900000, guid: ff9964aeeb35a4f4a8e190928927c966, type: 3}
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
