@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3116202111729659768}
   - component: {fileID: 7774451686482052339}
   - component: {fileID: 7213489224849672687}
+  - component: {fileID: 2374935645324020313}
   m_Layer: 0
   m_Name: Dummy_Bishop_Both
   m_TagString: Untagged
@@ -197,8 +198,32 @@ MonoBehaviour:
   - light: {fileID: 5164173588471049188}
     maxIntensity: 1
   - light: {fileID: 6106459575987915281}
-    maxIntensity: 1
+    maxIntensity: 0.5
   setIntensityToZeroOnDisable: 1
+--- !u!114 &2374935645324020313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5379081252442143950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dd5ddd9f180c5e408d2240fc20d4756, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceSpineAnimationController
+  skeletonAnimation: {fileID: 0}
+  bornAnimation: Born
+  downAnimation: Down
+  downAbsorbAnimation: Down_Absorb
+  absorbAnimation: Absorb
+  idleAnimation: Idle
+  leftMoveAnimation: Left
+  rightMoveAnimation: Right
+  selectAnimation: Select
+  selectIdleAnimation: Select_Idle
+  leftStopAnimation: Stop_Left
+  rightStopAnimation: Stop_Right
 --- !u!1 &5773287260075212433
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,7 +273,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.727
   m_Color: {r: 0.7411765, g: 0.99215686, b: 0.8156863, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.5
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000110e0b0cb53f1a4385a1d6f0

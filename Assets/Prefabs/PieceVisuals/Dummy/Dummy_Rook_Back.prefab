@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7057652845335288101}
   - component: {fileID: 7651388511564825351}
   - component: {fileID: 1280080240642360350}
+  - component: {fileID: 2578721196046212665}
   m_Layer: 0
   m_Name: Dummy_Rook_Back
   m_TagString: Untagged
@@ -195,8 +196,32 @@ MonoBehaviour:
   controlSlotName: Eye
   targetLights:
   - light: {fileID: 6478958352681527301}
-    maxIntensity: 1
+    maxIntensity: 0.5
   setIntensityToZeroOnDisable: 1
+--- !u!114 &2578721196046212665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3795011089088229075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dd5ddd9f180c5e408d2240fc20d4756, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceSpineAnimationController
+  skeletonAnimation: {fileID: 0}
+  bornAnimation: Born
+  downAnimation: Down
+  downAbsorbAnimation: Down_Absorb
+  absorbAnimation: Absorb
+  idleAnimation: Idle
+  leftMoveAnimation: Left
+  rightMoveAnimation: Right
+  selectAnimation: Select
+  selectIdleAnimation: Select_Idle
+  leftStopAnimation: Stop_Left
+  rightStopAnimation: Stop_Right
 --- !u!1 &5209226022106630850
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,7 +329,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.727
   m_Color: {r: 0.7411765, g: 0.99215686, b: 0.8156863, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.5
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000b53f1a4385a1d6f0
