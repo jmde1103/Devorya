@@ -26,6 +26,16 @@ public class BackgroundMapData : ScriptableObject
     public EnvironmentVisualProfile VisualProfile;
 
 
+    [Header("Decoration Palette")]
+
+    // <변경부분>
+    // 이 맵에서 사용할 장식물 Sprite 목록과
+    // DecorationType별 설정을 보관하는 Palette.
+    //
+    // 스테이지마다 서로 다른 Palette를 연결할 수 있다.
+    public DecorationPaletteData DecorationPalette;
+
+
     [Header("배경 타일 데이터")]
     // 배경 타일 타입을 1차원 리스트로 저장
     public List<BackgroundTileSaveData> Tiles = new List<BackgroundTileSaveData>();
@@ -46,17 +56,50 @@ public class BackgroundTileSaveData
 
     // 저장할 배경 타일 타입
     public BackgroundTileType TileType;
+
+    // <변경부분>
+    // 저장 당시 실제로 사용된 배경 타일 Sprite.
+    //
+    // 기존 구형 데이터에서는 null이며,
+    // 이 경우 BackgroundManager가 해당 TileType에서
+    // 기존 방식대로 랜덤 Sprite를 선택한다.
+    public Sprite TileSprite;
 }
 
 [System.Serializable]
 public class DecorationSaveData
 {
-    // 저장할 장식물 X 좌표
+    // Anchor로 사용할 배경 타일 X 좌표
     public int X;
 
-    // 저장할 장식물 Y 좌표
+    // Anchor로 사용할 배경 타일 Y 좌표
     public int Y;
 
     // 저장할 장식물 타입
     public DecorationType DecorationType;
+
+    // <변경부분>
+    // 저장 당시 실제로 사용된 장식물 Sprite.
+    //
+    // 기존 구형 데이터에서는 null이며,
+    // 이 경우 BackgroundManager가 기존 타입 랜덤 방식으로 fallback한다.
+    public Sprite DecorationSprite;
+
+    // <변경부분>
+    // Anchor Tile 중심에서 실제 장식물 위치까지의 상대 좌표.
+    //
+    // Grid Placement는 Vector3.zero,
+    // Free Placement는 자유 배치된 위치 차이가 저장된다.
+    public Vector3 LocalPositionOffset;
+
+    // <변경부분>
+    // 동일한 Anchor Tile 안에서 장식물끼리 앞뒤 순서를 조절하는 값.
+    //
+    // 0 = 기본
+    // 음수 = 뒤
+    // 양수 = 앞
+    //
+    // 현재 사용 범위는 -3 ~ +3.
+    // 기존 저장 데이터에서는 기본값 0으로 처리된다.
+    public int LayerOffset;
 }

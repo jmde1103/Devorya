@@ -5,6 +5,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public enum BackgroundTileBrushSourceMode
+{
+    RandomByType = 0,
+    ExactSprite = 1
+}
+
+
+public enum DecorationBrushSourceMode
+{
+    RandomByType = 0,
+    ExactSprite = 1
+}
+
+public enum DecorationPlacementMode
+{
+    Grid = 0,
+    Free = 1
+}
+
+
 public class BackgroundManager : MonoBehaviour
 {
     [Header("배경 기본 설정")]
@@ -33,12 +57,34 @@ public class BackgroundManager : MonoBehaviour
     [SerializeField] private Color darkBackgroundColor = new Color(0.65f, 0.65f, 0.65f, 1f);
 
     [Header("배경 타일 페인트 설정")]
-    // <변경부분> 씬뷰 페인트에 사용할 배경 타일 타입
-    [SerializeField] private BackgroundTileType paintTileType = BackgroundTileType.Forest;
-    // <변경부분> 좌표 입력 방식으로 변경할 배경 타일 X 좌표
-    [SerializeField] private int paintX = 0;
-    // <변경부분> 좌표 입력 방식으로 변경할 배경 타일 Y 좌표
-    [SerializeField] private int paintY = 0;
+
+    // <변경부분>
+    // 타입 안에서 랜덤 Sprite를 사용할지,
+    // 직접 지정한 Sprite를 사용할지 선택한다.
+    [SerializeField]
+    private BackgroundTileBrushSourceMode backgroundTileBrushSourceMode =
+     BackgroundTileBrushSourceMode.RandomByType;
+
+    // 씬뷰 페인트에 사용할 배경 타일 타입.
+    //
+    // Exact Sprite 모드에서도 타입 정보 자체는 필요하므로
+    // Sprite와 별도로 직접 지정한다.
+    [SerializeField]
+    private BackgroundTileType paintTileType =
+        BackgroundTileType.Forest;
+
+    // <변경부분>
+    // Exact Sprite 모드에서 직접 칠할 타일 Sprite.
+    [SerializeField]
+    private Sprite paintTileSprite;
+
+    // 좌표 입력 방식으로 변경할 배경 타일 X 좌표
+    [SerializeField]
+    private int paintX = 0;
+
+    // 좌표 입력 방식으로 변경할 배경 타일 Y 좌표
+    [SerializeField]
+    private int paintY = 0;
 
     [Header("배경 타일 브러시 설정")]
     // <변경부분> 씬뷰 페인트 시 한 번에 칠할 배경 타일 범위
@@ -55,8 +101,17 @@ public class BackgroundManager : MonoBehaviour
     [SerializeField] private Transform decorationParent;
 
     [Header("장식물 스프라이트 목록")]
-    // <변경부분> 장식물 타입별로 사용할 스프라이트 목록
-    [SerializeField] private List<DecorationSet> decorationSets = new List<DecorationSet>();
+
+    // <변경부분>
+    // 기존 Scene에 저장되어 있던 DecorationSet 데이터를
+    // 바로 삭제하지 않고 Legacy fallback으로 보존한다.
+    //
+    // BackgroundMapData에 DecorationPalette가 연결되어 있으면
+    // Palette 데이터를 우선 사용한다.
+    [SerializeField, HideInInspector]
+    private List<DecorationSet> decorationSets =
+     new List<DecorationSet>();
+
 
     [Header("장식물 생성 테스트")]
     // <변경부분> 테스트로 생성할 장식물 타입
@@ -78,10 +133,56 @@ public class BackgroundManager : MonoBehaviour
     private float decorationBrightness = 0.65f;
 
     [Header("장식물 브러시 설정")]
-    // <변경부분> 씬뷰에서 장식물 브러시를 사용할 때 배치할 장식물 타입
-    [SerializeField] private DecorationType paintDecorationType = DecorationType.Tree;
-    // <변경부분> 같은 좌표에 장식물이 중복 생성되지 않도록 제한
-    [SerializeField] private bool preventDuplicateDecoration = true;
+
+    // <변경부분>
+    // 타입 랜덤 / 정확한 Sprite 중 어떤 소스를 사용할지 선택
+    [SerializeField]
+    private DecorationBrushSourceMode decorationBrushSourceMode =
+    DecorationBrushSourceMode.RandomByType;
+
+    // <변경부분>
+    // 씬뷰에서 장식물 브러시를 사용할 때 배치할 장식물 타입
+    [SerializeField]
+    private DecorationType paintDecorationType =
+        DecorationType.Tree;
+
+    // Exact Sprite 모드에서 직접 배치할 장식물 Sprite
+    [SerializeField]
+    private Sprite paintDecorationSprite;
+
+
+    // <변경부분>
+    // 동일한 Anchor Tile 안에서 새로 배치할 장식물의
+    // 앞뒤 순서를 지정한다.
+    //
+    // -3 = 가장 뒤쪽
+    //  0 = 기본
+    // +3 = 가장 앞쪽
+    [SerializeField]
+    [Range(-3, 3)]
+    private int paintDecorationLayerOffset = 0;
+
+
+    // Grid 중심 배치 / Anchor Tile 기준 자유 배치 선택
+    [SerializeField]
+    private DecorationPlacementMode decorationPlacementMode =
+        DecorationPlacementMode.Grid;
+
+    // <변경부분>
+    // Free Placement에서 Scene 클릭으로 지정한 기준 타일
+    [SerializeField, HideInInspector]
+    private bool hasFreePlacementAnchor = false;
+
+    [SerializeField, HideInInspector]
+    private int freePlacementAnchorX = 0;
+
+    [SerializeField, HideInInspector]
+    private int freePlacementAnchorY = 0;
+
+    // <변경부분>
+    // Grid Placement에서 같은 좌표에 장식물이 중복 생성되지 않도록 제한
+    [SerializeField]
+    private bool preventDuplicateDecoration = true;
 
     [Header("장식물 자동 생성 규칙")]
     // <변경부분> 배경 타일 타입별로 자동 생성할 장식물 규칙
@@ -144,14 +245,49 @@ public class BackgroundManager : MonoBehaviour
     //
     // 따라서 같은 타일에서는 Decoration이 Actor보다 앞에 보이지만,
     // Actor가 화면 아래쪽 타일로 이동하면 자연스럽게 Decoration 앞으로 나온다.
+    // <변경부분>
+    // 하나의 Grid Depth 안에서
+    // Actor와 여러 Decoration Layer가 서로 충돌하지 않도록
+    // Sorting Order 공간을 10칸씩 확보한다.
+    //
+    // 한 Grid 기준:
+    //
+    // Actor              = +0
+    //
+    // Decoration Layer
+    // -3                 = +2
+    // -2                 = +3
+    // -1                 = +4
+    //  0                 = +5
+    // +1                 = +6
+    // +2                 = +7
+    // +3                 = +8
+    //
+    // 다음 Grid Depth는 10칸 아래에서 시작하므로
+    // 서로 다른 Grid의 Sorting 영역이 겹치지 않는다.
     private const int EventWorldDepthStep =
-        2;
+        10;
 
+
+    // 같은 Grid에 있는 Event Actor의 기본 위치
     private const int EventActorSortingOffset =
         0;
 
-    private const int DecorationSortingOffset =
-        1;
+
+    // <변경부분>
+    // Decoration Layer 0의 기본 Sorting 위치.
+    private const int DecorationSortingBaseOffset =
+        5;
+
+
+    // <변경부분>
+    // 동일 Anchor 내부에서 사용할 수 있는
+    // Decoration Layer 최소/최대 범위.
+    private const int DecorationLayerOffsetMin =
+        -3;
+
+    private const int DecorationLayerOffsetMax =
+        3;
 
 
     private void Awake()
@@ -226,11 +362,9 @@ public class BackgroundManager : MonoBehaviour
     private void SpawnBackgroundTile(
       BackgroundTileType tileType,
       int x,
-      int y)
+      int y,
+      Sprite savedTileSprite = null)
     {
-        // BackgroundMapData 또는 외부 호출에서 잘못된 좌표가 들어와도
-        // backgroundTiles[x, y] 접근으로 예외가 발생하지 않도록
-        // 실제 생성 전에 좌표를 검증한다.
         if (x < 0 ||
             x >= backgroundWidth ||
             y < 0 ||
@@ -247,63 +381,104 @@ public class BackgroundManager : MonoBehaviour
             return;
         }
 
-        // All은 실제 타일이 아니라 랜덤 생성 규칙이므로
+
+        // All은 실제 타일 타입이 아니므로
         // 실제 배치 가능한 타일 타입으로 변환한다.
         BackgroundTileType actualTileType =
             GetActualBackgroundTileType(
                 tileType
             );
 
-        // 실제 배치 타입에 맞는 스프라이트를 가져온다.
+
+        // <변경부분>
+        // 저장된 Sprite가 있으면 그대로 사용한다.
+        //
+        // 새 맵 생성 또는 기존 구형 데이터처럼
+        // 저장 Sprite가 없는 경우에만 랜덤으로 선택한다.
         Sprite tileSprite =
-            GetRandomTileSprite(
-                actualTileType
-            );
+            savedTileSprite != null
+                ? savedTileSprite
+                : GetRandomTileSprite(
+                    actualTileType
+                );
+
 
         if (tileSprite == null)
         {
-            Debug.LogWarning($"{actualTileType} 타입에 연결된 배경 타일 스프라이트가 없습니다.");
+            Debug.LogWarning(
+                $"{actualTileType} 타입에 사용할 배경 타일 Sprite가 없습니다."
+            );
+
             return;
         }
 
-        // 공통 배경 타일 프리팹이 없으면 생성 중단
+
         if (backgroundTilePrefab == null)
         {
-            Debug.LogError("BackgroundTilePrefab이 연결되지 않았습니다.");
+            Debug.LogError(
+                "BackgroundTilePrefab이 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        // 배경 타일 부모가 없으면 생성 중단
+
         if (backgroundTileParent == null)
         {
-            Debug.LogError("BackgroundTileParent가 연결되지 않았습니다.");
+            Debug.LogError(
+                "BackgroundTileParent가 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        // 아이소메트릭 배경 좌표 계산
-        Vector3 spawnPosition = GridToWorld(x, y);
 
-        // 공통 배경 타일 프리팹 생성
-        GameObject tileObject = Instantiate(backgroundTilePrefab, spawnPosition, Quaternion.identity, backgroundTileParent);
+        Vector3 spawnPosition =
+            GridToWorld(
+                x,
+                y
+            );
 
-        // 배경 타일 컴포넌트 가져오기
-        BackgroundTile backgroundTile = tileObject.GetComponent<BackgroundTile>();
+
+        GameObject tileObject =
+            Instantiate(
+                backgroundTilePrefab,
+                spawnPosition,
+                Quaternion.identity,
+                backgroundTileParent
+            );
+
+
+        BackgroundTile backgroundTile =
+            tileObject.GetComponent<BackgroundTile>();
 
         if (backgroundTile == null)
         {
-            backgroundTile = tileObject.AddComponent<BackgroundTile>();
+            backgroundTile =
+                tileObject.AddComponent<BackgroundTile>();
         }
 
-        // <변경부분> All이 아니라 실제 배치된 타입과 좌표 정보를 저장
-        backgroundTile.Initialize(actualTileType, x, y);
 
-        // <변경부분> 생성된 배경 타일의 스프라이트, 색상, 이름, 정렬 순서를 한 번에 적용
-        ApplyBackgroundTileVisual(backgroundTile, actualTileType, x, y, tileSprite);
+        backgroundTile.Initialize(
+            actualTileType,
+            x,
+            y
+        );
 
-        // 생성된 배경 타일을 배열에 저장
+
+        ApplyBackgroundTileVisual(
+            backgroundTile,
+            actualTileType,
+            x,
+            y,
+            tileSprite
+        );
+
+
         if (backgroundTiles != null)
         {
-            backgroundTiles[x, y] = backgroundTile;
+            backgroundTiles[x, y] =
+                backgroundTile;
         }
     }
 
@@ -647,64 +822,159 @@ public class BackgroundManager : MonoBehaviour
             );
         }
     }
-    // 지정한 좌표의 배경 타일을 선택한 타입으로 교체
-    public void PaintBackgroundTile(BackgroundTileType tileType, int x, int y)
+    // 지정한 좌표의 배경 타일을 선택한 타입으로 교체.
+    //
+    // 기존 외부 호출은 계속 타입 랜덤 방식으로 동작한다.
+    public void PaintBackgroundTile(
+        BackgroundTileType tileType,
+        int x,
+        int y)
     {
-        // <변경부분> All은 실제 타일이 아니라 랜덤 생성 규칙이므로 실제 배치 타입으로 변환
-        BackgroundTileType actualTileType = GetActualBackgroundTileType(tileType);
+        PaintBackgroundTileInternal(
+            tileType,
+            x,
+            y,
+            null
+        );
+    }
 
-        // <변경부분> 실제 배치 타입에 사용할 스프라이트가 없으면 페인트 중단
-        if (!HasTileSprites(actualTileType))
+
+    // <변경부분>
+    // 타일 페인트의 실제 공통 처리.
+    //
+    // exactTileSprite가 null이면:
+    // 해당 TileType 안에서 기존처럼 랜덤 Sprite를 선택한다.
+    //
+    // exactTileSprite가 있으면:
+    // 지정된 Sprite를 그대로 사용한다.
+    private void PaintBackgroundTileInternal(
+        BackgroundTileType tileType,
+        int x,
+        int y,
+        Sprite exactTileSprite)
+    {
+        // All은 실제 저장용 TileType이 아니므로
+        // 랜덤 규칙을 통해 실제 타입으로 변환한다.
+        BackgroundTileType actualTileType =
+            GetActualBackgroundTileType(
+                tileType
+            );
+
+
+        Sprite resolvedTileSprite =
+            exactTileSprite;
+
+
+        // Exact Sprite가 전달되지 않은 기존 랜덤 방식.
+        if (resolvedTileSprite == null)
         {
-            Debug.LogWarning($"{actualTileType} 타입에 연결된 배경 타일 스프라이트가 없습니다.");
+            if (!HasTileSprites(
+                    actualTileType))
+            {
+                Debug.LogWarning(
+                    $"{actualTileType} 타입에 연결된 배경 타일 스프라이트가 없습니다."
+                );
+
+                return;
+            }
+
+
+            resolvedTileSprite =
+                GetRandomTileSprite(
+                    actualTileType
+                );
+        }
+
+
+        if (resolvedTileSprite == null)
+        {
+            Debug.LogWarning(
+                $"{actualTileType} 타입에 사용할 배경 타일 Sprite가 없습니다."
+            );
+
             return;
         }
 
-        // 에디터 스크립트 리로드 후에도 씬에 남은 배경 타일을 다시 배열에 연결
+
+        // 에디터 스크립트 리로드 후에도
+        // Scene에 남아 있는 배경 타일을 다시 배열에 연결한다.
         if (backgroundTiles == null)
         {
             RebuildBackgroundTileArrayFromScene();
         }
 
-        // 복구 후에도 배열이 없으면 페인트 중단
+
         if (backgroundTiles == null)
         {
-            Debug.LogWarning("생성된 배경이 없습니다.");
+            Debug.LogWarning(
+                "생성된 배경이 없습니다."
+            );
+
             return;
         }
 
-        // 배경 범위를 벗어난 좌표는 페인트 중단
-        if (x < 0 || x >= backgroundWidth || y < 0 || y >= backgroundHeight)
+
+        if (x < 0 ||
+            x >= backgroundWidth ||
+            y < 0 ||
+            y >= backgroundHeight)
         {
-            Debug.LogWarning($"배경 좌표 ({x}, {y})가 범위를 벗어났습니다.");
+            Debug.LogWarning(
+                $"배경 좌표 ({x}, {y})가 범위를 벗어났습니다."
+            );
+
             return;
         }
 
-        // <변경부분> 같은 좌표에 이미 존재하는 배경 타일을 씬 오브젝트 기준으로 찾음
-        BackgroundTile existingTile = GetBackgroundTileAt(x, y);
+
+        BackgroundTile existingTile =
+            GetBackgroundTileAt(
+                x,
+                y
+            );
+
 
         if (existingTile != null)
         {
-            // <변경부분> 같은 좌표에 겹쳐 남은 배경 타일을 하나만 남기고 제거
-            RemoveExtraBackgroundTilesAt(x, y, existingTile);
+            RemoveExtraBackgroundTilesAt(
+                x,
+                y,
+                existingTile
+            );
 
-            // <변경부분> 기존 타일 오브젝트를 유지한 채 실제 배치 타입으로 변경
-            existingTile.ChangeTileType(actualTileType);
 
-            // 선택한 타입의 랜덤 스프라이트 가져오기
-            Sprite newSprite = GetRandomTileSprite(actualTileType);
+            existingTile.ChangeTileType(
+                actualTileType
+            );
 
-            // <변경부분> 기존 타일의 외형만 교체하고 새 오브젝트는 생성하지 않음
-            ApplyBackgroundTileVisual(existingTile, actualTileType, x, y, newSprite);
 
-            // 배열에 현재 좌표의 기준 타일을 다시 연결
-            backgroundTiles[x, y] = existingTile;
+            // <변경부분>
+            // Random / Exact 어느 방식이든
+            // 위에서 결정된 최종 Sprite를 그대로 적용한다.
+            ApplyBackgroundTileVisual(
+                existingTile,
+                actualTileType,
+                x,
+                y,
+                resolvedTileSprite
+            );
+
+
+            backgroundTiles[x, y] =
+                existingTile;
 
             return;
         }
 
-        // <변경부분> 같은 좌표에 기존 타일이 없을 때만 새 배경 타일 생성
-        SpawnBackgroundTile(actualTileType, x, y);
+
+        // 기존 타일이 없는 좌표에서도
+        // 이미 결정된 Sprite를 그대로 사용해 새 타일을 생성한다.
+        SpawnBackgroundTile(
+            actualTileType,
+            x,
+            y,
+            resolvedTileSprite
+        );
     }
 
     // <변경부분> 선택한 배경 타일 타입에 스프라이트가 등록되어 있는지 확인
@@ -727,10 +997,50 @@ public class BackgroundManager : MonoBehaviour
                tileSpriteDictionary[tileType].Count > 0;
     }
 
-    // <변경부분> 인스펙터에 입력한 좌표와 타입으로 배경 타일 교체
+    // <변경부분>
+    // Inspector에서 지정한 좌표에 현재 Tile Brush 설정으로 페인트한다.
     public void PaintSelectedTileByInput()
     {
-        PaintBackgroundTile(paintTileType, paintX, paintY);
+        if (backgroundTileBrushSourceMode ==
+            BackgroundTileBrushSourceMode.ExactSprite)
+        {
+            if (paintTileType ==
+                BackgroundTileType.All)
+            {
+                Debug.LogWarning(
+                    "Exact Sprite 모드에서는 All이 아니라 실제 Tile Type을 지정해주세요."
+                );
+
+                return;
+            }
+
+
+            if (paintTileSprite == null)
+            {
+                Debug.LogWarning(
+                    "Exact Sprite 모드에서 사용할 Tile Sprite가 지정되지 않았습니다."
+                );
+
+                return;
+            }
+
+
+            PaintBackgroundTileInternal(
+                paintTileType,
+                paintX,
+                paintY,
+                paintTileSprite
+            );
+
+            return;
+        }
+
+
+        PaintBackgroundTile(
+            paintTileType,
+            paintX,
+            paintY
+        );
     }
 
     // <변경부분> 씬뷰에서 클릭한 월드 위치를 배경 배열 좌표로 변환
@@ -754,33 +1064,103 @@ public class BackgroundManager : MonoBehaviour
         return true;
     }
 
-    // <변경부분> 씬뷰에서 클릭한 위치를 중심으로 브러시 크기만큼 배경 타일을 교체
-    public void PaintBackgroundTileByWorldPosition(Vector3 worldPosition)
+    // <변경부분>
+    // Scene View에서 클릭한 위치를 중심으로
+    // 현재 Tile Brush 설정에 따라 배경 타일을 교체한다.
+    public void PaintBackgroundTileByWorldPosition(
+        Vector3 worldPosition)
     {
-        // 씬뷰 클릭 위치가 배경 배열 안에 있는지 확인
-        if (!TryGetBackgroundGridPosition(worldPosition, out int centerX, out int centerY))
+        if (!TryGetBackgroundGridPosition(
+                worldPosition,
+                out int centerX,
+                out int centerY))
         {
             return;
         }
 
-        // 브러시 크기가 1보다 작아져도 최소 1칸은 칠해지도록 보정
-        int safeBrushSize = Mathf.Max(1, brushSize);
 
-        // 브러시 중심 기준으로 주변 타일을 칠할 범위 계산
-        int brushRadius = safeBrushSize - 1;
+        bool useExactSprite =
+            backgroundTileBrushSourceMode ==
+            BackgroundTileBrushSourceMode.ExactSprite;
 
-        for (int x = centerX - brushRadius; x <= centerX + brushRadius; x++)
+
+        if (useExactSprite)
         {
-            for (int y = centerY - brushRadius; y <= centerY + brushRadius; y++)
+            if (paintTileType ==
+                BackgroundTileType.All)
             {
-                // 배경 범위 밖 좌표는 건너뜀
-                if (x < 0 || x >= backgroundWidth || y < 0 || y >= backgroundHeight)
+                Debug.LogWarning(
+                    "Exact Sprite 모드에서는 All이 아니라 실제 Tile Type을 지정해주세요."
+                );
+
+                return;
+            }
+
+
+            if (paintTileSprite == null)
+            {
+                Debug.LogWarning(
+                    "Exact Sprite 모드에서 사용할 Tile Sprite가 지정되지 않았습니다."
+                );
+
+                return;
+            }
+        }
+
+
+        int safeBrushSize =
+            Mathf.Max(
+                1,
+                brushSize
+            );
+
+
+        int brushRadius =
+            safeBrushSize - 1;
+
+
+        for (int x =
+                 centerX - brushRadius;
+             x <=
+                 centerX + brushRadius;
+             x++)
+        {
+            for (int y =
+                     centerY - brushRadius;
+                 y <=
+                     centerY + brushRadius;
+                 y++)
+            {
+                if (x < 0 ||
+                    x >= backgroundWidth ||
+                    y < 0 ||
+                    y >= backgroundHeight)
                 {
                     continue;
                 }
 
-                // 현재 선택된 페인트 타입으로 브러시 범위 안의 타일 교체
-                PaintBackgroundTile(paintTileType, x, y);
+
+                if (useExactSprite)
+                {
+                    // Exact 모드에서는 브러시 범위 전체에
+                    // 사용자가 직접 고른 Sprite를 적용한다.
+                    PaintBackgroundTileInternal(
+                        paintTileType,
+                        x,
+                        y,
+                        paintTileSprite
+                    );
+                }
+                else
+                {
+                    // 기존 모드는 각 타일마다 해당 Type 안에서
+                    // 랜덤 Sprite를 선택한다.
+                    PaintBackgroundTile(
+                        paintTileType,
+                        x,
+                        y
+                    );
+                }
             }
         }
     }
@@ -851,24 +1231,49 @@ public class BackgroundManager : MonoBehaviour
 
 
     // <변경부분>
+    // 현재 BackgroundMapData에 DecorationPalette가 연결되어 있으면
+    // 해당 Palette의 DecorationSet 목록을 사용한다.
+    //
+    // 아직 Palette가 연결되지 않은 기존 맵은
+    // BackgroundManager에 직렬화되어 있던 Legacy 목록을 사용한다.
+    private List<DecorationSet> GetActiveDecorationSets()
+    {
+        if (currentMapData != null &&
+            currentMapData.DecorationPalette != null &&
+            currentMapData.DecorationPalette.DecorationSets != null)
+        {
+            return
+                currentMapData
+                    .DecorationPalette
+                    .DecorationSets;
+        }
+
+        return decorationSets;
+    }
+
+
+    // <변경부분>
     // DecorationType에 대응하는 현재 DecorationSet을 반환한다.
     //
     // Occlusion 설정도 DecorationSet에서 관리하므로
-    // Sprite 목록과 동일한 데이터 소스를 그대로 사용한다.
+    // Sprite 목록과 동일한 활성 Palette 데이터를 사용한다.
     private DecorationSet GetDecorationSet(
         DecorationType decorationType)
     {
-        if (decorationSets == null)
+        List<DecorationSet> activeDecorationSets =
+            GetActiveDecorationSets();
+
+        if (activeDecorationSets == null)
         {
             return null;
         }
 
         for (int i = 0;
-             i < decorationSets.Count;
+             i < activeDecorationSets.Count;
              i++)
         {
             DecorationSet decorationSet =
-                decorationSets[i];
+                activeDecorationSets[i];
 
             if (decorationSet == null)
             {
@@ -942,35 +1347,77 @@ public class BackgroundManager : MonoBehaviour
     }
 
 
-    // <변경부분> 장식물 타입별 스프라이트 목록을 Dictionary로 정리
+    // <변경부분>
+    // 현재 Map의 DecorationPalette를 기준으로
+    // 장식물 타입별 Sprite 목록을 Dictionary로 정리한다.
+    //
+    // Palette가 없는 기존 맵은 Legacy decorationSets를 사용한다.
     private void BuildDecorationSpriteDictionary()
     {
-        decorationSpriteDictionary = new Dictionary<DecorationType, List<Sprite>>();
+        decorationSpriteDictionary =
+            new Dictionary<
+                DecorationType,
+                List<Sprite>
+            >();
 
-        for (int i = 0; i < decorationSets.Count; i++)
+
+        List<DecorationSet> activeDecorationSets =
+            GetActiveDecorationSets();
+
+        if (activeDecorationSets == null)
         {
-            DecorationSet decorationSet = decorationSets[i];
+            return;
+        }
+
+
+        for (int i = 0;
+             i < activeDecorationSets.Count;
+             i++)
+        {
+            DecorationSet decorationSet =
+                activeDecorationSets[i];
 
             if (decorationSet == null)
             {
                 continue;
             }
 
-            if (!decorationSpriteDictionary.ContainsKey(decorationSet.DecorationType))
+
+            if (!decorationSpriteDictionary.ContainsKey(
+                    decorationSet.DecorationType))
             {
-                decorationSpriteDictionary.Add(decorationSet.DecorationType, new List<Sprite>());
+                decorationSpriteDictionary.Add(
+                    decorationSet.DecorationType,
+                    new List<Sprite>()
+                );
             }
 
-            for (int j = 0; j < decorationSet.DecorationSprites.Count; j++)
+
+            if (decorationSet.DecorationSprites == null)
             {
-                Sprite sprite = decorationSet.DecorationSprites[j];
+                continue;
+            }
+
+
+            for (int j = 0;
+                 j < decorationSet.DecorationSprites.Count;
+                 j++)
+            {
+                Sprite sprite =
+                    decorationSet.DecorationSprites[j];
 
                 if (sprite == null)
                 {
                     continue;
                 }
 
-                decorationSpriteDictionary[decorationSet.DecorationType].Add(sprite);
+
+                decorationSpriteDictionary[
+                        decorationSet.DecorationType
+                    ]
+                    .Add(
+                        sprite
+                    );
             }
         }
     }
@@ -999,62 +1446,134 @@ public class BackgroundManager : MonoBehaviour
         return sprites[randomIndex];
     }
 
-    // <변경부분> 지정한 배경 좌표에 선택한 타입의 장식물을 생성
-    public void SpawnDecoration(DecorationType decorationType, int x, int y)
+    // <변경부분>
+    // 지정한 배경 좌표에 선택한 타입의 장식물을 랜덤 생성.
+    //
+    // 기존 자동 생성 / 테스트 생성 경로는 그대로 유지한다.
+    public void SpawnDecoration(
+     DecorationType decorationType,
+     int x,
+     int y)
     {
-        // <변경부분> 에디터에서 변경한 장식물 스프라이트 목록을 최신 상태로 갱신
-        BuildDecorationSpriteDictionary();
+        // 자동 생성이나 기존 랜덤 생성은
+        // 기본 Layer 0을 사용한다.
+        SpawnDecorationInternal(
+            decorationType,
+            x,
+            y,
+            null,
+            Vector3.zero,
+            0,
+            preventDuplicateDecoration
+        );
+    }
 
-        // 장식물 프리팹이 없으면 생성 중단
+
+    // <변경부분>
+    // 실제 장식물 생성 공통 경로.
+    //
+    // decorationSprite가 null이면 기존처럼 해당 타입에서 랜덤 선택한다.
+    //
+    // localPositionOffset은
+    // Anchor Tile 중심에서 자유 배치된 상대 위치다.
+    //
+    // removeExistingAtAnchor가 false이면
+    // 같은 Anchor에 여러 장식물을 허용한다.
+    private void SpawnDecorationInternal(
+      DecorationType decorationType,
+      int x,
+      int y,
+      Sprite decorationSprite,
+      Vector3 localPositionOffset,
+      int layerOffset,
+      bool removeExistingAtAnchor)
+    {
         if (decorationPrefab == null)
         {
-            Debug.LogError("DecorationPrefab이 연결되지 않았습니다.");
+            Debug.LogError(
+                "DecorationPrefab이 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        // 장식물 부모가 없으면 생성 중단
         if (decorationParent == null)
         {
-            Debug.LogError("DecorationParent가 연결되지 않았습니다.");
+            Debug.LogError(
+                "DecorationParent가 연결되지 않았습니다."
+            );
+
             return;
         }
 
-        // 장식물 타입에 맞는 스프라이트를 가져오기
-        Sprite decorationSprite = GetRandomDecorationSprite(decorationType);
-
-        if (decorationSprite == null)
+        if (x < 0 ||
+            x >= backgroundWidth ||
+            y < 0 ||
+            y >= backgroundHeight)
         {
-            Debug.LogWarning($"{decorationType} 타입에 연결된 장식물 스프라이트가 없습니다.");
+            Debug.LogWarning(
+                $"장식물 Anchor 좌표 ({x}, {y})가 배경 범위를 벗어났습니다."
+            );
+
             return;
         }
 
-        // 배경 범위 밖 좌표는 장식물 생성 중단
-        if (x < 0 || x >= backgroundWidth || y < 0 || y >= backgroundHeight)
+
+        Sprite resolvedDecorationSprite =
+            decorationSprite;
+
+        if (resolvedDecorationSprite == null)
         {
-            Debug.LogWarning($"장식물 좌표 ({x}, {y})가 배경 범위를 벗어났습니다.");
+            // 기존 랜덤 생성 또는 구형 저장 데이터 fallback.
+            BuildDecorationSpriteDictionary();
+
+            resolvedDecorationSprite =
+                GetRandomDecorationSprite(
+                    decorationType
+                );
+        }
+
+        if (resolvedDecorationSprite == null)
+        {
+            Debug.LogWarning(
+                $"{decorationType} 타입에 연결된 장식물 스프라이트가 없습니다."
+            );
+
             return;
         }
 
-        // <변경부분> 같은 좌표에 장식물이 중복 생성되지 않도록 기존 장식물 제거
-        if (preventDuplicateDecoration)
+
+        if (removeExistingAtAnchor)
         {
-            RemoveDecorationsAt(x, y);
+            RemoveDecorationsAt(
+                x,
+                y
+            );
         }
 
 
-        // 배경 좌표 기준으로 장식물 위치 계산
-        Vector3 spawnPosition = GridToWorld(x, y) + decorationOffset;
+        Vector3 spawnPosition =
+            GridToWorld(
+                x,
+                y
+            ) +
+            decorationOffset +
+            localPositionOffset;
 
-        // 공통 장식물 프리팹 생성
-        GameObject decorationObject = Instantiate(decorationPrefab, spawnPosition, Quaternion.identity, decorationParent);
 
-        // 생성된 장식물 이름을 좌표 기준으로 정리
-        decorationObject.name = $"Decoration_{decorationType}_{x}_{y}";
+        GameObject decorationObject =
+            Instantiate(
+                decorationPrefab,
+                spawnPosition,
+                Quaternion.identity,
+                decorationParent
+            );
 
-        // 생성된 장식물에 표시용 SpriteRenderer가 있는지 확인한다.
-        //
-        // 장식물은 SpriteRenderer가 없으면 정상적인 시각 오브젝트로
-        // 사용할 수 없으므로 불완전한 인스턴스를 남기지 않고 제거한다.
+
+        decorationObject.name =
+            $"Decoration_{decorationType}_{x}_{y}";
+
+
         SpriteRenderer spriteRenderer =
             decorationObject.GetComponent<SpriteRenderer>();
 
@@ -1074,11 +1593,11 @@ public class BackgroundManager : MonoBehaviour
             return;
         }
 
-        // 선택된 장식물 스프라이트를 적용한다.
-        spriteRenderer.sprite =
-            decorationSprite;
 
-        // 장식물을 배경 분위기에 맞게 어둡게 표시한다.
+        spriteRenderer.sprite =
+            resolvedDecorationSprite;
+
+
         if (useDarkDecoration)
         {
             float brightness =
@@ -1100,32 +1619,377 @@ public class BackgroundManager : MonoBehaviour
                 Color.white;
         }
 
-        // 장식물 데이터 초기화
-        Decoration decoration = decorationObject.GetComponent<Decoration>();
+
+        Decoration decoration =
+     decorationObject.GetComponent<Decoration>();
 
         if (decoration == null)
         {
-            decoration = decorationObject.AddComponent<Decoration>();
+            decoration =
+                decorationObject.AddComponent<Decoration>();
         }
 
-        decoration.Initialize(decorationType, x, y);
 
-        // 생성된 장식물이 배경 위에 자연스럽게 겹치도록 정렬 순서 적용
-        SetDecorationSortingOrder(decorationObject, x, y);
+        // <변경부분>
+        // 저장 데이터나 외부 호출에서 범위를 벗어난 값이 들어와도
+        // 다른 Grid의 Sorting 공간을 침범하지 않도록 제한한다.
+        int safeLayerOffset =
+            ClampDecorationLayerOffset(
+                layerOffset
+            );
+
+
+        decoration.Initialize(
+            decorationType,
+            x,
+            y,
+            safeLayerOffset
+        );
+
+
+        // <변경부분>
+        // Anchor Tile의 Depth와 장식물 Layer를 함께 사용하여
+        // 최종 Sorting Order를 계산한다.
+        SetDecorationSortingOrder(
+            decorationObject,
+            x,
+            y,
+            safeLayerOffset
+        );
     }
 
-    // <변경부분> 씬뷰에서 클릭한 위치를 기준으로 장식물 생성
-    public void PaintDecorationByWorldPosition(Vector3 worldPosition)
+
+    // <변경부분>
+    // 현재 Brush Source 설정에 따라 실제로 배치할 Sprite를 반환한다.
+    private Sprite GetDecorationBrushSprite()
     {
-        // 씬뷰 클릭 위치가 배경 배열 안에 있는지 확인
-        if (!TryGetBackgroundGridPosition(worldPosition, out int gridX, out int gridY))
+        if (decorationBrushSourceMode ==
+            DecorationBrushSourceMode.ExactSprite)
         {
+            return paintDecorationSprite;
+        }
+
+
+        BuildDecorationSpriteDictionary();
+
+
+        return GetRandomDecorationSprite(
+            paintDecorationType
+        );
+    }
+
+
+    // <변경부분>
+    // Scene View에서 클릭한 위치를 기준으로 장식물을 생성한다.
+    public void PaintDecorationByWorldPosition(
+        Vector3 worldPosition)
+    {
+        Sprite decorationSprite =
+            GetDecorationBrushSprite();
+
+        if (decorationSprite == null)
+        {
+            if (decorationBrushSourceMode ==
+                DecorationBrushSourceMode.ExactSprite)
+            {
+                Debug.LogWarning(
+                    "Exact Sprite 모드에서 배치할 Decoration Sprite가 지정되지 않았습니다."
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"{paintDecorationType} 타입에 연결된 장식물 스프라이트가 없습니다."
+                );
+            }
+
             return;
         }
 
-        // 현재 선택된 장식물 타입으로 해당 좌표에 장식물 생성
-        SpawnDecoration(paintDecorationType, gridX, gridY);
+
+        // =========================================================
+        // Grid Placement
+        // =========================================================
+        if (decorationPlacementMode ==
+            DecorationPlacementMode.Grid)
+        {
+            if (!TryGetBackgroundGridPosition(
+                    worldPosition,
+                    out int gridX,
+                    out int gridY))
+            {
+                return;
+            }
+
+
+            SpawnDecorationInternal(
+    paintDecorationType,
+    gridX,
+    gridY,
+    decorationSprite,
+    Vector3.zero,
+    paintDecorationLayerOffset,
+    preventDuplicateDecoration
+);
+
+            return;
+        }
+
+
+        // =========================================================
+        // Free Placement
+        // =========================================================
+        if (!hasFreePlacementAnchor)
+        {
+            Debug.LogWarning(
+                "Free Placement를 사용하려면 Scene View에서 Anchor Tile을 먼저 선택해야 합니다."
+            );
+
+            return;
+        }
+
+
+        BackgroundTile anchorTile =
+            GetBackgroundTileAt(
+                freePlacementAnchorX,
+                freePlacementAnchorY
+            );
+
+        if (anchorTile == null)
+        {
+            Debug.LogWarning(
+                "현재 선택된 Free Placement Anchor Tile을 찾을 수 없습니다. Anchor를 다시 선택해주세요."
+            );
+
+            return;
+        }
+
+
+        Vector3 anchorBasePosition =
+            GridToWorld(
+                freePlacementAnchorX,
+                freePlacementAnchorY
+            ) +
+            decorationOffset;
+
+
+        Vector3 localPositionOffset =
+            worldPosition -
+            anchorBasePosition;
+
+        localPositionOffset.z =
+            0f;
+
+
+        // Free Placement는 같은 Anchor Tile에
+        // 여러 장식물을 허용한다.
+        SpawnDecorationInternal(
+     paintDecorationType,
+     freePlacementAnchorX,
+     freePlacementAnchorY,
+     decorationSprite,
+     localPositionOffset,
+     paintDecorationLayerOffset,
+     false
+ );
     }
+
+
+    // <변경부분>
+    // Scene View에서 클릭한 실제 BackgroundTile을
+    // Free Placement Anchor로 지정한다.
+    public bool SetFreePlacementAnchorByWorldPosition(
+        Vector3 worldPosition)
+    {
+        if (!TryGetBackgroundGridPosition(
+                worldPosition,
+                out int gridX,
+                out int gridY))
+        {
+            return false;
+        }
+
+
+        BackgroundTile anchorTile =
+            GetBackgroundTileAt(
+                gridX,
+                gridY
+            );
+
+        if (anchorTile == null)
+        {
+            return false;
+        }
+
+
+        freePlacementAnchorX =
+            anchorTile.X;
+
+        freePlacementAnchorY =
+            anchorTile.Y;
+
+        hasFreePlacementAnchor =
+            true;
+
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            UnityEditor.EditorUtility.SetDirty(
+                this
+            );
+        }
+#endif
+
+
+        return true;
+    }
+
+
+    public bool HasFreePlacementAnchor =>
+        hasFreePlacementAnchor;
+
+    public int FreePlacementAnchorX =>
+        freePlacementAnchorX;
+
+    public int FreePlacementAnchorY =>
+        freePlacementAnchorY;
+
+    public bool UsesFreeDecorationPlacement =>
+        decorationPlacementMode ==
+        DecorationPlacementMode.Free;
+
+
+    // <변경부분>
+    // Scene View Anchor 표시용 중심 좌표를 반환한다.
+    public bool TryGetFreePlacementAnchorWorldPosition(
+        out Vector3 worldPosition)
+    {
+        worldPosition =
+            Vector3.zero;
+
+        if (!hasFreePlacementAnchor)
+        {
+            return false;
+        }
+
+
+        BackgroundTile anchorTile =
+            GetBackgroundTileAt(
+                freePlacementAnchorX,
+                freePlacementAnchorY
+            );
+
+        if (anchorTile == null)
+        {
+            return false;
+        }
+
+
+        worldPosition =
+            GridToWorld(
+                freePlacementAnchorX,
+                freePlacementAnchorY
+            );
+
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // Free + Exact Sprite Ghost Preview에 필요한 시각 정보를 반환한다.
+    public bool TryGetFreeDecorationPreviewData(
+        out Sprite sprite,
+        out Material material,
+        out int sortingLayerId,
+        out int sortingOrder,
+        out Color color)
+    {
+        sprite =
+            null;
+
+        material =
+            null;
+
+        sortingLayerId =
+            0;
+
+        sortingOrder =
+            0;
+
+        color =
+            Color.white;
+
+
+        if (decorationPlacementMode !=
+            DecorationPlacementMode.Free ||
+            decorationBrushSourceMode !=
+            DecorationBrushSourceMode.ExactSprite ||
+            !hasFreePlacementAnchor ||
+            paintDecorationSprite == null ||
+            decorationPrefab == null)
+        {
+            return false;
+        }
+
+
+        SpriteRenderer prefabRenderer =
+            decorationPrefab.GetComponent<SpriteRenderer>();
+
+        if (prefabRenderer == null)
+        {
+            return false;
+        }
+
+
+        sprite =
+            paintDecorationSprite;
+
+        material =
+            prefabRenderer.sharedMaterial;
+
+        sortingLayerId =
+            prefabRenderer.sortingLayerID;
+
+        // <변경부분>
+        // Preview 역시 실제 배치될 Decoration과
+        // 완전히 동일한 Layer 값을 사용한다.
+        int safeLayerOffset =
+            ClampDecorationLayerOffset(
+                paintDecorationLayerOffset
+            );
+
+
+        sortingOrder =
+            GetEventWorldSortingOrder(
+                freePlacementAnchorX,
+                freePlacementAnchorY,
+                DecorationSortingBaseOffset +
+                safeLayerOffset
+            );
+
+
+        float brightness =
+            useDarkDecoration
+                ? Mathf.Clamp01(
+                    decorationBrightness
+                )
+                : 1f;
+
+
+        color =
+            new Color(
+                brightness,
+                brightness,
+                brightness,
+                0.45f
+            );
+
+
+        return true;
+    }
+
 
     // <변경부분> 같은 배경 좌표에 이미 존재하는 장식물을 모두 제거
     private void RemoveDecorationsAt(int x, int y)
@@ -1251,31 +2115,265 @@ public class BackgroundManager : MonoBehaviour
             }
 
             // 현재 타일 좌표에 규칙에 맞는 장식물 생성
-            SpawnDecoration(rule.DecorationType, tile.X, tile.Y);
+            SpawnDecoration(
+                rule.DecorationType,
+                tile.X,
+                tile.Y
+            );
 
             // 한 타일에 장식물이 여러 개 생기지 않도록 첫 생성 후 중단
             return;
         }
     }
 
-    // <변경부분> 씬뷰에서 클릭한 위치를 기준으로 장식물을 제거
-    public void EraseDecorationByWorldPosition(Vector3 worldPosition)
+
+    // <변경부분>
+    // Free Placement 삭제에서 현재 마우스 위치와 겹치는
+    // Decoration 하나를 찾는다.
+    //
+    // 여러 Decoration이 겹쳐 있는 경우:
+    // 1. Sorting Layer가 더 앞인 것
+    // 2. Sorting Order가 더 높은 것
+    // 3. 그래도 같으면 Sprite 중심이 클릭 위치에 더 가까운 것
+    //
+    // 순서로 삭제 대상을 결정한다.
+    private Decoration FindDecorationAtWorldPosition(
+        Vector3 worldPosition)
     {
-        // 씬뷰 클릭 위치가 배경 배열 안에 있는지 확인
-        if (!TryGetBackgroundGridPosition(worldPosition, out int gridX, out int gridY))
+        if (decorationParent == null)
+        {
+            return null;
+        }
+
+
+        Decoration bestDecoration =
+            null;
+
+        int bestSortingLayerValue =
+            int.MinValue;
+
+        int bestSortingOrder =
+            int.MinValue;
+
+        float bestDistance =
+            float.MaxValue;
+
+
+        for (int i = 0;
+             i < decorationParent.childCount;
+             i++)
+        {
+            Transform child =
+                decorationParent.GetChild(i);
+
+            if (child == null)
+            {
+                continue;
+            }
+
+
+            Decoration decoration =
+                child.GetComponent<Decoration>();
+
+            if (decoration == null)
+            {
+                continue;
+            }
+
+
+            SpriteRenderer spriteRenderer =
+                child.GetComponent<SpriteRenderer>();
+
+            if (spriteRenderer == null ||
+                spriteRenderer.sprite == null ||
+                !spriteRenderer.enabled)
+            {
+                continue;
+            }
+
+
+            Bounds bounds =
+                spriteRenderer.bounds;
+
+
+            // Renderer.bounds는 3D Bounds이므로
+            // 2D 편집에서는 X / Y 영역만 검사한다.
+            if (worldPosition.x < bounds.min.x ||
+                worldPosition.x > bounds.max.x ||
+                worldPosition.y < bounds.min.y ||
+                worldPosition.y > bounds.max.y)
+            {
+                continue;
+            }
+
+
+            int sortingLayerValue =
+                SortingLayer.GetLayerValueFromID(
+                    spriteRenderer.sortingLayerID
+                );
+
+            int sortingOrder =
+                spriteRenderer.sortingOrder;
+
+
+            Vector2 clickPosition =
+                new Vector2(
+                    worldPosition.x,
+                    worldPosition.y
+                );
+
+            Vector2 spriteCenter =
+                new Vector2(
+                    bounds.center.x,
+                    bounds.center.y
+                );
+
+            float distance =
+                Vector2.SqrMagnitude(
+                    clickPosition -
+                    spriteCenter
+                );
+
+
+            bool isBetterCandidate =
+                false;
+
+
+            if (bestDecoration == null)
+            {
+                isBetterCandidate =
+                    true;
+            }
+            else if (sortingLayerValue >
+                     bestSortingLayerValue)
+            {
+                isBetterCandidate =
+                    true;
+            }
+            else if (sortingLayerValue ==
+                     bestSortingLayerValue &&
+                     sortingOrder >
+                     bestSortingOrder)
+            {
+                isBetterCandidate =
+                    true;
+            }
+            else if (sortingLayerValue ==
+                     bestSortingLayerValue &&
+                     sortingOrder ==
+                     bestSortingOrder &&
+                     distance <
+                     bestDistance)
+            {
+                isBetterCandidate =
+                    true;
+            }
+
+
+            if (!isBetterCandidate)
+            {
+                continue;
+            }
+
+
+            bestDecoration =
+                decoration;
+
+            bestSortingLayerValue =
+                sortingLayerValue;
+
+            bestSortingOrder =
+                sortingOrder;
+
+            bestDistance =
+                distance;
+        }
+
+
+        return bestDecoration;
+    }
+
+
+    // <변경부분>
+    // Free Placement에서 실제 클릭한 Decoration 하나만 삭제한다.
+    private void EraseSingleDecorationByWorldPosition(
+        Vector3 worldPosition)
+    {
+        Decoration decoration =
+            FindDecorationAtWorldPosition(
+                worldPosition
+            );
+
+        if (decoration == null)
         {
             return;
         }
 
-        // 클릭한 좌표에 존재하는 장식물을 제거
-        RemoveDecorationsAt(gridX, gridY);
+
+        DestroyBackgroundObject(
+            decoration.gameObject
+        );
     }
 
-    // <변경부분> 장식물이 배경 타일 위에 보이도록 아이소메트릭 정렬 순서 계산
+
+    // <변경부분>
+    // Scene View에서 클릭한 위치를 기준으로 Decoration을 제거한다.
+    //
+    // Grid Placement:
+    // 기존 방식대로 해당 Grid에 연결된 Decoration 전체 삭제.
+    //
+    // Free Placement:
+    // 마우스로 직접 클릭한 Decoration 하나만 삭제.
+    public void EraseDecorationByWorldPosition(
+        Vector3 worldPosition)
+    {
+        if (decorationPlacementMode ==
+            DecorationPlacementMode.Free)
+        {
+            EraseSingleDecorationByWorldPosition(
+                worldPosition
+            );
+
+            return;
+        }
+
+
+        if (!TryGetBackgroundGridPosition(
+                worldPosition,
+                out int gridX,
+                out int gridY))
+        {
+            return;
+        }
+
+
+        RemoveDecorationsAt(
+            gridX,
+            gridY
+        );
+    }
+
+    // <변경부분>
+    // Decoration Layer 값을 현재 허용 범위로 제한한다.
+    private int ClampDecorationLayerOffset(
+        int layerOffset)
+    {
+        return Mathf.Clamp(
+            layerOffset,
+            DecorationLayerOffsetMin,
+            DecorationLayerOffsetMax
+        );
+    }
+
+
+    // <변경부분>
+    // 장식물의 Anchor Grid와 Layer를 기준으로
+    // 실제 Sorting Order를 적용한다.
     private void SetDecorationSortingOrder(
-    GameObject decorationObject,
-    int x,
-    int y)
+        GameObject decorationObject,
+        int x,
+        int y,
+        int layerOffset)
     {
         SpriteRenderer spriteRenderer =
             decorationObject.GetComponent<SpriteRenderer>();
@@ -1285,21 +2383,23 @@ public class BackgroundManager : MonoBehaviour
             return;
         }
 
-        // <변경부분>
-        // Decoration과 Event Actor가 같은 -5000대 World Depth 공간을 공유한다.
-        //
-        // 동일한 Grid Depth 안에서는 Decoration에 +1 Offset을 주어
-        // 같은 타일에 서 있는 Event Actor보다 Decoration이 앞에 보이게 한다.
+
+        int safeLayerOffset =
+            ClampDecorationLayerOffset(
+                layerOffset
+            );
+
+
         spriteRenderer.sortingOrder =
             GetEventWorldSortingOrder(
                 x,
                 y,
-                DecorationSortingOffset
+                DecorationSortingBaseOffset +
+                safeLayerOffset
             );
     }
 
 
-    // <변경부분>
     // Event Scene의 Actor / Decoration이 공통으로 사용할
     // 아이소메트릭 World Sorting Order를 계산한다.
     private int GetEventWorldSortingOrder(
@@ -1746,19 +2846,43 @@ public class BackgroundManager : MonoBehaviour
             {
                 for (int y = 0; y < backgroundHeight; y++)
                 {
-                    BackgroundTile tile = backgroundTiles[x, y];
+                    BackgroundTile tile =
+     backgroundTiles[x, y];
 
                     if (tile == null)
                     {
                         continue;
                     }
 
-                    BackgroundTileSaveData tileData = new BackgroundTileSaveData();
-                    tileData.X = tile.X;
-                    tileData.Y = tile.Y;
-                    tileData.TileType = tile.TileType;
 
-                    currentMapData.Tiles.Add(tileData);
+                    SpriteRenderer tileSpriteRenderer =
+                        tile.GetComponent<SpriteRenderer>();
+
+
+                    BackgroundTileSaveData tileData =
+                        new BackgroundTileSaveData();
+
+                    tileData.X =
+                        tile.X;
+
+                    tileData.Y =
+                        tile.Y;
+
+                    tileData.TileType =
+                        tile.TileType;
+
+                    // <변경부분>
+                    // 현재 Scene에 실제로 표시되고 있는
+                    // 타일 Sprite를 그대로 저장한다.
+                    tileData.TileSprite =
+                        tileSpriteRenderer != null
+                            ? tileSpriteRenderer.sprite
+                            : null;
+
+
+                    currentMapData.Tiles.Add(
+                        tileData
+                    );
                 }
             }
         }
@@ -1786,21 +2910,67 @@ public class BackgroundManager : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < decorationParent.childCount; i++)
+        for (int i = 0;
+     i < decorationParent.childCount;
+     i++)
         {
-            Decoration decoration = decorationParent.GetChild(i).GetComponent<Decoration>();
+            Decoration decoration =
+                decorationParent
+                    .GetChild(i)
+                    .GetComponent<Decoration>();
 
             if (decoration == null)
             {
                 continue;
             }
 
-            DecorationSaveData decorationData = new DecorationSaveData();
-            decorationData.X = decoration.X;
-            decorationData.Y = decoration.Y;
-            decorationData.DecorationType = decoration.DecorationType;
 
-            currentMapData.Decorations.Add(decorationData);
+            SpriteRenderer spriteRenderer =
+                decoration.GetComponent<SpriteRenderer>();
+
+
+            DecorationSaveData decorationData =
+                new DecorationSaveData();
+
+
+            decorationData.X =
+                decoration.X;
+
+            decorationData.Y =
+                decoration.Y;
+
+            decorationData.DecorationType =
+                decoration.DecorationType;
+
+            decorationData.DecorationSprite =
+                spriteRenderer != null
+                    ? spriteRenderer.sprite
+                    : null;
+
+
+            Vector3 anchorBasePosition =
+                GridToWorld(
+                    decoration.X,
+                    decoration.Y
+                ) +
+                decorationOffset;
+
+
+            decorationData.LocalPositionOffset =
+     decoration.transform.position -
+     anchorBasePosition;
+
+
+            // <변경부분>
+            // 동일 Anchor 내부에서 설정했던
+            // 장식물의 앞뒤 Layer도 함께 저장한다.
+            decorationData.LayerOffset =
+                decoration.LayerOffset;
+
+
+            currentMapData.Decorations.Add(
+                decorationData
+            );
         }
     }
 
@@ -1898,10 +3068,11 @@ public class BackgroundManager : MonoBehaviour
                 }
 
                 SpawnBackgroundTile(
-                    tileData.TileType,
-                    tileData.X,
-                    tileData.Y
-                );
+      tileData.TileType,
+      tileData.X,
+      tileData.Y,
+      tileData.TileSprite
+  );
             }
         }
 
@@ -1923,11 +3094,15 @@ public class BackgroundManager : MonoBehaviour
                     continue;
                 }
 
-                SpawnDecoration(
-                    decorationData.DecorationType,
-                    decorationData.X,
-                    decorationData.Y
-                );
+                SpawnDecorationInternal(
+     decorationData.DecorationType,
+     decorationData.X,
+     decorationData.Y,
+     decorationData.DecorationSprite,
+     decorationData.LocalPositionOffset,
+     decorationData.LayerOffset,
+     false
+ );
             }
         }
 
@@ -2048,6 +3223,15 @@ public class BackgroundManagerEditor : Editor
     // <변경부분> 씬뷰에서 장식물 삭제 브러시를 사용할지 저장
     private bool isDecorationEraseMode = false;
 
+    // <변경부분>
+    // Free Placement의 기준 타일을 Scene View에서 선택 중인지 저장
+    private bool isSelectingDecorationAnchor = false;
+
+    // <변경부분>
+    // Free + Exact Sprite 배치용 반투명 Ghost Preview
+    private GameObject decorationPreviewObject;
+    private SpriteRenderer decorationPreviewRenderer;
+
     private void OnEnable()
     {
         // 씬뷰에서 배경 에디터 입력을 감지
@@ -2058,7 +3242,218 @@ public class BackgroundManagerEditor : Editor
     {
         // 에디터 선택이 해제되면 씬뷰 입력 감지를 중단
         SceneView.duringSceneGui -= HandleSceneGUI;
+
+        DestroyDecorationPreview();
     }
+
+
+    // <변경부분>
+    // Ghost Preview 오브젝트를 즉시 정리한다.
+    private void DestroyDecorationPreview()
+    {
+        if (decorationPreviewObject != null)
+        {
+            DestroyImmediate(
+                decorationPreviewObject
+            );
+        }
+
+        decorationPreviewObject =
+            null;
+
+        decorationPreviewRenderer =
+            null;
+    }
+
+
+    // <변경부분>
+    // Scene View 마우스 위치를 실제 Background 평면 Z=0으로 변환한다.
+    private bool TryGetSceneWorldPosition(
+        Event currentEvent,
+        out Vector3 worldPosition)
+    {
+        worldPosition =
+            Vector3.zero;
+
+        if (currentEvent == null)
+        {
+            return false;
+        }
+
+
+        Ray mouseRay =
+            HandleUtility.GUIPointToWorldRay(
+                currentEvent.mousePosition
+            );
+
+
+        Plane worldPlane =
+            new Plane(
+                Vector3.forward,
+                Vector3.zero
+            );
+
+
+        if (!worldPlane.Raycast(
+                mouseRay,
+                out float enter))
+        {
+            return false;
+        }
+
+
+        worldPosition =
+            mouseRay.GetPoint(
+                enter
+            );
+
+        worldPosition.z =
+            0f;
+
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // Free + Exact Sprite에서 반투명 Ghost Preview를
+    // 마우스 위치에 표시한다.
+    private void UpdateDecorationPreview(
+        BackgroundManager manager,
+        Vector3 worldPosition)
+    {
+        if (!isDecorationPaintMode ||
+            manager == null ||
+            !manager.TryGetFreeDecorationPreviewData(
+                out Sprite previewSprite,
+                out Material previewMaterial,
+                out int sortingLayerId,
+                out int sortingOrder,
+                out Color previewColor))
+        {
+            DestroyDecorationPreview();
+            return;
+        }
+
+
+        if (decorationPreviewObject == null ||
+            decorationPreviewRenderer == null)
+        {
+            decorationPreviewObject =
+                new GameObject(
+                    "__DecorationPreview"
+                );
+
+            decorationPreviewObject.hideFlags =
+                HideFlags.HideAndDontSave;
+
+            decorationPreviewRenderer =
+                decorationPreviewObject
+                    .AddComponent<SpriteRenderer>();
+        }
+
+
+        decorationPreviewObject.transform.position =
+            worldPosition;
+
+        decorationPreviewRenderer.sprite =
+            previewSprite;
+
+        decorationPreviewRenderer.sharedMaterial =
+            previewMaterial;
+
+        decorationPreviewRenderer.sortingLayerID =
+            sortingLayerId;
+
+        decorationPreviewRenderer.sortingOrder =
+            sortingOrder;
+
+        decorationPreviewRenderer.color =
+            previewColor;
+    }
+
+
+    // <변경부분>
+    // 현재 BackgroundMapData가 사용할 DecorationPalette를
+    // BackgroundManager Inspector에서도 바로 지정할 수 있게 한다.
+    private void DrawDecorationPaletteField()
+    {
+        SerializedProperty currentMapDataProperty =
+            serializedObject.FindProperty(
+                "currentMapData"
+            );
+
+
+        BackgroundMapData mapData =
+            currentMapDataProperty != null
+                ? currentMapDataProperty.objectReferenceValue
+                    as BackgroundMapData
+                : null;
+
+
+        if (mapData == null)
+        {
+            EditorGUILayout.HelpBox(
+                "Current Map Data를 먼저 연결하면 " +
+                "스테이지용 Decoration Palette를 지정할 수 있습니다.",
+                MessageType.Info
+            );
+
+            return;
+        }
+
+
+        EditorGUI.BeginChangeCheck();
+
+
+        DecorationPaletteData newPalette =
+            EditorGUILayout.ObjectField(
+                "Decoration Palette",
+                mapData.DecorationPalette,
+                typeof(DecorationPaletteData),
+                false
+            ) as DecorationPaletteData;
+
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(
+                mapData,
+                "Change Decoration Palette"
+            );
+
+            mapData.DecorationPalette =
+                newPalette;
+
+            EditorUtility.SetDirty(
+                mapData
+            );
+        }
+
+
+        // Palette가 아직 없는 기존 Scene은
+        // 기존 decorationSets를 계속 사용할 수 있게 보여준다.
+        if (mapData.DecorationPalette == null)
+        {
+            EditorGUILayout.HelpBox(
+                "Decoration Palette가 아직 연결되지 않았습니다. " +
+                "현재는 기존 Legacy Decoration Sets를 사용합니다.",
+                MessageType.Warning
+            );
+
+
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty(
+                    "decorationSets"
+                ),
+                new GUIContent(
+                    "Legacy Decoration Sets"
+                ),
+                true
+            );
+        }
+    }
+
 
     public override void OnInspectorGUI()
     {
@@ -2165,11 +3560,62 @@ public class BackgroundManagerEditor : Editor
 
 
         // 타일 페인트 설정
+        SerializedProperty tileBrushSourceModeProperty =
+            serializedObject.FindProperty(
+                "backgroundTileBrushSourceMode"
+            );
+
+
+        EditorGUILayout.PropertyField(
+            tileBrushSourceModeProperty,
+            new GUIContent(
+                "Source Mode"
+            )
+        );
+
+
         EditorGUILayout.PropertyField(
             serializedObject.FindProperty(
                 "paintTileType"
+            ),
+            new GUIContent(
+                "Tile Type"
             )
         );
+
+
+        if (tileBrushSourceModeProperty.enumValueIndex ==
+            (int)BackgroundTileBrushSourceMode.ExactSprite)
+        {
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty(
+                    "paintTileSprite"
+                ),
+                new GUIContent(
+                    "Exact Sprite"
+                )
+            );
+
+
+            SerializedProperty paintTileTypeProperty =
+                serializedObject.FindProperty(
+                    "paintTileType"
+                );
+
+
+            if (paintTileTypeProperty.enumValueIndex ==
+                (int)BackgroundTileType.All)
+            {
+                EditorGUILayout.HelpBox(
+                    "Exact Sprite 모드에서는 All이 아니라 실제 Tile Type을 지정해주세요.",
+                    MessageType.Warning
+                );
+            }
+        }
+
+
+        GUILayout.Space(3);
+
 
         EditorGUILayout.PropertyField(
             serializedObject.FindProperty(
@@ -2342,12 +3788,7 @@ public class BackgroundManagerEditor : Editor
         GUILayout.Space(5);
 
 
-        EditorGUILayout.PropertyField(
-            serializedObject.FindProperty(
-                "decorationSets"
-            ),
-            true
-        );
+        DrawDecorationPaletteField();
 
 
         GUILayout.Space(5);
@@ -2400,17 +3841,160 @@ public class BackgroundManagerEditor : Editor
 
 
         // 데코레이션 브러시 설정
-        EditorGUILayout.PropertyField(
+        SerializedProperty brushSourceModeProperty =
             serializedObject.FindProperty(
-                "paintDecorationType"
+                "decorationBrushSourceMode"
+            );
+
+        SerializedProperty placementModeProperty =
+            serializedObject.FindProperty(
+                "decorationPlacementMode"
+            );
+
+
+        EditorGUILayout.PropertyField(
+            brushSourceModeProperty,
+            new GUIContent(
+                "Source Mode"
             )
         );
 
+
         EditorGUILayout.PropertyField(
             serializedObject.FindProperty(
-                "preventDuplicateDecoration"
+                "paintDecorationType"
+            ),
+            new GUIContent(
+                "Decoration Type"
             )
         );
+
+
+        if (brushSourceModeProperty.enumValueIndex ==
+      (int)DecorationBrushSourceMode.ExactSprite)
+        {
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty(
+                    "paintDecorationSprite"
+                ),
+                new GUIContent(
+                    "Exact Sprite"
+                )
+            );
+        }
+
+
+        GUILayout.Space(3);
+
+
+        // <변경부분>
+        // 동일 Anchor 안에서 새로 배치할 장식물의
+        // 앞뒤 순서를 선택한다.
+        EditorGUILayout.IntSlider(
+            serializedObject.FindProperty(
+                "paintDecorationLayerOffset"
+            ),
+            -3,
+            3,
+            new GUIContent(
+                "Decoration Layer"
+            )
+        );
+
+
+        EditorGUILayout.HelpBox(
+            "-3 = 뒤쪽 / 0 = 기본 / +3 = 앞쪽",
+            MessageType.None
+        );
+
+
+        GUILayout.Space(3);
+
+
+        EditorGUILayout.PropertyField(
+            placementModeProperty,
+            new GUIContent(
+                "Placement Mode"
+            )
+        );
+
+
+        if (placementModeProperty.enumValueIndex ==
+            (int)DecorationPlacementMode.Free)
+        {
+            GUILayout.Space(3);
+
+
+            if (manager.HasFreePlacementAnchor)
+            {
+                EditorGUILayout.HelpBox(
+                    $"Anchor Tile : ({manager.FreePlacementAnchorX}, {manager.FreePlacementAnchorY})",
+                    MessageType.Info
+                );
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(
+                    "Free Placement를 사용하려면 Scene View에서 Anchor Tile을 먼저 선택해주세요.",
+                    MessageType.Warning
+                );
+            }
+
+
+            string anchorButtonLabel =
+                isSelectingDecorationAnchor
+                    ? "Anchor Tile 선택 취소"
+                    : "Scene에서 Anchor Tile 선택";
+
+
+            if (GUILayout.Button(
+                    anchorButtonLabel))
+            {
+                isSelectingDecorationAnchor =
+                    !isSelectingDecorationAnchor;
+
+                if (isSelectingDecorationAnchor)
+                {
+                    isScenePaintMode =
+                        false;
+
+                    isDecorationPaintMode =
+                        false;
+
+                    isDecorationEraseMode =
+                        false;
+
+                    DestroyDecorationPreview();
+                }
+
+
+                SceneView.RepaintAll();
+            }
+
+
+            if (brushSourceModeProperty.enumValueIndex ==
+                (int)DecorationBrushSourceMode.ExactSprite)
+            {
+                EditorGUILayout.HelpBox(
+                    "배치 모드를 켜면 선택한 Sprite가 반투명 Preview로 마우스를 따라갑니다.",
+                    MessageType.None
+                );
+            }
+
+
+            EditorGUILayout.HelpBox(
+                "Free Placement에서는 같은 Anchor Tile에 여러 장식물을 배치할 수 있습니다.",
+                MessageType.None
+            );
+        }
+        else
+        {
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty(
+                    "preventDuplicateDecoration"
+                )
+            );
+        }
 
 
         GUILayout.Space(5);
@@ -2459,20 +4043,66 @@ public class BackgroundManagerEditor : Editor
         GUILayout.Space(5);
 
 
-        isDecorationPaintMode =
-            GUILayout.Toggle(
-                isDecorationPaintMode,
-                "데코레이션 배치 모드",
-                "Button"
-            );
+        bool newDecorationPaintMode =
+    GUILayout.Toggle(
+        isDecorationPaintMode,
+        "데코레이션 배치 모드",
+        "Button"
+    );
 
 
-        isDecorationEraseMode =
+        if (newDecorationPaintMode !=
+            isDecorationPaintMode)
+        {
+            isDecorationPaintMode =
+                newDecorationPaintMode;
+
+            if (isDecorationPaintMode)
+            {
+                isScenePaintMode =
+                    false;
+
+                isDecorationEraseMode =
+                    false;
+
+                isSelectingDecorationAnchor =
+                    false;
+            }
+            else
+            {
+                DestroyDecorationPreview();
+            }
+        }
+
+
+        bool newDecorationEraseMode =
             GUILayout.Toggle(
                 isDecorationEraseMode,
                 "데코레이션 삭제 모드",
                 "Button"
             );
+
+
+        if (newDecorationEraseMode !=
+            isDecorationEraseMode)
+        {
+            isDecorationEraseMode =
+                newDecorationEraseMode;
+
+            if (isDecorationEraseMode)
+            {
+                isScenePaintMode =
+                    false;
+
+                isDecorationPaintMode =
+                    false;
+
+                isSelectingDecorationAnchor =
+                    false;
+
+                DestroyDecorationPreview();
+            }
+        }
 
 
         EditorGUILayout.EndVertical();
@@ -2547,52 +4177,223 @@ public class BackgroundManagerEditor : Editor
 
     private void HandleSceneGUI(SceneView sceneView)
     {
-        // <변경부분> 모든 씬뷰 편집 모드가 꺼져 있으면 입력을 받지 않음
-        if (!isScenePaintMode && !isDecorationPaintMode && !isDecorationEraseMode)
+        BackgroundManager manager =
+            (BackgroundManager)target;
+
+        Event currentEvent =
+            Event.current;
+
+
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
+            DestroyDecorationPreview();
             return;
         }
 
-        BackgroundManager manager = (BackgroundManager)target;
-        Event currentEvent = Event.current;
 
-        // Alt 입력 중에는 씬뷰 카메라 조작을 우선
+        // Ghost Preview가 마우스 이동 이벤트를 계속 받을 수 있게 한다.
+        sceneView.wantsMouseMove =
+            true;
+
+
+        // 현재 Free Placement Anchor를 Scene View에 표시한다.
+        if (manager.UsesFreeDecorationPlacement &&
+            manager.TryGetFreePlacementAnchorWorldPosition(
+                out Vector3 anchorWorldPosition))
+        {
+            Handles.Label(
+                anchorWorldPosition +
+                new Vector3(
+                    0f,
+                    0.18f,
+                    0f
+                ),
+                $"ANCHOR ({manager.FreePlacementAnchorX}, {manager.FreePlacementAnchorY})"
+            );
+
+            Handles.DrawWireDisc(
+                anchorWorldPosition,
+                Vector3.forward,
+                0.08f
+            );
+        }
+
+
+        if (!isScenePaintMode &&
+            !isDecorationPaintMode &&
+            !isDecorationEraseMode &&
+            !isSelectingDecorationAnchor)
+        {
+            DestroyDecorationPreview();
+            return;
+        }
+
+
+        // Alt는 Scene View 카메라 조작 우선.
         if (currentEvent.alt)
         {
             return;
         }
 
-        // 좌클릭 또는 좌클릭 드래그일 때 배경 타일 페인트
-        if ((currentEvent.type == EventType.MouseDown || currentEvent.type == EventType.MouseDrag) &&
+
+        bool hasFreeWorldPosition =
+            TryGetSceneWorldPosition(
+                currentEvent,
+                out Vector3 freeWorldPosition
+            );
+
+
+        // Free + Exact Sprite일 때만 내부적으로 Preview가 표시된다.
+        if (hasFreeWorldPosition)
+        {
+            UpdateDecorationPreview(
+                manager,
+                freeWorldPosition
+            );
+        }
+        else
+        {
+            DestroyDecorationPreview();
+        }
+
+
+        if (currentEvent.type ==
+            EventType.MouseMove)
+        {
+            sceneView.Repaint();
+        }
+
+
+        // =========================================================
+        // Anchor Tile 선택
+        // 다른 Paint / Erase보다 항상 우선 처리한다.
+        // =========================================================
+        if (isSelectingDecorationAnchor &&
+            currentEvent.type == EventType.MouseDown &&
             currentEvent.button == 0)
         {
-            Ray mouseRay = HandleUtility.GUIPointToWorldRay(currentEvent.mousePosition);
-
-            // 씬뷰 마우스 위치를 2D 월드 좌표로 변환
-            Vector3 worldPosition = mouseRay.origin;
-
-            // <변경부분> 장식물 삭제 모드가 켜져 있으면 장식물을 제거
-            if (isDecorationEraseMode)
+            if (hasFreeWorldPosition &&
+                manager.SetFreePlacementAnchorByWorldPosition(
+                    freeWorldPosition))
             {
-                manager.EraseDecorationByWorldPosition(worldPosition);
+                isSelectingDecorationAnchor =
+                    false;
+
+                EditorUtility.SetDirty(
+                    manager
+                );
+
+                Repaint();
+                SceneView.RepaintAll();
             }
-            // 장식물 페인트 모드가 켜져 있으면 장식물을 배치
-            else if (isDecorationPaintMode)
+            else
             {
-                manager.PaintDecorationByWorldPosition(worldPosition);
-            }
-            // 배경 타일 페인트 모드가 켜져 있으면 배경 타일을 교체
-            else if (isScenePaintMode)
-            {
-                manager.PaintBackgroundTileByWorldPosition(worldPosition);
+                Debug.LogWarning(
+                    "Anchor Tile 선택 실패: 실제 BackgroundTile 위를 클릭해주세요."
+                );
             }
 
-            // 에디터 변경 사항을 씬에 저장 가능 상태로 표시
-            EditorUtility.SetDirty(manager);
 
-            // 클릭 입력이 오브젝트 선택으로 넘어가지 않도록 차단
             currentEvent.Use();
+            return;
         }
+
+
+        bool isLeftMouseDown =
+            currentEvent.type == EventType.MouseDown &&
+            currentEvent.button == 0;
+
+        bool isLeftMouseDrag =
+            currentEvent.type == EventType.MouseDrag &&
+            currentEvent.button == 0;
+
+
+        if (!isLeftMouseDown &&
+            !isLeftMouseDrag)
+        {
+            return;
+        }
+
+
+        // Free Placement는 정밀 배치이므로
+        // Drag 연속 생성 없이 클릭만 사용한다.
+        if (isDecorationPaintMode &&
+            manager.UsesFreeDecorationPlacement &&
+            isLeftMouseDrag)
+        {
+            return;
+        }
+
+
+        Ray mouseRay =
+     HandleUtility.GUIPointToWorldRay(
+         currentEvent.mousePosition
+     );
+
+
+        // 기존 Grid Paint / Erase는
+        // 기존 좌표 계산 방식을 그대로 유지한다.
+        Vector3 worldPosition =
+            mouseRay.origin;
+
+
+        if (isDecorationEraseMode)
+        {
+            // <변경부분>
+            // Free Placement에서는 Sprite 자체를 클릭해서
+            // 개별 삭제해야 하므로 Z=0 평면의 정확한 World Position을 사용한다.
+            if (manager.UsesFreeDecorationPlacement)
+            {
+                if (!hasFreeWorldPosition)
+                {
+                    return;
+                }
+
+                manager.EraseDecorationByWorldPosition(
+                    freeWorldPosition
+                );
+            }
+            else
+            {
+                manager.EraseDecorationByWorldPosition(
+                    worldPosition
+                );
+            }
+        }
+        else if (isDecorationPaintMode)
+        {
+            if (manager.UsesFreeDecorationPlacement)
+            {
+                if (!hasFreeWorldPosition)
+                {
+                    return;
+                }
+
+                manager.PaintDecorationByWorldPosition(
+                    freeWorldPosition
+                );
+            }
+            else
+            {
+                manager.PaintDecorationByWorldPosition(
+                    worldPosition
+                );
+            }
+        }
+        else if (isScenePaintMode)
+        {
+            manager.PaintBackgroundTileByWorldPosition(
+                worldPosition
+            );
+        }
+
+
+        EditorUtility.SetDirty(
+            manager
+        );
+
+
+        currentEvent.Use();
     }
 }
 
@@ -2601,8 +4402,19 @@ public class BackgroundManagerEditor : Editor
 [System.Serializable]
 public class DecorationSet
 {
+    // <변경부분>
+    // Inspector에서 이 장식물 묶음을 구분하기 위한 이름.
+    //
+    // 예:
+    // Forest Trees
+    // Forest Rocks
+    // Shop Props
+    public string SetName;
+
+
     // 장식물 종류를 구분하는 타입
     public DecorationType DecorationType;
+
 
     // 같은 타입 안에서 랜덤으로 사용할 여러 장식물 스프라이트
     public List<Sprite> DecorationSprites = new List<Sprite>();
