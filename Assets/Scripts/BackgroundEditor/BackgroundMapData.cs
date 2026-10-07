@@ -57,13 +57,17 @@ public class BackgroundTileSaveData
     // 저장할 배경 타일 타입
     public BackgroundTileType TileType;
 
-    // <변경부분>
     // 저장 당시 실제로 사용된 배경 타일 Sprite.
     //
-    // 기존 구형 데이터에서는 null이며,
-    // 이 경우 BackgroundManager가 해당 TileType에서
-    // 기존 방식대로 랜덤 Sprite를 선택한다.
+    // Prefab 방식에서는 null이다.
     public Sprite TileSprite;
+
+    // <변경부분>
+    // Prefab 방식의 배경 타일일 경우
+    // 실제로 사용한 원본 Prefab Asset을 저장한다.
+    //
+    // 기존 Sprite 기반 데이터에서는 null이다.
+    public GameObject TilePrefab;
 }
 
 [System.Serializable]
@@ -78,14 +82,18 @@ public class DecorationSaveData
     // 저장할 장식물 타입
     public DecorationType DecorationType;
 
-    // <변경부분>
     // 저장 당시 실제로 사용된 장식물 Sprite.
     //
-    // 기존 구형 데이터에서는 null이며,
-    // 이 경우 BackgroundManager가 기존 타입 랜덤 방식으로 fallback한다.
+    // Prefab 방식에서는 null이다.
     public Sprite DecorationSprite;
 
     // <변경부분>
+    // Prefab 방식의 Decoration일 경우
+    // 실제로 사용한 원본 Prefab Asset을 저장한다.
+    //
+    // 기존 Sprite 기반 데이터에서는 null이다.
+    public GameObject DecorationPrefab;
+
     // Anchor Tile 중심에서 실제 장식물 위치까지의 상대 좌표.
     //
     // Grid Placement는 Vector3.zero,

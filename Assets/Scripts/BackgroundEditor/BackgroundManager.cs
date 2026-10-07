@@ -1,9 +1,6 @@
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using System.Collections.Generic;
-using UnityEngine;
-
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,15 +9,18 @@ using UnityEngine;
 public enum BackgroundTileBrushSourceMode
 {
     RandomByType = 0,
-    ExactSprite = 1
+    ExactSprite = 1,
+    ExactPrefab = 2
 }
 
 
 public enum DecorationBrushSourceMode
 {
     RandomByType = 0,
-    ExactSprite = 1
+    ExactSprite = 1,
+    ExactPrefab = 2
 }
+
 
 public enum DecorationPlacementMode
 {
@@ -78,7 +78,12 @@ public class BackgroundManager : MonoBehaviour
     [SerializeField]
     private Sprite paintTileSprite;
 
-    // 좌표 입력 방식으로 변경할 배경 타일 X 좌표
+    // <변경부분>
+    // Exact Prefab 모드에서 직접 배치할
+    // Background Visual Prefab.
+    [SerializeField]
+    private GameObject paintTilePrefab;
+
     [SerializeField]
     private int paintX = 0;
 
@@ -150,14 +155,13 @@ public class BackgroundManager : MonoBehaviour
     [SerializeField]
     private Sprite paintDecorationSprite;
 
-
     // <변경부분>
-    // 동일한 Anchor Tile 안에서 새로 배치할 장식물의
-    // 앞뒤 순서를 지정한다.
-    //
-    // -3 = 가장 뒤쪽
-    //  0 = 기본
-    // +3 = 가장 앞쪽
+    // Exact Prefab 모드에서 직접 배치할
+    // Decoration Visual Prefab.
+    [SerializeField]
+    private GameObject paintDecorationPrefab;
+
+
     [SerializeField]
     [Range(-3, 3)]
     private int paintDecorationLayerOffset = 0;
@@ -200,12 +204,20 @@ public class BackgroundManager : MonoBehaviour
      environmentLightingController;
 
 
+ 
     // <변경부분>
     [Header("Environment Cloud Shadow")]
 
     [SerializeField]
     private CloudShadowController
         cloudShadowController;
+
+
+    [Header("Environment Fireflies")]
+
+    [SerializeField]
+    private FireflyEnvironmentController
+        fireflyEnvironmentController;
 
 
     [Header("맵 데이터 자동 생성 설정")]
@@ -297,6 +309,25 @@ public class BackgroundManager : MonoBehaviour
         BuildDecorationSpriteDictionary();
     }
 
+
+    // <변경부분>
+    // Scene에 이미 BackgroundMapData가 연결된 상태로 Play가 시작될 경우에도
+    // 현재 Map의 EnvironmentVisualProfile을 Runtime Controller들에 적용한다.
+    //
+    // Battle/Event 진행 중 LoadMapFromData()로 다른 Map을 불러오는 경우에는
+    // 해당 함수에서 다시 Profile을 적용하므로 여기서는 초기 Scene 상태만 처리한다.
+    private void Start()
+    {
+        if (currentMapData == null)
+        {
+            return;
+        }
+
+
+        ApplyCurrentLightingProfile();
+    }
+
+
     // <변경부분> 배경 타일 타입별 스프라이트 목록을 Dictionary로 정리
     private void BuildTileSpriteDictionary()
     {
@@ -360,10 +391,11 @@ public class BackgroundManager : MonoBehaviour
     }
 
     private void SpawnBackgroundTile(
-      BackgroundTileType tileType,
-      int x,
-      int y,
-      Sprite savedTileSprite = null)
+     BackgroundTileType tileType,
+     int x,
+     int y,
+     Sprite savedTileSprite = null,
+     GameObject savedTilePrefab = null)
     {
         if (x < 0 ||
             x >= backgroundWidth ||
@@ -395,21 +427,34 @@ public class BackgroundManager : MonoBehaviour
         //
         // 새 맵 생성 또는 기존 구형 데이터처럼
         // 저장 Sprite가 없는 경우에만 랜덤으로 선택한다.
+        bool usePrefab =
+    savedTilePrefab != null;
+
+
         Sprite tileSprite =
-            savedTileSprite != null
-                ? savedTileSprite
-                : GetRandomTileSprite(
-                    actualTileType
+            null;
+
+
+        // Prefab이 없는 경우에만
+        // 기존 Sprite 경로를 사용한다.
+        if (!usePrefab)
+        {
+            tileSprite =
+                savedTileSprite != null
+                    ? savedTileSprite
+                    : GetRandomTileSprite(
+                        actualTileType
+                    );
+
+
+            if (tileSprite == null)
+            {
+                Debug.LogWarning(
+                    $"{actualTileType} 타입에 사용할 배경 타일 Sprite가 없습니다."
                 );
 
-
-        if (tileSprite == null)
-        {
-            Debug.LogWarning(
-                $"{actualTileType} 타입에 사용할 배경 타일 Sprite가 없습니다."
-            );
-
-            return;
+                return;
+            }
         }
 
 
@@ -466,13 +511,26 @@ public class BackgroundManager : MonoBehaviour
         );
 
 
-        ApplyBackgroundTileVisual(
-            backgroundTile,
-            actualTileType,
-            x,
-            y,
-            tileSprite
-        );
+        if (usePrefab)
+        {
+            ApplyBackgroundTilePrefabVisual(
+                backgroundTile,
+                actualTileType,
+                x,
+                y,
+                savedTilePrefab
+            );
+        }
+        else
+        {
+            ApplyBackgroundTileVisual(
+                backgroundTile,
+                actualTileType,
+                x,
+                y,
+                tileSprite
+            );
+        }
 
 
         if (backgroundTiles != null)
@@ -494,30 +552,335 @@ public class BackgroundManager : MonoBehaviour
         return requestedTileType;
     }
 
+    // =========================================================
+    // Background / Decoration Visual 공통 관리
+    // =========================================================
+
+    // Sprite / Prefab 출처를 저장하는
+    // BackgroundVisualInstance를 가져오거나 생성한다.
+    private BackgroundVisualInstance GetOrAddVisualInstance(
+        GameObject owner)
+    {
+        if (owner == null)
+        {
+            return null;
+        }
+
+
+        BackgroundVisualInstance visualInstance =
+            owner.GetComponent<BackgroundVisualInstance>();
+
+        if (visualInstance == null)
+        {
+            visualInstance =
+                owner.AddComponent<BackgroundVisualInstance>();
+        }
+
+
+        return visualInstance;
+    }
+
+
+    // 이전에 생성된 Prefab Visual 자식을 제거한다.
+    private void ClearSpawnedVisual(
+        GameObject owner)
+    {
+        if (owner == null)
+        {
+            return;
+        }
+
+
+        BackgroundVisualInstance visualInstance =
+            owner.GetComponent<BackgroundVisualInstance>();
+
+
+        if (visualInstance != null &&
+            visualInstance.SpawnedVisualRoot != null)
+        {
+            DestroyBackgroundObject(
+                visualInstance.SpawnedVisualRoot
+            );
+
+            visualInstance.ClearSpawnedVisualReference();
+
+            return;
+        }
+
+
+        // 이전 버전이나 Script Reload 등으로
+        // 직접 참조를 잃은 경우 이름을 기준으로 안전하게 정리한다.
+        for (int i =
+                 owner.transform.childCount - 1;
+             i >= 0;
+             i--)
+        {
+            Transform child =
+                owner.transform.GetChild(i);
+
+            if (child == null)
+            {
+                continue;
+            }
+
+
+            if (!child.name.StartsWith(
+                    "__BackgroundVisual_"))
+            {
+                continue;
+            }
+
+
+            DestroyBackgroundObject(
+                child.gameObject
+            );
+        }
+
+
+        if (visualInstance != null)
+        {
+            visualInstance.ClearSpawnedVisualReference();
+        }
+    }
+
+
+    // Prefab 내부 SpriteRenderer의 상대 Sorting Order를 유지하면서
+    // BackgroundManager가 계산한 World Sorting 영역에 배치한다.
+    private void ApplyPrefabSpriteRendererSettings(
+        GameObject visualRoot,
+        SpriteRenderer anchorRenderer,
+        int baseSortingOrder,
+        Color colorMultiplier)
+    {
+        if (visualRoot == null ||
+            anchorRenderer == null)
+        {
+            return;
+        }
+
+
+        SpriteRenderer[] renderers =
+            visualRoot.GetComponentsInChildren<SpriteRenderer>(
+                true
+            );
+
+
+        for (int i = 0;
+             i < renderers.Length;
+             i++)
+        {
+            SpriteRenderer renderer =
+                renderers[i];
+
+            if (renderer == null)
+            {
+                continue;
+            }
+
+
+            // Prefab 안에서 설정한 상대 Order는 유지한다.
+            int relativeSortingOrder =
+                renderer.sortingOrder;
+
+
+            // Event World와 동일한 Sorting Layer를 사용한다.
+            renderer.sortingLayerID =
+                anchorRenderer.sortingLayerID;
+
+
+            renderer.sortingOrder =
+                baseSortingOrder +
+                relativeSortingOrder;
+
+
+            // Prefab이 원래 가지고 있던 색상은 유지하면서
+            // 현재 Background/Decoration 밝기만 곱한다.
+            Color originalColor =
+                renderer.color;
+
+            renderer.color =
+                new Color(
+                    originalColor.r *
+                    colorMultiplier.r,
+
+                    originalColor.g *
+                    colorMultiplier.g,
+
+                    originalColor.b *
+                    colorMultiplier.b,
+
+                    originalColor.a *
+                    colorMultiplier.a
+                );
+        }
+    }
+
     // <변경부분> 배경 타일 오브젝트를 유지한 채 외형과 데이터 표시를 갱신
-    private void ApplyBackgroundTileVisual(BackgroundTile backgroundTile, BackgroundTileType tileType, int x, int y, Sprite tileSprite)
+    private void ApplyBackgroundTileVisual(
+     BackgroundTile backgroundTile,
+     BackgroundTileType tileType,
+     int x,
+     int y,
+     Sprite tileSprite)
     {
         if (backgroundTile == null)
         {
             return;
         }
 
-        SpriteRenderer spriteRenderer = backgroundTile.GetComponent<SpriteRenderer>();
+
+        GameObject tileObject =
+            backgroundTile.gameObject;
+
+
+        // 이전에 Prefab 방식으로 사용했던 Visual이 있다면 제거한다.
+        ClearSpawnedVisual(
+            tileObject
+        );
+
+
+        SpriteRenderer spriteRenderer =
+            tileObject.GetComponent<SpriteRenderer>();
+
 
         if (spriteRenderer != null)
         {
-            // 현재 타입에 맞는 스프라이트 적용
-            spriteRenderer.sprite = tileSprite;
+            spriteRenderer.sprite =
+                tileSprite;
+
+            spriteRenderer.color =
+                Color.white;
         }
 
-        // 배경을 선택적으로 어둡게 표시
-        ApplyBackgroundColor(backgroundTile.gameObject);
 
-        // 배경 타일 이름을 실제 타입과 좌표 기준으로 정리
-        backgroundTile.gameObject.name = $"BackgroundTile_{tileType}_{x}_{y}";
+        BackgroundVisualInstance visualInstance =
+            GetOrAddVisualInstance(
+                tileObject
+            );
 
-        // 배경 타일이 아이소메트릭 깊이에 맞게 겹쳐 보이도록 정렬 순서 적용
-        SetBackgroundTileSortingOrder(backgroundTile.gameObject, x, y);
+
+        if (visualInstance != null)
+        {
+            visualInstance.SetSpriteSource(
+                tileSprite
+            );
+        }
+
+
+        ApplyBackgroundColor(
+            tileObject
+        );
+
+
+        tileObject.name =
+            $"BackgroundTile_{tileType}_{x}_{y}";
+
+
+        SetBackgroundTileSortingOrder(
+            tileObject,
+            x,
+            y
+        );
+    }
+
+    // <변경부분>
+    // Sprite 대신 Prefab 자체를 Background Tile Visual로 사용한다.
+    private void ApplyBackgroundTilePrefabVisual(
+        BackgroundTile backgroundTile,
+        BackgroundTileType tileType,
+        int x,
+        int y,
+        GameObject visualPrefab)
+    {
+        if (backgroundTile == null ||
+            visualPrefab == null)
+        {
+            return;
+        }
+
+
+        GameObject tileObject =
+            backgroundTile.gameObject;
+
+
+        ClearSpawnedVisual(
+            tileObject
+        );
+
+
+        SpriteRenderer anchorRenderer =
+            tileObject.GetComponent<SpriteRenderer>();
+
+
+        if (anchorRenderer == null)
+        {
+            Debug.LogError(
+                "BackgroundTilePrefab에 SpriteRenderer가 없습니다."
+            );
+
+            return;
+        }
+
+
+        // 공통 Prefab의 SpriteRenderer는
+        // Sorting 기준점으로만 남긴다.
+        anchorRenderer.sprite =
+            null;
+
+        anchorRenderer.color =
+            Color.white;
+
+
+        SetBackgroundTileSortingOrder(
+            tileObject,
+            x,
+            y
+        );
+
+
+        GameObject visualRoot =
+            Instantiate(
+                visualPrefab,
+                tileObject.transform,
+                false
+            );
+
+
+        visualRoot.name =
+            $"__BackgroundVisual_{visualPrefab.name}";
+
+
+        BackgroundVisualInstance visualInstance =
+            GetOrAddVisualInstance(
+                tileObject
+            );
+
+
+        if (visualInstance != null)
+        {
+            visualInstance.SetPrefabSource(
+                visualPrefab,
+                visualRoot
+            );
+        }
+
+
+        Color colorMultiplier =
+            useDarkBackground
+                ? darkBackgroundColor
+                : Color.white;
+
+
+        ApplyPrefabSpriteRendererSettings(
+            visualRoot,
+            anchorRenderer,
+            anchorRenderer.sortingOrder,
+            colorMultiplier
+        );
+
+
+        tileObject.name =
+            $"BackgroundTile_{tileType}_{x}_{y}";
     }
 
 
@@ -831,11 +1194,12 @@ public class BackgroundManager : MonoBehaviour
         int y)
     {
         PaintBackgroundTileInternal(
-            tileType,
-            x,
-            y,
-            null
-        );
+    tileType,
+    x,
+    y,
+    null,
+    null
+);
     }
 
 
@@ -848,10 +1212,11 @@ public class BackgroundManager : MonoBehaviour
     // exactTileSprite가 있으면:
     // 지정된 Sprite를 그대로 사용한다.
     private void PaintBackgroundTileInternal(
-        BackgroundTileType tileType,
-        int x,
-        int y,
-        Sprite exactTileSprite)
+     BackgroundTileType tileType,
+     int x,
+     int y,
+     Sprite exactTileSprite,
+     GameObject exactTilePrefab)
     {
         // All은 실제 저장용 TileType이 아니므로
         // 랜덤 규칙을 통해 실제 타입으로 변환한다.
@@ -861,12 +1226,16 @@ public class BackgroundManager : MonoBehaviour
             );
 
 
+        bool usePrefab =
+     exactTilePrefab != null;
+
+
         Sprite resolvedTileSprite =
             exactTileSprite;
 
 
-        // Exact Sprite가 전달되지 않은 기존 랜덤 방식.
-        if (resolvedTileSprite == null)
+        if (!usePrefab &&
+            resolvedTileSprite == null)
         {
             if (!HasTileSprites(
                     actualTileType))
@@ -886,7 +1255,8 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
-        if (resolvedTileSprite == null)
+        if (!usePrefab &&
+            resolvedTileSprite == null)
         {
             Debug.LogWarning(
                 $"{actualTileType} 타입에 사용할 배경 타일 Sprite가 없습니다."
@@ -951,13 +1321,26 @@ public class BackgroundManager : MonoBehaviour
             // <변경부분>
             // Random / Exact 어느 방식이든
             // 위에서 결정된 최종 Sprite를 그대로 적용한다.
-            ApplyBackgroundTileVisual(
-                existingTile,
-                actualTileType,
-                x,
-                y,
-                resolvedTileSprite
-            );
+            if (usePrefab)
+            {
+                ApplyBackgroundTilePrefabVisual(
+                    existingTile,
+                    actualTileType,
+                    x,
+                    y,
+                    exactTilePrefab
+                );
+            }
+            else
+            {
+                ApplyBackgroundTileVisual(
+                    existingTile,
+                    actualTileType,
+                    x,
+                    y,
+                    resolvedTileSprite
+                );
+            }
 
 
             backgroundTiles[x, y] =
@@ -970,11 +1353,12 @@ public class BackgroundManager : MonoBehaviour
         // 기존 타일이 없는 좌표에서도
         // 이미 결정된 Sprite를 그대로 사용해 새 타일을 생성한다.
         SpawnBackgroundTile(
-            actualTileType,
-            x,
-            y,
-            resolvedTileSprite
-        );
+    actualTileType,
+    x,
+    y,
+    resolvedTileSprite,
+    exactTilePrefab
+);
     }
 
     // <변경부분> 선택한 배경 타일 타입에 스프라이트가 등록되어 있는지 확인
@@ -1029,7 +1413,44 @@ public class BackgroundManager : MonoBehaviour
                 paintTileType,
                 paintX,
                 paintY,
-                paintTileSprite
+                paintTileSprite,
+                null
+            );
+
+            return;
+        }
+
+
+        if (backgroundTileBrushSourceMode ==
+            BackgroundTileBrushSourceMode.ExactPrefab)
+        {
+            if (paintTileType ==
+                BackgroundTileType.All)
+            {
+                Debug.LogWarning(
+                    "Exact Prefab 모드에서는 All이 아니라 실제 Tile Type을 지정해주세요."
+                );
+
+                return;
+            }
+
+
+            if (paintTilePrefab == null)
+            {
+                Debug.LogWarning(
+                    "Exact Prefab 모드에서 사용할 Tile Prefab이 지정되지 않았습니다."
+                );
+
+                return;
+            }
+
+
+            PaintBackgroundTileInternal(
+                paintTileType,
+                paintX,
+                paintY,
+                null,
+                paintTilePrefab
             );
 
             return;
@@ -1080,8 +1501,35 @@ public class BackgroundManager : MonoBehaviour
 
 
         bool useExactSprite =
+      backgroundTileBrushSourceMode ==
+      BackgroundTileBrushSourceMode.ExactSprite;
+
+        bool useExactPrefab =
             backgroundTileBrushSourceMode ==
-            BackgroundTileBrushSourceMode.ExactSprite;
+            BackgroundTileBrushSourceMode.ExactPrefab;
+
+        if (useExactPrefab)
+        {
+            if (paintTileType ==
+                BackgroundTileType.All)
+            {
+                Debug.LogWarning(
+                    "Exact Prefab 모드에서는 All이 아니라 실제 Tile Type을 지정해주세요."
+                );
+
+                return;
+            }
+
+
+            if (paintTilePrefab == null)
+            {
+                Debug.LogWarning(
+                    "Exact Prefab 모드에서 사용할 Tile Prefab이 지정되지 않았습니다."
+                );
+
+                return;
+            }
+        }
 
 
         if (useExactSprite)
@@ -1142,19 +1590,26 @@ public class BackgroundManager : MonoBehaviour
 
                 if (useExactSprite)
                 {
-                    // Exact 모드에서는 브러시 범위 전체에
-                    // 사용자가 직접 고른 Sprite를 적용한다.
                     PaintBackgroundTileInternal(
                         paintTileType,
                         x,
                         y,
-                        paintTileSprite
+                        paintTileSprite,
+                        null
+                    );
+                }
+                else if (useExactPrefab)
+                {
+                    PaintBackgroundTileInternal(
+                        paintTileType,
+                        x,
+                        y,
+                        null,
+                        paintTilePrefab
                     );
                 }
                 else
                 {
-                    // 기존 모드는 각 타일마다 해당 Type 안에서
-                    // 랜덤 Sprite를 선택한다.
                     PaintBackgroundTile(
                         paintTileType,
                         x,
@@ -1451,16 +1906,18 @@ public class BackgroundManager : MonoBehaviour
     //
     // 기존 자동 생성 / 테스트 생성 경로는 그대로 유지한다.
     public void SpawnDecoration(
-     DecorationType decorationType,
-     int x,
-     int y)
+       DecorationType decorationType,
+       int x,
+       int y)
     {
         // 자동 생성이나 기존 랜덤 생성은
-        // 기본 Layer 0을 사용한다.
+        // Sprite 랜덤 방식 그대로 사용한다.
+        // Prefab은 사용하지 않으므로 null을 전달한다.
         SpawnDecorationInternal(
             decorationType,
             x,
             y,
+            null,
             null,
             Vector3.zero,
             0,
@@ -1480,13 +1937,14 @@ public class BackgroundManager : MonoBehaviour
     // removeExistingAtAnchor가 false이면
     // 같은 Anchor에 여러 장식물을 허용한다.
     private void SpawnDecorationInternal(
-      DecorationType decorationType,
-      int x,
-      int y,
-      Sprite decorationSprite,
-      Vector3 localPositionOffset,
-      int layerOffset,
-      bool removeExistingAtAnchor)
+    DecorationType decorationType,
+    int x,
+    int y,
+    Sprite decorationSprite,
+    GameObject decorationVisualPrefab,
+    Vector3 localPositionOffset,
+    int layerOffset,
+    bool removeExistingAtAnchor)
     {
         if (decorationPrefab == null)
         {
@@ -1519,10 +1977,16 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
+              bool usePrefab =
+            decorationVisualPrefab != null;
+
+
         Sprite resolvedDecorationSprite =
             decorationSprite;
 
-        if (resolvedDecorationSprite == null)
+
+        if (!usePrefab &&
+            resolvedDecorationSprite == null)
         {
             // 기존 랜덤 생성 또는 구형 저장 데이터 fallback.
             BuildDecorationSpriteDictionary();
@@ -1533,7 +1997,8 @@ public class BackgroundManager : MonoBehaviour
                 );
         }
 
-        if (resolvedDecorationSprite == null)
+        if (!usePrefab &&
+    resolvedDecorationSprite == null)
         {
             Debug.LogWarning(
                 $"{decorationType} 타입에 연결된 장식물 스프라이트가 없습니다."
@@ -1575,7 +2040,7 @@ public class BackgroundManager : MonoBehaviour
 
 
         SpriteRenderer spriteRenderer =
-            decorationObject.GetComponent<SpriteRenderer>();
+     decorationObject.GetComponent<SpriteRenderer>();
 
         if (spriteRenderer == null)
         {
@@ -1594,8 +2059,91 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
+        Decoration decoration =
+            decorationObject.GetComponent<Decoration>();
+
+        if (decoration == null)
+        {
+            decoration =
+                decorationObject.AddComponent<Decoration>();
+        }
+
+
+        // 저장 데이터나 외부 호출에서
+        // 허용 범위를 벗어난 Layer 값이 들어와도
+        // 다른 Grid의 Sorting 공간을 침범하지 않도록 제한한다.
+        int safeLayerOffset =
+            ClampDecorationLayerOffset(
+                layerOffset
+            );
+
+
+        decoration.Initialize(
+            decorationType,
+            x,
+            y,
+            safeLayerOffset
+        );
+
+
+        // 먼저 Root Decoration의 최종 Sorting Order를 계산한다.
+        //
+        // Prefab 방식에서는 이 값을 기준으로
+        // 자식 SpriteRenderer의 상대 Sorting Order가 더해진다.
+        SetDecorationSortingOrder(
+            decorationObject,
+            x,
+            y,
+            safeLayerOffset
+        );
+
+
+        // <변경부분>
+        // Prefab이 지정되어 있으면 Prefab Visual을 생성하고,
+        // 그렇지 않으면 기존 Sprite 방식을 그대로 사용한다.
+        if (usePrefab)
+        {
+            ApplyDecorationPrefabVisual(
+                decorationObject,
+                decorationVisualPrefab
+            );
+        }
+        else
+        {
+            ApplyDecorationSpriteVisual(
+                decorationObject,
+                resolvedDecorationSprite
+            );
+        }
+    }
+
+
+    private void ApplyDecorationSpriteVisual(
+    GameObject decorationObject,
+    Sprite decorationSprite)
+    {
+        if (decorationObject == null)
+        {
+            return;
+        }
+
+
+        ClearSpawnedVisual(
+            decorationObject
+        );
+
+
+        SpriteRenderer spriteRenderer =
+            decorationObject.GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+
         spriteRenderer.sprite =
-            resolvedDecorationSprite;
+            decorationSprite;
 
 
         if (useDarkDecoration)
@@ -1604,6 +2152,7 @@ public class BackgroundManager : MonoBehaviour
                 Mathf.Clamp01(
                     decorationBrightness
                 );
+
 
             spriteRenderer.color =
                 new Color(
@@ -1620,44 +2169,108 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
-        Decoration decoration =
-     decorationObject.GetComponent<Decoration>();
-
-        if (decoration == null)
-        {
-            decoration =
-                decorationObject.AddComponent<Decoration>();
-        }
-
-
-        // <변경부분>
-        // 저장 데이터나 외부 호출에서 범위를 벗어난 값이 들어와도
-        // 다른 Grid의 Sorting 공간을 침범하지 않도록 제한한다.
-        int safeLayerOffset =
-            ClampDecorationLayerOffset(
-                layerOffset
+        BackgroundVisualInstance visualInstance =
+            GetOrAddVisualInstance(
+                decorationObject
             );
 
 
-        decoration.Initialize(
-            decorationType,
-            x,
-            y,
-            safeLayerOffset
-        );
-
-
-        // <변경부분>
-        // Anchor Tile의 Depth와 장식물 Layer를 함께 사용하여
-        // 최종 Sorting Order를 계산한다.
-        SetDecorationSortingOrder(
-            decorationObject,
-            x,
-            y,
-            safeLayerOffset
-        );
+        if (visualInstance != null)
+        {
+            visualInstance.SetSpriteSource(
+                decorationSprite
+            );
+        }
     }
 
+
+    private void ApplyDecorationPrefabVisual(
+        GameObject decorationObject,
+        GameObject visualPrefab)
+    {
+        if (decorationObject == null ||
+            visualPrefab == null)
+        {
+            return;
+        }
+
+
+        ClearSpawnedVisual(
+            decorationObject
+        );
+
+
+        SpriteRenderer anchorRenderer =
+            decorationObject.GetComponent<SpriteRenderer>();
+
+        if (anchorRenderer == null)
+        {
+            Debug.LogError(
+                "DecorationPrefab에 SpriteRenderer가 없습니다."
+            );
+
+            return;
+        }
+
+
+        anchorRenderer.sprite =
+            null;
+
+        anchorRenderer.color =
+            Color.white;
+
+
+        GameObject visualRoot =
+            Instantiate(
+                visualPrefab,
+                decorationObject.transform,
+                false
+            );
+
+
+        visualRoot.name =
+            $"__BackgroundVisual_{visualPrefab.name}";
+
+
+        BackgroundVisualInstance visualInstance =
+            GetOrAddVisualInstance(
+                decorationObject
+            );
+
+
+        if (visualInstance != null)
+        {
+            visualInstance.SetPrefabSource(
+                visualPrefab,
+                visualRoot
+            );
+        }
+
+
+        float brightness =
+            useDarkDecoration
+                ? Mathf.Clamp01(
+                    decorationBrightness
+                )
+                : 1f;
+
+
+        Color colorMultiplier =
+            new Color(
+                brightness,
+                brightness,
+                brightness,
+                1f
+            );
+
+
+        ApplyPrefabSpriteRendererSettings(
+            visualRoot,
+            anchorRenderer,
+            anchorRenderer.sortingOrder,
+            colorMultiplier
+        );
+    }
 
     // <변경부분>
     // 현재 Brush Source 설정에 따라 실제로 배치할 Sprite를 반환한다.
@@ -1685,25 +2298,52 @@ public class BackgroundManager : MonoBehaviour
         Vector3 worldPosition)
     {
         Sprite decorationSprite =
-            GetDecorationBrushSprite();
+     null;
 
-        if (decorationSprite == null)
+        GameObject decorationVisualPrefab =
+            null;
+
+
+        if (decorationBrushSourceMode ==
+            DecorationBrushSourceMode.ExactPrefab)
         {
-            if (decorationBrushSourceMode ==
-                DecorationBrushSourceMode.ExactSprite)
-            {
-                Debug.LogWarning(
-                    "Exact Sprite 모드에서 배치할 Decoration Sprite가 지정되지 않았습니다."
-                );
-            }
-            else
-            {
-                Debug.LogWarning(
-                    $"{paintDecorationType} 타입에 연결된 장식물 스프라이트가 없습니다."
-                );
-            }
+            decorationVisualPrefab =
+                paintDecorationPrefab;
 
-            return;
+
+            if (decorationVisualPrefab == null)
+            {
+                Debug.LogWarning(
+                    "Exact Prefab 모드에서 사용할 Decoration Prefab이 지정되지 않았습니다."
+                );
+
+                return;
+            }
+        }
+        else
+        {
+            decorationSprite =
+                GetDecorationBrushSprite();
+
+
+            if (decorationSprite == null)
+            {
+                if (decorationBrushSourceMode ==
+                    DecorationBrushSourceMode.ExactSprite)
+                {
+                    Debug.LogWarning(
+                        "Exact Sprite 모드에서 배치할 Decoration Sprite가 지정되지 않았습니다."
+                    );
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"{paintDecorationType} 타입에 연결된 Decoration Sprite가 없습니다."
+                    );
+                }
+
+                return;
+            }
         }
 
 
@@ -1723,14 +2363,15 @@ public class BackgroundManager : MonoBehaviour
 
 
             SpawnDecorationInternal(
-    paintDecorationType,
-    gridX,
-    gridY,
-    decorationSprite,
-    Vector3.zero,
-    paintDecorationLayerOffset,
-    preventDuplicateDecoration
-);
+        paintDecorationType,
+        gridX,
+        gridY,
+        decorationSprite,
+        decorationVisualPrefab,
+        Vector3.zero,
+        paintDecorationLayerOffset,
+        preventDuplicateDecoration
+    );
 
             return;
         }
@@ -1788,6 +2429,7 @@ public class BackgroundManager : MonoBehaviour
      freePlacementAnchorX,
      freePlacementAnchorY,
      decorationSprite,
+     decorationVisualPrefab,
      localPositionOffset,
      paintDecorationLayerOffset,
      false
@@ -1897,8 +2539,8 @@ public class BackgroundManager : MonoBehaviour
     }
 
 
-    // <변경부분>
-    // Free + Exact Sprite Ghost Preview에 필요한 시각 정보를 반환한다.
+    // Free Placement에서 Exact Sprite / Exact Prefab
+    // Ghost Preview에 필요한 시각 정보를 반환한다.
     public bool TryGetFreeDecorationPreviewData(
         out Sprite sprite,
         out Material material,
@@ -1922,18 +2564,20 @@ public class BackgroundManager : MonoBehaviour
             Color.white;
 
 
+        // Free Placement이 아니거나
+        // Anchor / 공통 DecorationPrefab이 없으면
+        // Preview를 표시하지 않는다.
         if (decorationPlacementMode !=
-            DecorationPlacementMode.Free ||
-            decorationBrushSourceMode !=
-            DecorationBrushSourceMode.ExactSprite ||
+                DecorationPlacementMode.Free ||
             !hasFreePlacementAnchor ||
-            paintDecorationSprite == null ||
             decorationPrefab == null)
         {
             return false;
         }
 
 
+        // 공통 DecorationPrefab의 Root SpriteRenderer는
+        // 실제 Decoration과 동일한 Sorting Layer 기준으로 사용한다.
         SpriteRenderer prefabRenderer =
             decorationPrefab.GetComponent<SpriteRenderer>();
 
@@ -1943,31 +2587,117 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
-        sprite =
-            paintDecorationSprite;
+        int relativePreviewOrder =
+            0;
 
-        material =
-            prefabRenderer.sharedMaterial;
+
+        // =========================================================
+        // Exact Sprite Preview
+        // =========================================================
+        if (decorationBrushSourceMode ==
+            DecorationBrushSourceMode.ExactSprite)
+        {
+            if (paintDecorationSprite == null)
+            {
+                return false;
+            }
+
+
+            sprite =
+                paintDecorationSprite;
+
+            material =
+                prefabRenderer.sharedMaterial;
+        }
+
+        // =========================================================
+        // Exact Prefab Preview
+        // =========================================================
+        else if (decorationBrushSourceMode ==
+                 DecorationBrushSourceMode.ExactPrefab)
+        {
+            if (paintDecorationPrefab == null)
+            {
+                return false;
+            }
+
+
+            SpriteRenderer[] previewRenderers =
+                paintDecorationPrefab
+                    .GetComponentsInChildren<SpriteRenderer>(
+                        true
+                    );
+
+
+            SpriteRenderer previewRenderer =
+                null;
+
+
+            // Prefab 내부에서 실제 Sprite를 가지고 있는
+            // 첫 번째 SpriteRenderer를 Preview 대표 이미지로 사용한다.
+            for (int i = 0;
+                 i < previewRenderers.Length;
+                 i++)
+            {
+                SpriteRenderer currentRenderer =
+                    previewRenderers[i];
+
+                if (currentRenderer == null ||
+                    currentRenderer.sprite == null)
+                {
+                    continue;
+                }
+
+
+                previewRenderer =
+                    currentRenderer;
+
+                break;
+            }
+
+
+            if (previewRenderer == null)
+            {
+                return false;
+            }
+
+
+            sprite =
+                previewRenderer.sprite;
+
+            material =
+                previewRenderer.sharedMaterial;
+
+            relativePreviewOrder =
+                previewRenderer.sortingOrder;
+        }
+        else
+        {
+            // Random By Type은 Ghost Preview 대상이 아니다.
+            return false;
+        }
+
 
         sortingLayerId =
             prefabRenderer.sortingLayerID;
 
-        // <변경부분>
-        // Preview 역시 실제 배치될 Decoration과
-        // 완전히 동일한 Layer 값을 사용한다.
+
         int safeLayerOffset =
             ClampDecorationLayerOffset(
                 paintDecorationLayerOffset
             );
 
 
+        // 실제 배치될 Decoration과 동일한
+        // Anchor / Layer 기반 Sorting Order를 계산한다.
         sortingOrder =
             GetEventWorldSortingOrder(
                 freePlacementAnchorX,
                 freePlacementAnchorY,
                 DecorationSortingBaseOffset +
                 safeLayerOffset
-            );
+            ) +
+            relativePreviewOrder;
 
 
         float brightness =
@@ -1990,6 +2720,97 @@ public class BackgroundManager : MonoBehaviour
         return true;
     }
 
+
+// <변경부분>
+// Free Placement + Exact Prefab 모드에서
+// Prefab 전체 Ghost Preview에 필요한 정보를 반환한다.
+//
+// 실제 Prefab Asset 자체를 Editor Preview 쪽에 전달하며,
+// 실제 배치 데이터나 Prefab Asset 자체는 수정하지 않는다.
+public bool TryGetFreeDecorationPrefabPreviewData(
+    out GameObject visualPrefab,
+    out int sortingLayerId,
+    out int baseSortingOrder,
+    out Color previewColor)
+{
+    visualPrefab =
+        null;
+
+    sortingLayerId =
+        0;
+
+    baseSortingOrder =
+        0;
+
+    previewColor =
+        Color.white;
+
+
+    if (decorationPlacementMode !=
+            DecorationPlacementMode.Free ||
+        !hasFreePlacementAnchor ||
+        decorationBrushSourceMode !=
+            DecorationBrushSourceMode.ExactPrefab ||
+        paintDecorationPrefab == null ||
+        decorationPrefab == null)
+    {
+        return false;
+    }
+
+
+    // 실제 Decoration Root와 동일한
+    // Sorting Layer 기준을 Preview에도 사용한다.
+    SpriteRenderer prefabRenderer =
+        decorationPrefab.GetComponent<SpriteRenderer>();
+
+    if (prefabRenderer == null)
+    {
+        return false;
+    }
+
+
+    visualPrefab =
+        paintDecorationPrefab;
+
+
+    sortingLayerId =
+        prefabRenderer.sortingLayerID;
+
+
+    int safeLayerOffset =
+        ClampDecorationLayerOffset(
+            paintDecorationLayerOffset
+        );
+
+
+    baseSortingOrder =
+        GetEventWorldSortingOrder(
+            freePlacementAnchorX,
+            freePlacementAnchorY,
+            DecorationSortingBaseOffset +
+            safeLayerOffset
+        );
+
+
+    float brightness =
+        useDarkDecoration
+            ? Mathf.Clamp01(
+                decorationBrightness
+            )
+            : 1f;
+
+
+    previewColor =
+        new Color(
+            brightness,
+            brightness,
+            brightness,
+            0.45f
+        );
+
+
+    return true;
+}
 
     // <변경부분> 같은 배경 좌표에 이미 존재하는 장식물을 모두 제거
     private void RemoveDecorationsAt(int x, int y)
@@ -2127,6 +2948,84 @@ public class BackgroundManager : MonoBehaviour
     }
 
 
+    // Decoration 자신과 Prefab Visual 자식에 포함된
+    // 모든 Renderer의 실제 표시 영역을 하나의 Bounds로 계산한다.
+    //
+    // 기존 SpriteRenderer Decoration뿐 아니라
+    // Animator / Spine / MeshRenderer 등을 사용하는
+    // Prefab Decoration도 삭제 클릭 판정에 사용할 수 있다.
+    private bool TryGetCombinedDecorationBounds(
+        GameObject targetObject,
+        out Bounds combinedBounds)
+    {
+        combinedBounds =
+            new Bounds();
+
+
+        if (targetObject == null)
+        {
+            return false;
+        }
+
+
+        Renderer[] renderers =
+            targetObject.GetComponentsInChildren<Renderer>(
+                true
+            );
+
+
+        bool hasBounds =
+            false;
+
+
+        for (int i = 0;
+             i < renderers.Length;
+             i++)
+        {
+            Renderer renderer =
+                renderers[i];
+
+            if (renderer == null ||
+                !renderer.enabled ||
+                !renderer.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+
+            Bounds rendererBounds =
+                renderer.bounds;
+
+
+            // 크기가 완전히 0인 Renderer는
+            // 실제 클릭 영역으로 사용하지 않는다.
+            if (rendererBounds.size.sqrMagnitude <=
+                Mathf.Epsilon)
+            {
+                continue;
+            }
+
+
+            if (!hasBounds)
+            {
+                combinedBounds =
+                    rendererBounds;
+
+                hasBounds =
+                    true;
+            }
+            else
+            {
+                combinedBounds.Encapsulate(
+                    rendererBounds
+                );
+            }
+        }
+
+
+        return hasBounds;
+    }
+
     // <변경부분>
     // Free Placement 삭제에서 현재 마우스 위치와 겹치는
     // Decoration 하나를 찾는다.
@@ -2182,18 +3081,40 @@ public class BackgroundManager : MonoBehaviour
 
 
             SpriteRenderer spriteRenderer =
-                child.GetComponent<SpriteRenderer>();
+     child.GetComponent<SpriteRenderer>();
 
-            if (spriteRenderer == null ||
-                spriteRenderer.sprite == null ||
-                !spriteRenderer.enabled)
+            if (spriteRenderer == null)
             {
                 continue;
             }
 
 
-            Bounds bounds =
-                spriteRenderer.bounds;
+            bool hasVisualBounds =
+                TryGetCombinedDecorationBounds(
+                    child.gameObject,
+                    out Bounds bounds
+                );
+
+
+            if (!hasVisualBounds)
+            {
+                // Renderer가 전혀 없는 Light2D 전용 Prefab 등도
+                // 최소한 Decoration Root 근처를 클릭하면
+                // 삭제할 수 있도록 작은 fallback 영역을 사용한다.
+                const float fallbackPickSize =
+                    0.3f;
+
+
+                bounds =
+                    new Bounds(
+                        child.position,
+                        new Vector3(
+                            fallbackPickSize,
+                            fallbackPickSize,
+                            0.1f
+                        )
+                    );
+            }
 
 
             // Renderer.bounds는 3D Bounds이므로
@@ -2325,8 +3246,13 @@ public class BackgroundManager : MonoBehaviour
     // Free Placement:
     // 마우스로 직접 클릭한 Decoration 하나만 삭제.
     public void EraseDecorationByWorldPosition(
-        Vector3 worldPosition)
+    Vector3 worldPosition)
     {
+        // =========================================================
+        // Free Placement
+        // =========================================================
+        //
+        // 실제 클릭한 Decoration 하나만 제거한다.
         if (decorationPlacementMode ==
             DecorationPlacementMode.Free)
         {
@@ -2338,6 +3264,37 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
+        // =========================================================
+        // Grid Placement
+        // =========================================================
+        //
+        // Prefab Decoration은 실제 외형이 Anchor Tile보다
+        // 훨씬 클 수 있으므로 먼저 화면에서 클릭한
+        // Decoration을 직접 찾는다.
+        Decoration clickedDecoration =
+            FindDecorationAtWorldPosition(
+                worldPosition
+            );
+
+
+        if (clickedDecoration != null)
+        {
+            // Grid Placement의 기존 규칙은 유지한다.
+            //
+            // 즉 클릭한 Decoration 하나만 지우는 것이 아니라
+            // 해당 Decoration이 속한 Anchor Grid의
+            // Decoration 전체를 삭제한다.
+            RemoveDecorationsAt(
+                clickedDecoration.X,
+                clickedDecoration.Y
+            );
+
+            return;
+        }
+
+
+        // 실제 Decoration 외형을 클릭하지 않은 경우에는
+        // 기존 Grid 좌표 삭제 방식으로 fallback한다.
         if (!TryGetBackgroundGridPosition(
                 worldPosition,
                 out int gridX,
@@ -2613,91 +3570,6 @@ public class BackgroundManager : MonoBehaviour
 
         if (visualProfile == null)
         {
-            Debug.LogWarning(
-                $"환경 비주얼 적용 실패: " +
-                $"{currentMapData.name}에 " +
-                "EnvironmentVisualProfile이 연결되어 있지 않습니다."
-            );
-
-
-            // <변경부분>
-            // 이전 Map의 Cloud Shadow가 남아 있지 않도록
-            // Profile이 없는 경우에는 구름만 명시적으로 종료한다.
-            if (cloudShadowController != null)
-            {
-                cloudShadowController.ApplyProfile(
-                    null
-                );
-            }
-
-
-            return;
-        }
-
-
-        // 기존 Lighting Profile 적용.
-        if (environmentLightingController != null)
-        {
-            environmentLightingController.ApplyProfile(
-                visualProfile
-            );
-        }
-        else
-        {
-            Debug.LogWarning(
-                "환경 조명 적용 실패: " +
-                "BackgroundManager의 EnvironmentLightingController가 연결되어 있지 않습니다."
-            );
-        }
-
-
-        // <변경부분>
-        // 동일한 EnvironmentVisualProfile의
-        // Cloud Shadow 설정을 공용 CloudShadowRig에도 적용한다.
-        if (cloudShadowController != null)
-        {
-            cloudShadowController.ApplyProfile(
-                visualProfile
-            );
-        }
-        else if (visualProfile.cloudShadow != null &&
-                 visualProfile.cloudShadow.enabled)
-        {
-            Debug.LogWarning(
-                "Cloud Shadow 적용 실패: " +
-                "BackgroundManager의 CloudShadowController가 연결되어 있지 않습니다."
-            );
-        }
-    }
-
-
-    // <변경부분>
-    // Runtime의 자동 Map Load에서는
-    // 기존 BackgroundMapData에 아직 Profile이 없는 경우도 허용한다.
-    //
-    // 따라서 Profile이 없는 Map은 경고 없이
-    // 현재 EnvironmentLightingRig 설정을 그대로 유지한다.
-    private void ApplyEnvironmentVisualProfileFromCurrentMap()
-    {
-        if (currentMapData == null)
-        {
-            if (cloudShadowController != null)
-            {
-                cloudShadowController.ApplyProfile(
-                    null
-                );
-            }
-
-            return;
-        }
-
-
-        EnvironmentVisualProfile visualProfile =
-            currentMapData.VisualProfile;
-
-
-        if (visualProfile == null)
-        {
             // <변경부분>
             // Profile이 없는 Map으로 교체될 때
             // 이전 Map의 구름이 계속 남아 있는 것을 방지한다.
@@ -2707,6 +3579,15 @@ public class BackgroundManager : MonoBehaviour
                     null
                 );
             }
+
+
+            if (fireflyEnvironmentController != null)
+            {
+                fireflyEnvironmentController.ApplyProfile(
+                    null
+                );
+            }
+
 
             return;
         }
@@ -2729,6 +3610,23 @@ public class BackgroundManager : MonoBehaviour
         }
 
 
+        if (fireflyEnvironmentController != null)
+        {
+            fireflyEnvironmentController.ApplyProfile(
+                visualProfile
+            );
+        }
+        else if (visualProfile.fireflies != null &&
+                 visualProfile.fireflies.enabled)
+        {
+            Debug.LogWarning(
+                $"Firefly 환경 자동 적용 실패: " +
+                $"{currentMapData.name}에는 Fireflies가 활성화되어 있지만 " +
+                "FireflyEnvironmentController가 연결되어 있지 않습니다."
+            );
+        }
+
+
         // <변경부분>
         // Battle Scene / Event Scene 모두
         // BackgroundManager의 동일한 Map Load 경로를 이용해
@@ -2747,6 +3645,120 @@ public class BackgroundManager : MonoBehaviour
                 $"{currentMapData.name}에는 Cloud Shadow가 활성화되어 있지만 " +
                 "CloudShadowController가 연결되어 있지 않습니다."
             );
+        }
+    }
+
+
+    // <변경부분>
+    // Runtime의 자동 Map Load에서는
+    // 기존 BackgroundMapData에 아직 Profile이 없는 경우도 허용한다.
+    //
+    // 따라서 Profile이 없는 Map은 경고 없이
+    // 현재 EnvironmentLightingRig 설정을 그대로 유지한다.
+    private void ApplyEnvironmentVisualProfileFromCurrentMap()
+    {
+        if (currentMapData == null)
+        {
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.ApplyProfile(
+                    null
+                );
+            }
+
+
+            if (fireflyEnvironmentController != null)
+            {
+                fireflyEnvironmentController.ApplyProfile(
+                    null
+                );
+            }
+
+
+            return;
+        }
+
+
+        EnvironmentVisualProfile visualProfile =
+            currentMapData.VisualProfile;
+
+
+        if (visualProfile == null)
+        {
+            // <변경부분>
+            // Profile이 없는 Map으로 교체될 때
+            // 이전 Map의 구름이 계속 남아 있는 것을 방지한다.
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.ApplyProfile(
+                    null
+                );
+            }
+
+
+            if (fireflyEnvironmentController != null)
+            {
+                fireflyEnvironmentController.ApplyProfile(
+                    null
+                );
+            }
+
+
+            return;
+
+
+            // 기존 환경 Lighting.
+            if (environmentLightingController != null)
+            {
+                environmentLightingController.ApplyProfile(
+                    visualProfile
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"환경 조명 자동 적용 실패: " +
+                    $"{currentMapData.name}에는 EnvironmentVisualProfile이 있지만 " +
+                    "EnvironmentLightingController가 연결되어 있지 않습니다."
+                );
+            }
+
+            if (fireflyEnvironmentController != null)
+            {
+                fireflyEnvironmentController.ApplyProfile(
+                    visualProfile
+                );
+            }
+            else if (visualProfile.fireflies != null &&
+                     visualProfile.fireflies.enabled)
+            {
+                Debug.LogWarning(
+                    $"Firefly 환경 자동 적용 실패: " +
+                    $"{currentMapData.name}에는 Fireflies가 활성화되어 있지만 " +
+                    "FireflyEnvironmentController가 연결되어 있지 않습니다."
+                );
+            }
+
+
+            // <변경부분>
+            // Battle Scene / Event Scene 모두
+            // BackgroundManager의 동일한 Map Load 경로를 이용해
+            // Cloud Shadow 설정을 자동 적용한다.
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.ApplyProfile(
+                    visualProfile
+                );
+            }
+            else if (visualProfile.cloudShadow != null &&
+                     visualProfile.cloudShadow.enabled)
+            {
+                Debug.LogWarning(
+                    $"Cloud Shadow 자동 적용 실패: " +
+                    $"{currentMapData.name}에는 Cloud Shadow가 활성화되어 있지만 " +
+                    "CloudShadowController가 연결되어 있지 않습니다."
+                );
+            }
         }
     }
 
@@ -2874,10 +3886,32 @@ public class BackgroundManager : MonoBehaviour
                     // <변경부분>
                     // 현재 Scene에 실제로 표시되고 있는
                     // 타일 Sprite를 그대로 저장한다.
-                    tileData.TileSprite =
-                        tileSpriteRenderer != null
-                            ? tileSpriteRenderer.sprite
-                            : null;
+                    BackgroundVisualInstance tileVisualInstance =
+      tile.GetComponent<BackgroundVisualInstance>();
+
+
+                    if (tileVisualInstance != null &&
+                        tileVisualInstance.UsesPrefab)
+                    {
+                        tileData.TileSprite =
+                            null;
+
+                        tileData.TilePrefab =
+                            tileVisualInstance.SourcePrefab;
+                    }
+                    else
+                    {
+                        tileData.TileSprite =
+                            tileVisualInstance != null &&
+                            tileVisualInstance.SourceSprite != null
+                                ? tileVisualInstance.SourceSprite
+                                : tileSpriteRenderer != null
+                                    ? tileSpriteRenderer.sprite
+                                    : null;
+
+                        tileData.TilePrefab =
+                            null;
+                    }
 
 
                     currentMapData.Tiles.Add(
@@ -2942,10 +3976,32 @@ public class BackgroundManager : MonoBehaviour
             decorationData.DecorationType =
                 decoration.DecorationType;
 
-            decorationData.DecorationSprite =
-                spriteRenderer != null
-                    ? spriteRenderer.sprite
-                    : null;
+            BackgroundVisualInstance decorationVisualInstance =
+       decoration.GetComponent<BackgroundVisualInstance>();
+
+
+            if (decorationVisualInstance != null &&
+                decorationVisualInstance.UsesPrefab)
+            {
+                decorationData.DecorationSprite =
+                    null;
+
+                decorationData.DecorationPrefab =
+                    decorationVisualInstance.SourcePrefab;
+            }
+            else
+            {
+                decorationData.DecorationSprite =
+                    decorationVisualInstance != null &&
+                    decorationVisualInstance.SourceSprite != null
+                        ? decorationVisualInstance.SourceSprite
+                        : spriteRenderer != null
+                            ? spriteRenderer.sprite
+                            : null;
+
+                decorationData.DecorationPrefab =
+                    null;
+            }
 
 
             Vector3 anchorBasePosition =
@@ -3071,7 +4127,8 @@ public class BackgroundManager : MonoBehaviour
       tileData.TileType,
       tileData.X,
       tileData.Y,
-      tileData.TileSprite
+      tileData.TileSprite,
+      tileData.TilePrefab
   );
             }
         }
@@ -3095,14 +4152,15 @@ public class BackgroundManager : MonoBehaviour
                 }
 
                 SpawnDecorationInternal(
-     decorationData.DecorationType,
-     decorationData.X,
-     decorationData.Y,
-     decorationData.DecorationSprite,
-     decorationData.LocalPositionOffset,
-     decorationData.LayerOffset,
-     false
- );
+    decorationData.DecorationType,
+    decorationData.X,
+    decorationData.Y,
+    decorationData.DecorationSprite,
+    decorationData.DecorationPrefab,
+    decorationData.LocalPositionOffset,
+    decorationData.LayerOffset,
+    false
+);
             }
         }
 
@@ -3228,9 +4286,42 @@ public class BackgroundManagerEditor : Editor
     private bool isSelectingDecorationAnchor = false;
 
     // <변경부분>
-    // Free + Exact Sprite 배치용 반투명 Ghost Preview
+    // Exact Sprite / Exact Prefab Free Placement용 Ghost Preview.
     private GameObject decorationPreviewObject;
+
+    // Exact Sprite Preview에서만 사용한다.
     private SpriteRenderer decorationPreviewRenderer;
+
+    // <변경부분>
+    // Exact Prefab Preview에서 현재 복제 중인
+    // 원본 Prefab Asset을 기억한다.
+    //
+    // Inspector에서 다른 Prefab으로 변경했을 때
+    // Preview를 자동 재생성하기 위해 사용한다.
+    private GameObject decorationPreviewSourcePrefab;
+
+    // <변경부분>
+    // Prefab Preview 안의 Renderer 목록과
+    // Prefab 원본의 상대 Sorting Order를 기억한다.
+    private Renderer[] decorationPreviewRenderers;
+
+    private int[] decorationPreviewRelativeSortingOrders;
+
+    // SpriteRenderer의 원래 Color.
+    //
+    // Preview Alpha / 밝기를 반복 적용해도
+    // 색상값이 계속 누적해서 어두워지지 않도록 보존한다.
+    private Color[] decorationPreviewOriginalSpriteColors;
+
+    // <변경부분>
+    // Prefab Root/Pivot에서 실제로 화면에 보이는
+    // Renderer 전체 Bounds 중심까지의 상대 Offset.
+    //
+    // Prefab Pivot 위치와 관계없이
+    // Ghost Preview의 시각적 중심이 마우스에 오도록 사용한다.
+    private Vector3 decorationPreviewVisualCenterOffset =
+        Vector3.zero;
+
 
     private void OnEnable()
     {
@@ -3248,7 +4339,7 @@ public class BackgroundManagerEditor : Editor
 
 
     // <변경부분>
-    // Ghost Preview 오브젝트를 즉시 정리한다.
+    // Sprite / Prefab Ghost Preview를 모두 즉시 정리한다.
     private void DestroyDecorationPreview()
     {
         if (decorationPreviewObject != null)
@@ -3258,11 +4349,408 @@ public class BackgroundManagerEditor : Editor
             );
         }
 
+
         decorationPreviewObject =
             null;
 
         decorationPreviewRenderer =
             null;
+
+        decorationPreviewSourcePrefab =
+            null;
+
+        decorationPreviewRenderers =
+            null;
+
+        decorationPreviewRelativeSortingOrders =
+     null;
+
+        decorationPreviewOriginalSpriteColors =
+            null;
+
+        decorationPreviewVisualCenterOffset =
+            Vector3.zero;
+    }
+
+
+    // <변경부분>
+    // Preview Object와 모든 자식을
+    // Scene / Prefab 저장 대상에서 제외한다.
+    private void ApplyPreviewHideFlags(
+        GameObject previewObject)
+    {
+        if (previewObject == null)
+        {
+            return;
+        }
+
+
+        Transform[] previewTransforms =
+            previewObject.GetComponentsInChildren<Transform>(
+                true
+            );
+
+
+        for (int i = 0;
+             i < previewTransforms.Length;
+             i++)
+        {
+            Transform previewTransform =
+                previewTransforms[i];
+
+            if (previewTransform == null)
+            {
+                continue;
+            }
+
+
+            previewTransform.gameObject.hideFlags =
+                HideFlags.HideAndDontSave;
+        }
+    }
+
+
+    // <변경부분>
+    // Prefab을 Ghost Preview로 복제했을 때
+    // Scene 편집에 실제 영향을 줄 수 있는 Component는 비활성화한다.
+    //
+    // 렌더링 자체에 필요한 Spine / Renderer 계열은 건드리지 않는다.
+    private void DisablePrefabPreviewSideEffects(
+        GameObject previewObject)
+    {
+        if (previewObject == null)
+        {
+            return;
+        }
+
+
+        Component[] components =
+            previewObject.GetComponentsInChildren<Component>(
+                true
+            );
+
+
+        for (int i = 0;
+             i < components.Length;
+             i++)
+        {
+            Component component =
+                components[i];
+
+            if (component == null)
+            {
+                continue;
+            }
+
+
+            Collider2D collider2D =
+                component as Collider2D;
+
+            if (collider2D != null)
+            {
+                collider2D.enabled =
+                    false;
+
+                continue;
+            }
+
+
+            Collider collider3D =
+                component as Collider;
+
+            if (collider3D != null)
+            {
+                collider3D.enabled =
+                    false;
+
+                continue;
+            }
+
+
+            AudioSource audioSource =
+                component as AudioSource;
+
+            if (audioSource != null)
+            {
+                audioSource.enabled =
+                    false;
+
+                continue;
+            }
+
+
+            ParticleSystem particleSystem =
+                component as ParticleSystem;
+
+            if (particleSystem != null)
+            {
+                particleSystem.Stop(
+                    true,
+                    ParticleSystemStopBehavior.StopEmittingAndClear
+                );
+
+                continue;
+            }
+
+
+            // URP Light2D를 직접 참조하지 않아
+            // BackgroundManager.cs에 추가 using을 만들지 않고 처리한다.
+            //
+            // Preview Light가 마우스를 따라 움직이며
+            // Scene 실제 조명을 바꾸지 않도록 비활성화한다.
+            if (component.GetType().FullName ==
+                    "UnityEngine.Rendering.Universal.Light2D" &&
+                component is Behaviour lightBehaviour)
+            {
+                lightBehaviour.enabled =
+                    false;
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // 새 Prefab Ghost Preview를 생성하고
+    // Prefab 원본의 Renderer 상대 정렬값을 기억한다.
+    private void CreatePrefabDecorationPreview(
+        GameObject previewPrefab)
+    {
+        DestroyDecorationPreview();
+
+
+        if (previewPrefab == null)
+        {
+            return;
+        }
+
+
+        decorationPreviewObject =
+            UnityEngine.Object.Instantiate(
+                previewPrefab
+            );
+
+
+        if (decorationPreviewObject == null)
+        {
+            return;
+        }
+
+
+        decorationPreviewObject.name =
+            "__DecorationPrefabPreview";
+
+
+        decorationPreviewSourcePrefab =
+            previewPrefab;
+
+
+        ApplyPreviewHideFlags(
+            decorationPreviewObject
+        );
+
+
+        DisablePrefabPreviewSideEffects(
+            decorationPreviewObject
+        );
+
+
+        decorationPreviewRenderers =
+            decorationPreviewObject
+                .GetComponentsInChildren<Renderer>(
+                    true
+                );
+
+
+        decorationPreviewRelativeSortingOrders =
+            new int[
+                decorationPreviewRenderers.Length
+            ];
+
+
+        decorationPreviewOriginalSpriteColors =
+            new Color[
+                decorationPreviewRenderers.Length
+            ];
+
+
+        bool hasVisualBounds =
+    false;
+
+        Bounds combinedVisualBounds =
+            new Bounds();
+
+
+        for (int i = 0;
+             i < decorationPreviewRenderers.Length;
+             i++)
+        {
+            Renderer previewRenderer =
+                decorationPreviewRenderers[i];
+
+
+            if (previewRenderer == null)
+            {
+                continue;
+            }
+
+
+            // Prefab Asset 안에서 설정해 둔 상대 Order를 보존한다.
+            decorationPreviewRelativeSortingOrders[i] =
+                previewRenderer.sortingOrder;
+
+
+            SpriteRenderer spriteRenderer =
+                previewRenderer as SpriteRenderer;
+
+
+            if (spriteRenderer != null)
+            {
+                decorationPreviewOriginalSpriteColors[i] =
+                    spriteRenderer.color;
+            }
+
+
+            // <변경부분>
+            // SpriteRenderer / Spine MeshRenderer 등
+            // 실제로 화면에 표시되는 모든 Renderer의 Bounds를 합친다.
+            if (!previewRenderer.enabled ||
+                !previewRenderer.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+
+            Bounds rendererBounds =
+                previewRenderer.bounds;
+
+
+            if (rendererBounds.size.sqrMagnitude <=
+                Mathf.Epsilon)
+            {
+                continue;
+            }
+
+
+            if (!hasVisualBounds)
+            {
+                combinedVisualBounds =
+                    rendererBounds;
+
+                hasVisualBounds =
+                    true;
+            }
+            else
+            {
+                combinedVisualBounds.Encapsulate(
+                    rendererBounds
+                );
+            }
+        }
+
+
+        // <변경부분>
+        // Prefab Root/Pivot에서 실제 시각적 중심까지의
+        // 상대 위치를 한 번 저장한다.
+        //
+        // 이후 마우스를 움직일 때 이 Offset을 반대로 적용하면
+        // Pivot 위치에 관계없이 오브젝트 중심이 커서에 맞는다.
+        if (hasVisualBounds)
+        {
+            decorationPreviewVisualCenterOffset =
+                combinedVisualBounds.center -
+                decorationPreviewObject.transform.position;
+
+            // 2D 배치에서는 X / Y 중심만 보정한다.
+            decorationPreviewVisualCenterOffset.z =
+                0f;
+        }
+        else
+        {
+            // 표시 가능한 Renderer가 없는 Prefab은
+            // 기존처럼 Root/Pivot 기준 Preview를 사용한다.
+            decorationPreviewVisualCenterOffset =
+                Vector3.zero;
+        }
+    }
+
+
+    // <변경부분>
+    // Prefab Preview의 시각 설정을 실제 Decoration 배치 규칙과 맞춘다.
+    private void ApplyPrefabDecorationPreviewVisual(
+        int sortingLayerId,
+        int baseSortingOrder,
+        Color previewColor)
+    {
+        if (decorationPreviewRenderers == null ||
+            decorationPreviewRelativeSortingOrders == null ||
+            decorationPreviewOriginalSpriteColors == null)
+        {
+            return;
+        }
+
+
+        int rendererCount =
+            Mathf.Min(
+                decorationPreviewRenderers.Length,
+                decorationPreviewRelativeSortingOrders.Length
+            );
+
+
+        for (int i = 0;
+             i < rendererCount;
+             i++)
+        {
+            Renderer previewRenderer =
+                decorationPreviewRenderers[i];
+
+
+            if (previewRenderer == null)
+            {
+                continue;
+            }
+
+
+            SpriteRenderer spriteRenderer =
+                previewRenderer as SpriteRenderer;
+
+
+            if (spriteRenderer != null)
+            {
+                // 실제 Prefab Decoration 배치와 동일하게
+                // SpriteRenderer는 Decoration Sorting 기준으로 맞춘다.
+                spriteRenderer.sortingLayerID =
+                    sortingLayerId;
+
+                spriteRenderer.sortingOrder =
+                    baseSortingOrder +
+                    decorationPreviewRelativeSortingOrders[i];
+
+
+                Color originalColor =
+                    decorationPreviewOriginalSpriteColors[i];
+
+
+                spriteRenderer.color =
+                    new Color(
+                        originalColor.r *
+                        previewColor.r,
+
+                        originalColor.g *
+                        previewColor.g,
+
+                        originalColor.b *
+                        previewColor.b,
+
+                        originalColor.a *
+                        previewColor.a
+                    );
+            }
+
+            // Spine SkeletonRenderer가 사용하는 MeshRenderer 등은
+            // 실제 BackgroundManager 배치 코드에서도
+            // Sorting Layer / Material을 강제로 변경하지 않으므로
+            // Preview에서도 원본 설정을 그대로 유지한다.
+        }
     }
 
 
@@ -3316,15 +4804,82 @@ public class BackgroundManagerEditor : Editor
 
 
     // <변경부분>
-    // Free + Exact Sprite에서 반투명 Ghost Preview를
-    // 마우스 위치에 표시한다.
+    // Free Placement의 Exact Sprite / Exact Prefab Ghost Preview를
+    // 현재 Scene View 마우스 위치에 표시한다.
     private void UpdateDecorationPreview(
         BackgroundManager manager,
         Vector3 worldPosition)
     {
         if (!isDecorationPaintMode ||
-            manager == null ||
-            !manager.TryGetFreeDecorationPreviewData(
+            manager == null)
+        {
+            DestroyDecorationPreview();
+            return;
+        }
+
+
+        // =========================================================
+        // Exact Prefab
+        // =========================================================
+        //
+        // Prefab 전체를 Ghost Preview로 복제한다.
+        if (manager.TryGetFreeDecorationPrefabPreviewData(
+                out GameObject previewPrefab,
+                out int prefabSortingLayerId,
+                out int prefabBaseSortingOrder,
+                out Color prefabPreviewColor))
+        {
+            // 처음 Preview를 만들거나,
+            // Inspector에서 다른 Prefab을 선택했다면
+            // 전체 Preview를 다시 생성한다.
+            if (decorationPreviewObject == null ||
+                decorationPreviewSourcePrefab !=
+                    previewPrefab)
+            {
+                CreatePrefabDecorationPreview(
+                    previewPrefab
+                );
+            }
+
+
+            if (decorationPreviewObject == null)
+            {
+                return;
+            }
+
+
+            // <변경부분>
+            // Prefab Root/Pivot가 아니라
+            // 실제 Renderer 전체의 시각적 중심이
+            // 마우스 커서에 오도록 위치를 보정한다.
+            Vector3 centeredPreviewPosition =
+                worldPosition -
+                decorationPreviewVisualCenterOffset;
+
+
+            centeredPreviewPosition.z =
+                worldPosition.z;
+
+
+            decorationPreviewObject.transform.position =
+                centeredPreviewPosition;
+
+
+            ApplyPrefabDecorationPreviewVisual(
+                prefabSortingLayerId,
+                prefabBaseSortingOrder,
+                prefabPreviewColor
+            );
+
+
+            return;
+        }
+
+
+        // =========================================================
+        // Exact Sprite
+        // =========================================================
+        if (!manager.TryGetFreeDecorationPreviewData(
                 out Sprite previewSprite,
                 out Material previewMaterial,
                 out int sortingLayerId,
@@ -3336,6 +4891,14 @@ public class BackgroundManagerEditor : Editor
         }
 
 
+        // 직전에 Prefab Preview를 사용 중이었다면
+        // Sprite Preview로 전환하기 전에 정리한다.
+        if (decorationPreviewSourcePrefab != null)
+        {
+            DestroyDecorationPreview();
+        }
+
+
         if (decorationPreviewObject == null ||
             decorationPreviewRenderer == null)
         {
@@ -3344,8 +4907,10 @@ public class BackgroundManagerEditor : Editor
                     "__DecorationPreview"
                 );
 
+
             decorationPreviewObject.hideFlags =
                 HideFlags.HideAndDontSave;
+
 
             decorationPreviewRenderer =
                 decorationPreviewObject
@@ -3356,17 +4921,22 @@ public class BackgroundManagerEditor : Editor
         decorationPreviewObject.transform.position =
             worldPosition;
 
+
         decorationPreviewRenderer.sprite =
             previewSprite;
+
 
         decorationPreviewRenderer.sharedMaterial =
             previewMaterial;
 
+
         decorationPreviewRenderer.sortingLayerID =
             sortingLayerId;
 
+
         decorationPreviewRenderer.sortingOrder =
             sortingOrder;
+
 
         decorationPreviewRenderer.color =
             previewColor;
@@ -3585,7 +5155,7 @@ public class BackgroundManagerEditor : Editor
 
 
         if (tileBrushSourceModeProperty.enumValueIndex ==
-            (int)BackgroundTileBrushSourceMode.ExactSprite)
+     (int)BackgroundTileBrushSourceMode.ExactSprite)
         {
             EditorGUILayout.PropertyField(
                 serializedObject.FindProperty(
@@ -3612,6 +5182,44 @@ public class BackgroundManagerEditor : Editor
                 );
             }
         }
+        else if (tileBrushSourceModeProperty.enumValueIndex ==
+                 (int)BackgroundTileBrushSourceMode.ExactPrefab)
+        {
+            SerializedProperty paintTilePrefabProperty =
+                serializedObject.FindProperty(
+                    "paintTilePrefab"
+                );
+
+
+            // Scene Object가 아니라
+            // Project의 Prefab Asset만 선택할 수 있도록 한다.
+            paintTilePrefabProperty.objectReferenceValue =
+                EditorGUILayout.ObjectField(
+                    "Exact Prefab",
+                    paintTilePrefabProperty.objectReferenceValue,
+                    typeof(GameObject),
+                    false
+                );
+
+
+            SerializedProperty paintTileTypeProperty =
+                serializedObject.FindProperty(
+                    "paintTileType"
+                );
+
+
+            if (paintTileTypeProperty.enumValueIndex ==
+                (int)BackgroundTileType.All)
+            {
+                EditorGUILayout.HelpBox(
+                    "Exact Prefab 모드에서는 All이 아니라 실제 Tile Type을 지정해주세요.",
+                    MessageType.Warning
+                );
+            }
+        }
+
+
+        GUILayout.Space(3);
 
 
         GUILayout.Space(3);
@@ -3883,6 +5491,24 @@ public class BackgroundManagerEditor : Editor
             );
         }
 
+        else if (brushSourceModeProperty.enumValueIndex ==
+         (int)DecorationBrushSourceMode.ExactPrefab)
+        {
+            SerializedProperty paintDecorationPrefabProperty =
+                serializedObject.FindProperty(
+                    "paintDecorationPrefab"
+                );
+
+
+            paintDecorationPrefabProperty.objectReferenceValue =
+                EditorGUILayout.ObjectField(
+                    "Exact Prefab",
+                    paintDecorationPrefabProperty.objectReferenceValue,
+                    typeof(GameObject),
+                    false
+                );
+        }
+
 
         GUILayout.Space(3);
 
@@ -3973,7 +5599,9 @@ public class BackgroundManagerEditor : Editor
 
 
             if (brushSourceModeProperty.enumValueIndex ==
-                (int)DecorationBrushSourceMode.ExactSprite)
+           (int)DecorationBrushSourceMode.ExactSprite ||
+       brushSourceModeProperty.enumValueIndex ==
+           (int)DecorationBrushSourceMode.ExactPrefab)
             {
                 EditorGUILayout.HelpBox(
                     "배치 모드를 켜면 선택한 Sprite가 반투명 Preview로 마우스를 따라갑니다.",
@@ -4140,8 +5768,15 @@ public class BackgroundManagerEditor : Editor
         // 현재 Scene에서 사용할 공용 CloudShadowRig의
         // CloudShadowController 연결.
         EditorGUILayout.PropertyField(
+       serializedObject.FindProperty(
+           "cloudShadowController"
+       )
+   );
+
+
+        EditorGUILayout.PropertyField(
             serializedObject.FindProperty(
-                "cloudShadowController"
+                "fireflyEnvironmentController"
             )
         );
 
@@ -4339,26 +5974,20 @@ public class BackgroundManagerEditor : Editor
 
         if (isDecorationEraseMode)
         {
-            // <변경부분>
-            // Free Placement에서는 Sprite 자체를 클릭해서
-            // 개별 삭제해야 하므로 Z=0 평면의 정확한 World Position을 사용한다.
-            if (manager.UsesFreeDecorationPlacement)
+            // Sprite / Prefab, Grid / Free 여부와 관계없이
+            // 실제 Scene View의 Z=0 Background Plane 좌표를 사용한다.
+            //
+            // 이렇게 해야 Anchor Tile보다 크게 그려지는
+            // Prefab Decoration의 실제 외형을 정확하게 클릭할 수 있다.
+            if (!hasFreeWorldPosition)
             {
-                if (!hasFreeWorldPosition)
-                {
-                    return;
-                }
+                return;
+            }
 
-                manager.EraseDecorationByWorldPosition(
-                    freeWorldPosition
-                );
-            }
-            else
-            {
-                manager.EraseDecorationByWorldPosition(
-                    worldPosition
-                );
-            }
+
+            manager.EraseDecorationByWorldPosition(
+                freeWorldPosition
+            );
         }
         else if (isDecorationPaintMode)
         {

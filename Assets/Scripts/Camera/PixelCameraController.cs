@@ -36,14 +36,12 @@ public class PixelCameraController : MonoBehaviour
     // 확대 부드러움 정도
     [SerializeField] private float zoomSmoothSpeed = 10f;
 
-    // 현재 월드 확대 배율
     private float currentWorldScale = 1f;
 
-    // 목표 월드 확대 배율
     private float targetWorldScale = 1f;
 
+
     [Header("Battle Start Zoom Animation")]
-    // <변경부분> 배틀 시작 시 WorldRoot 확대 연출을 사용할지 여부
     [SerializeField] private bool playStartZoomAnimation = true;
 
     // <변경부분> 시작 확대 연출 전 잠깐 대기할 시간
