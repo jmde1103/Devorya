@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c5601ef90581034bb1cb652ae8922f1, type: 3}
-  m_Name: DecorationPaletteData_Forest
+  m_Name: DecorationPaletteData_FieldStage
   m_EditorClassIdentifier: Assembly-CSharp::DecorationPaletteData
   decorationSets:
   - SetName: Bush
@@ -31,3 +31,10 @@ MonoBehaviour:
     - {fileID: 21300000, guid: c855fde2373cd70459ea75ae9380e2e3, type: 3}
     - {fileID: 21300000, guid: cf560c8880f56df489184ade6bb1c5e3, type: 3}
     ActorOcclusionOffsets: []
+  - SetName: ETC
+    DecorationType: 0
+    DecorationSprites: []
+    ActorOcclusionOffsets:
+    - {x: 0, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 0}

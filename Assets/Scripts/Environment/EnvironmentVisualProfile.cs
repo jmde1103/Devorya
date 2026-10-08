@@ -278,7 +278,20 @@ public class EnvironmentVisualProfile : ScriptableObject
 {
     [Header("Global Ambient")]
     public EnvironmentGlobalLightSettings globalAmbient =
-        new EnvironmentGlobalLightSettings();
+     new EnvironmentGlobalLightSettings();
+
+
+    [Header("Character Fill")]
+
+    // 야간 환경에서 Piece가 지나치게 어두워지지 않도록
+    // Piece Sorting Layer를 보조하는 캐릭터 전용 Spot Light 설정.
+    public EnvironmentPointLightSettings characterFill =
+        new EnvironmentPointLightSettings
+        {
+            enabled = false,
+            color = Color.white,
+            intensity = 0f
+        };
 
 
     [Header("Sun Key")]

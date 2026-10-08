@@ -16,6 +16,17 @@ MonoBehaviour:
     enabled: 1
     color: {r: 0.31010902, g: 0.28816098, b: 0.59119487, a: 1}
     intensity: 0.85
+  characterFill:
+    enabled: 1
+    color: {r: 0.8018867, g: 0.94357795, b: 1, a: 1}
+    intensity: 0.58
+    falloffIntensity: 0.5
+    localPosition: {x: 0.7, y: -1.84, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 180.39148}
+    innerRadius: 0
+    outerRadius: 6.260912
+    innerAngle: 360
+    outerAngle: 360
   sunKey:
     enabled: 1
     color: {r: 1, g: 0.9375423, b: 0.7012578, a: 1}
@@ -56,6 +67,14 @@ MonoBehaviour:
     turnSmoothness: 1.5
     directionChangeIntervalMin: 0.8
     directionChangeIntervalMax: 2.5
+    useClusterAvoidance: 1
+    clusterAvoidanceRadius: 2
+    maxFirefliesInCluster: 2
+    clusterAvoidanceStrength: 1.35
+    useExternalLightAvoidance: 1
+    externalLightAvoidanceRadiusMultiplier: 1.15
+    externalLightAvoidanceStrength: 1.5
+    externalLightRefreshInterval: 1
     visibleDurationMin: 4
     visibleDurationMax: 8
     hiddenDurationMin: 1

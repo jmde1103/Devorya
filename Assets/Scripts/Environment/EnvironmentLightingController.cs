@@ -16,6 +16,9 @@ public class EnvironmentLightingController : MonoBehaviour
     private Light2D globalAmbient;
 
     [SerializeField]
+    private Light2D characterFill;
+
+    [SerializeField]
     private Light2D sunKey;
 
     [SerializeField]
@@ -46,6 +49,21 @@ public class EnvironmentLightingController : MonoBehaviour
             ApplyGlobalLightSettings(
                 globalAmbient,
                 profile.globalAmbient
+            );
+        }
+        else
+        {
+            hasMissingReference =
+                true;
+        }
+
+        // 야간 등 어두운 환경에서
+        // Piece를 보조하는 캐릭터 전용 Spot Light를 적용한다.
+        if (characterFill != null)
+        {
+            ApplyPointLightSettings(
+                characterFill,
+                profile.characterFill
             );
         }
         else
@@ -111,8 +129,9 @@ public class EnvironmentLightingController : MonoBehaviour
         }
 
         if (globalAmbient == null ||
-            sunKey == null ||
-            skyFill == null)
+       characterFill == null ||
+       sunKey == null ||
+       skyFill == null)
         {
             Debug.LogWarning(
                 "환경 조명 저장 실패: " +
@@ -124,9 +143,16 @@ public class EnvironmentLightingController : MonoBehaviour
 
 
         CaptureGlobalLightSettings(
-            globalAmbient,
-            profile.globalAmbient
+      globalAmbient,
+      profile.globalAmbient
+  );
+
+
+        CapturePointLightSettings(
+            characterFill,
+            profile.characterFill
         );
+
 
         CapturePointLightSettings(
             sunKey,
