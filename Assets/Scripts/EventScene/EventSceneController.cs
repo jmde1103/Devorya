@@ -21,8 +21,11 @@ public class EventSceneController : MonoBehaviour
     // <변경부분>
     // 현재 EventScene에서 실행할 이벤트 데이터.
     //
-    // 현재는 Scene 단독 테스트를 위해 Inspector에서 직접 연결한다.
-    // 향후 WorldMap Event Node 연결 시 RuntimeState 전달 구조를 추가한다.
+    // WorldMap Event Node에서 진입한 경우:
+    // WorldMapRuntimeState의 Pending EventSceneData를 우선 사용한다.
+    //
+    // Pending 데이터가 없는 경우:
+    // Inspector 연결값을 사용하여 Scene 단독 테스트를 지원한다.
     [SerializeField]
     private EventSceneData eventSceneData;
 
@@ -70,6 +73,31 @@ public class EventSceneController : MonoBehaviour
             return;
         }
 
+        // <변경부분>
+        // WorldMap의 Event / RuinsEvent / Shop 노드에서
+        // 전달된 EventSceneData가 있다면 가장 먼저 사용한다.
+        //
+        // Consume 방식으로 한 번 읽은 뒤 RuntimeState에서 제거하여
+        // 이전 이벤트 데이터가 다음 EventScene에 재사용되지 않게 한다.
+        EventSceneData runtimeEventSceneData =
+            WorldMapRuntimeState
+                .ConsumePendingEventSceneData();
+
+        if (runtimeEventSceneData != null)
+        {
+            eventSceneData =
+                runtimeEventSceneData;
+
+            Debug.Log(
+                $"Event Scene Runtime Data 적용: " +
+                $"{eventSceneData.name}"
+            );
+        }
+
+        // Runtime 전달 데이터가 없는 경우에는
+        // 기존 Inspector 연결값을 그대로 사용한다.
+        //
+        // 따라서 EventScene 단독 테스트 방식도 유지된다.
         if (eventSceneData == null)
         {
             Debug.LogWarning(

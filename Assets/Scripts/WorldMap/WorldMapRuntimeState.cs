@@ -24,6 +24,14 @@ public static class WorldMapRuntimeState
     // 이 static 런타임 상태를 통해 유지된다.
     private static StageBattleData pendingStageBattleData;
 
+    // <변경부분>
+    // 월드맵의 Event / RuinsEvent / Shop 노드에서 선택되어
+    // 다음 공용 EventScene에서 사용할 EventSceneData.
+    //
+    // Scene이 변경되어도 static RuntimeState를 통해
+    // 선택된 이벤트 데이터를 유지한다.
+    private static EventSceneData pendingEventSceneData;
+
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
     private static bool hasPendingBattleWin;
 
@@ -171,7 +179,73 @@ public static class WorldMapRuntimeState
         // WorldMap Node에서 정상적으로 진입한 Battle이므로
         // Direct Battle 상태를 해제한다.
         isDirectBattle =
+      false;
+
+        // <변경부분>
+        // Battle 진입 시 이전 EventScene 전달 데이터가
+        // 남아 있지 않도록 정리한다.
+        pendingEventSceneData =
+            null;
+    }
+
+
+    // <변경부분>
+    // WorldMap의 Event / RuinsEvent / Shop 노드에서
+    // 공용 EventScene으로 이동하기 직전에
+    // 실행할 EventSceneData를 등록한다.
+    public static void BeginEventNode(
+        EventSceneData eventSceneData)
+    {
+        if (eventSceneData == null)
+        {
+            Debug.LogWarning(
+                "이벤트 노드 데이터 등록 실패: " +
+                "EventSceneData가 없습니다."
+            );
+
+            return;
+        }
+
+        pendingEventSceneData =
+            eventSceneData;
+
+        // EventScene 진입은 Battle 진입이 아니므로
+        // 이전 Battle 전달 상태가 잘못 남지 않도록 정리한다.
+        enteredBattleNodeId =
+            null;
+
+        pendingStageBattleData =
+            null;
+
+        hasPendingBattleWin =
             false;
+
+        isDirectBattle =
+            false;
+
+        Debug.Log(
+            $"이벤트 노드 데이터 등록 완료: " +
+            $"{eventSceneData.name}"
+        );
+    }
+
+
+    // <변경부분>
+    // EventSceneController가 현재 대기 중인 EventSceneData를
+    // 한 번 가져간 뒤 RuntimeState에서 제거한다.
+    //
+    // 이전 EventSceneData가 다음 EventScene 진입에
+    // 잘못 재사용되는 것을 방지한다.
+    public static EventSceneData
+        ConsumePendingEventSceneData()
+    {
+        EventSceneData result =
+            pendingEventSceneData;
+
+        pendingEventSceneData =
+            null;
+
+        return result;
     }
 
 
@@ -212,7 +286,13 @@ public static class WorldMapRuntimeState
         // 다음 BattleScene의 BattleSetupManager가
         // 기존과 동일한 PendingStageBattleData 경로로 읽는다.
         pendingStageBattleData =
-            stageBattleData;
+       stageBattleData;
+
+        // <변경부분>
+        // 직접 Battle을 시작할 때도 이전 EventScene 전달 데이터가
+        // 남아 있지 않도록 정리한다.
+        pendingEventSceneData =
+            null;
 
 
         // 새 Battle이므로 이전 승리 대기 상태도 초기화한다.
@@ -529,8 +609,11 @@ public static class WorldMapRuntimeState
             null;
 
         // 새 런 시작 시 이전에 전달했던
-        // 전투 StageBattleData 참조도 완전히 제거한다.
+        // 전투 / 이벤트 Scene 데이터 참조를 모두 제거한다.
         pendingStageBattleData =
+            null;
+
+        pendingEventSceneData =
             null;
 
         hasPendingBattleWin =

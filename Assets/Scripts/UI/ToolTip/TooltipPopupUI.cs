@@ -178,32 +178,20 @@ public class TooltipPopupUI : MonoBehaviour
             );
 
         RefreshSections(
-    tooltipViewData.sections
-);
+     tooltipViewData.sections
+ );
 
-        // <변경부분> Tooltip은 현재 읽기 전용 UI이므로
-        // Mouse / Touch Raycast를 가로채지 않게 한다.
+        // <변경부분>
+        // 기존 SectionParent 단독 Offset은 더 이상 사용하지 않는다.
         //
-        // 특히 PC Hover Tooltip이 열린 순간
-        // Popup이 원래 TooltipTrigger의 Pointer를 빼앗아
-        // 즉시 PointerExit가 발생하는 현상을 방지한다.
-        //
-        // Section은 Show 시 Runtime으로 생성되므로
-        // RefreshSections 이후에 처리해야 한다.
-        DisableTooltipRaycastTargets();
-
-        // Section의 최종 위치를 먼저 확정한다.
-        ApplySectionPositionOffset(
-            sectionPositionOffset
-        );
-
-        // <변경부분> 기본 Tooltip뿐 아니라 생성된 모든 Section까지 포함한
-        // 실제 표시 영역을 기준으로 최종 팝업 위치를 계산한다.
+        // 기본 Tooltip과 Section 전체가
+        // PopupRoot 단위로 함께 움직이도록 처리한다.
         SetPopupPosition(
             screenPosition,
             positionMode,
             customPositionOffset,
             fixedCanvasPosition,
+            sectionPositionOffset.x,
             popupOffsetYPerSection
         );
 
@@ -430,11 +418,12 @@ public class TooltipPopupUI : MonoBehaviour
     // 기본 PopupRoot Rect 크기만 사용하는 대신,
     // 실제 생성된 모든 Section까지 포함한 전체 표시 Bounds를 기준으로 배치한다.
     private void SetPopupPosition(
-        Vector2 screenPosition,
-        TooltipPositionMode positionMode,
-        Vector2 customPositionOffset,
-        Vector2 fixedCanvasPosition,
-        float popupOffsetYPerSection)
+       Vector2 screenPosition,
+       TooltipPositionMode positionMode,
+       Vector2 customPositionOffset,
+       Vector2 fixedCanvasPosition,
+       float popupOffsetXPerSection,
+       float popupOffsetYPerSection)
     {
         if (rootCanvas == null ||
             popupRoot == null)
@@ -520,10 +509,24 @@ public class TooltipPopupUI : MonoBehaviour
                 popupOffsetYPerSection
             );
 
+        // <변경부분>
+        // Section 개수에 따라 PopupRoot 전체 위치를
+        // X / Y 양쪽으로 추가 보정한다.
+        //
+        // 이 방식은 SectionParent만 따로 움직이지 않기 때문에
+        // 기본 Tooltip과 하단 Section이 항상 함께 이동한다.
+        float dynamicOffsetX =
+            popupOffset.x +
+            (
+                currentSectionCount *
+                popupOffsetXPerSection
+            );
+
+
         float offsetX =
             isRightSide
-                ? -popupOffset.x
-                : popupOffset.x;
+                ? -dynamicOffsetX
+                : dynamicOffsetX;
 
         float offsetY =
             isTopSide

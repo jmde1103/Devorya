@@ -182,9 +182,12 @@ public class EnvironmentFireflySettings
 
     // 같은 범위에 반딧불이 너무 많이 모이는 것을 줄인다.
     public bool useClusterAvoidance =
-        true;
+     true;
 
     // WorldRoot Scale 1 기준 군집 판정 거리.
+    //
+    // 이동 중 반딧불 군집 회피와
+    // 반딧불 재등장 위치 판정에서 공통으로 사용한다.
     [Min(0f)]
     public float clusterAvoidanceRadius =
         2f;
@@ -202,6 +205,19 @@ public class EnvironmentFireflySettings
     public float clusterAvoidanceStrength =
         1.35f;
 
+    // 반딧불이 숨었다가 다시 등장할 때
+    // 다른 활성 반딧불의 Cluster Avoidance Radius에서
+    // 추가로 확보할 거리.
+    //
+    // 0:
+    // Cluster Avoidance Radius 바깥에서 생성.
+    //
+    // 값이 커질수록 다른 반딧불과 더 떨어진 위치에서
+    // 새 반딧불이 다시 나타난다.
+    [Min(0f)]
+    public float clusterSpawnPadding =
+        0.5f;
+
 
     // FlameLightFlickerController가 붙은
     // 랜턴 / 횃불 / 모닥불 등의 광원을 피한다.
@@ -210,6 +226,9 @@ public class EnvironmentFireflySettings
 
     // 실제 Point / Spot Light의 Outer Radius보다
     // 어느 정도 여유 있게 피할지 결정한다.
+    //
+    // 이동 중 외부 광원 회피와
+    // 반딧불 재등장 위치 판정에서 공통으로 사용한다.
     [Min(0f)]
     public float externalLightAvoidanceRadiusMultiplier =
         1.15f;
@@ -217,6 +236,18 @@ public class EnvironmentFireflySettings
     [Min(0f)]
     public float externalLightAvoidanceStrength =
         1.5f;
+
+    // 반딧불이 숨었다가 다시 등장할 때
+    // 외부 광원의 기존 회피 범위에서 추가로 확보할 거리.
+    //
+    // 0:
+    // 이동 중 사용하는 외부 광원 회피 범위와 동일.
+    //
+    // 값이 커질수록 랜턴 / 횃불 / 모닥불에서
+    // 더 떨어진 위치에서 반딧불이 다시 나타난다.
+    [Min(0f)]
+    public float externalLightSpawnPadding =
+        0.5f;
 
     // Runtime에 새 광원 Prefab이 생성되는 경우를 위해
     // 회피 대상 광원을 다시 검색하는 간격.

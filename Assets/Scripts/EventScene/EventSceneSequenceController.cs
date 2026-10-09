@@ -68,8 +68,29 @@ public class EventSceneSequenceController : MonoBehaviour
     private PixelCameraController pixelCameraController;
 
 
-    // 현재 실행 중인 Event Scene Camera Shake Coroutine.
+    [Header("Run HUD")]
+
+    // <변경부분>
+    // 월드맵에서 가져온
+    // 턴 시계 / Gold / Item Bar 전체를 묶은 부모 CanvasGroup.
     //
+    // EventScene에서는 오브젝트를 비활성화하지 않고
+    // Alpha / Raycast만 제어하여 Fade한다.
+    [SerializeField]
+    private CanvasGroup runHUDCanvasGroup;
+
+    // <변경부분>
+    // Run HUD Fade In / Out 시간.
+    [SerializeField, Min(0f)]
+    private float runHUDFadeDuration =
+        0.25f;
+
+    // <변경부분>
+    // 현재 실행 중인 Run HUD Fade Coroutine.
+    private Coroutine runHUDFadeCoroutine;
+
+
+    // 현재 실행 중인 Event Scene Camera Shake Coroutine.
     // 새로운 충격이 들어오면 기존 Shake를 정리한 뒤
     // 새로운 Shake를 시작한다.
     private Coroutine cameraShakeCoroutine;
@@ -88,13 +109,29 @@ public class EventSceneSequenceController : MonoBehaviour
     private Vector3 cameraShakeBaseLocalPosition;
 
     private bool isSequenceActive =
-        false;
+    false;
 
     private int currentStepIndex =
         -1;
 
     private Coroutine sequenceCoroutine =
         null;
+
+    // <변경부분>
+    // 현재 Event Scene에서 일반 플레이어 조작이 잠겨 있는지 관리한다.
+    //
+    // true:
+    // 연출 진행 중 상태.
+    // Camera 수동 이동 / 확대 / 축소와
+    // ShopItem 같은 Event Scene 상호작용을 차단한다.
+    //
+    // false:
+    // 상점 / 휴식 / 조사 등 자유 상호작용을 허용한다.
+    //
+    // 설정 / 종료 같은 System UI는
+    // 이 값과 별도로 항상 접근 가능하도록 구성한다.
+    private bool isPlayerInteractionLocked =
+        true;
 
     // <변경부분>
     // Actor ID를 기준으로 현재 Event Scene에 존재하는 Actor를 관리한다.
@@ -110,6 +147,26 @@ public class EventSceneSequenceController : MonoBehaviour
 
     public int CurrentStepIndex =>
         currentStepIndex;
+
+    // <변경부분>
+    // ShopItemDisplay 등 Event Scene 상호작용 오브젝트가
+    // 현재 입력 가능 여부를 확인할 때 사용하는 공용 상태.
+    public bool IsPlayerInteractionLocked =>
+      isPlayerInteractionLocked;
+
+
+    // <변경부분>
+    // EventScene이 활성화되는 최초 순간에는
+    // Run HUD를 무조건 숨긴 상태로 시작한다.
+    //
+    // 이후 UnlockPlayerInteraction Step에서
+    // 현재 EventSceneData 설정에 따라 Fade In한다.
+    private void Awake()
+    {
+        SetRunHUDVisibleImmediately(
+            false
+        );
+    }
 
 
     // <변경부분>
@@ -144,15 +201,19 @@ public class EventSceneSequenceController : MonoBehaviour
         {
             return;
         }
-
         StopSequenceCoroutine();
 
         // <변경부분>
         // Standalone Event Scene이 시작되면
-        // 플레이어의 수동 Camera 이동 / 확대 / 축소를 잠근다.
+        // 일반 플레이어 조작을 기본적으로 잠근다.
         //
-        // CameraShot 같은 Event 연출용 Camera 제어는 계속 사용 가능하다.
-        SetEventSceneManualCameraInputLocked(
+        // 현재는 수동 Camera 입력에 즉시 반영되고,
+        // 이후 ShopItemDisplay 등의 Event Scene 상호작용도
+        // 동일한 IsPlayerInteractionLocked 상태를 사용한다.
+        //
+        // 설정 / 종료 같은 System UI는
+        // 이 Lock과 별도로 항상 사용할 수 있게 구성한다.
+        SetEventScenePlayerInteractionLocked(
             true
         );
 
@@ -397,6 +458,59 @@ public class EventSceneSequenceController : MonoBehaviour
                     ExecuteSpeechBubbleStepRoutine(
                         step
                     );
+
+                yield break;
+
+
+            // <변경부분>
+            // Event 연출 Lock을 해제하고
+            // 플레이어의 일반 Scene 조작을 허용한다.
+            //
+            // 이 상태는 다음 LockPlayerInteraction Step이 실행되거나
+            // Event Scene이 종료될 때까지 유지된다.
+            case EventSceneStepType.UnlockPlayerInteraction:
+
+                SetEventScenePlayerInteractionLocked(
+                    false
+                );
+
+                // <변경부분>
+                // 현재 EventSceneData가 Run HUD 표시를 허용한 경우에만
+                // 플레이어 조작 Unlock과 함께 HUD를 Fade In한다.
+                SetRunHUDVisibleWithFade(
+                    currentEventSceneData != null &&
+                    currentEventSceneData
+                        .showRunHUDDuringPlayerInteraction
+                );
+
+                Debug.Log(
+                    "Event Scene Player Interaction Unlock"
+                );
+
+                yield break;
+
+
+            // <변경부분>
+            // 플레이어의 일반 Scene 조작을 다시 잠근다.
+            //
+            // 자유 상호작용 이후 Dialogue / CameraShot 등의
+            // Event 연출로 다시 진입할 때 사용한다.
+            case EventSceneStepType.LockPlayerInteraction:
+
+                SetEventScenePlayerInteractionLocked(
+                    true
+                );
+
+                // <변경부분>
+                // 다시 Event 연출 상태로 들어가면
+                // Run HUD도 함께 Fade Out한다.
+                SetRunHUDVisibleWithFade(
+                    false
+                );
+
+                Debug.Log(
+                    "Event Scene Player Interaction Lock"
+                );
 
                 yield break;
 
@@ -1274,6 +1388,186 @@ attacker.PlayAttackRoutine(
 
 
     // <변경부분>
+    // Event Scene 전체의 일반 플레이어 조작 상태를 변경한다.
+    //
+    // 이 값이 Event Scene 상호작용의 SSOT이며,
+    // 현재 구현되어 있는 수동 Camera 입력 Lock도
+    // 동일한 상태에 맞춰 함께 변경한다.
+    //
+    // 이후 ShopItemDisplay / Merchant Interaction 등은
+    // IsPlayerInteractionLocked를 확인하여 입력을 허용하거나 차단한다.
+    //
+    // 설정 / 종료 같은 System UI는 이 Lock을 사용하지 않는다.
+    private void SetEventScenePlayerInteractionLocked(
+        bool isLocked)
+    {
+        isPlayerInteractionLocked =
+            isLocked;
+
+        SetEventSceneManualCameraInputLocked(
+            isLocked
+        );
+    }
+
+
+    // <변경부분>
+    // Run HUD를 Fade In / Out한다.
+    //
+    // Fade Out 시작 시에는 즉시 Raycast를 차단하고,
+    // Fade In 완료 후에만 Raycast를 허용하여
+    // 보이지 않는 UI가 입력을 가로채지 않도록 한다.
+    private void SetRunHUDVisibleWithFade(
+        bool isVisible)
+    {
+        if (runHUDCanvasGroup == null)
+        {
+            return;
+        }
+
+        StopRunHUDFade();
+
+        float targetAlpha =
+            isVisible
+                ? 1f
+                : 0f;
+
+        if (runHUDFadeDuration <= 0f)
+        {
+            SetRunHUDVisibleImmediately(
+                isVisible
+            );
+
+            return;
+        }
+
+        // Fade Out은 시작 순간부터 입력을 차단한다.
+        //
+        // Fade In은 완전히 표시된 뒤 입력을 허용한다.
+        runHUDCanvasGroup.interactable =
+            false;
+
+        runHUDCanvasGroup.blocksRaycasts =
+            false;
+
+        runHUDFadeCoroutine =
+            StartCoroutine(
+                RunHUDFadeRoutine(
+                    targetAlpha,
+                    isVisible
+                )
+            );
+    }
+
+
+    // <변경부분>
+    // 현재 Alpha에서 목표 Alpha까지 부드럽게 보간한다.
+    //
+    // EventScene Pause 기능이 이후 추가되더라도
+    // UI Fade가 Time Scale에 묶이지 않도록
+    // unscaledDeltaTime을 사용한다.
+    private IEnumerator RunHUDFadeRoutine(
+        float targetAlpha,
+        bool enableInteractionAfterFade)
+    {
+        float startAlpha =
+            runHUDCanvasGroup.alpha;
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime <
+               runHUDFadeDuration)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float normalizedTime =
+                Mathf.Clamp01(
+                    elapsedTime /
+                    runHUDFadeDuration
+                );
+
+            float smoothTime =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    normalizedTime
+                );
+
+            runHUDCanvasGroup.alpha =
+                Mathf.Lerp(
+                    startAlpha,
+                    targetAlpha,
+                    smoothTime
+                );
+
+            yield return null;
+        }
+
+        runHUDCanvasGroup.alpha =
+            targetAlpha;
+
+        runHUDCanvasGroup.interactable =
+            enableInteractionAfterFade;
+
+        runHUDCanvasGroup.blocksRaycasts =
+            enableInteractionAfterFade;
+
+        runHUDFadeCoroutine =
+            null;
+    }
+
+
+    // <변경부분>
+    // Fade 없이 Run HUD 상태를 즉시 적용한다.
+    //
+    // EventScene 최초 진입 또는 Scene 종료 정리에 사용한다.
+    private void SetRunHUDVisibleImmediately(
+        bool isVisible)
+    {
+        if (runHUDCanvasGroup == null)
+        {
+            return;
+        }
+
+        StopRunHUDFade();
+
+        runHUDCanvasGroup.alpha =
+            isVisible
+                ? 1f
+                : 0f;
+
+        runHUDCanvasGroup.interactable =
+            isVisible;
+
+        runHUDCanvasGroup.blocksRaycasts =
+            isVisible;
+    }
+
+
+    // <변경부분>
+    // 이전 Run HUD Fade가 실행 중이면 안전하게 중단한다.
+    private void StopRunHUDFade()
+    {
+        if (runHUDFadeCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(
+            runHUDFadeCoroutine
+        );
+
+        runHUDFadeCoroutine =
+            null;
+    }
+
+
+    // <변경부분>
+    // Event Scene 전체에서 플레이어의 수동 Camera 입력을
+
+
+    // <변경부분>
     // Event Scene 전체에서 플레이어의 수동 Camera 입력을
     // 잠그거나 해제한다.
     //
@@ -1892,6 +2186,20 @@ attacker.PlayAttackRoutine(
         }
 
         // <변경부분>
+        // Sequence 강제 종료 시
+        // Run HUD Fade도 정리하고 즉시 숨긴다.
+        SetRunHUDVisibleImmediately(
+            false
+        );
+
+        // <변경부분>
+        // Sequence를 강제로 중단한 뒤에도
+        // 플레이어 입력 Lock이 남아 있지 않도록 해제한다.
+        SetEventScenePlayerInteractionLocked(
+            false
+        );
+
+        // <변경부분>
         // 강제 종료 시 현재 Event Data Runtime 참조도 정리한다.
         currentEventSceneData =
             null;
@@ -1932,9 +2240,18 @@ attacker.PlayAttackRoutine(
         StopCameraShakeImmediately();
 
         // <변경부분>
-        // Event Scene을 실제로 벗어나는 시점에만
-        // 일반 Camera 입력 Lock을 해제한다.
-        SetEventSceneManualCameraInputLocked(
+        // Scene 전환 / 비활성화 시
+        // Run HUD Coroutine과 표시 상태를 함께 정리한다.
+        SetRunHUDVisibleImmediately(
+            false
+        );
+
+        // <변경부분>
+        // Event Scene Controller가 비활성화되면
+        // Event Scene 전체의 일반 플레이어 조작 Lock을 해제한다.
+        //
+        // Camera 입력도 동일한 공용 상태를 통해 함께 해제된다.
+        SetEventScenePlayerInteractionLocked(
             false
         );
 

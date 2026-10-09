@@ -1160,19 +1160,22 @@ public class WorldMapProgressController : MonoBehaviour
             yield break;
         }
 
+        // <변경부분>
         // 미클리어 노드에 진입할 때
-        // 이동할 Scene과 해당 노드의 StageBattleData를 함께 가져온다.
+        // Node Type에 따라 Battle 또는 Event 콘텐츠 데이터를 가져온다.
         string targetSceneName =
             targetNode.GetTargetSceneName();
 
         StageBattleData targetStageBattleData =
             targetNode.GetStageBattleData();
 
-        // Battle / BossBattle 노드는
-        // 실제 전투 StageBattleData가 반드시 필요하다.
-        //
-        // Event / Shop 등은 StageBattleData 없이
-        // 기존 Scene 이동만 사용할 수 있다.
+        // EventSceneData는 Runtime Node에 중복 저장하지 않고
+        // WorldMapData의 원본 MapNodePlacementData를 SSOT로 사용한다.
+        EventSceneData targetEventSceneData =
+            targetPlacement != null
+                ? targetPlacement.eventSceneData
+                : null;
+
         MapNodeType targetNodeType =
             targetNode.GetNodeType();
 
@@ -1180,6 +1183,13 @@ public class WorldMapProgressController : MonoBehaviour
             targetNodeType == MapNodeType.Battle ||
             targetNodeType == MapNodeType.BossBattle;
 
+        bool requiresEventSceneData =
+            targetNodeType == MapNodeType.Event ||
+            targetNodeType == MapNodeType.RuinsEvent ||
+            targetNodeType == MapNodeType.Shop;
+
+
+        // Battle / BossBattle는 실제 StageBattleData가 필수다.
         if (requiresBattleStageData &&
             targetStageBattleData == null)
         {
@@ -1204,13 +1214,50 @@ public class WorldMapProgressController : MonoBehaviour
             yield break;
         }
 
-        // 아직 클리어하지 않은 노드의 ID와
-        // 해당 노드에서 사용할 StageBattleData를
-        // 다음 씬에서 사용할 런타임 상태로 저장한다.
-        WorldMapRuntimeState.BeginBattleNode(
-            targetNodeId,
-            targetStageBattleData
-        );
+
+        // <변경부분>
+        // Event / RuinsEvent / Shop은
+        // 공용 EventScene에서 실행할 EventSceneData가 필수다.
+        if (requiresEventSceneData &&
+            targetEventSceneData == null)
+        {
+            Debug.LogWarning(
+                $"이벤트 노드 진입 실패: " +
+                $"{targetNode.GetNodeDisplayName()} 노드에 " +
+                $"Event Scene Data가 연결되지 않았습니다."
+            );
+
+            isMovingMarker =
+                false;
+
+            if (worldMapCameraController != null)
+            {
+                worldMapCameraController
+                    .SetMarkerFollow(
+                        null,
+                        false
+                    );
+            }
+
+            yield break;
+        }
+
+
+        // <변경부분>
+        // Battle과 Event의 Runtime 전달 경로를 완전히 분리한다.
+        if (requiresBattleStageData)
+        {
+            WorldMapRuntimeState.BeginBattleNode(
+                targetNodeId,
+                targetStageBattleData
+            );
+        }
+        else if (requiresEventSceneData)
+        {
+            WorldMapRuntimeState.BeginEventNode(
+                targetEventSceneData
+            );
+        }
 
         // 새로운 노드에 도착했을 때만
         // Select → Absorb → Down_Absorb 애니메이션을 재생한다.

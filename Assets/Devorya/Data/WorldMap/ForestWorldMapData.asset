@@ -21,10 +21,11 @@ MonoBehaviour:
   - nodeId: ForestMap_01_Battle_02
     nodeDisplayName: "\uD29C\uD1A0\uB9AC\uC5BC"
     gridPosition: {x: 23, y: 14}
-    nodeType: 0
-    nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
-    targetSceneName: BattleScene
-    stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+    nodeType: 2
+    nodeStyleData: {fileID: 11400000, guid: ca1d7159da3d76b4cb26be4415084675, type: 2}
+    targetSceneName: EventScene
+    stageBattleData: {fileID: 0}
+    eventSceneData: {fileID: 11400000, guid: 7c3b09b8a1fb7a245876308ee1705bf5, type: 2}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -42,6 +43,7 @@ MonoBehaviour:
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
     stageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+    eventSceneData: {fileID: 0}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -56,6 +58,7 @@ MonoBehaviour:
     nodeStyleData: {fileID: 11400000, guid: 3d9e5398d490d114589e26f44e3aefce, type: 2}
     targetSceneName: 
     stageBattleData: {fileID: 0}
+    eventSceneData: {fileID: 0}
     initiallyUnlocked: 1
     initiallyCleared: 1
     connections:
@@ -72,6 +75,7 @@ MonoBehaviour:
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
     stageBattleData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
+    eventSceneData: {fileID: 0}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:
@@ -89,6 +93,7 @@ MonoBehaviour:
     nodeStyleData: {fileID: 11400000, guid: 76b7e1ebaf2dfbb44ab01128efda8426, type: 2}
     targetSceneName: BattleScene
     stageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
+    eventSceneData: {fileID: 0}
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections: []

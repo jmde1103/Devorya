@@ -56,6 +56,14 @@ public class WorldMapNodeEditorWindow : EditorWindow
     [SerializeField]
     private StageBattleData newStageBattleData;
 
+    // <변경부분>
+    // 새로 생성하는 이벤트 계열 노드에서 사용할 EventSceneData.
+    //
+    // Event / RuinsEvent / Shop 노드에서는
+    // 공용 EventScene에서 실행할 콘텐츠를 결정한다.
+    [SerializeField]
+    private EventSceneData newEventSceneData;
+
     // 새 노드의 초기 해금 상태
     [SerializeField]
     private bool newNodeInitiallyUnlocked;
@@ -92,6 +100,11 @@ public class WorldMapNodeEditorWindow : EditorWindow
 
     // 선택된 노드의 StageBattleData를 수정하기 위한 임시 값
     private StageBattleData editStageBattleData;
+
+    // <변경부분>
+    // 선택된 이벤트 계열 노드의 EventSceneData를
+    // 수정하기 위한 임시 값.
+    private EventSceneData editEventSceneData;
 
     // 선택된 노드의 초기 해금 상태를 수정하기 위한 임시 값
     private bool editInitiallyUnlocked;
@@ -342,16 +355,31 @@ public class WorldMapNodeEditorWindow : EditorWindow
         "Target Scene Name",
         newTargetSceneName
     );
-
-        // Battle / BossBattle 노드에서 사용할
-        // 실제 StageBattleData를 직접 선택한다.
-        newStageBattleData =
-            (StageBattleData)EditorGUILayout.ObjectField(
-                "Stage Battle Data",
-                newStageBattleData,
-                typeof(StageBattleData),
-                false
-            );
+        // <변경부분>
+        // Battle 계열과 Event 계열 노드가
+        // 서로 다른 실제 콘텐츠 데이터를 사용하도록 분리한다.
+        if (RequiresBattleStageData(
+                selectedNodeType))
+        {
+            newStageBattleData =
+                (StageBattleData)EditorGUILayout.ObjectField(
+                    "Stage Battle Data",
+                    newStageBattleData,
+                    typeof(StageBattleData),
+                    false
+                );
+        }
+        else if (RequiresEventSceneData(
+                     selectedNodeType))
+        {
+            newEventSceneData =
+                (EventSceneData)EditorGUILayout.ObjectField(
+                    "Event Scene Data",
+                    newEventSceneData,
+                    typeof(EventSceneData),
+                    false
+                );
+        }
 
         newNodeInitiallyUnlocked =
             EditorGUILayout.Toggle(
@@ -509,15 +537,30 @@ public class WorldMapNodeEditorWindow : EditorWindow
         editTargetSceneName
     );
 
-        // 현재 선택된 전투 노드에 연결할
-        // StageBattleData를 변경한다.
-        editStageBattleData =
-            (StageBattleData)EditorGUILayout.ObjectField(
-                "Stage Battle Data",
-                editStageBattleData,
-                typeof(StageBattleData),
-                false
-            );
+        // <변경부분>
+        // 현재 Node Type에 필요한 콘텐츠 데이터만 표시한다.
+        if (RequiresBattleStageData(
+                editNodeType))
+        {
+            editStageBattleData =
+                (StageBattleData)EditorGUILayout.ObjectField(
+                    "Stage Battle Data",
+                    editStageBattleData,
+                    typeof(StageBattleData),
+                    false
+                );
+        }
+        else if (RequiresEventSceneData(
+                     editNodeType))
+        {
+            editEventSceneData =
+                (EventSceneData)EditorGUILayout.ObjectField(
+                    "Event Scene Data",
+                    editEventSceneData,
+                    typeof(EventSceneData),
+                    false
+                );
+        }
 
         editInitiallyUnlocked =
             EditorGUILayout.Toggle(
@@ -657,6 +700,25 @@ public class WorldMapNodeEditorWindow : EditorWindow
     private void OnSceneGUI(
         SceneView sceneView)
     {
+        // <변경부분>
+        // World Map Node Editor는 편집 전용 도구이므로
+        // Play Mode 진입 중이거나 실행 중일 때는
+        // Scene View 좌표 계산과 Handles 처리를 수행하지 않는다.
+        //
+        // Scene 전환 중 Scene View Camera 상태가 변경되는 순간
+        // GUIPointToWorldRay가 잘못된 화면 좌표를 계산하여
+        // "Screen position out of view frustum" 경고가 발생하는 것을 방지한다.
+        if (EditorApplication.isPlayingOrWillChangePlaymode ||
+            sceneView == null ||
+            sceneView.camera == null ||
+            Event.current == null)
+        {
+            hasValidHoveredCell =
+                false;
+
+            return;
+        }
+
         if (isPlacementModeActive == false)
         {
             hasValidHoveredCell =
@@ -939,16 +1001,36 @@ public class WorldMapNodeEditorWindow : EditorWindow
     }
 
 
-    // 노드가 실제 Scene으로 진입하기 위해 필요한
-    // Target Scene Name과 StageBattleData가 준비되어 있는지 검사한다.
+    // <변경부분>
+    // 공용 EventScene에서 실행할 EventSceneData가 필요한
+    // 이벤트 계열 노드 타입인지 확인한다.
+    private static bool RequiresEventSceneData(
+        MapNodeType nodeType)
+    {
+        return
+            nodeType == MapNodeType.Event ||
+            nodeType == MapNodeType.RuinsEvent ||
+            nodeType == MapNodeType.Shop;
+    }
+
+
+    // <변경부분>
+    // 노드 타입에 따라 필요한 Scene과 콘텐츠 데이터가
+    // 올바르게 준비되어 있는지 검사한다.
     //
-    // Initially Cleared 노드는 이미 완료된 위치로 사용되며
-    // 런타임에서도 Scene 진입을 수행하지 않으므로
-    // Scene / Battle Data 검사를 생략한다.
+    // Battle / BossBattle
+    // → StageBattleData 필요
+    //
+    // Event / RuinsEvent / Shop
+    // → EventSceneData 필요
+    //
+    // Initially Cleared 노드는 실제 Scene에 진입하지 않으므로
+    // 콘텐츠 데이터 검사를 생략한다.
     private bool ValidateNodeEntrySettings(
         MapNodeType nodeType,
         string targetSceneName,
         StageBattleData stageBattleData,
+        EventSceneData eventSceneData,
         bool willBeInitiallyCleared,
         string nodeContext)
     {
@@ -960,8 +1042,6 @@ public class WorldMapNodeEditorWindow : EditorWindow
         bool isValid =
             true;
 
-        // 아직 클리어되지 않은 노드는 실제 Scene으로 이동해야 하므로
-        // Target Scene Name이 반드시 필요하다.
         if (string.IsNullOrWhiteSpace(
                 targetSceneName))
         {
@@ -975,8 +1055,6 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 false;
         }
 
-        // Battle / BossBattle 노드는 BattleScene에서 사용할
-        // 실제 StageBattleData가 반드시 필요하다.
         if (RequiresBattleStageData(
                 nodeType) &&
             stageBattleData == null)
@@ -985,6 +1063,23 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 $"월드맵 노드 저장 실패: " +
                 $"{nodeContext} / {nodeType} 노드의 " +
                 $"Stage Battle Data가 연결되지 않았습니다."
+            );
+
+            isValid =
+                false;
+        }
+
+        // <변경부분>
+        // Event / RuinsEvent / Shop은
+        // 공용 EventScene에서 실제로 실행할 EventSceneData가 필요하다.
+        if (RequiresEventSceneData(
+                nodeType) &&
+            eventSceneData == null)
+        {
+            Debug.LogWarning(
+                $"월드맵 노드 저장 실패: " +
+                $"{nodeContext} / {nodeType} 노드의 " +
+                $"Event Scene Data가 연결되지 않았습니다."
             );
 
             isValid =
@@ -1046,15 +1141,16 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // 잘못된 Scene / Battle 설정을 가진 노드가
         // WorldMapData에 저장되기 전에 차단한다.
         if (ValidateNodeEntrySettings(
-                selectedNodeType,
-                newTargetSceneName,
-                newStageBattleData,
-                willBeInitiallyCleared,
-                string.IsNullOrWhiteSpace(
-                    newNodeDisplayName)
-                    ? "새 노드"
-                    : newNodeDisplayName) ==
-            false)
+           selectedNodeType,
+           newTargetSceneName,
+           newStageBattleData,
+           newEventSceneData,
+           willBeInitiallyCleared,
+           string.IsNullOrWhiteSpace(
+               newNodeDisplayName)
+               ? "새 노드"
+               : newNodeDisplayName) ==
+       false)
         {
             return;
         }
@@ -1092,12 +1188,22 @@ public class WorldMapNodeEditorWindow : EditorWindow
         newPlacement.targetSceneName =
     newTargetSceneName;
 
-        // 새 노드에 선택한 StageBattleData를 저장한다.
+        // <변경부분>
+        // 현재 Node Type에 필요한 콘텐츠 데이터만 저장한다.
         //
-        // 전투 노드는 이 데이터가 BattleScene까지 전달되며,
-        // 전투가 아닌 노드는 null 상태도 허용한다.
+        // 타입을 변경했을 때 이전 타입의 데이터가
+        // 잘못 남지 않도록 사용하지 않는 쪽은 null로 정리한다.
         newPlacement.stageBattleData =
-            newStageBattleData;
+            RequiresBattleStageData(
+                selectedNodeType)
+                ? newStageBattleData
+                : null;
+
+        newPlacement.eventSceneData =
+            RequiresEventSceneData(
+                selectedNodeType)
+                ? newEventSceneData
+                : null;
 
         // 클리어 노드는 시작 지점으로 사용할 수 있도록
         // 처음부터 해금·클리어 상태로 저장한다.
@@ -1279,6 +1385,12 @@ public class WorldMapNodeEditorWindow : EditorWindow
         editStageBattleData =
             selectedPlacement.stageBattleData;
 
+        // <변경부분>
+        // 이벤트 계열 노드의 EventSceneData도
+        // 수정용 임시 값에 함께 복사한다.
+        editEventSceneData =
+            selectedPlacement.eventSceneData;
+
         editInitiallyUnlocked =
             selectedPlacement.initiallyUnlocked;
 
@@ -1310,8 +1422,11 @@ public class WorldMapNodeEditorWindow : EditorWindow
      string.Empty;
 
         // 이전에 선택했던 노드의
-        // StageBattleData 참조가 새 선택에 남지 않도록 초기화한다.
+        // 콘텐츠 데이터 참조가 새 선택에 남지 않도록 초기화한다.
         editStageBattleData =
+            null;
+
+        editEventSceneData =
             null;
 
         editInitiallyUnlocked =
@@ -1398,15 +1513,16 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // 수정된 값을 WorldMapData에 저장하기 전에
         // Scene / Battle 필수 데이터 누락을 검사한다.
         if (ValidateNodeEntrySettings(
-                editNodeType,
-                editTargetSceneName,
-                editStageBattleData,
-                willBeInitiallyCleared,
-                string.IsNullOrWhiteSpace(
-                    selectedPlacement.nodeId)
-                    ? "선택 노드"
-                    : selectedPlacement.nodeId) ==
-            false)
+          editNodeType,
+          editTargetSceneName,
+          editStageBattleData,
+          editEventSceneData,
+          willBeInitiallyCleared,
+          string.IsNullOrWhiteSpace(
+              selectedPlacement.nodeId)
+              ? "선택 노드"
+              : selectedPlacement.nodeId) ==
+      false)
         {
             return;
         }
@@ -1438,10 +1554,22 @@ public class WorldMapNodeEditorWindow : EditorWindow
         selectedPlacement.targetSceneName =
      editTargetSceneName;
 
-        // 수정 UI에서 선택한 StageBattleData를
-        // 실제 MapNodePlacementData에 저장한다.
+        // <변경부분>
+        // 현재 Node Type에 맞는 콘텐츠 데이터만 저장한다.
+        //
+        // Battle → Event 또는 Event → Battle로 타입을 변경해도
+        // 이전 타입의 데이터 참조가 남지 않도록 정리한다.
         selectedPlacement.stageBattleData =
-            editStageBattleData;
+            RequiresBattleStageData(
+                editNodeType)
+                ? editStageBattleData
+                : null;
+
+        selectedPlacement.eventSceneData =
+            RequiresEventSceneData(
+                editNodeType)
+                ? editEventSceneData
+                : null;
 
         bool isClearedNode =
             editNodeType ==

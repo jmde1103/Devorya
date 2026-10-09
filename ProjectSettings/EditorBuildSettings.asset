@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/BattleScenePVP.unity
     guid: 799249741f246094e9c5d1d16f0bb4eb
   - enabled: 1
+    path: Assets/Scenes/EventScene.unity
+    guid: f71e35af1acf9dc4cb8e882573acdc40
+  - enabled: 1
     path: Assets/Scenes/TextCutsceneScene.unity
     guid: 4aa8679ee5287ba44a14f22acdfe16e2
   m_configObjects:

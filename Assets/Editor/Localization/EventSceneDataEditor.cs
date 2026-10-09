@@ -594,6 +594,14 @@ public class EventSceneDataEditor : Editor
             (EventSceneData)target;
 
         DrawEventInfo(
+     eventData
+ );
+
+        EditorGUILayout.Space(10);
+
+        // <변경부분>
+        // EventScene의 공용 Run HUD 표시 설정을 편집한다.
+        DrawEventUISettings(
             eventData
         );
 
@@ -697,6 +705,51 @@ public class EventSceneDataEditor : Editor
                     eventData
                 );
             }
+        }
+    }
+
+
+    // <변경부분>
+    // Event Scene의 공용 Run HUD 표시 방식을 편집한다.
+    private void DrawEventUISettings(
+        EventSceneData eventData)
+    {
+        EditorGUILayout.LabelField(
+            "Event UI",
+            EditorStyles.boldLabel
+        );
+
+        using (new EditorGUILayout.VerticalScope(
+                   EditorStyles.helpBox))
+        {
+            EditorGUI.BeginChangeCheck();
+
+            bool newShowRunHUD =
+                EditorGUILayout.Toggle(
+                    "Show Run HUD During Player Interaction",
+                    eventData.showRunHUDDuringPlayerInteraction
+                );
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(
+                    eventData,
+                    "Edit Event Scene UI"
+                );
+
+                eventData.showRunHUDDuringPlayerInteraction =
+                    newShowRunHUD;
+
+                EditorUtility.SetDirty(
+                    eventData
+                );
+            }
+
+            EditorGUILayout.HelpBox(
+                "OFF: 일반 이벤트처럼 Run HUD를 숨깁니다.\n" +
+                "ON: UnlockPlayerInteraction 실행 시 Run HUD를 표시합니다.",
+                MessageType.Info
+            );
         }
     }
 
@@ -2292,6 +2345,35 @@ public class EventSceneDataEditor : Editor
                     ref currentY,
                     contentRect,
                     "현재 Event Scene Sequence를 완료합니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.UnlockPlayerInteraction:
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Event Scene의 일반 플레이어 조작 Lock을 해제합니다.\n" +
+                    "상점 / 휴식 / 조사 등의 자유 상호작용 구간 시작에 사용합니다.\n" +
+                    "수동 Camera 이동 / 확대 / 축소도 함께 허용됩니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
+
+
+            case EventSceneStepType.LockPlayerInteraction:
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Event Scene의 일반 플레이어 조작을 다시 잠급니다.\n" +
+                    "자유 상호작용 이후 Dialogue / Camera 연출 등으로 다시 진입할 때 사용합니다.",
                     MessageType.Info,
                     draw
                 );

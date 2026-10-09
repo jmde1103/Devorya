@@ -63,18 +63,27 @@ public class TooltipTrigger : MonoBehaviour,
     [SerializeField]
     private Vector2 fixedCanvasPosition;
 
-    [Header("Section Position")]
-    // <변경부분> 기본 Tooltip 본체 위치는 유지하면서
-    // SectionParent에만 적용할 개별 위치 보정값
+    [Header("Section Popup Position")]
+
+    // <변경부분>
+    // 기존 Section Position Offset은 더 이상 사용하지 않는다.
+    //
+    // 기존 Prefab / Scene의 Serialized Data를 깨뜨리지 않기 위해
+    // 필드 자체는 유지하되 Inspector에서는 숨긴다.
+    [HideInInspector]
     [SerializeField]
     private Vector2 sectionPositionOffset =
-     Vector2.zero;
+      Vector2.zero;
 
-    // <변경부분> Section이 추가되어 Tooltip 전체 길이가 길어질 때
-    // Section 1개당 PopupRoot 전체 위치를 얼마나 보정할지 설정한다.
+    // <변경부분>
+    // Section이 1개 추가될 때마다
+    // PopupRoot 전체를 X축으로 추가 보정한다.
     //
-    // 상단 Tooltip처럼 별도 보정이 필요 없으면 0,
-    // 하단 Tooltip처럼 위로 밀어야 하면 양수 값을 사용한다.
+    // Y축 보정과 동일하게
+    // 기본 Tooltip + 추가 Section 전체가 함께 이동한다.
+    [SerializeField]
+    private float popupOffsetXPerSection;
+
     [SerializeField]
     private float popupOffsetYPerSection;
 
@@ -543,14 +552,24 @@ public class TooltipTrigger : MonoBehaviour,
         }
 
         TooltipPopupUI.Instance.Show(
-            tooltipViewData,
-            screenPosition,
-            positionMode,
-            customPositionOffset,
-            fixedCanvasPosition,
-            sectionPositionOffset,
-            popupOffsetYPerSection
-        );
+     tooltipViewData,
+     screenPosition,
+     positionMode,
+     customPositionOffset,
+     fixedCanvasPosition,
+
+     // <변경부분>
+     // 기존 SectionPositionOffset 파라미터 자리를
+     // Popup X Per Section 전달용으로 사용한다.
+     //
+     // Y값은 더 이상 사용하지 않는다.
+     new Vector2(
+         popupOffsetXPerSection,
+         0f
+     ),
+
+     popupOffsetYPerSection
+ );
 
         isTooltipVisible =
             true;

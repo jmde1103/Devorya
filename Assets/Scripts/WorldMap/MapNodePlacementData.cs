@@ -43,8 +43,17 @@ public class MapNodePlacementData
     // BattleScene에서 실제 전투 구성에 사용할 스테이지 데이터.
     //
     // Battle / BossBattle 노드에서는 이 값을 연결하고,
-    // Event / Shop 등 전투가 아닌 노드에서는 비워둘 수 있다.
+    // Event / RuinsEvent / Shop 노드에서는 사용하지 않는다.
     public StageBattleData stageBattleData;
+
+    [Header("Event Scene Data")]
+    // <변경부분>
+    // 이벤트 계열 노드에 진입했을 때
+    // 공용 EventScene에서 실행할 실제 EventSceneData.
+    //
+    // Event / RuinsEvent / Shop 노드에서는 이 값을 연결하고,
+    // Battle / BossBattle 노드에서는 사용하지 않는다.
+    public EventSceneData eventSceneData;
 
     [Header("Initial State")]
     // 맵을 처음 시작했을 때

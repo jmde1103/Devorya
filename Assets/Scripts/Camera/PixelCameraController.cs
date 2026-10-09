@@ -101,7 +101,24 @@ public class PixelCameraController : MonoBehaviour
     // 현재 WorldRoot Zoom 상태를 외부에서 읽기만 할 수 있게 한다.
     // 직접 Set은 제공하지 않는다.
     public float CurrentWorldScale =>
-     currentWorldScale;
+        currentWorldScale;
+
+    // <변경부분>
+    // 최대 Zoom Out 기준 Scale을
+    // 환경 연출 시스템에서 읽을 수 있게 한다.
+    //
+    // 반딧불 Spawn / 이동 영역이
+    // 현재 확대 화면이 아니라 최대 Zoom Out 영역을
+    // 기준으로 계산할 때 사용한다.
+    public float MinWorldScale =>
+        minWorldScale;
+
+    // <변경부분>
+    // WorldRoot의 실제 Pivot 위치까지 고려하여
+    // 최대 Zoom Out 영역을 계산할 수 있게
+    // 읽기 전용으로 공개한다.
+    public Transform WorldRoot =>
+        worldRoot;
 
 
     // <변경부분>
@@ -337,12 +354,21 @@ public class PixelCameraController : MonoBehaviour
         null;
 
 
-    // 최소 줌 상태에서 이동을 막기 위한 허용 오차
-    [SerializeField]
+    // <변경부분>
+    // 현재 World Scale이 최대 Zoom Out 상태인지
+    // 판정할 때 사용하는 작은 허용 오차값.
+    //
+    // 최대 Zoom Out에서는 전체 탐색 영역이 이미 화면에 보이므로
+    // Camera 수동 이동을 허용하지 않는다.
+    [SerializeField, HideInInspector]
     private float minZoomMoveThreshold =
         0.01f;
 
-    // 최소 줌 기준 화면 중심 위치
+    // <변경부분>
+    // 최대 Zoom Out 상태의 Camera 기준 위치.
+    //
+    // Zoom In 시에도 이 위치를 중심으로
+    // 최대 Zoom Out에서 보였던 전체 영역 안에서만 이동한다.
     private Vector3 baseCameraPosition;
 
     // <변경부분> 현재 실제 Camera 이동이 가능한 상태인지 반환한다.
@@ -381,10 +407,15 @@ public class PixelCameraController : MonoBehaviour
     }
 
     [Header("Camera Bounds")]
-    // 기본 화면 기준 카메라 이동 가능 최소 좌표
+    // <변경부분>
+    // 이전 Camera Bounds 방식의 Serialized 데이터 보호용.
+    //
+    // 실제 Camera 이동 범위 계산에는 더 이상 사용하지 않는다.
+    // 삭제하지 않고 숨겨 두어 기존 Scene / Prefab 데이터는 보존한다.
+    [HideInInspector]
     public Vector2 minBounds;
 
-    // 기본 화면 기준 카메라 이동 가능 최대 좌표
+    [HideInInspector]
     public Vector2 maxBounds;
 
 
@@ -1774,52 +1805,119 @@ public class PixelCameraController : MonoBehaviour
         }
     }
 
-    // <변경부분> 현재 줌 배율에 맞는 이동 가능 범위 안에서
-    // 요청받은 카메라 위치를 반환한다.
+    // <변경부분>
+    // 최대 Zoom Out 상태에서 화면에 보이는 전체 영역을 기준으로
+    // 현재 Zoom에서 Camera가 이동할 수 있는 범위를 계산한다.
+    //
+    // 최대 Zoom Out:
+    // 이동 거리 0
+    //
+    // Zoom In:
+    // 확대되어 화면 밖으로 밀려난 영역만큼 Camera 이동 허용
+    //
+    // 따라서 어떤 Zoom 상태에서도 Camera를 이동하면
+    // 최대 Zoom Out에서 보였던 전체 영역을 끝까지 확인할 수 있다.
+    private void GetCameraMovementRange(
+        float worldScale,
+        out float minX,
+        out float maxX,
+        out float minY,
+        out float maxY)
+    {
+        float safeMinWorldScale =
+            Mathf.Max(
+                0.0001f,
+                minWorldScale
+            );
+
+        float safeWorldScale =
+            Mathf.Max(
+                safeMinWorldScale,
+                worldScale
+            );
+
+        // 최대 Zoom Out 대비 현재 확대 비율.
+        //
+        // Min World Scale과 같으면 1.
+        // 두 배 확대된 상태라면 2.
+        float zoomRatio =
+            safeWorldScale /
+            safeMinWorldScale;
+
+        float zoomMoveRate =
+            Mathf.Max(
+                0f,
+                zoomRatio - 1f
+            );
+
+
+        // Camera 자체의 화면 절반 크기.
+        //
+        // WorldRoot Scale 방식 Zoom이므로
+        // Camera Orthographic Size 자체는 바뀌지 않는다.
+        float halfViewHeight =
+            cam != null
+                ? Mathf.Max(
+                    0f,
+                    cam.orthographicSize
+                )
+                : 0f;
+
+        float halfViewWidth =
+            halfViewHeight *
+            (
+                cam != null
+                    ? Mathf.Max(
+                        0.0001f,
+                        cam.aspect
+                    )
+                    : 1f
+            );
+
+
+        // 확대 때문에 최대 Zoom Out 영역 중
+        // 화면 밖으로 밀려난 양만큼만 이동을 허용한다.
+        float allowedX =
+            halfViewWidth *
+            zoomMoveRate;
+
+        float allowedY =
+            halfViewHeight *
+            zoomMoveRate;
+
+
+        minX =
+            baseCameraPosition.x -
+            allowedX;
+
+        maxX =
+            baseCameraPosition.x +
+            allowedX;
+
+        minY =
+            baseCameraPosition.y -
+            allowedY;
+
+        maxY =
+            baseCameraPosition.y +
+            allowedY;
+    }
+
+
+    // <변경부분>
+    // 현재 Zoom 상태에서 허용되는 Camera 이동 범위 안으로
+    // 요청된 위치를 제한한다.
     private Vector3 GetClampedCameraPosition(
         Vector3 requestedPosition,
         float worldScale)
     {
-        if (worldScale <=
-            minWorldScale +
-            minZoomMoveThreshold)
-        {
-            return new Vector3(
-                baseCameraPosition.x,
-                baseCameraPosition.y,
-                cameraZPosition
-            );
-        }
-
-        float zoomMoveRate =
-            (worldScale / minWorldScale) -
-            1f;
-
-        float allowedX =
-            (maxBounds.x - minBounds.x) *
-            zoomMoveRate *
-            0.5f;
-
-        float allowedY =
-            (maxBounds.y - minBounds.y) *
-            zoomMoveRate *
-            0.5f;
-
-        float minX =
-            baseCameraPosition.x -
-            allowedX;
-
-        float maxX =
-            baseCameraPosition.x +
-            allowedX;
-
-        float minY =
-            baseCameraPosition.y -
-            allowedY;
-
-        float maxY =
-            baseCameraPosition.y +
-            allowedY;
+        GetCameraMovementRange(
+            worldScale,
+            out float minX,
+            out float maxX,
+            out float minY,
+            out float maxY
+        );
 
         return new Vector3(
             Mathf.Clamp(
@@ -1832,7 +1930,7 @@ public class PixelCameraController : MonoBehaviour
                 minY,
                 maxY
             ),
-            cameraZPosition
+            baseCameraPosition.z
         );
     }
 
@@ -2504,63 +2602,58 @@ public class PixelCameraController : MonoBehaviour
             );
     }
 
-    // 현재 줌 상태에서 카메라 이동 가능 여부
+    // <변경부분>
+    // 최대 Zoom Out 상태에서는
+    // 전체 탐색 영역이 이미 화면에 보이므로 Camera 이동을 막는다.
+    //
+    // 그보다 확대된 상태에서만 Camera 이동을 허용한다.
     private bool CanMoveCameraByZoom()
     {
-        // 현재 줌이 최소 줌보다 충분히 커졌을 때만 이동 가능
-        return currentWorldScale > minWorldScale + minZoomMoveThreshold;
+        return
+            currentWorldScale >
+            minWorldScale +
+            minZoomMoveThreshold;
     }
 
-    // 현재 줌 배율에 따라 카메라 이동 범위 제한
+
+    // <변경부분>
+    // 최대 Zoom Out에서 보였던 전체 영역을 기준으로
+    // 현재 Zoom에 필요한 Camera 이동 범위를 계산하고 제한한다.
     private void ClampCameraByZoom()
     {
-        // 현재 카메라 위치
-        Vector3 pos = transform.position;
+        Vector3 pos =
+            transform.position;
 
-        // 최소 줌 상태에서는 시작 위치로 고정
-        if (CanMoveCameraByZoom() == false)
-        {
-            transform.position = new Vector3(
-                baseCameraPosition.x,
-                baseCameraPosition.y,
-                baseCameraPosition.z
+
+        GetCameraMovementRange(
+            currentWorldScale,
+            out float minX,
+            out float maxX,
+            out float minY,
+            out float maxY
+        );
+
+
+        pos.x =
+            Mathf.Clamp(
+                pos.x,
+                minX,
+                maxX
             );
 
-            return;
-        }
+        pos.y =
+            Mathf.Clamp(
+                pos.y,
+                minY,
+                maxY
+            );
 
-        // <변경부분> 현재 확대 배율 기준으로 최소 줌 화면 영역 끝까지 이동할 수 있는 비율 계산
-        float zoomMoveRate = (currentWorldScale / minWorldScale) - 1f;
 
-        // <변경부분> X축에서 최소 줌 화면 영역을 다시 볼 수 있는 이동 거리 계산
-        float allowedX = (maxBounds.x - minBounds.x) * zoomMoveRate * 0.5f;
-
-        // <변경부분> Y축에서 최소 줌 화면 영역을 다시 볼 수 있는 이동 거리 계산
-        float allowedY = (maxBounds.y - minBounds.y) * zoomMoveRate * 0.5f;
-
-        // X축 최소 이동 좌표
-        float minX = baseCameraPosition.x - allowedX;
-
-        // X축 최대 이동 좌표
-        float maxX = baseCameraPosition.x + allowedX;
-
-        // Y축 최소 이동 좌표
-        float minY = baseCameraPosition.y - allowedY;
-
-        // Y축 최대 이동 좌표
-        float maxY = baseCameraPosition.y + allowedY;
-
-        // X 좌표 제한
-        pos.x = Mathf.Clamp(pos.x, minX, maxX);
-
-        // Y 좌표 제한
-        pos.y = Mathf.Clamp(pos.y, minY, maxY);
-
-        // 제한된 위치 적용
-        transform.position = new Vector3(
-            pos.x,
-            pos.y,
-            baseCameraPosition.z
-        );
+        transform.position =
+            new Vector3(
+                pos.x,
+                pos.y,
+                baseCameraPosition.z
+            );
     }
 }

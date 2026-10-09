@@ -52,7 +52,25 @@ public enum EventSceneStepType
     ScreenShake = 11,
 
     // 현재 Event Scene Sequence를 즉시 완료한다.
-    CompleteSequence = 12
+    CompleteSequence = 12,
+
+    // <변경부분>
+    // Event Scene의 일반 플레이어 조작 Lock을 해제한다.
+    //
+    // 상점 / 휴식 / 조사 등
+    // 연출 이후 플레이어가 Scene 안의 오브젝트와
+    // 자유롭게 상호작용해야 하는 구간에서 사용한다.
+    //
+    // 설정 / 종료 같은 System UI는
+    // 이 Lock과 별도로 항상 접근 가능하도록 구성한다.
+    UnlockPlayerInteraction = 13,
+
+    // <변경부분>
+    // Event Scene의 일반 플레이어 조작을 다시 잠근다.
+    //
+    // 자유 상호작용 구간 이후
+    // Dialogue / CameraShot 등의 연출로 다시 진입할 때 사용한다.
+    LockPlayerInteraction = 14
 }
 
 

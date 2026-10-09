@@ -68,12 +68,14 @@ MonoBehaviour:
     directionChangeIntervalMin: 0.8
     directionChangeIntervalMax: 2.5
     useClusterAvoidance: 1
-    clusterAvoidanceRadius: 2
+    clusterAvoidanceRadius: 3
     maxFirefliesInCluster: 2
-    clusterAvoidanceStrength: 1.35
+    clusterAvoidanceStrength: 2
+    clusterSpawnPadding: 0.05
     useExternalLightAvoidance: 1
-    externalLightAvoidanceRadiusMultiplier: 1.15
-    externalLightAvoidanceStrength: 1.5
+    externalLightAvoidanceRadiusMultiplier: 2
+    externalLightAvoidanceStrength: 2
+    externalLightSpawnPadding: 0.2
     externalLightRefreshInterval: 1
     visibleDurationMin: 4
     visibleDurationMax: 8

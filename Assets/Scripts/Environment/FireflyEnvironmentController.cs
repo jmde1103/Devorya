@@ -64,11 +64,17 @@ public class FireflyEnvironmentController : MonoBehaviour
         public Vector2 targetDirection;
     }
 
-
     [Header("Camera")]
 
     [SerializeField]
     private Camera targetCamera;
+
+    // <변경부분>
+    // 현재 화면이 아니라
+    // PixelCameraController의 최대 Zoom Out 영역을
+    // 반딧불 Spawn / 이동 기준으로 사용한다.
+    [SerializeField]
+    private PixelCameraController pixelCameraController;
 
 
     [Header("Fireflies")]
@@ -179,14 +185,24 @@ public class FireflyEnvironmentController : MonoBehaviour
 
     private void ResolveCamera()
     {
-        if (targetCamera != null)
+        if (targetCamera == null)
         {
-            return;
+            targetCamera =
+                Camera.main;
         }
 
 
-        targetCamera =
-            Camera.main;
+        // <변경부분>
+        // Inspector 연결이 없으면
+        // 실제 Target Camera에서 PixelCameraController를 찾는다.
+        if (pixelCameraController == null &&
+            targetCamera != null)
+        {
+            pixelCameraController =
+                targetCamera.GetComponent<
+                    PixelCameraController
+                >();
+        }
     }
 
 
@@ -1396,21 +1412,170 @@ public class FireflyEnvironmentController : MonoBehaviour
         );
     }
 
+    // <변경부분>
+    // 현재 Zoom In 화면이 아니라
+    // "최대 Zoom Out에서 볼 수 있는 전체 월드 영역"을
+    // 현재 WorldRoot Scale 기준의 World 좌표로 계산한다.
+    //
+    // 예:
+    // Min Scale = 1
+    // Current Scale = 2
+    //
+    // 최대 Zoom Out에서 보이던 월드 영역 역시
+    // 현재 World 좌표에서는 두 배 크기로 확대되어 있으므로
+    // Camera View 크기에 Zoom Ratio를 곱해서 계산한다.
+    private bool TryGetMaxZoomOutWorldArea(
+        out Vector2 areaMin,
+        out Vector2 areaMax,
+        out Vector2 areaCenter)
+    {
+        areaMin =
+            Vector2.zero;
+
+        areaMax =
+            Vector2.zero;
+
+        areaCenter =
+            Vector2.zero;
+
+
+        if (targetCamera == null)
+        {
+            return false;
+        }
+
+
+        float zoomRatio =
+            1f;
+
+
+        if (pixelCameraController != null)
+        {
+            float safeMinWorldScale =
+                Mathf.Max(
+                    0.0001f,
+                    pixelCameraController
+                        .MinWorldScale
+                );
+
+            float safeCurrentWorldScale =
+                Mathf.Max(
+                    safeMinWorldScale,
+                    pixelCameraController
+                        .CurrentWorldScale
+                );
+
+
+            zoomRatio =
+                safeCurrentWorldScale /
+                safeMinWorldScale;
+
+
+            Vector2 baseCenter =
+                pixelCameraController
+                    .startPosition;
+
+
+            // WorldRoot가 Camera 중심과 다른 Pivot을 사용하는 경우에도
+            // Scale에 의해 전체 월드 중심이 이동하는 양을 함께 반영한다.
+            Transform worldRoot =
+                pixelCameraController
+                    .WorldRoot;
+
+            if (worldRoot != null)
+            {
+                Vector2 rootPivot =
+                    new Vector2(
+                        worldRoot.position.x,
+                        worldRoot.position.y
+                    );
+
+                areaCenter =
+                    rootPivot +
+                    (
+                        baseCenter -
+                        rootPivot
+                    ) *
+                    zoomRatio;
+            }
+            else
+            {
+                areaCenter =
+                    baseCenter;
+            }
+        }
+        else
+        {
+            // PixelCameraController가 없는 예외 Scene에서는
+            // 기존 현재 Camera 영역을 fallback으로 사용한다.
+            areaCenter =
+                new Vector2(
+                    targetCamera.transform.position.x,
+                    targetCamera.transform.position.y
+                );
+        }
+
+
+        float halfHeight =
+            Mathf.Max(
+                0.0001f,
+                targetCamera.orthographicSize
+            ) *
+            zoomRatio;
+
+        float halfWidth =
+            halfHeight *
+            Mathf.Max(
+                0.0001f,
+                targetCamera.aspect
+            );
+
+
+        areaMin =
+            new Vector2(
+                areaCenter.x -
+                    halfWidth,
+
+                areaCenter.y -
+                    halfHeight
+            );
+
+        areaMax =
+            new Vector2(
+                areaCenter.x +
+                    halfWidth,
+
+                areaCenter.y +
+                    halfHeight
+            );
+
+
+        return true;
+    }
+
     private void ApplyScreenEdgeSteering(
-        FireflyEnvironmentUnit unit,
-        FireflyRuntimeState state)
+      FireflyEnvironmentUnit unit,
+      FireflyRuntimeState state)
     {
         if (targetCamera == null ||
-            unit.root == null)
+            unit.root == null ||
+            currentSettings == null)
         {
             return;
         }
 
 
-        Vector3 viewportPosition =
-            targetCamera.WorldToViewportPoint(
-                unit.root.position
-            );
+        // <변경부분>
+        // 현재 Camera Viewport가 아니라
+        // 최대 Zoom Out에서 보이던 전체 월드 영역을 사용한다.
+        if (TryGetMaxZoomOutWorldArea(
+                out Vector2 areaMin,
+                out Vector2 areaMax,
+                out Vector2 areaCenter) ==
+            false)
+        {
+            return;
+        }
 
 
         float margin =
@@ -1421,32 +1586,64 @@ public class FireflyEnvironmentController : MonoBehaviour
             );
 
 
+        float areaWidth =
+            areaMax.x -
+            areaMin.x;
+
+        float areaHeight =
+            areaMax.y -
+            areaMin.y;
+
+
+        float safeMinX =
+            areaMin.x +
+            areaWidth *
+            margin;
+
+        float safeMaxX =
+            areaMax.x -
+            areaWidth *
+            margin;
+
+        float safeMinY =
+            areaMin.y +
+            areaHeight *
+            margin;
+
+        float safeMaxY =
+            areaMax.y -
+            areaHeight *
+            margin;
+
+
+        Vector3 fireflyPosition =
+            unit.root.position;
+
+
         bool nearEdge =
-            viewportPosition.x < margin ||
-            viewportPosition.x > 1f - margin ||
-            viewportPosition.y < margin ||
-            viewportPosition.y > 1f - margin;
+            fireflyPosition.x <
+                safeMinX ||
+            fireflyPosition.x >
+                safeMaxX ||
+            fireflyPosition.y <
+                safeMinY ||
+            fireflyPosition.y >
+                safeMaxY;
 
 
-        if (!nearEdge)
+        if (nearEdge == false)
         {
             return;
         }
 
 
-        Vector3 cameraCenter =
-            GetCameraCenterAtWorldZ(
-                unit.root.position.z
-            );
-
-
         Vector2 directionToCenter =
             new Vector2(
-                cameraCenter.x -
-                unit.root.position.x,
+                areaCenter.x -
+                fireflyPosition.x,
 
-                cameraCenter.y -
-                unit.root.position.y
+                areaCenter.y -
+                fireflyPosition.y
             );
 
 
@@ -1463,11 +1660,12 @@ public class FireflyEnvironmentController : MonoBehaviour
 
 
     private void PlaceInsideCameraView(
-        FireflyEnvironmentUnit unit)
+     FireflyEnvironmentUnit unit)
     {
         if (unit == null ||
             unit.root == null ||
-            targetCamera == null)
+            targetCamera == null ||
+            currentSettings == null)
         {
             return;
         }
@@ -1481,46 +1679,413 @@ public class FireflyEnvironmentController : MonoBehaviour
             );
 
 
-        float viewportX =
-            Random.Range(
-                padding,
-                1f - padding
-            );
-
-        float viewportY =
-            Random.Range(
-                padding,
-                1f - padding
-            );
-
-
         float worldZ =
             unit.root.position.z;
 
 
-        float cameraDistance =
-            Mathf.Abs(
-                worldZ -
-                targetCamera.transform.position.z
-            );
+        // <변경부분>
+        // 현재 확대된 Camera 화면이 아니라
+        // 최대 Zoom Out 전체 월드 영역을 Spawn 범위로 사용한다.
+        if (TryGetMaxZoomOutWorldArea(
+                out Vector2 areaMin,
+                out Vector2 areaMax,
+                out Vector2 areaCenter) ==
+            false)
+        {
+            return;
+        }
 
 
-        Vector3 worldPosition =
-            targetCamera.ViewportToWorldPoint(
+        float areaWidth =
+            areaMax.x -
+            areaMin.x;
+
+        float areaHeight =
+            areaMax.y -
+            areaMin.y;
+
+
+        float spawnMinX =
+            areaMin.x +
+            areaWidth *
+            padding;
+
+        float spawnMaxX =
+            areaMax.x -
+            areaWidth *
+            padding;
+
+        float spawnMinY =
+            areaMin.y +
+            areaHeight *
+            padding;
+
+        float spawnMaxY =
+            areaMax.y -
+            areaHeight *
+            padding;
+
+
+        // 반딧불 재등장 위치를 찾을 최대 시도 횟수.
+        //
+        // 외부 광원이 화면 대부분을 덮는 극단적인 상황에서도
+        // 무한 반복하지 않도록 횟수를 제한한다.
+        const int maximumSpawnAttempts =
+            16;
+
+
+        Vector3 bestPosition =
+            unit.root.position;
+
+        float bestClearance =
+            float.NegativeInfinity;
+
+
+        for (int attemptIndex = 0;
+             attemptIndex < maximumSpawnAttempts;
+             attemptIndex++)
+        {
+            // <변경부분>
+            // 현재 Camera Viewport 좌표가 아니라
+            // 최대 Zoom Out 전체 월드 범위에서 직접 후보를 뽑는다.
+            Vector3 candidatePosition =
                 new Vector3(
-                    viewportX,
-                    viewportY,
-                    cameraDistance
+                    Random.Range(
+                        spawnMinX,
+                        spawnMaxX
+                    ),
+
+                    Random.Range(
+                        spawnMinY,
+                        spawnMaxY
+                    ),
+
+                    worldZ
+                );
+
+
+            // 현재 후보 위치가
+            // 가장 가까운 외부 광원의 생성 금지 범위로부터
+            // 얼마나 여유가 있는지 계산한다.
+            //
+            // 0 이상:
+            // 외부 광원 회피 범위 밖의 안전한 위치.
+            //
+            // 0 미만:
+            // 외부 광원 회피 범위 안쪽.
+            float clearance =
+                GetExternalLightSpawnClearance(
+                    candidatePosition
+                );
+
+
+            // 안전한 후보를 찾았다면
+            // 더 이상 탐색하지 않고 즉시 해당 위치를 사용한다.
+            if (clearance >= 0f)
+            {
+                unit.root.position =
+                    candidatePosition;
+
+                return;
+            }
+
+
+            // 모든 후보가 외부 광원과 겹치는 상황에 대비하여
+            // 그중 가장 덜 겹치는 위치를 fallback으로 기억한다.
+            if (clearance >
+                bestClearance)
+            {
+                bestClearance =
+                    clearance;
+
+                bestPosition =
+                    candidatePosition;
+            }
+        }
+
+
+        // 최대 횟수 안에 완전히 안전한 위치를 찾지 못했다면
+        // 외부 광원으로부터 가장 여유가 컸던 후보를 사용한다.
+        unit.root.position =
+            bestPosition;
+    }
+
+
+    // 반딧불 재등장 후보 위치와
+    // 현재 화면에 활성화되어 있는 다른 반딧불 사이의
+    // 최소 생성 여유 거리를 계산한다.
+    //
+    // 양수:
+    // 모든 활성 반딧불의 생성 금지 범위 밖.
+    //
+    // 음수:
+    // 하나 이상의 반딧불 생성 금지 범위 안.
+    //
+    // 완전히 Hidden 상태인 반딧불은 현재 화면에서 빛나지 않으며,
+    // 다음 등장 때 다시 새 위치를 결정하므로 판정에서 제외한다.
+    private float GetFireflySpawnClearance(
+        FireflyEnvironmentUnit spawningUnit,
+        Vector3 candidatePosition)
+    {
+        if (currentSettings == null ||
+            currentSettings.useClusterAvoidance ==
+                false ||
+            fireflies == null ||
+            runtimeStates == null)
+        {
+            return float.PositiveInfinity;
+        }
+
+
+        float rigWorldScale =
+            GetRigWorldScale();
+
+
+        // 이동 중 사용하는 Cluster Avoidance Radius에
+        // 재등장 전용 Padding을 추가한다.
+        float spawnExclusionRadius =
+            (
+                Mathf.Max(
+                    0f,
+                    currentSettings.clusterAvoidanceRadius
+                ) +
+                Mathf.Max(
+                    0f,
+                    currentSettings.clusterSpawnPadding
                 )
+            ) *
+            rigWorldScale;
+
+
+        if (spawnExclusionRadius <=
+            0.0001f)
+        {
+            return float.PositiveInfinity;
+        }
+
+
+        Vector2 candidatePosition2D =
+            new Vector2(
+                candidatePosition.x,
+                candidatePosition.y
             );
 
 
-        worldPosition.z =
-            worldZ;
+        float minimumClearance =
+            float.PositiveInfinity;
+
+        bool foundActiveFirefly =
+            false;
 
 
-        unit.root.position =
-            worldPosition;
+        for (int i = 0;
+             i < fireflies.Length;
+             i++)
+        {
+            FireflyEnvironmentUnit otherUnit =
+                fireflies[i];
+
+
+            if (otherUnit == null ||
+                otherUnit == spawningUnit ||
+                otherUnit.root == null ||
+                i >= runtimeStates.Length)
+            {
+                continue;
+            }
+
+
+            FireflyRuntimeState otherState =
+                runtimeStates[i];
+
+
+            // 완전히 숨겨져 있는 반딧불은
+            // 실제 화면에 존재하지 않는 것으로 취급한다.
+            //
+            // FadeIn / Visible / FadeOut 상태는
+            // 모두 현재 화면에서 광원이 보일 수 있으므로
+            // 생성 거리 판정에 포함한다.
+            if (otherState == null ||
+                otherState.visibilityState ==
+                    VisibilityState.Hidden)
+            {
+                continue;
+            }
+
+
+            Vector2 otherPosition =
+                new Vector2(
+                    otherUnit.root.position.x,
+                    otherUnit.root.position.y
+                );
+
+
+            float distance =
+                Vector2.Distance(
+                    candidatePosition2D,
+                    otherPosition
+                );
+
+
+            float clearance =
+                distance -
+                spawnExclusionRadius;
+
+
+            minimumClearance =
+                Mathf.Min(
+                    minimumClearance,
+                    clearance
+                );
+
+
+            foundActiveFirefly =
+                true;
+        }
+
+
+        if (foundActiveFirefly == false)
+        {
+            return float.PositiveInfinity;
+        }
+
+
+        return minimumClearance;
+    }
+
+
+    // 반딧불 재등장 후보 위치와
+    // 외부 광원 생성 금지 범위 사이의 최소 여유 거리를 계산한다.
+    //
+    // 양수:
+    // 모든 외부 광원 범위 밖.
+    //
+    // 음수:
+    // 하나 이상의 외부 광원 범위 안.
+    //
+    // 회피할 외부 광원이 없다면 PositiveInfinity를 반환하여
+    // 기존처럼 첫 랜덤 위치를 바로 사용할 수 있게 한다.
+    private float GetExternalLightSpawnClearance(
+        Vector3 candidatePosition)
+    {
+        if (currentSettings == null ||
+            currentSettings.useExternalLightAvoidance ==
+                false ||
+            externalAvoidanceLights.Count == 0)
+        {
+            return float.PositiveInfinity;
+        }
+
+
+        float radiusMultiplier =
+            Mathf.Max(
+                0f,
+                currentSettings
+                    .externalLightAvoidanceRadiusMultiplier
+            );
+
+
+        // Spawn Padding은 WorldRoot Scale 1 기준의 거리값으로 취급한다.
+        //
+        // 현재 Firefly Rig의 실제 World Scale을 반영하여
+        // 카메라 Zoom 상태가 달라져도 비슷한 시각적 여유를 유지한다.
+        float spawnPadding =
+            Mathf.Max(
+                0f,
+                currentSettings
+                    .externalLightSpawnPadding
+            ) *
+            GetRigWorldScale();
+
+
+        Vector2 candidatePosition2D =
+            new Vector2(
+                candidatePosition.x,
+                candidatePosition.y
+            );
+
+
+        float minimumClearance =
+            float.PositiveInfinity;
+
+        bool foundValidLight =
+            false;
+
+
+        for (int i = 0;
+             i < externalAvoidanceLights.Count;
+             i++)
+        {
+            Light2D light =
+                externalAvoidanceLights[i];
+
+
+            if (light == null ||
+                light.isActiveAndEnabled == false ||
+                light.intensity <= 0.001f ||
+                light.pointLightOuterRadius <= 0.0001f)
+            {
+                continue;
+            }
+
+
+            float avoidanceRadius =
+                light.pointLightOuterRadius *
+                radiusMultiplier;
+
+
+            // 이동 중 회피하는 기존 범위보다
+            // Spawn Padding만큼 더 떨어진 곳에서 등장하도록 한다.
+            float spawnExclusionRadius =
+                avoidanceRadius +
+                spawnPadding;
+
+
+            if (spawnExclusionRadius <=
+                0.0001f)
+            {
+                continue;
+            }
+
+
+            Vector2 lightPosition =
+                new Vector2(
+                    light.transform.position.x,
+                    light.transform.position.y
+                );
+
+
+            float distance =
+                Vector2.Distance(
+                    candidatePosition2D,
+                    lightPosition
+                );
+
+
+            float clearance =
+                distance -
+                spawnExclusionRadius;
+
+
+            minimumClearance =
+                Mathf.Min(
+                    minimumClearance,
+                    clearance
+                );
+
+
+            foundValidLight =
+                true;
+        }
+
+
+        if (foundValidLight == false)
+        {
+            return float.PositiveInfinity;
+        }
+
+
+        return minimumClearance;
     }
 
 

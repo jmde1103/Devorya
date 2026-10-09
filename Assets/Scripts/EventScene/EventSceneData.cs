@@ -48,7 +48,6 @@ public class EventSceneData : ScriptableObject
     // 제작용 설명 / 메모.
     public string description;
 
-
     [Header("Background")]
 
     // <변경부분>
@@ -58,6 +57,22 @@ public class EventSceneData : ScriptableObject
     // 이 BackgroundMapData의 BackgroundTile 좌표를 기준으로
     // Actor / Camera 연출을 진행한다.
     public BackgroundMapData backgroundMapData;
+
+
+    [Header("Event UI")]
+
+    // <변경부분>
+    // Player Interaction이 Unlock 상태일 때
+    // 월드맵과 동일한 Run HUD를 표시할지 결정한다.
+    //
+    // false:
+    // 일반 이벤트처럼 Run HUD를 계속 숨긴다.
+    //
+    // true:
+    // 상점처럼 UnlockPlayerInteraction Step 실행 시
+    // Run HUD를 Fade In한다.
+    public bool showRunHUDDuringPlayerInteraction =
+        false;
 
 
     [Header("Event Steps")]

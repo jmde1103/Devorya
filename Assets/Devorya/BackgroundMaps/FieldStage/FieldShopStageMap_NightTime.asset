@@ -9443,13 +9443,6 @@ MonoBehaviour:
   - X: 19
     Y: 22
     DecorationType: 0
-    DecorationSprite: {fileID: 21300000, guid: 9bf4251361e76374b97e4a58eae6379c, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: -0.012181759, y: 0.21293283, z: 0}
-    LayerOffset: 1
-  - X: 19
-    Y: 22
-    DecorationType: 0
     DecorationSprite: {fileID: 21300000, guid: 5a9dafb5630a2024fac574ea65417d6e, type: 3}
     DecorationPrefab: {fileID: 0}
     LocalPositionOffset: {x: -0.05221522, y: -0.39573026, z: 0}
@@ -9482,3 +9475,10 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 8825777334374118131, guid: 7770a3e42e0ff6b45b5e2e2c7d68b44c, type: 3}
     LocalPositionOffset: {x: -0.0017409027, y: 0.33500242, z: 0}
     LayerOffset: 3
+  - X: 19
+    Y: 22
+    DecorationType: 0
+    DecorationSprite: {fileID: 0}
+    DecorationPrefab: {fileID: 4746673714160857919, guid: 6e543bc392942b14bb68d6de2f25a255, type: 3}
+    LocalPositionOffset: {x: -0.025168061, y: 0.23534918, z: 0}
+    LayerOffset: -3
