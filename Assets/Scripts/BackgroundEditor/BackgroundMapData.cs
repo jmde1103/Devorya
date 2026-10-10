@@ -43,6 +43,32 @@ public class BackgroundMapData : ScriptableObject
     [Header("장식물 데이터")]
     // 장식물 타입과 좌표를 저장
     public List<DecorationSaveData> Decorations = new List<DecorationSaveData>();
+
+
+    [Header("Shop Display Slots")]
+
+    // <변경부분>
+    // 이 배경맵에 배치한 상점 상품 진열 위치 목록.
+    //
+    // 일반 Decoration과 별도로 관리한다.
+    //
+    // Background Editor에서는:
+    // - ShopItemDisplay Prefab
+    // - Anchor 좌표
+    // - Free Placement Offset
+    // - Layer Offset
+    // 정보를 저장한다.
+    //
+    // 실제 판매 BattleItemData와 가격은 저장하지 않는다.
+    //
+    // 상점 진입 시 WorldMap에서 전달된
+    // ShopInventoryData와 Shop Level을 기준으로
+    // 판매 상품을 랜덤 결정한다.
+    //
+    // Runtime에서는 ShopRoot 아래에
+    // ShopItemDisplay를 생성하는 데 사용한다.
+    public List<ShopDisplaySlotSaveData> ShopDisplaySlots =
+        new List<ShopDisplaySlotSaveData>();
 }
 
 [System.Serializable]
@@ -109,5 +135,60 @@ public class DecorationSaveData
     //
     // 현재 사용 범위는 -3 ~ +3.
     // 기존 저장 데이터에서는 기본값 0으로 처리된다.
+    public int LayerOffset;
+}
+
+
+// ============================================================
+// Shop Display Slot Save Data
+// ============================================================
+
+// <변경부분>
+// BackgroundMapData에 저장되는 상점 상품 진열 위치.
+//
+// 일반 Decoration과 구분되는 전용 배치 데이터다.
+//
+// 실제 아이템과 가격은 이 데이터에 저장하지 않는다.
+// 따라서 같은 배경맵을 여러 레벨의 상점에서 재사용할 수 있다.
+[System.Serializable]
+public class ShopDisplaySlotSaveData
+{
+    // <변경부분>
+    // 각 진열 슬롯의 고유 식별자.
+    //
+    // 향후 에디터에서 최초 배치할 때 생성하며
+    // 위치나 순서가 변경되어도 같은 ID를 유지한다.
+    public string SlotId;
+
+
+    // <변경부분>
+    // 이 위치에 생성할 ShopItemDisplay Prefab.
+    //
+    // 서로 다른 디자인의 상점에서
+    // 다양한 상품 진열 프리팹을 사용할 수 있다.
+    public GameObject ShopDisplayPrefab;
+
+
+    // 배경 타일 Anchor X 좌표.
+    public int X;
+
+    // 배경 타일 Anchor Y 좌표.
+    public int Y;
+
+
+    // <변경부분>
+    // Anchor Tile 중심에서 실제 진열 위치까지의 Offset.
+    //
+    // 기존 Decoration의 Free Placement 방식과
+    // 동일한 좌표 기준을 사용한다.
+    public Vector3 LocalPositionOffset;
+
+
+    // <변경부분>
+    // 진열 상품의 앞뒤 Sorting 보정값.
+    //
+    // 기존 Decoration Layer Offset과
+    // 동일하게 -3 ~ +3 범위를 사용한다.
+    [Range(-3, 3)]
     public int LayerOffset;
 }

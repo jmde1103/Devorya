@@ -97,10 +97,22 @@ public class ShopItemVisualAnimator : MonoBehaviour
     private Shader outlineShader;
 
     // <변경부분>
-    // 자동 Outline 색상.
+    // 평상시 상품 Outline 색상.
+    //
+    // 선택되지 않은 모든 판매 상품은
+    // 이 색상으로 계속 반짝인다.
     [SerializeField]
     private Color outlineColor =
         Color.white;
+
+    // <변경부분>
+    // 플레이어가 현재 선택한 상품의 Outline 색상.
+    //
+    // 선택 상태에서도 기존 Pulse Animation은 그대로 유지하고
+    // 색상만 붉은색으로 변경한다.
+    [SerializeField]
+    private Color selectedOutlineColor =
+        Color.red;
 
     // <변경부분>
     // 원본 Item보다 Outline Sprite를
@@ -150,7 +162,6 @@ public class ShopItemVisualAnimator : MonoBehaviour
     private float outlineScalePulseAmount =
         0.04f;
 
-
     private Vector3 baseFloatLocalPosition;
 
     private Vector3 baseShadowLocalScale;
@@ -158,6 +169,20 @@ public class ShopItemVisualAnimator : MonoBehaviour
     private Vector3 baseOutlineLocalScale;
 
     private Color baseOutlineColor;
+
+
+    // <변경부분>
+    // 그림자 오브젝트의 최초 활성화 상태.
+    //
+    // SOLD 이후 새로운 상품을 진열할 때
+    // 원래 Inspector 활성화 상태로 복구하기 위해 저장한다.
+    private bool shadowInitiallyActive;
+
+
+    // <변경부분>
+    // 현재 상품이 판매 완료되어
+    // 시각 연출을 정지해야 하는지 나타낸다.
+    private bool isSoldOut;
 
 
     // <변경부분>
@@ -197,6 +222,18 @@ public class ShopItemVisualAnimator : MonoBehaviour
     private void OnEnable()
     {
         StopFloatCoroutine();
+
+        // <변경부분>
+        // 이미 판매 완료된 상품은 ShopRoot가 재활성화되어도
+        // 그림자 및 부유 애니메이션을 다시 시작하지 않는다.
+        if (isSoldOut)
+        {
+            SetSoldOut(
+                true
+            );
+
+            return;
+        }
 
         if (floatRoot != null)
         {
@@ -328,11 +365,14 @@ public class ShopItemVisualAnimator : MonoBehaviour
         SyncSelectionOutlineSource();
 
         ApplyOutlineColor(
-            baseOutlineColor
-        );
+       baseOutlineColor
+   );
 
+        // <변경부분>
+        // Outline은 선택 여부와 관계없이
+        // 판매 Item Sprite가 존재하는 동안 항상 표시한다.
         selectionOutlineRenderer.enabled =
-            false;
+            itemSpriteRenderer.sprite != null;
     }
 
 
@@ -402,6 +442,12 @@ public class ShopItemVisualAnimator : MonoBehaviour
         {
             baseShadowLocalScale =
                 shadowTransform.localScale;
+
+            // <변경부분>
+            // 구매 후 그림자를 숨기더라도
+            // 새로운 상품 진열 시 원래 상태로 복원한다.
+            shadowInitiallyActive =
+                shadowTransform.gameObject.activeSelf;
         }
 
         if (selectionOutlineRenderer != null)
@@ -540,20 +586,110 @@ public class ShopItemVisualAnimator : MonoBehaviour
         }
     }
 
+    // <변경부분>
+    // 상품의 판매 완료 상태에 따라
+    // 그림자 및 시각 애니메이션을 정리하거나 복구한다.
+    //
+    // soldOut = true:
+    // - 상품 부유 중지
+    // - 그림자 비활성화
+    // - Outline Pulse 중지
+    // - FloatRoot / Shadow Transform 기본 상태 복원
+    //
+    // soldOut = false:
+    // - 원래 그림자 활성화 상태 복원
+    // - 부유 및 Outline 연출 재시작
+    //
+    // 진열대 전체 GameObject는 비활성화하지 않는다.
+    public void SetSoldOut(
+        bool soldOut)
+    {
+        isSoldOut =
+            soldOut;
+
+
+        // <변경부분>
+        // Inspector에 연결된 기존 Shadow 오브젝트만
+        // 활성화하거나 비활성화한다.
+        //
+        // 실수로 이 스크립트가 붙은 부모 GameObject가
+        // Shadow로 연결되어 있어도
+        // 상품 전체가 꺼지는 일을 방지한다.
+        if (shadowTransform != null &&
+            shadowTransform.gameObject != gameObject)
+        {
+            shadowTransform.gameObject.SetActive(
+                soldOut == false &&
+                shadowInitiallyActive
+            );
+        }
+
+
+        if (soldOut)
+        {
+            // 판매 완료 상품은 더 이상 선택 상태가 아니다.
+            isSelected = false;
+
+            // 부유 및 Outline Coroutine을 모두 중지한다.
+            StopFloatCoroutine();
+
+            StopOutlineCoroutine();
+
+            // 애니메이션이 변경한 Transform을 복구하고
+            // Outline Renderer도 비활성화한다.
+            RestoreBaseVisualState();
+
+            return;
+        }
+
+
+        // <변경부분>
+        // 새 상품 진열 시에만 애니메이션을 다시 시작한다.
+        //
+        // 비활성 GameObject에서는 Coroutine을 시작하지 않는다.
+        if (isActiveAndEnabled == false ||
+            gameObject.activeInHierarchy == false)
+        {
+            return;
+        }
+
+
+        StopFloatCoroutine();
+
+        if (floatRoot != null)
+        {
+            floatCoroutine =
+                StartCoroutine(
+                    FloatRoutine()
+                );
+        }
+
+        // 새 상품은 미선택 Outline 상태에서 시작한다.
+        SetSelected(
+            false
+        );
+    }
+
 
     // <변경부분>
-    // ShopController가 이후 상품 선택 상태를 변경할 때 사용한다.
+    // 상품 선택 여부를 변경한다.
+    //
+    // Outline 자체는 항상 유지한다.
+    //
+    // 미선택:
+    // 흰색 Outline + Pulse
+    //
+    // 선택:
+    // 붉은색 Outline + 동일한 Pulse
     public void SetSelected(
-        bool selected)
+      bool selected)
     {
         isSelected =
             selected;
 
-        StopOutlineCoroutine();
 
-
-        // Item Sprite를 기반으로
-        // Outline Sprite / Material / Sorting을 자동 준비한다.
+        // Runtime Item Sprite를 기준으로
+        // Outline Sprite / Material / Sorting을 다시 동기화한다.
         PrepareSelectionOutline();
 
 
@@ -565,48 +701,98 @@ public class ShopItemVisualAnimator : MonoBehaviour
 
         SyncSelectionOutlineSource();
 
+
+        // Item Sprite가 존재하는 판매 상품이라면
+        // 선택 여부와 관계없이 Outline은 항상 표시한다.
         selectionOutlineRenderer.enabled =
-            selected;
+            itemSpriteRenderer != null &&
+            itemSpriteRenderer.sprite != null;
 
 
-        if (selected == false)
+        if (selectionOutlineRenderer.enabled == false)
         {
-            ApplyOutlineColor(
-                baseOutlineColor
-            );
-
-            selectionOutlineRenderer
-                .transform
-                .localScale =
-                    baseOutlineLocalScale;
+            StopOutlineCoroutine();
 
             return;
         }
 
 
-        outlineCoroutine =
-            StartCoroutine(
-                SelectionOutlineRoutine()
-            );
+        // <변경부분>
+        // GameObject 또는 이 Component가 비활성 상태라면
+        // Coroutine을 시작할 수 없다.
+        //
+        // Scene 종료 / ShopRoot 비활성화 과정에서
+        // 외부 Controller가 SetSelected()를 호출하더라도
+        // 여기서 안전하게 종료한다.
+        if (isActiveAndEnabled == false ||
+            gameObject.activeInHierarchy == false)
+        {
+            return;
+        }
+
+
+        // 기존 Pulse Coroutine이 이미 실행 중이라면
+        // 다시 시작할 필요가 없다.
+        //
+        // Coroutine 내부에서 isSelected를 매 Frame 확인하여
+        // 흰색 / 붉은색을 자동 전환한다.
+        if (outlineCoroutine == null)
+        {
+            outlineCoroutine =
+                StartCoroutine(
+                    SelectionOutlineRoutine()
+                );
+        }
     }
 
 
     // <변경부분>
-    // 선택된 Item의 흰색 Outline을
-    // Alpha + 아주 작은 Scale 변화로 반짝이게 한다.
+    // 판매 중인 상품의 Outline은 항상 Pulse한다.
+    //
+    // 선택 상태에 따라:
+    //
+    // 미선택 = 흰색
+    // 선택   = 붉은색
+    //
+    // 색상만 변경하고
+    // Alpha / Scale Pulse Animation은 동일하게 유지한다.
     private IEnumerator SelectionOutlineRoutine()
     {
         float elapsedTime =
             0f;
 
-        while (isSelected)
+
+        while (true)
         {
+            // Runtime에 Item Sprite가 없는 경우에는
+            // Outline을 잠시 숨기고 다음 Frame을 기다린다.
+            bool hasItemSprite =
+                itemSpriteRenderer != null &&
+                itemSpriteRenderer.sprite != null;
+
+
+            if (selectionOutlineRenderer != null)
+            {
+                selectionOutlineRenderer.enabled =
+                    hasItemSprite;
+            }
+
+
+            if (hasItemSprite == false)
+            {
+                yield return null;
+
+                continue;
+            }
+
+
             float normalizedTime =
                 Mathf.Repeat(
                     elapsedTime /
                     outlinePulseDuration,
                     1f
                 );
+
 
             float pulseRate =
                 (
@@ -622,21 +808,27 @@ public class ShopItemVisualAnimator : MonoBehaviour
                 0.5f;
 
 
-            // <변경부분>
-            // Runtime에 Item Sprite가 교체되어도
-            // Outline이 즉시 동일 Sprite를 따라가게 한다.
+            // Runtime에서 Item Sprite가 교체되어도
+            // Outline이 현재 Item과 동일한 Sprite를 계속 따라간다.
             SyncSelectionOutlineSource();
 
 
+            // <변경부분>
+            // 선택 여부에 따라 Outline의 기본 색상만 변경한다.
             Color currentOutlineColor =
-                baseOutlineColor;
+                isSelected
+                    ? selectedOutlineColor
+                    : baseOutlineColor;
 
+
+            // 기존 반짝임 Alpha Animation은 그대로 사용한다.
             currentOutlineColor.a =
                 Mathf.Lerp(
                     outlineMinAlpha,
                     outlineMaxAlpha,
                     pulseRate
                 );
+
 
             ApplyOutlineColor(
                 currentOutlineColor
@@ -650,6 +842,7 @@ public class ShopItemVisualAnimator : MonoBehaviour
                     pulseRate
                 );
 
+
             selectionOutlineRenderer
                 .transform
                 .localScale =
@@ -659,6 +852,7 @@ public class ShopItemVisualAnimator : MonoBehaviour
 
             elapsedTime +=
                 Time.unscaledDeltaTime;
+
 
             yield return null;
         }

@@ -12,9 +12,13 @@ using UnityEngine;
 // BattleItemSlotUI의 아이콘 / Localization / Tooltip 기능만 재사용한다.
 public class RunItemBarUI : MonoBehaviour
 {
-    // 기존 BattleItemManager와 동일한 최대 아이템 슬롯 수.
+    // <변경부분>
+    // RunStateManager의 공통 아이템 보유 제한을 사용한다.
+    //
+    // Shop 구매 제한과 HUD 최대 슬롯 개수가
+    // 서로 다른 값으로 설정되지 않도록 한다.
     private const int MaxItemSlotCount =
-        4;
+        RunStateManager.MaxBattleItemCount;
 
 
     [Header("Item Slots")]

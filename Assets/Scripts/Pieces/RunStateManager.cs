@@ -9,6 +9,15 @@ public class RunStateManager : MonoBehaviour
 
 
     // <변경부분>
+    // Run 전체에서 공통으로 사용하는
+    // 전투 아이템 최대 보유 개수.
+    //
+    // Shop 구매 제한 및 RunItemBarUI에서
+    // 동일한 값을 사용하도록 관리한다.
+    public const int MaxBattleItemCount = 4;
+
+
+    // <변경부분>
     // 엔드 타이머의 실제 값이 변경되었을 때
     // Battle / WorldMap UI에 갱신을 알리는 이벤트.
     //
@@ -22,10 +31,24 @@ public class RunStateManager : MonoBehaviour
     [SerializeField]
     private List<PlayerPieceRuntimeData> playerPieceRuntimeDataList =
         new List<PlayerPieceRuntimeData>();
-
     [Header("Currency")]
     // <변경부분> 현재 런에서 보유 중인 금화
     [SerializeField] private int goldAmount = 0;
+
+    // <변경부분>
+    // [TEMP SHOP TEST]
+    // 상점 구매 기능을 테스트하기 위한 임시 Gold 설정.
+    //
+    // Inspector에서 활성화하면 Unity Editor Play 시
+    // 테스트용 50G를 지급한다.
+    //
+    // 일반 게임 플레이 및 배포 빌드에는 적용하지 않는다.
+    // 상점 테스트 완료 후 이 설정과 관련 코드를 제거할 예정.
+    [Header("TEMP - Shop Test Gold")]
+    [SerializeField]
+    private bool enableTemporaryShopTestGold = false;
+
+    private const int TemporaryShopTestGoldAmount = 50;
 
     [Header("Battle Items")]
     // <변경부분> 현재 런에서 보유 중인 전투 아이템 목록
@@ -286,6 +309,35 @@ public class RunStateManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // <변경부분>
+        // Unity Editor 테스트 중에만 임시 Shop Gold를 지급한다.
+        // Singleton으로 유지되는 실제 RunStateManager에서만 실행된다.
+        ApplyTemporaryShopTestGold();
+    }
+
+    // <변경부분>
+    // [TEMP SHOP TEST]
+    // Editor Play 시작 또는 새 Run 초기화 시
+    // 임시 테스트 Gold를 50G로 설정한다.
+    //
+    // Scene 이동에서는 다시 호출하지 않으므로
+    // Gold가 반복 지급되지 않는다.
+    private void ApplyTemporaryShopTestGold()
+    {
+#if UNITY_EDITOR
+        if (enableTemporaryShopTestGold == false)
+        {
+            return;
+        }
+
+        goldAmount = TemporaryShopTestGoldAmount;
+
+        Debug.Log(
+            $"[TEMP Shop Test] " +
+            $"테스트용 Gold 지급: {goldAmount}G"
+        );
+#endif
     }
 
     // <변경부분> 현재 플레이어 기물 상태를 런 상태로 저장
@@ -364,6 +416,56 @@ public class RunStateManager : MonoBehaviour
         Debug.Log($"금화 획득: +{amount} / 현재 보유 금화 {goldAmount}");
     }
 
+    // <변경부분>
+    // 현재 런에서 Gold를 안전하게 차감하는 함수.
+    //
+    // 사용 목적:
+    // - ShopEvent에서 상품 구매 시 Gold 차감
+    // - 이후 Gold를 소비하는 다른 시스템에서도 재사용 가능
+    //
+    // 처리 규칙:
+    // 1. 차감 금액이 0 이하이면 실패
+    // 2. 보유 Gold가 부족하면 실패
+    // 3. 모든 조건을 만족하면 Gold 차감
+    // 4. 실패한 경우 기존 Gold 값은 변경하지 않는다.
+    //
+    // 반환값:
+    // true  = Gold 차감 성공
+    // false = Gold 차감 실패
+    public bool TrySpendGold(int amount)
+    {
+        // 유효하지 않은 차감 금액은 처리하지 않는다.
+        if (amount <= 0)
+        {
+            Debug.LogWarning(
+                $"Gold 차감 실패: 올바르지 않은 차감 금액 {amount}"
+            );
+
+            return false;
+        }
+
+        // 현재 보유 Gold가 부족하면 차감하지 않는다.
+        if (goldAmount < amount)
+        {
+            Debug.Log(
+                $"Gold 차감 실패: 보유 Gold 부족 / " +
+                $"필요 {amount}G / 보유 {goldAmount}G"
+            );
+
+            return false;
+        }
+
+        // 모든 조건을 통과했으므로 실제 Gold를 차감한다.
+        goldAmount -= amount;
+
+        Debug.Log(
+            $"Gold 차감 완료: -{amount}G / " +
+            $"현재 보유 Gold {goldAmount}G"
+        );
+
+        return true;
+    }
+
     // <변경부분> 보상으로 획득한 플레이어 기물을 런 상태에 추가하는 함수
     // 최대 기물 수를 넘으면 추가하지 않는다.
     public bool TryAddPlayerPiece(PlayerPieceRuntimeData runtimeData, int maxPieceCount)
@@ -426,6 +528,108 @@ public class RunStateManager : MonoBehaviour
 
         return true;
     }
+
+
+    // ============================================================
+    // Shop Battle Item Purchase
+    // ============================================================
+
+    // <변경부분>
+    // 상점 구매 결과.
+    //
+    // 구매 성공 여부뿐만 아니라 실패 이유도 반환한다.
+    // 이후 SkillFailurePopup Localization 연결 시
+    // 이 결과를 기준으로 안내 문구를 선택한다.
+    public enum BattleItemPurchaseResult
+    {
+        Success,
+        InvalidItem,
+        InvalidPrice,
+        InvalidCapacity,
+        InventoryFull,
+        InsufficientGold
+    }
+
+
+    // <변경부분>
+    // 상점에서 BattleItemData를 구매하는 공용 함수.
+    //
+    // 구매 순서:
+    // 1. 아이템 데이터 검증
+    // 2. 가격 및 최대 슬롯 수 검증
+    // 3. 현재 아이템 보유 개수 검증
+    // 4. 보유 Gold 검증
+    // 5. 아이템 지급 및 Gold 차감
+    //
+    // 모든 구매 조건을 확인한 다음에만
+    // 실제 RunState 데이터를 변경한다.
+    //
+    // 구매 실패 시:
+    // - Gold 변경 없음
+    // - 아이템 목록 변경 없음
+    //
+    // 판매 가격 0G는 무료 상품으로 허용한다.
+    // 무료 상품에는 Gold 차감이 발생하지 않는다.
+    public BattleItemPurchaseResult TryPurchaseBattleItem(
+        BattleItemData itemData,
+        int price,
+        int maxItemCount)
+    {
+        // 유효하지 않은 아이템은 구매할 수 없다.
+        if (itemData == null ||
+            itemData.itemType == BattleItemType.None)
+        {
+            return BattleItemPurchaseResult.InvalidItem;
+        }
+
+        // 음수 가격은 허용하지 않는다.
+        if (price < 0)
+        {
+            return BattleItemPurchaseResult.InvalidPrice;
+        }
+
+        // 최대 슬롯 수 설정 자체가 잘못된 경우.
+        if (maxItemCount <= 0)
+        {
+            return BattleItemPurchaseResult.InvalidCapacity;
+        }
+
+        // 아이템 슬롯이 이미 가득 찬 경우.
+        if (battleItemDataList.Count >= maxItemCount)
+        {
+            return BattleItemPurchaseResult.InventoryFull;
+        }
+
+        // Gold가 부족한 경우.
+        if (goldAmount < price)
+        {
+            return BattleItemPurchaseResult.InsufficientGold;
+        }
+
+        // <변경부분>
+        // 모든 검증이 끝났으므로 구매를 확정한다.
+        //
+        // 중간에 다른 UI나 이벤트를 호출하지 않고
+        // RunState 내부에서 두 데이터를 함께 변경한다.
+
+        // 먼저 구매 아이템을 런 목록에 추가한다.
+        battleItemDataList.Add(itemData);
+
+        // 구매 가격만큼 Gold를 차감한다.
+        // 0G 상품은 기존 Gold가 유지된다.
+        goldAmount -= price;
+
+        Debug.Log(
+            $"[RunStateManager] 아이템 구매 성공: " +
+            $"{itemData.itemName} / " +
+            $"가격 {price}G / " +
+            $"남은 Gold {goldAmount}G / " +
+            $"아이템 {battleItemDataList.Count}/{maxItemCount}"
+        );
+
+        return BattleItemPurchaseResult.Success;
+    }
+
 
     // <변경부분> 사용한 전투 아이템을 런 보유 목록의 같은 슬롯에서 제거
     // 전투 슬롯과 런 저장 목록이 같은 순서로 유지되는 것을 기준으로 처리한다.
@@ -550,6 +754,14 @@ public class RunStateManager : MonoBehaviour
 
         // <변경부분> 새 런 시작 시 금화도 초기화
         goldAmount = 0;
+
+        // <변경부분>
+        // [TEMP SHOP TEST]
+        // 새 Run 시작 시에도 테스트 옵션이 켜져 있다면
+        // 임시 테스트 Gold를 다시 50G로 설정한다.
+        //
+        // 일반 실행 및 배포 빌드에는 영향을 주지 않는다.
+        ApplyTemporaryShopTestGold();
 
 
         // <변경부분>

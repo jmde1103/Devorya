@@ -111,7 +111,13 @@ public static class BattleUILocalization
         "battle.ui.ability_fail.requirements_not_met";
 
     private const string AbilityFailConditionUnmetKey =
-        "battle.ui.ability_fail.condition_unmet";
+       "battle.ui.ability_fail.condition_unmet";
+
+
+    // 기존 Battle_UI Localization 항목.
+    //
+    // Gold Tooltip 정적 문자열 제거와 관계없는 기존 항목이므로
+    // 반드시 유지한다.
 
 
     // 기존 Battle_UI Localization 항목.
@@ -241,11 +247,11 @@ public static class BattleUILocalization
             );
 
     private static readonly LocalizedString
-        abilityFailConditionUnmet =
-            new LocalizedString(
-                TableCollectionName,
-                AbilityFailConditionUnmetKey
-            );
+    abilityFailConditionUnmet =
+        new LocalizedString(
+            TableCollectionName,
+            AbilityFailConditionUnmetKey
+        );
 
 
     private static readonly LocalizedString

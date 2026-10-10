@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
@@ -16,7 +17,9 @@ using UnityEngine.Localization.Settings;
 //
 // 실제 상품 선택 / 구매 / Gold 차감은
 // 이후 ShopController 단계에서 별도로 구현한다.
-public class ShopItemDisplay : MonoBehaviour
+public class ShopItemDisplay :
+    MonoBehaviour,
+    IPointerClickHandler
 {
     [Header("Shop Item")]
 
@@ -58,6 +61,25 @@ public class ShopItemDisplay : MonoBehaviour
     private TMP_Text priceText;
 
 
+    [Header("Sold Out Display")]
+
+    // <변경부분>
+    // 구매 완료 시 기존 가격 Text에 표시할 문구.
+    //
+    // 기본값은 SOLD.
+    // Inspector에서 OUT, X 등으로 변경할 수 있다.
+    [SerializeField]
+    private string soldOutText = "SOLD";
+
+    // <변경부분>
+    // SOLD 문구에만 적용할 상대 글자 크기(%).
+    //
+    // 기존 가격 Text의 Font Size는 그대로 두고
+    // 구매 완료 문구만 작게 표시한다.
+    [SerializeField, Range(50, 100)]
+    private int soldOutFontSizePercent = 85;
+
+
     [Header("Tooltip")]
 
     // <변경부분>
@@ -93,7 +115,23 @@ public class ShopItemDisplay : MonoBehaviour
     private BoxCollider2D interactionCollider;
 
 
+    [Header("Shop Selection")]
+
     // <변경부분>
+    // 이 상품이 속한 상점의 선택 상태를 관리하는 Controller.
+    //
+    // Inspector 연결을 사용할 수도 있고,
+    // ShopController가 상위 오브젝트에 있다면
+    // 자동으로 찾을 수도 있다.
+    [SerializeField]
+    private ShopController shopController;
+
+    // <변경부분>
+    // 상품 선택 시 흰색 Outline 연출을 담당한다.
+    [SerializeField]
+    private ShopItemVisualAnimator visualAnimator;
+
+
     // 마지막으로 적용한 상품 입력 가능 상태.
     //
     // 매 Frame 동일한 Collider 상태를
@@ -101,6 +139,14 @@ public class ShopItemDisplay : MonoBehaviour
     private bool lastInteractionAllowed;
 
     private bool hasAppliedInteractionState;
+
+
+    // <변경부분>
+    // 이 상품이 실제 구매로 판매 완료되었는지 저장한다.
+    //
+    // 처음부터 비어 있는 상품과 판매 완료 상품을 구분한다.
+    // Scene 내에서 유지되는 Runtime 상태다.
+    private bool isSoldOut;
 
 
     // 이후 ShopController에서 현재 상품 정보를
@@ -131,6 +177,18 @@ public class ShopItemDisplay : MonoBehaviour
         CacheSceneReferences();
 
         RefreshDisplay();
+
+        // <변경부분>
+        // ShopRoot가 재활성화되더라도
+        // 이미 판매한 상품의 그림자와 Outline은
+        // 다시 나타나지 않도록 유지한다.
+        if (isSoldOut &&
+            visualAnimator != null)
+        {
+            visualAnimator.SetSoldOut(
+                true
+            );
+        }
 
         RefreshInteractionState(
             true
@@ -192,31 +250,59 @@ public class ShopItemDisplay : MonoBehaviour
                     >();
         }
 
-        // 상품 입력 Collider는
-        // ShopItemDisplay가 붙은 동일 GameObject에서 우선 찾는다.
+
         if (interactionCollider == null)
         {
             interactionCollider =
                 GetComponent<BoxCollider2D>();
         }
 
-        // TooltipTrigger 역시
-        // 동일 GameObject에 붙이는 현재 상점 구조를 기준으로 한다.
+
         if (tooltipTrigger == null)
         {
             tooltipTrigger =
                 GetComponent<TooltipTrigger>();
         }
+
+
+        // <변경부분>
+        // ShopItemVisualAnimator는
+        // 현재 상품 GameObject에 붙어 있는 구성을 우선 사용한다.
+        if (visualAnimator == null)
+        {
+            visualAnimator =
+                GetComponent<
+                    ShopItemVisualAnimator
+                >();
+        }
+
+
+        // <변경부분>
+        // ShopController는 상품들의 공용 부모인
+        // ShopRoot에 붙이는 구조를 기준으로 한다.
+        if (shopController == null)
+        {
+            shopController =
+                GetComponentInParent<
+                    ShopController
+                >();
+        }
     }
 
 
     // <변경부분>
-    // 이후 ShopController가 상품을 생성하거나 교체할 때
+    // ShopController가 상품을 생성하거나 교체할 때
     // ItemData와 가격을 한 번에 전달한다.
+    //
+    // 새 상품을 진열하면 기존 SOLD 상태는 초기화한다.
     public void Initialize(
         BattleItemData newItemData,
         int newPrice)
     {
+        // <변경부분>
+        // 새로운 상품 진열이므로 판매 완료 상태를 해제한다.
+        isSoldOut = false;
+
         itemData =
             newItemData;
 
@@ -229,11 +315,76 @@ public class ShopItemDisplay : MonoBehaviour
         RefreshDisplay();
 
         // <변경부분>
+        // 기존 상품 부유 연출 및 그림자를 복구한다.
+        if (visualAnimator == null)
+        {
+            visualAnimator =
+                GetComponent<
+                    ShopItemVisualAnimator
+                >();
+        }
+
+        if (visualAnimator != null)
+        {
+            visualAnimator.SetSoldOut(
+                false
+            );
+        }
+
         // 상품 유무가 변경될 수 있으므로
         // Collider 입력 상태도 즉시 다시 계산한다.
         RefreshInteractionState(
             true
         );
+    }
+
+
+    // <변경부분>
+    // 실제 구매에 성공한 상품을 판매 완료 상태로 전환한다.
+    //
+    // 처리 내용:
+    // - 상품 데이터 및 가격 초기화
+    // - 상품 Sprite 제거
+    // - 가격 Text를 SOLD 표시로 변경
+    // - Tooltip 및 구매 입력 차단
+    // - 그림자 / 부유 / Outline 연출 종료
+    //
+    // 진열대 오브젝트 자체는 유지한다.
+    public void MarkAsSoldOut()
+    {
+        if (isSoldOut)
+        {
+            return;
+        }
+
+        isSoldOut = true;
+
+        itemData = null;
+        price = 0;
+
+        // 상품 Sprite / 가격 / Tooltip 갱신.
+        RefreshDisplay();
+
+        // Collider와 Tooltip 입력을 즉시 차단한다.
+        RefreshInteractionState(
+            true
+        );
+
+        if (visualAnimator == null)
+        {
+            visualAnimator =
+                GetComponent<
+                    ShopItemVisualAnimator
+                >();
+        }
+
+        // 구매한 아이템의 그림자와 연출도 종료한다.
+        if (visualAnimator != null)
+        {
+            visualAnimator.SetSoldOut(
+                true
+            );
+        }
     }
 
 
@@ -249,6 +400,30 @@ public class ShopItemDisplay : MonoBehaviour
             );
 
         RefreshPrice();
+    }
+
+    // <변경부분>
+    // ShopController만 상품의 선택 비주얼을 변경하도록
+    // 외부 진입점을 하나로 통일한다.
+    public void SetSelected(
+        bool selected)
+    {
+        if (visualAnimator == null)
+        {
+            visualAnimator =
+                GetComponent<
+                    ShopItemVisualAnimator
+                >();
+        }
+
+        if (visualAnimator == null)
+        {
+            return;
+        }
+
+        visualAnimator.SetSelected(
+            selected
+        );
     }
 
 
@@ -290,10 +465,17 @@ public class ShopItemDisplay : MonoBehaviour
 
 
     // <변경부분>
-    // 판매 가격은 숫자만 표시한다.
+    // 상품 상태에 따라 가격 또는 SOLD 문구를 표시한다.
     //
-    // Gold Icon 등의 시각 요소는
-    // Prefab에서 PriceText 옆에 별도로 배치한다.
+    // 판매 중:
+    // 50   → 50G
+    // 1000 → 1,000G
+    //
+    // 판매 완료:
+    // SOLD
+    //
+    // SOLD는 기존 가격 Text에 표시하고,
+    // 문구의 크기만 별도로 조절한다.
     private void RefreshPrice()
     {
         if (priceText == null)
@@ -301,6 +483,35 @@ public class ShopItemDisplay : MonoBehaviour
             return;
         }
 
+        // <변경부분>
+        // 실제 구매로 판매 완료된 상품이라면
+        // 가격 대신 SOLD 문구를 표시한다.
+        if (isSoldOut)
+        {
+            string displayText =
+                string.IsNullOrWhiteSpace(soldOutText)
+                    ? "SOLD"
+                    : soldOutText;
+
+            int fontSizePercent =
+                Mathf.Clamp(
+                    soldOutFontSizePercent,
+                    50,
+                    100
+                );
+
+            // TextMeshPro Rich Text로
+            // SOLD 글자 크기만 줄여 표시한다.
+            priceText.text =
+                $"<size={fontSizePercent}%>" +
+                displayText +
+                "</size>";
+
+            return;
+        }
+
+        // 상품이 처음부터 비어 있다면
+        // 가격 Text도 비워 둔다.
         if (HasItem == false)
         {
             priceText.text =
@@ -309,11 +520,13 @@ public class ShopItemDisplay : MonoBehaviour
             return;
         }
 
+        // 판매 중인 상품은 기존 가격 형식을 유지한다.
         priceText.text =
             Mathf.Max(
                 0,
                 price
-            ).ToString("N0");
+            ).ToString("N0") +
+            "<space=0.08em>G";
     }
 
 
@@ -388,6 +601,63 @@ public class ShopItemDisplay : MonoBehaviour
             tooltipTrigger.enabled =
                 interactionAllowed;
         }
+    }
+
+
+
+
+    // <변경부분>
+    // Physics2DRaycaster + BoxCollider2D를 통해 전달된
+    // 상품 Click 입력을 ShopController에 전달한다.
+    //
+    // Tooltip 표시와 실제 Shop 선택 상태는
+    // 서로 별개의 기능으로 유지한다.
+    public void OnPointerClick(
+        PointerEventData eventData)
+    {
+        if (HasItem == false)
+        {
+            return;
+        }
+
+
+        // EventScene의 Player Interaction이 잠겨 있거나
+        // 상품 Collider가 비활성화된 상태에서는
+        // 상품 선택 입력을 처리하지 않는다.
+        if (eventSceneSequenceController == null ||
+            eventSceneSequenceController
+                .IsPlayerInteractionLocked ||
+            interactionCollider == null ||
+            interactionCollider.enabled == false)
+        {
+            return;
+        }
+
+
+        if (shopController == null)
+        {
+            shopController =
+                GetComponentInParent<
+                    ShopController
+                >();
+        }
+
+
+        if (shopController == null)
+        {
+            Debug.LogWarning(
+                "[ShopItemDisplay] " +
+                "ShopController를 찾을 수 없습니다.",
+                this
+            );
+
+            return;
+        }
+
+
+        shopController.HandleItemClicked(
+            this
+        );
     }
 
 

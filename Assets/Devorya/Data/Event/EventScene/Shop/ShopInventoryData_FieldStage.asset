@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e35a0e94dbb3034c9c8aadef7168a43, type: 3}
+  m_Name: ShopInventoryData_FieldStage
+  m_EditorClassIdentifier: Assembly-CSharp::ShopInventoryData
+  levels:
+  - shopLevel: 1
+    itemCandidates:
+    - itemData: {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}
+      price: 5
+      weight: 30
+    - itemData: {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
+      price: 10
+      weight: 70

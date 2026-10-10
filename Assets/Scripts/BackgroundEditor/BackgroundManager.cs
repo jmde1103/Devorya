@@ -99,13 +99,30 @@ public class BackgroundManager : MonoBehaviour
     // <변경부분> All 타입으로 배경을 생성할 때 섞어서 사용할 실제 타일 비율
     [SerializeField] private List<BackgroundTileWeight> allTileWeights = new List<BackgroundTileWeight>();
 
+
     [Header("장식물 기본 설정")]
     // <변경부분> 모든 장식물이 공통으로 사용할 프리팹
     [SerializeField] private GameObject decorationPrefab;
     // <변경부분> 생성된 장식물을 정리해서 담을 부모 오브젝트
     [SerializeField] private Transform decorationParent;
 
+
+    [Header("Shop Display Slots")]
+
+    // <변경부분>
+    // ShopItemDisplay Prefab을 생성할 부모.
+    //
+    // EventScene에서는 ShopController가 붙은
+    // ShopRoot Transform을 연결한다.
+    //
+    // ShopRoot가 없는 BattleScene에서는
+    // 상품 슬롯 생성 기능을 건너뛴다.
+    [SerializeField]
+    private Transform shopRoot;
+
+
     [Header("장식물 스프라이트 목록")]
+
 
     // <변경부분>
     // 기존 Scene에 저장되어 있던 DecorationSet 데이터를
@@ -2292,11 +2309,375 @@ public class BackgroundManager : MonoBehaviour
     }
 
 
+    // =========================================================
+    // Shop Display Slots
+    // =========================================================
+
+    // <변경부분>
+    // ExactPrefab의 Root에 ShopItemDisplay가 있는지 확인한다.
+    //
+    // 일반 Decoration Prefab과 Shop Prefab을 구분한다.
+    private bool IsShopDisplayPrefab(GameObject prefab)
+    {
+        return prefab != null &&
+               prefab.GetComponent<ShopItemDisplay>() != null;
+    }
+
+
+    // <변경부분>
+    // 기존 Decoration Brush의 Grid / Free Placement를
+    // 그대로 이용하여 상점 상품 진열 위치를 결정한다.
+    //
+    // 실제 판매 아이템과 가격은 여기서 설정하지 않는다.
+    private void PaintShopDisplayByWorldPosition(
+        Vector3 worldPosition)
+    {
+        if (shopRoot == null)
+        {
+            Debug.LogWarning(
+                "ShopRoot가 연결되지 않아 상품 진열 프리팹을 배치할 수 없습니다.",
+                this
+            );
+
+            return;
+        }
+
+
+        int x;
+        int y;
+
+        Vector3 offset = Vector3.zero;
+
+
+        // 기존 Decoration Free Placement의
+        // Anchor Tile을 그대로 사용한다.
+        if (decorationPlacementMode ==
+            DecorationPlacementMode.Free)
+        {
+            if (!hasFreePlacementAnchor)
+            {
+                Debug.LogWarning(
+                    "Shop Free Placement 전에 Anchor Tile을 선택해주세요.",
+                    this
+                );
+
+                return;
+            }
+
+
+            x = freePlacementAnchorX;
+            y = freePlacementAnchorY;
+
+
+            if (GetBackgroundTileAt(x, y) == null)
+            {
+                Debug.LogWarning(
+                    "선택된 Shop Anchor Tile을 찾을 수 없습니다.",
+                    this
+                );
+
+                return;
+            }
+
+
+            offset =
+                worldPosition -
+                (
+                    GridToWorld(x, y) +
+                    decorationOffset
+                );
+
+            offset.z = 0f;
+        }
+        else
+        {
+            // 기존 Grid Placement 좌표 계산 사용.
+            if (!TryGetBackgroundGridPosition(
+                    worldPosition,
+                    out x,
+                    out y) ||
+                GetBackgroundTileAt(x, y) == null)
+            {
+                return;
+            }
+        }
+
+
+        // <변경부분>
+        // 판매 데이터가 아닌 배치 데이터만 생성한다.
+        ShopDisplaySlotSaveData slot =
+            new ShopDisplaySlotSaveData();
+
+        slot.SlotId =
+            System.Guid.NewGuid().ToString("N");
+
+        slot.ShopDisplayPrefab =
+            paintDecorationPrefab;
+
+        slot.X = x;
+        slot.Y = y;
+
+        slot.LocalPositionOffset =
+            offset;
+
+        slot.LayerOffset =
+            ClampDecorationLayerOffset(
+                paintDecorationLayerOffset
+            );
+
+
+        SpawnShopDisplaySlot(slot);
+    }
+
+
+    // <변경부분>
+    // 저장된 배치 정보로 ShopRoot 아래에 상품을 생성한다.
+    //
+    // DecorationPrefab 래퍼를 사용하지 않는다.
+    // Decoration의 어둡게 처리하는 색상 설정도 적용하지 않는다.
+    //
+    // 상품 Sprite / Light / Animation은
+    // 원래 ShopItemDisplay Prefab의 설정을 유지한다.
+    private void SpawnShopDisplaySlot(
+        ShopDisplaySlotSaveData slot)
+    {
+        if (slot == null ||
+            shopRoot == null ||
+            !IsShopDisplayPrefab(slot.ShopDisplayPrefab))
+        {
+            return;
+        }
+
+
+        if (slot.X < 0 ||
+            slot.X >= backgroundWidth ||
+            slot.Y < 0 ||
+            slot.Y >= backgroundHeight)
+        {
+            Debug.LogWarning(
+                $"Shop 슬롯 Anchor 범위 오류: ({slot.X}, {slot.Y})",
+                this
+            );
+
+            return;
+        }
+
+
+        Vector3 position =
+            GridToWorld(slot.X, slot.Y) +
+            decorationOffset +
+            slot.LocalPositionOffset;
+
+
+        // <변경부분>
+        // ShopRoot의 직접 자식으로 생성.
+        // 전달한 position은 월드 좌표로 유지된다.
+        GameObject created =
+            Instantiate(
+                slot.ShopDisplayPrefab,
+                position,
+                Quaternion.identity,
+                shopRoot
+            );
+
+
+        created.name =
+            "ShopDisplay_" +
+            slot.ShopDisplayPrefab.name;
+
+
+        // <변경부분>
+        // 배치 정보 저장용 컴포넌트를 자동 부착한다.
+        ShopDisplaySlotInstance marker =
+            created.GetComponent<ShopDisplaySlotInstance>();
+
+        if (marker == null)
+        {
+            marker =
+                created.AddComponent<ShopDisplaySlotInstance>();
+        }
+
+
+        marker.Initialize(
+            string.IsNullOrWhiteSpace(slot.SlotId)
+                ? System.Guid.NewGuid().ToString("N")
+                : slot.SlotId,
+
+            slot.ShopDisplayPrefab,
+            slot.X,
+            slot.Y,
+
+            ClampDecorationLayerOffset(
+                slot.LayerOffset
+            )
+        );
+    }
+
+
+    // <변경부분>
+    // ShopRoot에서 생성한 진열 슬롯만 제거한다.
+    //
+    // ShopController와 수동으로 배치한 다른 오브젝트는
+    // 제거하지 않는다.
+    public void ClearShopDisplaySlots()
+    {
+        if (shopRoot == null)
+        {
+            return;
+        }
+
+
+        for (int i = shopRoot.childCount - 1;
+             i >= 0;
+             i--)
+        {
+            Transform child =
+                shopRoot.GetChild(i);
+
+            if (child.GetComponent<ShopDisplaySlotInstance>() ==
+                null)
+            {
+                continue;
+            }
+
+
+            DestroyBackgroundObject(
+                child.gameObject
+            );
+        }
+    }
+
+
+    // <변경부분>
+    // 현재 ShopRoot에 생성된 상품 진열 위치를 저장한다.
+    //
+    // BattleScene처럼 ShopRoot가 없는 경우에는
+    // 기존 BackgroundMapData의 ShopDisplaySlots를
+    // 삭제하지 않고 보존한다.
+    private void SaveShopDisplaySlotsToData()
+    {
+        if (currentMapData == null ||
+            shopRoot == null)
+        {
+            return;
+        }
+
+
+        if (currentMapData.ShopDisplaySlots == null)
+        {
+            currentMapData.ShopDisplaySlots =
+                new List<ShopDisplaySlotSaveData>();
+        }
+
+
+        currentMapData.ShopDisplaySlots.Clear();
+
+
+        for (int i = 0;
+             i < shopRoot.childCount;
+             i++)
+        {
+            Transform child =
+                shopRoot.GetChild(i);
+
+            ShopDisplaySlotInstance marker =
+                child.GetComponent<ShopDisplaySlotInstance>();
+
+
+            if (marker == null ||
+                marker.SourcePrefab == null)
+            {
+                continue;
+            }
+
+
+            ShopDisplaySlotSaveData slot =
+                new ShopDisplaySlotSaveData();
+
+            slot.SlotId =
+                marker.SlotId;
+
+            slot.ShopDisplayPrefab =
+                marker.SourcePrefab;
+
+            slot.X =
+                marker.X;
+
+            slot.Y =
+                marker.Y;
+
+            slot.LayerOffset =
+                marker.LayerOffset;
+
+
+            // <변경부분>
+            // 현재 Scene에서 실제로 배치된 위치를 저장한다.
+            //
+            // Editor에서 오브젝트의 위치를 이동했더라도
+            // 다음 저장 시 새로운 Offset이 반영된다.
+            slot.LocalPositionOffset =
+                child.position -
+                (
+                    GridToWorld(marker.X, marker.Y) +
+                    decorationOffset
+                );
+
+
+            currentMapData.ShopDisplaySlots.Add(
+                slot
+            );
+        }
+    }
+
+
+    // <변경부분>
+    // BackgroundMapData의 상품 진열 슬롯을
+    // ShopRoot 아래에 다시 생성한다.
+    //
+    // 실제 상품 랜덤 배정은 후속 단계에서 연결한다.
+    private void LoadShopDisplaySlotsFromData()
+    {
+        if (shopRoot == null ||
+            currentMapData == null ||
+            currentMapData.ShopDisplaySlots == null)
+        {
+            return;
+        }
+
+
+        foreach (ShopDisplaySlotSaveData slot
+                 in currentMapData.ShopDisplaySlots)
+        {
+            SpawnShopDisplaySlot(
+                slot
+            );
+        }
+    }
+
+
     // <변경부분>
     // Scene View에서 클릭한 위치를 기준으로 장식물을 생성한다.
     public void PaintDecorationByWorldPosition(
         Vector3 worldPosition)
     {
+        // <변경부분>
+        // ExactPrefab에 ShopItemDisplay가 있다면
+        // 일반 Decoration으로 생성하지 않는다.
+        //
+        // 대신 ShopRoot의 직접 자식으로 생성한다.
+        if (decorationBrushSourceMode ==
+                DecorationBrushSourceMode.ExactPrefab &&
+            IsShopDisplayPrefab(paintDecorationPrefab))
+        {
+            PaintShopDisplayByWorldPosition(
+                worldPosition
+            );
+
+            return;
+        }
+
+
+        // 이하 기존 Decoration 처리 경로 유지.
         Sprite decorationSprite =
      null;
 
@@ -3215,6 +3596,223 @@ public bool TryGetFreeDecorationPrefabPreviewData(
     }
 
 
+    // ============================================================
+    // Shop Display Slot Erase
+    // ============================================================
+
+    // <변경부분>
+    // Scene View에서 클릭한 상품 진열 슬롯을 검색한다.
+    //
+    // ShopRoot 아래에 BackgroundManager가 생성한
+    // ShopDisplaySlotInstance만 삭제 대상으로 인정한다.
+    //
+    // 일반 ShopRoot 자식과 ShopController는 검색하지 않는다.
+    //
+    // 실제 Renderer의 화면 영역을 검사하므로
+    // Prefab Root 위치가 아닌 상품 외형을 클릭해도 검색된다.
+    //
+    // 상품들이 겹쳐 있을 경우:
+    // - Sorting Layer가 앞인 상품
+    // - Sorting Order가 높은 상품
+    // - 동일하면 클릭 위치와 중심이 가까운 상품
+    // 순서로 하나를 선택한다.
+    private ShopDisplaySlotInstance FindShopDisplayAtWorldPosition(
+        Vector3 worldPosition)
+    {
+        if (shopRoot == null)
+        {
+            return null;
+        }
+
+        ShopDisplaySlotInstance bestSlot = null;
+
+        int bestSortingLayerValue = int.MinValue;
+        int bestSortingOrder = int.MinValue;
+
+        float bestDistance = float.MaxValue;
+
+
+        for (int i = 0; i < shopRoot.childCount; i++)
+        {
+            Transform child = shopRoot.GetChild(i);
+
+            if (child == null)
+            {
+                continue;
+            }
+
+            ShopDisplaySlotInstance slot =
+                child.GetComponent<ShopDisplaySlotInstance>();
+
+            if (slot == null)
+            {
+                continue;
+            }
+
+
+            // 기존 Decoration 삭제에서 사용하는
+            // Renderer Bounds 계산 함수를 재사용한다.
+            bool hasVisualBounds =
+                TryGetCombinedDecorationBounds(
+                    child.gameObject,
+                    out Bounds bounds
+                );
+
+
+            if (!hasVisualBounds)
+            {
+                // Renderer가 없는 경우에는 Root 주변의
+                // 작은 영역을 삭제 판정에 사용한다.
+                const float fallbackPickSize = 0.3f;
+
+                bounds = new Bounds(
+                    child.position,
+                    new Vector3(
+                        fallbackPickSize,
+                        fallbackPickSize,
+                        0.1f
+                    )
+                );
+            }
+
+
+            // Scene View는 2D이므로 X/Y만 검사한다.
+            if (worldPosition.x < bounds.min.x ||
+                worldPosition.x > bounds.max.x ||
+                worldPosition.y < bounds.min.y ||
+                worldPosition.y > bounds.max.y)
+            {
+                continue;
+            }
+
+
+            // ShopItemDisplay는 SpriteRenderer가
+            // Root가 아니라 자식에 있을 수도 있다.
+            Renderer[] renderers =
+                child.GetComponentsInChildren<Renderer>(true);
+
+            int sortingLayerValue = int.MinValue;
+            int sortingOrder = int.MinValue;
+
+
+            for (int j = 0; j < renderers.Length; j++)
+            {
+                Renderer renderer = renderers[j];
+
+                if (renderer == null ||
+                    !renderer.enabled ||
+                    !renderer.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                int currentLayerValue =
+                    SortingLayer.GetLayerValueFromID(
+                        renderer.sortingLayerID
+                    );
+
+                int currentOrder =
+                    renderer.sortingOrder;
+
+
+                if (currentLayerValue > sortingLayerValue ||
+                    (currentLayerValue == sortingLayerValue &&
+                     currentOrder > sortingOrder))
+                {
+                    sortingLayerValue = currentLayerValue;
+                    sortingOrder = currentOrder;
+                }
+            }
+
+
+            Vector2 clickPosition = new Vector2(
+                worldPosition.x,
+                worldPosition.y
+            );
+
+            Vector2 visualCenter = new Vector2(
+                bounds.center.x,
+                bounds.center.y
+            );
+
+            float distance =
+                (clickPosition - visualCenter).sqrMagnitude;
+
+
+            bool isBetterCandidate =
+                bestSlot == null ||
+                sortingLayerValue > bestSortingLayerValue ||
+                (sortingLayerValue == bestSortingLayerValue &&
+                 sortingOrder > bestSortingOrder) ||
+                (sortingLayerValue == bestSortingLayerValue &&
+                 sortingOrder == bestSortingOrder &&
+                 distance < bestDistance);
+
+
+            if (!isBetterCandidate)
+            {
+                continue;
+            }
+
+
+            bestSlot = slot;
+
+            bestSortingLayerValue = sortingLayerValue;
+            bestSortingOrder = sortingOrder;
+            bestDistance = distance;
+        }
+
+
+        return bestSlot;
+    }
+
+
+    // <변경부분>
+    // 지정된 Anchor Grid에 속한 Shop Display Slot을 삭제한다.
+    //
+    // Grid Placement에서 사용한다.
+    //
+    // Free Placement에서 같은 Anchor에 배치한
+    // 다른 상품들은 삭제하지 않도록
+    // 이 함수는 Grid 삭제 경로에서만 호출한다.
+    private void RemoveShopDisplaySlotsAt(int x, int y)
+    {
+        if (shopRoot == null)
+        {
+            return;
+        }
+
+
+        for (int i = shopRoot.childCount - 1; i >= 0; i--)
+        {
+            Transform child = shopRoot.GetChild(i);
+
+            ShopDisplaySlotInstance slot =
+                child.GetComponent<ShopDisplaySlotInstance>();
+
+            if (slot == null)
+            {
+                continue;
+            }
+
+
+            if (slot.X != x || slot.Y != y)
+            {
+                continue;
+            }
+
+
+            // 기존 BackgroundManager 공용 삭제 함수를 사용한다.
+            //
+            // Edit Mode: DestroyImmediate
+            // Play Mode: 비활성화 후 Destroy
+            DestroyBackgroundObject(
+                child.gameObject
+            );
+        }
+    }
+
+
     // <변경부분>
     // Free Placement에서 실제 클릭한 Decoration 하나만 삭제한다.
     private void EraseSingleDecorationByWorldPosition(
@@ -3238,21 +3836,70 @@ public bool TryGetFreeDecorationPrefabPreviewData(
 
 
     // <변경부분>
-    // Scene View에서 클릭한 위치를 기준으로 Decoration을 제거한다.
+    // Scene View에서 클릭한 위치를 기준으로
+    // 일반 Decoration 또는 Shop Display Slot을 제거한다.
     //
-    // Grid Placement:
-    // 기존 방식대로 해당 Grid에 연결된 Decoration 전체 삭제.
+    // Shop Display Slot:
+    // ShopRoot 아래의 ShopDisplaySlotInstance를 검색한다.
     //
     // Free Placement:
-    // 마우스로 직접 클릭한 Decoration 하나만 삭제.
+    // 클릭한 상품 또는 장식물 하나만 삭제.
+    //
+    // Grid Placement:
+    // 클릭한 대상이 속한 Anchor Grid에서
+    // 해당 종류의 배치 오브젝트를 삭제.
+    //
+    // Shop 상품과 일반 Decoration이 겹친 경우에는
+    // 이번 구현에서 Shop 상품을 우선 검사한다.
     public void EraseDecorationByWorldPosition(
-    Vector3 worldPosition)
+        Vector3 worldPosition)
     {
+        // =========================================================
+        // Shop Display Slot
+        // =========================================================
+
+        // <변경부분>
+        // 기존 DecorationParent와 별도로
+        // ShopRoot에서 클릭한 상품을 검색한다.
+        ShopDisplaySlotInstance clickedShopSlot =
+            FindShopDisplayAtWorldPosition(
+                worldPosition
+            );
+
+
+        if (clickedShopSlot != null)
+        {
+            if (decorationPlacementMode ==
+                DecorationPlacementMode.Free)
+            {
+                // <변경부분>
+                // Free Placement에서는 클릭한 상품 하나만 삭제.
+                DestroyBackgroundObject(
+                    clickedShopSlot.gameObject
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // Grid Placement에서는 해당 Anchor에 속한
+                // 상품 슬롯 전체를 삭제한다.
+                RemoveShopDisplaySlotsAt(
+                    clickedShopSlot.X,
+                    clickedShopSlot.Y
+                );
+            }
+
+            return;
+        }
+
+
         // =========================================================
         // Free Placement
         // =========================================================
-        //
-        // 실제 클릭한 Decoration 하나만 제거한다.
+
+        // <변경부분>
+        // Shop 상품을 클릭하지 않았을 때는
+        // 기존 일반 Decoration 삭제 경로를 유지한다.
         if (decorationPlacementMode ==
             DecorationPlacementMode.Free)
         {
@@ -3267,10 +3914,8 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         // =========================================================
         // Grid Placement
         // =========================================================
-        //
-        // Prefab Decoration은 실제 외형이 Anchor Tile보다
-        // 훨씬 클 수 있으므로 먼저 화면에서 클릭한
-        // Decoration을 직접 찾는다.
+
+        // 기존 일반 Decoration 외형 클릭 판정 유지.
         Decoration clickedDecoration =
             FindDecorationAtWorldPosition(
                 worldPosition
@@ -3279,11 +3924,7 @@ public bool TryGetFreeDecorationPrefabPreviewData(
 
         if (clickedDecoration != null)
         {
-            // Grid Placement의 기존 규칙은 유지한다.
-            //
-            // 즉 클릭한 Decoration 하나만 지우는 것이 아니라
-            // 해당 Decoration이 속한 Anchor Grid의
-            // Decoration 전체를 삭제한다.
+            // 기존 일반 Decoration Grid 삭제 규칙 유지.
             RemoveDecorationsAt(
                 clickedDecoration.X,
                 clickedDecoration.Y
@@ -3293,8 +3934,13 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         }
 
 
-        // 실제 Decoration 외형을 클릭하지 않은 경우에는
-        // 기존 Grid 좌표 삭제 방식으로 fallback한다.
+        // =========================================================
+        // Grid Fallback
+        // =========================================================
+
+        // <변경부분>
+        // 실제 외형을 클릭하지 못했다면
+        // 클릭한 Grid 좌표에 속한 배치 오브젝트를 제거한다.
         if (!TryGetBackgroundGridPosition(
                 worldPosition,
                 out int gridX,
@@ -3304,7 +3950,16 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         }
 
 
+        // 기존 일반 Decoration 삭제.
         RemoveDecorationsAt(
+            gridX,
+            gridY
+        );
+
+
+        // <변경부분>
+        // 동일 Grid에 Shop 슬롯이 있으면 함께 제거한다.
+        RemoveShopDisplaySlotsAt(
             gridX,
             gridY
         );
@@ -3921,7 +4576,12 @@ public bool TryGetFreeDecorationPrefabPreviewData(
             }
         }
 
+
         SaveDecorationsToData();
+
+        // <변경부분>
+        // ShopRoot에 배치한 상품 진열 위치도 함께 저장한다.
+        SaveShopDisplaySlotsToData();
 
 #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(currentMapData);
@@ -3930,6 +4590,7 @@ public bool TryGetFreeDecorationPrefabPreviewData(
 
         Debug.Log("현재 배경 맵 데이터를 저장했습니다.");
     }
+
 
     // <변경부분> 현재 씬에 배치된 장식물 정보를 맵 데이터에 저장
     private void SaveDecorationsToData()
@@ -4091,13 +4752,19 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         backgroundOriginOffset =
             currentMapData.BackgroundOriginOffset;
 
+
         // 기존 Scene 배경과 장식물을 정리한 뒤
         // 저장 데이터 기준으로 다시 구성한다.
         ClearBackground();
         ClearDecorations();
 
+        // <변경부분>
+        // 이전 배경에서 생성한 Shop 진열 슬롯만 정리한다.
+        ClearShopDisplaySlots();
+
         BuildTileSpriteDictionary();
         BuildDecorationSpriteDictionary();
+
 
         backgroundTiles =
             new BackgroundTile[
@@ -4162,6 +4829,47 @@ public bool TryGetFreeDecorationPrefabPreviewData(
     false
 );
             }
+
+        }
+
+
+        // <변경부분>
+        // 배경 타일과 일반 Decoration 복원이 끝난 뒤
+        // ShopRoot 아래에 상품 진열 프리팹을 생성한다.
+        //
+        // ShopRoot가 없는 Scene에서는 아무것도 생성하지 않는다.
+        LoadShopDisplaySlotsFromData();
+
+
+        // <변경부분>
+        // 런타임에서 생성된 상품들을 ShopController에 등록한다.
+        //
+        // BackgroundManager는 ShopRoot 참조를 이미 가지고 있으므로
+        // EventSceneController에 별도 참조를 추가하지 않는다.
+        //
+        // 상품 프리팹 생성이 모두 끝난 뒤 호출하여
+        // 이전 배경의 상품 참조가 남지 않도록 한다.
+        //
+        // Editor 배경 제작 중에는 호출하지 않는다.
+        if (Application.isPlaying &&
+            shopRoot != null)
+        {
+            ShopController shopController =
+                shopRoot.GetComponent<ShopController>();
+
+
+            if (shopController != null)
+            {
+                shopController.RefreshShopItemsFromHierarchy();
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[BackgroundManager] " +
+                    "ShopRoot에 ShopController가 없습니다.",
+                    shopRoot
+                );
+            }
         }
 
 
@@ -4172,6 +4880,7 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         // Event Scene / Battle Scene 모두 BackgroundManager.LoadMapFromData()를
         // 공통으로 사용하므로 별도 Scene별 조명 코드를 만들 필요가 없다.
         ApplyEnvironmentVisualProfileFromCurrentMap();
+
 
 
         Debug.Log(
@@ -5386,9 +6095,25 @@ public class BackgroundManagerEditor : Editor
             )
         );
 
+
         EditorGUILayout.PropertyField(
             serializedObject.FindProperty(
                 "decorationParent"
+            )
+        );
+
+
+        // <변경부분>
+        // 상점 상품 프리팹을 생성할 부모.
+        //
+        // 일반 DecorationParent와 독립적으로 사용한다.
+        // EventScene의 ShopRoot를 연결한다.
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty(
+                "shopRoot"
+            ),
+            new GUIContent(
+                "Shop Root"
             )
         );
 
@@ -5397,6 +6122,7 @@ public class BackgroundManagerEditor : Editor
 
 
         DrawDecorationPaletteField();
+
 
 
         GUILayout.Space(5);

@@ -9440,27 +9440,6 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 8825777334374118131, guid: 7770a3e42e0ff6b45b5e2e2c7d68b44c, type: 3}
     LocalPositionOffset: {x: 0.015506744, y: 0.14776278, z: 0}
     LayerOffset: 1
-  - X: 19
-    Y: 22
-    DecorationType: 0
-    DecorationSprite: {fileID: 21300000, guid: 5a9dafb5630a2024fac574ea65417d6e, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: -0.05221522, y: -0.39573026, z: 0}
-    LayerOffset: 1
-  - X: 19
-    Y: 22
-    DecorationType: 0
-    DecorationSprite: {fileID: 21300000, guid: abcad1d2ce58cf8418f40a5a7afbc144, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: 0.4526295, y: -0.15510368, z: 0}
-    LayerOffset: 2
-  - X: 19
-    Y: 22
-    DecorationType: 0
-    DecorationSprite: {fileID: 21300000, guid: 6cfc9a4793d37034d914096af70827cb, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: 0.94780326, y: 0.11125767, z: 0}
-    LayerOffset: 2
   - X: 21
     Y: 22
     DecorationType: 0
@@ -9481,4 +9460,23 @@ MonoBehaviour:
     DecorationSprite: {fileID: 0}
     DecorationPrefab: {fileID: 4746673714160857919, guid: 6e543bc392942b14bb68d6de2f25a255, type: 3}
     LocalPositionOffset: {x: -0.025168061, y: 0.23534918, z: 0}
+    LayerOffset: -3
+  ShopDisplaySlots:
+  - SlotId: 2f4d80222684414e9df9838a4574a8c7
+    ShopDisplayPrefab: {fileID: 4094777867487052340, guid: 1256f05fc77cc654482b7ab202d7355c, type: 3}
+    X: 18
+    Y: 21
+    LocalPositionOffset: {x: 0, y: 0, z: 0}
+    LayerOffset: -3
+  - SlotId: 28eabe8a8d8b436c8c22a42ed92fedbf
+    ShopDisplayPrefab: {fileID: 6945985523917260608, guid: 436f6f19003e1584fb0a121a5d128c2e, type: 3}
+    X: 19
+    Y: 21
+    LocalPositionOffset: {x: 0, y: 0, z: 0}
+    LayerOffset: -3
+  - SlotId: dfeeafaed3344fc284ea08a9ea9f2211
+    ShopDisplayPrefab: {fileID: 3018111047290120004, guid: af8cd86c01e71694ea14cf469100a08e, type: 3}
+    X: 20
+    Y: 21
+    LocalPositionOffset: {x: 0, y: 0, z: 0}
     LayerOffset: -3

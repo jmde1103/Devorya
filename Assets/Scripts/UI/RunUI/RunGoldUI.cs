@@ -89,7 +89,15 @@ public class RunGoldUI : MonoBehaviour
     }
 
 
+    // <변경부분>
     // 실제 TMP Text에 금액을 적용한다.
+    //
+    // Gold UI는 항상 숫자 오른쪽에
+    // 통화 단위 "G"를 표시한다.
+    //
+    // 예:
+    // 50   → 50G
+    // 1000 → 1,000G
     private void ApplyGoldAmount(
         int goldAmount)
     {
@@ -103,15 +111,14 @@ public class RunGoldUI : MonoBehaviour
         }
 
 
-        if (useThousandsSeparator)
-        {
-            goldAmountText.text =
-                goldAmount.ToString("N0");
-        }
-        else
-        {
-            goldAmountText.text =
-                goldAmount.ToString();
-        }
+        string formattedGold =
+            useThousandsSeparator
+                ? goldAmount.ToString("N0")
+                : goldAmount.ToString();
+
+
+        goldAmountText.text =
+      formattedGold +
+      "<space=0.08em>G";
     }
 }
