@@ -16,6 +16,7 @@ MonoBehaviour:
   Height: 40
   BackgroundOriginOffset: {x: 0, y: -8.23, z: 0}
   VisualProfile: {fileID: 11400000, guid: 1217b62fcc367894b9b4bbfcfa73d777, type: 2}
+  NightVisualProfile: {fileID: 11400000, guid: 1217b62fcc367894b9b4bbfcfa73d777, type: 2}
   DecorationPalette: {fileID: 11400000, guid: 9d897d9041277f14a85653175169dac9, type: 2}
   Tiles:
   - X: 0
@@ -9398,3 +9399,4 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 0}
     LocalPositionOffset: {x: 0.1203379, y: 0.17800283, z: 0}
     LayerOffset: 1
+  ShopDisplaySlots: []

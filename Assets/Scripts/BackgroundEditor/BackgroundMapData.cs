@@ -21,9 +21,30 @@ public class BackgroundMapData : ScriptableObject
     // 이 BackgroundMapData를 사용할 때 함께 적용할
     // 환경 조명 Profile.
     //
-    // Event Scene과 Battle Scene 모두 동일한 BackgroundMapData를 사용하면
-    // 동일한 환경 조명이 자동으로 적용된다.
+    // 기존 VisualProfile은 낮 환경으로 사용한다.
+    // 기존 ScriptableObject 연결을 보호하기 위해 필드명을 변경하지 않는다.
     public EnvironmentVisualProfile VisualProfile;
+
+    // <변경부분>
+    // 밤에 사용할 환경 조명 / 구름 / 반딧불 Profile.
+    // 지정하지 않으면 기존 VisualProfile(낮)을 그대로 사용한다.
+    // 배경 타일과 장식물 데이터는 낮·밤 모두 하나를 공유한다.
+    public EnvironmentVisualProfile NightVisualProfile;
+
+    // <변경부분>
+    // 런의 낮·밤 상태에 따라 사용할 환경 Profile을 반환한다.
+    // 기존 VisualProfile 필드는 수정하지 않아 기존 Map Asset 연결을 보존한다.
+    public EnvironmentVisualProfile GetVisualProfile(
+        RunDayNightState dayNightState)
+    {
+        if (dayNightState == RunDayNightState.Night &&
+            NightVisualProfile != null)
+        {
+            return NightVisualProfile;
+        }
+
+        return VisualProfile;
+    }
 
 
     [Header("Decoration Palette")]

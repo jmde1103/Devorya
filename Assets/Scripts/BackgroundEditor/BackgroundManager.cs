@@ -328,6 +328,97 @@ public class BackgroundManager : MonoBehaviour
 
 
     // <변경부분>
+    // RunStateManager는 씬 사이에 유지되므로 중복 구독하지 않고
+    // 현재 BackgroundManager가 활성화된 동안에만 낮·밤 전환을 구독한다.
+    private RunStateManager subscribedDayNightRunStateManager;
+
+    private void OnEnable()
+    {
+        TrySubscribeDayNightState();
+    }
+
+    private void OnDisable()
+    {
+        if (subscribedDayNightRunStateManager != null)
+        {
+            subscribedDayNightRunStateManager.DayNightStateChanged -=
+                HandleDayNightStateChanged;
+
+            subscribedDayNightRunStateManager = null;
+        }
+    }
+
+    // <변경부분>
+    // 씬의 Awake 실행 순서에 영향을 받지 않도록 Start 및 Map Load에서도
+    // 호출하며, 이미 연결된 RunStateManager라면 아무 작업도 하지 않는다.
+    private void TrySubscribeDayNightState()
+    {
+        if (Application.isPlaying == false)
+        {
+            return;
+        }
+
+        RunStateManager runStateManager =
+            RunStateManager.Instance;
+
+        if (subscribedDayNightRunStateManager == runStateManager)
+        {
+            return;
+        }
+
+        if (subscribedDayNightRunStateManager != null)
+        {
+            subscribedDayNightRunStateManager.DayNightStateChanged -=
+                HandleDayNightStateChanged;
+        }
+
+        subscribedDayNightRunStateManager =
+            runStateManager;
+
+        if (subscribedDayNightRunStateManager != null)
+        {
+            subscribedDayNightRunStateManager.DayNightStateChanged +=
+                HandleDayNightStateChanged;
+        }
+    }
+
+    // <변경부분>
+    // 낮↔밤이 바뀌는 순간 맵을 다시 생성하지 않고 조명과 환경 연출만 갱신한다.
+    private void HandleDayNightStateChanged(
+        RunDayNightState dayNightState)
+    {
+        if (currentMapData == null)
+        {
+            return;
+        }
+
+        ApplyEnvironmentVisualProfileFromCurrentMap();
+
+        EnvironmentVisualProfile appliedProfile =
+            currentMapData.GetVisualProfile(dayNightState);
+
+        Debug.Log(
+            $"[DayNight] 환경 프로필 적용 요청: {dayNightState} / " +
+            $"{(appliedProfile != null ? appliedProfile.name : "None")}",
+            this
+        );
+    }
+
+    // <변경부분>
+    // 런이 없거나 Editor에서 맵을 제작할 때에는 낮 Profile을 사용한다.
+    private RunDayNightState GetCurrentDayNightState()
+    {
+        if (Application.isPlaying &&
+            RunStateManager.Instance != null)
+        {
+            return RunStateManager.Instance.CurrentDayNightState;
+        }
+
+        return RunDayNightState.Day;
+    }
+
+
+    // <변경부분>
     // Scene에 이미 BackgroundMapData가 연결된 상태로 Play가 시작될 경우에도
     // 현재 Map의 EnvironmentVisualProfile을 Runtime Controller들에 적용한다.
     //
@@ -335,11 +426,14 @@ public class BackgroundManager : MonoBehaviour
     // 해당 함수에서 다시 Profile을 적용하므로 여기서는 초기 Scene 상태만 처리한다.
     private void Start()
     {
+        // <변경부분>
+        // RunStateManager의 Awake 완료 이후 낮·밤 전환 이벤트를 연결한다.
+        TrySubscribeDayNightState();
+
         if (currentMapData == null)
         {
             return;
         }
-
 
         ApplyCurrentLightingProfile();
     }
@@ -4218,9 +4312,13 @@ public bool TryGetFreeDecorationPrefabPreviewData(
             return;
         }
 
-
+        // <변경부분>
+        // 현재 24눈금 시계의 시간대에 맞춰 낮 또는 밤 Profile을 선택한다.
+        // NightVisualProfile이 없으면 BackgroundMapData에서 낮을 반환한다.
         EnvironmentVisualProfile visualProfile =
-            currentMapData.VisualProfile;
+            currentMapData.GetVisualProfile(
+                GetCurrentDayNightState()
+            );
 
 
         if (visualProfile == null)
@@ -4312,109 +4410,29 @@ public bool TryGetFreeDecorationPrefabPreviewData(
     // 현재 EnvironmentLightingRig 설정을 그대로 유지한다.
     private void ApplyEnvironmentVisualProfileFromCurrentMap()
     {
+        // <변경부분>
+        // 맵이 없다면 이전 맵의 구름과 반딧불을 정리한다.
         if (currentMapData == null)
         {
             if (cloudShadowController != null)
             {
-                cloudShadowController.ApplyProfile(
-                    null
-                );
+                cloudShadowController.ApplyProfile(null);
             }
-
 
             if (fireflyEnvironmentController != null)
             {
-                fireflyEnvironmentController.ApplyProfile(
-                    null
-                );
+                fireflyEnvironmentController.ApplyProfile(null);
             }
-
 
             return;
         }
 
-
-        EnvironmentVisualProfile visualProfile =
-            currentMapData.VisualProfile;
-
-
-        if (visualProfile == null)
-        {
-            // <변경부분>
-            // Profile이 없는 Map으로 교체될 때
-            // 이전 Map의 구름이 계속 남아 있는 것을 방지한다.
-            if (cloudShadowController != null)
-            {
-                cloudShadowController.ApplyProfile(
-                    null
-                );
-            }
-
-
-            if (fireflyEnvironmentController != null)
-            {
-                fireflyEnvironmentController.ApplyProfile(
-                    null
-                );
-            }
-
-
-            return;
-
-
-            // 기존 환경 Lighting.
-            if (environmentLightingController != null)
-            {
-                environmentLightingController.ApplyProfile(
-                    visualProfile
-                );
-            }
-            else
-            {
-                Debug.LogWarning(
-                    $"환경 조명 자동 적용 실패: " +
-                    $"{currentMapData.name}에는 EnvironmentVisualProfile이 있지만 " +
-                    "EnvironmentLightingController가 연결되어 있지 않습니다."
-                );
-            }
-
-            if (fireflyEnvironmentController != null)
-            {
-                fireflyEnvironmentController.ApplyProfile(
-                    visualProfile
-                );
-            }
-            else if (visualProfile.fireflies != null &&
-                     visualProfile.fireflies.enabled)
-            {
-                Debug.LogWarning(
-                    $"Firefly 환경 자동 적용 실패: " +
-                    $"{currentMapData.name}에는 Fireflies가 활성화되어 있지만 " +
-                    "FireflyEnvironmentController가 연결되어 있지 않습니다."
-                );
-            }
-
-
-            // <변경부분>
-            // Battle Scene / Event Scene 모두
-            // BackgroundManager의 동일한 Map Load 경로를 이용해
-            // Cloud Shadow 설정을 자동 적용한다.
-            if (cloudShadowController != null)
-            {
-                cloudShadowController.ApplyProfile(
-                    visualProfile
-                );
-            }
-            else if (visualProfile.cloudShadow != null &&
-                     visualProfile.cloudShadow.enabled)
-            {
-                Debug.LogWarning(
-                    $"Cloud Shadow 자동 적용 실패: " +
-                    $"{currentMapData.name}에는 Cloud Shadow가 활성화되어 있지만 " +
-                    "CloudShadowController가 연결되어 있지 않습니다."
-                );
-            }
-        }
+        // <변경부분>
+        // 기존 구현은 null 검사 내부의 return 뒤에 조명 적용 코드가 있어
+        // 실제 맵 로딩 시 실행되지 않았다.
+        // 공용 함수를 재사용해 낮·밤 조명, 구름, 반딧불을 모두 적용한다.
+        // VisualProfile이 비어 있으면 기존 Light2D 설정은 그대로 유지한다.
+        ApplyCurrentLightingProfile();
     }
 
     // <변경부분>
@@ -4879,6 +4897,10 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         //
         // Event Scene / Battle Scene 모두 BackgroundManager.LoadMapFromData()를
         // 공통으로 사용하므로 별도 Scene별 조명 코드를 만들 필요가 없다.
+
+        // <변경부분>
+        // RunStateManager가 늦게 초기화된 경우에도 이벤트 구독을 확보한다.
+        TrySubscribeDayNightState();
         ApplyEnvironmentVisualProfileFromCurrentMap();
 
 
