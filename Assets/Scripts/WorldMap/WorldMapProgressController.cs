@@ -1243,8 +1243,24 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
 
+
         // <변경부분>
-        // Battle과 Event의 Runtime 전달 경로를 완전히 분리한다.
+        // Node Type에 따라 Runtime 데이터 전달 경로를 분리한다.
+        //
+        // Battle / BossBattle:
+        // - StageBattleData
+        //
+        // Event / RuinsEvent:
+        // - EventSceneData
+        //
+        // Shop:
+        // - EventSceneData
+        // - ShopInventoryData
+        // - Shop Level
+        //
+        // Shop의 상품 목록과 레벨은
+        // MapNodeRuntime에 중복 저장하지 않고
+        // WorldMapData의 MapNodePlacementData를 사용한다.
         if (requiresBattleStageData)
         {
             WorldMapRuntimeState.BeginBattleNode(
@@ -1252,12 +1268,86 @@ public class WorldMapProgressController : MonoBehaviour
                 targetStageBattleData
             );
         }
+        else if (targetNodeType == MapNodeType.Shop)
+        {
+            // <변경부분>
+            // WorldMap Node Editor에서 지정한
+            // Shop 전용 상품 목록과 레벨을 읽는다.
+            ShopInventoryData targetShopInventoryData =
+                targetPlacement != null
+                    ? targetPlacement.shopInventoryData
+                    : null;
+
+            int targetShopLevel =
+                targetPlacement != null
+                    ? targetPlacement.shopLevel
+                    : 1;
+
+
+            // <변경부분>
+            // 일반 BeginEventNode() 대신
+            // Shop 전용 BeginShopNode()를 호출한다.
+            //
+            // 내부에서 EventSceneData / InventoryData /
+            // Shop Level의 유효성을 검증하고
+            // 다음 EventScene에 전달할 데이터를 등록한다.
+            bool shopRegistered =
+                WorldMapRuntimeState.BeginShopNode(
+                    targetEventSceneData,
+                    targetShopInventoryData,
+                    targetShopLevel
+                );
+
+
+            if (!shopRegistered)
+            {
+                // <변경부분>
+                // Shop 데이터 등록이 실패하면
+                // 잘못된 상태로 EventScene에 진입하지 않는다.
+                //
+                // Scene 이동을 취소하므로
+                // 기존 카메라 추적 및 이동 잠금을 해제한다.
+                Debug.LogWarning(
+                    "[WorldMapProgressController] " +
+                    $"Shop 노드 진입 실패: {targetNodeId}",
+                    this
+                );
+
+                isMovingMarker =
+                    false;
+
+                if (worldMapCameraController != null)
+                {
+                    worldMapCameraController
+                        .SetMarkerFollow(
+                            null,
+                            false
+                        );
+                }
+
+                yield break;
+            }
+
+
+            Debug.Log(
+                "[WorldMapProgressController] " +
+                $"Shop 노드 데이터 전달 완료: " +
+                $"{targetNodeId} / " +
+                $"Level {targetShopLevel} / " +
+                $"{targetShopInventoryData.name}",
+                this
+            );
+        }
         else if (requiresEventSceneData)
         {
+            // <변경부분>
+            // 일반 Event / RuinsEvent는
+            // 기존 이벤트 데이터 전달 방식을 유지한다.
             WorldMapRuntimeState.BeginEventNode(
                 targetEventSceneData
             );
         }
+
 
         // 새로운 노드에 도착했을 때만
         // Select → Absorb → Down_Absorb 애니메이션을 재생한다.
@@ -1272,6 +1362,7 @@ public class WorldMapProgressController : MonoBehaviour
                     waitBeforeSceneMove
                 );
         }
+
 
         if (string.IsNullOrWhiteSpace(
         targetSceneName))

@@ -32,6 +32,34 @@ public static class WorldMapRuntimeState
     // 선택된 이벤트 데이터를 유지한다.
     private static EventSceneData pendingEventSceneData;
 
+
+    // ============================================================
+    // Shop Node Runtime Data
+    // ============================================================
+
+    // <변경부분>
+    // WorldMap Shop Node에서 지정한 상품 후보 데이터.
+    //
+    // EventSceneData는 이벤트 연출과 배경을 담당하고,
+    // ShopInventoryData는 판매 가능한 상품 목록을 담당한다.
+    //
+    // ScriptableObject 원본을 변경하지 않는다.
+    private static ShopInventoryData pendingShopInventoryData;
+
+    // <변경부분>
+    // WorldMap Shop Node에서 직접 지정한 상점 레벨.
+    //
+    // 추후 월드맵 진행도에 따른 자동 레벨 결정 기능이
+    // 추가되더라도 전달 구조는 그대로 유지한다.
+    private static int pendingShopLevel = 1;
+
+    // <변경부분>
+    // 다음 EventScene에 전달할 상점 정보가 있는지 구분한다.
+    //
+    // 일반 Event / RuinsEvent에서는 false다.
+    private static bool hasPendingShopNodeData;
+
+
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
     private static bool hasPendingBattleWin;
 
@@ -186,6 +214,10 @@ public static class WorldMapRuntimeState
         // 남아 있지 않도록 정리한다.
         pendingEventSceneData =
             null;
+
+        // <변경부분>
+        // 이전 Shop 노드의 상품 정보도 함께 정리한다.
+        ClearPendingShopNodeData();
     }
 
 
@@ -207,7 +239,17 @@ public static class WorldMapRuntimeState
         }
 
         pendingEventSceneData =
-            eventSceneData;
+    eventSceneData;
+
+
+        // <변경부분>
+        // 일반 Event 진입 시 이전 상점 정보를 제거한다.
+        //
+        // Shop 진입 역시 이 함수를 먼저 호출하지만,
+        // 이후 BeginShopNode()에서 새로운 상점 정보를
+        // 등록하므로 충돌하지 않는다.
+        ClearPendingShopNodeData();
+
 
         // EventScene 진입은 Battle 진입이 아니므로
         // 이전 Battle 전달 상태가 잘못 남지 않도록 정리한다.
@@ -224,9 +266,145 @@ public static class WorldMapRuntimeState
             false;
 
         Debug.Log(
-            $"이벤트 노드 데이터 등록 완료: " +
-            $"{eventSceneData.name}"
+       $"이벤트 노드 데이터 등록 완료: " +
+       $"{eventSceneData.name}"
+   );
+    }
+
+
+    // ============================================================
+    // Shop Node Entry
+    // ============================================================
+
+    // <변경부분>
+    // WorldMap의 Shop 노드에서 EventScene으로 진입하기 전에
+    // 상점 이벤트와 상품 목록, 상점 레벨을 함께 등록한다.
+    //
+    // 일반 BeginEventNode()와 달리
+    // 상점용 상품 데이터까지 함께 전달한다.
+    //
+    // 이 함수는 런타임 데이터를 등록하는 역할만 한다.
+    // 실제 Scene 이동은 WorldMap의 기존 진입 코드에서 처리한다.
+    public static bool BeginShopNode(
+        EventSceneData eventSceneData,
+        ShopInventoryData shopInventoryData,
+        int shopLevel)
+    {
+        if (eventSceneData == null ||
+            shopInventoryData == null ||
+            shopLevel < 1)
+        {
+            Debug.LogWarning(
+                "[WorldMapRuntimeState] 상점 진입 실패: " +
+                "EventSceneData, ShopInventoryData 또는 " +
+                "Shop Level 설정을 확인해주세요."
+            );
+
+            return false;
+        }
+
+
+        // <변경부분>
+        // 잘못 지정된 레벨의 상품 목록을 전달하지 않는다.
+        if (shopInventoryData.GetLevelData(shopLevel) == null)
+        {
+            Debug.LogWarning(
+                "[WorldMapRuntimeState] 상점 진입 실패: " +
+                $"{shopInventoryData.name}에 " +
+                $"Shop Level {shopLevel} 데이터가 없습니다."
+            );
+
+            return false;
+        }
+
+
+        // <변경부분>
+        // 기존 이벤트 진입 처리 재사용.
+        //
+        // Battle 진입 상태 초기화 등 기존 기능을 보존한다.
+        BeginEventNode(
+            eventSceneData
         );
+
+
+        // <변경부분>
+        // Shop 노드 전용 상품 정보 저장.
+        pendingShopInventoryData =
+            shopInventoryData;
+
+        pendingShopLevel =
+            shopLevel;
+
+        hasPendingShopNodeData =
+            true;
+
+
+        Debug.Log(
+            "[WorldMapRuntimeState] 상점 데이터 등록 완료: " +
+            $"{eventSceneData.name} / " +
+            $"{shopInventoryData.name} / " +
+            $"Level {shopLevel}"
+        );
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // EventSceneController가 Shop 전용 데이터를
+    // 한 번 가져간 뒤 RuntimeState에서 제거한다.
+    //
+    // EventSceneData는 기존
+    // ConsumePendingEventSceneData()로 별도 수신한다.
+    //
+    // 반환값이 false이면 일반 Event로 취급할 수 있다.
+    public static bool TryConsumePendingShopNodeData(
+        out ShopInventoryData inventoryData,
+        out int shopLevel)
+    {
+        inventoryData =
+            null;
+
+        shopLevel =
+            1;
+
+
+        if (!hasPendingShopNodeData)
+        {
+            return false;
+        }
+
+
+        inventoryData =
+            pendingShopInventoryData;
+
+        shopLevel =
+            pendingShopLevel;
+
+
+        // <변경부분>
+        // 다음 EventScene에 이전 상점 데이터가
+        // 전달되지 않도록 소비 후 정리한다.
+        ClearPendingShopNodeData();
+
+        return inventoryData != null;
+    }
+
+
+    // <변경부분>
+    // 이전 Shop 노드의 전달 정보만 초기화한다.
+    //
+    // EventSceneData나 WorldMap 진행 상태는 변경하지 않는다.
+    private static void ClearPendingShopNodeData()
+    {
+        pendingShopInventoryData =
+            null;
+
+        pendingShopLevel =
+            1;
+
+        hasPendingShopNodeData =
+            false;
     }
 
 
@@ -293,6 +471,10 @@ public static class WorldMapRuntimeState
         // 남아 있지 않도록 정리한다.
         pendingEventSceneData =
             null;
+
+        // <변경부분>
+        // Direct Battle에도 Shop 데이터가 전달되지 않게 한다.
+        ClearPendingShopNodeData();
 
 
         // 새 Battle이므로 이전 승리 대기 상태도 초기화한다.
@@ -614,7 +796,11 @@ public static class WorldMapRuntimeState
             null;
 
         pendingEventSceneData =
-            null;
+       null;
+
+        // <변경부분>
+        // 새 런에서 이전 Shop 데이터를 사용하지 않도록 초기화한다.
+        ClearPendingShopNodeData();
 
         hasPendingBattleWin =
             false;

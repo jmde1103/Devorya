@@ -55,6 +55,34 @@ public class MapNodePlacementData
     // Battle / BossBattle 노드에서는 사용하지 않는다.
     public EventSceneData eventSceneData;
 
+
+    // ============================================================
+    // Shop Node Data
+    // ============================================================
+
+    [Header("Shop Node Data")]
+
+    // <변경부분>
+    // Shop 노드에서 판매할 아이템 후보 목록.
+    //
+    // 레벨별 BattleItemData / 가격 / 등장 가중치는
+    // ShopInventoryData ScriptableObject에서 관리한다.
+    //
+    // Event / RuinsEvent / Battle 노드에서는 사용하지 않는다.
+    public ShopInventoryData shopInventoryData;
+
+
+    // <변경부분>
+    // Shop 노드에서 사용할 상점 레벨.
+    //
+    // WorldMap Node Editor에서 직접 설정한다.
+    //
+    // 진행도에 따른 자동 계산은 아직 사용하지 않는다.
+    // ShopInventoryData에 동일한 레벨이 존재해야 한다.
+    [Min(1)]
+    public int shopLevel = 1;
+
+
     [Header("Initial State")]
     // 맵을 처음 시작했을 때
     // 해당 노드가 바로 선택 가능한지 여부

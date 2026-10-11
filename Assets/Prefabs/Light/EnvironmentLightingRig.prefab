@@ -132,7 +132,7 @@ MonoBehaviour:
   m_LightType: 4
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
-  m_Color: {r: 0.31010902, g: 0.28816098, b: 0.59119487, a: 1}
+  m_Color: {r: 0.22590685, g: 0.21704039, b: 0.38993704, a: 1}
   m_Intensity: 0.85
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
@@ -179,6 +179,7 @@ GameObject:
   - component: {fileID: 4975827627743828741}
   - component: {fileID: 815480652684249225}
   - component: {fileID: 6141722404799669704}
+  - component: {fileID: 4808259290337663503}
   m_Layer: 0
   m_Name: EnvironmentLightingRig
   m_TagString: Untagged
@@ -221,6 +222,22 @@ MonoBehaviour:
   cameraTarget: {fileID: 0}
   preserveInitialOffset: 1
 --- !u!114 &6141722404799669704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2457590126232961902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4cd5b19e7653c142bfb7085577a020f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentLightingController
+  globalAmbient: {fileID: 6395773882488420422}
+  characterFill: {fileID: 8462373973833334618}
+  sunKey: {fileID: 4434807248119214617}
+  skyFill: {fileID: 8125320256241508038}
+--- !u!114 &4808259290337663503
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -288,7 +305,7 @@ MonoBehaviour:
   m_Intensity: 1.8
   m_LightVolumeIntensity: 0.05
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b53f1a43110e0b0c
+  m_ApplyToSortingLayers: 00000000b53f1a43110e0b0c110e0b0c
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -372,7 +389,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000b53f1a43110e0b0c
+  m_ApplyToSortingLayers: 00000000b53f1a43110e0b0c110e0b0c
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0

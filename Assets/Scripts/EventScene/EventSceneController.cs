@@ -148,8 +148,53 @@ public class EventSceneController : MonoBehaviour
         // EventSceneData의 BackgroundMapData를
         // 직접 BackgroundManager에 적용한다.
         backgroundManager.LoadMapFromData(
-     eventSceneData.backgroundMapData
- );
+eventSceneData.backgroundMapData
+);
+
+        // <변경부분>
+        // WorldMap Shop 노드에서 전달한 상품 목록과 상점 레벨을
+        // ShopRoot의 진열대 생성 및 등록이 끝난 다음 적용한다.
+        //
+        // 일반 Event / RuinsEvent 및 Scene 단독 테스트에서는
+        // 대기 중인 Shop 데이터가 없으므로 기존 동작을 유지한다.
+        ShopInventoryData runtimeShopInventoryData;
+        int runtimeShopLevel;
+
+        if (WorldMapRuntimeState.TryConsumePendingShopNodeData(
+                out runtimeShopInventoryData,
+                out runtimeShopLevel))
+        {
+            // <변경부분>
+            // 배경 로드가 완료된 시점에서 활성 ShopController를 찾는다.
+            // ShopRoot에 ShopController가 연결되어 있어야 한다.
+            ShopController shopController =
+                FindFirstObjectByType<ShopController>();
+
+            if (shopController != null)
+            {
+                // <변경부분>
+                // ShopController의 기존 가중치 추첨 및 상품/가격
+                // 초기화 기능을 그대로 사용한다.
+                shopController.InitializeShopInventory(
+                    runtimeShopInventoryData,
+                    runtimeShopLevel
+                );
+
+                Debug.Log(
+                    "[EventSceneController] WorldMap Shop 데이터 적용 요청: " +
+                    $"{runtimeShopInventoryData.name} / Level {runtimeShopLevel}",
+                    this
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[EventSceneController] Shop 데이터가 전달되었지만 " +
+                    "활성 ShopController를 찾지 못했습니다.",
+                    this
+                );
+            }
+        }
 
         Debug.Log(
             $"Event Scene 세팅 완료: " +

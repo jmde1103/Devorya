@@ -3,6 +3,16 @@ using UnityEngine;
 
 // <변경부분> 로그라이크 런 전체 상태를 씬 이동 사이에서 유지하는 매니저
 // 현재 1차 구현에서는 플레이어 기물 상태만 저장한다.
+
+// <변경부분>
+// 런 전체에서 공통으로 사용하는 낮·밤 상태.
+// 실제 상태는 엔드 타이머 눈금으로 계산한다.
+public enum RunDayNightState
+{
+    Day = 0,
+    Night = 1
+}
+
 public class RunStateManager : MonoBehaviour
 {
     public static RunStateManager Instance { get; private set; }
@@ -24,6 +34,11 @@ public class RunStateManager : MonoBehaviour
     // UI는 타이머 데이터를 직접 저장하지 않고
     // 이 이벤트를 받은 뒤 RunStateManager의 현재 값을 다시 읽는다.
     public event System.Action EndTimerChanged;
+
+    // <변경부분>
+    // 현재 런의 낮·밤 상태가 실제로 바뀌었을 때만 알린다.
+    // 향후 환경 조명, 반딧불, 랜턴 등이 이 이벤트를 구독할 수 있다.
+    public event System.Action<RunDayNightState> DayNightStateChanged;
 
 
     [Header("Player Runtime Pieces")]
@@ -71,7 +86,14 @@ public class RunStateManager : MonoBehaviour
     // Battle / WorldMap 어디에서 시간이 진행되더라도
     // 동일하게 24눈금을 기준으로 한 사이클을 계산한다.
     public const int EndTimerTicksPerCycle =
-        24;
+     24;
+
+    // <변경부분>
+    // 0~11눈금은 낮, 12~23눈금은 밤으로 구분한다.
+    // 23에서 0으로 돌아오면 다시 낮이 된다.
+    public const int NightStartTick = 12;
+
+
 
 
     // <변경부분>
@@ -166,6 +188,19 @@ public class RunStateManager : MonoBehaviour
         }
     }
 
+    // <변경부분>
+    // 현재 눈금에서 낮·밤을 계산한다. 별도 상태를 저장하지 않으므로
+    // 씬 이동 후에도 시계와 낮·밤 상태가 어긋나지 않는다.
+    public RunDayNightState CurrentDayNightState
+    {
+        get
+        {
+            return currentEndTimerTick < NightStartTick
+                ? RunDayNightState.Day
+                : RunDayNightState.Night;
+        }
+    }
+
 
     // <변경부분>
     // Run 전체에서 공통으로 사용할
@@ -242,6 +277,12 @@ public class RunStateManager : MonoBehaviour
         }
 
 
+        // <변경부분>
+        // 눈금을 변경하기 전에 현재 낮·밤 상태를 기록한다.
+        // 이후 최종 상태와 비교해 실제 전환이 있을 때만 이벤트를 발생시킨다.
+        RunDayNightState previousDayNightState =
+            CurrentDayNightState;
+
         int totalTick =
             currentEndTimerTick +
             tickAmount;
@@ -280,11 +321,14 @@ public class RunStateManager : MonoBehaviour
         }
 
 
+        // <변경부분>
+        // 기존 타이머 로그에 현재 낮·밤 상태도 함께 표시한다.
         Debug.Log(
      $"런 엔드 타이머 진행: " +
      $"남은 사이클 {remainingEndTimerCycles}, " +
      $"현재 눈금 {currentEndTimerTick}/" +
-     $"{EndTimerTicksPerCycle}"
+     $"{EndTimerTicksPerCycle}, " +
+     $"시간대 {CurrentDayNightState}"
  );
 
 
@@ -292,6 +336,15 @@ public class RunStateManager : MonoBehaviour
         // 실제 엔드 타이머 값이 변경되었으므로
         // 현재 Scene의 타이머 UI에 즉시 갱신을 알린다.
         EndTimerChanged?.Invoke();
+
+        // <변경부분>
+        // 11→12(밤) 또는 23→0(낮) 등
+        // 최종 시간대가 달라졌을 때만 이벤트를 발생시킨다.
+        // 한 번에 여러 눈금을 진행하더라도 최종 상태를 기준으로 한다.
+        if (previousDayNightState != CurrentDayNightState)
+        {
+            DayNightStateChanged?.Invoke(CurrentDayNightState);
+        }
 
 
         return true;
@@ -743,6 +796,11 @@ public class RunStateManager : MonoBehaviour
     // <변경부분> 새 런 시작 또는 디버그 초기화용
     public void ClearRunState()
     {
+        // <변경부분>
+        // 초기화 전의 낮·밤 상태를 기억해 밤→낮 전환을 알린다.
+        RunDayNightState previousDayNightState =
+            CurrentDayNightState;
+
         // <변경부분> 새 런 시작 시 저장된 플레이어 기물 상태 초기화
         playerPieceRuntimeDataList.Clear();
 
@@ -790,5 +848,21 @@ public class RunStateManager : MonoBehaviour
         // Run 초기화로 엔드 타이머 값이 변경되었으므로
         // 현재 표시 중인 타이머 UI도 즉시 초기 상태로 갱신한다.
         EndTimerChanged?.Invoke();
+
+        // <변경부분>
+        // 밤 중에 새 런을 시작했다면 낮 전환을 구독자에게 알린다.
+        if (previousDayNightState != CurrentDayNightState)
+        {
+            // <변경부분>
+            // 구독자가 없어도 Console에서 시간대 전환을 확인할 수 있다.
+            Debug.Log(
+                $"[DayNight] 시간대 전환: " +
+                $"{previousDayNightState} → {CurrentDayNightState} / " +
+                $"눈금 {currentEndTimerTick}/{EndTimerTicksPerCycle}",
+                this
+            );
+
+            DayNightStateChanged?.Invoke(CurrentDayNightState);
+        }
     }
 }

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
 
 
 // <변경부분>
@@ -63,6 +65,34 @@ public class ShopController : MonoBehaviour
     //
     // 구매나 상품 선택 과정에서 재추첨되지 않게 한다.
     private bool hasInitializedShopInventory;
+
+
+    [Header("Shop Purchase UI")]
+
+    // <변경부분>
+    // EventScene의 우측 하단 구매 Button.
+    // 구매는 상품을 클릭하는 대신 이 버튼으로만 확정한다.
+    [SerializeField]
+    private Button purchaseButton;
+
+    // <변경부분>
+    // 구매 버튼이 처음 표시될 때 공용 팝업 글리치 연출을 재생한다.
+    // Button GameObject에 PopupOpenAnimator를 부착하여 사용한다.
+    [SerializeField]
+    private PopupOpenAnimator purchaseButtonOpenAnimator;
+
+
+    [Header("Selected Item Tooltip")]
+
+    // <변경부분>
+    // TooltipPopupUI의 Root Canvas 기준 고정 좌표.
+    // 상품 위치나 마우스 위치와 관계없이 같은 위치에 표시한다.
+    [SerializeField]
+    private Vector2 selectedItemTooltipCanvasPosition = Vector2.zero;
+
+    // <변경부분>
+    // 공용 TooltipPopupUI에서 상점이 표시한 Tooltip인지 추적한다.
+    private bool isSelectedItemTooltipVisible;
 
 
     [Header("Run HUD")]
@@ -134,14 +164,55 @@ public class ShopController : MonoBehaviour
 
     private void Awake()
     {
+        // <변경부분>
+        // Inspector에서 Button OnClick 연결을 빠뜨리더라도
+        // 구매 버튼이 ShopController의 구매 함수로 연결되게 한다.
+        if (purchaseButton != null)
+        {
+            purchaseButton.onClick.RemoveListener(
+                OnPurchaseButtonClicked
+            );
+
+            purchaseButton.onClick.AddListener(
+                OnPurchaseButtonClicked
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[ShopController] Purchase Button 참조가 비어 있습니다.",
+                this
+            );
+        }
+
         CacheShopItems();
 
         ClearSelection();
     }
 
 
+    // <변경부분>
+    // 런타임에 등록한 버튼 이벤트를 정리한다.
+    private void OnDestroy()
+    {
+        if (purchaseButton != null)
+        {
+            purchaseButton.onClick.RemoveListener(
+                OnPurchaseButtonClicked
+            );
+        }
+    }
+
+
     private void OnEnable()
     {
+        // <변경부분>
+        // 언어가 바뀌면 선택한 아이템의 Tooltip도 다시 생성한다.
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+
         CacheShopItems();
 
         ClearSelection();
@@ -150,6 +221,13 @@ public class ShopController : MonoBehaviour
 
     private void OnDisable()
     {
+        // <변경부분>
+        // ShopRoot 비활성화 시 선택 Tooltip을 정리한다.
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+
+        HideSelectedItemTooltip();
+
         // <변경부분>
         // ShopRoot / EventScene이 비활성화되는 과정에서는
         // 자식 ShopItemDisplay들도 이미 비활성 상태일 수 있다.
@@ -162,6 +240,10 @@ public class ShopController : MonoBehaviour
         // 다음 OnEnable()의 ClearSelection()에서 안전하게 처리한다.
         selectedItemDisplay =
             null;
+
+        // <변경부분>
+        // 다른 EventScene에 구매 버튼이 남지 않게 한다.
+        UpdatePurchaseButtonState();
     }
 
 
@@ -215,6 +297,7 @@ public class ShopController : MonoBehaviour
         //
         // 이전 상품은 이미 비활성화되었을 수 있으므로
         // SetSelected()를 호출하지 않는다.
+        HideSelectedItemTooltip();
         selectedItemDisplay = null;
 
 
@@ -616,14 +699,8 @@ public class ShopController : MonoBehaviour
     }
 
     // <변경부분>
-    // ShopItemDisplay에서 상품 Click을 전달받는다.
-    //
-    // 첫 클릭:
-    // - 상품 선택
-    // - 선택 Outline 활성화
-    //
-    // 같은 상품 재클릭:
-    // - 실제 구매 처리
+    // 상품 클릭은 선택과 정보 표시만 담당한다.
+    // 같은 상품을 다시 클릭해도 구매하지 않는다.
     public void HandleItemClicked(
         ShopItemDisplay clickedItem)
     {
@@ -633,40 +710,23 @@ public class ShopController : MonoBehaviour
             return;
         }
 
+        // <변경부분>
+        // 다른 상품으로 변경할 때만 기존 Outline을 정리한다.
+        if (selectedItemDisplay != clickedItem)
+        {
+            if (selectedItemDisplay != null)
+            {
+                selectedItemDisplay.SetSelected(false);
+            }
+
+            selectedItemDisplay = clickedItem;
+            selectedItemDisplay.SetSelected(true);
+        }
 
         // <변경부분>
-        // 이미 선택된 상품을 다시 클릭했다면
-        // 실제 구매 처리를 요청한다.
-        if (selectedItemDisplay ==
-            clickedItem)
-        {
-            TryPurchaseSelectedItem(
-                clickedItem
-            );
-
-            return;
-        }
-
-
-        // 기존 선택 상품이 있다면
-        // 먼저 Outline을 해제한다.
-        if (selectedItemDisplay != null)
-        {
-            selectedItemDisplay.SetSelected(
-                false
-            );
-        }
-
-
-        selectedItemDisplay =
-            clickedItem;
-
-
-        // 새 상품의 자동 Outline을 활성화한다.
-        selectedItemDisplay.SetSelected(
-            true
-        );
-
+        // 선택 정보는 화면의 고정 위치에 표시한다.
+        ShowSelectedItemTooltip();
+        UpdatePurchaseButtonState();
 
         Debug.Log(
             "[ShopController] " +
@@ -675,6 +735,200 @@ public class ShopController : MonoBehaviour
             $"{selectedItemDisplay.Price} Gold",
             selectedItemDisplay
         );
+    }
+
+    // ============================================================
+    // Shop Selection Tooltip / Purchase Button
+    // ============================================================
+
+    // <변경부분>
+    // EventScene 구매 Button의 OnClick에서 호출한다.
+    // 상품 클릭은 이 함수를 직접 호출하지 않는다.
+    public void OnPurchaseButtonClicked()
+    {
+        // <변경부분>
+        // 버튼의 클릭 이벤트가 실제로 전달되는지 확인한다.
+        Debug.Log(
+            "[ShopController] 구매 버튼 OnClick 수신",
+            this
+        );
+
+        if (selectedItemDisplay == null ||
+            selectedItemDisplay.HasItem == false)
+        {
+            Debug.LogWarning(
+                "[ShopController] 구매 취소: 선택된 판매 상품이 없습니다.",
+                this
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // EventSequence 잠금 또는 Collider 문제로 구매가
+        // 중단되는 경우 원인을 Console에서 확인할 수 있게 한다.
+        if (selectedItemDisplay.IsInteractionAllowed == false)
+        {
+            Debug.LogWarning(
+                "[ShopController] 구매 취소: EventScene 입력이 잠겨 있거나 " +
+                "상품 Collider가 비활성화되어 있습니다.",
+                this
+            );
+
+            return;
+        }
+
+        // 기존 RunState 구매 / SOLD / 실패 팝업 처리 재사용.
+        TryPurchaseSelectedItem(
+            selectedItemDisplay
+        );
+    }
+
+
+    // <변경부분>
+    // 선택된 아이템의 공용 TooltipViewData를 사용하되
+    // 마우스가 아닌 Root Canvas의 고정 좌표에 표시한다.
+    private void ShowSelectedItemTooltip()
+    {
+        if (selectedItemDisplay == null ||
+            selectedItemDisplay.HasItem == false)
+        {
+            HideSelectedItemTooltip();
+            return;
+        }
+
+        if (TooltipPopupUI.Instance == null)
+        {
+            Debug.LogWarning(
+                "[ShopController] TooltipPopupUI.Instance가 없습니다.",
+                this
+            );
+            return;
+        }
+
+        TooltipViewData viewData =
+            TooltipViewData.FromBattleItemData(
+                selectedItemDisplay.ItemData
+            );
+
+        if (viewData == null)
+        {
+            HideSelectedItemTooltip();
+            return;
+        }
+
+        // <변경부분>
+        // 기존 TooltipPopupUI의 FixedCanvasPosition 모드를
+        // 그대로 사용한다.
+        //
+        // 상품의 World Position이나 Pointer 좌표가 아닌
+        // Inspector에서 지정한 Canvas 좌표에 표시한다.
+        TooltipPopupUI.Instance.Show(
+            viewData,
+            Vector2.zero,
+            TooltipPositionMode.FixedCanvasPosition,
+            Vector2.zero,
+            selectedItemTooltipCanvasPosition,
+            Vector2.zero,
+            0f
+        );
+
+        isSelectedItemTooltipVisible = true;
+    }
+
+
+    // <변경부분>
+    // 구매 또는 선택 해제 시 상점 Tooltip을 정리한다.
+    private void HideSelectedItemTooltip()
+    {
+        if (isSelectedItemTooltipVisible &&
+            TooltipPopupUI.Instance != null)
+        {
+            TooltipPopupUI.Instance.Hide();
+        }
+
+        isSelectedItemTooltipVisible = false;
+    }
+    // <변경부분>
+    // 선택한 상품이 있을 때만 구매 버튼을 표시한다.
+    // TooltipPopupUI.Show() 직후 호출되므로 팝업과 같은 프레임에 등장한다.
+    // 같은 상품 재클릭이나 다른 상품 선택 때도 글리치 연출을 재생한다.
+    private void UpdatePurchaseButtonState()
+    {
+        if (purchaseButton == null)
+        {
+            return;
+        }
+
+        bool hasSelection =
+            selectedItemDisplay != null &&
+            selectedItemDisplay.HasItem;
+
+        bool wasButtonVisible =
+            purchaseButton.gameObject.activeSelf;
+
+        purchaseButton.interactable = hasSelection;
+
+        if (hasSelection == false)
+        {
+            if (wasButtonVisible)
+            {
+                purchaseButton.gameObject.SetActive(false);
+            }
+
+            return;
+        }
+
+        // <변경부분>
+        // 최초 선택 시에만 버튼을 활성화한다.
+        // 이미 보이는 버튼은 비활성화하지 않아 클릭 입력을 유지한다.
+        if (wasButtonVisible == false)
+        {
+            purchaseButton.gameObject.SetActive(true);
+        }
+
+        // <변경부분>
+        // Inspector에 다른 UI의 Animator를 잘못 연결한 경우에도
+        // 실제 구매 버튼에 부착된 PopupOpenAnimator를 사용한다.
+        PopupOpenAnimator buttonAnimator =
+            purchaseButton.GetComponent<PopupOpenAnimator>();
+
+        if (purchaseButtonOpenAnimator != buttonAnimator)
+        {
+            purchaseButtonOpenAnimator =
+                buttonAnimator;
+        }
+
+        // <변경부분>
+        // 버튼의 현재 표시 여부와 관계없이 상품을 클릭할 때마다
+        // TooltipPopupUI와 같은 프레임에 글리치 오픈 연출을 재생한다.
+        if (purchaseButtonOpenAnimator != null &&
+            purchaseButtonOpenAnimator.isActiveAndEnabled)
+        {
+            purchaseButtonOpenAnimator.PlayOpen();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[ShopController] 구매 버튼 GameObject에 활성화된 " +
+                "PopupOpenAnimator가 없습니다. 같은 오브젝트에 추가하고 " +
+                "Animation Data를 연결해주세요.",
+                this
+            );
+        }
+    }
+
+
+    // <변경부분>
+    // 실행 중 언어가 변경되면 현재 BattleItemData를 기준으로
+    // 선택한 아이템의 Tooltip 문자열을 다시 생성한다.
+    private void OnSelectedLocaleChanged(Locale selectedLocale)
+    {
+        if (selectedItemDisplay != null &&
+            selectedItemDisplay.HasItem)
+        {
+            ShowSelectedItemTooltip();
+        }
     }
 
 
@@ -821,6 +1075,11 @@ public class ShopController : MonoBehaviour
         selectedItemDisplay =
             null;
 
+        // <변경부분>
+        // 구매 성공한 상품의 정보창과 구매 버튼을 닫는다.
+        HideSelectedItemTooltip();
+        UpdatePurchaseButtonState();
+
 
         // <변경부분>
         // 구매 완료 상품을 SOLD 상태로 변경한다.
@@ -949,7 +1208,12 @@ public class ShopController : MonoBehaviour
 
 
         selectedItemDisplay =
-            null;
+    null;
+
+        // <변경부분>
+        // 상품 선택을 지우면 Tooltip과 구매 버튼도 함께 숨긴다.
+        HideSelectedItemTooltip();
+        UpdatePurchaseButtonState();
 
 
         // Scene 시작 시

@@ -158,9 +158,19 @@ public class ShopItemDisplay :
         price;
 
     public bool HasItem =>
-        itemData != null &&
-        itemData.itemType !=
-            BattleItemType.None;
+     itemData != null &&
+     itemData.itemType !=
+         BattleItemType.None;
+
+    // <변경부분>
+    // 상점 구매 버튼에서도 Event 연출 잠금 상태를 확인한다.
+    public bool IsInteractionAllowed =>
+        HasItem &&
+        gameObject.activeInHierarchy &&
+        interactionCollider != null &&
+        interactionCollider.enabled &&
+        eventSceneSequenceController != null &&
+        eventSceneSequenceController.IsPlayerInteractionLocked == false;
 
 
     private void Awake()
@@ -593,13 +603,15 @@ public class ShopItemDisplay :
         }
 
 
-        // Collider가 잠기는 순간
-        // 이미 열려 있던 Tooltip도 함께 정리하기 위해
-        // TooltipTrigger 활성 상태도 동일하게 맞춘다.
+        // <변경부분>
+        // 상점 상품은 이제 한 번 클릭할 때만 고정 Tooltip을 표시한다.
+        // 기존 TooltipTrigger의 Hover / Long Press 자동 표시를
+        // 비활성화해 선택 정보창이 포인터 이동으로 닫히지 않게 한다.
+        //
+        // 실제 상품 입력은 BoxCollider2D와 OnPointerClick이 담당한다.
         if (tooltipTrigger != null)
         {
-            tooltipTrigger.enabled =
-                interactionAllowed;
+            tooltipTrigger.enabled = false;
         }
     }
 

@@ -64,6 +64,21 @@ public class WorldMapNodeEditorWindow : EditorWindow
     [SerializeField]
     private EventSceneData newEventSceneData;
 
+
+    // <변경부분>
+    // 새로운 Shop 노드에서 사용할 레벨별 상품 목록.
+    [SerializeField]
+    private ShopInventoryData newShopInventoryData;
+
+
+    // <변경부분>
+    // 새로운 Shop 노드의 상점 레벨.
+    //
+    // 현재는 자동 계산하지 않고 직접 지정한다.
+    [SerializeField, Min(1)]
+    private int newShopLevel = 1;
+
+
     // 새 노드의 초기 해금 상태
     [SerializeField]
     private bool newNodeInitiallyUnlocked;
@@ -105,6 +120,15 @@ public class WorldMapNodeEditorWindow : EditorWindow
     // 선택된 이벤트 계열 노드의 EventSceneData를
     // 수정하기 위한 임시 값.
     private EventSceneData editEventSceneData;
+
+
+    // <변경부분>
+    // 선택된 Shop 노드의 상품 목록과
+    // 상점 레벨을 수정하기 위한 임시 값.
+    private ShopInventoryData editShopInventoryData;
+
+    private int editShopLevel = 1;
+
 
     // 선택된 노드의 초기 해금 상태를 수정하기 위한 임시 값
     private bool editInitiallyUnlocked;
@@ -370,16 +394,53 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 );
         }
         else if (RequiresEventSceneData(
-                     selectedNodeType))
+              selectedNodeType))
         {
             newEventSceneData =
                 (EventSceneData)EditorGUILayout.ObjectField(
-                    "Event Scene Data",
+                    selectedNodeType == MapNodeType.Shop
+                        ? "Shop Event Scene Data"
+                        : "Event Scene Data",
                     newEventSceneData,
                     typeof(EventSceneData),
                     false
                 );
         }
+
+
+        // <변경부분>
+        // Shop 노드에서만 상품 목록과 레벨 설정을 표시한다.
+        //
+        // 일반 Event / RuinsEvent에서는 표시하지 않는다.
+        if (selectedNodeType == MapNodeType.Shop)
+        {
+            EditorGUILayout.Space(5f);
+
+            EditorGUILayout.LabelField(
+                "Shop Node Settings",
+                EditorStyles.boldLabel
+            );
+
+
+            newShopInventoryData =
+                (ShopInventoryData)EditorGUILayout.ObjectField(
+                    "Shop Inventory Data",
+                    newShopInventoryData,
+                    typeof(ShopInventoryData),
+                    false
+                );
+
+
+            newShopLevel =
+                Mathf.Max(
+                    1,
+                    EditorGUILayout.IntField(
+                        "Shop Level",
+                        newShopLevel
+                    )
+                );
+        }
+
 
         newNodeInitiallyUnlocked =
             EditorGUILayout.Toggle(
@@ -551,16 +612,52 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 );
         }
         else if (RequiresEventSceneData(
-                     editNodeType))
+              editNodeType))
         {
             editEventSceneData =
                 (EventSceneData)EditorGUILayout.ObjectField(
-                    "Event Scene Data",
+                    editNodeType == MapNodeType.Shop
+                        ? "Shop Event Scene Data"
+                        : "Event Scene Data",
                     editEventSceneData,
                     typeof(EventSceneData),
                     false
                 );
         }
+
+
+        // <변경부분>
+        // 기존 Shop 노드를 선택했을 때도
+        // 저장된 상품 목록과 레벨을 수정할 수 있도록 한다.
+        if (editNodeType == MapNodeType.Shop)
+        {
+            EditorGUILayout.Space(5f);
+
+            EditorGUILayout.LabelField(
+                "Shop Node Settings",
+                EditorStyles.boldLabel
+            );
+
+
+            editShopInventoryData =
+                (ShopInventoryData)EditorGUILayout.ObjectField(
+                    "Shop Inventory Data",
+                    editShopInventoryData,
+                    typeof(ShopInventoryData),
+                    false
+                );
+
+
+            editShopLevel =
+                Mathf.Max(
+                    1,
+                    EditorGUILayout.IntField(
+                        "Shop Level",
+                        editShopLevel
+                    )
+                );
+        }
+
 
         editInitiallyUnlocked =
             EditorGUILayout.Toggle(
@@ -1027,12 +1124,14 @@ public class WorldMapNodeEditorWindow : EditorWindow
     // Initially Cleared 노드는 실제 Scene에 진입하지 않으므로
     // 콘텐츠 데이터 검사를 생략한다.
     private bool ValidateNodeEntrySettings(
-        MapNodeType nodeType,
-        string targetSceneName,
-        StageBattleData stageBattleData,
-        EventSceneData eventSceneData,
-        bool willBeInitiallyCleared,
-        string nodeContext)
+     MapNodeType nodeType,
+     string targetSceneName,
+     StageBattleData stageBattleData,
+     EventSceneData eventSceneData,
+     ShopInventoryData shopInventoryData,
+     int shopLevel,
+     bool willBeInitiallyCleared,
+     string nodeContext)
     {
         if (willBeInitiallyCleared)
         {
@@ -1073,8 +1172,8 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // Event / RuinsEvent / Shop은
         // 공용 EventScene에서 실제로 실행할 EventSceneData가 필요하다.
         if (RequiresEventSceneData(
-                nodeType) &&
-            eventSceneData == null)
+           nodeType) &&
+       eventSceneData == null)
         {
             Debug.LogWarning(
                 $"월드맵 노드 저장 실패: " +
@@ -1085,6 +1184,58 @@ public class WorldMapNodeEditorWindow : EditorWindow
             isValid =
                 false;
         }
+
+
+        // ========================================================
+        // Shop Node Validation
+        // ========================================================
+
+        // <변경부분>
+        // Shop 노드에서만 상품 후보와 레벨 정보를 검사한다.
+        if (nodeType == MapNodeType.Shop)
+        {
+            if (shopInventoryData == null)
+            {
+                Debug.LogWarning(
+                    $"월드맵 Shop 노드 저장 실패: " +
+                    $"{nodeContext} / " +
+                    "Shop Inventory Data가 연결되지 않았습니다."
+                );
+
+                isValid = false;
+            }
+
+
+            if (shopLevel < 1)
+            {
+                Debug.LogWarning(
+                    $"월드맵 Shop 노드 저장 실패: " +
+                    $"{nodeContext} / " +
+                    "Shop Level은 1 이상이어야 합니다."
+                );
+
+                isValid = false;
+            }
+
+
+            // <변경부분>
+            // 사용자가 직접 지정한 레벨이
+            // 실제 ShopInventoryData에 존재하는지 확인한다.
+            if (shopInventoryData != null &&
+                shopLevel >= 1 &&
+                shopInventoryData.GetLevelData(shopLevel) == null)
+            {
+                Debug.LogWarning(
+                    $"월드맵 Shop 노드 저장 실패: " +
+                    $"{nodeContext} / " +
+                    $"Shop Level {shopLevel} 데이터가 " +
+                    $"{shopInventoryData.name}에 없습니다."
+                );
+
+                isValid = false;
+            }
+        }
+
 
         return
             isValid;
@@ -1141,16 +1292,18 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // 잘못된 Scene / Battle 설정을 가진 노드가
         // WorldMapData에 저장되기 전에 차단한다.
         if (ValidateNodeEntrySettings(
-           selectedNodeType,
-           newTargetSceneName,
-           newStageBattleData,
-           newEventSceneData,
-           willBeInitiallyCleared,
-           string.IsNullOrWhiteSpace(
-               newNodeDisplayName)
-               ? "새 노드"
-               : newNodeDisplayName) ==
-       false)
+     selectedNodeType,
+     newTargetSceneName,
+     newStageBattleData,
+     newEventSceneData,
+     newShopInventoryData,
+     newShopLevel,
+     willBeInitiallyCleared,
+     string.IsNullOrWhiteSpace(
+         newNodeDisplayName)
+         ? "새 노드"
+         : newNodeDisplayName) ==
+ false)
         {
             return;
         }
@@ -1200,10 +1353,27 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 : null;
 
         newPlacement.eventSceneData =
-            RequiresEventSceneData(
-                selectedNodeType)
-                ? newEventSceneData
+       RequiresEventSceneData(
+           selectedNodeType)
+           ? newEventSceneData
+           : null;
+
+
+        // <변경부분>
+        // Shop 노드에서만 전용 상품 목록과 레벨을 저장한다.
+        //
+        // 다른 타입의 노드에는 ShopInventoryData 참조를
+        // 남기지 않는다.
+        newPlacement.shopInventoryData =
+            selectedNodeType == MapNodeType.Shop
+                ? newShopInventoryData
                 : null;
+
+        newPlacement.shopLevel =
+            selectedNodeType == MapNodeType.Shop
+                ? Mathf.Max(1, newShopLevel)
+                : 1;
+
 
         // 클리어 노드는 시작 지점으로 사용할 수 있도록
         // 처음부터 해금·클리어 상태로 저장한다.
@@ -1389,7 +1559,21 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // 이벤트 계열 노드의 EventSceneData도
         // 수정용 임시 값에 함께 복사한다.
         editEventSceneData =
-            selectedPlacement.eventSceneData;
+      selectedPlacement.eventSceneData;
+
+
+        // <변경부분>
+        // 기존 Shop 노드의 상품 목록과 레벨을
+        // 에디터 수정용 필드에 복사한다.
+        editShopInventoryData =
+            selectedPlacement.shopInventoryData;
+
+        editShopLevel =
+            Mathf.Max(
+                1,
+                selectedPlacement.shopLevel
+            );
+
 
         editInitiallyUnlocked =
             selectedPlacement.initiallyUnlocked;
@@ -1424,10 +1608,21 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // 이전에 선택했던 노드의
         // 콘텐츠 데이터 참조가 새 선택에 남지 않도록 초기화한다.
         editStageBattleData =
-            null;
+        null;
 
         editEventSceneData =
             null;
+
+
+        // <변경부분>
+        // 다른 노드를 선택할 때 이전 Shop 설정이
+        // 임시 편집값으로 남지 않도록 정리한다.
+        editShopInventoryData =
+            null;
+
+        editShopLevel =
+            1;
+
 
         editInitiallyUnlocked =
             false;
@@ -1513,16 +1708,18 @@ public class WorldMapNodeEditorWindow : EditorWindow
         // 수정된 값을 WorldMapData에 저장하기 전에
         // Scene / Battle 필수 데이터 누락을 검사한다.
         if (ValidateNodeEntrySettings(
-          editNodeType,
-          editTargetSceneName,
-          editStageBattleData,
-          editEventSceneData,
-          willBeInitiallyCleared,
-          string.IsNullOrWhiteSpace(
-              selectedPlacement.nodeId)
-              ? "선택 노드"
-              : selectedPlacement.nodeId) ==
-      false)
+  editNodeType,
+  editTargetSceneName,
+  editStageBattleData,
+  editEventSceneData,
+  editShopInventoryData,
+  editShopLevel,
+  willBeInitiallyCleared,
+  string.IsNullOrWhiteSpace(
+      selectedPlacement.nodeId)
+      ? "선택 노드"
+      : selectedPlacement.nodeId) ==
+false)
         {
             return;
         }
@@ -1566,10 +1763,28 @@ public class WorldMapNodeEditorWindow : EditorWindow
                 : null;
 
         selectedPlacement.eventSceneData =
-            RequiresEventSceneData(
-                editNodeType)
-                ? editEventSceneData
+          RequiresEventSceneData(
+              editNodeType)
+              ? editEventSceneData
+              : null;
+
+
+        // <변경부분>
+        // 선택한 노드가 Shop 타입일 때만
+        // ShopInventoryData와 Level을 원본에 저장한다.
+        //
+        // Shop에서 다른 Node Type으로 변경하면
+        // 이전 상점 데이터는 정리한다.
+        selectedPlacement.shopInventoryData =
+            editNodeType == MapNodeType.Shop
+                ? editShopInventoryData
                 : null;
+
+        selectedPlacement.shopLevel =
+            editNodeType == MapNodeType.Shop
+                ? Mathf.Max(1, editShopLevel)
+                : 1;
+
 
         bool isClearedNode =
             editNodeType ==
