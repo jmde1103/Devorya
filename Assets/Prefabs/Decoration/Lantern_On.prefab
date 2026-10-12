@@ -239,6 +239,8 @@ MonoBehaviour:
   rotationSwayDegrees: 1.5
   useUnscaledTime: 0
   restoreOnDisable: 1
+  nightOnly: 1
+  dayNightFadeDuration: 3
 --- !u!212 &1214143799598856366
 SpriteRenderer:
   serializedVersion: 2

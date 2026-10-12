@@ -15,7 +15,7 @@ MonoBehaviour:
   Width: 40
   Height: 40
   BackgroundOriginOffset: {x: 0, y: -8.23, z: 0}
-  VisualProfile: {fileID: 11400000, guid: 1217b62fcc367894b9b4bbfcfa73d777, type: 2}
+  VisualProfile: {fileID: 11400000, guid: 54b0106e10247c5469f25315bdb8dbd8, type: 2}
   NightVisualProfile: {fileID: 11400000, guid: 1217b62fcc367894b9b4bbfcfa73d777, type: 2}
   DecorationPalette: {fileID: 11400000, guid: 9d897d9041277f14a85653175169dac9, type: 2}
   Tiles:

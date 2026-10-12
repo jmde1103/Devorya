@@ -109,6 +109,14 @@ MonoBehaviour:
   actionConfirmHighlightColor: {r: 1, g: 0.19215687, b: 0.46666667, a: 1}
   useHighlightFade: 1
   highlightFadeDuration: 0.12
+  highlightOverlayMaterial: {fileID: 2100000, guid: 23de44c6a04c230498ec5496c7093056, type: 2}
+  highlightOverlayOpacity: 0.85
+  useHighlightSoftGlow: 1
+  highlightGlowScale: 1
+  highlightGlowOpacity: 0
+  useHighlightGlowPulse: 1
+  highlightGlowPulseAmount: 0.18
+  highlightGlowPulseSpeed: 5
 --- !u!60 &1283451463483802665
 PolygonCollider2D:
   m_ObjectHideFlags: 0

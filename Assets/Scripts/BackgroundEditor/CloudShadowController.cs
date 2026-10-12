@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 
@@ -73,6 +74,10 @@ public class CloudShadowController : MonoBehaviour
     // 모든 구름 Sprite에 공통 적용하기 위해 사용한다.
     private SpriteRenderer[] cloudSpriteRenderers;
 
+    // <변경부분>
+    // 낮/밤 구름 투명도 페이드를 관리한다.
+    private Coroutine cloudFadeCoroutine;
+
 
     private void Awake()
     {
@@ -87,8 +92,12 @@ public class CloudShadowController : MonoBehaviour
     // 같은 CloudShadowRig Prefab을
     // Battle Scene / Event Scene에서 공용으로 사용할 수 있다.
     public void ApplyProfile(
-        EnvironmentVisualProfile visualProfile)
+      EnvironmentVisualProfile visualProfile)
     {
+        // <변경부분>
+        // 씬 진입이나 에디터 수동 적용은 즉시 적용한다.
+        StopCloudFade();
+
         // Profile 자체가 없는 맵으로 변경될 경우
         // 이전 맵의 구름이 남지 않도록 비활성화한다.
         if (visualProfile == null ||
@@ -134,9 +143,150 @@ public class CloudShadowController : MonoBehaviour
         CacheCloudSpriteRenderers();
 
 
+        CacheCloudSpriteRenderers();
+
+
         ApplyOpacity(
             settings.opacity
         );
+    }
+
+
+    // <변경부분>
+    // 기존 구름 이동 로직을 유지하면서
+    // 낮/밤에 따른 구름 불투명도만 보간한다.
+    public void TransitionToProfile(
+        EnvironmentVisualProfile profile,
+        float duration)
+    {
+        bool targetEnabled =
+            profile != null &&
+            profile.cloudShadow != null &&
+            profile.cloudShadow.enabled;
+
+        StopCloudFade();
+
+        if (!Application.isPlaying || duration <= 0f)
+        {
+            ApplyProfile(profile);
+            return;
+        }
+
+        if (!gameObject.activeSelf && !targetEnabled)
+        {
+            ApplyProfile(profile);
+            return;
+        }
+
+        CacheCloudSpriteRenderers();
+
+        float startOpacity =
+            gameObject.activeSelf ? GetCurrentOpacity() : 0f;
+
+        float targetOpacity =
+            targetEnabled
+                ? Mathf.Clamp01(profile.cloudShadow.opacity)
+                : 0f;
+
+        if (targetEnabled)
+        {
+            moveDirection = profile.cloudShadow.moveDirection;
+            moveSpeed = profile.cloudShadow.moveSpeed;
+
+            gameObject.SetActive(true);
+            ApplyOpacity(startOpacity);
+        }
+
+        // <변경부분>
+        // 비활성 부모 아래에서는 코루틴을 시작하지 않는다.
+        if (!gameObject.activeInHierarchy)
+        {
+            ApplyProfile(profile);
+            return;
+        }
+
+        cloudFadeCoroutine = StartCoroutine(
+            FadeCloudOpacity(
+                profile,
+                startOpacity,
+                targetOpacity,
+                duration,
+                !targetEnabled
+            )
+        );
+    }
+
+    // <변경부분>
+    // 실행 중인 구름 페이드를 중단한다.
+    private void StopCloudFade()
+    {
+        if (cloudFadeCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(cloudFadeCoroutine);
+        cloudFadeCoroutine = null;
+    }
+
+    // <변경부분>
+    // 현재 구름 Sprite의 투명도를 반환한다.
+    private float GetCurrentOpacity()
+    {
+        if (cloudSpriteRenderers == null ||
+            cloudSpriteRenderers.Length == 0)
+        {
+            return 0f;
+        }
+
+        for (int i = 0; i < cloudSpriteRenderers.Length; i++)
+        {
+            if (cloudSpriteRenderers[i] != null)
+            {
+                return cloudSpriteRenderers[i].color.a;
+            }
+        }
+
+        return 0f;
+    }
+
+    // <변경부분>
+    // 지정한 시간 동안 구름 투명도를 보간한다.
+    private IEnumerator FadeCloudOpacity(
+        EnvironmentVisualProfile profile,
+        float startOpacity,
+        float targetOpacity,
+        float duration,
+        bool disableAtEnd)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t = Mathf.SmoothStep(
+                0f,
+                1f,
+                Mathf.Clamp01(elapsed / duration)
+            );
+
+            ApplyOpacity(
+                Mathf.Lerp(startOpacity, targetOpacity, t)
+            );
+
+            yield return null;
+        }
+
+        ApplyOpacity(targetOpacity);
+        cloudFadeCoroutine = null;
+
+        if (disableAtEnd)
+        {
+            // <변경부분>
+            // 완전히 투명해진 뒤 기존 Profile 처리로 Rig를 비활성화한다.
+            ApplyProfile(profile);
+        }
     }
 
 

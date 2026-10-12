@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -62,6 +63,10 @@ public class FireflyEnvironmentController : MonoBehaviour
         public Vector2 currentDirection;
 
         public Vector2 targetDirection;
+
+        // <변경부분>
+        // 개별 점멸 밝기를 기억해 전체 페이드와 독립적으로 유지한다.
+        public float currentVisibility;
     }
 
     [Header("Camera")]
@@ -108,6 +113,15 @@ public class FireflyEnvironmentController : MonoBehaviour
     private FireflyRuntimeState[]
         runtimeStates;
 
+    // <변경부분>
+    // 낮/밤 전체 반딧불 밝기.
+    // 기존 개별 랜덤 점멸과 곱하여 최종 밝기를 계산한다.
+    private float environmentVisibility = 1f;
+
+    // <변경부분>
+    // 현재 진행 중인 낮/밤 반딧불 페이드를 관리한다.
+    private Coroutine environmentFadeCoroutine;
+
 
     // 랜턴 / 횃불 / 모닥불 등
     // 반딧불이 피해야 할 외부 Point / Spot Light.
@@ -123,6 +137,12 @@ public class FireflyEnvironmentController : MonoBehaviour
     public void ApplyProfile(
         EnvironmentVisualProfile visualProfile)
     {
+        // <변경부분>
+        // 최초 씬 로드에서는 즉시 적용하고,
+        // 진행 중인 전체 환경 페이드는 정리한다.
+        StopEnvironmentFade();
+        environmentVisibility = 1f;
+
         if (visualProfile == null ||
             visualProfile.fireflies == null)
         {
@@ -179,6 +199,171 @@ public class FireflyEnvironmentController : MonoBehaviour
         else
         {
             ApplyEditorPreview();
+        }
+    }
+
+
+    // <변경부분>
+    // 전체 반딧불은 0~1로 부드럽게 변화시키되
+    // 각 반딧불의 이동과 랜덤 점멸은 유지한다.
+    //
+    // 낮으로 바뀔 때에는 밝기를 0까지 줄인 후
+    // 기존 ApplyProfile()을 이용해 Rig를 비활성화한다.
+    public void TransitionToProfile(
+        EnvironmentVisualProfile profile,
+        float duration)
+    {
+        bool targetVisible =
+            profile != null &&
+            profile.fireflies != null &&
+            profile.fireflies.enabled;
+
+        StopEnvironmentFade();
+
+        if (!Application.isPlaying || duration <= 0f)
+        {
+            ApplyProfile(profile);
+            return;
+        }
+
+        if (targetVisible)
+        {
+            if (currentSettings != profile.fireflies ||
+                !gameObject.activeSelf)
+            {
+                // <변경부분>
+                // 최초 야간 진입 시 밝기를 0에서 시작해 갑작스러운 표시를 방지한다.
+                bool wasRunning =
+                    currentSettings != null && gameObject.activeSelf;
+
+                float startBrightness =
+                    wasRunning ? environmentVisibility : 0f;
+
+                ApplyProfile(profile);
+                SetEnvironmentVisibility(startBrightness);
+            }
+
+            // <변경부분>
+            // 부모가 비활성 상태라면 Coroutine을 시작하지 않는다.
+            if (!gameObject.activeInHierarchy)
+            {
+                ApplyProfile(profile);
+                return;
+            }
+
+            environmentFadeCoroutine = StartCoroutine(
+                FadeEnvironmentVisibility(
+                    profile,
+                    1f,
+                    duration,
+                    false
+                )
+            );
+        }
+        else if (currentSettings != null && gameObject.activeSelf)
+        {
+            // <변경부분>
+            // 낮 전환 시 즉시 끄지 않고 현재 밝기에서 0까지 페이드한다.
+            environmentFadeCoroutine = StartCoroutine(
+                FadeEnvironmentVisibility(
+                    profile,
+                    0f,
+                    duration,
+                    true
+                )
+            );
+        }
+        else
+        {
+            ApplyProfile(profile);
+        }
+    }
+
+    // <변경부분>
+    // 현재 진행 중인 전체 환경 페이드만 중단한다.
+    private void StopEnvironmentFade()
+    {
+        if (environmentFadeCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(environmentFadeCoroutine);
+        environmentFadeCoroutine = null;
+    }
+
+    // <변경부분>
+    // 전체 밝기 배율을 부드럽게 변화시킨다.
+    private IEnumerator FadeEnvironmentVisibility(
+        EnvironmentVisualProfile targetProfile,
+        float targetVisibility,
+        float duration,
+        bool disableAtEnd)
+    {
+        float startVisibility = environmentVisibility;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t = Mathf.SmoothStep(
+                0f,
+                1f,
+                Mathf.Clamp01(elapsed / duration)
+            );
+
+            SetEnvironmentVisibility(
+                Mathf.Lerp(
+                    startVisibility,
+                    targetVisibility,
+                    t
+                )
+            );
+
+            yield return null;
+        }
+
+        SetEnvironmentVisibility(targetVisibility);
+        environmentFadeCoroutine = null;
+
+        if (disableAtEnd)
+        {
+            // <변경부분>
+            // 완전히 사라진 뒤 기존 Profile 로직으로 Rig를 종료한다.
+            ApplyProfile(targetProfile);
+        }
+    }
+
+    // <변경부분>
+    // 개별 반딧불의 현재 점멸 밝기는 그대로 두고,
+    // 전체 환경 밝기 배율만 변경한다.
+    private void SetEnvironmentVisibility(float value)
+    {
+        environmentVisibility = Mathf.Clamp01(value);
+
+        if (runtimeStates == null ||
+            fireflies == null ||
+            currentSettings == null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i < fireflies.Length && i < runtimeStates.Length;
+             i++)
+        {
+            FireflyEnvironmentUnit unit = fireflies[i];
+            FireflyRuntimeState state = runtimeStates[i];
+
+            if (unit != null && state != null)
+            {
+                ApplyVisibility(
+                    unit,
+                    state,
+                    state.currentVisibility
+                );
+            }
         }
     }
 
@@ -2128,10 +2313,12 @@ public class FireflyEnvironmentController : MonoBehaviour
         }
 
 
+        // <변경부분>
+        // 개별 점멸은 그대로 저장하고 전체 환경 페이드만 곱한다.
+        state.currentVisibility = Mathf.Clamp01(visibility);
+
         float safeVisibility =
-            Mathf.Clamp01(
-                visibility
-            );
+            state.currentVisibility * environmentVisibility;
 
 
         if (unit.spriteRenderer != null)

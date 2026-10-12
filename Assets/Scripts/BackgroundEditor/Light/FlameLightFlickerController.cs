@@ -1,3 +1,6 @@
+// <변경부분>
+// 낮·밤 광원 페이드 Coroutine 사용.
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -164,6 +167,28 @@ public class FlameLightFlickerController : MonoBehaviour
         true;
 
 
+    // <변경부분>
+    // 체크된 광원만 밤에 켜지고 낮에는 Intensity 0으로 유지한다.
+    // 기존 랜턴/횃불 Sprite와 GameObject는 비활성화하지 않는다.
+    [Header("Day Night Light")]
+    [SerializeField]
+    private bool nightOnly = false;
+
+    // <변경부분>
+    // 환경 조명 페이드와 동일한 시간으로 설정한다. 기본값 3초.
+    [SerializeField, Min(0f)]
+    private float dayNightFadeDuration = 3f;
+
+    // <변경부분>
+    // 기존 불꽃 흔들림 결과에 곱할 낮/밤 밝기 배율(0~1).
+    private float dayNightIntensityMultiplier = 1f;
+
+    // <변경부분>
+    // 진행 중인 페이드와 영속 런 매니저 이벤트 구독을 관리한다.
+    private Coroutine dayNightFadeCoroutine;
+    private RunStateManager subscribedRunStateManager;
+
+
     private float randomSeed;
 
 
@@ -194,11 +219,56 @@ public class FlameLightFlickerController : MonoBehaviour
         CacheOriginalValues();
 
         InitializeRandomSeed();
+
+        // <변경부분>
+        // Night Only 광원은 RunStateManager가 아직 준비되지 않았더라도
+        // 최초 활성화 시 기본적으로 밝기 0에서 시작한다.
+        //
+        // 원본 광량을 먼저 캐시한 뒤 적용하므로
+        // 밤이 되었을 때 원래 Intensity를 정상 복원할 수 있다.
+        if (Application.isPlaying && nightOnly)
+        {
+            SetDayNightIntensityImmediately(0f);
+        }
+
+        // <변경부분>
+        // RunStateManager가 준비되어 있다면 현재 낮/밤 상태를 즉시 반영한다.
+        // 밤이라면 저장된 원본 광량으로 복원하고,
+        // 낮이라면 Intensity 0을 유지한다.
+        TrySubscribeDayNightState();
+    }
+
+
+    // <변경부분>
+    // Scene Awake 순서상 RunStateManager가 늦게 준비되는 경우도 대응한다.
+    private void Start()
+    {
+        TrySubscribeDayNightState();
     }
 
 
     private void OnDisable()
     {
+        // <변경부분>
+        // Scene 이동이나 Decoration 삭제 시 영속 RunState 이벤트를 해제한다.
+        if (subscribedRunStateManager != null)
+        {
+            subscribedRunStateManager.DayNightStateChanged -=
+                HandleDayNightStateChanged;
+
+            subscribedRunStateManager = null;
+        }
+
+        // <변경부분>
+        // 비활성화된 오브젝트가 이전 페이드 상태를 보유하지 않도록 정리한다.
+        if (dayNightFadeCoroutine != null)
+        {
+            StopCoroutine(dayNightFadeCoroutine);
+            dayNightFadeCoroutine = null;
+        }
+
+        dayNightIntensityMultiplier = 1f;
+
         if (restoreOnDisable)
         {
             RestoreOriginalValues();
@@ -206,8 +276,174 @@ public class FlameLightFlickerController : MonoBehaviour
     }
 
 
+    // <변경부분>
+    // 활성화된 개별 Prefab이 RunStateManager 이벤트를 직접 구독한다.
+    // BackgroundMapData에는 Scene GameObject 참조를 저장하지 않는다.
+    private void TrySubscribeDayNightState()
+    {
+        if (!Application.isPlaying || !nightOnly)
+        {
+            return;
+        }
+
+        RunStateManager manager =
+            RunStateManager.Instance;
+
+        if (subscribedRunStateManager == manager)
+        {
+            return;
+        }
+
+        if (subscribedRunStateManager != null)
+        {
+            subscribedRunStateManager.DayNightStateChanged -=
+                HandleDayNightStateChanged;
+
+            subscribedRunStateManager = null;
+        }
+
+        if (manager == null)
+        {
+            return;
+        }
+
+        subscribedRunStateManager = manager;
+
+        subscribedRunStateManager.DayNightStateChanged +=
+            HandleDayNightStateChanged;
+
+        // <변경부분>
+        // 새 맵 로드 시에는 페이드하지 않고
+        // 현재 시간대의 광량을 즉시 적용한다.
+        SetDayNightIntensityImmediately(
+            manager.CurrentDayNightState == RunDayNightState.Night
+                ? 1f
+                : 0f
+        );
+    }
+
+
+    // <변경부분>
+    // 낮과 밤의 상태 변경 시 불꽃 Flicker는 유지하고
+    // 낮/밤 밝기 배율만 0~1 사이에서 전환한다.
+    private void HandleDayNightStateChanged(
+        RunDayNightState state)
+    {
+        float targetMultiplier =
+            state == RunDayNightState.Night
+                ? 1f
+                : 0f;
+
+        if (dayNightFadeCoroutine != null)
+        {
+            StopCoroutine(dayNightFadeCoroutine);
+            dayNightFadeCoroutine = null;
+        }
+
+        if (!isActiveAndEnabled ||
+            dayNightFadeDuration <= 0f)
+        {
+            SetDayNightIntensityImmediately(targetMultiplier);
+            return;
+        }
+
+        // <변경부분>
+        // 전환 도중 낮/밤이 다시 바뀌어도
+        // 현재 밝기에서 새로운 목표값까지 페이드한다.
+        dayNightFadeCoroutine = StartCoroutine(
+            FadeDayNightIntensity(targetMultiplier)
+        );
+    }
+
+
+    // <변경부분>
+    // 환경 조명과 동일한 SmoothStep 방식의 부드러운 페이드.
+    // TimeScale과 관계없이 실제 시간 기준으로 작동한다.
+    private IEnumerator FadeDayNightIntensity(
+        float targetMultiplier)
+    {
+        float startMultiplier =
+            dayNightIntensityMultiplier;
+
+        float elapsed = 0f;
+
+        float duration =
+            Mathf.Max(0.0001f, dayNightFadeDuration);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t = Mathf.SmoothStep(
+                0f,
+                1f,
+                Mathf.Clamp01(elapsed / duration)
+            );
+
+            dayNightIntensityMultiplier = Mathf.Lerp(
+                startMultiplier,
+                targetMultiplier,
+                t
+            );
+
+            yield return null;
+        }
+
+        dayNightIntensityMultiplier =
+            targetMultiplier;
+
+        dayNightFadeCoroutine = null;
+    }
+
+
+    // <변경부분>
+    // Scene 최초 진입 시 한 프레임 동안 밝은 랜턴이
+    // 보이지 않도록 현재 시간대의 광량을 즉시 설정한다.
+    private void SetDayNightIntensityImmediately(
+        float value)
+    {
+        dayNightIntensityMultiplier =
+            Mathf.Clamp01(value);
+
+        if (!hasCachedOriginalValues ||
+            targetLights == null)
+        {
+            return;
+        }
+
+        for (int i = 0;
+             i < targetLights.Length;
+             i++)
+        {
+            LightTarget target =
+                targetLights[i];
+
+            if (target == null ||
+                target.Light == null)
+            {
+                continue;
+            }
+
+            target.Light.intensity =
+                target.originalIntensity *
+                target.IntensityMultiplier *
+                dayNightIntensityMultiplier;
+        }
+    }
+
+
     private void Update()
     {
+        // <변경부분>
+        // 런 매니저가 늦게 생성되거나 교체된 경우
+        // 현재 시간대 동기화 및 이벤트 재구독을 수행한다.
+        if (nightOnly &&
+            Application.isPlaying &&
+            subscribedRunStateManager != RunStateManager.Instance)
+        {
+            TrySubscribeDayNightState();
+        }
+
         if (targetLights == null ||
             targetLights.Length == 0)
         {
@@ -369,10 +605,14 @@ public class FlameLightFlickerController : MonoBehaviour
             }
 
 
+            // <변경부분>
+            // 기존 Flicker 강도에 낮/밤 밝기 배율만 곱한다.
+            // Intensity가 0이어도 Sprite/Light GameObject는 활성 상태를 유지한다.
             target.Light.intensity =
                 target.originalIntensity *
                 intensityFactor *
-                target.IntensityMultiplier;
+                target.IntensityMultiplier *
+                dayNightIntensityMultiplier;
 
 
             if (useColorFlicker)

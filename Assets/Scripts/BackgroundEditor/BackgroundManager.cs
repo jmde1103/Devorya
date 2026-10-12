@@ -218,10 +218,23 @@ public class BackgroundManager : MonoBehaviour
 
     [SerializeField]
     private EnvironmentLightingController
-     environmentLightingController;
+  environmentLightingController;
+
+    // <변경부분>
+    // 게임 중 낮/밤이 변경될 때 적용할 페이드 시간(초).
+    // 최초 맵 로드는 기존 경로에서 즉시 적용한다.
+    [Header("Day Night Transition")]
+    [SerializeField, Min(0f)]
+    private float dayNightTransitionDuration = 3f;
+
+    // <변경부분>
+    // 에디터에서 조명 프로필을 저장/로드할 대상 시간대.
+    // Play 중에는 사용하지 않고 RunStateManager의 실제 시간대를 따른다.
+    [Header("Editor Lighting Profile")]
+    [SerializeField]
+    private RunDayNightState editorLightingProfileTime = RunDayNightState.Day;
 
 
- 
     // <변경부분>
     [Header("Environment Cloud Shadow")]
 
@@ -392,10 +405,38 @@ public class BackgroundManager : MonoBehaviour
             return;
         }
 
-        ApplyEnvironmentVisualProfileFromCurrentMap();
-
+        // <변경부분>
+        // 씬 최초 진입은 즉시 적용하고, 실제 시간대 변경 시에만 페이드한다.
         EnvironmentVisualProfile appliedProfile =
             currentMapData.GetVisualProfile(dayNightState);
+
+        if (appliedProfile != null)
+        {
+            if (environmentLightingController != null)
+            {
+                environmentLightingController.TransitionToProfile(
+                    appliedProfile, dayNightTransitionDuration);
+            }
+
+            if (fireflyEnvironmentController != null)
+            {
+                fireflyEnvironmentController.TransitionToProfile(
+                    appliedProfile, dayNightTransitionDuration);
+            }
+
+            if (cloudShadowController != null)
+            {
+                cloudShadowController.TransitionToProfile(
+                    appliedProfile, dayNightTransitionDuration);
+            }
+        }
+        else
+        {
+            // <변경부분>
+            // 프로필이 없는 맵은 기존 조명을 유지하고,
+            // 구름과 반딧불만 기존 정리 경로로 처리한다.
+            ApplyEnvironmentVisualProfileFromCurrentMap();
+        }
 
         Debug.Log(
             $"[DayNight] 환경 프로필 적용 요청: {dayNightState} / " +
@@ -4296,6 +4337,23 @@ public bool TryGetFreeDecorationPrefabPreviewData(
 
 
     // <변경부분>
+    // Editor 저장/로드용 Profile을 정확히 선택한다.
+    // 밤 Profile이 없을 때 낮 Profile로 대체하면 낮 Asset을 덮어쓸 위험이 있어
+    // 이 편집 경로에서는 GetVisualProfile()의 Night fallback을 사용하지 않는다.
+    private EnvironmentVisualProfile GetEditorLightingProfile()
+    {
+        if (currentMapData == null)
+        {
+            return null;
+        }
+
+        return editorLightingProfileTime == RunDayNightState.Night
+            ? currentMapData.NightVisualProfile
+            : currentMapData.VisualProfile;
+    }
+
+
+    // <변경부분>
     // 현재 BackgroundMapData에 연결된 EnvironmentVisualProfile을
     // EnvironmentLightingRig에 적용한다.
     //
@@ -4313,13 +4371,22 @@ public bool TryGetFreeDecorationPrefabPreviewData(
         }
 
         // <변경부분>
-        // 현재 24눈금 시계의 시간대에 맞춰 낮 또는 밤 Profile을 선택한다.
-        // NightVisualProfile이 없으면 BackgroundMapData에서 낮을 반환한다.
+        // Play 중 자동 적용은 기존 런 시계를 따르고,
+        // Edit Mode에서 저장한 맵을 로드/미리보기 할 때만 선택한 시간대를 따른다.
         EnvironmentVisualProfile visualProfile =
-            currentMapData.GetVisualProfile(
-                GetCurrentDayNightState()
-            );
+            Application.isPlaying
+                ? currentMapData.GetVisualProfile(GetCurrentDayNightState())
+                : GetEditorLightingProfile();
 
+        if (!Application.isPlaying && visualProfile == null)
+        {
+            Debug.LogWarning(
+                $"환경 조명 로드 실패: {currentMapData.name}의 " +
+                $"{editorLightingProfileTime} Profile이 연결되어 있지 않습니다.",
+                this
+            );
+            return;
+        }
 
         if (visualProfile == null)
         {
@@ -4441,6 +4508,18 @@ public bool TryGetFreeDecorationPrefabPreviewData(
     public void SaveCurrentLightingToProfile()
     {
 #if UNITY_EDITOR
+        // <변경부분>
+        // Play Mode의 중간 페이드/깜빡임 광량이 Profile Asset에
+        // 저장되지 않도록 편집 모드에서만 저장한다.
+        if (Application.isPlaying)
+        {
+            Debug.LogWarning(
+                "환경 조명 저장은 Edit Mode에서 진행해 주세요.",
+                this
+            );
+            return;
+        }
+
         if (currentMapData == null)
         {
             Debug.LogWarning(
@@ -4451,15 +4530,18 @@ public bool TryGetFreeDecorationPrefabPreviewData(
             return;
         }
 
+        // <변경부분>
+        // 선택한 낮/밤 Asset에만 조명값을 기록한다.
+        // 밤 프로필이 없더라도 낮 프로필에 잘못 저장하지 않는다.
         EnvironmentVisualProfile visualProfile =
-            currentMapData.VisualProfile;
+            GetEditorLightingProfile();
 
         if (visualProfile == null)
         {
             Debug.LogWarning(
-                $"환경 조명 저장 실패: " +
-                $"{currentMapData.name}에 " +
-                "EnvironmentVisualProfile을 먼저 연결하세요."
+                $"환경 조명 저장 실패: {currentMapData.name}의 " +
+                $"{editorLightingProfileTime} Profile을 먼저 연결해 주세요.",
+                this
             );
 
             return;
@@ -6506,10 +6588,204 @@ public class BackgroundManagerEditor : Editor
 
 
         EditorGUILayout.PropertyField(
-    serializedObject.FindProperty(
-        "environmentLightingController"
-    )
+ serializedObject.FindProperty(
+     "environmentLightingController"
+ )
 );
+
+        // <변경부분>
+        // 커스텀 Inspector에서도 낮/밤 환경 전환 시간을 조절할 수 있도록 표시한다.
+        EditorGUILayout.PropertyField(
+      serializedObject.FindProperty(
+          "dayNightTransitionDuration"
+      )
+  );
+
+        // <변경부분>
+        // Inspector에서 Day / Night 중 저장·로드할 대상을 선택한다.
+        // Play 중에는 실제 런 시간대의 Profile이 자동 적용된다.
+        SerializedProperty editingTimeProperty =
+            serializedObject.FindProperty("editorLightingProfileTime");
+
+        EditorGUI.BeginDisabledGroup(Application.isPlaying);
+
+        EditorGUILayout.PropertyField(
+            editingTimeProperty,
+            new GUIContent("프로필 편집 시간대")
+        );
+
+        EditorGUI.EndDisabledGroup();
+
+        BackgroundMapData lightingMapData =
+            serializedObject.FindProperty("currentMapData")
+                .objectReferenceValue as BackgroundMapData;
+
+        EnvironmentVisualProfile selectedLightingProfile = null;
+
+        if (lightingMapData != null)
+        {
+            selectedLightingProfile =
+                editingTimeProperty.enumValueIndex ==
+                    (int)RunDayNightState.Night
+                    ? lightingMapData.NightVisualProfile
+                    : lightingMapData.VisualProfile;
+        }
+
+        // <변경부분>
+        // 선택된 Profile Asset을 읽기 전용으로 표시한다.
+        EditorGUI.BeginDisabledGroup(true);
+
+        EditorGUILayout.ObjectField(
+            "선택된 Profile Asset",
+            selectedLightingProfile,
+            typeof(EnvironmentVisualProfile),
+            false
+        );
+
+        EditorGUI.EndDisabledGroup();
+
+        // <변경부분>
+        // 선택한 시간대의 Profile이 연결되지 않았다면 안내한다.
+        if (lightingMapData != null &&
+            selectedLightingProfile == null)
+        {
+            EditorGUILayout.HelpBox(
+                "선택한 시간대의 Profile Asset이 없습니다. " +
+                "BackgroundMapData에서 VisualProfile / NightVisualProfile을 연결하세요.",
+                MessageType.Warning
+            );
+        }
+
+        // <변경부분>
+        // 낮과 밤에 같은 Asset을 연결하면 양쪽 설정이 함께 바뀔 수 있다.
+        if (lightingMapData != null &&
+            lightingMapData.VisualProfile != null &&
+            lightingMapData.VisualProfile == lightingMapData.NightVisualProfile)
+        {
+            EditorGUILayout.HelpBox(
+                "낮과 밤에 동일한 EnvironmentVisualProfile Asset이 연결되어 있습니다. " +
+                "서로 다른 조명값을 저장하려면 두 개의 Asset을 사용하세요.",
+                MessageType.Warning
+            );
+        }
+
+        // <변경부분>
+        // 현재 선택된 Day / Night 환경 프로필에서
+        // 반딧불과 구름 그림자의 사용 여부를 직접 변경한다.
+        //
+        // BackgroundManager에는 별도의 ON/OFF 데이터를 저장하지 않고
+        // EnvironmentVisualProfile의 기존 enabled 값을 수정한다.
+        GUILayout.Space(8);
+
+        EditorGUILayout.LabelField(
+            "환경 연출 사용 설정",
+            EditorStyles.boldLabel
+        );
+
+        if (selectedLightingProfile != null)
+        {
+            // <변경부분>
+            // 선택된 환경 프로필의 현재 저장값을 가져온다.
+            bool currentFirefliesEnabled =
+                selectedLightingProfile.fireflies != null &&
+                selectedLightingProfile.fireflies.enabled;
+
+            bool currentCloudEnabled =
+                selectedLightingProfile.cloudShadow != null &&
+                selectedLightingProfile.cloudShadow.enabled;
+
+            // <변경부분>
+            // Play Mode에서는 에셋이 실수로 변경되지 않도록 막는다.
+            EditorGUI.BeginDisabledGroup(Application.isPlaying);
+
+            EditorGUI.BeginChangeCheck();
+
+            bool useFireflies = EditorGUILayout.Toggle(
+                "반딧불 사용",
+                currentFirefliesEnabled
+            );
+
+            bool useCloudShadow = EditorGUILayout.Toggle(
+                "구름 그림자 사용",
+                currentCloudEnabled
+            );
+
+            bool effectsChanged =
+                EditorGUI.EndChangeCheck();
+
+            EditorGUI.EndDisabledGroup();
+
+            if (effectsChanged && !Application.isPlaying)
+            {
+                // <변경부분>
+                // 변경 전 프로필 상태를 Undo에 기록한다.
+                Undo.RecordObject(
+                    selectedLightingProfile,
+                    "Change Environment Effects Enabled"
+                );
+
+                // <변경부분>
+                // 반딧불의 기존 설정값은 보존하고
+                // enabled 값만 변경한다.
+                if (selectedLightingProfile.fireflies != null)
+                {
+                    selectedLightingProfile.fireflies.enabled =
+                        useFireflies;
+                }
+                else if (useFireflies)
+                {
+                    // 예전 프로필에 설정 데이터가 없다면
+                    // 기본 설정을 생성한 후 사용하도록 한다.
+                    selectedLightingProfile.fireflies =
+                        new EnvironmentFireflySettings();
+
+                    selectedLightingProfile.fireflies.enabled =
+                        true;
+                }
+
+                // <변경부분>
+                // 구름의 기존 이동 속도, 방향, 투명도는 보존하고
+                // enabled 값만 변경한다.
+                if (selectedLightingProfile.cloudShadow != null)
+                {
+                    selectedLightingProfile.cloudShadow.enabled =
+                        useCloudShadow;
+                }
+                else if (useCloudShadow)
+                {
+                    // 예전 프로필에 설정 데이터가 없다면
+                    // 기본 설정을 생성한 후 사용하도록 한다.
+                    selectedLightingProfile.cloudShadow =
+                        new EnvironmentCloudShadowSettings();
+
+                    selectedLightingProfile.cloudShadow.enabled =
+                        true;
+                }
+
+                // <변경부분>
+                // 현재 선택한 Day 또는 Night 프로필 에셋을
+                // 변경 즉시 저장한다.
+                //
+                // BackgroundMapData와 Scene 오브젝트에는
+                // 중복된 설정값을 만들지 않는다.
+                EditorUtility.SetDirty(
+                    selectedLightingProfile
+                );
+
+                AssetDatabase.SaveAssets();
+            }
+        }
+        else
+        {
+            // <변경부분>
+            // 연결된 환경 프로필이 없는 경우
+            // 해당 프로필을 먼저 연결하도록 안내한다.
+            EditorGUILayout.HelpBox(
+                "선택한 시간대의 환경 프로필이 없습니다. " +
+                "BackgroundMapData에서 프로필을 먼저 연결해 주세요.",
+                MessageType.Info
+            );
+        }
 
 
         // <변경부분>
@@ -6534,9 +6810,28 @@ public class BackgroundManagerEditor : Editor
 
         GUILayout.Space(10);
 
+        // <변경부분>
+        // 낮/밤 환경 프로필 선택 후
+        // 반딧불과 구름 사용 여부는 체크박스에서 직접 저장한다.
+        //
+        // 기존 조명 프로필 저장 버튼은
+        // Light2D 값 저장 전용으로 유지한다.
+        EditorGUILayout.HelpBox(
+            "Day / Night 프로필을 선택한 후 반딧불과 구름 사용 여부를 변경할 수 있습니다.\n" +
+            "체크박스 변경 사항은 선택한 환경 프로필에 즉시 저장됩니다.\n" +
+            "Scene 미리보기에는 '조명 프로필 로드' 버튼을 사용하세요.\n" +
+            "'조명 프로필 저장' 버튼은 Light2D 설정만 저장합니다.",
+            MessageType.Info
+        );
+
+        // <변경부분>
+        // Play 중이거나 선택한 Profile이 없으면 Asset 저장/로드를 막는다.
+        EditorGUI.BeginDisabledGroup(
+            Application.isPlaying || selectedLightingProfile == null
+        );
 
         // 현재 Scene의 LightingRig 값을
-        // EnvironmentVisualProfile에 저장한다.
+        // 선택한 EnvironmentVisualProfile에 저장한다.
         if (GUILayout.Button(
                 "조명 프로필 저장"))
         {
@@ -6544,7 +6839,7 @@ public class BackgroundManagerEditor : Editor
         }
 
 
-        // EnvironmentVisualProfile의 값을
+        // 선택한 EnvironmentVisualProfile의 값을
         // 현재 Scene LightingRig로 다시 불러온다.
         if (GUILayout.Button(
                 "조명 프로필 로드"))
@@ -6552,6 +6847,7 @@ public class BackgroundManagerEditor : Editor
             manager.ApplyCurrentLightingProfile();
         }
 
+        EditorGUI.EndDisabledGroup();
 
         EditorGUILayout.EndVertical();
     }

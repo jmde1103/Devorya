@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45208ce0afc6fac45a3f734ffce3a069, type: 3}
-  m_Name: BattleItemData_Defence
+  m_Name: BattleItemData_Lv.1 Broken Shield
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemData
   itemType: 2
-  itemName: "\uBC29\uC5B4"
-  iconSprite: {fileID: 21300000, guid: 44d0fc541578f464e859c6692b4f413e, type: 3}
-  description: "\uC0C1\uD0DC\uC774\uC0C1 \uBC29\uC5B4\uB97C 1\uD134 \uBD80\uC5EC\uD55C\uB2E4"
+  itemName: "\uBD80\uB7EC\uC9C4 \uBC29\uD328"
+  iconSprite: {fileID: 21300000, guid: 59af9fd5b66524a4aa9ecbbae3350b26, type: 3}
+  description: "\uC0C1\uD0DC\uC774\uC0C1 <\uBC29\uC5B4>,<\uD589\uB3D9\uBD88\uAC00>
+    1\uD134 \uBD80\uC5EC"
   localizedItemName:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed

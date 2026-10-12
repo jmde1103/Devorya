@@ -53,6 +53,16 @@ public class BoardManager : MonoBehaviour
 
                 if (spriteRenderer != null) // 아이소메트리 타일 정렬 순서 지정
                 {
+                    // <변경부분>
+                    // 공용 Tile Prefab 자체는 변경하지 않는다.
+                    // BoardManager에서 생성한 전투 타일 인스턴스만
+                    // 전투 타일 전용 Sorting Layer로 설정한다.
+                    //
+                    // URP 2D Light의 Target Sorting Layers에서
+                    // Battle Tile만 선택해 전투 타일에만 조명을 적용할 수 있다.
+                    spriteRenderer.sortingLayerName = "Battle Tile";
+
+                    // 기존 전투 타일 간 정렬 순서는 그대로 유지한다.
                     spriteRenderer.sortingOrder = -(x + y);
                 }
 
