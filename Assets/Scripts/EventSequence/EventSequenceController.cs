@@ -865,6 +865,18 @@ public class EventSequenceController : MonoBehaviour
                     );
                 yield break;
 
+            // <변경부분>
+            // 기존 Battle 승리 흐름을 통해
+            // 리워드 팝업을 표시한다.
+            //
+            // CompleteSequence()는 호출하지 않으므로
+            // 이후 Wait / Dialogue Step이 계속 실행된다.
+            case EventSequenceStepType.ShowBattleRewardPopup:
+                ExecuteShowBattleRewardPopupStep(
+                    step
+                );
+                yield break;
+
             case EventSequenceStepType.CompleteSequence:
                 CompleteSequence();
                 yield break;
@@ -948,6 +960,73 @@ public class EventSequenceController : MonoBehaviour
                 yield break;
         }
     }
+
+
+    // <변경부분>
+    // Event Sequence 진행 중 기존 Battle 승리 흐름을 실행한다.
+    //
+    // 기존 BattleManager의 승리 처리 함수를 재사용하므로
+    // 기물 상태 저장, 회복 기물 지급, 드롭 보상 계산,
+    // 리워드 팝업 표시 방식은 변경하지 않는다.
+    //
+    // 중요:
+    // CompleteSequence()를 호출하지 않는다.
+    // 이 Step 이후의 Dialogue 등을 계속 실행하기 위해서다.
+    private void ExecuteShowBattleRewardPopupStep(
+        EventSequenceStepData step)
+    {
+        // <변경부분>
+        // Inspector 참조가 없는 경우 기존 방식대로 자동 검색.
+        if (battleManager == null)
+        {
+            battleManager =
+                FindObjectOfType<BattleManager>();
+        }
+
+        if (battleManager == null)
+        {
+            Debug.LogError(
+                "ShowBattleRewardPopup 실행 실패: " +
+                "BattleManager가 연결되지 않았습니다. / " +
+                $"{step.stepName}"
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 이미 전투가 종료됐다면 보상을 다시 지급하지 않는다.
+        //
+        // 일반 승패 판정이 먼저 실행되었거나
+        // 해당 Step이 중복 배치된 상황을 방어한다.
+        if (battleManager.IsBattleEnded)
+        {
+            Debug.LogWarning(
+                "ShowBattleRewardPopup 중복 실행 방지: " +
+                "이미 전투 종료 처리가 완료되었습니다. / " +
+                $"{step.stepName}"
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 기존 Battle 승리 처리 파이프라인 실행.
+        //
+        // BattleManager
+        // → BattleEndFlowController
+        // → BattleRewardPopupUI
+        //
+        // 여기서 보상은 한 번만 지급된다.
+        battleManager.CompleteBattleWinFromEvent();
+
+        Debug.Log(
+            "ShowBattleRewardPopup 실행 완료: " +
+            "전투 승리 및 리워드 팝업 표시를 요청했습니다. " +
+            "Event Sequence는 계속 진행합니다."
+        );
+    }
+
 
     // <변경부분>
     // Battle EventSequence의 SpeechBubble Step 실행.

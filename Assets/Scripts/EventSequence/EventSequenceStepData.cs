@@ -80,7 +80,17 @@ public enum EventSequenceStepType
     //
     // 기존 0~12 Serialized enum 값은 절대 변경하지 않고
     // 새 Step Type을 마지막에 append한다.
-    SpeechBubble
+    SpeechBubble,
+
+    // <변경부분>
+    // 기존 Battle 승리 / 보상 흐름을 실행하면서
+    // Event Sequence 자체는 종료하지 않는다.
+    //
+    // 리워드 팝업이 표시된 이후에도
+    // Wait / Dialogue 등 후속 Step을 실행할 수 있다.
+    //
+    // 기존 enum 값 0~13은 변경하지 않는다.
+    ShowBattleRewardPopup
 }
 
 

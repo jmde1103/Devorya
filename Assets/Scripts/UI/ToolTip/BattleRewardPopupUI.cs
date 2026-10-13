@@ -165,6 +165,17 @@ public class BattleRewardPopupUI : MonoBehaviour
             new List<RecoverySettlementEntry>();
 
 
+    // <변경부분>
+    // Battle Event Sequence가 진행 중일 때
+    // 리워드 팝업의 씬 이동을 차단하기 위한 참조.
+    //
+    // 일반 전투에서는 Sequence가 비활성 상태이므로
+    // 기존 보상 확인 기능에 영향을 주지 않는다.
+    [Header("Event Sequence")]
+    [SerializeField]
+    private EventSequenceController eventSequenceController;
+
+
     // <변경부분> 확인 버튼 클릭 후 맵 이동을 요청할 전투 종료 컨트롤러
     private BattleEndFlowController battleEndFlowController;
 
@@ -284,6 +295,61 @@ public class BattleRewardPopupUI : MonoBehaviour
         StopAbsorbSettlement();
     }
 
+
+    // <변경부분>
+    // Event Sequence가 진행 중이면
+    // 리워드 팝업에서 다음 Scene으로 이동할 수 없다.
+    //
+    // 기존 EventSequenceController의 런타임 상태를 사용하므로
+    // 별도의 중복 잠금 플래그를 만들지 않는다.
+    private bool IsEventSequenceBlockingRewardConfirm()
+    {
+        return
+            eventSequenceController != null &&
+            eventSequenceController.IsSequenceActive;
+    }
+
+
+    // <변경부분>
+    // 리워드 팝업이 열려 있는 동안
+    // Event Sequence 종료 상태를 확인한다.
+    //
+    // 정산과 Event Sequence가 모두 끝나면
+    // Click to continue 안내를 자동으로 복구한다.
+    private void Update()
+    {
+        if (popupRoot == null ||
+            !popupRoot.activeInHierarchy)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // Dialogue 등 Event Step이 진행 중이면
+        // 클릭 안내 문구도 보이지 않게 한다.
+        if (IsEventSequenceBlockingRewardConfirm())
+        {
+            if (continueTextBlinkCoroutine != null)
+            {
+                StopContinueTextBlink();
+            }
+
+            SetContinueTextAlpha(0f);
+            return;
+        }
+
+        // <변경부분>
+        // 흡수 정산도 완료되고 Event Sequence도 끝났다면
+        // 기존 클릭 안내 애니메이션을 복구한다.
+        if (!isAbsorbSettlementLocked &&
+            continueText != null &&
+            continueTextBlinkCoroutine == null)
+        {
+            StartContinueTextBlink();
+        }
+    }
+
+
     private void RefreshLocalizedTexts()
     {
         if (recoveryTitleText != null)
@@ -323,13 +389,21 @@ public class BattleRewardPopupUI : MonoBehaviour
     // 마지막 인자의 기본값은 0으로 유지하여
     // 기존 4개 인자 호출 코드와의 호환성을 보호한다.
     public void Show(
-        BattleEndFlowController owner,
-        List<BattleRecoveryRewardRuntimeData> recoveryRewards,
-        int goldAmount,
-        List<BattleRewardOptionRuntimeData> acquiredRewards,
-        int absorbCount = 0)
+    BattleEndFlowController owner,
+    List<BattleRecoveryRewardRuntimeData> recoveryRewards,
+    int goldAmount,
+    List<BattleRewardOptionRuntimeData> acquiredRewards,
+    int absorbCount = 0)
     {
         battleEndFlowController = owner;
+
+        // <변경부분>
+        // 명시적 참조가 없는 경우 현재 씬에서 자동 검색한다.
+        if (eventSequenceController == null)
+        {
+            eventSequenceController =
+                FindObjectOfType<EventSequenceController>();
+        }
 
         RefreshLocalizedTexts();
 
@@ -369,7 +443,20 @@ public class BattleRewardPopupUI : MonoBehaviour
             Mathf.Max(0, absorbCount);
 
         isAbsorbSettlementLocked =
-            safeAbsorbCount > 0;
+      safeAbsorbCount > 0;
+
+        // <변경부분>
+        // 흡수 정산 중이거나 Event Sequence 진행 중이면
+        // 팝업을 여는 순간부터 확인 버튼 입력을 차단한다.
+        //
+        // 마지막 Dialogue 클릭이 팝업 확인 클릭으로
+        // 이어지는 문제도 방지한다.
+        if (confirmButton != null)
+        {
+            confirmButton.interactable =
+                !isAbsorbSettlementLocked &&
+                !IsEventSequenceBlockingRewardConfirm();
+        }
 
         nextRecoverySettlementIndex = 0;
         recoverySettlementEntries.Clear();
@@ -1054,6 +1141,16 @@ public class BattleRewardPopupUI : MonoBehaviour
         // 중복 실행되지 않도록 먼저 종료한다.
         StopContinueTextBlink();
 
+        // <변경부분>
+        // 흡수 정산 또는 Event Sequence 진행 중에는
+        // Continue 안내를 표시하지 않는다.
+        if (isAbsorbSettlementLocked ||
+            IsEventSequenceBlockingRewardConfirm())
+        {
+            SetContinueTextAlpha(0f);
+            return;
+        }
+
         if (continueText == null)
         {
             return;
@@ -1231,11 +1328,13 @@ public class BattleRewardPopupUI : MonoBehaviour
     private void OnClickConfirm()
     {
         // <변경부분>
-        // 정산 중 클릭으로 다음 Scene으로 넘어가는 것을 방지한다.
+        // 흡수 정산과 Event Sequence가 모두 완료되어야
+        // 팝업 확인을 통해 Scene을 이동할 수 있다.
         //
-        // 확인 Button 자체는 활성 상태로 유지하므로
-        // 기존 팝업의 버튼/Tooltip 구성에는 영향을 주지 않는다.
-        if (isAbsorbSettlementLocked)
+        // Button.interactable 외에도 함수 내부에서 검사하여
+        // 다른 경로의 중복 호출까지 방어한다.
+        if (isAbsorbSettlementLocked ||
+            IsEventSequenceBlockingRewardConfirm())
         {
             return;
         }

@@ -1287,12 +1287,35 @@ public class EventSequenceDataEditor : Editor
                 );
 
                 ProcessEventStepHelpBox(
+    ref currentY,
+    contentRect,
+    "SpeechBubble의 Korean / English / Japanese Text는 " +
+    "아래 Speech Bubble Texts 영역에서 관리합니다.",
+    MessageType.Info,
+    2,
+    draw
+);
+
+                break;
+
+
+            // <변경부분>
+            // 보상 팝업을 표시한 뒤에도
+            // 다음 Event Step으로 진행하는 전용 Step.
+            //
+            // 추가 Serialized 필드가 필요하지 않으므로
+            // 안내 문구만 표시한다.
+            case EventSequenceStepType.ShowBattleRewardPopup:
+
+                ProcessEventStepHelpBox(
                     ref currentY,
                     contentRect,
-                    "SpeechBubble의 Korean / English / Japanese Text는 " +
-                    "아래 Speech Bubble Texts 영역에서 관리합니다.",
+                    "기존 Battle 승리 / 보상 처리를 실행하고 " +
+                    "리워드 팝업을 표시합니다.\n" +
+                    "Event Sequence는 종료하지 않으므로 " +
+                    "뒤에 Dialogue Step을 배치할 수 있습니다.",
                     MessageType.Info,
-                    2,
+                    3,
                     draw
                 );
 
