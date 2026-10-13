@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement; // <변경부분> 실제 복귀 Scene 기록
 
 // 씬을 이동하는 동안 유지되어야 하는
 // 월드맵의 간단한 런타임 진행 상태를 저장한다.
@@ -58,6 +59,63 @@ public static class WorldMapRuntimeState
     //
     // 일반 Event / RuinsEvent에서는 false다.
     private static bool hasPendingShopNodeData;
+
+
+    // <변경부분>
+    // 현재 이용 중인 상점 노드 ID.
+    // 상품 초기화용 Pending 데이터와 달리
+    // 상점을 나갈 때까지 보존한다.
+    private static string enteredShopNodeId;
+
+    // <변경부분>
+    // 상점 진입 직전 활성화되어 있던 실제 WorldMap Scene 이름.
+    private static string shopReturnSceneName;
+
+    // <변경부분>
+    // 상점에서 나간 이후 WorldMap 복귀 시
+    // 한 번만 처리할 상점 완료 노드 ID.
+    private static string pendingCompletedShopNodeId;
+
+    // <변경부분>
+    // ShopController가 복귀할 Scene 이름을 읽는다.
+    public static string ShopReturnSceneName =>
+        shopReturnSceneName;
+
+
+    // <변경부분>
+    // 현재 런에서 상점 노드별로 최초 진열 결과와 SOLD 상태를 보관한다.
+    // EventScene 재진입 때마다 다시 추첨하지 않도록 하는 SSOT.
+    // Key = 실제 WorldMap Scene 이름 + 상점 Node ID.
+    private static readonly Dictionary<string, List<ShopStockSlot>>
+        shopStockByNodeKey =
+            new Dictionary<string, List<ShopStockSlot>>();
+
+    // <변경부분>
+    // 진열대 한 칸의 확정된 상품·가격·판매 여부.
+    // ScriptableObject 원본 및 Scene 오브젝트 참조는 수정하지 않는다.
+    public sealed class ShopStockSlot
+    {
+        public BattleItemData ItemData { get; private set; }
+        public int Price { get; private set; }
+        public bool IsSoldOut { get; private set; }
+
+        public ShopStockSlot(BattleItemData itemData, int price)
+        {
+            ItemData = itemData;
+            Price = Mathf.Max(0, price);
+            IsSoldOut = false;
+        }
+
+        internal void MarkSoldOut()
+        {
+            IsSoldOut = true;
+        }
+    }
+
+    // <변경부분>
+    // 단독 EventScene 테스트에서는 null이고, WorldMap Shop에서는 Node ID.
+    public static string ActiveShopNodeId =>
+        enteredShopNodeId;
 
 
     // 현재 전투 승리 결과가 월드맵에 반영되지 않은 상태인지 확인한다.
@@ -250,6 +308,14 @@ public static class WorldMapRuntimeState
         // 등록하므로 충돌하지 않는다.
         ClearPendingShopNodeData();
 
+        // <변경부분>
+        // 다른 이벤트에 이전 상점 방문 정보가
+        // 잘못 남지 않도록 함께 정리한다.
+        //
+        // BeginShopNode()에서는 이 호출 이후
+        // 새 상점 방문 정보를 등록한다.
+        ClearActiveShopVisit();
+
 
         // EventScene 진입은 Battle 진입이 아니므로
         // 이전 Battle 전달 상태가 잘못 남지 않도록 정리한다.
@@ -319,6 +385,19 @@ public static class WorldMapRuntimeState
 
 
         // <변경부분>
+        // 월드맵에서 실제로 도착한 Shop 노드가
+        // RuntimeState에 등록되어 있는지 확인한다.
+        if (string.IsNullOrWhiteSpace(currentNodeId))
+        {
+            Debug.LogWarning(
+                "[WorldMapRuntimeState] 상점 진입 실패: " +
+                "현재 월드맵 노드 ID가 없습니다."
+            );
+
+            return false;
+        }
+
+        // <변경부분>
         // 기존 이벤트 진입 처리 재사용.
         //
         // Battle 진입 상태 초기화 등 기존 기능을 보존한다.
@@ -333,10 +412,22 @@ public static class WorldMapRuntimeState
             shopInventoryData;
 
         pendingShopLevel =
-            shopLevel;
+         shopLevel;
 
         hasPendingShopNodeData =
             true;
+
+        // <변경부분>
+        // 현재 위치는 WorldMapProgressController가
+        // 상점 노드 도착 시 이미 갱신한 값을 사용한다.
+        enteredShopNodeId =
+            currentNodeId;
+
+        // <변경부분>
+        // 아직 WorldMap Scene에 있는 시점이므로
+        // 실제 Scene 이름을 안전하게 기록할 수 있다.
+        shopReturnSceneName =
+            SceneManager.GetActiveScene().name;
 
 
         Debug.Log(
@@ -405,6 +496,195 @@ public static class WorldMapRuntimeState
 
         hasPendingShopNodeData =
             false;
+    }
+
+
+    // <변경부분>
+    // 현재 방문 중인 상점을 월드맵 Scene + Node ID로 식별한다.
+    // 서로 다른 상점의 재고가 섞이지 않도록 한다.
+    private static string GetActiveShopStockKey()
+    {
+        if (string.IsNullOrWhiteSpace(enteredShopNodeId) ||
+            string.IsNullOrWhiteSpace(shopReturnSceneName))
+        {
+            return null;
+        }
+
+        return shopReturnSceneName + "::" + enteredShopNodeId;
+    }
+
+    // <변경부분>
+    // 이미 확정한 상점 재고를 조회한다.
+    // 없으면 최초 방문이므로 false를 반환한다.
+    public static bool TryGetActiveShopStock(
+        out IReadOnlyList<ShopStockSlot> slots)
+    {
+        slots = null;
+
+        string key = GetActiveShopStockKey();
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return false;
+        }
+
+        List<ShopStockSlot> savedSlots;
+        if (!shopStockByNodeKey.TryGetValue(key, out savedSlots))
+        {
+            return false;
+        }
+
+        slots = savedSlots.AsReadOnly();
+        return true;
+    }
+
+    // <변경부분>
+    // 최초 방문에서 추첨한 상품·가격을 단 한 번 저장한다.
+    // 재방문 때 기존 저장 결과를 덮어쓰지 않는다.
+    public static bool TrySaveActiveShopStock(
+        List<ShopStockSlot> slots)
+    {
+        string key = GetActiveShopStockKey();
+        if (string.IsNullOrWhiteSpace(key) ||
+            slots == null ||
+            slots.Count == 0 ||
+            shopStockByNodeKey.ContainsKey(key))
+        {
+            return false;
+        }
+
+        shopStockByNodeKey.Add(
+            key,
+            new List<ShopStockSlot>(slots)
+        );
+
+        return true;
+    }
+
+    // <변경부분>
+    // 실제 구매 성공 후 해당 진열대만 SOLD로 기록한다.
+    // 상품과 가격을 확인하여 다른 진열대의 SOLD 오염을 방지한다.
+    public static bool TryMarkActiveShopStockSold(
+        int slotIndex,
+        BattleItemData expectedItem,
+        int expectedPrice)
+    {
+        string key = GetActiveShopStockKey();
+        List<ShopStockSlot> slots;
+
+        if (string.IsNullOrWhiteSpace(key) ||
+            !shopStockByNodeKey.TryGetValue(key, out slots) ||
+            slotIndex < 0 ||
+            slotIndex >= slots.Count)
+        {
+            return false;
+        }
+
+        ShopStockSlot slot = slots[slotIndex];
+        if (slot == null ||
+            slot.IsSoldOut ||
+            slot.ItemData != expectedItem ||
+            slot.Price != expectedPrice)
+        {
+            return false;
+        }
+
+        slot.MarkSoldOut();
+        return true;
+    }
+
+
+    // <변경부분>
+    // 상점 나가기 버튼에서 호출한다.
+    //
+    // 여기서는 실제 완료 결과만 기록한다.
+    // 월드맵 노드 해금은 WorldMap Scene에서 진행한다.
+    //
+    // Gold, Item, End Timer에는 영향을 주지 않는다.
+    public static bool TryCompleteShopVisit()
+    {
+        // <변경부분>
+        // 월드맵 상점에 정상적으로 진입하지 않았다면
+        // 임의의 노드를 완료 처리하지 않는다.
+        if (string.IsNullOrWhiteSpace(enteredShopNodeId) ||
+            string.IsNullOrWhiteSpace(shopReturnSceneName) ||
+            enteredShopNodeId != currentNodeId)
+        {
+            return false;
+        }
+
+        // <변경부분>
+        // WorldMap 복귀 시 소비할 완료 결과를 기록한다.
+        pendingCompletedShopNodeId =
+            enteredShopNodeId;
+
+        // <변경부분>
+        // 이미 종료한 상점을 다시 종료할 수 없도록
+        // 현재 이용 중인 방문 정보는 비운다.
+        ClearActiveShopVisit();
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // 상점을 나간 뒤 WorldMap으로 복귀할 때 호출한다.
+    //
+    // 상점은 반복 방문 가능한 노드이므로:
+    // - 현재 위치 유지
+    // - 상점 노드의 Unlocked 상태 유지
+    // - Cleared 상태는 변경하지 않음
+    //
+    // 다음 연결 노드의 해금은
+    // WorldMapProgressController가 처리한다.
+    public static string ApplyPendingShopExit()
+    {
+        if (string.IsNullOrWhiteSpace(
+                pendingCompletedShopNodeId))
+        {
+            return null;
+        }
+
+        // <변경부분>
+        // 상점 방문 종료 정보는 한 번만 소비한다.
+        string exitedShopNodeId =
+            pendingCompletedShopNodeId;
+
+        pendingCompletedShopNodeId =
+            null;
+
+        // <변경부분>
+        // 상점에 도착했을 때 기록한 현재 위치를 유지한다.
+        currentNodeId =
+            exitedShopNodeId;
+
+        // <변경부분>
+        // 상점은 다시 방문할 수 있어야 하므로
+        // Cleared 상태로 등록하지 않는다.
+        //
+        // 기존 clearedNodeIds.Add() 호출 제거.
+
+        // <변경부분>
+        // 상점 자체는 잠기지 않도록 Unlocked 상태를 유지한다.
+        // 이후 다른 노드에서 상점으로 돌아올 수 있다.
+        unlockedNodeIds.Add(
+            exitedShopNodeId
+        );
+
+        return exitedShopNodeId;
+    }
+
+
+    // <변경부분>
+    // 현재 진행 중인 상점 방문 정보만 정리한다.
+    //
+    // 이미 기록한 Pending 완료 결과는 건드리지 않는다.
+    private static void ClearActiveShopVisit()
+    {
+        enteredShopNodeId =
+            null;
+
+        shopReturnSceneName =
+            null;
     }
 
 
@@ -801,6 +1081,17 @@ public static class WorldMapRuntimeState
         // <변경부분>
         // 새 런에서 이전 Shop 데이터를 사용하지 않도록 초기화한다.
         ClearPendingShopNodeData();
+
+        // <변경부분>
+        // 새 런에서는 이전 상점 방문 및 완료 결과도 제거한다.
+        ClearActiveShopVisit();
+
+        pendingCompletedShopNodeId =
+     null;
+
+        // <변경부분>
+        // 새 런에서는 모든 상점의 고정 재고와 SOLD 기록을 초기화한다.
+        shopStockByNodeKey.Clear();
 
         hasPendingBattleWin =
             false;

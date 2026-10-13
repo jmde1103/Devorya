@@ -40,6 +40,20 @@ public class TooltipPopupUI : MonoBehaviour
     // 일반 Transform이 아니라 RectTransform으로 연결한다.
     [SerializeField] private RectTransform sectionParent;
 
+    // <변경부분>
+    // SectionParent를 기본 Tooltip 바로 아래에 배치할 때
+    // 기준으로 사용할 기본 Tooltip의 Background.
+    //
+    // Hierarchy의 CommonTooltipPopup/Background를 연결한다.
+    [SerializeField]
+    private RectTransform baseTooltipBackground;
+
+    // <변경부분>
+    // 기본 Tooltip과 첫 번째 Section 사이의 간격.
+    // 0이면 두 영역이 바로 이어진다.
+    [SerializeField, Min(0f)]
+    private float sectionGapBelowBase = 0f;
+
     // <변경부분> 매칭되는 프리팹이 없을 때 사용할 기본 Section 프리팹
     [SerializeField] private TooltipSectionItemUI defaultSectionPrefab;
 
@@ -178,14 +192,23 @@ public class TooltipPopupUI : MonoBehaviour
             );
 
         RefreshSections(
-     tooltipViewData.sections
- );
+      tooltipViewData.sections
+  );
 
         // <변경부분>
-        // 기존 SectionParent 단독 Offset은 더 이상 사용하지 않는다.
+        // Section 생성 및 높이 계산이 끝난 뒤
+        // SectionParent를 기본 Tooltip 바로 아래에 배치한다.
         //
-        // 기본 Tooltip과 Section 전체가
-        // PopupRoot 단위로 함께 움직이도록 처리한다.
+        // SectionParent 내부의 개별 Section은
+        // Vertical Layout Group이 자동 정렬한다.
+        AlignSectionParentBelowBaseTooltip();
+
+        // <변경부분>
+        // 기본 Tooltip과 모든 Section의 위치가 확정된 뒤
+        // 기존 커서 기준점 및 화면 경계 보정을 실행한다.
+        //
+        // 하단 아이콘에서는 마지막 Section의 실제 하단 Bounds가
+        // 기준점으로 사용되도록 기존 알고리즘을 유지한다.
         SetPopupPosition(
             screenPosition,
             positionMode,
@@ -303,9 +326,115 @@ public class TooltipPopupUI : MonoBehaviour
         // 이후 SetPopupPosition()에서 popupRoot 전체 Layout을 다시 계산하므로
         // SectionParent → PopupRoot 순서로 크기가 안정적으로 반영된다.
         LayoutRebuilder.ForceRebuildLayoutImmediate(
+      sectionParent
+  );
+    }
+
+
+    // <변경부분>
+    // 기본 Tooltip의 Background 바로 아래에
+    // SectionParent의 상단을 자동으로 맞춘다.
+    //
+    // Section이 몇 개이든 기본 Tooltip 바로 아래에서 시작하며,
+    // 개별 Section의 세로 배치는 Vertical Layout Group에 맡긴다.
+    //
+    // World Corner를 사용하므로 기존 RectTransform의
+    // Anchor, Pivot, Scale 설정을 직접 변경하지 않는다.
+    private void AlignSectionParentBelowBaseTooltip()
+    {
+        if (popupRoot == null ||
+            sectionParent == null ||
+            baseTooltipBackground == null)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // Section 및 기본 Tooltip의 최신 레이아웃을 확정한다.
+        Canvas.ForceUpdateCanvases();
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
             sectionParent
         );
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            popupRoot
+        );
+
+        // <변경부분>
+        // 기본 Tooltip Background와 SectionParent의
+        // 실제 월드 좌표상 네 모서리를 가져온다.
+        Vector3[] baseCorners = new Vector3[4];
+        Vector3[] sectionCorners = new Vector3[4];
+
+        baseTooltipBackground.GetWorldCorners(
+            baseCorners
+        );
+
+        sectionParent.GetWorldCorners(
+            sectionCorners
+        );
+
+        // <변경부분>
+        // 서로 다른 Anchor/Pivot을 사용하더라도
+        // SectionParent의 부모 좌표계로 통일하여 계산한다.
+        Transform parent = sectionParent.parent;
+
+        Vector3 baseBottomLeft =
+            parent.InverseTransformPoint(
+                baseCorners[0]
+            );
+
+        Vector3 baseBottomRight =
+            parent.InverseTransformPoint(
+                baseCorners[3]
+            );
+
+        Vector3 sectionTopLeft =
+            parent.InverseTransformPoint(
+                sectionCorners[1]
+            );
+
+        Vector3 sectionTopRight =
+            parent.InverseTransformPoint(
+                sectionCorners[2]
+            );
+
+        // <변경부분>
+        // 기본 Tooltip의 하단 중앙을 수평 정렬 기준으로 사용한다.
+        float baseCenterX =
+            (baseBottomLeft.x + baseBottomRight.x) * 0.5f;
+
+        float sectionCenterX =
+            (sectionTopLeft.x + sectionTopRight.x) * 0.5f;
+
+        // <변경부분>
+        // 기본 Tooltip의 하단과 SectionParent 상단 사이에
+        // Inspector에서 지정한 간격만 남긴다.
+        float baseBottomY =
+            (baseBottomLeft.y + baseBottomRight.y) * 0.5f;
+
+        float sectionTopY =
+            (sectionTopLeft.y + sectionTopRight.y) * 0.5f;
+
+        float gap =
+            Mathf.Max(0f, sectionGapBelowBase);
+
+        Vector2 alignmentOffset =
+            new Vector2(
+                baseCenterX - sectionCenterX,
+                baseBottomY - gap - sectionTopY
+            );
+
+        // <변경부분>
+        // 계산된 차이만큼 SectionParent를 이동한다.
+        //
+        // 매번 현재 실제 모서리 좌표를 다시 계산하므로
+        // 이전 Tooltip의 이동량이 누적되지 않는다.
+        sectionParent.anchoredPosition +=
+            alignmentOffset;
     }
+
 
     // <변경부분> Tooltip Popup 내부의 모든 UI Graphic을
     // Pointer Raycast 대상에서 제외한다.

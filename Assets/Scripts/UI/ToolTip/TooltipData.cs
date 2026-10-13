@@ -176,9 +176,14 @@ public class TooltipViewData
             : null;
     }
 
+    // <변경부분>
+    // 게임에 실제 적용되는 Status Effect 한 개당
+    // Tooltip Section 한 개를 같은 순서로 생성한다.
+    //
+    // 기존 단일 효과 Asset도 정상 표시한다.
     private static List<TooltipSectionData>
-     ResolveBattleItemTooltipSections(
-         BattleItemData itemData)
+        ResolveBattleItemTooltipSections(
+            BattleItemData itemData)
     {
         if (itemData == null)
         {
@@ -188,82 +193,125 @@ public class TooltipViewData
         List<TooltipSectionData> resolvedSections =
             new List<TooltipSectionData>();
 
-        // ApplyStatusEffectToSelectedPiece 아이템은
-        // 실제 게임 효과에 사용하는 applyStatusEffectData를
-        // 기본 Tooltip Section의 SSOT로 사용한다.
-        //
-        // 다른 BattleItemType에 오래된 applyStatusEffectData 값이
-        // 남아 있더라도 자동 Section을 만들지 않도록
-        // Item Type까지 함께 검사한다.
-        if (itemData.itemType ==
-                BattleItemType.ApplyStatusEffectToSelectedPiece &&
-            itemData.applyStatusEffectData != null)
+        // <변경부분>
+        // Additional Tooltip Sections에 동일한 상태효과가
+        // 중복 등록되어 있더라도 중복 출력하지 않기 위한 목록.
+        HashSet<StatusEffectData> autoSectionEffects =
+            new HashSet<StatusEffectData>();
+
+        if (itemData.useItemEffectList)
         {
-            TooltipSectionData appliedStatusEffectSection =
+            // <변경부분>
+            // 목록형 아이템은 실제 Item Effects가 SSOT.
+            //
+            // 상태효과가 2개라면 자동 Section도 2개 생성한다.
+            // Change Piece 등 다른 효과 종류는 Section을 생성하지 않는다.
+            if (itemData.itemEffects != null)
+            {
+                for (int i = 0;
+                     i < itemData.itemEffects.Count;
+                     i++)
+                {
+                    BattleItemEffectEntry effect =
+                        itemData.itemEffects[i];
+
+                    if (effect == null ||
+                        effect.effectType !=
+                            BattleItemEffectType.ApplyStatusEffect ||
+                        effect.statusEffectData == null)
+                    {
+                        continue;
+                    }
+
+                    // <변경부분>
+                    // 각 상태효과의 개별 Tooltip 색상 적용.
+                    //
+                    // 아이콘, 이름, 설명은 해당 StatusEffectData의
+                    // Localization 값을 사용한다.
+                    TooltipSectionData section =
+                        new TooltipSectionData
+                        {
+                            sectionColor =
+                                effect.statusEffectTooltipSectionColor
+                        }
+                        .CreateResolvedCopy(
+                            effect.statusEffectData
+                        );
+
+                    if (section != null)
+                    {
+                        resolvedSections.Add(
+                            section
+                        );
+
+                        autoSectionEffects.Add(
+                            effect.statusEffectData
+                        );
+                    }
+                }
+            }
+        }
+        else if (itemData.itemType ==
+                     BattleItemType.ApplyStatusEffectToSelectedPiece &&
+                 itemData.applyStatusEffectData != null)
+        {
+            // <변경부분>
+            // 아직 목록형으로 전환하지 않은 기존 아이템은
+            // 기존 단일 상태효과 Tooltip을 그대로 사용한다.
+            TooltipSectionData section =
                 new TooltipSectionData
                 {
                     sectionColor =
-                        itemData
-                            .applyStatusEffectTooltipSectionColor
+                        itemData.applyStatusEffectTooltipSectionColor
                 }
                 .CreateResolvedCopy(
                     itemData.applyStatusEffectData
                 );
 
-            if (appliedStatusEffectSection != null)
+            if (section != null)
             {
                 resolvedSections.Add(
-                    appliedStatusEffectSection
+                    section
+                );
+
+                autoSectionEffects.Add(
+                    itemData.applyStatusEffectData
                 );
             }
         }
 
-        // BattleItemData.tooltipSections는 이제
-        // 실제 적용 효과와 별개의 "추가 Tooltip Section" 목록이다.
+        // <변경부분>
+        // 실제 게임 효과와 별개로 설정한 보충 Tooltip을 추가한다.
         //
-        // 다른 Skill과 동일하게 각 StatusEffectData를
-        // 자유롭게 연결할 수 있다.
+        // 자동 생성된 효과와 중복된 StatusEffectData는
+        // 다시 표시하지 않는다.
         if (itemData.tooltipSections != null)
         {
             for (int i = 0;
                  i < itemData.tooltipSections.Count;
                  i++)
             {
-                TooltipSectionData sourceSection =
+                TooltipSectionData extra =
                     itemData.tooltipSections[i];
 
-                if (sourceSection == null ||
-                    sourceSection.statusEffectData == null)
+                if (extra == null ||
+                    extra.statusEffectData == null ||
+                    autoSectionEffects.Contains(
+                        extra.statusEffectData
+                    ))
                 {
                     continue;
                 }
 
-                // 이전 Asset에 실제 적용 상태효과를
-                // Tooltip Section에도 중복 연결해 두었던 데이터가
-                // 남아 있을 수 있다.
-                //
-                // 실제 효과와 동일한 StatusEffectData는
-                // 위에서 이미 자동 생성되므로 중복 표시하지 않는다.
-                if (itemData.itemType ==
-                        BattleItemType.ApplyStatusEffectToSelectedPiece &&
-                    itemData.applyStatusEffectData != null &&
-                    sourceSection.statusEffectData ==
-                        itemData.applyStatusEffectData)
+                TooltipSectionData section =
+                    extra.CreateResolvedCopy();
+
+                if (section != null)
                 {
-                    continue;
+                    resolvedSections.Add(
+                        section
+                    );
                 }
-
-                TooltipSectionData resolvedSection =
-                    sourceSection.CreateResolvedCopy();
-
-                if (resolvedSection == null)
-                {
-                    continue;
-                }
-
-                resolvedSections.Add(
-                    resolvedSection
-                );
             }
         }
 

@@ -372,6 +372,30 @@ public class WorldMapProgressController : MonoBehaviour
             );
         }
 
+        // <변경부분>
+        // 상점 나가기 후 WorldMap으로 복귀한 경우
+        // 해당 상점의 방문 종료 결과를 가져온다.
+        //
+        // 상점 노드는 Cleared 처리하지 않고,
+        // 연결된 다음 노드만 해금한다.
+        string exitedShopNodeId =
+            WorldMapRuntimeState
+                .ApplyPendingShopExit();
+
+        if (string.IsNullOrWhiteSpace(
+                exitedShopNodeId) ==
+            false)
+        {
+            // <변경부분>
+            // 기존 연결 노드 해금 함수를 그대로 재사용한다.
+            //
+            // 상점 노드 자체는 Cleared되지 않으므로
+            // 이후 다시 방문할 수 있다.
+            UnlockConnectedNodes(
+                exitedShopNodeId
+            );
+        }
+
         // 런타임 위치가 없다면
         // Initially Cleared로 설정된 시작 노드를 찾는다.
         if (string.IsNullOrWhiteSpace(
@@ -692,14 +716,26 @@ public class WorldMapProgressController : MonoBehaviour
                 continue;
             }
 
-            // 현재 노드가 처음부터 클리어 상태인지,
-            // 또는 런타임에서 전투를 완료한 노드인지 먼저 확인한다.
+            // <변경부분>
+            // Shop 타입은 반복 이용할 수 있는 노드이므로
+            // Cleared 스타일을 적용하지 않는다.
+            bool isShopNode =
+                runtimeNode.GetNodeType() ==
+                MapNodeType.Shop;
+
+            // <변경부분>
+            // 상점이 아닌 노드만 기존 Cleared 규칙을 적용한다.
+            //
+            // Battle / BossBattle 등의 클리어 판정은 유지한다.
             bool isCleared =
-                placement.initiallyCleared ||
-                WorldMapRuntimeState
-                    .IsNodeCleared(
-                        placement.nodeId
-                    );
+                !isShopNode &&
+                (
+                    placement.initiallyCleared ||
+                    WorldMapRuntimeState
+                        .IsNodeCleared(
+                            placement.nodeId
+                        )
+                );
 
             // 클리어된 노드는 이미 플레이어가 방문한 구역이므로
             // 별도의 Unlock 기록이 없어도 항상 이동 가능 상태로 처리한다.
@@ -797,8 +833,31 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
         if (currentNodeId ==
-            targetNodeId)
+           targetNodeId)
         {
+            // <변경부분>
+            // 현재 노드가 Shop이면 이동하지 않고 상점 Scene에 재입장한다.
+            // 실수로 상점을 나갔더라도 다른 노드로 이동할 필요가 없다.
+            if (targetNode.GetNodeType() == MapNodeType.Shop)
+            {
+                // <변경부분>
+                // 이미 위치한 노드이므로 Connection 검색과 이동 Tick은 생략한다.
+                // 기존 상점 진입·Scene 전환 코루틴을 재사용한다.
+                ClearSelectableNodePulses();
+
+                StartCoroutine(
+                    MoveMarkerToNodeRoutine(
+                        targetNode,
+                        null,
+                        false,
+                        true // <변경부분> 현재 Shop 노드 재입장
+                    )
+                );
+
+                return;
+            }
+
+            // Shop 이외의 현재 노드는 기존 클릭 규칙을 유지한다.
             Debug.Log(
                 "현재 위치한 노드입니다."
             );
@@ -950,16 +1009,20 @@ public class WorldMapProgressController : MonoBehaviour
     // 미클리어 노드에 도착하면 기존처럼 전투 씬으로 진입하고,
     // 이미 클리어된 노드에 도착하면 위치만 변경한 뒤 월드맵에 남는다.
     private IEnumerator MoveMarkerToNodeRoutine(
-    MapNodeRuntime targetNode,
-    MapNodeConnectionData connection,
-    bool useReverseRoute)
+  MapNodeRuntime targetNode,
+  MapNodeConnectionData connection,
+  bool useReverseRoute,
+  bool isCurrentShopReentry = false) // <변경부분> 기존 호출과 호환되는 선택 인자
     {
         isMovingMarker =
             true;
 
-        // 마커가 경로 이동을 시작하는 순간부터
-        // 현재 확대 배율을 잠그고 카메라가 마커를 따라가게 한다.
-        if (worldMapCameraController != null)
+        // <변경부분>
+        // 현재 위치의 Shop 재입장에는 경로 이동이 없으므로
+        // 마커 추적을 새로 시작하지 않는다.
+        // 일반 노드 이동의 기존 카메라 추적은 유지한다.
+        if (!isCurrentShopReentry &&
+            worldMapCameraController != null)
         {
             worldMapCameraController
                 .SetMarkerFollow(
@@ -1084,15 +1147,30 @@ public class WorldMapProgressController : MonoBehaviour
         //
         // 시작 노드처럼 Target Scene Name이 없는 노드도
         // 하나의 기준이라도 클리어 상태라면 전투 씬 검사 없이 이동을 완료한다.
+        // <변경부분>
+        // 상점 노드는 이전에 방문했더라도
+        // 다시 EventScene에 진입할 수 있어야 한다.
+        bool isShopTarget =
+            targetNode.GetNodeType() ==
+            MapNodeType.Shop;
+
+        // <변경부분>
+        // Shop을 제외한 노드만 기존 Cleared 판정을 적용한다.
+        //
+        // 따라서 Shop에서는 방문 이력과 관계없이
+        // 아래의 EventScene 진입 로직을 다시 실행할 수 있다.
         bool isTargetNodeCleared =
-    targetNode.IsCleared() ||
-    WorldMapRuntimeState.IsNodeCleared(
-        targetNodeId
-    ) ||
-    (
-        targetPlacement != null &&
-        targetPlacement.initiallyCleared
-    );
+            !isShopTarget &&
+            (
+                targetNode.IsCleared() ||
+                WorldMapRuntimeState.IsNodeCleared(
+                    targetNodeId
+                ) ||
+                (
+                    targetPlacement != null &&
+                    targetPlacement.initiallyCleared
+                )
+            );
 
         // 현재 월드맵 위치를 목적지 노드로 갱신한다.
         WorldMapRuntimeState.SetCurrentNode(
@@ -1110,7 +1188,12 @@ public class WorldMapProgressController : MonoBehaviour
         // 잠긴 노드 X
         // Connection이 없는 경우 X
         // 실제 이동 완료 O
+
+        // <변경부분>
+        // 실제로 다른 노드로 이동한 경우에만 End Timer를 차감한다.
+        // 현재 Shop 노드를 다시 클릭하는 것은 이동이 아니므로 비용 0.
         bool endTimerExpiredAfterMove =
+            !isCurrentShopReentry &&
             AdvanceEndTimerForWorldMapMove();
 
 
@@ -1349,8 +1432,15 @@ public class WorldMapProgressController : MonoBehaviour
         }
 
 
-        // 새로운 노드에 도착했을 때만
-        // Select → Absorb → Down_Absorb 애니메이션을 재생한다.
+        // <변경부분>
+        // 일반 노드 진입과 현재 Shop 노드 재입장 모두
+        // 기존 플레이어 마커 진입 애니메이션을 재생한다.
+        //
+        // Select → Absorb → Down_Absorb 순서로 실행하며,
+        // 모든 애니메이션이 종료된 뒤 Scene 전환을 진행한다.
+        //
+        // 같은 Shop 재입장에서는 실제 노드 이동과
+        // End Timer 차감만 생략하고 애니메이션은 유지한다.
         yield return
             PlayMarkerNodeEnterAnimationRoutine();
 
@@ -1842,13 +1932,28 @@ public class WorldMapProgressController : MonoBehaviour
             );
 
         bool isCurrentNodeCleared =
-            currentNode.IsCleared() ||
-            currentPlacement.initiallyCleared ||
-            WorldMapRuntimeState.IsNodeCleared(
-                currentNodeId
-            );
+          currentNode.IsCleared() ||
+          currentPlacement.initiallyCleared ||
+          WorldMapRuntimeState.IsNodeCleared(
+              currentNodeId
+          );
 
-        if (isCurrentNodeCleared == false ||
+        // <변경부분>
+        // 기존에는 Cleared 노드에서만
+        // 다음 연결 노드의 Pulse와 경로 Preview를 표시했다.
+        //
+        // Shop은 Cleared되지 않지만 이용 후
+        // 다음 노드로 진행할 수 있어야 하므로
+        // Shop 타입도 연결 경로 표시 대상으로 허용한다.
+        bool canPreviewConnectedNodes =
+            isCurrentNodeCleared ||
+            currentNode.GetNodeType() ==
+                MapNodeType.Shop;
+
+        // <변경부분>
+        // 일반 노드는 기존 Cleared 조건을 유지한다.
+        // Shop만 예외적으로 다음 이동 후보를 표시할 수 있다.
+        if (canPreviewConnectedNodes == false ||
             currentPlacement.connections == null)
         {
             return;

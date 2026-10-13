@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement; // <변경부분> 상점 종료 후 월드맵 복귀
 using UnityEngine.UI;
 
 
@@ -82,15 +83,42 @@ public class ShopController : MonoBehaviour
     private PopupOpenAnimator purchaseButtonOpenAnimator;
 
 
-    [Header("Selected Item Tooltip")]
+    // <변경부분>
+    // 상점을 나가 WorldMap으로 돌아가는 별도 UI 버튼.
+    // 구매 버튼과 무관하게 ShopRoot가 표시될 때 사용할 수 있다.
+    [Header("Shop Exit UI")]
+    [SerializeField]
+    private Button exitShopButton;
 
     // <변경부분>
-    // TooltipPopupUI의 Root Canvas 기준 고정 좌표.
-    // 상품 위치나 마우스 위치와 관계없이 같은 위치에 표시한다.
+    // Scene 이동 중 버튼 연속 클릭을 방지한다.
+    private bool isExitingShop;
+
+
+    [Header("Selected Item Tooltip")]
+
+    // Tooltip의 기본 위치.
+    // 상태효과 Section이 없을 때의 Canvas 기준 좌표다.
     [SerializeField]
     private Vector2 selectedItemTooltipCanvasPosition = Vector2.zero;
 
     // <변경부분>
+    // 상태효과 Section 하나가 추가될 때마다
+    // Tooltip 전체를 추가로 이동시킬 거리.
+    //
+    // X 양수 = 오른쪽
+    // Y 양수 = 위쪽
+    //
+    // 예: Y = 80
+    // Section 0개 → 추가 이동 없음
+    // Section 1개 → 위로 80
+    // Section 2개 → 위로 160
+    //
+    // 기존 ShopItemDisplay TooltipTrigger에서
+    // 설정하던 Popup Offset Per Section과 같은 목적이다.
+    [SerializeField]
+    private Vector2 selectedItemTooltipOffsetPerSection = Vector2.zero;
+
     // 공용 TooltipPopupUI에서 상점이 표시한 Tooltip인지 추적한다.
     private bool isSelectedItemTooltipVisible;
 
@@ -164,9 +192,7 @@ public class ShopController : MonoBehaviour
 
     private void Awake()
     {
-        // <변경부분>
-        // Inspector에서 Button OnClick 연결을 빠뜨리더라도
-        // 구매 버튼이 ShopController의 구매 함수로 연결되게 한다.
+        // 기존 구매 버튼 자동 연결 유지.
         if (purchaseButton != null)
         {
             purchaseButton.onClick.RemoveListener(
@@ -185,6 +211,27 @@ public class ShopController : MonoBehaviour
             );
         }
 
+        // <변경부분>
+        // 상점 나가기 버튼 자동 연결.
+        // Inspector에서는 Button 참조만 연결하면 된다.
+        if (exitShopButton != null)
+        {
+            exitShopButton.onClick.RemoveListener(
+                OnExitShopButtonClicked
+            );
+
+            exitShopButton.onClick.AddListener(
+                OnExitShopButtonClicked
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[ShopController] Exit Shop Button 참조가 비어 있습니다.",
+                this
+            );
+        }
+
         CacheShopItems();
 
         ClearSelection();
@@ -192,7 +239,7 @@ public class ShopController : MonoBehaviour
 
 
     // <변경부분>
-    // 런타임에 등록한 버튼 이벤트를 정리한다.
+    // 구매 버튼과 나가기 버튼의 런타임 이벤트를 정리한다.
     private void OnDestroy()
     {
         if (purchaseButton != null)
@@ -201,17 +248,33 @@ public class ShopController : MonoBehaviour
                 OnPurchaseButtonClicked
             );
         }
+
+        // <변경부분>
+        if (exitShopButton != null)
+        {
+            exitShopButton.onClick.RemoveListener(
+                OnExitShopButtonClicked
+            );
+        }
     }
 
 
     private void OnEnable()
     {
-        // <변경부분>
-        // 언어가 바뀌면 선택한 아이템의 Tooltip도 다시 생성한다.
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
+
         LocalizationSettings.SelectedLocaleChanged +=
             OnSelectedLocaleChanged;
+
+        // <변경부분>
+        // 상점 UI가 다시 활성화될 때 종료 상태 초기화.
+        isExitingShop = false;
+
+        if (exitShopButton != null)
+        {
+            exitShopButton.interactable = true;
+        }
 
         CacheShopItems();
 
@@ -432,6 +495,71 @@ public class ShopController : MonoBehaviour
 
 
         // <변경부분>
+        // WorldMap 상점에 이전 방문의 재고가 있다면
+        // 최초 추첨 상품·가격·SOLD 상태를 그대로 복원한다.
+        // 단독 EventScene 테스트에는 저장 정보가 없으므로 기존 추첨 경로를 사용한다.
+        IReadOnlyList<WorldMapRuntimeState.ShopStockSlot> savedSlots;
+        if (WorldMapRuntimeState.TryGetActiveShopStock(out savedSlots))
+        {
+            ClearSelection();
+
+            if (savedSlots.Count != shopItemDisplays.Length)
+            {
+                Debug.LogWarning(
+                    "[ShopController] 상점 진열대 개수가 최초 방문과 다릅니다. " +
+                    $"저장 {savedSlots.Count} / 현재 {shopItemDisplays.Length}",
+                    this
+                );
+            }
+
+            for (int i = 0; i < shopItemDisplays.Length; i++)
+            {
+                ShopItemDisplay display = shopItemDisplays[i];
+                if (display == null)
+                {
+                    continue;
+                }
+
+                WorldMapRuntimeState.ShopStockSlot slot =
+                    i < savedSlots.Count ? savedSlots[i] : null;
+
+                if (slot == null || slot.ItemData == null)
+                {
+                    // <변경부분>
+                    // 최초 방문 때 비어 있던 진열대는 계속 비워둔다.
+                    display.Initialize(null, 0);
+                    display.gameObject.SetActive(false);
+                    continue;
+                }
+
+                // <변경부분>
+                // 최초 추첨에서 결정된 상품과 가격 복원.
+                display.Initialize(slot.ItemData, slot.Price);
+
+                if (slot.IsSoldOut)
+                {
+                    // <변경부분>
+                    // 실제 구매 후 사용하던 기존 SOLD 처리 함수를 재사용.
+                    // 아이콘 제거, SOLD 문구, Collider 차단,
+                    // 그림자와 Float 비활성화를 함께 복원한다.
+                    display.MarkAsSoldOut();
+                }
+            }
+
+            // <변경부분>
+            // 복원도 초기화 완료로 간주하여 재추첨을 방지한다.
+            hasInitializedShopInventory = true;
+
+            Debug.Log(
+                "[ShopController] 기존 상점 상품 및 SOLD 상태 복원 완료",
+                this
+            );
+
+            return;
+        }
+
+
+        // <변경부분>
         // 원본 ScriptableObject의 후보 목록은
         // 변경하지 않고 별도의 런타임 목록을 구성한다.
         List<ShopInventoryItemEntry> candidates =
@@ -585,8 +713,51 @@ public class ShopController : MonoBehaviour
 
 
         // <변경부분>
+        // 최초 방문의 전체 진열대 상태를 노드별 런타임 재고로 저장한다.
+        // 비어 있어 숨긴 진열대도 null 슬롯으로 저장해 재방문 때 그대로 복원한다.
+        if (!string.IsNullOrWhiteSpace(WorldMapRuntimeState.ActiveShopNodeId))
+        {
+            List<WorldMapRuntimeState.ShopStockSlot> initialSlots =
+                new List<WorldMapRuntimeState.ShopStockSlot>();
+
+            for (int i = 0; i < shopItemDisplays.Length; i++)
+            {
+                ShopItemDisplay display = shopItemDisplays[i];
+
+                initialSlots.Add(
+                    new WorldMapRuntimeState.ShopStockSlot(
+                        display != null && display.HasItem
+                            ? display.ItemData
+                            : null,
+                        display != null && display.HasItem
+                            ? display.Price
+                            : 0
+                    )
+                );
+            }
+
+            if (!WorldMapRuntimeState.TrySaveActiveShopStock(initialSlots))
+            {
+                Debug.LogWarning(
+                    "[ShopController] 최초 상점 재고 저장 실패: " +
+                    WorldMapRuntimeState.ActiveShopNodeId,
+                    this
+                );
+            }
+        }
+
+
+        // <변경부분>
         // 한 번 방문에서 상품을 다시 추첨하지 않도록 고정한다.
         hasInitializedShopInventory = true;
+
+
+        Debug.Log(
+            "[ShopController] 상품 랜덤 초기화 완료: " +
+            $"Level {shopLevel} / " +
+            $"{assignedCount}개 진열",
+            this
+        );
 
 
         Debug.Log(
@@ -786,6 +957,104 @@ public class ShopController : MonoBehaviour
 
 
     // <변경부분>
+    // 상점 나가기 버튼의 OnClick.
+    //
+    // WorldMap에서 방문한 상점만 정상 종료할 수 있다.
+    // 현재 Gold, Item, End Timer 값은 변경하지 않는다.
+    public void OnExitShopButtonClicked()
+    {
+        // <변경부분>
+        // 이미 Scene 이동을 요청했거나
+        // ShopController가 비활성화되어 있다면 실행하지 않는다.
+        if (isExitingShop || !isActiveAndEnabled)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 이벤트 연출이 플레이어 상호작용을 잠근 상태라면
+        // 상점 종료를 허용하지 않는다.
+        EventSceneSequenceController sequenceController =
+            FindFirstObjectByType<EventSceneSequenceController>();
+
+        if (sequenceController != null &&
+            sequenceController.IsPlayerInteractionLocked)
+        {
+            Debug.LogWarning(
+                "[ShopController] 상점 나가기 대기: " +
+                "이벤트 연출이 진행 중입니다.",
+                this
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 상점에 들어오기 직전 실제 월드맵 Scene 이름을 사용한다.
+        // Scene 이름을 코드에 하드코딩하지 않는다.
+        string returnSceneName =
+            WorldMapRuntimeState.ShopReturnSceneName;
+
+        // <변경부분>
+        // 월드맵을 통해 진입하지 않은 단독 EventScene 테스트,
+        // 잘못된 Scene 등록 등을 차단한다.
+        if (string.IsNullOrWhiteSpace(returnSceneName) ||
+            returnSceneName == gameObject.scene.name ||
+            !Application.CanStreamedLevelBeLoaded(returnSceneName))
+        {
+            Debug.LogWarning(
+                "[ShopController] 상점 나가기 실패: " +
+                "복귀할 WorldMap Scene이 없거나 " +
+                "Build Profiles Scene List에 등록되지 않았습니다. " +
+                $"Scene: {returnSceneName}",
+                this
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 상점 이용 완료를 WorldMapRuntimeState에 기록한다.
+        //
+        // 이 단계에서 다음 노드를 직접 해금하지 않는다.
+        // 월드맵이 다시 시작되면 완료 정보를 소비하여 처리한다.
+        if (!WorldMapRuntimeState.TryCompleteShopVisit())
+        {
+            Debug.LogWarning(
+                "[ShopController] 상점 나가기 실패: " +
+                "월드맵 상점 진입 정보가 없습니다.",
+                this
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 중복 종료 및 구매 입력 방지.
+        isExitingShop = true;
+
+        if (exitShopButton != null)
+        {
+            exitShopButton.interactable = false;
+        }
+
+        if (purchaseButton != null)
+        {
+            purchaseButton.interactable = false;
+        }
+
+        // <변경부분>
+        // Scene을 떠나기 전에 상점 Tooltip을 정리한다.
+        // 기존 선택 비주얼 전체 초기화는 강제하지 않는다.
+        HideSelectedItemTooltip();
+
+        // <변경부분>
+        // 기존 RunStateManager를 초기화하지 않고 Scene만 전환한다.
+        SceneManager.LoadScene(returnSceneName);
+    }
+
+
+    // <변경부분>
     // 선택된 아이템의 공용 TooltipViewData를 사용하되
     // 마우스가 아닌 Root Canvas의 고정 좌표에 표시한다.
     private void ShowSelectedItemTooltip()
@@ -818,17 +1087,43 @@ public class ShopController : MonoBehaviour
         }
 
         // <변경부분>
-        // 기존 TooltipPopupUI의 FixedCanvasPosition 모드를
-        // 그대로 사용한다.
+        // 실제 표시할 Tooltip Section 개수를 계산한다.
+        // null Section은 위치 보정에 포함하지 않는다.
+        int validSectionCount = 0;
+
+        if (viewData.sections != null)
+        {
+            for (int i = 0; i < viewData.sections.Count; i++)
+            {
+                if (viewData.sections[i] != null)
+                {
+                    validSectionCount++;
+                }
+            }
+        }
+
+        // <변경부분>
+        // 기본 고정 위치에 Section 개수별 이동값을 더한다.
         //
-        // 상품의 World Position이나 Pointer 좌표가 아닌
-        // Inspector에서 지정한 Canvas 좌표에 표시한다.
+        // Section이 늘어날수록 기본 Tooltip부터
+        // 모든 Section이 하나의 묶음으로 위로 이동한다.
+        Vector2 adjustedTooltipPosition =
+            selectedItemTooltipCanvasPosition +
+            selectedItemTooltipOffsetPerSection *
+            validSectionCount;
+
+        // <변경부분>
+        // 상점의 상품 선택 Tooltip은 기존처럼
+        // FixedCanvasPosition 모드를 사용한다.
+        //
+        // PopupRoot 전체 좌표를 변경하므로
+        // SectionParent 내부 자동 정렬과 충돌하지 않는다.
         TooltipPopupUI.Instance.Show(
             viewData,
             Vector2.zero,
             TooltipPositionMode.FixedCanvasPosition,
             Vector2.zero,
-            selectedItemTooltipCanvasPosition,
+            adjustedTooltipPosition,
             Vector2.zero,
             0f
         );
@@ -1092,7 +1387,36 @@ public class ShopController : MonoBehaviour
         // - Float / Outline 애니메이션 종료
         //
         // 진열대 GameObject 자체는 유지한다.
+
+        // <변경부분>
+        // 구매로 Gold/아이템 처리가 성공한 뒤에만
+        // 이번 런의 해당 상점 진열대를 SOLD로 저장한다.
+        // UI에서 itemData를 제거하기 전에 원본 참조로 기록한다.
+        if (!string.IsNullOrWhiteSpace(WorldMapRuntimeState.ActiveShopNodeId))
+        {
+            int soldSlotIndex =
+                System.Array.IndexOf(shopItemDisplays, clickedItem);
+
+            if (!WorldMapRuntimeState.TryMarkActiveShopStockSold(
+                    soldSlotIndex,
+                    clickedItem.ItemData,
+                    clickedItem.Price))
+            {
+                Debug.LogError(
+                    "[ShopController] 구매는 성공했지만 상점 SOLD 기록에 실패했습니다. " +
+                    $"Slot: {soldSlotIndex}",
+                    this
+                );
+            }
+        }
+
+        // <변경부분>
+        // 현재 Scene의 상품 표시도 기존대로 SOLD 처리한다.
         clickedItem.MarkAsSoldOut();
+
+
+        // <변경부분>
+        // 현재 Scene의 RunItemBarUI를 찾아서
 
 
         // <변경부분>

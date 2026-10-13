@@ -25,6 +25,15 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
+        // <변경부분>
+        // 새로운 목록형 효과를 사용하는 아이템이라면
+        // 여러 효과를 등록 순서대로 실행한다.
+        if (itemData.useItemEffectList)
+        {
+            return TryApplyEffectList(itemData, targetPiece);
+        }
+
+        // 기존 아이템은 원래의 단일 효과 분기를 유지한다.
         switch (itemData.itemType)
         {
             case BattleItemType.ChangeSelectedPieceToJelluPawn:
@@ -51,11 +60,135 @@ public class BattleItemEffectHandler : MonoBehaviour
         }
     }
 
+    // <변경부분>
+    // 목록에 등록한 모든 효과의 설정을 먼저 확인하고,
+    // 문제가 없다면 Inspector에 배치한 순서대로 실행한다.
+    private bool TryApplyEffectList(
+        BattleItemData itemData,
+        Piece targetPiece)
+    {
+        if (targetPiece == null)
+        {
+            Debug.Log("아이템을 사용할 기물을 먼저 선택해야 합니다.");
+            return false;
+        }
+
+        if (itemData.onlyPlayerPiece &&
+            targetPiece.Team != PieceTeam.Player)
+        {
+            Debug.Log("플레이어 기물에만 아이템을 사용할 수 있습니다.");
+            return false;
+        }
+
+        if (itemData.blockUseOnKing &&
+            targetPiece.PieceType == PieceType.King)
+        {
+            Debug.Log("King 기물에는 이 아이템을 사용할 수 없습니다.");
+            return false;
+        }
+
+        if (itemData.itemEffects == null ||
+            itemData.itemEffects.Count == 0)
+        {
+            Debug.LogWarning(
+                $"아이템 효과 목록이 비어 있습니다: {itemData.itemName}"
+            );
+            return false;
+        }
+
+        // <변경부분>
+        // 효과 적용 전에 전체 항목 검증.
+        // 데이터가 비어 있다면 기물 상태를 변경하지 않는다.
+        for (int i = 0; i < itemData.itemEffects.Count; i++)
+        {
+            BattleItemEffectEntry effect = itemData.itemEffects[i];
+
+            if (effect == null)
+            {
+                Debug.LogWarning(
+                    $"아이템 효과 {i + 1}이 비어 있습니다: {itemData.itemName}"
+                );
+                return false;
+            }
+
+            switch (effect.effectType)
+            {
+                case BattleItemEffectType.ChangePiece:
+                    if (pieceManager == null)
+                    {
+                        Debug.LogWarning(
+                            "PieceManager가 연결되지 않았습니다."
+                        );
+                        return false;
+                    }
+                    break;
+
+                case BattleItemEffectType.ApplyStatusEffect:
+                    if (effect.statusEffectData == null)
+                    {
+                        Debug.LogWarning(
+                            $"아이템 상태효과 {i + 1}의 데이터가 없습니다: " +
+                            $"{itemData.itemName}"
+                        );
+                        return false;
+                    }
+                    break;
+
+                default:
+                    Debug.LogWarning(
+                        $"지원하지 않는 아이템 효과입니다: {effect.effectType}"
+                    );
+                    return false;
+            }
+        }
+
+        // <변경부분>
+        // 앞의 검증을 통과하면 효과를 목록 순서대로 적용한다.
+        for (int i = 0; i < itemData.itemEffects.Count; i++)
+        {
+            BattleItemEffectEntry effect = itemData.itemEffects[i];
+            bool applied;
+
+            switch (effect.effectType)
+            {
+                case BattleItemEffectType.ChangePiece:
+                    applied = UseChangePieceItem(
+                        itemData,
+                        targetPiece,
+                        effect
+                    );
+                    break;
+
+                case BattleItemEffectType.ApplyStatusEffect:
+                    applied = UseStatusEffectItem(
+                        itemData,
+                        targetPiece,
+                        effect
+                    );
+                    break;
+
+                default:
+                    return false;
+            }
+
+            if (!applied)
+            {
+                Debug.LogError(
+                    $"아이템 효과 실행 실패: {itemData.itemName} / {i + 1}"
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // BattleItemData에 저장된 값 기준으로
     // 선택한 기물 정보를 변경하는 아이템 효과
     private bool UseChangePieceItem(
-        BattleItemData itemData,
-        Piece targetPiece)
+      BattleItemData itemData,
+      Piece targetPiece,
+      BattleItemEffectEntry effect = null) // <변경부분>
     {
         if (pieceManager == null)
         {
@@ -101,23 +234,43 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        // PieceData가 연결되어 있으면
-        // 데이터 기준으로 기물 정보를 변경한다.
-        if (itemData.changeTargetPieceData != null)
+        // <변경부분>
+        // 목록형이면 해당 Effect Entry의 값을 사용하고,
+        // 기존 아이템이면 원래 BattleItemData 값을 사용한다.
+        PieceData pieceData = effect != null
+            ? effect.changeTargetPieceData
+            : itemData.changeTargetPieceData;
+
+        PieceType pieceType = effect != null
+            ? effect.changeTargetPieceType
+            : itemData.changeTargetPieceType;
+
+        UniqueSkillType ability = effect != null
+            ? effect.changeTargetUniqueSkill
+            : itemData.changeTargetUniqueSkill;
+
+        GeneralSkillType trait = effect != null
+            ? effect.changeTargetGeneralSkill
+            : itemData.changeTargetGeneralSkill;
+
+        bool absorbedVisual = effect != null
+            ? effect.useAbsorbedJelluVisual
+            : itemData.useAbsorbedJelluVisual;
+
+        if (pieceData != null)
         {
             targetPiece.ChangePieceData(
-                itemData.changeTargetPieceData,
-                itemData.useAbsorbedJelluVisual
+                pieceData,
+                absorbedVisual
             );
         }
         else
         {
-            // PieceData가 없을 때만
-            // 기존 타입·고유스킬 방식으로 변경한다.
+            // 기존 타입·Ability 방식도 지원한다.
             targetPiece.ChangePieceData(
-                itemData.changeTargetPieceType,
-                itemData.changeTargetUniqueSkill,
-                itemData.useAbsorbedJelluVisual
+                pieceType,
+                ability,
+                absorbedVisual
             );
 
             Debug.LogWarning(
@@ -131,11 +284,12 @@ public class BattleItemEffectHandler : MonoBehaviour
         //
         // 이미 같은 일반스킬을 가지고 있다면
         // AddGeneralSkill 내부에서 추가하지 않는다.
-        if (itemData.changeTargetGeneralSkill !=
-            GeneralSkillType.None)
+        // <변경부분>
+        // 목록형 효과에서도 선택한 Trait을 정상 부여한다.
+        if (trait != GeneralSkillType.None)
         {
             targetPiece.AddGeneralSkill(
-                itemData.changeTargetGeneralSkill
+                trait
             );
         }
 
@@ -165,10 +319,9 @@ public class BattleItemEffectHandler : MonoBehaviour
 
 
         Debug.Log(
-                    $"아이템 효과 성공: {itemData.itemName} / " +
-            $"변경 타입 {itemData.changeTargetPieceType} / " +
-            $"고유스킬 {itemData.changeTargetUniqueSkill}"
-        );
+       $"아이템 효과 성공: {itemData.itemName} / " +
+       $"변경 타입 {pieceType} / 고유스킬 {ability}"
+   );
 
         return true;
     }
@@ -177,7 +330,8 @@ public class BattleItemEffectHandler : MonoBehaviour
     // 현재 선택한 기물에 부여하는 아이템 효과
     private bool UseStatusEffectItem(
         BattleItemData itemData,
-        Piece targetPiece)
+        Piece targetPiece,
+        BattleItemEffectEntry effect = null) // <변경부분>
     {
         if (itemData == null)
         {
@@ -215,8 +369,14 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        // 실제 적용할 상태효과 데이터 검사
-        if (itemData.applyStatusEffectData == null)
+        // <변경부분>
+        // 효과 목록의 StatusEffectData를 우선 사용한다.
+        // 기존 단일 효과 아이템에서는 원래 필드를 사용한다.
+        StatusEffectData statusEffectData = effect != null
+            ? effect.statusEffectData
+            : itemData.applyStatusEffectData;
+
+        if (statusEffectData == null)
         {
             Debug.LogWarning(
                 $"상태효과 아이템 데이터가 연결되지 않았습니다: " +
@@ -226,16 +386,17 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        // 상태효과 부여
+        // <변경부분>
+        // 목록의 각 Status Effect 항목마다 한 번씩 실행된다.
         targetPiece.AddStatusEffect(
-            itemData.applyStatusEffectData
+            statusEffectData
         );
 
         Debug.Log(
             $"상태효과 아이템 사용 성공: " +
             $"{itemData.itemName} / " +
             $"대상 {targetPiece.Team} {targetPiece.PieceType} / " +
-            $"상태효과 {itemData.applyStatusEffectData.effectType}"
+            $"상태효과 {statusEffectData.effectType}"
         );
 
         return true;

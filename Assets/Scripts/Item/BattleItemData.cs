@@ -2,6 +2,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
 
+// <변경부분>
+// 아이템 식별용 BattleItemType과 별도로,
+// 실제 실행할 아이템 효과의 종류를 정의한다.
+public enum BattleItemEffectType
+{
+    ChangePiece = 0,
+    ApplyStatusEffect = 1
+}
+
+// <변경부분>
+// 아이템 효과 목록의 개별 항목.
+// 선택한 효과 종류에 필요한 필드만 CustomEditor에서 보여준다.
+[System.Serializable]
+public class BattleItemEffectEntry
+{
+    public BattleItemEffectType effectType =
+        BattleItemEffectType.ApplyStatusEffect;
+
+    // Change Piece 설정.
+    // PieceData가 없으면 기존 PieceType / Ability 방식 사용.
+    public PieceData changeTargetPieceData;
+    public PieceType changeTargetPieceType = PieceType.Pawn;
+    public UniqueSkillType changeTargetUniqueSkill =
+        UniqueSkillType.None;
+    public GeneralSkillType changeTargetGeneralSkill =
+        GeneralSkillType.None;
+    public bool useAbsorbedJelluVisual = true;
+
+    // Apply Status Effect 설정.
+    // StatusEffectData 1개당 Tooltip Section 1개 생성.
+    public StatusEffectData statusEffectData;
+    public Color statusEffectTooltipSectionColor = Color.white;
+}
+
 // <변경부분> 전투 중 사용하는 소모성 아이템 하나의 기본 데이터를 관리하는 ScriptableObject
 [CreateAssetMenu(fileName = "BattleItemData", menuName = "Devorya/Battle/Item Data")]
 public class BattleItemData : ScriptableObject
@@ -39,14 +73,28 @@ public class BattleItemData : ScriptableObject
     // 이 값이 비어 있으면 기존 description을 그대로 사용한다.
     public LocalizedString localizedDescription =
         new LocalizedString();
+    // <변경부분>
+    // true면 새로운 효과 목록을 실행한다.
+    // 기존 아이템 Asset에서는 기본값 false로 유지되므로
+    // 종전 단일 효과가 그대로 작동한다.
+    //
+    // 효과를 모두 삭제했을 때 예전 효과가 자동 부활하지 않도록
+    // 목록 사용 여부를 별도로 기록한다.
+    [HideInInspector]
+    public bool useItemEffectList;
 
-    // 아이템의 실제 효과 설명 외에 추가로 표시할 Tooltip Section 목록.
+    // <변경부분>
+    // 이 아이템이 실제로 실행할 효과 목록.
+    // 작성된 순서대로 실행한다.
     //
-    // ApplyStatusEffectToSelectedPiece 아이템의 실제 적용 상태효과는
-    // applyStatusEffectData에서 자동으로 Tooltip Section을 생성하므로
-    // 이 목록에 동일한 데이터를 다시 입력할 필요가 없다.
-    //
-    // 이 목록은 추가 상태효과나 보조 정보를 표시해야 할 때만 사용한다.
+    // Status Effect 항목 하나당 Tooltip Section 하나를 자동 생성한다.
+    [HideInInspector]
+    public List<BattleItemEffectEntry> itemEffects =
+        new List<BattleItemEffectEntry>();
+
+    // <변경부분>
+    // 실제 적용 효과가 아닌 추가 Tooltip 설명 섹션.
+    // 자동 생성된 상태효과와 같은 데이터는 중복 표시하지 않는다.
     [InspectorName("Additional Tooltip Sections")]
     public List<TooltipSectionData> tooltipSections =
         new List<TooltipSectionData>();

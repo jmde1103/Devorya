@@ -27,7 +27,7 @@ MonoBehaviour:
     stageBattleData: {fileID: 0}
     eventSceneData: {fileID: 11400000, guid: 7c3b09b8a1fb7a245876308ee1705bf5, type: 2}
     shopInventoryData: {fileID: 11400000, guid: aebdebfb35b026043b4721458d358f3f, type: 2}
-    shopLevel: 2
+    shopLevel: 1
     initiallyUnlocked: 0
     initiallyCleared: 0
     connections:

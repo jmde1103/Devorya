@@ -19,11 +19,12 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 11941842944
-    m_Localized: Jellu Converter
+    m_Localized: Blue Slime Fragment
     m_Metadata:
       m_Items: []
   - m_Id: 192863145984
-    m_Localized: Converts the selected piece into a Jellu Pawn.
+    m_Localized: Transform the selected allied piece into a Jellu [Knight], then
+      apply [Attack Disabled] for 1 turn.
     m_Metadata:
       m_Items: []
   - m_Id: 34076602535936

@@ -19,12 +19,13 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 11941842944
-    m_Localized: "\uC824\uB8E8 \uD3F0 \uBCC0\uD658123"
+    m_Localized: "\uD30C\uB780\uC0C9 \uC810\uC561 \uD30C\uD3B8"
     m_Metadata:
       m_Items: []
   - m_Id: 192863145984
     m_Localized: "\uC120\uD0DD\uD55C \uC790\uC2E0\uC758 \uAE30\uBB3C\uC744 \uC824\uB8E8
-      \uD3F0\uC73C\uB85C \uBCC0\uD615\uD55C\uB2E4."
+      [\uB098\uC774\uD2B8]\uC73C\uB85C \uBCC0\uD615 \uD6C4\n\uC0C1\uD0DC\uC774\uC0C1
+      [\uACF5\uACA9\uBD88\uAC00] 1\uD134\uC744 \uBD80\uC5EC\uD55C\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 34076602535936
@@ -32,8 +33,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 34076606730240
-    m_Localized: "\uC0C1\uD0DC\uC774\uC0C1 <\uBC29\uC5B4>,<\uD589\uB3D9\uBD88\uAC00>
-      1\uD134 \uBD80\uC5EC"
+    m_Localized: "\uC120\uD0DD\uD55C \uAE30\uBB3C\uC5D0 \uC0C1\uD0DC\uD6A8\uACFC
+      <\uBC29\uC5B4>,<\uD589\uB3D9\uBD88\uAC00> 1\uD134 \uBD80\uC5EC"
     m_Metadata:
       m_Items: []
   references:

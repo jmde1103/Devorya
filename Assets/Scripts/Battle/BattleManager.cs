@@ -2562,6 +2562,16 @@ public class BattleManager : MonoBehaviour
                     // 이번 전투의 실제 흡수 성공 횟수 증가
                     playerAbsorbCountThisBattle++;
 
+                    // <변경부분>
+                    // 기존 카운트 데이터를 BattleUIController에 전달한다.
+                    // 숫자 갱신과 확대/잔상 애니메이션을 함께 실행한다.
+                    if (battleUIController != null)
+                    {
+                        battleUIController.RefreshAbsorbCount(
+                            playerAbsorbCountThisBattle
+                        );
+                    }
+
                     Debug.Log(
                         $"플레이어 흡수 수 증가: " +
                         $"{playerAbsorbCountThisBattle}"
@@ -3342,12 +3352,22 @@ public class BattleManager : MonoBehaviour
             );
 
             Debug.Log(
-                $"마지막 Enemy 일반 흡수: " +
-                $"{targetPiece.PieceType}의 일반스킬만 흡수했습니다."
-            );
+    $"마지막 Enemy 일반 흡수: " +
+    $"{targetPiece.PieceType}의 일반스킬만 흡수했습니다."
+);
         }
 
         playerAbsorbCountThisBattle++;
+
+        // <변경부분>
+        // 마지막 Enemy 강제 흡수도 일반 흡수와 동일하게
+        // 흡수 카운트 UI와 확대/잔상 애니메이션을 실행한다.
+        if (battleUIController != null)
+        {
+            battleUIController.RefreshAbsorbCount(
+                playerAbsorbCountThisBattle
+            );
+        }
 
         pieceManager.RemovePiece(
             targetPiece

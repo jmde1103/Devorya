@@ -708,12 +708,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  positionMode: 0
+  positionMode: 1
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 5, y: 5}
-  popupOffsetXPerSection: 100
-  popupOffsetYPerSection: 100
+  popupOffsetXPerSection: 0
+  popupOffsetYPerSection: 0
 --- !u!1 &3890754234828087080
 GameObject:
   m_ObjectHideFlags: 0

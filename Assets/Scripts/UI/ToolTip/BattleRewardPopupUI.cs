@@ -106,6 +106,65 @@ public class BattleRewardPopupUI : MonoBehaviour
     private float automaticSlotSpacing = 12f;
 
 
+    // <변경부분>
+    // 승리 팝업에서 이번 전투의 흡수 횟수를
+    // 1씩 차감하고 회복 기물 슬롯을 공개하는 연출 설정.
+    [Header("Absorb Settlement")]
+
+    // <변경부분>
+    // 기존 BattleUIRoot의 Absorb Count를 표시하는 컨트롤러.
+    // 별도 카운트 UI는 생성하지 않는다.
+    [SerializeField]
+    private BattleUIController battleUIController;
+
+    // <변경부분>
+    // 흡수 카운트가 1씩 차감되는 간격.
+    [SerializeField, Min(0.05f)]
+    private float absorbSettlementStepInterval = 0.45f;
+
+    // <변경부분>
+    // 회복 기물 슬롯이 나타나거나 수량이 증가할 때
+    // 확대/축소 연출에 걸리는 시간.
+    [SerializeField, Min(0f)]
+    private float recoverySlotPopDuration = 0.22f;
+
+    // <변경부분> 슬롯 애니메이션의 시작 크기.
+    [SerializeField, Range(0.1f, 1f)]
+    private float recoverySlotStartScale = 0.75f;
+
+    // <변경부분> 슬롯 애니메이션의 최대 확대 크기.
+    [SerializeField, Min(1f)]
+    private float recoverySlotPeakScale = 1.12f;
+
+    // <변경부분> 현재 정산 코루틴.
+    private Coroutine absorbSettlementCoroutine;
+
+    // <변경부분>
+    // true인 동안 리워드 팝업 클릭에 의한 Scene 이동을 막는다.
+    private bool isAbsorbSettlementLocked;
+
+    // <변경부분>
+    // 다음 회복 기물을 공개할 종류별 슬롯 인덱스.
+    private int nextRecoverySettlementIndex;
+
+    // <변경부분>
+    // 기존 보상 데이터를 변경하지 않고,
+    // UI에 표시한 회복 수량만 별도로 추적한다.
+    private sealed class RecoverySettlementEntry
+    {
+        public PieceData pieceData;
+        public int totalAmount;
+        public int displayedAmount;
+        public BattleRewardSlotUI slotUI;
+    }
+
+    // <변경부분>
+    // 이미 지급이 완료된 회복 기물의 시각적 정산 목록.
+    private readonly List<RecoverySettlementEntry>
+        recoverySettlementEntries =
+            new List<RecoverySettlementEntry>();
+
+
     // <변경부분> 확인 버튼 클릭 후 맵 이동을 요청할 전투 종료 컨트롤러
     private BattleEndFlowController battleEndFlowController;
 
@@ -212,13 +271,17 @@ public class BattleRewardPopupUI : MonoBehaviour
 
     // <변경부분> 씬 전환이나 외부 처리로
     // 팝업이 비활성화되는 경우에도
-    // Click to continue 애니메이션을 안전하게 정리한다.
+    // 진행 중인 UI 애니메이션을 안전하게 정리한다.
     private void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
 
         StopContinueTextBlink();
+
+        // <변경부분>
+        // Scene 종료 중 정산 코루틴이 남지 않도록 정리한다.
+        StopAbsorbSettlement();
     }
 
     private void RefreshLocalizedTexts()
@@ -251,12 +314,20 @@ public class BattleRewardPopupUI : MonoBehaviour
         }
     }
 
-    // <변경부분> 전투 종료 컨트롤러가 보상 계산을 끝낸 뒤 호출
+    // <변경부분>
+    // 전투 종료 컨트롤러가 보상 계산을 끝낸 뒤 호출한다.
+    //
+    // absorbCount:
+    // 이번 전투의 실제 흡수 성공 횟수.
+    //
+    // 마지막 인자의 기본값은 0으로 유지하여
+    // 기존 4개 인자 호출 코드와의 호환성을 보호한다.
     public void Show(
-    BattleEndFlowController owner,
-    List<BattleRecoveryRewardRuntimeData> recoveryRewards,
-    int goldAmount,
-    List<BattleRewardOptionRuntimeData> acquiredRewards)
+        BattleEndFlowController owner,
+        List<BattleRecoveryRewardRuntimeData> recoveryRewards,
+        int goldAmount,
+        List<BattleRewardOptionRuntimeData> acquiredRewards,
+        int absorbCount = 0)
     {
         battleEndFlowController = owner;
 
@@ -287,6 +358,43 @@ public class BattleRewardPopupUI : MonoBehaviour
             return;
         }
 
+        // <변경부분>
+        // 이전 정산 코루틴과 Continue 애니메이션을 먼저 정리한다.
+        StopAbsorbSettlement();
+        StopContinueTextBlink();
+
+        // <변경부분>
+        // 이번 전투 흡수 횟수로 정산 시작 상태를 설정한다.
+        int safeAbsorbCount =
+            Mathf.Max(0, absorbCount);
+
+        isAbsorbSettlementLocked =
+            safeAbsorbCount > 0;
+
+        nextRecoverySettlementIndex = 0;
+        recoverySettlementEntries.Clear();
+
+        // <변경부분>
+        // 기존 전투 HUD에 있는 Absorb Count를 재사용한다.
+        //
+        // Inspector 연결이 비어 있다면 현재 Scene에서 찾는다.
+        if (battleUIController == null)
+        {
+            battleUIController =
+                FindObjectOfType<BattleUIController>();
+        }
+
+        // <변경부분>
+        // 정산 시작 시 이번 전투의 흡수 수량을 표시한다.
+        // 이 단계에서는 애니메이션을 재생하지 않는다.
+        if (battleUIController != null)
+        {
+            battleUIController.RefreshAbsorbCount(
+                safeAbsorbCount,
+                false
+            );
+        }
+
         // 실제 팝업 표시 Root만 활성화한다.
         popupRoot.SetActive(
             true
@@ -296,9 +404,16 @@ public class BattleRewardPopupUI : MonoBehaviour
         ClearCreatedSlots(recoverySlotParent);
         ClearCreatedSlots(dropSlotParent);
 
-        // <변경부분> 실제 보상 데이터에 맞춰 슬롯 생성
+        // <변경부분>
+        // 흡수 정산이 필요하다면 Recovery 슬롯을
+        // 미리 생성하되 처음에는 숨겨 놓는다.
+        //
+        // Drop 보상은 기존 표시 방식을 그대로 유지한다.
         int recoverySlotCount =
-            CreateRecoverySlots(recoveryRewards);
+            CreateRecoverySlots(
+                recoveryRewards,
+                isAbsorbSettlementLocked
+            );
 
         int dropSlotCount =
             CreateDropSlots(goldAmount, acquiredRewards);
@@ -339,11 +454,27 @@ public class BattleRewardPopupUI : MonoBehaviour
         {
             popupOpenAnimator.PlayOpen();
         }
+        // <변경부분>
+        // 흡수 정산 중에는 Continue 문구를 숨기고
+        // 카운트가 0이 될 때까지 확인 클릭을 잠근다.
+        if (isAbsorbSettlementLocked)
+        {
+            SetContinueTextAlpha(0f);
 
-        // <변경부분> 보상 팝업이 완전히 표시되면
-        // "Click to continue" 안내 문구의
-        // 부드러운 반복 페이드 애니메이션을 시작한다.
-        StartContinueTextBlink();
+            absorbSettlementCoroutine =
+                StartCoroutine(
+                    PlayAbsorbSettlementRoutine(
+                        safeAbsorbCount
+                    )
+                );
+        }
+        else
+        {
+            // <변경부분>
+            // 흡수가 0개였다면 별도 정산 없이
+            // 기존 Continue 문구와 클릭 기능을 즉시 사용한다.
+            StartContinueTextBlink();
+        }
 
         Debug.Log(
             $"전투 보상 팝업 표시: " +
@@ -353,8 +484,20 @@ public class BattleRewardPopupUI : MonoBehaviour
     }
 
     // <변경부분> 복구된 기물을 종류별 슬롯으로 생성
+    // <변경부분>
+    // 복구된 기물을 종류별 슬롯으로 생성한다.
+    //
+    // hideForSettlement == false:
+    // 기존과 동일하게 최종 획득 수량을 즉시 표시한다.
+    //
+    // hideForSettlement == true:
+    // 슬롯을 미리 생성하되 화면에서는 숨겨 놓는다.
+    // 흡수 카운트 2회 차감마다 하나씩 공개한다.
+    //
+    // 실제 회복 보상은 여기서 지급하지 않는다.
     private int CreateRecoverySlots(
-        List<BattleRecoveryRewardRuntimeData> recoveryRewards)
+        List<BattleRecoveryRewardRuntimeData> recoveryRewards,
+        bool hideForSettlement)
     {
         if (recoveryRewards == null ||
             recoverySlotParent == null ||
@@ -377,22 +520,305 @@ public class BattleRewardPopupUI : MonoBehaviour
                 continue;
             }
 
+            // <변경부분>
+            // 기존 Reward Slot 프리팹을 그대로 사용한다.
             BattleRewardSlotUI slotUI =
                 Instantiate(
                     rewardSlotPrefab,
                     recoverySlotParent
                 );
 
+            // <변경부분>
+            // 정산 중에는 최초 표시 수량을 1로 준비한다.
+            // 정산이 없을 때는 기존처럼 최종 수량을 표시한다.
             slotUI.RefreshRecoveryPiece(
-     reward.pieceData,
-     reward.amount
- );
+                reward.pieceData,
+                hideForSettlement
+                    ? 1
+                    : reward.amount
+            );
+
+            if (hideForSettlement)
+            {
+                // <변경부분>
+                // 실제 획득한 PieceData와 총 수량을
+                // 시각적 정산 정보로만 별도 저장한다.
+                recoverySettlementEntries.Add(
+                    new RecoverySettlementEntry
+                    {
+                        pieceData = reward.pieceData,
+                        totalAmount = reward.amount,
+                        displayedAmount = 0,
+                        slotUI = slotUI
+                    }
+                );
+
+                // <변경부분>
+                // 정산 전에는 슬롯을 표시하지 않는다.
+                //
+                // HorizontalLayoutGroup은 비활성 슬롯을
+                // 레이아웃에서 제외하므로 빈칸이 생기지 않는다.
+                slotUI.gameObject.SetActive(false);
+            }
 
             createdCount++;
         }
 
         return createdCount;
     }
+
+
+    // <변경부분>
+    // 승리 리워드 흡수 카운트 정산 연출.
+    //
+    // - 현재 카운트를 1씩 감소시킨다.
+    // - 2회 차감마다 회복 기물 1개를 공개한다.
+    // - 기존 BattleUIController의 아이콘 팝/잔상 연출을 재사용한다.
+    // - 모두 0이 될 때까지 보상 팝업 확인 클릭을 잠근다.
+    // - TimeScale과 관계없이 연출을 진행한다.
+    //
+    // 주의:
+    // 실제 회복 기물은 BattleEndFlowController에서
+    // 이미 RunState에 지급한 상태다.
+    // 이 함수는 UI 표시만 담당한다.
+    private IEnumerator PlayAbsorbSettlementRoutine(
+        int initialCount)
+    {
+        int spentCount = 0;
+
+        for (int remaining = initialCount - 1;
+             remaining >= 0;
+             remaining--)
+        {
+            // <변경부분>
+            // Inspector에서 설정한 간격만큼 기다린 뒤
+            // 카운트를 하나 차감한다.
+            yield return new WaitForSecondsRealtime(
+                Mathf.Max(
+                    0.05f,
+                    absorbSettlementStepInterval
+                )
+            );
+
+            // <변경부분>
+            // 기존 배틀 흡수 카운트 UI의 숫자를 감소시킨다.
+            //
+            // true를 전달하여 기존 확대/축소 및
+            // 잔상 애니메이션도 함께 실행한다.
+            if (battleUIController != null)
+            {
+                battleUIController.RefreshAbsorbCount(
+                    remaining,
+                    true
+                );
+            }
+
+            spentCount++;
+
+            // <변경부분>
+            // 2회 차감될 때마다 회복 기물 1개를 표시한다.
+            if (spentCount % 2 == 0)
+            {
+                BattleRewardSlotUI revealedSlot =
+                    RevealNextRecoveryReward();
+
+                if (revealedSlot != null)
+                {
+                    // <변경부분>
+                    // 회복 슬롯이 나타나는 순간 팝 애니메이션을
+                    // 끝까지 재생한 다음 다음 카운트를 차감한다.
+                    yield return PlayRecoverySlotPopRoutine(
+                        revealedSlot
+                    );
+                }
+            }
+        }
+
+        // <변경부분>
+        // 흡수 카운트가 0까지 정산된 뒤에만
+        // 팝업 클릭에 의한 Scene 이동을 허용한다.
+        isAbsorbSettlementLocked = false;
+
+        absorbSettlementCoroutine = null;
+
+        // <변경부분>
+        // 정산 완료 후 Click to continue 문구를 표시하고
+        // 기존 반복 페이드 애니메이션을 시작한다.
+        StartContinueTextBlink();
+    }
+
+
+    // <변경부분>
+    // 이미 획득한 회복 기물 중 하나를 UI에 공개한다.
+    //
+    // 같은 종류의 기물이라면 기존 슬롯 수량을 증가시키고,
+    // 처음 공개하는 종류라면 숨겨 둔 슬롯을 활성화한다.
+    //
+    // 실제 보상 지급은 절대 실행하지 않는다.
+    private BattleRewardSlotUI RevealNextRecoveryReward()
+    {
+        while (nextRecoverySettlementIndex <
+               recoverySettlementEntries.Count)
+        {
+            RecoverySettlementEntry entry =
+                recoverySettlementEntries[
+                    nextRecoverySettlementIndex
+                ];
+
+            if (entry == null ||
+                entry.displayedAmount >= entry.totalAmount)
+            {
+                nextRecoverySettlementIndex++;
+                continue;
+            }
+
+            // <변경부분>
+            // 해당 종류의 UI 표시 수량을 1 증가시킨다.
+            entry.displayedAmount++;
+
+            if (entry.slotUI != null)
+            {
+                // <변경부분>
+                // BattleRewardSlotUI 기존 기능 재사용.
+                // 비활성 슬롯이라면 이 호출에서 활성화된다.
+                entry.slotUI.RefreshRecoveryPiece(
+                    entry.pieceData,
+                    entry.displayedAmount
+                );
+            }
+
+            // <변경부분>
+            // 이 종류의 최종 회복 수량을 모두 표시했다면
+            // 다음 종류의 슬롯으로 이동한다.
+            if (entry.displayedAmount >= entry.totalAmount)
+            {
+                nextRecoverySettlementIndex++;
+            }
+
+            // <변경부분>
+            // 새 슬롯이 나타난 뒤 가로 레이아웃을 갱신한다.
+            RefreshRewardLayouts();
+
+            return entry.slotUI;
+        }
+
+        // <변경부분>
+        // 최대 기물 수 제한 등에 의해 실제 지급 보상이 없다면
+        // 슬롯을 추가하지 않고 카운트 정산만 계속 진행한다.
+        return null;
+    }
+
+
+    // <변경부분>
+    // 회복 슬롯이 나타나거나 수량이 증가할 때의 팝 연출.
+    //
+    // 현재 프리팹 Scale을 기준으로
+    // 작게 시작 → 약간 확대 → 원래 크기로 복귀한다.
+    private IEnumerator PlayRecoverySlotPopRoutine(
+        BattleRewardSlotUI slotUI)
+    {
+        if (slotUI == null ||
+            recoverySlotPopDuration <= 0f)
+        {
+            yield break;
+        }
+
+        RectTransform slotRect =
+            slotUI.transform as RectTransform;
+
+        if (slotRect == null)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // 기존 프리팹 Scale을 기준값으로 보존한다.
+        Vector3 originalScale =
+            slotRect.localScale;
+
+        float elapsed = 0f;
+
+        float duration =
+            Mathf.Max(
+                0.01f,
+                recoverySlotPopDuration
+            );
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+            float scale;
+
+            // <변경부분>
+            // 0~40% 구간에서는 작게 시작해서 빠르게 확대한다.
+            if (progress < 0.4f)
+            {
+                float t =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        progress / 0.4f
+                    );
+
+                scale =
+                    Mathf.Lerp(
+                        recoverySlotStartScale,
+                        recoverySlotPeakScale,
+                        t
+                    );
+            }
+            else
+            {
+                // <변경부분>
+                // 40~100% 구간에서는 원래 크기로 복귀한다.
+                float t =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        (progress - 0.4f) / 0.6f
+                    );
+
+                scale =
+                    Mathf.Lerp(
+                        recoverySlotPeakScale,
+                        1f,
+                        t
+                    );
+            }
+
+            slotRect.localScale =
+                originalScale * scale;
+
+            yield return null;
+        }
+
+        // <변경부분> 최종 크기 복구.
+        slotRect.localScale =
+            originalScale;
+    }
+
+
+    // <변경부분>
+    // 씬 종료 또는 Show 재호출 시
+    // 흡수 정산 코루틴이 중복 실행되지 않도록 중단한다.
+    private void StopAbsorbSettlement()
+    {
+        if (absorbSettlementCoroutine != null)
+        {
+            StopCoroutine(
+                absorbSettlementCoroutine
+            );
+
+            absorbSettlementCoroutine = null;
+        }
+    }
+
 
     // <변경부분> 금화, 아이템, 유물 슬롯을 순차적으로 생성
     private int CreateDropSlots(
@@ -797,11 +1223,23 @@ public class BattleRewardPopupUI : MonoBehaviour
             Destroy(childObject);
         }
     }
-    // <변경부분> 보상 팝업 전체 클릭 시
-    // 안내 문구 애니메이션을 종료하고
-    // BattleEndFlowController가 설정한 맵 씬으로 이동한다.
+    // <변경부분>
+    // 보상 팝업 전체 클릭 시 처리.
+    //
+    // 흡수 정산 중에는 클릭을 무시한다.
+    // 정산이 모두 끝난 뒤에만 기존 Scene 이동을 실행한다.
     private void OnClickConfirm()
     {
+        // <변경부분>
+        // 정산 중 클릭으로 다음 Scene으로 넘어가는 것을 방지한다.
+        //
+        // 확인 Button 자체는 활성 상태로 유지하므로
+        // 기존 팝업의 버튼/Tooltip 구성에는 영향을 주지 않는다.
+        if (isAbsorbSettlementLocked)
+        {
+            return;
+        }
+
         if (battleEndFlowController == null)
         {
             Debug.LogWarning(
@@ -823,6 +1261,8 @@ public class BattleRewardPopupUI : MonoBehaviour
             );
         }
 
+        // <변경부분>
+        // 모든 정산이 완료된 경우에만 기존 Scene 이동 실행.
         battleEndFlowController.MoveToMapScene();
     }
 

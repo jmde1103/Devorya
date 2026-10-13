@@ -20,7 +20,10 @@ MonoBehaviour:
       weight: 30
     - itemData: {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
       price: 10
-      weight: 70
+      weight: 30
+    - itemData: {fileID: 11400000, guid: 97d7d945a1cfee64290ec7033ee49074, type: 2}
+      price: 15
+      weight: 30
   - shopLevel: 2
     itemCandidates:
     - itemData: {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}

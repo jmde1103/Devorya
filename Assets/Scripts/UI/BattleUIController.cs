@@ -50,6 +50,60 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Image deploymentConfirmIconImage;
 
 
+    // <변경부분>
+    // 이번 전투에서 흡수한 기물 수를 표시하는 UI.
+    // 별도 UI 스크립트를 만들지 않고 BattleUIController에서 관리한다.
+    [Header("Absorb Count")]
+
+    // Absorb Count/CountNum
+    // 숫자만 출력하며 x 또는 × 문자는 포함하지 않는다.
+    [SerializeField]
+    private TMP_Text absorbCountNumText;
+
+    // Absorb Count/Icon
+    // 카운트가 변경될 때 확대/축소할 실제 아이콘이다.
+    [SerializeField]
+    private Image absorbCountIconImage;
+
+
+    [Header("Absorb Count Animation")]
+
+    // <변경부분> 아이콘이 가장 크게 확대되는 배율.
+    [SerializeField, Min(1f)]
+    private float absorbCountPulsePeakScale = 1.23f;
+
+    // <변경부분> 확대 후 살짝 수축하는 배율.
+    [SerializeField, Range(0.5f, 1f)]
+    private float absorbCountPulseDipScale = 0.94f;
+
+    // <변경부분> 확대 → 수축 → 복귀까지 걸리는 전체 시간.
+    [SerializeField, Min(0.05f)]
+    private float absorbCountPulseDuration = 0.32f;
+
+    // <변경부분> 반투명 잔상이 최대한 퍼지는 배율.
+    [SerializeField, Min(1f)]
+    private float absorbCountGhostMaxScale = 1.45f;
+
+    // <변경부분> 잔상이 시작될 때의 불투명도.
+    [SerializeField, Range(0f, 1f)]
+    private float absorbCountGhostStartAlpha = 0.3f;
+
+
+    // <변경부분> 현재 흡수 카운트 애니메이션.
+    private Coroutine absorbCountPulseCoroutine;
+
+    // <변경부분>
+    // 실제 Icon Sprite를 복제하여 만드는 잔상 Image.
+    // 최초 재생 시 한 번만 생성하고 이후 재사용한다.
+    private Image absorbCountGhostImage;
+
+    // <변경부분>
+    // 기존 Icon의 Inspector Scale을 보존한다.
+    private Vector3 defaultAbsorbCountIconScale = Vector3.one;
+
+    private bool hasCachedAbsorbCountIconScale;
+
+
     [Header("Icon Pixel Burst Effect")]
     // <변경부분> 흡수/고유스킬 아이콘 클릭 시 생성할 검은 픽셀 파티클 프리팹
     [SerializeField] private PixelBurstEffect iconPixelBurstEffectPrefab;
@@ -204,6 +258,11 @@ public class BattleUIController : MonoBehaviour
     {
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
+
+        // <변경부분>
+        // Scene 전환이나 UI 비활성화 중 애니메이션이 끊겨도
+        // 아이콘 크기와 잔상이 남지 않도록 복구한다.
+        StopAbsorbCountPulse();
     }
 
     // <변경부분> 게임 실행 중 언어가 변경되면
@@ -360,6 +419,11 @@ public class BattleUIController : MonoBehaviour
 
         // 게임 시작 시 액션 버튼 숨김
         HideActionButtons();
+
+        // <변경부분>
+        // 전투 시작 시 흡수 카운트를 0으로 표시한다.
+        // 초기화할 때는 확대/잔상 애니메이션을 재생하지 않는다.
+        RefreshAbsorbCount(0, false);
     }
 
     // <변경부분> 흡수 버튼 클릭 시
@@ -541,6 +605,318 @@ public class BattleUIController : MonoBehaviour
             uniqueSkillTooltipTrigger.SetTooltipData(null);
         }
     }
+
+
+    // <변경부분>
+    // 이번 전투의 흡수 횟수를 UI에 표시한다.
+    //
+    // BattleManager가 실제 흡수 성공을 확정한 뒤 호출한다.
+    // 여기서는 카운트를 계산하거나 누적하지 않는다.
+    //
+    // playPulse가 false이면 숫자만 즉시 갱신한다.
+    // 추후 리워드 정산에서도 재사용할 수 있다.
+    public void RefreshAbsorbCount(
+        int count,
+        bool playPulse = true)
+    {
+        // <변경부분>
+        // 실제 카운트 데이터는 BattleManager가 관리한다.
+        // UI는 전달받은 숫자만 표시한다.
+        if (absorbCountNumText != null)
+        {
+            absorbCountNumText.text =
+                Mathf.Max(0, count).ToString();
+        }
+
+        // 애니메이션 없이 표시만 갱신하는 경우.
+        if (!playPulse)
+        {
+            StopAbsorbCountPulse();
+            return;
+        }
+
+        if (absorbCountIconImage == null ||
+            !isActiveAndEnabled ||
+            !absorbCountIconImage.gameObject.activeInHierarchy)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 최초 한 번 Icon의 Inspector Scale을 저장한다.
+        if (!hasCachedAbsorbCountIconScale)
+        {
+            defaultAbsorbCountIconScale =
+                absorbCountIconImage.rectTransform.localScale;
+
+            hasCachedAbsorbCountIconScale = true;
+        }
+
+        // <변경부분>
+        // 연속 흡수 시 이전 애니메이션을 중단하고
+        // 항상 원래 크기에서 새 애니메이션을 시작한다.
+        StopAbsorbCountPulse();
+
+        absorbCountPulseCoroutine =
+            StartCoroutine(
+                PlayAbsorbCountPulseRoutine()
+            );
+    }
+
+
+    // <변경부분>
+    // 최초 애니메이션 재생 시 Icon과 동일한 Sprite를 가진
+    // 반투명 잔상 Image를 하나만 생성한다.
+    //
+    // 기존 Absorb Count/Image 오브젝트는 건드리지 않는다.
+    private void EnsureAbsorbCountGhost()
+    {
+        if (absorbCountGhostImage != null ||
+            absorbCountIconImage == null ||
+            absorbCountIconImage.sprite == null)
+        {
+            return;
+        }
+
+        RectTransform iconRect =
+            absorbCountIconImage.rectTransform;
+
+        // <변경부분>
+        // 기존 Icon과 같은 부모 아래에 생성한다.
+        // LayoutGroup이 있더라도 기존 UI 배치에 영향을 주지 않게
+        // LayoutElement.ignoreLayout을 활성화한다.
+        GameObject ghostObject =
+            new GameObject(
+                "AbsorbCountGhost",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(LayoutElement)
+            );
+
+        RectTransform ghostRect =
+            ghostObject.GetComponent<RectTransform>();
+
+        ghostRect.SetParent(
+            iconRect.parent,
+            false
+        );
+
+        ghostObject
+            .GetComponent<LayoutElement>()
+            .ignoreLayout = true;
+
+        // <변경부분>
+        // Icon과 같은 위치, Anchor, Pivot, 크기를 사용한다.
+        ghostRect.anchorMin = iconRect.anchorMin;
+        ghostRect.anchorMax = iconRect.anchorMax;
+        ghostRect.pivot = iconRect.pivot;
+        ghostRect.sizeDelta = iconRect.sizeDelta;
+        ghostRect.anchoredPosition = iconRect.anchoredPosition;
+        ghostRect.localRotation = iconRect.localRotation;
+        ghostRect.localScale = defaultAbsorbCountIconScale;
+
+        // <변경부분>
+        // 원본 Icon보다 뒤에서 렌더링하도록 배치한다.
+        ghostRect.SetSiblingIndex(
+            iconRect.GetSiblingIndex()
+        );
+
+        absorbCountGhostImage =
+            ghostObject.GetComponent<Image>();
+
+        absorbCountGhostImage.sprite =
+            absorbCountIconImage.sprite;
+
+        absorbCountGhostImage.type =
+            absorbCountIconImage.type;
+
+        absorbCountGhostImage.preserveAspect =
+            absorbCountIconImage.preserveAspect;
+
+        // <변경부분>
+        // 잔상이 마우스 클릭이나 호버를 가로채지 않게 한다.
+        absorbCountGhostImage.raycastTarget = false;
+
+        ghostObject.SetActive(false);
+    }
+
+
+    // <변경부분>
+    // 흡수 성공 시 아이콘을 빠르게 확대하고,
+    // 살짝 수축한 다음 원래 크기로 돌린다.
+    //
+    // 동시에 뒤쪽 반투명 잔상이 확대되며 사라진다.
+    private IEnumerator PlayAbsorbCountPulseRoutine()
+    {
+        EnsureAbsorbCountGhost();
+
+        RectTransform iconRect =
+            absorbCountIconImage.rectTransform;
+
+        RectTransform ghostRect =
+            absorbCountGhostImage != null
+                ? absorbCountGhostImage.rectTransform
+                : null;
+
+        if (absorbCountGhostImage != null)
+        {
+            // <변경부분>
+            // Icon의 현재 Sprite와 색을 사용한다.
+            absorbCountGhostImage.sprite =
+                absorbCountIconImage.sprite;
+
+            absorbCountGhostImage.gameObject.SetActive(true);
+        }
+
+        float duration =
+            Mathf.Max(0.05f, absorbCountPulseDuration);
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress =
+                Mathf.Clamp01(elapsed / duration);
+
+            float scaleMultiplier;
+
+            // <변경부분>
+            // 0~25%: 빠르게 확대
+            // 25~60%: 살짝 수축
+            // 60~100%: 원래 크기로 복귀
+            if (progress < 0.25f)
+            {
+                float t =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        progress / 0.25f
+                    );
+
+                scaleMultiplier =
+                    Mathf.Lerp(
+                        1f,
+                        absorbCountPulsePeakScale,
+                        t
+                    );
+            }
+            else if (progress < 0.6f)
+            {
+                float t =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        (progress - 0.25f) / 0.35f
+                    );
+
+                scaleMultiplier =
+                    Mathf.Lerp(
+                        absorbCountPulsePeakScale,
+                        absorbCountPulseDipScale,
+                        t
+                    );
+            }
+            else
+            {
+                float t =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        (progress - 0.6f) / 0.4f
+                    );
+
+                scaleMultiplier =
+                    Mathf.Lerp(
+                        absorbCountPulseDipScale,
+                        1f,
+                        t
+                    );
+            }
+
+            // <변경부분>
+            // Inspector에 설정한 원래 Scale을 기준으로 확대한다.
+            iconRect.localScale =
+                defaultAbsorbCountIconScale *
+                scaleMultiplier;
+
+            if (absorbCountGhostImage != null &&
+                ghostRect != null)
+            {
+                // <변경부분>
+                // 잔상은 지속적으로 커지고 투명해진다.
+                float ghostProgress =
+                    Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        progress
+                    );
+
+                float ghostScale =
+                    Mathf.Lerp(
+                        1f,
+                        absorbCountGhostMaxScale,
+                        ghostProgress
+                    );
+
+                ghostRect.localScale =
+                    defaultAbsorbCountIconScale *
+                    ghostScale;
+
+                Color ghostColor =
+                    absorbCountIconImage.color;
+
+                ghostColor.a *=
+                    absorbCountGhostStartAlpha *
+                    (1f - ghostProgress);
+
+                absorbCountGhostImage.color =
+                    ghostColor;
+            }
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // 애니메이션 종료 후 원래 크기로 확실하게 복구한다.
+        iconRect.localScale =
+            defaultAbsorbCountIconScale;
+
+        if (absorbCountGhostImage != null)
+        {
+            absorbCountGhostImage.gameObject.SetActive(false);
+        }
+
+        absorbCountPulseCoroutine = null;
+    }
+
+
+    // <변경부분>
+    // 실행 중인 카운트 애니메이션을 중단하고
+    // Icon과 잔상을 기본 상태로 복구한다.
+    private void StopAbsorbCountPulse()
+    {
+        if (absorbCountPulseCoroutine != null)
+        {
+            StopCoroutine(absorbCountPulseCoroutine);
+            absorbCountPulseCoroutine = null;
+        }
+
+        if (hasCachedAbsorbCountIconScale &&
+            absorbCountIconImage != null)
+        {
+            absorbCountIconImage.rectTransform.localScale =
+                defaultAbsorbCountIconScale;
+        }
+
+        if (absorbCountGhostImage != null)
+        {
+            absorbCountGhostImage.gameObject.SetActive(false);
+        }
+    }
+
 
     // 기물 프리팹마다 존재하는 필드 흡수 버튼에
     // 기존 하단 흡수 버튼의 공통 설정을 전달한다.

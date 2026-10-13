@@ -19,19 +19,57 @@ public class BattleItemDataEditor : Editor
     // Inspector에서 번역 영역을 접었다 펼 수 있도록 상태를 보관한다.
     private bool showTranslations = true;
 
+    // <변경부분>
+    // 이전 단일 효과 설정을 확인할 수 있는 접기 메뉴.
+    private bool showLegacyEffectFields;
+
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
-        // 기존 BattleItemData의 모든 일반 필드는 그대로 표시한다.
+        // <변경부분>
+        // 기존 Basic 필드들은 그대로 표시한다.
         //
-        // LocalizedString 참조는 개발자가 직접 연결하지 않고
-        // 아래 Localization 영역에서 자동 관리하므로 숨긴다.
+        // 개별 효과의 설정은 Item Effects 목록에서만 표시한다.
+        // 기존 필드는 삭제하지 않고 접기 메뉴에서 보존한다.
         DrawPropertiesExcluding(
             serializedObject,
             "m_Script",
             "localizedItemName",
-            "localizedDescription"
+            "localizedDescription",
+            "useItemEffectList",
+            "itemEffects",
+            "tooltipSections",
+            "changeTargetPieceData",
+            "changeTargetPieceType",
+            "changeTargetUniqueSkill",
+            "changeTargetGeneralSkill",
+            "useAbsorbedJelluVisual",
+            "applyStatusEffectData",
+            "applyStatusEffectTooltipSectionColor",
+            "onlyPlayerPiece",
+            "blockUseOnKing"
+        );
+
+        // <변경부분>
+        DrawItemEffectsInspector();
+
+        EditorGUILayout.Space(6);
+
+        EditorGUILayout.LabelField(
+            "Additional Tooltip Sections",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUILayout.HelpBox(
+            "실제 상태효과는 Item Effects에 추가하세요. " +
+            "이곳은 게임 효과와 별개인 보충 Tooltip 섹션입니다.",
+            MessageType.Info
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty("tooltipSections"),
+            true
         );
 
         serializedObject.ApplyModifiedProperties();
@@ -41,10 +79,471 @@ public class BattleItemDataEditor : Editor
 
         EditorGUILayout.Space(10);
 
+        // 기존 Localization 편집 기능 유지.
         DrawLocalizationInspector(
             itemData
         );
     }
+
+    // <변경부분>
+    // 실제 아이템 효과를 선택식 목록으로 관리한다.
+    //
+    // 기존 Asset은 목록형으로 전환하기 전까지
+    // 예전 단일 효과 방식으로 계속 작동한다.
+    private void DrawItemEffectsInspector()
+    {
+        EditorGUILayout.Space(10);
+
+        EditorGUILayout.LabelField(
+            "Item Effects",
+            EditorStyles.boldLabel
+        );
+
+        // 모든 효과에 공통으로 적용되는 아이템 사용 조건.
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty("onlyPlayerPiece"),
+            new GUIContent("Only Player Piece")
+        );
+
+        EditorGUILayout.PropertyField(
+            serializedObject.FindProperty("blockUseOnKing"),
+            new GUIContent("Block Use On King")
+        );
+
+        SerializedProperty list =
+            serializedObject.FindProperty("itemEffects");
+
+        SerializedProperty useList =
+            serializedObject.FindProperty("useItemEffectList");
+
+        if (!useList.boolValue)
+        {
+            EditorGUILayout.HelpBox(
+                "기존 단일 효과 방식으로 작동 중입니다. " +
+                "Add Effect를 누르면 기존 효과를 먼저 목록으로 " +
+                "복사한 뒤 새로운 효과를 추가합니다.",
+                MessageType.Info
+            );
+
+            if (GUILayout.Button("Convert Legacy Effect to List"))
+            {
+                ConvertLegacyEffectToList();
+                GUIUtility.ExitGUI();
+            }
+        }
+        else if (list.arraySize == 0)
+        {
+            EditorGUILayout.HelpBox(
+                "효과 목록이 비어 있습니다. " +
+                "아이템은 사용할 수 없으며 기존 효과가 " +
+                "자동으로 다시 실행되지 않습니다.",
+                MessageType.Warning
+            );
+        }
+
+        // 등록된 효과를 목록 순서대로 표시한다.
+        for (int i = 0; i < list.arraySize; i++)
+        {
+            DrawEffectEntry(list, i);
+        }
+
+        // <변경부분>
+        // 목록에 추가할 효과 종류를 선택하는 메뉴.
+        if (GUILayout.Button("+ Add Effect"))
+        {
+            GenericMenu menu = new GenericMenu();
+
+            menu.AddItem(
+                new GUIContent("Change Piece"),
+                false,
+                () => AddEffect(BattleItemEffectType.ChangePiece)
+            );
+
+            menu.AddItem(
+                new GUIContent("Apply Status Effect"),
+                false,
+                () => AddEffect(BattleItemEffectType.ApplyStatusEffect)
+            );
+
+            menu.ShowAsContext();
+        }
+
+        // 이전 데이터는 실제 Asset에서 삭제하지 않는다.
+        showLegacyEffectFields =
+            EditorGUILayout.Foldout(
+                showLegacyEffectFields,
+                "Legacy Effect Data (Read / Edit)",
+                true
+            );
+
+        if (showLegacyEffectFields)
+        {
+            EditorGUILayout.HelpBox(
+                "이전 아이템 Asset의 직렬화 필드입니다. " +
+                "Item Effects가 활성화되면 게임 효과에는 " +
+                "반영되지 않습니다.",
+                MessageType.Info
+            );
+
+            string[] oldFields =
+            {
+                "changeTargetPieceData",
+                "changeTargetPieceType",
+                "changeTargetUniqueSkill",
+                "changeTargetGeneralSkill",
+                "useAbsorbedJelluVisual",
+                "applyStatusEffectData",
+                "applyStatusEffectTooltipSectionColor"
+            };
+
+            for (int i = 0; i < oldFields.Length; i++)
+            {
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty(oldFields[i])
+                );
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // 등록된 효과 한 개의 Inspector를 그린다.
+    // 종류에 맞는 설정만 표시한다.
+    private void DrawEffectEntry(
+        SerializedProperty list,
+        int index)
+    {
+        SerializedProperty entry =
+            list.GetArrayElementAtIndex(index);
+
+        SerializedProperty typeProperty =
+            entry.FindPropertyRelative("effectType");
+
+        BattleItemEffectType type =
+            (BattleItemEffectType)typeProperty.enumValueIndex;
+
+        using (new EditorGUILayout.VerticalScope(
+                   EditorStyles.helpBox))
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(
+                    $"Effect {index + 1} - {type}",
+                    EditorStyles.boldLabel
+                );
+
+                // 효과를 위로 이동.
+                GUI.enabled = index > 0;
+
+                if (GUILayout.Button("▲", GUILayout.Width(28)))
+                {
+                    list.MoveArrayElement(index, index - 1);
+                    serializedObject.ApplyModifiedProperties();
+                    GUIUtility.ExitGUI();
+                }
+
+                // 효과를 아래로 이동.
+                GUI.enabled = index < list.arraySize - 1;
+
+                if (GUILayout.Button("▼", GUILayout.Width(28)))
+                {
+                    list.MoveArrayElement(index, index + 1);
+                    serializedObject.ApplyModifiedProperties();
+                    GUIUtility.ExitGUI();
+                }
+
+                GUI.enabled = true;
+
+                // 효과 삭제.
+                if (GUILayout.Button("X", GUILayout.Width(28)))
+                {
+                    list.DeleteArrayElementAtIndex(index);
+                    serializedObject.ApplyModifiedProperties();
+                    GUIUtility.ExitGUI();
+                }
+            }
+
+            EditorGUILayout.PropertyField(
+                typeProperty,
+                new GUIContent("Effect Type")
+            );
+
+            type =
+                (BattleItemEffectType)typeProperty.enumValueIndex;
+
+            if (type == BattleItemEffectType.ChangePiece)
+            {
+                SerializedProperty pieceData =
+                    entry.FindPropertyRelative(
+                        "changeTargetPieceData"
+                    );
+
+                EditorGUILayout.PropertyField(pieceData);
+
+                // PieceData를 사용하지 않는 이전 방식일 때만
+                // Piece Type / Ability 보조 설정을 보여준다.
+                if (pieceData.objectReferenceValue == null)
+                {
+                    EditorGUILayout.PropertyField(
+                        entry.FindPropertyRelative(
+                            "changeTargetPieceType"
+                        )
+                    );
+
+                    EditorGUILayout.PropertyField(
+                        entry.FindPropertyRelative(
+                            "changeTargetUniqueSkill"
+                        )
+                    );
+                }
+
+                EditorGUILayout.PropertyField(
+                    entry.FindPropertyRelative(
+                        "changeTargetGeneralSkill"
+                    )
+                );
+
+                EditorGUILayout.PropertyField(
+                    entry.FindPropertyRelative(
+                        "useAbsorbedJelluVisual"
+                    )
+                );
+            }
+            else if (type ==
+                     BattleItemEffectType.ApplyStatusEffect)
+            {
+                EditorGUILayout.PropertyField(
+                    entry.FindPropertyRelative(
+                        "statusEffectData"
+                    )
+                );
+
+                EditorGUILayout.PropertyField(
+                    entry.FindPropertyRelative(
+                        "statusEffectTooltipSectionColor"
+                    )
+                );
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // 기존 단일 효과를 새 목록의 첫 번째 항목으로 복사한다.
+    // 이전 필드는 삭제하지 않고 유지한다.
+    private void CopyLegacyEffectIfNeeded(
+        SerializedProperty list)
+    {
+        SerializedProperty useList =
+            serializedObject.FindProperty("useItemEffectList");
+
+        if (useList.boolValue)
+        {
+            return;
+        }
+
+        BattleItemData item =
+            (BattleItemData)target;
+
+        BattleItemEffectType type;
+
+        if (item.itemType ==
+            BattleItemType.ChangeSelectedPieceToJelluPawn)
+        {
+            type = BattleItemEffectType.ChangePiece;
+        }
+        else if (item.itemType ==
+                 BattleItemType.ApplyStatusEffectToSelectedPiece)
+        {
+            type = BattleItemEffectType.ApplyStatusEffect;
+        }
+        else
+        {
+            useList.boolValue = true;
+            return;
+        }
+
+        int index = list.arraySize;
+        list.arraySize++;
+
+        SerializedProperty entry =
+            list.GetArrayElementAtIndex(index);
+
+        InitializeNewEffect(entry, type);
+
+        if (type == BattleItemEffectType.ChangePiece)
+        {
+            entry.FindPropertyRelative(
+                "changeTargetPieceData"
+            ).objectReferenceValue =
+                serializedObject.FindProperty(
+                    "changeTargetPieceData"
+                ).objectReferenceValue;
+
+            entry.FindPropertyRelative(
+                "changeTargetPieceType"
+            ).enumValueIndex =
+                serializedObject.FindProperty(
+                    "changeTargetPieceType"
+                ).enumValueIndex;
+
+            entry.FindPropertyRelative(
+                "changeTargetUniqueSkill"
+            ).enumValueIndex =
+                serializedObject.FindProperty(
+                    "changeTargetUniqueSkill"
+                ).enumValueIndex;
+
+            entry.FindPropertyRelative(
+                "changeTargetGeneralSkill"
+            ).enumValueIndex =
+                serializedObject.FindProperty(
+                    "changeTargetGeneralSkill"
+                ).enumValueIndex;
+
+            entry.FindPropertyRelative(
+                "useAbsorbedJelluVisual"
+            ).boolValue =
+                serializedObject.FindProperty(
+                    "useAbsorbedJelluVisual"
+                ).boolValue;
+        }
+        else
+        {
+            entry.FindPropertyRelative(
+                "statusEffectData"
+            ).objectReferenceValue =
+                serializedObject.FindProperty(
+                    "applyStatusEffectData"
+                ).objectReferenceValue;
+
+            entry.FindPropertyRelative(
+                "statusEffectTooltipSectionColor"
+            ).colorValue =
+                serializedObject.FindProperty(
+                    "applyStatusEffectTooltipSectionColor"
+                ).colorValue;
+        }
+
+        useList.boolValue = true;
+    }
+
+
+    // <변경부분>
+    // 새 Effect Entry의 기본값을 안전하게 초기화한다.
+    private void InitializeNewEffect(
+        SerializedProperty entry,
+        BattleItemEffectType type)
+    {
+        entry.FindPropertyRelative(
+            "effectType"
+        ).enumValueIndex = (int)type;
+
+        entry.FindPropertyRelative(
+            "changeTargetPieceData"
+        ).objectReferenceValue = null;
+
+        SetEnumByName(
+            entry.FindPropertyRelative("changeTargetPieceType"),
+            "Pawn"
+        );
+
+        SetEnumByName(
+            entry.FindPropertyRelative("changeTargetUniqueSkill"),
+            "None"
+        );
+
+        SetEnumByName(
+            entry.FindPropertyRelative("changeTargetGeneralSkill"),
+            "None"
+        );
+
+        entry.FindPropertyRelative(
+            "useAbsorbedJelluVisual"
+        ).boolValue = true;
+
+        entry.FindPropertyRelative(
+            "statusEffectData"
+        ).objectReferenceValue = null;
+
+        entry.FindPropertyRelative(
+            "statusEffectTooltipSectionColor"
+        ).colorValue = Color.white;
+    }
+
+
+    // <변경부분>
+    // Enum 선언값의 순서에 의존하지 않고
+    // 이름으로 기본값을 지정한다.
+    private void SetEnumByName(
+        SerializedProperty property,
+        string enumName)
+    {
+        if (property == null ||
+            property.propertyType != SerializedPropertyType.Enum)
+        {
+            return;
+        }
+
+        int index = System.Array.IndexOf(
+            property.enumNames,
+            enumName
+        );
+
+        if (index >= 0)
+        {
+            property.enumValueIndex = index;
+        }
+    }
+
+
+    // <변경부분>
+    // 기존 단일 효과만 목록으로 복사하는 버튼.
+    private void ConvertLegacyEffectToList()
+    {
+        serializedObject.Update();
+
+        CopyLegacyEffectIfNeeded(
+            serializedObject.FindProperty("itemEffects")
+        );
+
+        serializedObject.ApplyModifiedProperties();
+
+        EditorUtility.SetDirty(target);
+        Repaint();
+    }
+
+
+    // <변경부분>
+    // 새로운 효과 추가.
+    // 기존 아이템이라면 먼저 기존 단일 효과를 복사한다.
+    private void AddEffect(BattleItemEffectType type)
+    {
+        serializedObject.Update();
+
+        SerializedProperty list =
+            serializedObject.FindProperty("itemEffects");
+
+        CopyLegacyEffectIfNeeded(list);
+
+        int index = list.arraySize;
+        list.arraySize++;
+
+        InitializeNewEffect(
+            list.GetArrayElementAtIndex(index),
+            type
+        );
+
+        serializedObject.FindProperty(
+            "useItemEffectList"
+        ).boolValue = true;
+
+        serializedObject.ApplyModifiedProperties();
+
+        EditorUtility.SetDirty(target);
+        Repaint();
+    }
+
 
     // BattleItemData Inspector 아래쪽에 표시할
     // 데보리아 전용 Localization 편집 영역.

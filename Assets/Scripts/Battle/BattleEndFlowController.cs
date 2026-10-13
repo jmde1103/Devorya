@@ -258,13 +258,18 @@ public class BattleEndFlowController : MonoBehaviour
             return;
         }
 
-        // <변경부분> 실제 복구에 성공한 기물, 이번 전투 획득 금화,
-        // 실제 저장에 성공한 아이템·유물을 팝업에 전달한다.
+        // <변경부분>
+        // 실제 획득한 보상과 이번 전투의 흡수 횟수를
+        // BattleRewardPopupUI에 전달한다.
+        //
+        // 실제 회복 기물 지급은 이미 완료된 상태이며,
+        // 추가한 흡수 횟수는 정산 UI 연출에만 사용한다.
         battleRewardPopupUI.Show(
             this,
             GetAcquiredRecoveryRewardsCopy(),
             lastAcquiredGoldAmount,
-            GetAcquiredRewardOptionsCopy()
+            GetAcquiredRewardOptionsCopy(),
+            lastPlayerAbsorbCount
         );
 
         Debug.Log(

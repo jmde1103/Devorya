@@ -551,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9fab4dd343075468f180a88423b4f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemDisplay
-  itemData: {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
+  itemData: {fileID: 11400000, guid: 97d7d945a1cfee64290ec7033ee49074, type: 2}
   price: 30
   itemSpriteRenderer: {fileID: 9162434204219603377}
   priceText: {fileID: 8024683623311832110}
@@ -605,12 +605,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 0}
-  positionMode: 0
+  positionMode: 1
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 5, y: 5}
-  popupOffsetXPerSection: 100
-  popupOffsetYPerSection: 100
+  popupOffsetXPerSection: 0
+  popupOffsetYPerSection: 0
 --- !u!1 &5628235264678470285
 GameObject:
   m_ObjectHideFlags: 0
