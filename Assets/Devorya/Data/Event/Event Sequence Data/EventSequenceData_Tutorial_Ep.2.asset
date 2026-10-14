@@ -4399,6 +4399,168 @@ MonoBehaviour:
     speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
+  - stepName: "\uB9AC\uC6CC\uB4DC \uC2E4\uD589"
+    stepType: 14
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    waitDuration: 1
+  - stepName: "\uD14C\uC2A4\uD2B8"
+    stepType: 1
+    dialoguePages:
+    - "\uC774\uBC88 \uC804\uD22C\uC5D0\uC11C \uD761\uC218\uD55C \uAE30\uBB3C \uC218\uC5D0
+      \uB530\uB77C \uB370\uBCF4\uB9AC\uC544\uAC00 \uD68C\uBCF5\uB429\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_e7b48a13
+    dialogueLocalizationPages:
+    - localizationId: page_f55b57d2
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: 
+        m_TableEntryReference:
+          m_KeyId: 0
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    waitDuration: 0.5
   - stepName: "\uAE30\uBB3C \uC800\uC7A5"
     stepType: 9
     dialoguePages:
@@ -4451,37 +4613,35 @@ MonoBehaviour:
     speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
     waitDuration: 3
-  - stepName: "\uB9AC\uC6CC\uB4DC"
+  - stepName: "\uC774\uBCA4\uD2B8\uC644\uB8CC"
     stepType: 8
-    dialoguePages:
-    - "\uC8FC\uBCC0 \uD658\uACBD \uAC10\uC9C0\uB41C \uC0DD\uBA85\uBC18\uC751 \uC5C6\uC74C "
-    - "\uB2E4\uC74C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4. "
+    dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
-    targetPiecePosition: {x: 1, y: 2}
+    targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
-    targetTilePosition: {x: 2, y: 3}
-    targetButton: 1
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
     showMarker: 1
-    markerDisplayType: 1
-    markerPositionOffset: {x: 0, y: 70}
-    spawnPieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
-    spawnPieceTeam: 0
-    spawnPosition: {x: 4, y: 0}
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
     spawnOverride:
       overrideCanMove: 0
       canMove: 1
       overrideUniqueSkill: 0
       uniqueSkill: 0
-      overrideGeneralSkills: 1
-      generalSkills: 01000000
+      overrideGeneralSkills: 0
+      generalSkills: 
       useAbsorbedPlayerVisual: 0
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
-    removePieceTeam: 0
+    removePieceTeam: 1
     actionPieceTeam: 1
-    actionPiecePosition: {x: 3, y: 4}
-    actionTargetPosition: {x: 4, y: 5}
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
     uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
     speechBubblePieceTeam: 0
@@ -4502,8 +4662,8 @@ MonoBehaviour:
     speechBubbleUseEmphasisShake: 0
     speechBubbleEmphasisStrength: 2
     speechBubbleWaitForComplete: 1
-    waitDuration: 3
-  completionType: 3
+    waitDuration: 0.5
+  completionType: 0
   completionSceneName: WorldMapScene
   completionCutsceneData: {fileID: 0}
   references:

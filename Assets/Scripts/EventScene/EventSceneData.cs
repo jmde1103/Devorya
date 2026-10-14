@@ -58,7 +58,6 @@ public class EventSceneData : ScriptableObject
     // Actor / Camera 연출을 진행한다.
     public BackgroundMapData backgroundMapData;
 
-
     [Header("Event UI")]
 
     // <변경부분>
@@ -72,6 +71,21 @@ public class EventSceneData : ScriptableObject
     // 상점처럼 UnlockPlayerInteraction Step 실행 시
     // Run HUD를 Fade In한다.
     public bool showRunHUDDuringPlayerInteraction =
+        false;
+
+    // <변경부분>
+    // 상점 나가기 버튼을 표시할지 결정한다.
+    //
+    // 기본값 false:
+    // 일반 이벤트에서는 버튼을 표시하지 않는다.
+    //
+    // true:
+    // UnlockPlayerInteraction Step이 실행된 후
+    // 상점 나가기 버튼을 표시한다.
+    //
+    // LockPlayerInteraction Step이 실행되면
+    // 다시 숨긴다.
+    public bool showShopExitButtonDuringPlayerInteraction =
         false;
 
 

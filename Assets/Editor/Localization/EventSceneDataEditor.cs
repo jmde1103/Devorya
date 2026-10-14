@@ -710,7 +710,8 @@ public class EventSceneDataEditor : Editor
 
 
     // <변경부분>
-    // Event Scene의 공용 Run HUD 표시 방식을 편집한다.
+    // Event Scene의 공용 Run HUD와
+    // 상점 나가기 버튼 표시 방식을 편집한다.
     private void DrawEventUISettings(
         EventSceneData eventData)
     {
@@ -730,6 +731,15 @@ public class EventSceneDataEditor : Editor
                     eventData.showRunHUDDuringPlayerInteraction
                 );
 
+            // <변경부분>
+            // 일반 이벤트는 기본 OFF.
+            // 상점 이벤트에서만 체크하여 버튼을 표시한다.
+            bool newShowShopExitButton =
+                EditorGUILayout.Toggle(
+                    "Show Shop Exit Button During Player Interaction",
+                    eventData.showShopExitButtonDuringPlayerInteraction
+                );
+
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(
@@ -740,14 +750,22 @@ public class EventSceneDataEditor : Editor
                 eventData.showRunHUDDuringPlayerInteraction =
                     newShowRunHUD;
 
+                eventData.showShopExitButtonDuringPlayerInteraction =
+                    newShowShopExitButton;
+
                 EditorUtility.SetDirty(
                     eventData
                 );
             }
 
             EditorGUILayout.HelpBox(
+                "Run HUD\n" +
                 "OFF: 일반 이벤트처럼 Run HUD를 숨깁니다.\n" +
-                "ON: UnlockPlayerInteraction 실행 시 Run HUD를 표시합니다.",
+                "ON: UnlockPlayerInteraction 실행 시 Run HUD를 표시합니다.\n\n" +
+                "Shop Exit Button\n" +
+                "OFF: 상점 나가기 버튼을 숨깁니다.\n" +
+                "ON: UnlockPlayerInteraction 실행 시 버튼을 표시합니다.\n" +
+                "LockPlayerInteraction 실행 시 다시 숨깁니다.",
                 MessageType.Info
             );
         }
@@ -2377,6 +2395,60 @@ public class EventSceneDataEditor : Editor
                     MessageType.Info,
                     draw
                 );
+
+                break;
+
+
+            // <변경부분>
+            // Event Scene 선택형 전리품 획득 스텝.
+            //
+            // 기존 BattleRewardData Asset을 직접 연결하여
+            // Gold / Item / Relic의 보상 후보를 설정한다.
+            case EventSceneStepType.ShowRewardSelection:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Reward Selection",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "rewardSelectionData",
+                    "Battle Reward Data"
+                );
+
+                // <변경부분>
+                // 보상 데이터가 없는 경우 Inspector에서 경고한다.
+                if (step.rewardSelectionData == null)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "BattleRewardData가 연결되지 않았습니다.\n" +
+                        "이벤트에서 획득할 금화 / 아이템 / 유물 후보가 " +
+                        "설정된 BattleRewardData Asset을 연결해 주세요.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+                else
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "연결된 BattleRewardData의 금화 범위, " +
+                        "아이템 후보, 유물 후보 및 등장 확률을 사용합니다.\n" +
+                        "보상 후보는 해당 Step 실행 시 한 번 추첨하도록 구현할 예정입니다.\n" +
+                        "실제 UI 표시 및 보상 수령 Runtime은 다음 단계에서 연결합니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
 
                 break;
         }

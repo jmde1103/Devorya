@@ -571,9 +571,23 @@ public class BattleItemDataEditor : Editor
             }
 
             string baseKey =
-                GetItemBaseKey(
-                    itemData
+     GetItemBaseKey(
+         itemData
+     );
+
+            // <변경부분>
+            // 실제 에셋 GUID가 없는 데이터에는
+            // 임시 또는 공용 Localization Key를 생성하지 않는다.
+            if (string.IsNullOrWhiteSpace(baseKey))
+            {
+                EditorGUILayout.HelpBox(
+                    "아이템 에셋의 GUID를 확인할 수 없습니다. " +
+                    "먼저 BattleItemData 에셋을 저장해 주세요.",
+                    MessageType.Warning
                 );
+
+                return;
+            }
 
             string nameKey =
                 $"{baseKey}.name";
@@ -853,11 +867,11 @@ public class BattleItemDataEditor : Editor
         // 기존 BattleItemData에 직접 작성한 한국어 값을
         // Korean Localization Table의 원문으로 사용한다.
         DevoryaLocalizationEditorUtility
-            .SetTableValue(
-                koreanTable,
-                nameKey,
-                itemData.itemName
-            );
+      .SetTableValue(
+          koreanTable,
+          nameKey,
+          itemData.itemName
+      );
 
         DevoryaLocalizationEditorUtility
             .SetTableValue(
@@ -865,6 +879,18 @@ public class BattleItemDataEditor : Editor
                 descriptionKey,
                 itemData.description
             );
+
+        // <변경부분>
+        // 기존 BattleItemType 공통 Key에 작성된 EN/JA 번역을
+        // 아이템 고유 Key로 최초 한 번 복사한다.
+        //
+        // 이미 고유 Key에 작성한 번역은 덮어쓰지 않는다.
+        CopyLegacyTranslationsToUniqueKeys(
+            itemData,
+            collection,
+            nameKey,
+            descriptionKey
+        );
 
         // 공용 Utility를 통해 Table GUID + Entry ID 기반
         // LocalizedString 참조를 생성한다.
@@ -920,21 +946,160 @@ public class BattleItemDataEditor : Editor
         );
     }
 
-    // BattleItemType을 Localization Key용 snake_case로 변환한다.
+    // <변경부분>
+    // 과거 BattleItemType 기반 Localization Key의 영문·일문을
+    // 새로운 에셋별 고유 Key로 복사한다.
     //
-    // ChangeSelectedPieceToJelluPawn
-    // → item.change_selected_piece_to_jellu_pawn
-    private string GetItemBaseKey(
-        BattleItemData itemData)
+    // 기존 Legacy Entry는 삭제하지 않는다.
+    // 신규 Key에 Entry가 이미 있으면 해당 번역을 보존한다.
+    private void CopyLegacyTranslationsToUniqueKeys(
+        BattleItemData itemData,
+        StringTableCollection collection,
+        string newNameKey,
+        string newDescriptionKey)
     {
-        string snakeCaseName =
+        if (itemData == null ||
+            collection == null)
+        {
+            return;
+        }
+
+        string typeKey =
             DevoryaLocalizationEditorUtility
                 .ToSnakeCase(
                     itemData.itemType.ToString()
                 );
 
+        string legacyBaseKey =
+            $"item.{typeKey}";
+
+        string legacyNameKey =
+            $"{legacyBaseKey}.name";
+
+        string legacyDescriptionKey =
+            $"{legacyBaseKey}.description";
+
+        string[] localeCodes =
+        {
+            "en",
+            "ja"
+        };
+
+        for (int i = 0; i < localeCodes.Length; i++)
+        {
+            StringTable table =
+                collection.GetTable(
+                    localeCodes[i]
+                ) as StringTable;
+
+            if (table == null)
+            {
+                continue;
+            }
+
+            bool hasNewName =
+                table.GetEntry(newNameKey) != null;
+
+            bool hasNewDescription =
+                table.GetEntry(newDescriptionKey) != null;
+
+            string legacyName =
+                DevoryaLocalizationEditorUtility
+                    .GetTableValue(
+                        table,
+                        legacyNameKey
+                    );
+
+            string legacyDescription =
+                DevoryaLocalizationEditorUtility
+                    .GetTableValue(
+                        table,
+                        legacyDescriptionKey
+                    );
+
+            bool shouldCopyName =
+                !hasNewName &&
+                !string.IsNullOrEmpty(legacyName);
+
+            bool shouldCopyDescription =
+                !hasNewDescription &&
+                !string.IsNullOrEmpty(legacyDescription);
+
+            if (!shouldCopyName &&
+                !shouldCopyDescription)
+            {
+                continue;
+            }
+
+            Undo.RecordObject(
+                table,
+                "Migrate Battle Item Localization"
+            );
+
+            if (shouldCopyName)
+            {
+                DevoryaLocalizationEditorUtility
+                    .SetTableValue(
+                        table,
+                        newNameKey,
+                        legacyName
+                    );
+            }
+
+            if (shouldCopyDescription)
+            {
+                DevoryaLocalizationEditorUtility
+                    .SetTableValue(
+                        table,
+                        newDescriptionKey,
+                        legacyDescription
+                    );
+            }
+
+            EditorUtility.SetDirty(table);
+        }
+    }
+
+    // BattleItemType을 Localization Key용 snake_case로 변환한다.
+    //
+    // ChangeSelectedPieceToJelluPawn
+    // → item.change_selected_piece_to_jellu_pawn
+    // <변경부분>
+    // BattleItemType이 아니라 실제 BattleItemData 에셋의 GUID로
+    // Localization Key를 생성한다.
+    //
+    // 동일한 기능 타입을 가진 아이템도 번역을 공유하지 않는다.
+    // 에셋 이름 변경이나 폴더 이동에도 Key가 유지된다.
+    private string GetItemBaseKey(
+        BattleItemData itemData)
+    {
+        if (itemData == null)
+        {
+            return string.Empty;
+        }
+
+        string assetPath =
+            AssetDatabase.GetAssetPath(
+                itemData
+            );
+
+        if (string.IsNullOrWhiteSpace(assetPath))
+        {
+            return string.Empty;
+        }
+
+        string assetGuid =
+            AssetDatabase.AssetPathToGUID(
+                assetPath
+            );
+
+        if (string.IsNullOrWhiteSpace(assetGuid))
+        {
+            return string.Empty;
+        }
+
         return
-            $"item.{snakeCaseName}";
+            $"item.{assetGuid}";
     }
 
     // 필요할 경우 Unity 기본 Localization Tables 창을 연다.

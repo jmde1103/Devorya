@@ -31,6 +31,22 @@ MonoBehaviour:
     m_Key: item.apply_status_effect_to_selected_piece.description
     m_Metadata:
       m_Items: []
+  - m_Id: 15233645984485376
+    m_Key: item.8e0640762141b5e4d8d4af031c650eeb.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233646059982848
+    m_Key: item.8e0640762141b5e4d8d4af031c650eeb.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233677404016640
+    m_Key: item.97d7d945a1cfee64290ec7033ee49074.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233677404016641
+    m_Key: item.97d7d945a1cfee64290ec7033ee49074.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

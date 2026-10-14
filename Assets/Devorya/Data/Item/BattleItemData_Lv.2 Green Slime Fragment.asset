@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: BattleItemData_Lv.2 Green Slime Fragment
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemData
   itemType: 1
-  itemName: "\uD30C\uB780\uC0C9 \uC810\uC561 \uD30C\uD3B8"
+  itemName: "\uCD08\uB85D\uC0C9 \uC810\uC561 \uD30C\uD3B8"
   iconSprite: {fileID: 21300000, guid: 1145cffa36cfd71458ef3027b373b70a, type: 3}
   description: "\uC120\uD0DD\uD55C \uC790\uC2E0\uC758 \uAE30\uBB3C\uC744 \uC824\uB8E8
-    [\uB098\uC774\uD2B8]\uC73C\uB85C \uBCC0\uD615 \uD6C4\n\uC0C1\uD0DC\uC774\uC0C1
+    [\uB098\uC774\uD2B8]\uC73C\uB85C \uBCC0\uD615 \uD6C4 \uC0C1\uD0DC\uD6A8\uACFC
     [\uACF5\uACA9\uBD88\uAC00] 1\uD134\uC744 \uBD80\uC5EC\uD55C\uB2E4."
   localizedItemName:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
     m_TableEntryReference:
-      m_KeyId: 11941842944
+      m_KeyId: 15233677404016640
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -31,11 +31,29 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
     m_TableEntryReference:
-      m_KeyId: 192863145984
+      m_KeyId: 15233677404016641
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  useItemEffectList: 1
+  itemEffects:
+  - effectType: 0
+    changeTargetPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
+    changeTargetPieceType: 2
+    changeTargetUniqueSkill: 6
+    changeTargetGeneralSkill: 0
+    useAbsorbedJelluVisual: 1
+    statusEffectData: {fileID: 0}
+    statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
+  - effectType: 1
+    changeTargetPieceData: {fileID: 0}
+    changeTargetPieceType: 0
+    changeTargetUniqueSkill: 0
+    changeTargetGeneralSkill: 0
+    useAbsorbedJelluVisual: 1
+    statusEffectData: {fileID: 11400000, guid: c2bc84be6b2f9304982528565ce5e921, type: 2}
+    statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
   tooltipSections: []
   changeTargetPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
   changeTargetPieceType: 2

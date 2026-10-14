@@ -66,11 +66,23 @@ public enum EventSceneStepType
     UnlockPlayerInteraction = 13,
 
     // <변경부분>
+    // <변경부분>
     // Event Scene의 일반 플레이어 조작을 다시 잠근다.
     //
     // 자유 상호작용 구간 이후
     // Dialogue / CameraShot 등의 연출로 다시 진입할 때 사용한다.
-    LockPlayerInteraction = 14
+    LockPlayerInteraction = 14,
+
+    // <변경부분>
+    // Event Scene에서 금화 / 아이템 / 유물 보상 후보를
+    // 선택하여 수령하는 전리품 UI를 표시한다.
+    //
+    // BattleRewardData를 재사용하지만
+    // 전투 종료 및 Scene 이동 로직은 실행하지 않는다.
+    //
+    // 모든 보상을 수령하거나 수령을 포기하면
+    // 다음 Event Scene Step으로 진행한다.
+    ShowRewardSelection = 15
 }
 
 
@@ -675,7 +687,29 @@ public class EventSceneStepData
     // Wait Step에서 대기할 시간.
     [Min(0f)]
     public float waitDuration =
-        0.5f;
+     0.5f;
+
+
+    // =====================================================
+    // Reward Selection
+    // =====================================================
+
+    [Header("Reward Selection")]
+
+    // <변경부분>
+    // ShowRewardSelection Step에서 사용할 보상 데이터.
+    //
+    // 기존 BattleRewardData의
+    // Gold / Item / Relic 후보 및 확률 설정을 재사용한다.
+    //
+    // 실제 보상 후보 추첨은 Runtime에서
+    // 해당 Step이 실행될 때 한 번만 수행할 예정이다.
+    //
+    // 이 필드는 개별 Event Step에 저장되므로
+    // 같은 EventSceneData 안에서도 Step마다
+    // 서로 다른 BattleRewardData를 지정할 수 있다.
+    public BattleRewardData rewardSelectionData;
+
 
     // <변경부분>
     // 현재 Locale 기준 SpeechBubble 문자열을 반환한다.

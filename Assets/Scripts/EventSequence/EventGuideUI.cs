@@ -69,12 +69,18 @@ public class EventGuideUI : MonoBehaviour
     private float continueArrowFadeDuration =
         0.4f;
 
-
     [Header("Typing Animation")]
     // 글자 한 글자가 나타나는 간격
     [SerializeField, Min(0.001f)]
     private float characterInterval =
         0.03f;
+
+    // <변경부분>
+    // 타이핑 도중 클릭하여 전체 문장을 표시한 경우,
+    // 다음 페이지 입력을 허용하기 전까지 기다리는 시간.
+    // TimeScale의 영향을 받지 않는다.
+    [SerializeField, Min(0f)]
+    private float typingSkipAdvanceDelay = 0.5f;
 
     // Time.timeScale과 관계없이 Dialogue를 진행할지 여부
     [SerializeField]
@@ -248,13 +254,24 @@ public class EventGuideUI : MonoBehaviour
         //
         // Element 하나의 문장이 모두 출력된 뒤
         // 반드시 새 클릭이 들어와야 다음 Element로 진행한다.
-        if (isTyping ||
-            canAcceptAdvanceInput == false)
+        if (WasDialogueAdvancePressed() == false)
         {
             return;
         }
 
-        if (WasDialogueAdvancePressed() == false)
+        // <변경부분>
+        // 타이핑 도중 첫 클릭은 다음 페이지 이동이 아니라
+        // 현재 페이지의 남은 글자를 모두 표시하는 요청이다.
+        if (isTyping)
+        {
+            isTypingSkipRequested = true;
+            return;
+        }
+
+        // <변경부분>
+        // 타이핑이 끝났더라도 스킵 후 대기 시간이
+        // 지나지 않았다면 추가 클릭을 무시한다.
+        if (canAcceptAdvanceInput == false)
         {
             return;
         }
@@ -412,7 +429,30 @@ public class EventGuideUI : MonoBehaviour
                 yield break;
             }
 
-            // <변경부분> 현재 Element의 모든 글자가 출력된 프레임을 기록한다.
+            // <변경부분>
+            // 타이핑 중 클릭으로 전체 문장을 표시했다면
+            // 설정된 시간 동안 다음 페이지 클릭을 무시한다.
+            //
+            // 이 시점에는 canAcceptAdvanceInput이 false이므로
+            // 빠른 연속 클릭으로 다음 대사까지 넘어가지 않는다.
+            if (isTypingSkipRequested &&
+                typingSkipAdvanceDelay > 0f)
+            {
+                yield return new WaitForSecondsRealtime(
+                    typingSkipAdvanceDelay
+                );
+
+                // 대기 중 Dialogue가 종료되었다면
+                // 다음 페이지 입력을 활성화하지 않는다.
+                if (isDialoguePlaying == false)
+                {
+                    yield break;
+                }
+            }
+
+            // <변경부분>
+            // 스킵 후 대기가 끝났거나 자연스럽게 타이핑이
+            // 완료된 시점의 프레임을 기록한다.
             pageCompletedFrame =
                 Time.frameCount;
 
@@ -506,10 +546,17 @@ public class EventGuideUI : MonoBehaviour
             );
 
         for (int visibleCount = 1;
-     visibleCount <=
-         totalCharacterCount;
-     visibleCount++)
+visibleCount <=
+   totalCharacterCount;
+visibleCount++)
         {
+            // <변경부분>
+            // 플레이어가 타이핑 중 클릭했다면
+            // 글자별 출력 반복을 즉시 종료한다.
+            if (isTypingSkipRequested)
+            {
+                break;
+            }
             // <변경부분> 현재 Dialogue Element는
             // 설정된 속도로 끝까지 타이핑한다.
             //
@@ -520,8 +567,11 @@ public class EventGuideUI : MonoBehaviour
             float elapsedTime =
                 0f;
 
-            while (elapsedTime <
-                   safeInterval)
+            // <변경부분>
+            // 글자 출력 간격을 기다리는 도중에도
+            // 스킵 입력을 받으면 즉시 빠져나온다.
+            while (elapsedTime < safeInterval &&
+                   isTypingSkipRequested == false)
             {
                 elapsedTime +=
                     useUnscaledTime

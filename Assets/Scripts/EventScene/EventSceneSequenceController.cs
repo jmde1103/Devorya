@@ -31,6 +31,18 @@ public class EventSceneSequenceController : MonoBehaviour
     private EventGuideUI eventGuideUI;
 
     // <변경부분>
+    // 이벤트 종류에 따라 상점 나가기 버튼의
+    // 활성화 / 비활성화를 요청할 컨트롤러.
+    [SerializeField]
+    private ShopController shopController;
+
+    // <변경부분>
+    // Event Scene 전용 선택형 보상창.
+    // 기존 BattleRewardPopupUI와는 별개의 UI를 사용한다.
+    [SerializeField]
+    private EventSceneRewardPopupUI eventSceneRewardPopupUI;
+
+    // <변경부분>
     // Event Scene에서 BackgroundTile 좌표를 조회한다.
     [SerializeField]
     private BackgroundManager backgroundManager;
@@ -166,6 +178,11 @@ public class EventSceneSequenceController : MonoBehaviour
         SetRunHUDVisibleImmediately(
             false
         );
+
+        // <변경부분>
+        // 이벤트씬 진입 시 모든 이벤트는
+        // 기본적으로 상점 나가기 버튼을 숨긴다.
+        SetShopExitButtonVisible(false);
     }
 
 
@@ -201,7 +218,13 @@ public class EventSceneSequenceController : MonoBehaviour
         {
             return;
         }
+
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // 이전 이벤트의 표시 상태가 남아 있더라도
+        // 새 이벤트 시작 시 버튼은 항상 숨김으로 초기화한다.
+        SetShopExitButtonVisible(false);
 
         // <변경부분>
         // Standalone Event Scene이 시작되면
@@ -478,9 +501,18 @@ public class EventSceneSequenceController : MonoBehaviour
                 // 현재 EventSceneData가 Run HUD 표시를 허용한 경우에만
                 // 플레이어 조작 Unlock과 함께 HUD를 Fade In한다.
                 SetRunHUDVisibleWithFade(
+     currentEventSceneData != null &&
+     currentEventSceneData
+         .showRunHUDDuringPlayerInteraction
+ );
+
+                // <변경부분>
+                // EventSceneData의 옵션이 ON인 경우에만
+                // 상점 나가기 버튼을 표시한다.
+                SetShopExitButtonVisible(
                     currentEventSceneData != null &&
                     currentEventSceneData
-                        .showRunHUDDuringPlayerInteraction
+                        .showShopExitButtonDuringPlayerInteraction
                 );
 
                 Debug.Log(
@@ -502,15 +534,34 @@ public class EventSceneSequenceController : MonoBehaviour
                 );
 
                 // <변경부분>
+                // <변경부분>
                 // 다시 Event 연출 상태로 들어가면
                 // Run HUD도 함께 Fade Out한다.
                 SetRunHUDVisibleWithFade(
                     false
                 );
 
+                // <변경부분>
+                // 이벤트 연출 중에는
+                // 상점 나가기 버튼을 숨긴다.
+                SetShopExitButtonVisible(false);
+
                 Debug.Log(
-                    "Event Scene Player Interaction Lock"
-                );
+      "Event Scene Player Interaction Lock"
+  );
+
+                yield break;
+
+
+            // <변경부분>
+            // 이벤트씬에서 전리품 선택창을 표시하고
+            // 수령 완료 또는 Confirm까지 대기한다.
+            case EventSceneStepType.ShowRewardSelection:
+
+                yield return
+                    ExecuteShowRewardSelectionStepRoutine(
+                        step
+                    );
 
                 yield break;
 
@@ -1388,6 +1439,35 @@ attacker.PlayAttackRoutine(
 
 
     // <변경부분>
+    // EventSceneData의 설정에 따라
+    // 상점 나가기 버튼의 표시 여부를 제어한다.
+    //
+    // 실제 Button과 OnClick은 ShopController가 관리한다.
+    private void SetShopExitButtonVisible(
+        bool isVisible)
+    {
+        // Inspector 연결을 우선 사용한다.
+        // 연결이 없으면 비활성 오브젝트도 포함하여 찾는다.
+        if (shopController == null)
+        {
+            shopController =
+                FindFirstObjectByType<ShopController>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        if (shopController == null)
+        {
+            return;
+        }
+
+        shopController.SetExitShopButtonVisible(
+            isVisible
+        );
+    }
+
+
+    // <변경부분>
     // Event Scene 전체의 일반 플레이어 조작 상태를 변경한다.
     //
     // 이 값이 Event Scene 상호작용의 SSOT이며,
@@ -2069,10 +2149,103 @@ attacker.PlayAttackRoutine(
             }
 
             elapsedTime +=
-                Time.deltaTime;
+     Time.deltaTime;
 
             yield return null;
         }
+    }
+
+
+    // <변경부분>
+    // ShowRewardSelection Step 실행.
+    //
+    // 현재 Event Scene을 유지한 상태에서
+    // 독립적인 보상 팝업을 표시한다.
+    //
+    // 모든 보상 수령 또는 Confirm 이후
+    // 현재 Step을 종료하여 다음 Step으로 진행한다.
+    private IEnumerator ExecuteShowRewardSelectionStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null ||
+            step.rewardSelectionData == null)
+        {
+            Debug.LogWarning(
+                "Event Scene Reward Selection 실패: " +
+                "BattleRewardData가 연결되지 않았습니다."
+            );
+
+            yield break;
+        }
+
+        if (eventSceneRewardPopupUI == null)
+        {
+            Debug.LogWarning(
+                "Event Scene Reward Selection 실패: " +
+                "EventSceneRewardPopupUI가 연결되지 않았습니다."
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 보상창 표시 전의 플레이어 조작 잠금 상태를 저장한다.
+        // 상점과 같은 자유 상호작용 중간에 실행되어도
+        // 종료 후 기존 상태로 정확하게 복원한다.
+        bool wasInteractionLocked =
+            isPlayerInteractionLocked;
+
+        SetEventScenePlayerInteractionLocked(
+            true
+        );
+
+        bool rewardSelectionFinished =
+            false;
+
+        bool started =
+            eventSceneRewardPopupUI.TryShow(
+                step.rewardSelectionData,
+                () =>
+                {
+                    rewardSelectionFinished = true;
+                }
+            );
+
+        if (!started)
+        {
+            SetEventScenePlayerInteractionLocked(
+                wasInteractionLocked
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 플레이어가 보상창에서 수령을 마칠 때까지
+        // 시퀀스의 다음 Step 실행을 정지한다.
+        while (!rewardSelectionFinished)
+        {
+            if (!isSequenceActive)
+            {
+                eventSceneRewardPopupUI.HideImmediately();
+
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // 보상창이 정상 완료된 경우에만
+        // 기존 자유 상호작용 여부를 복원한다.
+        SetEventScenePlayerInteractionLocked(
+            wasInteractionLocked
+        );
+
+        Debug.Log(
+            "Event Scene Reward Selection 완료: " +
+            "다음 Event Step으로 진행합니다."
+        );
     }
 
 
@@ -2172,9 +2345,17 @@ attacker.PlayAttackRoutine(
             false;
 
         currentStepIndex =
-            -1;
+     -1;
 
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // 선택형 전리품창이 열린 상태에서 시퀀스가
+        // 강제 종료되어도 보상 UI와 Callback을 정리한다.
+        if (eventSceneRewardPopupUI != null)
+        {
+            eventSceneRewardPopupUI.HideImmediately();
+        }
 
         // <변경부분>
         // Detached CameraShot이 Sequence 종료 후에도 남지 않도록 정리.
@@ -2198,6 +2379,10 @@ attacker.PlayAttackRoutine(
         SetEventScenePlayerInteractionLocked(
             false
         );
+
+        // <변경부분>
+        // 강제 종료 시 상점 나가기 버튼도 숨긴다.
+        SetShopExitButtonVisible(false);
 
         // <변경부분>
         // 강제 종료 시 현재 Event Data Runtime 참조도 정리한다.
@@ -2231,6 +2416,13 @@ attacker.PlayAttackRoutine(
         StopSequenceCoroutine();
 
         // <변경부분>
+        // 이벤트씬 비활성화 시 보상창과 대기 Callback을 정리한다.
+        if (eventSceneRewardPopupUI != null)
+        {
+            eventSceneRewardPopupUI.HideImmediately();
+        }
+
+        // <변경부분>
         // Event Scene Controller가 비활성화될 때
         // Detached CameraShot Coroutine도 남기지 않는다.
         StopEventCameraShotImmediately();
@@ -2243,8 +2435,13 @@ attacker.PlayAttackRoutine(
         // Scene 전환 / 비활성화 시
         // Run HUD Coroutine과 표시 상태를 함께 정리한다.
         SetRunHUDVisibleImmediately(
-            false
-        );
+      false
+  );
+
+        // <변경부분>
+        // EventScene Controller가 비활성화되면
+        // 상점 나가기 버튼도 숨긴다.
+        SetShopExitButtonVisible(false);
 
         // <변경부분>
         // Event Scene Controller가 비활성화되면

@@ -87,12 +87,38 @@ public class ShopController : MonoBehaviour
     // 상점을 나가 WorldMap으로 돌아가는 별도 UI 버튼.
     // 구매 버튼과 무관하게 ShopRoot가 표시될 때 사용할 수 있다.
     [Header("Shop Exit UI")]
+    [Header("Shop Exit UI")]
     [SerializeField]
     private Button exitShopButton;
 
     // <변경부분>
     // Scene 이동 중 버튼 연속 클릭을 방지한다.
     private bool isExitingShop;
+
+    // <변경부분>
+    // EventSceneSequenceController에서 호출하여
+    // 상점 나가기 버튼의 표시 여부를 제어한다.
+    //
+    // 버튼이 숨겨진 상태에서는 클릭도 불가능하다.
+    // 기존 OnClick 및 월드맵 복귀 로직은 변경하지 않는다.
+    public void SetExitShopButtonVisible(
+        bool isVisible)
+    {
+        if (exitShopButton == null)
+        {
+            return;
+        }
+
+        // Button 자체를 비활성화하되
+        // ShopController는 항상 활성 상태로 유지한다.
+        exitShopButton.gameObject.SetActive(
+            isVisible
+        );
+
+        exitShopButton.interactable =
+            isVisible &&
+            !isExitingShop;
+    }
 
 
     [Header("Selected Item Tooltip")]
@@ -232,6 +258,14 @@ public class ShopController : MonoBehaviour
             );
         }
 
+        // <변경부분>
+        // EventScene 진입 직후에는
+        // 상점 나가기 버튼을 무조건 숨긴다.
+        //
+        // 이후 EventSceneSequenceController가
+        // 필요한 이벤트에서만 다시 표시한다.
+        SetExitShopButtonVisible(false);
+
         CacheShopItems();
 
         ClearSelection();
@@ -302,11 +336,16 @@ public class ShopController : MonoBehaviour
         // 실제 선택 비주얼 초기화는
         // 다음 OnEnable()의 ClearSelection()에서 안전하게 처리한다.
         selectedItemDisplay =
-            null;
+     null;
 
         // <변경부분>
         // 다른 EventScene에 구매 버튼이 남지 않게 한다.
         UpdatePurchaseButtonState();
+
+        // <변경부분>
+        // 상점 컨트롤러가 비활성화되면
+        // 종료 버튼도 남아 있지 않도록 숨긴다.
+        SetExitShopButtonVisible(false);
     }
 
 

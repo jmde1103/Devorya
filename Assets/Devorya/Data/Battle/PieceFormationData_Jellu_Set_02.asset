@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "\uC824\uB8E8 \uC7A1\uBAB9 \uAD6C\uC131"
   spawnMode: 1
   spawnDataList: []
-  randomPieceCount: 7
+  randomPieceCount: 2
   randomPieceEntries:
   - pieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
     weight: 15

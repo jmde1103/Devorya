@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c4c8d289ecf2a64e82c722353d040bc, type: 3}
-  m_Name: Event_Shop_FieldStage#1_NightTime
+  m_Name: Event_Shop_FieldStage#1
   m_EditorClassIdentifier: Assembly-CSharp::EventSceneData
   eventName: "\uB4E4\uD310 \uB178\uB4DC \uC0C1\uC810#1 (\uC800\uB141)"
   localizationId: event_shop_field_stage_1_night_time
   description: "\uC0C1\uC810 \uB178\uB4DC\uC2DC\uC2A4\uD15C \uB4E4\uD310 \uC800\uB141"
   backgroundMapData: {fileID: 11400000, guid: 39abf5385b294be458b07bb380e6f103, type: 2}
   showRunHUDDuringPlayerInteraction: 1
+  showShopExitButtonDuringPlayerInteraction: 1
   steps:
   - stepName: "\uC0C1\uC810\uD14C\uC2A4\uD2B8"
     stepType: 1
@@ -116,6 +117,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
   - stepName: "\uD50C\uB808\uC774\uC5B4 \uB3D9\uC791 \uD5C8\uC6A9"
     stepType: 13
     dialoguePages: []
@@ -191,6 +193,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
   - stepName: 
     stepType: 0
     dialoguePages: []
@@ -266,6 +269,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
   completionType: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}

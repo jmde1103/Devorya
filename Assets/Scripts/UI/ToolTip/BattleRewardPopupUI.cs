@@ -42,7 +42,19 @@ public class BattleRewardPopupUI : MonoBehaviour
     [SerializeField]
     private TMP_Text dropTitleText;
 
-    [SerializeField] private BattleRewardSlotUI rewardSlotPrefab;
+    [Header("Reward Slot Prefabs")]
+
+    // <변경부분>
+    // 금화 / 아이템 / 유물 전용 긴 바 형태 프리팹.
+    // 기존 Serialized 연결을 보호하기 위해 필드명을 유지한다.
+    [SerializeField]
+    private BattleRewardSlotUI rewardSlotPrefab;
+
+    // <변경부분>
+    // 흡수 정산을 통해 복구한 기물 전용 프리팹.
+    // 기존 기물 아이콘 형태를 그대로 사용한다.
+    [SerializeField]
+    private BattleRewardSlotUI pieceRepairSlotPrefab;
 
     // <변경부분> 금화 이름, 아이콘, 기본 설명을 모두 보관하는 TooltipData
     // 별도의 goldIconSprite는 사용하지 않는다.
@@ -175,9 +187,18 @@ public class BattleRewardPopupUI : MonoBehaviour
     [SerializeField]
     private EventSequenceController eventSequenceController;
 
-
     // <변경부분> 확인 버튼 클릭 후 맵 이동을 요청할 전투 종료 컨트롤러
     private BattleEndFlowController battleEndFlowController;
+
+    // <변경부분>
+    // 보상 수령에는 성공했지만 확대·잔상 애니메이션이
+    // 아직 끝나지 않은 드롭 슬롯 개수.
+    private int pendingDropClaimAnimations;
+
+    // <변경부분>
+    // 이번 팝업에서 실제 생성한 드롭 보상 슬롯 개수.
+    // 처음부터 보상이 없는 경우 자동 Confirm하지 않기 위해 사용한다.
+    private int createdDropRewardSlotCount;
 
     private void Awake()
     {
@@ -312,10 +333,10 @@ public class BattleRewardPopupUI : MonoBehaviour
 
     // <변경부분>
     // 리워드 팝업이 열려 있는 동안
-    // Event Sequence 종료 상태를 확인한다.
+    // 흡수 정산과 Event Sequence의 완료 상태를 확인한다.
     //
-    // 정산과 Event Sequence가 모두 끝나면
-    // Click to continue 안내를 자동으로 복구한다.
+    // 두 작업이 모두 완료되어야
+    // Confirm Button과 Click to continue를 활성화한다.
     private void Update()
     {
         if (popupRoot == null ||
@@ -325,24 +346,44 @@ public class BattleRewardPopupUI : MonoBehaviour
         }
 
         // <변경부분>
-        // Dialogue 등 Event Step이 진행 중이면
-        // 클릭 안내 문구도 보이지 않게 한다.
-        if (IsEventSequenceBlockingRewardConfirm())
+        // 흡수 정산 또는 Event Sequence 중 하나라도
+        // 진행 중이라면 팝업 확인을 잠근다.
+        bool isConfirmLocked =
+            isAbsorbSettlementLocked ||
+            IsEventSequenceBlockingRewardConfirm();
+
+        // <변경부분>
+        // 기존 Show()에서 잠근 Confirm Button을
+        // 정산과 Event Sequence가 끝난 뒤 자동으로 해제한다.
+        //
+        // 상태가 변경될 때만 적용하여
+        // 불필요한 UI 갱신을 방지한다.
+        if (confirmButton != null &&
+            confirmButton.interactable == isConfirmLocked)
         {
+            confirmButton.interactable =
+                !isConfirmLocked;
+        }
+
+        if (isConfirmLocked)
+        {
+            // <변경부분>
+            // 진행 중에는 기존 Continue 애니메이션을 중단한다.
             if (continueTextBlinkCoroutine != null)
             {
                 StopContinueTextBlink();
             }
 
+            // <변경부분>
+            // 정산 또는 Dialogue 중에는 클릭 안내를 숨긴다.
             SetContinueTextAlpha(0f);
             return;
         }
 
         // <변경부분>
-        // 흡수 정산도 완료되고 Event Sequence도 끝났다면
-        // 기존 클릭 안내 애니메이션을 복구한다.
-        if (!isAbsorbSettlementLocked &&
-            continueText != null &&
+        // 모든 잠금이 해제된 상태에서만
+        // 기존 Continue 깜빡임 애니메이션을 시작한다.
+        if (continueText != null &&
             continueTextBlinkCoroutine == null)
         {
             StartContinueTextBlink();
@@ -438,6 +479,12 @@ public class BattleRewardPopupUI : MonoBehaviour
         StopContinueTextBlink();
 
         // <변경부분>
+        // 새로운 전투 보상창이 열릴 때마다
+        // 이전 전투의 선택 수령 애니메이션 상태를 초기화한다.
+        pendingDropClaimAnimations = 0;
+        createdDropRewardSlotCount = 0;
+
+        // <변경부분>
         // 이번 전투 흡수 횟수로 정산 시작 상태를 설정한다.
         int safeAbsorbCount =
             Mathf.Max(0, absorbCount);
@@ -497,13 +544,20 @@ public class BattleRewardPopupUI : MonoBehaviour
         //
         // Drop 보상은 기존 표시 방식을 그대로 유지한다.
         int recoverySlotCount =
-            CreateRecoverySlots(
-                recoveryRewards,
-                isAbsorbSettlementLocked
-            );
+     CreateRecoverySlots(
+         recoveryRewards,
+         isAbsorbSettlementLocked
+     );
 
         int dropSlotCount =
             CreateDropSlots(goldAmount, acquiredRewards);
+
+        // <변경부분>
+        // 이번에 표시한 드롭 보상 슬롯 개수를 기록한다.
+        //
+        // 금화·아이템·유물 슬롯이 하나도 없었다면
+        // 자동으로 다음 Scene으로 이동하지 않는다.
+        createdDropRewardSlotCount = dropSlotCount;
 
         // <변경부분> Recovery 제목 영역은 보상 유무와 관계없이 항상 표시한다.
         if (recoveryAreaObject != null)
@@ -570,26 +624,36 @@ public class BattleRewardPopupUI : MonoBehaviour
         );
     }
 
-    // <변경부분> 복구된 기물을 종류별 슬롯으로 생성
     // <변경부분>
-    // 복구된 기물을 종류별 슬롯으로 생성한다.
+    // 복구된 기물을 PieceRepairSlot 전용 프리팹으로 생성한다.
     //
     // hideForSettlement == false:
-    // 기존과 동일하게 최종 획득 수량을 즉시 표시한다.
+    // 최종 획득 수량을 즉시 표시한다.
     //
     // hideForSettlement == true:
     // 슬롯을 미리 생성하되 화면에서는 숨겨 놓는다.
     // 흡수 카운트 2회 차감마다 하나씩 공개한다.
     //
-    // 실제 회복 보상은 여기서 지급하지 않는다.
+    // 실제 기물 복구 보상은 BattleEndFlowController에서
+    // 이미 지급했으므로 여기서는 UI 표시만 처리한다.
     private int CreateRecoverySlots(
         List<BattleRecoveryRewardRuntimeData> recoveryRewards,
         bool hideForSettlement)
     {
         if (recoveryRewards == null ||
-            recoverySlotParent == null ||
-            rewardSlotPrefab == null)
+            recoverySlotParent == null)
         {
+            return 0;
+        }
+
+        if (pieceRepairSlotPrefab == null)
+        {
+            Debug.LogWarning(
+                "회복 기물 슬롯 생성 실패: " +
+                "Piece Repair Slot Prefab이 연결되지 않았습니다.",
+                this
+            );
+
             return 0;
         }
 
@@ -608,16 +672,16 @@ public class BattleRewardPopupUI : MonoBehaviour
             }
 
             // <변경부분>
-            // 기존 Reward Slot 프리팹을 그대로 사용한다.
+            // 드롭 보상 프리팹이 아닌
+            // PieceRepairSlot 프리팹을 복구 영역에 생성한다.
             BattleRewardSlotUI slotUI =
                 Instantiate(
-                    rewardSlotPrefab,
+                    pieceRepairSlotPrefab,
                     recoverySlotParent
                 );
 
-            // <변경부분>
-            // 정산 중에는 최초 표시 수량을 1로 준비한다.
-            // 정산이 없을 때는 기존처럼 최종 수량을 표시한다.
+            // 기존 정산 전 최초 수량 1 표시 및
+            // 정산이 없는 경우의 최종 수량 표시를 유지한다.
             slotUI.RefreshRecoveryPiece(
                 reward.pieceData,
                 hideForSettlement
@@ -628,8 +692,8 @@ public class BattleRewardPopupUI : MonoBehaviour
             if (hideForSettlement)
             {
                 // <변경부분>
-                // 실제 획득한 PieceData와 총 수량을
-                // 시각적 정산 정보로만 별도 저장한다.
+                // 실제 복구 완료된 기물 데이터를
+                // 기존 정산 연출 목록에 등록한다.
                 recoverySettlementEntries.Add(
                     new RecoverySettlementEntry
                     {
@@ -640,11 +704,9 @@ public class BattleRewardPopupUI : MonoBehaviour
                     }
                 );
 
-                // <변경부분>
-                // 정산 전에는 슬롯을 표시하지 않는다.
-                //
-                // HorizontalLayoutGroup은 비활성 슬롯을
-                // 레이아웃에서 제외하므로 빈칸이 생기지 않는다.
+                // 기존 정산 연출 보존:
+                // 처음에는 숨기고 흡수 카운트 2회 차감마다
+                // RevealNextRecoveryReward()가 활성화한다.
                 slotUI.gameObject.SetActive(false);
             }
 
@@ -907,7 +969,15 @@ public class BattleRewardPopupUI : MonoBehaviour
     }
 
 
-    // <변경부분> 금화, 아이템, 유물 슬롯을 순차적으로 생성
+    // <변경부분>
+    // 금화·아이템·유물의 미수령 보상 후보를
+    // 플레이어가 선택할 수 있는 슬롯으로 생성한다.
+    //
+    // 기존과 달리 이 단계에서는 아무 보상도 지급하지 않는다.
+    //
+    // 동일한 아이템이 여러 개 등장한 경우에도
+    // 각각 별도 슬롯으로 표시한다.
+    // 인벤토리 여유 수량에 맞춰 개별 수령할 수 있도록 하기 위함이다.
     private int CreateDropSlots(
         int goldAmount,
         List<BattleRewardOptionRuntimeData> acquiredRewards)
@@ -920,77 +990,152 @@ public class BattleRewardPopupUI : MonoBehaviour
 
         int createdCount = 0;
 
-        // <변경부분> 금화는 가장 먼저 표시
-        if (goldAmount > 0)
+        if (acquiredRewards == null)
         {
-            BattleRewardSlotUI goldSlot =
-                Instantiate(
-                    rewardSlotPrefab,
-                    dropSlotParent
-                );
+            return createdCount;
+        }
 
-            // <변경부분> RunStateManager에서 보상 적용 후의
-            // 현재 총 금화 수량을 가져온다.
-            int currentGoldAmount = 0;
+        // =====================================================
+        // Gold Reward
+        // =====================================================
 
-            if (RunStateManager.Instance != null)
+        // Gold 보상도 다른 보상과 동일하게
+        // 미수령 후보 객체를 통해 지급 상태를 검사한다.
+        BattleRewardOptionRuntimeData goldReward = null;
+
+        for (int i = 0; i < acquiredRewards.Count; i++)
+        {
+            BattleRewardOptionRuntimeData reward =
+                acquiredRewards[i];
+
+            if (reward != null &&
+                reward.rewardType == BattleRewardOptionType.Gold)
             {
-                currentGoldAmount =
-                    RunStateManager.Instance.GetGoldAmount();
+                goldReward = reward;
+                break;
+            }
+        }
+
+        if (goldReward != null &&
+            goldAmount > 0)
+        {
+            if (goldTooltipData == null)
+            {
+                Debug.LogWarning(
+                    "금화 보상 슬롯 생성 실패: " +
+                    "Gold Tooltip Data가 연결되지 않았습니다."
+                );
             }
             else
             {
-                // RunStateManager가 없는 테스트 상황에서는
-                // 이번에 획득한 금화량을 임시 총량으로 사용한다.
-                currentGoldAmount = goldAmount;
+                BattleRewardSlotUI goldSlot =
+                    Instantiate(
+                        rewardSlotPrefab,
+                        dropSlotParent
+                    );
 
-                Debug.LogWarning(
-                    "금화 툴팁 표시: " +
-                    "RunStateManager가 없어 이번 획득량을 현재 금화량으로 표시합니다."
-                );
-            }
+                // 아직 획득 전이므로 현재 보유 금화량을 전달한다.
+                int currentGoldAmount = 0;
 
-            // <변경부분> 금화 아이콘은 TooltipData에서 가져오고,
-            // 이번 획득량과 현재 총량을 함께 전달한다.
-            goldSlot.RefreshGold(
-                goldTooltipData,
-                goldAmount,
-                currentGoldAmount
-            );
+                if (RunStateManager.Instance != null)
+                {
+                    currentGoldAmount =
+                        RunStateManager.Instance.GetGoldAmount();
+                }
 
-            createdCount++;
-        }
-
-        // <변경부분> 같은 아이템이나 유물이 여러 개면
-        // 슬롯 하나에 수량으로 합산
-        List<BattleRewardDisplayGroup> groups =
-            GroupAcquiredRewards(acquiredRewards);
-
-        for (int i = 0; i < groups.Count; i++)
-        {
-            BattleRewardDisplayGroup group =
-                groups[i];
-
-            BattleRewardSlotUI slotUI =
-                Instantiate(
-                    rewardSlotPrefab,
-                    dropSlotParent
+                goldSlot.RefreshGold(
+                    goldTooltipData,
+                    goldReward.goldAmount,
+                    currentGoldAmount
                 );
 
-            if (group.itemData != null)
-            {
-                slotUI.RefreshItem(
-                    group.itemData,
-                    group.amount
+                // <변경부분>
+                // 수령 성공 후 애니메이션이 종료되면
+                // 전체 보상 수령 완료 여부를 확인한다.
+                goldSlot.ConfigureClaim(
+                    () => TryClaimRewardOption(goldReward),
+                    OnDropSlotClaimSucceeded
                 );
 
                 createdCount++;
             }
-            else if (group.relicData != null)
+        }
+
+        // =====================================================
+        // Item / Relic Rewards
+        // =====================================================
+
+        for (int i = 0; i < acquiredRewards.Count; i++)
+        {
+            BattleRewardOptionRuntimeData rewardOption =
+                acquiredRewards[i];
+
+            if (rewardOption == null)
             {
-                slotUI.RefreshRelic(
-                    group.relicData,
-                    group.amount
+                continue;
+            }
+
+            // Gold는 위에서 별도 처리했다.
+            if (rewardOption.rewardType ==
+                BattleRewardOptionType.Gold)
+            {
+                continue;
+            }
+
+            if (rewardOption.rewardType ==
+                BattleRewardOptionType.Item)
+            {
+                if (rewardOption.itemData == null)
+                {
+                    continue;
+                }
+
+                BattleRewardSlotUI itemSlot =
+                    Instantiate(
+                        rewardSlotPrefab,
+                        dropSlotParent
+                    );
+
+                itemSlot.RefreshItem(
+                    rewardOption.itemData,
+                    1
+                );
+
+                // <변경부분>
+                // 아이템 수령 애니메이션 종료 후
+                // 전체 보상 수령 완료 여부를 확인한다.
+                itemSlot.ConfigureClaim(
+                    () => TryClaimRewardOption(rewardOption),
+                    OnDropSlotClaimSucceeded
+                );
+
+                createdCount++;
+            }
+            else if (rewardOption.rewardType ==
+                     BattleRewardOptionType.Relic)
+            {
+                if (rewardOption.relicData == null)
+                {
+                    continue;
+                }
+
+                BattleRewardSlotUI relicSlot =
+                    Instantiate(
+                        rewardSlotPrefab,
+                        dropSlotParent
+                    );
+
+                relicSlot.RefreshRelic(
+                    rewardOption.relicData,
+                    1
+                );
+
+                // <변경부분>
+                // 유물 수령 애니메이션 종료 후
+                // 전체 보상 수령 완료 여부를 확인한다.
+                relicSlot.ConfigureClaim(
+                    () => TryClaimRewardOption(rewardOption),
+                    OnDropSlotClaimSucceeded
                 );
 
                 createdCount++;
@@ -998,6 +1143,131 @@ public class BattleRewardPopupUI : MonoBehaviour
         }
 
         return createdCount;
+    }
+
+
+    // <변경부분>
+    // 선택 수령 슬롯이 클릭됐을 때만
+    // BattleEndFlowController에 실제 보상 지급을 요청한다.
+    private bool TryClaimRewardOption(
+        BattleRewardOptionRuntimeData rewardOption)
+    {
+        // 기존 흡수 정산 및 튜토리얼 EventSequence가
+        // 진행 중일 때는 보상 수령도 잠시 차단한다.
+        if (isAbsorbSettlementLocked ||
+            IsEventSequenceBlockingRewardConfirm())
+        {
+            return false;
+        }
+
+        if (battleEndFlowController == null ||
+            rewardOption == null)
+        {
+            return false;
+        }
+
+        // <변경부분>
+        // 실제 보상 지급이 성공했는지 확인한다.
+        //
+        // 실패한 보상은 애니메이션도 실행되지 않고,
+        // 미수령 목록에도 그대로 남는다.
+        bool claimSucceeded =
+            battleEndFlowController.TryClaimPendingBattleReward(
+                rewardOption
+            );
+
+        if (claimSucceeded)
+        {
+            // <변경부분>
+            // 이 슬롯의 확대·잔상 애니메이션이
+            // 아직 완료되지 않았음을 기록한다.
+            pendingDropClaimAnimations++;
+        }
+
+        return claimSucceeded;
+    }
+
+
+    // <변경부분>
+    // 드롭 보상 슬롯의 확대·잔상 애니메이션이 끝나고
+    // 슬롯이 비활성화된 다음 호출되는 콜백.
+    //
+    // 모든 보상을 실제로 수령했고
+    // 다른 슬롯의 수령 애니메이션도 전부 끝났을 때만
+    // 기존 ConfirmButton과 같은 진행을 수행한다.
+    private void OnDropSlotClaimSucceeded()
+    {
+        // 완료된 슬롯의 애니메이션 대기 개수를 감소시킨다.
+        pendingDropClaimAnimations =
+            Mathf.Max(
+                0,
+                pendingDropClaimAnimations - 1
+            );
+
+        // 기존 레이아웃 갱신 기능 유지.
+        RefreshRewardLayouts();
+
+        // 처음부터 전리품이 없었던 경우에는
+        // 기존 수동 Confirm 동작을 유지한다.
+        if (createdDropRewardSlotCount <= 0)
+        {
+            return;
+        }
+
+        // 먼저 클릭한 다른 슬롯의 애니메이션이
+        // 아직 재생 중이면 완료될 때까지 기다린다.
+        if (pendingDropClaimAnimations > 0)
+        {
+            return;
+        }
+
+        // 실제 보상 지급 컨트롤러가 없으면 진행하지 않는다.
+        if (battleEndFlowController == null)
+        {
+            return;
+        }
+
+        // 팝업이 이미 닫힌 상태라면 중복 진행하지 않는다.
+        if (popupRoot == null ||
+            popupRoot.activeInHierarchy == false)
+        {
+            return;
+        }
+
+        // 기물 복구 정산 및 튜토리얼 EventSequence의
+        // 기존 진행 잠금을 유지한다.
+        if (isAbsorbSettlementLocked ||
+            IsEventSequenceBlockingRewardConfirm())
+        {
+            return;
+        }
+
+        // <변경부분>
+        // RunStateManager에 실제 지급되지 않은
+        // 금화·아이템·유물 후보가 하나라도 남았는지 확인한다.
+        //
+        // 인벤토리 초과 등으로 지급에 실패한 후보도
+        // 이 목록에 남기 때문에 자동 진행하지 않는다.
+        List<BattleRewardOptionRuntimeData> remainingRewards =
+            battleEndFlowController.GetPendingBattleRewardOptionsCopy();
+
+        if (remainingRewards.Count > 0)
+        {
+            return;
+        }
+
+        Debug.Log(
+            "모든 전리품 수령 및 클릭 애니메이션 완료: " +
+            "기존 ConfirmButton과 동일한 진행을 시작합니다."
+        );
+
+        // <변경부분>
+        // 기존 ConfirmButton의 클릭 처리 함수를 그대로 사용한다.
+        //
+        // 미수령 보상 정리, 팝업 닫기,
+        // StageBattleData에 따른 승리 Scene 이동 등
+        // 기존 종료 흐름을 전부 재사용한다.
+        OnClickConfirm();
     }
 
     // <변경부분> 동일한 BattleItemData 또는 BattleRelicData를
@@ -1352,6 +1622,14 @@ public class BattleRewardPopupUI : MonoBehaviour
         // 팝업이 닫히기 전에
         // Click to continue 반복 애니메이션을 정리한다.
         StopContinueTextBlink();
+
+        // <변경부분>
+        // 플레이어가 수령하지 않은 금화·아이템·유물은
+        // 런 상태에 지급하지 않고 폐기한다.
+        //
+        // 이미 선택하여 지급받은 보상과
+        // 자동 복구된 기물에는 영향을 주지 않는다.
+        battleEndFlowController.DiscardPendingBattleRewards();
 
         if (popupRoot != null)
         {

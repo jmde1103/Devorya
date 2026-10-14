@@ -110,6 +110,17 @@ public class BattleEndFlowController : MonoBehaviour
     private readonly List<BattleRewardOptionRuntimeData> acquiredRewardOptions =
         new List<BattleRewardOptionRuntimeData>();
 
+    // <변경부분>
+    // 전투 승리 후 생성됐지만 아직 수령하지 않은 보상 후보 목록.
+    //
+    // 금화·아이템·유물은 슬롯을 클릭하기 전까지
+    // RunStateManager에 지급하지 않는다.
+    //
+    // 성공적으로 수령한 후보는 이 목록에서 제거하므로
+    // 중복 클릭으로 같은 보상을 두 번 지급받을 수 없다.
+    private readonly List<BattleRewardOptionRuntimeData> pendingRewardOptions =
+        new List<BattleRewardOptionRuntimeData>();
+
     // <변경부분> 이번 전투에서 실제 복구에 성공한 기물을
     // PieceData 종류별 수량으로 집계하는 목록
     private readonly List<BattleRecoveryRewardRuntimeData> acquiredRecoveryRewards =
@@ -220,34 +231,41 @@ public class BattleEndFlowController : MonoBehaviour
         HandleBattleEnd(result, 0);
     }
 
-    // <변경부분> 전투 승리 후 보상을 적용하고
-    // 실제 획득 결과 팝업을 표시하는 함수
+    // <변경부분>
+    // 전투 승리 시 기물 복구는 기존대로 즉시 지급한다.
+    //
+    // 금화·아이템·유물은 후보만 생성하고,
+    // 플레이어가 보상 슬롯을 클릭했을 때 지급한다.
     private void HandleBattleWin()
     {
         Debug.Log("전투 종료 흐름: 승리 / 보상 정산 단계 진입");
 
-        // <변경부분> 이전 전투의 결과가 남지 않도록
-        // 이번 전투 보상 집계값을 먼저 초기화한다.
+        // 이전 전투의 보상 상태를 초기화한다.
         acquiredRecoveryRewards.Clear();
         acquiredRewardOptions.Clear();
+        pendingRewardOptions.Clear();
         lastAcquiredGoldAmount = 0;
 
-        // 흡수 횟수 기반 데보리아 기물 회복 보상 적용
+        // 기존 기물 복구 정산은 그대로 유지한다.
         ApplyDevoryaRecoveryReward();
 
-        // 확률 판정을 통과한 금화·아이템·유물 보상을
-        // 런 상태에 즉시 적용
-        CreateAndApplyBattleRewards();
+        // 금화·아이템·유물은 아직 지급하지 않고
+        // 드롭 후보만 확정한다.
+        CreatePendingBattleRewards();
 
-        // 즉시 맵 이동 테스트 옵션이 켜져 있으면
-        // 보상 팝업 없이 기존 방식대로 맵으로 이동
+        // 기존 즉시 이동 테스트 옵션은 예외적으로
+        // 종전처럼 가능한 보상을 자동 지급한다.
+        // 일반적인 보상 선택 흐름에는 사용하지 않는다.
         if (moveToMapSceneImmediatelyOnWin)
         {
+            ApplyAllPendingRewardsForImmediateMove();
+
+            DiscardPendingBattleRewards();
+
             MoveToMapScene();
             return;
         }
 
-        // 보상 팝업이 연결되지 않았다면 명확한 경고 출력
         if (battleRewardPopupUI == null)
         {
             Debug.LogWarning(
@@ -258,25 +276,41 @@ public class BattleEndFlowController : MonoBehaviour
             return;
         }
 
-        // <변경부분>
-        // 실제 획득한 보상과 이번 전투의 흡수 횟수를
-        // BattleRewardPopupUI에 전달한다.
+        // 팝업 표시용 후보 금화 수량 계산.
+        // 이 값은 아직 실제 보유 금화에 추가되지 않았다.
+        int pendingGoldAmount = 0;
+
+        for (int i = 0; i < pendingRewardOptions.Count; i++)
+        {
+            BattleRewardOptionRuntimeData reward =
+                pendingRewardOptions[i];
+
+            if (reward != null &&
+                reward.rewardType == BattleRewardOptionType.Gold)
+            {
+                pendingGoldAmount +=
+                    Mathf.Max(0, reward.goldAmount);
+            }
+        }
+
+        // 기물 복구 목록은 지급 완료 결과이며,
+        // 금화·아이템·유물 목록은 미수령 후보이다.
         //
-        // 실제 회복 기물 지급은 이미 완료된 상태이며,
-        // 추가한 흡수 횟수는 정산 UI 연출에만 사용한다.
+        // 기존 흡수 정산 애니메이션에 필요한
+        // lastPlayerAbsorbCount는 그대로 전달한다.
         battleRewardPopupUI.Show(
             this,
             GetAcquiredRecoveryRewardsCopy(),
-            lastAcquiredGoldAmount,
-            GetAcquiredRewardOptionsCopy(),
+            pendingGoldAmount,
+            GetPendingBattleRewardOptionsCopy(),
             lastPlayerAbsorbCount
         );
 
         Debug.Log(
-            $"전투 보상 팝업 Show 호출 완료: " +
+            $"전투 보상 선택 팝업 Show 호출 완료: " +
             $"복구 {acquiredRecoveryRewards.Count}종 / " +
-            $"금화 {lastAcquiredGoldAmount} / " +
-            $"아이템·유물 {acquiredRewardOptions.Count}개"
+            $"금화 후보 {pendingGoldAmount} / " +
+            $"전체 미수령 후보 {pendingRewardOptions.Count}개"
         );
     }
 
@@ -412,16 +446,19 @@ public class BattleEndFlowController : MonoBehaviour
         return advancedCandidates[randomIndex];
     }
 
-    // <변경부분> BattleRewardData의 개별 드롭 확률을 판정한 뒤
-    // 생성된 금화·아이템·유물 보상을 모두 즉시 런 상태에 적용하는 함수
-    private void CreateAndApplyBattleRewards()
+    // <변경부분>
+    // BattleRewardData의 드롭 확률을 판정해
+    // 금화·아이템·유물 후보만 확정한다.
+    //
+    // 이 단계에서는 실제 보상을 지급하지 않는다.
+    private void CreatePendingBattleRewards()
     {
-        acquiredRewardOptions.Clear();
+        pendingRewardOptions.Clear();
 
         if (battleRewardData == null)
         {
             Debug.LogWarning(
-                "전투 보상 적용 실패: BattleRewardData가 연결되지 않았습니다."
+                "전투 보상 생성 실패: BattleRewardData가 연결되지 않았습니다."
             );
 
             return;
@@ -430,7 +467,7 @@ public class BattleEndFlowController : MonoBehaviour
         if (RunStateManager.Instance == null)
         {
             Debug.LogWarning(
-                "전투 보상 적용 실패: RunStateManager가 없습니다."
+                "전투 보상 생성 실패: RunStateManager가 없습니다."
             );
 
             return;
@@ -459,35 +496,162 @@ public class BattleEndFlowController : MonoBehaviour
                 continue;
             }
 
-            // <변경부분> 금화는 기존과 동일하게 즉시 런 상태에 적립한다.
-            if (rewardOption.rewardType ==
-                BattleRewardOptionType.Gold)
+            if (rewardOption.rewardType == BattleRewardOptionType.Gold &&
+                rewardOption.goldAmount <= 0)
+            {
+                continue;
+            }
+
+            if (rewardOption.rewardType == BattleRewardOptionType.Item &&
+                rewardOption.itemData == null)
+            {
+                continue;
+            }
+
+            if (rewardOption.rewardType == BattleRewardOptionType.Relic &&
+                rewardOption.relicData == null)
+            {
+                continue;
+            }
+
+            if (rewardOption.rewardType != BattleRewardOptionType.Gold &&
+                rewardOption.rewardType != BattleRewardOptionType.Item &&
+                rewardOption.rewardType != BattleRewardOptionType.Relic)
+            {
+                continue;
+            }
+
+            pendingRewardOptions.Add(rewardOption);
+        }
+
+        Debug.Log(
+            $"전투 보상 후보 생성 완료: " +
+            $"{pendingRewardOptions.Count}개 / 아직 지급되지 않음"
+        );
+    }
+
+
+    // <변경부분>
+    // 보상 UI에서 슬롯을 클릭했을 때 호출한다.
+    //
+    // true:
+    // 실제 지급에 성공했으며 미수령 목록에서 제거했다.
+    //
+    // false:
+    // 지급하지 않았으며 후보를 유지한다.
+    //
+    // 미수령 목록에 없는 보상은 절대 지급하지 않는다.
+    public bool TryClaimPendingBattleReward(
+        BattleRewardOptionRuntimeData rewardOption)
+    {
+        if (rewardOption == null ||
+            pendingRewardOptions.Contains(rewardOption) == false)
+        {
+            return false;
+        }
+
+        if (RunStateManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "보상 수령 실패: RunStateManager가 없습니다."
+            );
+
+            return false;
+        }
+
+        bool rewardApplied = false;
+
+        if (rewardOption.rewardType ==
+            BattleRewardOptionType.Gold)
+        {
+            if (rewardOption.goldAmount > 0)
             {
                 ApplyGoldReward(rewardOption);
-                continue;
+                rewardApplied = true;
             }
-
-            bool rewardApplied =
+        }
+        else
+        {
+            // 기존 아이템 4개 / 유물 10개 제한과
+            // 유물 중복 검사 로직을 그대로 사용한다.
+            rewardApplied =
                 TryApplyDroppedReward(rewardOption);
 
-            if (rewardApplied == false)
+            if (rewardApplied)
             {
-                Debug.LogWarning(
-                    $"드롭 보상 획득 실패: " +
-                    $"{rewardOption.GetDebugName()}"
-                );
-
-                continue;
+                acquiredRewardOptions.Add(rewardOption);
             }
+        }
 
-            // <변경부분> 실제 저장에 성공한 아이템·유물만
-            // 결과 UI 표시 목록에 보관한다.
-            acquiredRewardOptions.Add(rewardOption);
-
-            Debug.Log(
-                $"드롭 보상 획득 완료: " +
-                $"{rewardOption.GetDebugName()}"
+        if (rewardApplied == false)
+        {
+            Debug.LogWarning(
+                $"보상 수령 실패: {rewardOption.GetDebugName()} / " +
+                "인벤토리 제한 또는 유효하지 않은 보상입니다."
             );
+
+            return false;
+        }
+
+        // 성공적으로 지급된 보상을 후보에서 제거한다.
+        // 이후 같은 참조로 재요청해도 지급되지 않는다.
+        pendingRewardOptions.Remove(rewardOption);
+
+        Debug.Log(
+            $"보상 선택 수령 완료: " +
+            $"{rewardOption.GetDebugName()} / " +
+            $"남은 보상 {pendingRewardOptions.Count}개"
+        );
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // 팝업에서 사용할 미수령 후보 목록의 복사본.
+    //
+    // List는 복사하되 후보 객체 참조는 유지한다.
+    // 클릭 시 원본 후보와 동일한 객체인지 검사할 수 있다.
+    public List<BattleRewardOptionRuntimeData>
+        GetPendingBattleRewardOptionsCopy()
+    {
+        return new List<BattleRewardOptionRuntimeData>(
+            pendingRewardOptions
+        );
+    }
+
+
+    // <변경부분>
+    // 확인 / 건너뛰기 시 남은 후보를 지급하지 않고 폐기한다.
+    //
+    // 이미 수령한 보상은 RunStateManager에 남는다.
+    public void DiscardPendingBattleRewards()
+    {
+        if (pendingRewardOptions.Count > 0)
+        {
+            Debug.Log(
+                $"미수령 전투 보상 {pendingRewardOptions.Count}개를 " +
+                "획득하지 않고 넘어갑니다."
+            );
+        }
+
+        pendingRewardOptions.Clear();
+    }
+
+
+    // <변경부분>
+    // 기존 즉시 맵 이동 테스트 옵션 전용 예외 처리.
+    //
+    // 보상창을 사용하지 않을 때만 과거처럼
+    // 가능한 보상을 모두 자동 지급한다.
+    private void ApplyAllPendingRewardsForImmediateMove()
+    {
+        List<BattleRewardOptionRuntimeData> candidates =
+            GetPendingBattleRewardOptionsCopy();
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            TryClaimPendingBattleReward(candidates[i]);
         }
     }
 

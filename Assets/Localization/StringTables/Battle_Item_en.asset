@@ -23,8 +23,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 192863145984
-    m_Localized: Transform the selected allied piece into a Jellu [Knight], then
-      apply [Attack Disabled] for 1 turn.
+    m_Localized: Transforms the selected allied piece into a Jellu [Knight], then
+      applies [Attack Disabled] for 1 turn.
     m_Metadata:
       m_Items: []
   - m_Id: 34076602535936
@@ -33,6 +33,23 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 34076606730240
     m_Localized: Grants Status Ailment Defense for 1 turn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233645984485376
+    m_Localized: Blue Slime Fragment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233646059982848
+    m_Localized: Transforms the selected allied piece into a Jellu [Pawn].
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233677404016640
+    m_Localized: Green Slime Fragment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15233677404016641
+    m_Localized: Transforms the selected allied piece into a Jellu [Knight], then
+      applies [Attack Disabled] for 1 turn.
     m_Metadata:
       m_Items: []
   references:

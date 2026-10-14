@@ -367,6 +367,11 @@ MonoBehaviour:
       Hover the mouse cursor over an icon to view its details.'
     m_Metadata:
       m_Items: []
+  - m_Id: 12882623169433600
+    m_Localized: "\uC774\uBC88 \uC804\uD22C\uC5D0\uC11C \uD761\uC218\uD55C \uAE30\uBB3C
+      \uC218\uC5D0 \uB530\uB77C \uB370\uBCF4\uB9AC\uC544\uAC00 \uD68C\uBCF5\uB429\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

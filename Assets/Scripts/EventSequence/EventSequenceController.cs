@@ -891,11 +891,15 @@ public class EventSequenceController : MonoBehaviour
                 yield break;
 
             case EventSequenceStepType.AdvanceBattleTurn:
-                // <변경부분> 현재 Battle Turn을
-                // BattleManager의 기존 정상 턴 전환 파이프라인으로 넘긴다.
-                ExecuteAdvanceBattleTurnStep(
-                    step
-                );
+                // <변경부분>
+                // 진행 중인 전투 행동의 모든 후처리가 끝난 다음
+                // BattleManager의 기존 EndTurn 파이프라인을 실행한다.
+                //
+                // 고정 Wait 시간이 아니라 실제 행동 상태를 기다린다.
+                yield return
+                    ExecuteAdvanceBattleTurnStepRoutine(
+                        step
+                    );
 
                 yield break;
 
@@ -1788,48 +1792,102 @@ public class EventSequenceController : MonoBehaviour
         );
     }
 
-    // <변경부분> EventSequence에서 현재 전투 턴을
-    // 다음 진영으로 명시적으로 넘기는 Step을 실행한다.
+    // <변경부분>
+    // 이전 전투 행동이 완전히 종료될 때까지 기다린 후
+    // 기존 BattleManager의 정상 EndTurn 파이프라인을 실행한다.
     //
-    // currentTurn을 직접 변경하지 않고
-    // BattleManager의 기존 EndTurn 파이프라인을 재사용한다.
-    private void ExecuteAdvanceBattleTurnStep(
+    // 턴 전환에 실패하면 후속 Event Step을 실행하지 않는다.
+    private IEnumerator ExecuteAdvanceBattleTurnStepRoutine(
         EventSequenceStepData step)
     {
         if (battleManager == null)
         {
-            Debug.LogWarning(
+            Debug.LogError(
                 $"Event 턴 전환 Step 실패: " +
                 $"BattleManager가 연결되지 않았습니다. / " +
                 $"{step?.stepName}"
             );
 
-            return;
+            StopSequence();
+            yield break;
+        }
+
+        // <변경부분>
+        // ForceTileSelect 등에서 실제 전투 행동을 시작한 직후
+        // Event Step이 먼저 넘어오는 경우를 처리한다.
+        if (battleManager.IsActionAnimating)
+        {
+            Debug.Log(
+                $"Event 턴 전환 대기 시작: " +
+                $"이전 전투 행동이 아직 진행 중입니다. / " +
+                $"{step?.stepName}"
+            );
+        }
+
+        while (battleManager != null &&
+               battleManager.IsActionAnimating)
+        {
+            if (isSequenceActive == false ||
+                battleManager.IsBattleEnded)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        if (isSequenceActive == false ||
+            battleManager == null ||
+            battleManager.IsBattleEnded)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // Event Sequence 설정은 AI 일시정지인데
+        // BattleManager가 이를 인식하지 못한다면
+        // 잘못된 Controller 참조가 연결되었을 수 있다.
+        if (sequenceData != null &&
+            sequenceData.pauseEnemyAIWhileSequenceActive &&
+            battleManager.ShouldPauseEnemyAIForEvent == false)
+        {
+            Debug.LogError(
+                "Event 턴 전환 실패: " +
+                "BattleManager가 Event Sequence의 " +
+                "Enemy AI 일시정지 상태를 인식하지 못합니다. " +
+                "Inspector의 EventSequenceController 참조를 확인하세요."
+            );
+
+            StopSequence();
+            yield break;
         }
 
         BattleTurn previousTurn =
             battleManager.CurrentTurn;
 
         bool advanced =
-            battleManager
-                .TryAdvanceBattleTurnFromEvent();
+            battleManager.TryAdvanceBattleTurnFromEvent();
 
         if (advanced == false)
         {
-            Debug.LogWarning(
+            // <변경부분>
+            // 실패한 턴 전환을 성공한 것으로 간주하지 않는다.
+            Debug.LogError(
                 $"Event 턴 전환 Step 실패: " +
                 $"{step?.stepName} / " +
                 $"현재 턴 {previousTurn}"
             );
 
-            return;
+            StopSequence();
+            yield break;
         }
 
         Debug.Log(
             $"Event 턴 전환 Step 완료: " +
             $"{step?.stepName} / " +
             $"{previousTurn} -> " +
-            $"{battleManager.CurrentTurn}"
+            $"{battleManager.CurrentTurn} / " +
+            $"AI Pause={battleManager.ShouldPauseEnemyAIForEvent}"
         );
     }
 
@@ -1849,7 +1907,7 @@ public class EventSequenceController : MonoBehaviour
         }
 
         if (pieceManager == null ||
-            battleManager == null)
+      battleManager == null)
         {
             Debug.LogWarning(
                 $"Event 기물 행동 Step 실패: " +
@@ -1857,6 +1915,39 @@ public class EventSequenceController : MonoBehaviour
                 $"{step.stepName}"
             );
 
+            yield break;
+        }
+
+        // <변경부분>
+        // 다른 이동 / 공격 / 흡수 연출이 진행 중이라면
+        // 새 Event 전투 행동을 요청하기 전에 완료를 기다린다.
+        //
+        // 기물 조회 역시 대기 이후에 수행하여
+        // 이전 행동으로 변경된 보드 상태를 기준으로 실행한다.
+        if (battleManager.IsActionAnimating)
+        {
+            Debug.Log(
+                $"Event 기물 행동 대기 시작: " +
+                $"{step.stepName}"
+            );
+        }
+
+        while (battleManager != null &&
+               battleManager.IsActionAnimating)
+        {
+            if (isSequenceActive == false ||
+                battleManager.IsBattleEnded)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        if (isSequenceActive == false ||
+            battleManager == null ||
+            battleManager.IsBattleEnded)
+        {
             yield break;
         }
 
@@ -1925,6 +2016,14 @@ public class EventSequenceController : MonoBehaviour
 
             yield break;
         }
+
+        // <변경부분>
+        // BattleManager의 행동 코루틴이 시작된 상태를
+        // 다음 프레임에서 확실하게 확인한다.
+        //
+        // StartCoroutine 직후 실행 타이밍 차이로
+        // 아직 IsActionAnimating이 갱신되지 않은 경우를 방어한다.
+        yield return null;
 
         // <변경부분> 이동 / 공격 / Defense / Insight /
         // ChanceAttack 등 기존 전투 행동 처리가 완전히 끝날 때까지
