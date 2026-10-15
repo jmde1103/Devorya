@@ -26,6 +26,21 @@ MonoBehaviour:
     m_Localized: $!@$!$$
     m_Metadata:
       m_Items: []
+  - m_Id: 12189788627668992
+    m_Localized: 'You come across a pile of junk left behind by someone.
+
+      There
+      might be something useful if you take a closer look.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12189788690583552
+    m_Localized: Investigate the junk.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12189788690583553
+    m_Localized: Ignore it and move on.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

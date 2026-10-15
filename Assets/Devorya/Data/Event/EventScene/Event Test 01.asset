@@ -17,12 +17,16 @@ MonoBehaviour:
   description: "\uD14C\uC2A4\uD2B8 \uC6A9\uB3C4\uC785\uB2C8\uB2E4. \uC9C0\uC6CC\uB3C4
     \uB428"
   backgroundMapData: {fileID: 11400000, guid: 74b4542356006434dadb7f8b38eaadae, type: 2}
+  showRunHUDDuringPlayerInteraction: 0
+  showShopExitButtonDuringPlayerInteraction: 0
   steps:
   - stepName: "\uCE74\uBA54\uB77C \uD655\uB300"
     stepType: 10
+    stepId: step_57bdf499
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -93,11 +97,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uC774\uB3D9"
     stepType: 10
+    stepId: step_6b208355
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -168,11 +177,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBE44\uC20D \uC0DD\uC131"
     stepType: 3
+    stepId: step_9f03c5a6
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: "\uC824\uB8E8 \uBE44\uC20D"
     spawnActorPieceData: {fileID: 11400000, guid: a450123fb22e0a742a57cb8300707e0c, type: 2}
     spawnActorTeam: 1
@@ -243,11 +257,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8\uD3F0 \uC0DD\uC131"
     stepType: 3
+    stepId: step_e9e27c5c
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: "\uC824\uB8E8 \uD3F0"
     spawnActorPieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     spawnActorTeam: 1
@@ -318,8 +337,12 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uB2E4\uC774\uC5B4\uB85C\uADF8"
     stepType: 1
+    stepId: step_4fd46751
     dialoguePages:
     - "\uC774\uB807\uAC8C \uB2E4\uC591\uD55C \uAE30\uB2A5\uC744 \uC52C\uC5D0 \uBC14\uB85C
       \uB123\uC5B4 \uAD6C\uD604\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
@@ -335,6 +358,7 @@ MonoBehaviour:
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -405,11 +429,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uC774\uB3D9 1"
     stepType: 4
+    stepId: step_46b0a6f4
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -480,11 +509,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uC774\uB3D9 2"
     stepType: 4
+    stepId: step_76c23570
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -555,11 +589,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uC81C\uC790\uB9AC \uB6F0\uAE30"
     stepType: 4
+    stepId: step_a0ac5845
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -630,11 +669,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uD3F0 \uC560\uB2C8\uBA54\uC774\uC158"
     stepType: 7
+    stepId: step_a98e2f1f
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -705,11 +749,16 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uD3F0 \uC560\uB2C8\uBA54\uC774\uC1582"
     stepType: 7
+    stepId: step_45227712
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -780,6 +829,9 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   completionType: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
