@@ -566,6 +566,18 @@ public class EventSceneSequenceController : MonoBehaviour
                 yield break;
 
 
+            // <변경부분>
+            // StageBattleData를 다음 BattleScene으로 전달하고
+            // 현재 Event Scene Sequence를 종료한다.
+            case EventSceneStepType.StartBattle:
+
+                ExecuteStartBattleStep(
+                    step
+                );
+
+                yield break;
+
+
             case EventSceneStepType.AbsorbActor:
 
                 Debug.LogWarning(
@@ -2162,6 +2174,10 @@ attacker.PlayAttackRoutine(
     // 현재 Event Scene을 유지한 상태에서
     // 독립적인 보상 팝업을 표시한다.
     //
+    // 플레이어 조작 Lock / Unlock 상태는 변경하지 않는다.
+    // 기존 UnlockPlayerInteraction / LockPlayerInteraction
+    // Step에서 결정한 상태를 그대로 유지한다.
+    //
     // 모든 보상 수령 또는 Confirm 이후
     // 현재 Step을 종료하여 다음 Step으로 진행한다.
     private IEnumerator ExecuteShowRewardSelectionStepRoutine(
@@ -2189,16 +2205,14 @@ attacker.PlayAttackRoutine(
         }
 
         // <변경부분>
-        // 보상창 표시 전의 플레이어 조작 잠금 상태를 저장한다.
-        // 상점과 같은 자유 상호작용 중간에 실행되어도
-        // 종료 후 기존 상태로 정확하게 복원한다.
-        bool wasInteractionLocked =
-            isPlayerInteractionLocked;
-
-        SetEventScenePlayerInteractionLocked(
-            true
-        );
-
+        // 보상 팝업 자체는 Player Interaction Lock을
+        // 변경하지 않는다.
+        //
+        // 따라서 이전 Step이 UnlockPlayerInteraction이면
+        // 카메라 이동 / 확대 / 축소 허용 상태가 유지된다.
+        //
+        // 이전 Step이 Lock 상태였다면
+        // 그 상태 역시 그대로 유지된다.
         bool rewardSelectionFinished =
             false;
 
@@ -2213,10 +2227,6 @@ attacker.PlayAttackRoutine(
 
         if (!started)
         {
-            SetEventScenePlayerInteractionLocked(
-                wasInteractionLocked
-            );
-
             yield break;
         }
 
@@ -2236,15 +2246,140 @@ attacker.PlayAttackRoutine(
         }
 
         // <변경부분>
-        // 보상창이 정상 완료된 경우에만
-        // 기존 자유 상호작용 여부를 복원한다.
-        SetEventScenePlayerInteractionLocked(
-            wasInteractionLocked
-        );
-
+        // 팝업 완료 후에도 기존 조작 상태를 유지한다.
+        // 다음 Lock / Unlock은 해당 Step에서만 수행한다.
         Debug.Log(
             "Event Scene Reward Selection 완료: " +
             "다음 Event Step으로 진행합니다."
+        );
+    }
+
+
+    // <변경부분>
+    // StartBattle Step 실행.
+    //
+    // EventScene에서 StageBattleData를 지정하고
+    // 기존 BattleScene으로 이동한다.
+    //
+    // 현재 월드맵 노드와 연결된 전투인지,
+    // 독립적으로 발생한 전투인지 구분하여
+    // WorldMapRuntimeState에 등록한다.
+    //
+    // 실제 배경, 기물, 승패 조건, 전투 보상은
+    // 기존 BattleSetupManager가 담당한다.
+    private void ExecuteStartBattleStep(
+        EventSceneStepData step)
+    {
+        if (step == null ||
+    step.startBattleStageData == null)
+        {
+            Debug.LogError(
+                "Event Scene StartBattle 실패: " +
+                "StageBattleData가 연결되지 않았습니다.",
+                this
+            );
+
+            isSequenceActive = false;
+            return;
+        }
+
+        const string battleSceneName =
+            "BattleScene";
+
+        // <변경부분>
+        // Scene이 빌드에 등록되어 있는지 먼저 확인한다.
+        // 등록되지 않았다면 RunState를 변경하지 않는다.
+        if (!Application.CanStreamedLevelBeLoaded(
+                battleSceneName))
+        {
+            Debug.LogError(
+                "Event Scene StartBattle 실패: " +
+                $"'{battleSceneName}' Scene을 로드할 수 없습니다. " +
+                "Build Profiles의 Scene 목록을 확인해 주세요.",
+                this
+            );
+
+            isSequenceActive = false;
+            return;
+        }
+
+        StageBattleData targetBattleData =
+            step.startBattleStageData;
+
+        string currentNodeId =
+            WorldMapRuntimeState.CurrentNodeId;
+
+        // <변경부분>
+        // 일반 Event Node에서 발생한 전투라면
+        // 전투 승리 후 현재 월드맵 노드를
+        // 클리어할 수 있도록 Node ID를 함께 전달한다.
+        bool registerAsWorldMapNodeBattle =
+            step.clearCurrentWorldMapNodeOnVictory &&
+            !string.IsNullOrWhiteSpace(currentNodeId);
+
+        if (registerAsWorldMapNodeBattle)
+        {
+            WorldMapRuntimeState.BeginBattleNode(
+                currentNodeId,
+                targetBattleData
+            );
+
+            Debug.Log(
+                "Event Scene StartBattle: " +
+                $"월드맵 노드 연결 전투 / {currentNodeId} / " +
+                $"{targetBattleData.name}",
+                this
+            );
+        }
+        else
+        {
+            // <변경부분>
+            // WorldMap Node와 관계없는 전투이거나
+            // EventScene 단독 테스트인 경우.
+            //
+            // 기존 End Stage에서도 사용 중인
+            // Direct Battle 등록 API를 재사용한다.
+            bool registered =
+                WorldMapRuntimeState.BeginDirectBattle(
+                    targetBattleData
+                );
+
+            if (!registered)
+            {
+                Debug.LogError(
+                    "Event Scene StartBattle 실패: " +
+                    "Direct Battle 등록에 실패했습니다.",
+                    this
+                );
+
+                isSequenceActive = false;
+                return;
+            }
+
+            Debug.Log(
+                "Event Scene StartBattle: " +
+                $"독립 전투 / {targetBattleData.name}",
+                this
+            );
+        }
+
+        // <변경부분>
+        // Scene 이동이 발생하므로
+        // 현재 Event Sequence가 뒤쪽 Step이나
+        // CompletionType을 별도로 실행하지 않게 한다.
+        isSequenceActive = false;
+
+        Debug.Log(
+            "Event Scene StartBattle: " +
+            $"{battleSceneName}으로 이동합니다.",
+            this
+        );
+
+        // <변경부분>
+        // BattleScene에 별도 초기화 인자를 직접 전달하지 않는다.
+        // 기존 BattleSetupManager가 PendingStageBattleData를 읽는다.
+        SceneManager.LoadScene(
+            battleSceneName
         );
     }
 
@@ -2423,7 +2558,7 @@ attacker.PlayAttackRoutine(
         }
 
         // <변경부분>
-        // Event Scene Controller가 비활성화될 때
+        // Event Scene Controller가 비활성화될 // ShowRewardSelection Step 실행.
         // Detached CameraShot Coroutine도 남기지 않는다.
         StopEventCameraShotImmediately();
 

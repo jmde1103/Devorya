@@ -82,7 +82,15 @@ public enum EventSceneStepType
     //
     // 모든 보상을 수령하거나 수령을 포기하면
     // 다음 Event Scene Step으로 진행한다.
-    ShowRewardSelection = 15
+    ShowRewardSelection = 15,
+
+    // <변경부분>
+    // Event Scene에서 지정한 StageBattleData로
+    // BattleScene을 시작한다.
+    //
+    // Scene 이동에 성공하면 현재 이벤트 시퀀스는
+    // 종료하고, 이후 전투 시스템에 진행을 위임한다.
+    StartBattle = 16
 }
 
 
@@ -142,6 +150,90 @@ public class EventSceneDialoguePageLocalizationData
 }
 
 
+// =====================================================
+// Dialogue Choice
+// =====================================================
+
+// <변경부분>
+// Event Scene Dialogue의 선택지 하나를 정의한다.
+//
+// 선택지 문구와 분기 목적지 Step ID를 보관한다.
+//
+// 선택지 문구의 Localization은
+// 기존 EventScene_Dialogue Collection을 재사용한다.
+//
+// 실제 Step 이동과 UI 표시 로직은
+// EventSceneSequenceController 및 EventGuideUI가 담당한다.
+[Serializable]
+public class EventSceneDialogueChoiceData
+{
+    // <변경부분>
+    // 선택지 자체의 Stable Localization ID.
+    //
+    // 선택지 순서를 변경해도
+    // 기존 KR / EN / JA 번역 Key가 유지되도록 사용한다.
+    [HideInInspector]
+    public string localizationId;
+
+    // <변경부분>
+    // Inspector에서 작성하는 한국어 원문.
+    //
+    // 기존 Dialogue Page와 동일하게
+    // 한국어 원문은 EventSceneData에 저장한다.
+    [TextArea(1, 3)]
+    public string koreanText =
+        string.Empty;
+
+    // <변경부분>
+    // EventScene_Dialogue String Table 참조.
+    [HideInInspector]
+    public LocalizedString localizedText =
+        new LocalizedString();
+
+    // <변경부분>
+    // 선택했을 때 이동할 Event Step의 고유 ID.
+    //
+    // Step Index 대신 Stable ID를 저장하므로
+    // Step 순서를 변경해도 분기 대상이 유지된다.
+    //
+    // 실제 선택은 다음 단계에서 제작할
+    // EventSceneDataEditor의 Step Dropdown으로 설정한다.
+    [HideInInspector]
+    public string targetStepId =
+        string.Empty;
+
+
+    // <변경부분>
+    // 현재 Locale 기준 선택지 문구를 반환한다.
+    //
+    // 번역 참조가 없거나 현재 Locale의 번역이 비어 있다면
+    // 한국어 원문을 Fallback으로 사용한다.
+    public string GetLocalizedText()
+    {
+        string fallbackText =
+            koreanText ??
+            string.Empty;
+
+        if (localizedText == null ||
+            localizedText.IsEmpty)
+        {
+            return fallbackText;
+        }
+
+        string resolvedText =
+            localizedText.GetLocalizedString();
+
+        if (string.IsNullOrWhiteSpace(
+                resolvedText))
+        {
+            return fallbackText;
+        }
+
+        return resolvedText;
+    }
+}
+
+
 // <변경부분>
 // Event Scene Sequence의 Step 하나를 정의한다.
 //
@@ -165,6 +257,21 @@ public class EventSceneStepData
     // 현재 Step에서 실행할 Event Scene 연출 종류.
     public EventSceneStepType stepType =
         EventSceneStepType.None;
+
+    // <변경부분>
+    // 모든 Event Step에 부여하는 Stable ID.
+    //
+    // Dialogue Choice에서 이동할 목적지를
+    // 정확하게 식별하기 위해 사용한다.
+    //
+    // Step Index와 달리
+    // ReorderableList에서 순서를 변경해도 유지된다.
+    //
+    // 실제 ID 생성과 중복 검사는
+    // EventSceneDataEditor에서 담당한다.
+    [HideInInspector]
+    public string stepId =
+        string.Empty;
 
 
     [Header("Dialogue")]
@@ -195,6 +302,29 @@ public class EventSceneStepData
     public List<EventSceneDialoguePageLocalizationData>
         dialogueLocalizationPages =
             new List<EventSceneDialoguePageLocalizationData>();
+
+
+    // =====================================================
+    // Dialogue Choices
+    // =====================================================
+
+    // <변경부분>
+    // Dialogue Step 마지막 페이지의 출력이 끝난 뒤
+    // 플레이어에게 표시할 선택지 목록.
+    //
+    // Count == 0:
+    // 기존 Dialogue와 완전히 동일하게 동작한다.
+    //
+    // Count > 0:
+    // 마지막 페이지에서 선택지를 표시하고
+    // 선택한 항목의 targetStepId로 분기한다.
+    //
+    // 선택지의 한국어 원문과 번역,
+    // 분기 목적지 설정은 EventSceneDataEditor에서 담당한다.
+    [HideInInspector]
+    public List<EventSceneDialogueChoiceData>
+        dialogueChoices =
+            new List<EventSceneDialogueChoiceData>();
 
 
     [Header("Spawn Actor")]
@@ -709,6 +839,36 @@ public class EventSceneStepData
     // 같은 EventSceneData 안에서도 Step마다
     // 서로 다른 BattleRewardData를 지정할 수 있다.
     public BattleRewardData rewardSelectionData;
+
+
+    // =====================================================
+    // Start Battle
+    // =====================================================
+
+    [Header("Start Battle")]
+
+    // <변경부분>
+    // StartBattle Step에서 시작할 실제 전투 데이터.
+    //
+    // BattleScene의 BattleSetupManager가
+    // 기존 PendingStageBattleData 경로로 수신한다.
+    public StageBattleData startBattleStageData;
+
+    // <변경부분>
+    // WorldMap에서 진입한 이벤트 노드를
+    // 전투 승리 후 클리어 처리할지 결정한다.
+    //
+    // true:
+    // 현재 WorldMap Node ID가 있을 경우
+    // 해당 노드의 전투 승리 처리 경로를 사용한다.
+    //
+    // false:
+    // 특정 노드와 연결하지 않는 독립 전투를 시작한다.
+    //
+    // WorldMap Node ID가 없는 단독 테스트에서는
+    // 설정과 관계없이 Direct Battle을 사용한다.
+    public bool clearCurrentWorldMapNodeOnVictory =
+        true;
 
 
     // <변경부분>

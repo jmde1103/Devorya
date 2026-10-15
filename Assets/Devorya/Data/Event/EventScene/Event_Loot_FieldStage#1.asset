@@ -106,6 +106,8 @@ MonoBehaviour:
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
     rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC7A0\uAE08 \uD480\uAE30"
     stepType: 13
     dialoguePages: []
@@ -182,6 +184,86 @@ MonoBehaviour:
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
     rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uC804\uD22C\uC2DC\uC791"
+    stepType: 16
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
+    waitDuration: 0.5
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
+    clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBCF4\uC0C1 \uD398\uC774\uC9C0"
     stepType: 15
     dialoguePages: []
@@ -258,6 +340,8 @@ MonoBehaviour:
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
     rewardSelectionData: {fileID: 11400000, guid: 00b9d4a6fde45cc45a9800edf902b896, type: 2}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
   completionType: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}

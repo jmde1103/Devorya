@@ -2444,7 +2444,58 @@ public class EventSceneDataEditor : Editor
                         "연결된 BattleRewardData의 금화 범위, " +
                         "아이템 후보, 유물 후보 및 등장 확률을 사용합니다.\n" +
                         "보상 후보는 해당 Step 실행 시 한 번 추첨하도록 구현할 예정입니다.\n" +
-                        "실제 UI 표시 및 보상 수령 Runtime은 다음 단계에서 연결합니다.",
+                                               "실제 UI 표시 및 보상 수령 Runtime은 다음 단계에서 연결합니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+
+                break;
+
+
+            // <변경부분>
+            // Event Scene에서 지정된 StageBattleData를 사용해
+            // BattleScene으로 이동하는 Step.
+            case EventSceneStepType.StartBattle:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Start Battle",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "startBattleStageData",
+                    "Stage Battle Data",
+                    "clearCurrentWorldMapNodeOnVictory",
+                    "Clear Current Node On Victory"
+                );
+
+                if (step.startBattleStageData == null)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "StageBattleData가 연결되지 않았습니다.\n" +
+                        "BattleScene에서 사용할 전투 데이터 Asset을 연결해 주세요.",
+                        MessageType.Warning,
+                        draw
+                    );
+                }
+                else
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "지정한 StageBattleData를 BattleScene으로 전달합니다.\n" +
+                        "ON: 월드맵에서 진입한 이벤트 노드를 전투 승리 후 클리어합니다.\n" +
+                        "OFF: 월드맵 노드 클리어와 관계없는 독립 전투로 처리합니다.\n" +
+                        "전투 승리 후 목적지는 StageBattleData의 Victory Scene Name을 사용합니다.",
                         MessageType.Info,
                         draw
                     );
