@@ -27,6 +27,18 @@ MonoBehaviour:
     m_Key: event_scene.event_test_01.dialogue_4f30ad40.page_46d5b75d
     m_Metadata:
       m_Items: []
+  - m_Id: 12189788627668992
+    m_Key: event_scene.event_loot_field_stage_1.dialogue_4282e4b6.page_91748602
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12189788690583552
+    m_Key: event_scene.event_loot_field_stage_1.choice.choice_a9170d9b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12189788690583553
+    m_Key: event_scene.event_loot_field_stage_1.choice.choice_6f098005
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

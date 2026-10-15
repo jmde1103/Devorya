@@ -19,6 +19,13 @@ public class EventSceneRewardPopupUI : MonoBehaviour
     [SerializeField]
     private GameObject popupRoot;
 
+    // <변경부분>
+    // Event Scene 보상창의 공용 글리치 오픈 애니메이션.
+    // 실제 RewardPopup 패널에 부착된 PopupOpenAnimator를 연결한다.
+    [Header("Open Animation")]
+    [SerializeField]
+    private PopupOpenAnimator popupOpenAnimator;
+
     [SerializeField]
     private Transform dropSlotParent;
 
@@ -249,12 +256,32 @@ public class EventSceneRewardPopupUI : MonoBehaviour
             // 보상 지급이 성공한 경우에만
             // 기존 확대·잔상 애니메이션을 재생한다.
             slot.ConfigureClaim(
-                () => TryClaimReward(reward),
-                OnClaimAnimationFinished
-            );
+       () => TryClaimReward(reward),
+       OnClaimAnimationFinished
+   );
         }
 
         RefreshLayouts();
+
+        // <변경부분>
+        // 모든 Reward Slot 생성과 Layout 갱신이 완료된 후
+        // 기존 공용 PopupOpenAnimator의 글리치 효과를 실행한다.
+        //
+        // 보상 슬롯이 생성되기 전에 애니메이션이 시작되면
+        // 슬롯이 뒤늦게 나타날 수 있으므로 이 위치에서 호출한다.
+        if (popupOpenAnimator != null)
+        {
+            popupOpenAnimator.PlayOpen();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Event Reward Popup: " +
+                "PopupOpenAnimator가 연결되지 않아 " +
+                "오픈 애니메이션 없이 표시합니다.",
+                this
+            );
+        }
 
         return true;
     }

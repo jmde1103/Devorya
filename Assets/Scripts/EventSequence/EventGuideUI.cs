@@ -44,6 +44,44 @@ public class EventGuideUI : MonoBehaviour
     private TMP_Text guideText;
 
 
+    // <변경부분>
+    // EventUI 아래에 별도로 준비한 선택지 부모 오브젝트.
+    // GuideRoot의 형제 오브젝트로 두어도 된다.
+    [Header("Dialogue Choices")]
+    [SerializeField]
+    private GameObject selectPanelRoot;
+
+    // Button 컴포넌트가 있는 SelectDialoguePanel Prefab Asset.
+    // 자식 TMP_Text에 선택지 문구를 자동 적용한다.
+    [SerializeField]
+    private Button selectDialoguePanelPrefab;
+
+
+    // =====================================================
+    // Choice Click Feedback
+    // =====================================================
+
+    // <변경부분>
+    // 선택지 버튼 클릭 시 확대 잔상 효과의 지속 시간.
+    //
+    // 효과가 끝난 후 실제 Target Step으로 분기한다.
+    [Header("Choice Click Feedback")]
+    [SerializeField, Range(0.05f, 0.5f)]
+    private float choiceClickFeedbackDuration = 0.18f;
+
+    // <변경부분>
+    // 선택한 버튼의 배경 잔상이 확대되는 최종 배율.
+    // 1.12 = 원본 대비 12% 확대.
+    [SerializeField, Range(1f, 1.5f)]
+    private float choiceClickGhostEndScale = 1.12f;
+
+    // <변경부분>
+    // 잔상 시작 투명도.
+    // 원본 버튼보다 옅게 표시한 뒤 0까지 사라진다.
+    [SerializeField, Range(0f, 1f)]
+    private float choiceClickGhostAlpha = 0.4f;
+
+
     [Header("Continue Arrow")]
     // <변경부분> 현재 Dialogue 페이지의 모든 글자가 출력된 뒤
     // 플레이어의 다음 클릭을 기다리고 있음을 표시하는 화살표.
@@ -122,7 +160,23 @@ public class EventGuideUI : MonoBehaviour
     // 새 페이지 시작 / 클릭 / Dialogue 종료 시
     // 기존 Coroutine을 확실하게 정리하기 위해 저장한다.
     private Coroutine continueArrowBlinkCoroutine =
-        null;
+      null;
+
+    // <변경부분>
+    // 생성한 버튼만 추적하여 기존 SelectPanelRoot 자식은 삭제하지 않는다.
+    private readonly List<Button> createdChoiceButtons =
+        new List<Button>();
+
+    private bool isChoiceSelectionActive = false;
+    private bool isChoiceSelected = false;
+    private string selectedChoiceTargetStepId = null;
+
+    // <변경부분>
+    // 선택지 클릭 잔상 애니메이션 진행 중 여부.
+    //
+    // true인 동안 다른 선택지를 누르거나
+    // 같은 선택지가 중복 실행되지 않게 한다.
+    private bool isChoiceClickAnimating = false;
 
     // BattleManager 등 외부 시스템이
     // Dialogue 입력 차단 여부를 확인할 때 사용
@@ -237,14 +291,29 @@ public class EventGuideUI : MonoBehaviour
                 arrowColor;
 
             continueArrowImage.gameObject.SetActive(
-                false
-            );
+     false
+ );
+        }
+
+        // <변경부분>
+        // 기본 상태에서는 선택지 부모를 숨겨 놓는다.
+        if (selectPanelRoot != null)
+        {
+            selectPanelRoot.SetActive(false);
         }
     }
 
     private void Update()
     {
         if (isDialoguePlaying == false)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 선택지 표시 중이나 선택 직후의 클릭은
+        // 기존 Dialogue 페이지 넘기기 입력으로 처리하지 않는다.
+        if (isChoiceSelectionActive || isChoiceSelected)
         {
             return;
         }
@@ -320,10 +389,26 @@ public class EventGuideUI : MonoBehaviour
         return false;
     }
 
-    // <변경부분> 전달받은 Dialogue 페이지를
-    // 플레이어 입력에 따라 순서대로 표시한다.
+    // <변경부분>
+    // 기존 Battle / Tutorial 호출은 이전 시그니처 그대로 유지한다.
     public IEnumerator PlayDialogueRoutine(
         List<string> dialoguePages)
+    {
+        return PlayDialogueRoutine(
+            dialoguePages,
+            null,
+            null
+        );
+    }
+
+
+    // <변경부분>
+    // Event Scene에서는 Dialogue 마지막 페이지가 끝나면
+    // 선택지를 보여주고 클릭된 Step ID를 Callback으로 전달한다.
+    public IEnumerator PlayDialogueRoutine(
+        List<string> dialoguePages,
+        List<EventSceneDialogueChoiceData> dialogueChoices,
+        System.Action<string> onChoiceSelected)
     {
         if (dialoguePages == null ||
             dialoguePages.Count == 0)
@@ -387,11 +472,18 @@ public class EventGuideUI : MonoBehaviour
             false;
 
         pageCompletedFrame =
-            -1;
+       -1;
+
+        // <변경부분>
+        // 이전 Dialogue에서 생성된 버튼과 선택 상태를 정리한다.
+        HideDialogueChoices();
+
+        isChoiceSelected = false;
+        selectedChoiceTargetStepId = null;
 
         for (int i = 0;
-      i < dialoguePages.Count;
-      i++)
+       i < dialoguePages.Count;
+       i++)
         {
             string pageText =
                 dialoguePages[i];
@@ -454,7 +546,51 @@ public class EventGuideUI : MonoBehaviour
             // 스킵 후 대기가 끝났거나 자연스럽게 타이핑이
             // 완료된 시점의 프레임을 기록한다.
             pageCompletedFrame =
-                Time.frameCount;
+      Time.frameCount;
+
+            // <변경부분>
+            // 선택지가 있다면 마지막 페이지 타이핑 완료 후 바로 표시한다.
+            // 이 페이지에서는 일반 클릭으로 Dialogue를 종료하지 않는다.
+            bool isLastPage =
+                i == dialoguePages.Count - 1;
+
+            if (isLastPage &&
+                dialogueChoices != null &&
+                dialogueChoices.Count > 0)
+            {
+                HideContinueArrow();
+
+                canAcceptAdvanceInput =
+                    false;
+
+                if (!ShowDialogueChoices(
+                        dialogueChoices))
+                {
+                    HideImmediately();
+                    yield break;
+                }
+
+                while (!isChoiceSelected)
+                {
+                    if (!isDialoguePlaying)
+                    {
+                        yield break;
+                    }
+
+                    yield return null;
+                }
+
+                string targetStepId =
+                    selectedChoiceTargetStepId;
+
+                // UI를 정리하기 전에 선택 결과를 Controller로 전달한다.
+                onChoiceSelected?.Invoke(
+                    targetStepId
+                );
+
+                HideImmediately();
+                yield break;
+            }
 
             // <변경부분> 여기서부터만 플레이어 클릭을 허용한다.
             //
@@ -795,13 +931,509 @@ visibleCount++)
         }
 
         continueArrowBlinkCoroutine =
-            null;
+    null;
     }
+
+
+    // <변경부분>
+    // SelectPanelRoot 아래에 SelectDialoguePanel 프리팹을 자동 생성한다.
+    // 선택지 수 / 표시 텍스트 / 버튼 콜백은 Dialogue 데이터에서 가져온다.
+    private bool ShowDialogueChoices(
+        List<EventSceneDialogueChoiceData> dialogueChoices)
+    {
+        HideDialogueChoices();
+
+        if (selectPanelRoot == null ||
+            selectDialoguePanelPrefab == null)
+        {
+            Debug.LogError(
+                "Event Guide 선택지 표시 실패: " +
+                "Select Panel Root / Select Dialogue Panel Prefab 연결을 확인하세요.",
+                this
+            );
+
+            return false;
+        }
+
+        for (int i = 0;
+             i < dialogueChoices.Count;
+             i++)
+        {
+            EventSceneDialogueChoiceData choice =
+                dialogueChoices[i];
+
+            if (choice == null ||
+                string.IsNullOrWhiteSpace(
+                    choice.targetStepId))
+            {
+                Debug.LogError(
+                    $"Event Guide 선택지 표시 실패: " +
+                    $"Choice {i + 1}의 Target Step이 비어 있습니다.",
+                    this
+                );
+
+                HideDialogueChoices();
+                return false;
+            }
+
+            Button choiceButton =
+                Instantiate(
+                    selectDialoguePanelPrefab,
+                    selectPanelRoot.transform
+                );
+
+            choiceButton.gameObject.SetActive(true);
+            choiceButton.interactable = true;
+
+            TMP_Text choiceText =
+                choiceButton
+                    .GetComponentInChildren<TMP_Text>(
+                        true
+                    );
+
+            if (choiceText == null)
+            {
+                Debug.LogError(
+                    "Event Guide 선택지 표시 실패: " +
+                    "SelectDialoguePanel 프리팹에서 TMP_Text를 찾지 못했습니다.",
+                    choiceButton
+                );
+
+                createdChoiceButtons.Add(choiceButton);
+
+                HideDialogueChoices();
+                return false;
+            }
+
+            // <변경부분>
+            // EventScene_Dialogue 번역값을 사용한다.
+            // 번역이 없으면 기존 Korean 원문으로 Fallback.
+            choiceText.text =
+                choice.GetLocalizedText();
+
+            // 선택지마다 다른 Target Step ID를 캡처한다.
+            string capturedTargetStepId =
+                choice.targetStepId;
+
+            // <변경부분>
+            // 실제 클릭된 버튼에서 잔상 확대를 실행하기 위해
+            // 생성된 버튼 인스턴스도 함께 캡처한다.
+            Button capturedChoiceButton =
+                choiceButton;
+
+            // 동적으로 생성한 인스턴스의 런타임 리스너만 초기화한다.
+            // 프리팹 Inspector의 Persistent OnClick은 비워 두어야 한다.
+            choiceButton.onClick.RemoveAllListeners();
+
+            choiceButton.onClick.AddListener(
+                () => SelectDialogueChoice(
+                    capturedTargetStepId,
+                    capturedChoiceButton
+                )
+            );
+
+            createdChoiceButtons.Add(
+                choiceButton
+            );
+        }
+
+        // <변경부분>
+        // GuideRoot의 화면 전체 InputBlocker보다 위에 그려지도록 한다.
+        selectPanelRoot.transform.SetAsLastSibling();
+
+        CanvasGroup group =
+            selectPanelRoot
+                .GetComponent<CanvasGroup>();
+
+        if (group != null)
+        {
+            group.alpha = 1f;
+            group.interactable = true;
+            group.blocksRaycasts = true;
+        }
+
+        isChoiceSelected = false;
+        selectedChoiceTargetStepId = null;
+        isChoiceSelectionActive = true;
+
+        // <변경부분>
+        // 생성된 모든 선택지를 먼저 활성화한다.
+        selectPanelRoot.SetActive(true);
+
+        // <변경부분>
+        // 기존 공용 PopupOpenAnimator를 재사용한다.
+        //
+        // SelectPanelRoot에 PopupOpenAnimator를 추가하고
+        // PopupOpenAnimationData를 지정하면
+        // 선택지 전체에 팝업 글리치 효과가 적용된다.
+        //
+        // 컴포넌트가 없더라도 선택지 기능은 정상 작동한다.
+        PopupOpenAnimator choiceOpenAnimator =
+            selectPanelRoot
+                .GetComponent<PopupOpenAnimator>();
+
+        if (choiceOpenAnimator != null)
+        {
+            choiceOpenAnimator.PlayOpen();
+        }
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // <변경부분>
+    // 선택지 클릭을 한 번만 접수하고
+    // 클릭 피드백 애니메이션을 시작한다.
+    //
+    // 실제 Target Step 확정은
+    // 애니메이션 종료 후에 수행한다.
+    private void SelectDialogueChoice(
+        string targetStepId,
+        Button clickedButton)
+    {
+        if (!isDialoguePlaying ||
+            !isChoiceSelectionActive ||
+            isChoiceSelected ||
+            isChoiceClickAnimating)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 클릭 효과가 실행되는 동안
+        // 다른 버튼을 누를 수 없도록 즉시 잠근다.
+        isChoiceClickAnimating = true;
+        isChoiceSelectionActive = false;
+
+        for (int i = 0;
+             i < createdChoiceButtons.Count;
+             i++)
+        {
+            if (createdChoiceButtons[i] != null)
+            {
+                createdChoiceButtons[i].interactable =
+                    false;
+            }
+        }
+
+        // <변경부분>
+        // 클릭된 버튼만 확대 잔상을 재생한다.
+        StartCoroutine(
+            PlayChoiceClickFeedbackRoutine(
+                clickedButton,
+                targetStepId
+            )
+        );
+    }
+
+
+    // <변경부분>
+    // 선택지 버튼 클릭 확대 / 잔상 피드백.
+    //
+    // 1. 선택한 버튼의 배경 Image를 복제한다.
+    // 2. 복제 이미지를 확대하면서 Alpha를 줄인다.
+    // 3. 원본 버튼에도 작은 Scale 펄스를 적용한다.
+    // 4. 효과가 끝난 뒤 Target Step을 확정한다.
+    //
+    // 기존 버튼 프리팹의 Image / TMP_Text /
+    // Button 컴포넌트 설정은 변경하지 않는다.
+    private IEnumerator PlayChoiceClickFeedbackRoutine(
+        Button clickedButton,
+        string targetStepId)
+    {
+        if (clickedButton == null)
+        {
+            selectedChoiceTargetStepId =
+                targetStepId;
+
+            isChoiceSelected = true;
+            isChoiceClickAnimating = false;
+
+            yield break;
+        }
+
+        RectTransform buttonRect =
+            clickedButton.transform as RectTransform;
+
+        Vector3 originalButtonScale =
+            buttonRect != null
+                ? buttonRect.localScale
+                : Vector3.one;
+
+        // <변경부분>
+        // Button의 Target Graphic을 우선 사용한다.
+        //
+        // Button.targetGraphic이 TMP_Text인 경우 등에는
+        // 버튼 자체의 Image를 대신 사용한다.
+        Image sourceImage =
+            clickedButton.targetGraphic as Image;
+
+        if (sourceImage == null)
+        {
+            sourceImage =
+                clickedButton.GetComponent<Image>();
+        }
+
+        if (sourceImage == null)
+        {
+            sourceImage =
+                clickedButton
+                    .GetComponentInChildren<Image>(true);
+        }
+
+        GameObject ghostObject = null;
+        RectTransform ghostRect = null;
+        Image ghostImage = null;
+
+        Color originalGhostColor =
+            Color.white;
+
+        // =================================================
+        // Afterimage 생성
+        // =================================================
+
+        if (sourceImage != null)
+        {
+            // <변경부분>
+            // LayoutGroup의 직접 자식이 아니라
+            // 버튼 이미지 내부에 잔상을 생성한다.
+            //
+            // 따라서 잔상 확대 중에도
+            // 다른 선택지 버튼의 레이아웃이 움직이지 않는다.
+            ghostObject =
+                new GameObject(
+                    "ChoiceClickAfterimage",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image)
+                );
+
+            ghostRect =
+                ghostObject
+                    .GetComponent<RectTransform>();
+
+            ghostRect.SetParent(
+                sourceImage.transform,
+                false
+            );
+
+            ghostRect.anchorMin =
+                Vector2.zero;
+
+            ghostRect.anchorMax =
+                Vector2.one;
+
+            ghostRect.offsetMin =
+                Vector2.zero;
+
+            ghostRect.offsetMax =
+                Vector2.zero;
+
+            ghostRect.pivot =
+                new Vector2(0.5f, 0.5f);
+
+            ghostRect.localScale =
+                Vector3.one;
+
+            // 원본 텍스트보다 뒤에 표시한다.
+            ghostRect.SetAsFirstSibling();
+
+            ghostImage =
+                ghostObject.GetComponent<Image>();
+
+            ghostImage.sprite =
+                sourceImage.sprite;
+
+            ghostImage.type =
+                sourceImage.type;
+
+            ghostImage.preserveAspect =
+                sourceImage.preserveAspect;
+
+            ghostImage.fillCenter =
+                sourceImage.fillCenter;
+
+            ghostImage.raycastTarget =
+                false;
+
+            // <변경부분>
+            // 기존 Image 색상을 유지하되
+            // 잔상은 반투명 상태에서 시작한다.
+            originalGhostColor =
+                sourceImage.color;
+
+            originalGhostColor.a *=
+                choiceClickGhostAlpha;
+
+            ghostImage.color =
+                originalGhostColor;
+        }
+
+        // =================================================
+        // Click Animation
+        // =================================================
+
+        float safeDuration =
+            Mathf.Max(
+                0.01f,
+                choiceClickFeedbackDuration
+            );
+
+        float elapsedTime =
+            0f;
+
+        while (elapsedTime < safeDuration &&
+               isDialoguePlaying)
+        {
+            elapsedTime +=
+                Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    elapsedTime / safeDuration
+                );
+
+            // <변경부분>
+            // 초반에 조금 빠르게 확대되고
+            // 마지막에 부드럽게 감속한다.
+            float easedT =
+                1f - (1f - t) * (1f - t);
+
+            // =============================================
+            // Afterimage Expansion
+            // =============================================
+
+            if (ghostRect != null)
+            {
+                float ghostScale =
+                    Mathf.Lerp(
+                        1f,
+                        choiceClickGhostEndScale,
+                        easedT
+                    );
+
+                ghostRect.localScale =
+                    Vector3.one * ghostScale;
+
+                Color ghostColor =
+                    originalGhostColor;
+
+                ghostColor.a =
+                    originalGhostColor.a *
+                    (1f - t);
+
+                ghostImage.color =
+                    ghostColor;
+            }
+
+            // =============================================
+            // Original Button Pulse
+            // =============================================
+
+            if (buttonRect != null)
+            {
+                // 1 → 1.025 → 1
+                // 원본 버튼은 아주 조금만 확대한다.
+                float pulse =
+                    1f +
+                    Mathf.Sin(Mathf.PI * t) * 0.025f;
+
+                buttonRect.localScale =
+                    originalButtonScale * pulse;
+            }
+
+            yield return null;
+        }
+
+        // =================================================
+        // Cleanup
+        // =================================================
+
+        if (buttonRect != null)
+        {
+            buttonRect.localScale =
+                originalButtonScale;
+        }
+
+        if (ghostObject != null)
+        {
+            Destroy(ghostObject);
+        }
+
+        // <변경부분>
+        // Dialogue가 외부에서 강제 종료되었다면
+        // 선택 결과를 확정하지 않는다.
+        if (!isDialoguePlaying)
+        {
+            isChoiceClickAnimating = false;
+            yield break;
+        }
+
+        // <변경부분>
+        // 클릭 피드백이 완전히 끝난 뒤에만
+        // 기존 Dialogue 선택 완료 플래그를 올린다.
+        //
+        // PlayDialogueRoutine이 이 값을 감지해
+        // 기존 EventSceneSequenceController에
+        // Target Step ID를 전달한다.
+        selectedChoiceTargetStepId =
+            targetStepId;
+
+        isChoiceSelected =
+            true;
+
+        isChoiceClickAnimating =
+            false;
+    }
+
+
+    // <변경부분>
+    // 생성한 선택지 버튼만 제거하여 SelectPanelRoot의
+    // CanvasGroup / LayoutGroup / 배경 설정은 보존한다.
+    private void HideDialogueChoices()
+    {
+        isChoiceSelectionActive =
+            false;
+
+        // <변경부분>
+        // 선택지 전체를 정리할 때
+        // 클릭 애니메이션 상태도 초기화한다.
+        isChoiceClickAnimating =
+            false;
+
+        if (selectPanelRoot != null)
+        {
+            selectPanelRoot.SetActive(false);
+        }
+
+        for (int i = 0;
+             i < createdChoiceButtons.Count;
+             i++)
+        {
+            Button button =
+                createdChoiceButtons[i];
+
+            if (button == null)
+            {
+                continue;
+            }
+
+            button.onClick.RemoveAllListeners();
+
+            button.gameObject.SetActive(false);
+            Destroy(button.gameObject);
+        }
+
+        createdChoiceButtons.Clear();
+    }
+
 
     // <변경부분> Dialogue UI를 즉시 종료하고
     // 모든 입력 상태를 초기화한다.
     public void HideImmediately()
     {
+        HideDialogueChoices();
         ResetDialogueState();
 
         if (guideText != null)
@@ -841,7 +1473,13 @@ visibleCount++)
             false;
 
         pageCompletedFrame =
-            -1;
+       -1;
+
+        isChoiceSelected =
+            false;
+
+        selectedChoiceTargetStepId =
+            null;
 
         // <변경부분> Dialogue가 정상 종료되거나
         // Scene / GameObject 비활성화 등으로 강제 종료되어도
@@ -851,6 +1489,7 @@ visibleCount++)
 
     private void OnDisable()
     {
+        HideDialogueChoices();
         ResetDialogueState();
     }
 }

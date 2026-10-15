@@ -593,6 +593,13 @@ public class EventSceneDataEditor : Editor
         EventSceneData eventData =
             (EventSceneData)target;
 
+        // <변경부분>
+        // 분기 목적지용 Step ID가 없거나 중복된 경우
+        // 기존 ID를 우선 보존하면서 필요한 ID만 생성한다.
+        EnsureUniqueBranchStepIds(
+            eventData
+        );
+
         DrawEventInfo(
      eventData
  );
@@ -3077,7 +3084,7 @@ public class EventSceneDataEditor : Editor
                 }
 
                 if (GUILayout.Button(
-                        "+ Dialogue Page 추가"))
+        "+ Dialogue Page 추가"))
                 {
                     AddDialoguePage(
                         eventData,
@@ -3087,6 +3094,20 @@ public class EventSceneDataEditor : Editor
                     GUIUtility.ExitGUI();
                     return;
                 }
+
+                // <변경부분>
+                // 이 Dialogue Step의 마지막 페이지에서
+                // 사용할 선택지와 분기 목적지를 편집한다.
+                //
+                // Dialogue 원문 편집 영역을 유지하면서
+                // 그 바로 아래에 선택지를 추가한다.
+                EditorGUILayout.Space(10);
+
+                DrawDialogueChoices(
+                    eventData,
+                    step,
+                    collection
+                );
             }
 
             EditorGUILayout.Space(6);
@@ -3112,6 +3133,409 @@ public class EventSceneDataEditor : Editor
             );
         }
     }
+
+
+    // <변경부분>
+    // Dialogue 마지막 페이지에 표시할 선택지를 관리한다.
+    //
+    // 선택지 추가 / 삭제 / 순서 이동,
+    // 한국어 원문 / 분기 대상 / 영어·일본어 번역을
+    // 기존 EventSceneData Inspector에서 편집한다.
+    private void DrawDialogueChoices(
+        EventSceneData eventData,
+        EventSceneStepData step,
+        StringTableCollection collection)
+    {
+        EditorGUILayout.LabelField(
+            "Dialogue Choices",
+            EditorStyles.boldLabel
+        );
+
+        List<EventSceneDialogueChoiceData> choices =
+            step.dialogueChoices;
+
+        int choiceCount =
+            choices != null
+                ? choices.Count
+                : 0;
+
+        if (choiceCount == 0)
+        {
+            EditorGUILayout.HelpBox(
+                "선택지가 없습니다. 기존 Dialogue 방식으로 진행합니다.",
+                MessageType.None
+            );
+        }
+
+        if (step.dialoguePages == null ||
+            step.dialoguePages.Count == 0)
+        {
+            EditorGUILayout.HelpBox(
+                "선택지를 표시하려면 Dialogue Page가 최소 1개 필요합니다.",
+                MessageType.Warning
+            );
+        }
+
+        for (int choiceIndex = 0;
+             choiceIndex < choiceCount;
+             choiceIndex++)
+        {
+            EventSceneDialogueChoiceData choice =
+                choices[choiceIndex];
+
+            if (choice == null)
+            {
+                EditorGUILayout.HelpBox(
+                    $"Choice {choiceIndex + 1} 데이터가 비어 있습니다.",
+                    MessageType.Warning
+                );
+
+                continue;
+            }
+
+            using (new EditorGUILayout.VerticalScope(
+                       EditorStyles.helpBox))
+            {
+                // =============================================
+                // Choice Header
+                // =============================================
+
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUILayout.LabelField(
+                    $"Choice {choiceIndex + 1}",
+                    EditorStyles.boldLabel
+                );
+
+                bool moveUp;
+                bool moveDown;
+
+                using (new EditorGUI.DisabledScope(
+                           choiceIndex == 0))
+                {
+                    moveUp =
+                        GUILayout.Button(
+                            "▲",
+                            GUILayout.Width(28)
+                        );
+                }
+
+                using (new EditorGUI.DisabledScope(
+                           choiceIndex >= choiceCount - 1))
+                {
+                    moveDown =
+                        GUILayout.Button(
+                            "▼",
+                            GUILayout.Width(28)
+                        );
+                }
+
+                bool remove =
+                    GUILayout.Button(
+                        "삭제",
+                        GUILayout.Width(45)
+                    );
+
+                EditorGUILayout.EndHorizontal();
+
+                if (moveUp || moveDown || remove)
+                {
+                    Undo.RecordObject(
+                        eventData,
+                        "Edit Event Scene Dialogue Choices"
+                    );
+
+                    if (remove)
+                    {
+                        choices.RemoveAt(
+                            choiceIndex
+                        );
+                    }
+                    else
+                    {
+                        int targetIndex =
+                            moveUp
+                                ? choiceIndex - 1
+                                : choiceIndex + 1;
+
+                        EventSceneDialogueChoiceData temp =
+                            choices[targetIndex];
+
+                        choices[targetIndex] =
+                            choice;
+
+                        choices[choiceIndex] =
+                            temp;
+                    }
+
+                    EditorUtility.SetDirty(
+                        eventData
+                    );
+
+                    GUIUtility.ExitGUI();
+                    return;
+                }
+
+                // =============================================
+                // Korean
+                // =============================================
+
+                EditorGUILayout.LabelField(
+                    "Korean"
+                );
+
+                EditorGUI.BeginChangeCheck();
+
+                string newKorean =
+                    EditorGUILayout.TextArea(
+                        choice.koreanText ?? string.Empty,
+                        GUILayout.MinHeight(45)
+                    );
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(
+                        eventData,
+                        "Edit Event Scene Choice Korean"
+                    );
+
+                    choice.koreanText =
+                        newKorean;
+
+                    EditorUtility.SetDirty(
+                        eventData
+                    );
+                }
+
+                // =============================================
+                // Target Step
+                // =============================================
+
+                List<string> targetIds =
+                    new List<string>
+                    {
+                        string.Empty
+                    };
+
+                List<string> targetLabels =
+                    new List<string>
+                    {
+                        "<Select Target Step>"
+                    };
+
+                if (eventData.steps != null)
+                {
+                    for (int i = 0;
+                         i < eventData.steps.Count;
+                         i++)
+                    {
+                        EventSceneStepData targetStep =
+                            eventData.steps[i];
+
+                        if (targetStep == null ||
+                            string.IsNullOrWhiteSpace(
+                                targetStep.stepId))
+                        {
+                            continue;
+                        }
+
+                        string targetName =
+                            string.IsNullOrWhiteSpace(
+                                targetStep.stepName)
+                                ? targetStep.stepType.ToString()
+                                : targetStep.stepName;
+
+                        targetIds.Add(
+                            targetStep.stepId
+                        );
+
+                        targetLabels.Add(
+                            $"Step{(i + 1):D2} - " +
+                            $"{targetName} " +
+                            $"[{targetStep.stepType}]"
+                        );
+                    }
+                }
+
+                string currentTargetId =
+                    choice.targetStepId ??
+                    string.Empty;
+
+                int selectedTargetIndex =
+                    targetIds.IndexOf(
+                        currentTargetId
+                    );
+
+                bool missingTarget =
+                    selectedTargetIndex < 0;
+
+                if (missingTarget)
+                {
+                    targetIds.Add(
+                        currentTargetId
+                    );
+
+                    targetLabels.Add(
+                        $"<Missing Target: {currentTargetId}>"
+                    );
+
+                    selectedTargetIndex =
+                        targetIds.Count - 1;
+                }
+
+                EditorGUI.BeginChangeCheck();
+
+                int newTargetIndex =
+                    EditorGUILayout.Popup(
+                        "Target Step",
+                        selectedTargetIndex,
+                        targetLabels.ToArray()
+                    );
+
+                if (EditorGUI.EndChangeCheck() &&
+                    newTargetIndex >= 0 &&
+                    newTargetIndex < targetIds.Count)
+                {
+                    Undo.RecordObject(
+                        eventData,
+                        "Edit Event Scene Choice Target"
+                    );
+
+                    choice.targetStepId =
+                        targetIds[newTargetIndex];
+
+                    EditorUtility.SetDirty(
+                        eventData
+                    );
+                }
+
+                if (string.IsNullOrWhiteSpace(
+                        currentTargetId))
+                {
+                    EditorGUILayout.HelpBox(
+                        "분기할 Target Step을 선택해 주세요.",
+                        MessageType.Warning
+                    );
+                }
+                else if (missingTarget)
+                {
+                    EditorGUILayout.HelpBox(
+                        "지정한 Target Step을 찾을 수 없습니다. " +
+                        "삭제되었거나 ID가 변경되었는지 확인해 주세요.",
+                        MessageType.Warning
+                    );
+                }
+                else if (currentTargetId == step.stepId)
+                {
+                    EditorGUILayout.HelpBox(
+                        "자기 자신의 Dialogue Step으로 이동합니다. " +
+                        "반복 분기가 의도된 것인지 확인해 주세요.",
+                        MessageType.Warning
+                    );
+                }
+
+                // =============================================
+                // Localization
+                // =============================================
+
+                string key =
+                    GetDialogueChoiceKey(
+                        eventData,
+                        choice
+                    );
+
+                if (string.IsNullOrWhiteSpace(
+                        key))
+                {
+                    EditorGUILayout.HelpBox(
+                        "Localization 생성 / 한국어 동기화를 실행하면 " +
+                        "선택지의 고유 번역 키와 번역 입력란이 준비됩니다.",
+                        MessageType.None
+                    );
+                }
+                else
+                {
+                    EditorGUILayout.LabelField(
+                        "Key",
+                        key
+                    );
+
+                    if (collection == null)
+                    {
+                        EditorGUILayout.HelpBox(
+                            "EventScene_Dialogue Collection을 찾을 수 없습니다.",
+                            MessageType.Warning
+                        );
+                    }
+                    else
+                    {
+                        EditorGUILayout.Space(3);
+
+                        DrawLocaleTranslation(
+                            collection,
+                            "English",
+                            "en",
+                            key
+                        );
+
+                        EditorGUILayout.Space(4);
+
+                        DrawLocaleTranslation(
+                            collection,
+                            "Japanese",
+                            "ja",
+                            key
+                        );
+                    }
+                }
+            }
+
+            EditorGUILayout.Space(5);
+        }
+
+        // =============================================
+        // Add Choice
+        // =============================================
+
+        if (GUILayout.Button(
+                "+ Dialogue Choice 추가"))
+        {
+            Undo.RecordObject(
+                eventData,
+                "Add Event Scene Dialogue Choice"
+            );
+
+            if (step.dialogueChoices == null)
+            {
+                step.dialogueChoices =
+                    new List<EventSceneDialogueChoiceData>();
+            }
+
+            step.dialogueChoices.Add(
+                new EventSceneDialogueChoiceData
+                {
+                    localizationId =
+                        CreateStableId("choice"),
+
+                    koreanText =
+                        string.Empty,
+
+                    localizedText =
+                        new LocalizedString(),
+
+                    targetStepId =
+                        string.Empty
+                }
+            );
+
+            EditorUtility.SetDirty(
+                eventData
+            );
+
+            GUIUtility.ExitGUI();
+        }
+    }
+
 
     // <변경부분>
     // Standalone Event Scene의 SpeechBubble 한국어 원문과
@@ -3804,6 +4228,82 @@ public class EventSceneDataEditor : Editor
     }
 
 
+    // <변경부분>
+    // Dialogue Choice의 분기 목적지를 식별하기 위한
+    // 모든 Event Step의 Stable ID를 보장한다.
+    //
+    // 기존 ID는 그대로 유지하며,
+    // 비어 있거나 중복된 ID만 새로 생성한다.
+    //
+    // Step Name 수정 / Reorder는 ID에 영향을 주지 않는다.
+    private void EnsureUniqueBranchStepIds(
+        EventSceneData eventData)
+    {
+        if (eventData == null ||
+            eventData.steps == null)
+        {
+            return;
+        }
+
+        HashSet<string> usedIds =
+            new HashSet<string>();
+
+        bool recordedUndo = false;
+
+        for (int i = 0;
+             i < eventData.steps.Count;
+             i++)
+        {
+            EventSceneStepData step =
+                eventData.steps[i];
+
+            if (step == null)
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    step.stepId) &&
+                usedIds.Add(step.stepId))
+            {
+                continue;
+            }
+
+            if (!recordedUndo)
+            {
+                Undo.RecordObject(
+                    eventData,
+                    "Initialize Event Scene Branch Step IDs"
+                );
+
+                recordedUndo = true;
+            }
+
+            string newId;
+
+            do
+            {
+                newId =
+                    CreateStableId(
+                        "step"
+                    );
+            }
+            while (usedIds.Contains(newId));
+
+            step.stepId = newId;
+
+            usedIds.Add(newId);
+        }
+
+        if (recordedUndo)
+        {
+            EditorUtility.SetDirty(
+                eventData
+            );
+        }
+    }
+
+
     private void AddStep(
         EventSceneData eventData)
     {
@@ -4120,11 +4620,61 @@ public class EventSceneDataEditor : Editor
                             );
 
                         pageData.localizedText =
-                            DevoryaLocalizationEditorUtility
-                                .CreateLocalizedStringReference(
-                                    collection,
-                                    key
+     DevoryaLocalizationEditorUtility
+         .CreateLocalizedStringReference(
+             collection,
+             key
+         );
+                    }
+
+                    // <변경부분>
+                    // Dialogue의 선택지도 동일한 Collection에
+                    // 한국어 원문을 동기화한다.
+                    //
+                    // 선택지 고유 Key를 사용하므로
+                    // 기존 Dialogue Page 번역은 변경하지 않는다.
+                    if (step.dialogueChoices != null)
+                    {
+                        for (int choiceIndex = 0;
+                             choiceIndex <
+                                 step.dialogueChoices.Count;
+                             choiceIndex++)
+                        {
+                            EventSceneDialogueChoiceData choice =
+                                step.dialogueChoices[choiceIndex];
+
+                            if (choice == null)
+                            {
+                                continue;
+                            }
+
+                            string choiceKey =
+                                GetDialogueChoiceKey(
+                                    eventData,
+                                    choice
                                 );
+
+                            if (string.IsNullOrWhiteSpace(
+                                    choiceKey))
+                            {
+                                continue;
+                            }
+
+                            DevoryaLocalizationEditorUtility
+                                .SetTableValue(
+                                    koreanTable,
+                                    choiceKey,
+                                    choice.koreanText ??
+                                        string.Empty
+                                );
+
+                            choice.localizedText =
+                                DevoryaLocalizationEditorUtility
+                                    .CreateLocalizedStringReference(
+                                        collection,
+                                        choiceKey
+                                    );
+                        }
                     }
 
                     continue;
@@ -4209,9 +4759,15 @@ public class EventSceneDataEditor : Editor
         // Dialogue와 SpeechBubble은 서로 다른 Key Namespace를 사용하므로
         // 각 타입 내부에서 Stable ID 중복을 검사한다.
         HashSet<string> usedDialogueStepIds =
-            new HashSet<string>();
+         new HashSet<string>();
 
         HashSet<string> usedSpeechIds =
+            new HashSet<string>();
+
+        // <변경부분>
+        // 같은 EventSceneData 안의 모든 Dialogue Choice가
+        // 서로 다른 Localization ID를 갖도록 관리한다.
+        HashSet<string> usedChoiceIds =
             new HashSet<string>();
 
         for (int i = 0;
@@ -4287,8 +4843,62 @@ public class EventSceneDataEditor : Editor
                     }
 
                     usedPageIds.Add(
-                        pageData.localizationId
-                    );
+    pageData.localizationId
+);
+                }
+
+                // <변경부분>
+                // Dialogue Choice의 Localization ID는
+                // 페이지 번호와 무관하게 안정적으로 유지한다.
+                //
+                // 중복 ID를 발견하면 처음 등장한 선택지의 ID를
+                // 우선 보존하고 중복된 선택지만 새 ID를 부여한다.
+                if (step.dialogueChoices != null)
+                {
+                    for (int choiceIndex = 0;
+                         choiceIndex <
+                             step.dialogueChoices.Count;
+                         choiceIndex++)
+                    {
+                        EventSceneDialogueChoiceData choice =
+                            step.dialogueChoices[choiceIndex];
+
+                        if (choice == null)
+                        {
+                            continue;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(
+                                choice.localizationId) ||
+                            usedChoiceIds.Contains(
+                                choice.localizationId))
+                        {
+                            string newChoiceId;
+
+                            do
+                            {
+                                newChoiceId =
+                                    CreateStableId(
+                                        "choice"
+                                    );
+                            }
+                            while (usedChoiceIds.Contains(
+                                       newChoiceId));
+
+                            choice.localizationId =
+                                newChoiceId;
+                        }
+
+                        usedChoiceIds.Add(
+                            choice.localizationId
+                        );
+
+                        if (choice.localizedText == null)
+                        {
+                            choice.localizedText =
+                                new LocalizedString();
+                        }
+                    }
                 }
 
                 continue;
@@ -4458,11 +5068,42 @@ public class EventSceneDataEditor : Editor
         }
 
         return
+           $"event_scene." +
+           $"{eventData.localizationId}." +
+           $"{step.dialogueLocalizationId}." +
+           $"{pageData.localizationId}";
+    }
+
+
+    // <변경부분>
+    // Dialogue Choice 전용 Stable Localization Key.
+    //
+    // 형식:
+    // event_scene.<eventId>.choice.<choiceId>
+    //
+    // Dialogue Page / SpeechBubble와 Namespace를 분리한다.
+    // 선택지 순서를 변경해도 번역 Key는 유지된다.
+    private string GetDialogueChoiceKey(
+        EventSceneData eventData,
+        EventSceneDialogueChoiceData choice)
+    {
+        if (eventData == null ||
+            choice == null ||
+            string.IsNullOrWhiteSpace(
+                eventData.localizationId) ||
+            string.IsNullOrWhiteSpace(
+                choice.localizationId))
+        {
+            return string.Empty;
+        }
+
+        return
             $"event_scene." +
             $"{eventData.localizationId}." +
-            $"{step.dialogueLocalizationId}." +
-            $"{pageData.localizationId}";
+            $"choice." +
+            $"{choice.localizationId}";
     }
+
 
     // <변경부분>
     // SpeechBubble은 Step Index가 아니라
@@ -4599,10 +5240,67 @@ public class EventSceneDataEditor : Editor
                         }
 
                         if (HasTableValue(
-                                japaneseTable,
-                                key))
+          japaneseTable,
+          key))
                         {
                             japaneseCount++;
+                        }
+                    }
+
+                    // <변경부분>
+                    // Dialogue Choice도 번역 진행률에 포함한다.
+                    //
+                    // Dialogue Page와 동일하게
+                    // KR / EN / JA에 실제 문구가 존재하는지 검사한다.
+                    if (step.dialogueChoices != null)
+                    {
+                        for (int choiceIndex = 0;
+                             choiceIndex <
+                                 step.dialogueChoices.Count;
+                             choiceIndex++)
+                        {
+                            EventSceneDialogueChoiceData choice =
+                                step.dialogueChoices[choiceIndex];
+
+                            if (choice == null)
+                            {
+                                continue;
+                            }
+
+                            total++;
+
+                            string choiceKey =
+                                GetDialogueChoiceKey(
+                                    eventData,
+                                    choice
+                                );
+
+                            if (string.IsNullOrWhiteSpace(
+                                    choiceKey))
+                            {
+                                continue;
+                            }
+
+                            if (HasTableValue(
+                                    koreanTable,
+                                    choiceKey))
+                            {
+                                koreanCount++;
+                            }
+
+                            if (HasTableValue(
+                                    englishTable,
+                                    choiceKey))
+                            {
+                                englishCount++;
+                            }
+
+                            if (HasTableValue(
+                                    japaneseTable,
+                                    choiceKey))
+                            {
+                                japaneseCount++;
+                            }
                         }
                     }
 

@@ -21,6 +21,7 @@ MonoBehaviour:
   steps:
   - stepName: "\uC7A1\uB3D9\uC0AC\uB2C8\uB97C \uBC1C\uACAC\uD588\uB2E4."
     stepType: 1
+    stepId: step_4148a090
     dialoguePages:
     - "\uC6B0\uC5F0\uD788 \uC7A1\uB3D9\uC0AC\uB2C8\uB97C \uBC1C\uACAC\uD588\uB2E4."
     dialogueLocalizationId: dialogue_4282e4b6
@@ -28,13 +29,38 @@ MonoBehaviour:
     - localizationId: page_91748602
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 12189788627668992
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
+    dialogueChoices:
+    - localizationId: choice_a9170d9b
+      koreanText: "\uC7A1\uB3D9\uC0B0\uC774\uB97C \uB4A4\uC838\uBCF8\uB2E4."
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
+        m_TableEntryReference:
+          m_KeyId: 12189788690583552
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      targetStepId: step_905e9e2c
+    - localizationId: choice_6f098005
+      koreanText: "\uADF8\uB0E5 \uC9D1\uC5D0 \uAC04\uB2E4"
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
+        m_TableEntryReference:
+          m_KeyId: 12189788690583553
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+      targetStepId: step_b3c972b8
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -110,9 +136,11 @@ MonoBehaviour:
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC7A0\uAE08 \uD480\uAE30"
     stepType: 13
+    stepId: step_7af0ce23
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -188,9 +216,11 @@ MonoBehaviour:
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC804\uD22C\uC2DC\uC791"
     stepType: 16
+    stepId: step_b3c972b8
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -266,9 +296,11 @@ MonoBehaviour:
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBCF4\uC0C1 \uD398\uC774\uC9C0"
     stepType: 15
+    stepId: step_905e9e2c
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    dialogueChoices: []
     spawnActorId: 
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2

@@ -124,6 +124,12 @@ public class EventSceneSequenceController : MonoBehaviour
     false;
 
     private int currentStepIndex =
+       -1;
+
+    // <변경부분>
+    // 선택지에서 지정한 목적지의 Step Index.
+    // -1이면 기존 순서대로 다음 스텝을 실행한다.
+    private int pendingBranchStepIndex =
         -1;
 
     private Coroutine sequenceCoroutine =
@@ -241,9 +247,15 @@ public class EventSceneSequenceController : MonoBehaviour
         );
 
         // <변경부분>
+        // <변경부분>
         // 실행 중에만 현재 EventSceneData를 보관한다.
         currentEventSceneData =
             newEventSceneData;
+
+        // <변경부분>
+        // 이전 시퀀스의 분기 요청이 남지 않도록 초기화한다.
+        pendingBranchStepIndex =
+            -1;
 
         sequenceCoroutine =
             StartCoroutine(
@@ -330,9 +342,9 @@ public class EventSceneSequenceController : MonoBehaviour
             );
 
             yield return
-                ExecuteStepRoutine(
-                    step
-                );
+    ExecuteStepRoutine(
+        step
+    );
 
             if (isSequenceActive == false)
             {
@@ -340,6 +352,37 @@ public class EventSceneSequenceController : MonoBehaviour
                     null;
 
                 yield break;
+            }
+
+            // <변경부분>
+            // 선택지에서 요청한 Step으로 다음 반복 위치를 옮긴다.
+            // for문의 i++까지 고려해 목적지 인덱스 - 1로 설정한다.
+            if (pendingBranchStepIndex >= 0)
+            {
+                int branchIndex =
+                    pendingBranchStepIndex;
+
+                pendingBranchStepIndex =
+                    -1;
+
+                if (branchIndex >= steps.Count)
+                {
+                    Debug.LogError(
+                        "Event Scene Dialogue 분기 실패: " +
+                        "목적지 Step Index가 범위를 벗어났습니다.",
+                        this
+                    );
+
+                    isSequenceActive =
+                        false;
+
+                    sequenceCoroutine =
+                        null;
+
+                    yield break;
+                }
+
+                i = branchIndex - 1;
             }
         }
 
@@ -2095,10 +2138,14 @@ attacker.PlayAttackRoutine(
     }
 
     // <변경부분>
+    // <변경부분>
     // Event Scene Dialogue 실행.
     //
-    // Localization Resolve는 StepData가 담당하고
-    // EventGuideUI는 최종 문자열 목록만 전달받는다.
+    // Localization Resolve는 StepData가 담당하고,
+    // EventGuideUI는 페이지와 선택지 UI를 표시한다.
+    //
+    // 선택지가 없다면 기존 방식으로 다음 Step에 진행한다.
+    // 선택지가 있다면 플레이어가 지정한 Target Step으로 분기한다.
     private IEnumerator ExecuteDialogueStepRoutine(
         EventSceneStepData step)
     {
@@ -2126,10 +2173,96 @@ attacker.PlayAttackRoutine(
             yield break;
         }
 
+        bool hasChoices =
+            step.dialogueChoices != null &&
+            step.dialogueChoices.Count > 0;
+
+        string selectedTargetStepId =
+            null;
+
+        // <변경부분>
+        // 선택지가 없는 기존 Dialogue는 이전 방식 그대로 진행한다.
+        // 선택지가 있으면 UI가 마지막 페이지에서 선택 결과를 전달한다.
         yield return
             eventGuideUI.PlayDialogueRoutine(
-                resolvedDialoguePages
+                resolvedDialoguePages,
+                hasChoices
+                    ? step.dialogueChoices
+                    : null,
+                targetId =>
+                {
+                    selectedTargetStepId =
+                        targetId;
+                }
             );
+
+        if (!hasChoices ||
+            !isSequenceActive)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // 타깃 누락은 다른 Step으로 조용히 진행하지 않고 오류로 정지한다.
+        if (string.IsNullOrWhiteSpace(
+                selectedTargetStepId) ||
+            currentEventSceneData == null ||
+            currentEventSceneData.steps == null)
+        {
+            Debug.LogError(
+                "Event Scene Dialogue 분기 실패: " +
+                "선택 결과가 없거나 이벤트 Step 목록이 없습니다.",
+                this
+            );
+
+            isSequenceActive =
+                false;
+
+            yield break;
+        }
+
+        List<EventSceneStepData> steps =
+            currentEventSceneData.steps;
+
+        // <변경부분>
+        // Step 번호가 아닌 Stable Step ID로 실제 목적지를 검색한다.
+        for (int i = 0;
+             i < steps.Count;
+             i++)
+        {
+            EventSceneStepData targetStep =
+                steps[i];
+
+            if (targetStep == null ||
+                targetStep.stepId !=
+                    selectedTargetStepId)
+            {
+                continue;
+            }
+
+            pendingBranchStepIndex =
+                i;
+
+            Debug.Log(
+                $"Event Scene Dialogue 선택 분기: " +
+                $"{step.stepName} → " +
+                $"Step{i + 1:D2} / {targetStep.stepName}",
+                this
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // Target Step이 삭제된 경우 등에 엉뚱한 Step을 실행하지 않는다.
+        Debug.LogError(
+            $"Event Scene Dialogue 분기 실패: " +
+            $"Target Step ID '{selectedTargetStepId}'를 찾지 못했습니다.",
+            this
+        );
+
+        isSequenceActive =
+            false;
     }
 
 
@@ -2394,9 +2527,13 @@ attacker.PlayAttackRoutine(
         }
 
         isSequenceActive =
-            false;
+      false;
 
         currentStepIndex =
+            -1;
+
+        // <변경부분>
+        pendingBranchStepIndex =
             -1;
 
         if (eventGuideUI != null)
@@ -2481,6 +2618,10 @@ attacker.PlayAttackRoutine(
 
         currentStepIndex =
      -1;
+
+        // <변경부분>
+        pendingBranchStepIndex =
+            -1;
 
         StopSequenceCoroutine();
 
@@ -2588,9 +2729,13 @@ attacker.PlayAttackRoutine(
         );
 
         isSequenceActive =
-            false;
+    false;
 
         currentStepIndex =
+            -1;
+
+        // <변경부분>
+        pendingBranchStepIndex =
             -1;
 
         currentEventSceneData =
