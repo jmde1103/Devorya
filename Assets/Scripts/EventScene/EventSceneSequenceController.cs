@@ -536,8 +536,12 @@ public class EventSceneSequenceController : MonoBehaviour
             // Event Scene이 종료될 때까지 유지된다.
             case EventSceneStepType.UnlockPlayerInteraction:
 
+                // <변경부분>
+                // 일반 상호작용은 Unlock하되
+                // Camera 수동 입력은 Step 옵션에 따라 잠금 유지 가능.
                 SetEventScenePlayerInteractionLocked(
-                    false
+                    false,
+                    step.unlockPlayerInteractionLockManualCamera
                 );
 
                 // <변경부분>
@@ -776,16 +780,28 @@ public class EventSceneSequenceController : MonoBehaviour
     >();
 
         actor.Initialize(
-    step.spawnActorId,
-    step.spawnActorPieceData,
-    step.spawnActorTeam,
-    step.spawnActorUseAbsorbedPlayerVisual,
-    step.spawnActorPosition,
-    step.spawnActorVisualOffset,
-    step.spawnActorFlipX,
-    visualObject,
-    backgroundManager
+step.spawnActorId,
+step.spawnActorPieceData,
+step.spawnActorTeam,
+step.spawnActorUseAbsorbedPlayerVisual,
+step.spawnActorPosition,
+step.spawnActorVisualOffset,
+step.spawnActorFlipX,
+visualObject,
+backgroundManager
 );
+
+        // <변경부분>
+        // SpawnActor에 지정된 실제 Sorting Layer를 적용한다.
+        //
+        // 빈 문자열은 Auto이므로 기존 BackgroundManager 정렬을
+        // 그대로 사용한다.
+        //
+        // "Piece"가 지정되었다면 Born Animation이 시작되기 전에
+        // 생성된 Actor Visual을 Piece Layer로 변경한다.
+        actor.SetSortingLayerOverride(
+            step.spawnActorSortingLayerName
+        );
 
 
         // <변경부분>
@@ -963,6 +979,26 @@ public class EventSceneSequenceController : MonoBehaviour
         {
             actor.SetFlipX(
                 step.moveActorFlipX
+            );
+        }
+
+        // <변경부분>
+        // Change Sorting Layer가 켜져 있을 때만 변경한다.
+        //
+        // OFF:
+        // SpawnActor 또는 이전 MoveActor에서 지정한 Layer 유지.
+        //
+        // ON + Auto:
+        // 기존 BackgroundManager 자동 정렬로 복귀.
+        //
+        // ON + Piece:
+        // 이동을 시작하기 전 Piece Sorting Layer로 변경.
+        //
+        // 선택된 Layer는 MoveArcRoutine과 공격 이동 중에도 유지된다.
+        if (step.moveActorChangeSortingLayer)
+        {
+            actor.SetSortingLayerOverride(
+                step.moveActorSortingLayerName
             );
         }
 
@@ -1523,24 +1559,42 @@ attacker.PlayAttackRoutine(
 
 
     // <변경부분>
-    // Event Scene 전체의 일반 플레이어 조작 상태를 변경한다.
+    // Event Scene의 일반 상호작용과 수동 카메라 입력을 제어한다.
     //
-    // 이 값이 Event Scene 상호작용의 SSOT이며,
-    // 현재 구현되어 있는 수동 Camera 입력 Lock도
-    // 동일한 상태에 맞춰 함께 변경한다.
+    // isLocked = true:
+    // 일반 상호작용 및 수동 카메라 입력 모두 잠금.
     //
-    // 이후 ShopItemDisplay / Merchant Interaction 등은
-    // IsPlayerInteractionLocked를 확인하여 입력을 허용하거나 차단한다.
+    // isLocked = false,
+    // lockManualCameraWhenUnlocked = false:
+    // 일반 상호작용과 수동 카메라 입력 모두 허용.
     //
-    // 설정 / 종료 같은 System UI는 이 Lock을 사용하지 않는다.
+    // isLocked = false,
+    // lockManualCameraWhenUnlocked = true:
+    // 일반 상호작용 허용, 수동 카메라 입력만 잠금.
+    //
+    // 두 번째 인자의 기본값은 false로 유지하여
+    // 기존 호출부의 동작을 변경하지 않는다.
     private void SetEventScenePlayerInteractionLocked(
-        bool isLocked)
+        bool isLocked,
+        bool lockManualCameraWhenUnlocked = false)
     {
+        // <변경부분>
+        // 버튼 등의 일반 상호작용 허용 여부는
+        // 기존 상태값을 그대로 사용한다.
         isPlayerInteractionLocked =
             isLocked;
 
+        // <변경부분>
+        // 일반 상호작용이 잠겨 있으면 카메라도 잠근다.
+        //
+        // 일반 상호작용이 허용된 상태에서는
+        // 해당 Unlock Step의 카메라 잠금 옵션을 따른다.
+        bool shouldLockManualCamera =
+            isLocked ||
+            lockManualCameraWhenUnlocked;
+
         SetEventSceneManualCameraInputLocked(
-            isLocked
+            shouldLockManualCamera
         );
     }
 

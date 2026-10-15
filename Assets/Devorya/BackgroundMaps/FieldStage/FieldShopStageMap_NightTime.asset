@@ -9455,13 +9455,6 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 8825777334374118131, guid: 7770a3e42e0ff6b45b5e2e2c7d68b44c, type: 3}
     LocalPositionOffset: {x: -0.0017409027, y: 0.33500242, z: 0}
     LayerOffset: 3
-  - X: 19
-    Y: 22
-    DecorationType: 0
-    DecorationSprite: {fileID: 0}
-    DecorationPrefab: {fileID: 4746673714160857919, guid: 6e543bc392942b14bb68d6de2f25a255, type: 3}
-    LocalPositionOffset: {x: -0.025168061, y: 0.23534918, z: 0}
-    LayerOffset: -3
   ShopDisplaySlots:
   - SlotId: 2f4d80222684414e9df9838a4574a8c7
     ShopDisplayPrefab: {fileID: 4094777867487052340, guid: 1256f05fc77cc654482b7ab202d7355c, type: 3}

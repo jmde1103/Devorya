@@ -21,12 +21,12 @@ MonoBehaviour:
   - nodeId: ForestMap_01_Battle_02
     nodeDisplayName: "\uD29C\uD1A0\uB9AC\uC5BC"
     gridPosition: {x: 23, y: 14}
-    nodeType: 5
-    nodeStyleData: {fileID: 11400000, guid: 77489dafc87e98147ba002d8e37bed10, type: 2}
+    nodeType: 2
+    nodeStyleData: {fileID: 11400000, guid: ca1d7159da3d76b4cb26be4415084675, type: 2}
     targetSceneName: EventScene
     stageBattleData: {fileID: 0}
-    eventSceneData: {fileID: 11400000, guid: 7c3b09b8a1fb7a245876308ee1705bf5, type: 2}
-    shopInventoryData: {fileID: 11400000, guid: aebdebfb35b026043b4721458d358f3f, type: 2}
+    eventSceneData: {fileID: 11400000, guid: 23a713f253464744ba85f173d66e174e, type: 2}
+    shopInventoryData: {fileID: 0}
     shopLevel: 1
     initiallyUnlocked: 0
     initiallyCleared: 0

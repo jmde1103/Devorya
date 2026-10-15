@@ -39,6 +39,46 @@ MonoBehaviour:
     m_Key: event_scene.event_loot_field_stage_1.choice.choice_6f098005
     m_Metadata:
       m_Items: []
+  - m_Id: 12328136805584896
+    m_Key: event_scene.event_loot_field_stage_1.dialogue_4282e4b6.page_460f5736
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12328324995616768
+    m_Key: event_scene.event_loot_field_stage_1.speech.speech_b7ff16f1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12347867402997760
+    m_Key: event_scene.event_loot_field_stage_1.dialogue_dae0daea.page_8e6c5ef1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12348046927597568
+    m_Key: event_scene.event_loot_field_stage_2.dialogue_4282e4b6.page_91748602
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12348046927597569
+    m_Key: event_scene.event_loot_field_stage_2.dialogue_4282e4b6.page_460f5736
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12348046927597570
+    m_Key: event_scene.event_loot_field_stage_2.choice.choice_a9170d9b
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12348046927597571
+    m_Key: event_scene.event_loot_field_stage_2.choice.choice_6f098005
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12348046927597572
+    m_Key: event_scene.event_loot_field_stage_2.dialogue_dae0daea.page_8e6c5ef1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12359955819139072
+    m_Key: event_scene.event_shop_field_stage_1_night_time.dialogue_97b1a70b.page_a7c3dd00
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12361164965679104
+    m_Key: event_scene.event_shop_field_stage_1_night_time.speech.speech_5cf140dd
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

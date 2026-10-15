@@ -27,10 +27,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 12189788627668992
-    m_Localized: 'You come across a pile of junk left behind by someone.
-
-      There
-      might be something useful if you take a closer look.'
+    m_Localized: You come across a pile of junk left behind by someone.
     m_Metadata:
       m_Items: []
   - m_Id: 12189788690583552
@@ -39,6 +36,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 12189788690583553
     m_Localized: Ignore it and move on.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12328136805584896
+    m_Localized: There might be something useful if you take a closer look.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12347867402997760
+    m_Localized: Found something useful!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12359955819139072
+    m_Localized: It appears to be selling something.
     m_Metadata:
       m_Items: []
   references:

@@ -106,6 +106,28 @@ public enum EventSceneRemoveMode
     Immediate = 1
 }
 
+
+// <변경부분>
+// Event Scene Actor 전용 Sorting Mode.
+//
+// 기존 BackgroundManager의 자동 정렬 방식을 유지하면서
+// 필요한 연출에서만 Decoration과의 앞뒤 관계를 지정한다.
+//
+// 기존 EventSceneData의 Serialized 값 보호를 위해
+// Auto = 0을 기본값으로 유지한다.
+public enum EventSceneActorSortingMode
+{
+    // 기존 Grid Depth + Decoration 가림 영역 계산.
+    Auto = 0,
+
+    // 해당 Actor를 겹치는 Decoration보다 앞에 표시.
+    Front = 1,
+
+    // 해당 Actor를 겹치는 Decoration보다 뒤에 표시.
+    Behind = 2
+}
+
+
 // <변경부분>
 // AttackActor Step의 연출 결과.
 //
@@ -370,7 +392,29 @@ public class EventSceneStepData
     // Event Scene에서는 같은 Actor도 상황에 따라
     // 좌 / 우 방향을 다르게 바라보게 할 수 있다.
     public bool spawnActorFlipX =
-    false;
+ false;
+
+    // <변경부분>
+    // 이전 Auto / Front / Behind 실험용 데이터.
+    // 기존 EventSceneData의 Serialized 값 보호를 위해 유지한다.
+    // 신규 Runtime에서는 사용하지 않는다.
+    [HideInInspector]
+    public EventSceneActorSortingMode spawnActorSortingMode =
+        EventSceneActorSortingMode.Auto;
+
+    // <변경부분>
+    // SpawnActor에서 사용할 실제 Unity Sorting Layer 이름.
+    //
+    // 빈 문자열:
+    // BackgroundManager의 기존 자동 정렬을 사용한다.
+    //
+    // "Piece":
+    // 생성된 Actor Visual의 Sorting Layer를 Piece로 지정한다.
+    //
+    // Unity에 등록된 다른 Sorting Layer도 선택 가능하다.
+    // 기존 EventSceneData 보호를 위해 Auto가 기본값이다.
+    public string spawnActorSortingLayerName =
+        string.Empty;
 
     // <변경부분>
     // SpawnActor에 Born Animation이 없을 때 사용할
@@ -431,7 +475,44 @@ public class EventSceneStepData
     // false = 기본 방향
     // true = X축 반전
     public bool moveActorFlipX =
+       false;
+
+
+    // <변경부분>
+    // 이전 Sorting Mode 데이터.
+    // Serialized 호환성 유지를 위해 삭제하지 않는다.
+    [HideInInspector]
+    public bool moveActorChangeSortingMode =
         false;
+
+    [HideInInspector]
+    public EventSceneActorSortingMode moveActorSortingMode =
+        EventSceneActorSortingMode.Auto;
+
+
+    // <변경부분>
+    // 이 MoveActor Step에서 실제 Sorting Layer를
+    // 변경할지 결정한다.
+    //
+    // false:
+    // 현재 Actor의 Sorting Layer 설정 유지.
+    //
+    // true:
+    // 아래에 지정한 Sorting Layer를 적용한다.
+    public bool moveActorChangeSortingLayer =
+        false;
+
+    // <변경부분>
+    // Change Sorting Layer가 true일 때 적용할 레이어.
+    //
+    // 빈 문자열:
+    // 기존 BackgroundManager 자동 정렬로 복귀한다.
+    //
+    // "Piece" 등:
+    // 해당 Sorting Layer를 사용하며,
+    // 이동 및 공격 중에도 그 설정을 유지한다.
+    public string moveActorSortingLayerName =
+        string.Empty;
 
 
     [Header("Attack Actor")]
@@ -817,7 +898,30 @@ public class EventSceneStepData
     // Wait Step에서 대기할 시간.
     [Min(0f)]
     public float waitDuration =
-     0.5f;
+  0.5f;
+
+
+    // =====================================================
+    // Unlock Player Interaction
+    // =====================================================
+
+    // <변경부분>
+    // 플레이어의 일반 UI / Scene 상호작용은 허용하면서
+    // 수동 카메라 이동과 확대 / 축소만 잠글지 결정한다.
+    //
+    // false:
+    // 기존 UnlockPlayerInteraction과 동일하게
+    // 카메라 드래그 / 휠 줌 / 핀치 줌을 허용한다.
+    //
+    // true:
+    // UI 및 상점 버튼 클릭은 허용하지만
+    // 수동 카메라 입력은 차단한다.
+    //
+    // CameraShot 등의 이벤트 연출에는 영향을 주지 않는다.
+    //
+    // 기존 EventSceneData 호환성을 위해 false가 기본값이다.
+    public bool unlockPlayerInteractionLockManualCamera =
+        false;
 
 
     // =====================================================

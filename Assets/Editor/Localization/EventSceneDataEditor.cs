@@ -1202,14 +1202,34 @@ public class EventSceneDataEditor : Editor
                 }
 
                 ProcessEventSceneProperties(
+        ref currentY,
+        contentRect,
+        stepProperty,
+        draw,
+        "spawnActorVisualOffset", "Visual Offset",
+        "spawnActorFlipX", "Flip X",
+        "spawnActorFadeInDuration",
+        "Fallback Fade In Duration"
+    );
+
+                currentY +=
+                    5f;
+
+                // <변경부분>
+                // SpawnActor의 실제 Unity Sorting Layer 설정.
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Visual Sorting",
+                    draw
+                );
+
+                ProcessEventActorSortingLayerPopup(
                     ref currentY,
                     contentRect,
                     stepProperty,
-                    draw,
-                    "spawnActorVisualOffset", "Visual Offset",
-                    "spawnActorFlipX", "Flip X",
-                    "spawnActorFadeInDuration",
-                    "Fallback Fade In Duration"
+                    "spawnActorSortingLayerName",
+                    draw
                 );
 
                 currentY +=
@@ -1346,7 +1366,7 @@ public class EventSceneDataEditor : Editor
                     );
 
                 if (moveChangeFlipProperty != null &&
-                    moveChangeFlipProperty.boolValue)
+     moveChangeFlipProperty.boolValue)
                 {
                     ProcessEventSceneProperties(
                         ref currentY,
@@ -1354,6 +1374,44 @@ public class EventSceneDataEditor : Editor
                         stepProperty,
                         draw,
                         "moveActorFlipX", "Flip X"
+                    );
+                }
+
+                currentY +=
+                    5f;
+
+                // <변경부분>
+                // MoveActor에서 실제 Sorting Layer를 변경한다.
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Visual Sorting",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "moveActorChangeSortingLayer",
+                    "Change Sorting Layer"
+                );
+
+                SerializedProperty moveChangeSortingLayerProperty =
+                    stepProperty.FindPropertyRelative(
+                        "moveActorChangeSortingLayer"
+                    );
+
+                if (moveChangeSortingLayerProperty != null &&
+                    moveChangeSortingLayerProperty.boolValue)
+                {
+                    ProcessEventActorSortingLayerPopup(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "moveActorSortingLayerName",
+                        draw
                     );
                 }
 
@@ -2379,12 +2437,36 @@ public class EventSceneDataEditor : Editor
 
             case EventSceneStepType.UnlockPlayerInteraction:
 
+                // <변경부분>
+                // 일반 상호작용 Unlock과 수동 Camera 입력 Unlock을
+                // 개별적으로 제어할 수 있도록 설정을 추가한다.
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Camera Control",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "unlockPlayerInteractionLockManualCamera",
+                    "Lock Camera Movement / Zoom"
+                );
+
+                // <변경부분>
+                // 카메라 잠금 여부에 따라 설명을 구분한다.
                 ProcessEventSceneHelpBox(
                     ref currentY,
                     contentRect,
-                    "Event Scene의 일반 플레이어 조작 Lock을 해제합니다.\n" +
-                    "상점 / 휴식 / 조사 등의 자유 상호작용 구간 시작에 사용합니다.\n" +
-                    "수동 Camera 이동 / 확대 / 축소도 함께 허용됩니다.",
+                    step.unlockPlayerInteractionLockManualCamera
+                        ? "플레이어의 일반 UI / Scene 상호작용을 허용합니다.\n" +
+                          "수동 Camera 드래그 / 휠 줌 / 핀치 줌은 잠급니다.\n" +
+                          "CameraShot 등의 이벤트 연출은 정상 실행됩니다."
+                        : "플레이어의 일반 UI / Scene 상호작용을 허용합니다.\n" +
+                          "수동 Camera 드래그 / 휠 줌 / 핀치 줌도 허용합니다.",
                     MessageType.Info,
                     draw
                 );
@@ -2765,10 +2847,120 @@ public class EventSceneDataEditor : Editor
         }
 
         currentY +=
-            lineHeight +
-            EditorGUIUtility.standardVerticalSpacing;
+     lineHeight +
+     EditorGUIUtility.standardVerticalSpacing;
 
         return result;
+    }
+
+
+    // <변경부분>
+    // Unity 프로젝트에 실제 등록된 Sorting Layer를 표시한다.
+    //
+    // 첫 번째 옵션인 Auto는 명시적 Layer Override를 사용하지 않고
+    // BackgroundManager의 기존 정렬 계산을 따른다는 의미다.
+    //
+    // 기존 ReorderableList와 동일한 Rect 기반으로 그리므로
+    // Element 높이 계산과 실제 GUI 높이가 일치한다.
+    private void ProcessEventActorSortingLayerPopup(
+        ref float currentY,
+        Rect contentRect,
+        SerializedProperty stepProperty,
+        string propertyName,
+        bool draw)
+    {
+        SerializedProperty layerNameProperty =
+            stepProperty.FindPropertyRelative(
+                propertyName
+            );
+
+        if (layerNameProperty == null)
+        {
+            ProcessEventSceneHelpBox(
+                ref currentY,
+                contentRect,
+                $"Sorting Layer Property를 찾을 수 없습니다: {propertyName}",
+                MessageType.Warning,
+                draw
+            );
+
+            return;
+        }
+
+        List<string> layerNames =
+            new List<string>
+            {
+                string.Empty
+            };
+
+        List<string> layerLabels =
+            new List<string>
+            {
+                "Auto (Existing Depth Sorting)"
+            };
+
+        SortingLayer[] sortingLayers =
+            SortingLayer.layers;
+
+        for (int i = 0;
+             i < sortingLayers.Length;
+             i++)
+        {
+            layerNames.Add(
+                sortingLayers[i].name
+            );
+
+            layerLabels.Add(
+                sortingLayers[i].name
+            );
+        }
+
+        string currentLayerName =
+            layerNameProperty.stringValue ??
+            string.Empty;
+
+        int selectedIndex =
+            layerNames.IndexOf(
+                currentLayerName
+            );
+
+        // <변경부분>
+        // 기존에 선택한 Layer가 삭제되었더라도
+        // 자동으로 다른 Layer로 바꾸지 않고 상태를 보여준다.
+        if (selectedIndex < 0)
+        {
+            layerNames.Add(
+                currentLayerName
+            );
+
+            layerLabels.Add(
+                $"<Missing Layer: {currentLayerName}>"
+            );
+
+            selectedIndex =
+                layerNames.Count - 1;
+        }
+
+        int newIndex =
+            ProcessEventScenePopup(
+                ref currentY,
+                contentRect,
+                "Sorting Layer",
+                selectedIndex,
+                layerLabels.ToArray(),
+                draw
+            );
+
+        if (draw &&
+            newIndex != selectedIndex &&
+            newIndex >= 0 &&
+            newIndex < layerNames.Count)
+        {
+            // 변경 내용은 기존 DrawEventSteps의
+            // serializedObject.ApplyModifiedProperties()에서 저장된다.
+            layerNameProperty.stringValue =
+                layerNames[newIndex];
+        }
     }
 
 

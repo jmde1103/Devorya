@@ -45,6 +45,26 @@ public class EventSceneActor : MonoBehaviour
 
 
     // <변경부분>
+    // Event Scene Actor에 지정된 Sorting Layer Override.
+    //
+    // false:
+    // BackgroundManager가 계산한 자동 Sorting Layer 사용.
+    //
+    // true:
+    // 선택한 Sorting Layer ID를 우선 사용.
+    //
+    // Sorting Order는 기존 Depth 계산값을 계속 사용한다.
+    private bool hasSortingLayerOverride =
+        false;
+
+    private int overrideSortingLayerId =
+        0;
+
+    private string overrideSortingLayerName =
+        string.Empty;
+
+
+    // <변경부분>
     // Event Scene Actor가 소유하는 공용 SpeechBubble UI.
     private ActorSpeechBubbleUI speechBubbleUI;
 
@@ -227,9 +247,107 @@ public class EventSceneActor : MonoBehaviour
             }
 
             visualRendererSortingOffsets[i] =
-                renderer.sortingOrder -
-                referenceSortingOrder;
+     renderer.sortingOrder -
+     referenceSortingOrder;
         }
+    }
+
+
+    // <변경부분>
+    // Event Scene Actor의 실제 Sorting Layer를 변경한다.
+    //
+    // 빈 문자열:
+    // 기존 BackgroundManager 자동 Sorting으로 복귀.
+    //
+    // "Piece" 등:
+    // 프로젝트에 등록된 Sorting Layer를 직접 적용.
+    //
+    // 이동 및 공격 중에도 선택한 Layer를 계속 유지한다.
+    //
+    // 공용 Piece Prefab Asset은 수정하지 않고
+    // 현재 EventSceneActor의 Runtime Instance에만 적용한다.
+    public bool SetSortingLayerOverride(
+        string sortingLayerName)
+    {
+        string requestedLayerName =
+            sortingLayerName ??
+            string.Empty;
+
+        // =================================================
+        // Auto Sorting
+        // =================================================
+
+        if (string.IsNullOrWhiteSpace(
+                requestedLayerName))
+        {
+            hasSortingLayerOverride =
+                false;
+
+            overrideSortingLayerId =
+                0;
+
+            overrideSortingLayerName =
+                string.Empty;
+
+            // 즉시 기존 Grid 기준 정렬로 복귀한다.
+            ApplySortingForGridPosition(
+                gridPosition
+            );
+
+            return true;
+        }
+
+        // =================================================
+        // Explicit Sorting Layer
+        // =================================================
+
+        SortingLayer[] availableLayers =
+            SortingLayer.layers;
+
+        for (int i = 0;
+             i < availableLayers.Length;
+             i++)
+        {
+            SortingLayer layer =
+                availableLayers[i];
+
+            if (layer.name !=
+                requestedLayerName)
+            {
+                continue;
+            }
+
+            hasSortingLayerOverride =
+                true;
+
+            overrideSortingLayerId =
+                layer.id;
+
+            overrideSortingLayerName =
+                layer.name;
+
+            // <변경부분>
+            // 다음 이동 프레임을 기다리지 않고
+            // 현재 Renderer의 Sorting Layer부터 갱신한다.
+            ApplySortingForGridPosition(
+                gridPosition
+            );
+
+            return true;
+        }
+
+        // <변경부분>
+        // 잘못된 Layer 이름인 경우에는 기존 정렬 상태를
+        // 유지한다. Default Layer 등으로 임의 변경하지 않는다.
+        Debug.LogWarning(
+            $"Event Scene Actor Sorting Layer 변경 실패: " +
+            $"Actor '{actorId}' / " +
+            $"Sorting Layer '{requestedLayerName}'가 " +
+            $"프로젝트에 존재하지 않습니다.",
+            this
+        );
+
+        return false;
     }
 
 
@@ -292,11 +410,16 @@ public class EventSceneActor : MonoBehaviour
 
 
     // <변경부분>
-    // Event Scene에 생성된 Runtime Visual Instance에만
-    // Sorting Layer / Order를 적용한다.
+    // Runtime Actor Visual의 Sorting Layer / Order를 적용한다.
     //
-    // 공용 PieceVisual Prefab Asset은 수정하지 않으므로
-    // Battle Scene에서는 기존 PieceManager Sorting이 그대로 유지된다.
+    // Auto:
+    // BackgroundManager가 계산한 Sorting Layer 사용.
+    //
+    // Explicit Layer:
+    // 지정한 Sorting Layer를 우선 사용.
+    //
+    // Sorting Order는 기존 Grid Depth와 Renderer 간
+    // 상대 Offset을 보존한다.
     private void ApplyVisualSorting(
         int sortingLayerId,
         int baseSortingOrder)
@@ -306,6 +429,17 @@ public class EventSceneActor : MonoBehaviour
         {
             return;
         }
+
+        // <변경부분>
+        // BackgroundManager의 자동 계산은 유지하면서
+        // 사용자가 지정한 Layer가 있다면 그것을 우선 사용한다.
+        //
+        // MoveArcRoutine에서 매 프레임 이 함수가 호출되어도
+        // 선택한 Sorting Layer가 다시 덮어써지지 않는다.
+        int finalSortingLayerId =
+            hasSortingLayerOverride
+                ? overrideSortingLayerId
+                : sortingLayerId;
 
         for (int i = 0;
              i < visualRenderers.Length;
@@ -320,7 +454,7 @@ public class EventSceneActor : MonoBehaviour
             }
 
             renderer.sortingLayerID =
-                sortingLayerId;
+                finalSortingLayerId;
 
             int rendererOffset =
                 visualRendererSortingOffsets != null &&
