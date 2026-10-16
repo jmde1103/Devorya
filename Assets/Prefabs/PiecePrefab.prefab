@@ -140,6 +140,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!114 &6235562842398385085
 MonoBehaviour:
@@ -403,6 +404,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!114 &8248572034067896199
 MonoBehaviour:
@@ -564,7 +566,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 202051089
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: eb0970807b18b984bb2eda8c08127f54, type: 3}
@@ -772,6 +774,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!114 &7464243638062324664
 MonoBehaviour:
@@ -1357,6 +1360,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!114 &3373540554370101712
 MonoBehaviour:
@@ -1429,6 +1433,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FieldAbsorbButton
   absorbButton: {fileID: 8179558532153592560}
   absorbIconImage: {fileID: 2726759431389562983}
+  absorbBackgroundImage: {fileID: 5576549135929242600}
+  absorbBackgroundOffSprite: {fileID: 21300000, guid: 78c68d6783196d149b1ddabc960bc66e, type: 3}
+  absorbBackgroundOnSprite: {fileID: 21300000, guid: 8698d8649cf16474d944929795d8c63a, type: 3}
+  absorbBackgroundOffColor: {r: 1, g: 1, b: 1, a: 1}
+  absorbBackgroundOnColor: {r: 0, g: 0, b: 0, a: 1}
+  fieldAbsorbOffIconSprite: {fileID: 21300000, guid: 58e3c0f96fba7ad4db8217e7b85e1927, type: 3}
+  fieldAbsorbOnIconSprite: {fileID: 21300000, guid: 63c2a9c25f26b344ba5fe4a86045c4d9, type: 3}
+  absorbIconOffColor: {r: 0, g: 0, b: 0, a: 1}
+  absorbIconOnColor: {r: 1, g: 1, b: 1, a: 1}
   absorbTooltipTrigger: {fileID: 7512688049666711973}
   absorbIconNoiseAnimator: {fileID: 6235562842398385085}
   pixelBurstAnchor: {fileID: 7699297713486448808}
@@ -1511,7 +1524,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 202051089
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 101
   m_MaskInteraction: 0
   m_Sprite: {fileID: 0}
@@ -1711,7 +1724,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 202051089
-  m_SortingLayer: 1
+  m_SortingLayer: 2
   m_SortingOrder: 100
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 8698d8649cf16474d944929795d8c63a, type: 3}

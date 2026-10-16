@@ -23,6 +23,55 @@ public class FieldAbsorbButton : MonoBehaviour
     [SerializeField]
     private Image absorbIconImage;
 
+    // <변경부분>
+    // 공용 피스 프리팹의 흡수 버튼 배경 이미지.
+    // 실제 Button의 Background Image를 연결한다.
+    [Header("Field Absorb Background")]
+    [SerializeField]
+    private Image absorbBackgroundImage;
+
+    // <변경부분>
+    // OFF / ON 상태별 배경 Sprite.
+    // 둘 다 비워 두면 기존 배경 Sprite를 유지하고 색상만 변경한다.
+    [SerializeField]
+    private Sprite absorbBackgroundOffSprite;
+
+    [SerializeField]
+    private Sprite absorbBackgroundOnSprite;
+
+    // <변경부분>
+    // OFF = 흰색 배경
+    // ON = 검은색 배경
+    [SerializeField]
+    private Color absorbBackgroundOffColor =
+        Color.white;
+
+    [SerializeField]
+    private Color absorbBackgroundOnColor =
+        Color.black;
+
+    // <변경부분>
+    // 필드 흡수 버튼 전용 OFF / ON 아이콘.
+    // None이면 BattleUIController에서 전달한
+    // 기존 흡수 아이콘 Sprite를 사용한다.
+    [Header("Field Absorb Icon")]
+    [SerializeField]
+    private Sprite fieldAbsorbOffIconSprite;
+
+    [SerializeField]
+    private Sprite fieldAbsorbOnIconSprite;
+
+    // <변경부분>
+    // OFF = 검은색 아이콘
+    // ON = 흰색 아이콘
+    [SerializeField]
+    private Color absorbIconOffColor =
+        Color.black;
+
+    [SerializeField]
+    private Color absorbIconOnColor =
+        Color.white;
+
     [Header("Tooltip")]
     // 기존 하단 흡수 버튼과 동일한 TooltipData를 받을 트리거
     //
@@ -294,23 +343,75 @@ public class FieldAbsorbButton : MonoBehaviour
         );
     }
 
-    // 외부 초기화가 필요할 때
-    // 필드 버튼 아이콘 상태를 직접 적용한다.
+    // <변경부분>
+    // 필드 흡수 버튼의 OFF / ON 상태를 변경한다.
+    //
+    // OFF:
+    // - 흰색 배경
+    // - 검은색 아이콘
+    //
+    // ON:
+    // - 검은색 배경
+    // - 흰색 아이콘
+    //
+    // 기존 흡수 모드 전환 및 BattleManager 콜백은 유지한다.
     public void SetAbsorbMode(
         bool isActive)
     {
         isAbsorbMode =
             isActive;
 
+        // <변경부분>
+        // 배경 Image의 Sprite 및 색상을 변경한다.
+        if (absorbBackgroundImage != null &&
+            absorbBackgroundImage != absorbIconImage)
+        {
+            // 두 Sprite가 모두 지정된 경우에만
+            // OFF / ON 배경 Sprite를 교체한다.
+            //
+            // 둘 다 비워 두면 기존 배경 Sprite를 유지한다.
+            if (absorbBackgroundOffSprite != null &&
+                absorbBackgroundOnSprite != null)
+            {
+                absorbBackgroundImage.sprite =
+                    isAbsorbMode
+                        ? absorbBackgroundOnSprite
+                        : absorbBackgroundOffSprite;
+            }
+
+            // OFF = White
+            // ON = Black
+            absorbBackgroundImage.color =
+                isAbsorbMode
+                    ? absorbBackgroundOnColor
+                    : absorbBackgroundOffColor;
+        }
+
+        // <변경부분>
+        // 기존 아이콘 Image가 없으면
+        // 배경만 변경한 상태로 종료한다.
         if (absorbIconImage == null)
         {
             return;
         }
 
+        // <변경부분>
+        // 공용 피스 프리팹에 전용 Sprite가 지정되어 있으면 우선 사용한다.
+        //
+        // 지정되지 않았다면 BattleUIController가 전달한
+        // 기존 OFF / ON Sprite를 사용한다.
         Sprite targetSprite =
             isAbsorbMode
-                ? absorbOnSprite
-                : absorbOffSprite;
+                ? (
+                    fieldAbsorbOnIconSprite != null
+                        ? fieldAbsorbOnIconSprite
+                        : absorbOnSprite
+                )
+                : (
+                    fieldAbsorbOffIconSprite != null
+                        ? fieldAbsorbOffIconSprite
+                        : absorbOffSprite
+                );
 
         if (targetSprite != null)
         {
@@ -321,9 +422,16 @@ public class FieldAbsorbButton : MonoBehaviour
         absorbIconImage.enabled =
             true;
 
+        // <변경부분>
+        // OFF = Black
+        // ON = White
         Color iconColor =
-            absorbIconImage.color;
+            isAbsorbMode
+                ? absorbIconOnColor
+                : absorbIconOffColor;
 
+        // 기존 Noise Animation과 동일하게
+        // 상태 변경 시 Alpha를 정상값으로 복원한다.
         iconColor.a =
             1f;
 

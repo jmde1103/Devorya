@@ -789,6 +789,37 @@ eventSceneData;
 
 
     // <변경부분>
+    // TextCutscene 종료 후 이어질 EventSceneData를 전달한다.
+    // 일반 BeginEventNode()와 달리 월드맵 노드 진입 / 상점 / 전투
+    // 상태를 새로 초기화하지 않는다.
+    //
+    // 월드맵 Event에서 시작한 연속 이벤트라면 원래 노드 ID는 유지하고
+    // 완료 검증에 쓰는 EventSceneData 참조만 후속 데이터로 갱신한다.
+    // 독립 컷씬에서는 월드맵 노드 완료 기록을 생성하지 않는다.
+    public static bool SetPendingEventSceneDataFromCutscene(
+        EventSceneData eventSceneData)
+    {
+        if (eventSceneData == null)
+        {
+            return false;
+        }
+
+        pendingEventSceneData =
+            eventSceneData;
+
+        if (!string.IsNullOrWhiteSpace(enteredEventNodeId) &&
+            enteredEventNodeId == currentNodeId &&
+            string.IsNullOrWhiteSpace(enteredShopNodeId))
+        {
+            enteredEventSceneData =
+                eventSceneData;
+        }
+
+        return true;
+    }
+
+
+    // <변경부분>
     // EventSceneController가 현재 대기 중인 EventSceneData를
     // 한 번 가져간 뒤 RuntimeState에서 제거한다.
     //

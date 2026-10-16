@@ -1106,8 +1106,9 @@ public class TextCutsceneController : MonoBehaviour
         );
     }
 
-    // <변경부분> 현재 TextCutsceneData의 종료 설정에 따라
-    // StageBattleData를 전달한 뒤 다음 Scene으로 이동한다.
+    // <변경부분>
+    // 컷씬 종료 후 일반 Scene / EventScene / BattleScene 전환을 처리한다.
+    // 데이터 등록은 Scene 로드 가능 여부를 확인한 뒤 수행한다.
     private void LoadNextScene()
     {
         isPlaying =
@@ -1127,55 +1128,153 @@ public class TextCutsceneController : MonoBehaviour
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(
-                cutsceneData.nextSceneName))
+        string nextSceneName =
+            cutsceneData.nextSceneName;
+
+        if (string.IsNullOrWhiteSpace(nextSceneName))
         {
             Debug.LogWarning(
-                "텍스트 컷씬 종료: " +
-                "Next Scene Name이 비어 있어 Scene을 이동하지 않습니다."
+                "텍스트 컷씬 종료 실패: " +
+                "Next Scene Name이 비어 있습니다."
             );
 
             return;
         }
 
-        // <변경부분> 다음 Scene이 전투 Scene이고
-        // StageBattleData가 지정되어 있다면
-        // 기존 월드맵 전투 진입과 동일하게 BeginBattleNode()를 사용한다.
-        //
-        // StageBattleData뿐 아니라 enteredBattleNodeId도 같이 저장되므로
-        // 전투 승리 후 월드맵 노드 클리어 흐름까지 유지된다.
-        if (cutsceneData.nextStageBattleData != null)
+        // <변경부분>
+        // 씬 로드 실패 시 Pending 데이터를 잘못 남기지 않는다.
+        if (!Application.CanStreamedLevelBeLoaded(nextSceneName))
         {
-            if (string.IsNullOrWhiteSpace(
-                    cutsceneData.battleNodeId))
+            Debug.LogError(
+                "텍스트 컷씬 종료 실패: " +
+                $"'{nextSceneName}' Scene을 로드할 수 없습니다. " +
+                "Build Profiles의 Scene 목록을 확인해 주세요.",
+                this
+            );
+
+            return;
+        }
+
+        bool hasBattleData =
+            cutsceneData.nextStageBattleData != null;
+
+        bool hasEventSceneData =
+            cutsceneData.nextEventSceneData != null;
+
+        // <변경부분>
+        // 두 가지 데이터가 동시에 전달되어 후속 Scene을 오염시키지 않게 한다.
+        if (hasBattleData && hasEventSceneData)
+        {
+            Debug.LogError(
+                "텍스트 컷씬 종료 실패: " +
+                "Event Scene Data와 Stage Battle Data를 " +
+                "동시에 지정할 수 없습니다.",
+                this
+            );
+
+            return;
+        }
+
+        if (hasBattleData)
+        {
+            // <변경부분>
+            // 기존 BattleScene 전용 전달 규칙을 유지한다.
+            if (nextSceneName != "BattleScene")
             {
-                Debug.LogWarning(
+                Debug.LogError(
                     "텍스트 컷씬 전투 이동 실패: " +
-                    "StageBattleData는 있지만 Battle Node ID가 없습니다."
+                    "StageBattleData를 사용하는 경우 " +
+                    "Next Scene Name은 BattleScene이어야 합니다.",
+                    this
                 );
 
                 return;
             }
 
-            WorldMapRuntimeState.BeginBattleNode(
-                cutsceneData.battleNodeId,
-                cutsceneData.nextStageBattleData
-            );
+            if (!string.IsNullOrWhiteSpace(cutsceneData.battleNodeId))
+            {
+                // <변경부분>
+                // 노드 ID가 있으면 기존 월드맵 연결 전투로 취급한다.
+                WorldMapRuntimeState.BeginBattleNode(
+                    cutsceneData.battleNodeId,
+                    cutsceneData.nextStageBattleData
+                );
+
+                Debug.Log(
+                    "텍스트 컷씬 전투 데이터 전달: " +
+                    $"월드맵 노드 / {cutsceneData.battleNodeId} / " +
+                    $"{cutsceneData.nextStageBattleData.name}",
+                    this
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // 노드 ID가 없으면 독립 전투로 등록한다.
+                // 존재하지 않는 임의의 월드맵 노드는 클리어하지 않는다.
+                if (!WorldMapRuntimeState.BeginDirectBattle(
+                        cutsceneData.nextStageBattleData))
+                {
+                    Debug.LogError(
+                        "텍스트 컷씬 전투 이동 실패: " +
+                        "독립 전투 데이터 등록에 실패했습니다.",
+                        this
+                    );
+
+                    return;
+                }
+
+                Debug.Log(
+                    "텍스트 컷씬 전투 데이터 전달: " +
+                    $"독립 전투 / {cutsceneData.nextStageBattleData.name}",
+                    this
+                );
+            }
+        }
+        else if (hasEventSceneData)
+        {
+            // <변경부분>
+            // 데이터가 BattleScene으로 잘못 전달되는 설정을 차단한다.
+            if (nextSceneName == "BattleScene")
+            {
+                Debug.LogError(
+                    "텍스트 컷씬 이벤트 이동 실패: " +
+                    "EventSceneData의 Next Scene Name은 " +
+                    "EventScene이 연결된 씬이어야 합니다.",
+                    this
+                );
+
+                return;
+            }
+
+            // <변경부분>
+            // 월드맵 방문 기록을 초기화하지 않고 후속 EventSceneData만 전달한다.
+            if (!WorldMapRuntimeState.SetPendingEventSceneDataFromCutscene(
+                    cutsceneData.nextEventSceneData))
+            {
+                Debug.LogError(
+                    "텍스트 컷씬 이벤트 이동 실패: " +
+                    "EventSceneData 등록에 실패했습니다.",
+                    this
+                );
+
+                return;
+            }
 
             Debug.Log(
-                $"텍스트 컷씬 전투 데이터 전달: " +
-                $"{cutsceneData.battleNodeId} / " +
-                $"{cutsceneData.nextStageBattleData.name}"
+                "텍스트 컷씬 이벤트 데이터 전달: " +
+                $"{cutsceneData.nextEventSceneData.name}",
+                this
             );
         }
 
         Debug.Log(
-            $"텍스트 컷씬 완료: " +
-            $"{cutsceneData.nextSceneName} Scene으로 이동합니다."
+            "텍스트 컷씬 완료: " +
+            $"{nextSceneName} Scene으로 이동합니다."
         );
 
         SceneManager.LoadScene(
-            cutsceneData.nextSceneName
+            nextSceneName
         );
     }
 }

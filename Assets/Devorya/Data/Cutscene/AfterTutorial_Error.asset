@@ -74,6 +74,7 @@ MonoBehaviour:
   glitchMinAlpha: 0.35
   endAnimationData: {fileID: 11400000, guid: 989c18b1ea0b65749b25430910daa3d9, type: 2}
   nextSceneName: EventScene
+  nextEventSceneData: {fileID: 11400000, guid: ddac3d8e27c9bb944ad6254477e29316, type: 2}
   nextStageBattleData: {fileID: 0}
   battleNodeId: 
   references:

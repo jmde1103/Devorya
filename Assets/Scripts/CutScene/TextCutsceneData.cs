@@ -222,6 +222,13 @@ public class TextCutsceneData : ScriptableObject
     // 컷씬 종료 후 이동할 Scene.
     public string nextSceneName;
 
+    // <변경부분>
+    // 컷씬 종료 후 EventScene으로 이동할 때 전달할 데이터.
+    // 다음 Scene에 EventSceneController가 있어야 실제로 실행된다.
+    // 일반 Scene 이동이나 BattleScene 이동에서는 비워 둔다.
+    [Header("Event Scene Transition")]
+    public EventSceneData nextEventSceneData;
+
     [Header("Battle Transition")]
     // <변경부분> 다음 Scene이 BattleScene인 경우
     // BattleSetupManager에 전달할 StageBattleData.
@@ -229,11 +236,9 @@ public class TextCutsceneData : ScriptableObject
     // 일반 Scene 전환이라면 None.
     public StageBattleData nextStageBattleData;
 
-    // <변경부분> nextStageBattleData를 사용하는 경우
-    // WorldMapRuntimeState에 함께 등록할 전투 노드 ID.
-    //
-    // 전투 승리 후 월드맵에서
-    // 어느 노드를 클리어해야 하는지 판단하는 데 필요하다.
+    // <변경부분>
+    // 월드맵 노드와 연결된 전투라면 해당 노드 ID를 지정한다.
+    // 비워 두면 독립 전투로 시작하며, 특정 월드맵 노드를 클리어하지 않는다.
     public string battleNodeId;
 
     // <변경부분>
@@ -315,16 +320,10 @@ public class TextCutsceneData : ScriptableObject
             return false;
         }
 
-        // StageBattleData를 전달하는 전투 컷씬이라면
-        // Battle Node ID도 같이 있어야
-        // 기존 WorldMapRuntimeState 흐름을 정상 사용할 수 있다.
-        if (nextStageBattleData != null &&
-            string.IsNullOrWhiteSpace(
-                battleNodeId))
-        {
-            return false;
-        }
-
+        // <변경부분>
+        // Battle Node ID는 선택 항목이다.
+        // 빈 값은 독립 전투로 처리하므로 컷씬 실행을 막지 않는다.
+        // Scene / 데이터 조합의 검증은 LoadNextScene에서 수행한다.
         return true;
     }
 }

@@ -102,6 +102,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -188,6 +189,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -274,6 +276,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -360,6 +363,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -458,6 +462,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -544,6 +549,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -630,10 +636,12 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 1
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 0
+  clearCurrentWorldMapNodeOnCompletion: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
   references:
