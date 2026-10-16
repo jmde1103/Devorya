@@ -79,6 +79,10 @@ MonoBehaviour:
     m_Key: event_scene.event_shop_field_stage_1_night_time.speech.speech_5cf140dd
     m_Metadata:
       m_Items: []
+  - m_Id: 12564537832771584
+    m_Key: event_scene.event_opening_field_stage.dialogue_a2186647.page_6686b868
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

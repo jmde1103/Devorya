@@ -5256,9 +5256,9 @@ MonoBehaviour:
   battleItemDataList: []
   battleRelicDataList: []
   initialEndTimerCycles: 15
-  remainingEndTimerCycles: 5
-  currentEndTimerTick: 10
-  endStageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+  remainingEndTimerCycles: 10
+  currentEndTimerTick: 0
+  endStageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
   endStageBattleSceneName: BattleScene
 --- !u!4 &47045692
 Transform:

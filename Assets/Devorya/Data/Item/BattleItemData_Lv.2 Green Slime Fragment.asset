@@ -46,14 +46,6 @@ MonoBehaviour:
     useAbsorbedJelluVisual: 1
     statusEffectData: {fileID: 0}
     statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
-  - effectType: 1
-    changeTargetPieceData: {fileID: 0}
-    changeTargetPieceType: 0
-    changeTargetUniqueSkill: 0
-    changeTargetGeneralSkill: 0
-    useAbsorbedJelluVisual: 1
-    statusEffectData: {fileID: 11400000, guid: c2bc84be6b2f9304982528565ce5e921, type: 2}
-    statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
   tooltipSections: []
   changeTargetPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
   changeTargetPieceType: 2

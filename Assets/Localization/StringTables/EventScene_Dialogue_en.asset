@@ -50,6 +50,10 @@ MonoBehaviour:
     m_Localized: It appears to be selling something.
     m_Metadata:
       m_Items: []
+  - m_Id: 12564537832771584
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

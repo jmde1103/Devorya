@@ -44,7 +44,7 @@ MonoBehaviour:
   absorbedPlayerBackSprite: {fileID: 0}
   playerSpineVisualPrefab: {fileID: 0}
   enemySpineVisualPrefab: {fileID: 0}
-  neutralSpineVisualPrefab: {fileID: 0}
+  neutralSpineVisualPrefab: {fileID: 8331376577126451802, guid: 93a2388cc69becb4f9a072c7269a25b8, type: 3}
   absorbedPlayerBackSpineVisualPrefab: {fileID: 0}
   playerStatusSprite: {fileID: 0}
   enemyStatusSprite: {fileID: 0}
