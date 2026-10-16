@@ -86,7 +86,7 @@ MonoBehaviour:
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  randomPieceCount: 5
+  randomPieceCount: 1
   randomPieceEntries:
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     weight: 70

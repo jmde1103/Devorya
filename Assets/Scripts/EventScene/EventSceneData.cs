@@ -104,7 +104,20 @@ public class EventSceneData : ScriptableObject
 
     // 모든 Step이 끝난 뒤 실행할 종료 방식.
     public EventSceneCompletionType completionType =
-        EventSceneCompletionType.None;
+       EventSceneCompletionType.None;
+
+    // <변경부분>
+    // 월드맵 Event / RuinsEvent에서 진입한 경우,
+    // Event Sequence가 정상 완료되어 Scene을 떠날 때
+    // 현재 이벤트 노드를 Cleared로 처리할지 결정한다.
+    //
+    // true: 월드맵 복귀 시 Cleared 및 다음 연결 노드 해금.
+    // false: 기존과 동일하게 노드 상태를 변경하지 않는다.
+    //
+    // 상점 방문과 StartBattle의 승리 처리는 별도 경로를 사용한다.
+    // 기존 Asset 보호를 위해 기본값은 false.
+    public bool clearCurrentWorldMapNodeOnCompletion =
+        false;
 
     // completionType이 LoadScene일 때 이동할 Scene 이름.
     public string completionSceneName;

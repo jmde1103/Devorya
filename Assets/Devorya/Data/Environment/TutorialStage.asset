@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d7d51e7d35e9384eac34561de462265, type: 3}
+  m_Name: TutorialStage
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentVisualProfile
+  globalAmbient:
+    enabled: 1
+    color: {r: 0.99371064, g: 0.99371064, b: 0.99371064, a: 1}
+    intensity: 0.85
+  characterFill:
+    enabled: 0
+    color: {r: 0.79559743, g: 0.949941, b: 1, a: 1}
+    intensity: 0.58
+    falloffIntensity: 0.5
+    localPosition: {x: 0, y: 0, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    innerRadius: 0
+    outerRadius: 5
+    innerAngle: 360
+    outerAngle: 360
+  sunKey:
+    enabled: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    intensity: 1.8
+    falloffIntensity: 0.18
+    localPosition: {x: 8.01, y: 10.48, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 316.36832}
+    innerRadius: 6.6250644
+    outerRadius: 17.875149
+    innerAngle: 360
+    outerAngle: 360
+  skyFill:
+    enabled: 1
+    color: {r: 0.9380919, g: 0.916004, b: 0.98742133, a: 1}
+    intensity: 1
+    falloffIntensity: 0.53
+    localPosition: {x: -8.01, y: -5.94, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 307.57028}
+    innerRadius: 4.703012
+    outerRadius: 17.700706
+    innerAngle: 360
+    outerAngle: 360
+  cloudShadow:
+    enabled: 0
+    moveDirection: {x: 1, y: -0.2}
+    moveSpeed: 0.25
+    opacity: 0.15
+  fireflies:
+    enabled: 0
+    spriteColor: {r: 1, g: 1, b: 1, a: 1}
+    spotLightColor: {r: 1, g: 0.82, b: 0.42, a: 1}
+    spotLightIntensity: 0.6
+    spriteLightColor: {r: 1, g: 0.65, b: 0.25, a: 1}
+    spriteLightIntensity: 0.3
+    intensityRandomness: 0.2
+    moveSpeed: 0.18
+    moveSpeedRandomness: 0.35
+    turnSmoothness: 1.5
+    directionChangeIntervalMin: 0.8
+    directionChangeIntervalMax: 2.5
+    useClusterAvoidance: 1
+    clusterAvoidanceRadius: 2
+    maxFirefliesInCluster: 2
+    clusterAvoidanceStrength: 1.35
+    clusterSpawnPadding: 0.5
+    useExternalLightAvoidance: 1
+    externalLightAvoidanceRadiusMultiplier: 1.15
+    externalLightAvoidanceStrength: 1.5
+    externalLightSpawnPadding: 0.5
+    externalLightRefreshInterval: 1
+    visibleDurationMin: 4
+    visibleDurationMax: 8
+    hiddenDurationMin: 1
+    hiddenDurationMax: 3.5
+    fadeDuration: 1.25
+    startVisibleChance: 0.6
+    spawnViewportPadding: 0.08
+    edgeSteerViewportMargin: 0.1

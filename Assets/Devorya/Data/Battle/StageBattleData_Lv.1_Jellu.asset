@@ -17,7 +17,7 @@ MonoBehaviour:
     \uC9C4\uD589\uD55C\uB2E4."
   eventSequenceData: {fileID: 0}
   startAnnouncementType: 0
-  backgroundMapData: {fileID: 11400000, guid: 39abf5385b294be458b07bb380e6f103, type: 2}
+  backgroundMapData: {fileID: 11400000, guid: 922f0a17035f5af4b8aa0e08eb1a39e8, type: 2}
   checkerTileTypeA: 0
   checkerTileTypeB: 1
   playerDefeatCondition: -1
@@ -25,11 +25,11 @@ MonoBehaviour:
   playerFormationData: {fileID: 11400000, guid: d3c0789880d48474b911be9c62612dfd, type: 2}
   useRunStatePlayerPieces: 1
   savePlayerPiecesToRunState: 1
-  enemyFormationData: {fileID: 11400000, guid: a4727c0fb6a6005478f731da1fe6cea4, type: 2}
+  enemyFormationData: {fileID: 11400000, guid: 597d51eee876daa4d9df5c354eba66c7, type: 2}
   battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
   victorySceneName: WorldMapScene
   victoryCutsceneData: {fileID: 0}
-  enemyUniqueSkillUseChance: 0
+  enemyUniqueSkillUseChance: 30
   enemyGeneralSkillGrantRules:
   - skillType: 1
     grantChancePercent: 30

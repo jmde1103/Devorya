@@ -25,6 +25,13 @@ public class BattleManager : MonoBehaviour
         EnemyOnly = 1,
         SelectedOnly = 2
     }
+
+    // <변경부분>
+    // 기물 타입 아이콘의 3단계 표시 모드를
+    // 스테이지 및 게임 재실행 후에도 유지하기 위한 저장 키.
+    private const string TypeIconDisplayModePrefsKey =
+        "DEVORYA.Battle.TypeIconDisplayMode.v1";
+
     //다른 스크립트에서 BattleManager에 접근하기 위한 임시 싱글톤
     public static BattleManager Instance { get; private set; }
 
@@ -355,6 +362,27 @@ public class BattleManager : MonoBehaviour
     {
         // 싱글톤 등록
         Instance = this;
+
+        // <변경부분>
+        // 이전 전투에서 선택한 기물 타입 아이콘 표시 모드를 복원한다.
+        // 최초 실행으로 저장된 값이 없다면 기존 All 모드를 사용한다.
+        int savedDisplayMode =
+            PlayerPrefs.GetInt(
+                TypeIconDisplayModePrefsKey,
+                (int)TypeIconDisplayMode.All
+            );
+
+        // <변경부분>
+        // 저장된 값이 유효하지 않으면 기본값으로 복구한다.
+        if (savedDisplayMode < (int)TypeIconDisplayMode.All ||
+            savedDisplayMode > (int)TypeIconDisplayMode.SelectedOnly)
+        {
+            savedDisplayMode =
+                (int)TypeIconDisplayMode.All;
+        }
+
+        typeIconDisplayMode =
+            (TypeIconDisplayMode)savedDisplayMode;
     }
 
     private void Start()
@@ -1305,6 +1333,15 @@ public class BattleManager : MonoBehaviour
         // 기존 BattleSetupManager / EventSequenceController의
         // Start 초기화 순서를 보호하기 위한 한 프레임 대기는 유지한다.
         yield return null;
+
+        // <변경부분>
+        // BattleSetupManager가 기물을 생성한 이후
+        // Awake에서 복원한 타입 아이콘 표시 모드를
+        // 현재 보드 전체에 적용한다.
+        //
+        // 일반 전투와 초기 배치를 생략하는 이벤트 전투
+        // 모두 같은 초기 표시 설정을 사용한다.
+        RefreshTypeIconVisuals();
 
         // <변경부분> 현재 Event Sequence가
         // 일반 플레이어 초기 배치를 사용하지 않도록 설정했다면
@@ -4100,6 +4137,18 @@ public class BattleManager : MonoBehaviour
                     TypeIconDisplayMode.All;
                 break;
         }
+
+        // <변경부분>
+        // 버튼 클릭으로 변경된 3단계 표시 모드를 저장한다.
+        //
+        // 다음 Stage의 BattleManager가 새로 생성되더라도
+        // Awake에서 이 값을 다시 읽어 동일한 설정을 사용한다.
+        PlayerPrefs.SetInt(
+            TypeIconDisplayModePrefsKey,
+            (int)typeIconDisplayMode
+        );
+
+        PlayerPrefs.Save();
 
         // 변경된 표시 모드를 현재 보드 전체에 즉시 반영한다.
         RefreshTypeIconVisuals();

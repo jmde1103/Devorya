@@ -2620,6 +2620,11 @@ attacker.PlayAttackRoutine(
 
             case EventSceneCompletionType.WorldMap:
 
+                // <변경부분>
+                // 정상 종료되는 Event / RuinsEvent의
+                // 월드맵 노드 완료를 예약한다.
+                RegisterCurrentEventNodeCompletionIfRequested();
+
                 SceneManager.LoadScene(
                     "WorldMapScene"
                 );
@@ -2639,6 +2644,27 @@ attacker.PlayAttackRoutine(
 
                     return;
                 }
+
+                // <변경부분>
+                // 이동할 Scene이 실제로 등록되지 않았다면
+                // 노드 완료를 기록하지 않는다.
+                if (!Application.CanStreamedLevelBeLoaded(
+                        currentEventSceneData.completionSceneName))
+                {
+                    Debug.LogWarning(
+                        "Event Scene 완료 Scene 이동 실패: " +
+                        $"'{currentEventSceneData.completionSceneName}' " +
+                        "Scene을 로드할 수 없습니다.",
+                        this
+                    );
+
+                    return;
+                }
+
+                // <변경부분>
+                // LoadScene도 Sequence의 정상적인 종료이므로
+                // 완료 옵션이 켜져 있으면 월드맵 노드 완료를 예약한다.
+                RegisterCurrentEventNodeCompletionIfRequested();
 
                 // <변경부분>
                 // 다음 Scene이 TextCutsceneScene이고
@@ -2662,6 +2688,33 @@ attacker.PlayAttackRoutine(
                 return;
         }
     }
+
+
+// <변경부분>
+// 월드맵 이벤트에서 정상적으로 진입한 경우에 한해
+// EventSceneData의 체크박스로 현재 노드 클리어를 예약한다.
+//
+// Cleared 적용 및 다음 노드 해금은 월드맵 복귀 시 실행한다.
+// StartBattle / 강제 종료 / CompletionType.None에서는 호출하지 않는다.
+private void RegisterCurrentEventNodeCompletionIfRequested()
+{
+    if (currentEventSceneData == null ||
+        !currentEventSceneData.clearCurrentWorldMapNodeOnCompletion)
+    {
+        return;
+    }
+
+    if (!WorldMapRuntimeState.TryCompleteEventVisit(
+            currentEventSceneData))
+    {
+        Debug.LogWarning(
+            "Event Scene 노드 클리어 예약 실패: " +
+            "월드맵에서 정상 진입한 일반 이벤트가 아니거나 " +
+            "현재 노드 정보가 일치하지 않습니다.",
+            this
+        );
+    }
+}
 
 
     // Event Scene Sequence를 외부에서 즉시 정지한다.

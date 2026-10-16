@@ -33,6 +33,18 @@ public static class WorldMapRuntimeState
     // 선택된 이벤트 데이터를 유지한다.
     private static EventSceneData pendingEventSceneData;
 
+    // <변경부분>
+    // 월드맵 Event / RuinsEvent에서 진입한 원래 노드와 데이터.
+    // EventSceneData를 단독 실행했을 때 이전 노드를 잘못
+    // 완료 처리하지 않도록 정상 진입 여부를 검증한다.
+    private static string enteredEventNodeId;
+    private static EventSceneData enteredEventSceneData;
+
+    // <변경부분>
+    // Event Sequence 정상 종료 후 월드맵 복귀 시
+    // 한 번만 Cleared 처리할 Event / RuinsEvent 노드 ID.
+    private static string pendingCompletedEventNodeId;
+
 
     // ============================================================
     // Shop Node Runtime Data
@@ -248,7 +260,11 @@ public static class WorldMapRuntimeState
         // 전투 종료 후 어떤 맵 노드를
         // 클리어 처리할지 저장한다.
         enteredBattleNodeId =
-            battleNodeId;
+     battleNodeId;
+
+        // <변경부분>
+        // 전투로 전환되면 이전 일반 Event 방문을 완료 처리하지 않는다.
+        ClearActiveEventVisit();
 
         // 현재 노드에서 선택된 실제 StageBattleData를 저장한다.
         //
@@ -297,7 +313,16 @@ public static class WorldMapRuntimeState
         }
 
         pendingEventSceneData =
-    eventSceneData;
+eventSceneData;
+
+        // <변경부분>
+        // 현재 월드맵에서 시작한 이벤트만 정상 완료 처리한다.
+        // 단독 테스트에서 CurrentNodeId가 없으면 예약하지 않는다.
+        enteredEventNodeId =
+            currentNodeId;
+
+        enteredEventSceneData =
+            eventSceneData;
 
 
         // <변경부분>
@@ -402,9 +427,13 @@ public static class WorldMapRuntimeState
         //
         // Battle 진입 상태 초기화 등 기존 기능을 보존한다.
         BeginEventNode(
-            eventSceneData
-        );
+       eventSceneData
+   );
 
+        // <변경부분>
+        // 상점은 별도 재방문 / 종료 처리를 사용하므로
+        // 일반 이벤트 완료 대상에서 제외한다.
+        ClearActiveEventVisit();
 
         // <변경부분>
         // Shop 노드 전용 상품 정보 저장.
@@ -689,6 +718,77 @@ public static class WorldMapRuntimeState
 
 
     // <변경부분>
+    // 일반 Event / RuinsEvent의 정상 완료 결과를 등록한다.
+    // ScriptableObject 참조와 진입 노드 ID가 모두 일치해야 한다.
+    // Shop / 독립 EventScene / 전투 진입은 완료 대상으로 보지 않는다.
+    public static bool TryCompleteEventVisit(
+        EventSceneData completedEventSceneData)
+    {
+        if (completedEventSceneData == null ||
+            enteredEventSceneData != completedEventSceneData ||
+            string.IsNullOrWhiteSpace(enteredEventNodeId) ||
+            enteredEventNodeId != currentNodeId ||
+            !string.IsNullOrWhiteSpace(enteredShopNodeId))
+        {
+            return false;
+        }
+
+        pendingCompletedEventNodeId =
+            enteredEventNodeId;
+
+        // 중복 완료 요청을 차단하되, Pending 결과는 유지한다.
+        ClearActiveEventVisit();
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // 월드맵 복귀 시 이벤트 완료 결과를 한 번만 적용한다.
+    // 실제 노드 스타일 및 연결 노드 해금은 WorldMapProgressController가 담당한다.
+    public static string ApplyPendingEventCompletion()
+    {
+        if (string.IsNullOrWhiteSpace(
+                pendingCompletedEventNodeId))
+        {
+            return null;
+        }
+
+        string completedNodeId =
+            pendingCompletedEventNodeId;
+
+        pendingCompletedEventNodeId =
+            null;
+
+        currentNodeId =
+            completedNodeId;
+
+        clearedNodeIds.Add(
+            completedNodeId
+        );
+
+        unlockedNodeIds.Add(
+            completedNodeId
+        );
+
+        return completedNodeId;
+    }
+
+
+    // <변경부분>
+    // 현재 일반 Event 방문 정보만 정리한다.
+    // 이미 예약한 Pending 완료 결과는 유지한다.
+    private static void ClearActiveEventVisit()
+    {
+        enteredEventNodeId =
+            null;
+
+        enteredEventSceneData =
+            null;
+    }
+
+
+    // <변경부분>
     // EventSceneController가 현재 대기 중인 EventSceneData를
     // 한 번 가져간 뒤 RuntimeState에서 제거한다.
     //
@@ -737,8 +837,11 @@ public static class WorldMapRuntimeState
         // 이렇게 해야 End Stage 승리 후
         // 기존 월드맵 Node가 잘못 클리어되는 것을 막을 수 있다.
         enteredBattleNodeId =
-            null;
+     null;
 
+        // <변경부분>
+        // 독립 전투 전환 시에도 일반 Event 방문 상태를 정리한다.
+        ClearActiveEventVisit();
 
         // <변경부분>
         // 다음 BattleScene의 BattleSetupManager가

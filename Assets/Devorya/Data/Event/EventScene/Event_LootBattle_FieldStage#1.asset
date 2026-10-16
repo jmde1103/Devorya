@@ -103,6 +103,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -189,6 +190,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -275,6 +277,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -409,6 +412,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -495,6 +499,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -581,6 +586,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -667,6 +673,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -753,6 +760,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -839,6 +847,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -925,6 +934,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -1011,6 +1021,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -1097,6 +1108,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -1183,6 +1195,7 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 11400000, guid: 00b9d4a6fde45cc45a9800edf902b896, type: 2}
     startBattleStageData: {fileID: 11400000, guid: f5f4bb050b48fa2449408d1ba0734a15, type: 2}
     clearCurrentWorldMapNodeOnVictory: 1
@@ -1269,10 +1282,12 @@ MonoBehaviour:
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 2
+  clearCurrentWorldMapNodeOnCompletion: 1
   completionSceneName: WorldMapScene
   completionCutsceneData: {fileID: 0}
   references:

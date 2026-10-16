@@ -73,8 +73,8 @@ MonoBehaviour:
   useGlitchAlphaFlicker: 0
   glitchMinAlpha: 0.35
   endAnimationData: {fileID: 11400000, guid: 989c18b1ea0b65749b25430910daa3d9, type: 2}
-  nextSceneName: WorldMapScene
-  nextStageBattleData: {fileID: 0}
+  nextSceneName: BattleScene
+  nextStageBattleData: {fileID: 11400000, guid: bc4e7d9b91eb9f141a5bb6afe593ddbc, type: 2}
   battleNodeId: 
   references:
     version: 2

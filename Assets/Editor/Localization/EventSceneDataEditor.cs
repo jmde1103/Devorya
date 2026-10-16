@@ -4378,6 +4378,51 @@ public class EventSceneDataEditor : Editor
                 );
             }
 
+            // <변경부분>
+            // EventSceneData 자체의 완료 옵션이므로
+            // 별도 Event Step이 아닌 Completion 영역에 표시한다.
+            EditorGUI.BeginChangeCheck();
+
+            bool newClearWorldMapNode =
+                EditorGUILayout.Toggle(
+                    "Clear Current World Map Node On Completion",
+                    eventData.clearCurrentWorldMapNodeOnCompletion
+                );
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(
+                    eventData,
+                    "Edit Event Scene Node Completion"
+                );
+
+                eventData.clearCurrentWorldMapNodeOnCompletion =
+                    newClearWorldMapNode;
+
+                EditorUtility.SetDirty(
+                    eventData
+                );
+            }
+
+            if (eventData.clearCurrentWorldMapNodeOnCompletion)
+            {
+                EditorGUILayout.HelpBox(
+                    eventData.completionType ==
+                        EventSceneCompletionType.None
+                        ? "Completion Type이 None이면 Scene을 떠나지 않으므로 " +
+                          "노드 클리어가 등록되지 않습니다. " +
+                          "WorldMap 또는 LoadScene을 지정해 주세요."
+                        : "월드맵 Event / RuinsEvent에서 진입해 정상적으로 " +
+                          "Scene을 떠날 때, 다음 월드맵 복귀 시 현재 노드를 " +
+                          "Cleared로 바꾸고 연결 노드를 해금합니다. " +
+                          "상점과 전투 승리 처리는 기존 경로를 유지합니다.",
+                    eventData.completionType ==
+                        EventSceneCompletionType.None
+                        ? MessageType.Warning
+                        : MessageType.Info
+                );
+            }
+
             if (eventData.completionType ==
                 EventSceneCompletionType.LoadScene)
             {

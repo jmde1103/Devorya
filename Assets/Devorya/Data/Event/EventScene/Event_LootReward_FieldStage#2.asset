@@ -950,6 +950,7 @@ MonoBehaviour:
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 2
+  clearCurrentWorldMapNodeOnCompletion: 1
   completionSceneName: WorldMapScene
   completionCutsceneData: {fileID: 0}
   references:

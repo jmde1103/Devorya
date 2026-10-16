@@ -372,6 +372,19 @@ public class WorldMapProgressController : MonoBehaviour
             );
         }
 
+          // <변경부분>
+        // 일반 Event / RuinsEvent 정상 완료 후 돌아왔다면
+        // 완료된 노드를 Cleared로 기록하고 연결 노드를 해금한다.
+        string completedEventNodeId =
+            WorldMapRuntimeState.ApplyPendingEventCompletion();
+
+        if (!string.IsNullOrWhiteSpace(completedEventNodeId))
+        {
+            UnlockConnectedNodes(
+                completedEventNodeId
+            );
+        }
+
         // <변경부분>
         // 상점 나가기 후 WorldMap으로 복귀한 경우
         // 해당 상점의 방문 종료 결과를 가져온다.
