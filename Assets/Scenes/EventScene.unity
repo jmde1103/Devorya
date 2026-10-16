@@ -12888,7 +12888,7 @@ GameObject:
   - component: {fileID: 110627095}
   - component: {fileID: 110627094}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_21_18
+  m_Name: BackgroundTile_Forest_21_18
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12921,7 +12921,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &110627095
@@ -12936,7 +12936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 21
   y: 18
 --- !u!212 &110627096
@@ -12988,7 +12988,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10039
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -35658,7 +35658,7 @@ GameObject:
   - component: {fileID: 303777333}
   - component: {fileID: 303777332}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_19_18
+  m_Name: BackgroundTile_Forest_19_18
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35691,7 +35691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &303777333
@@ -35706,7 +35706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 19
   y: 18
 --- !u!212 &303777334
@@ -35758,7 +35758,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10037
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -41368,7 +41368,7 @@ GameObject:
   - component: {fileID: 347468699}
   - component: {fileID: 347468698}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_21_19
+  m_Name: BackgroundTile_Forest_21_19
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41401,7 +41401,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &347468699
@@ -41416,7 +41416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 21
   y: 19
 --- !u!212 &347468700
@@ -41468,7 +41468,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10040
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -45928,7 +45928,7 @@ GameObject:
   - component: {fileID: 383593968}
   - component: {fileID: 383593967}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_21_20
+  m_Name: BackgroundTile_Forest_21_20
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45961,7 +45961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &383593968
@@ -45976,7 +45976,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 21
   y: 20
 --- !u!212 &383593969
@@ -46028,7 +46028,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10041
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -58329,6 +58329,130 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &491408539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 491408540}
+  - component: {fileID: 491408543}
+  - component: {fileID: 491408542}
+  - component: {fileID: 491408541}
+  m_Layer: 0
+  m_Name: Decoration_Rock_22_18
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &491408540
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491408539}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.9017572, y: -0.17164731, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 594449982}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &491408541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491408539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
+  sourceSprite: {fileID: 21300000, guid: cf560c8880f56df489184ade6bb1c5e3, type: 3}
+  sourcePrefab: {fileID: 0}
+  spawnedVisualRoot: {fileID: 0}
+--- !u!114 &491408542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491408539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c7058536d631554780e9d0f70ced570, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Decoration
+  decorationType: 2
+  x: 22
+  y: 18
+  layerOffset: -1
+--- !u!212 &491408543
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 491408539}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -5396
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: cf560c8880f56df489184ade6bb1c5e3, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.484375, y: 0.515625}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &491622494
 GameObject:
   m_ObjectHideFlags: 0
@@ -67480,8 +67604,8 @@ Transform:
   - {fileID: 1642961507}
   - {fileID: 566369784}
   - {fileID: 920979411}
-  - {fileID: 724303550}
   - {fileID: 197747906}
+  - {fileID: 491408540}
   m_Father: {fileID: 422222530}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &597539808
@@ -83828,130 +83952,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 722024886}
   m_CullTransparentMesh: 1
---- !u!1 &724303549
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 724303550}
-  - component: {fileID: 724303553}
-  - component: {fileID: 724303552}
-  - component: {fileID: 724303551}
-  m_Layer: 0
-  m_Name: Decoration_Rock_22_19
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &724303550
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 724303549}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.4798841, y: 0.050462365, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 594449982}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &724303551
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 724303549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: ba15c5684e36d3d408e863a322c1b3bc, type: 3}
-  sourcePrefab: {fileID: 0}
-  spawnedVisualRoot: {fileID: 0}
---- !u!114 &724303552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 724303549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c7058536d631554780e9d0f70ced570, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Decoration
-  decorationType: 2
-  x: 22
-  y: 19
-  layerOffset: -1
---- !u!212 &724303553
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 724303549}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -5406
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: ba15c5684e36d3d408e863a322c1b3bc, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 0.484375, y: 0.390625}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
 --- !u!1 &724372508
 GameObject:
   m_ObjectHideFlags: 0
@@ -94027,7 +94027,7 @@ GameObject:
   - component: {fileID: 822398095}
   - component: {fileID: 822398094}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_19_19
+  m_Name: BackgroundTile_Forest_19_19
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -94060,7 +94060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &822398095
@@ -94075,7 +94075,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 19
   y: 19
 --- !u!212 &822398096
@@ -94127,7 +94127,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10038
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -108217,7 +108217,7 @@ GameObject:
   - component: {fileID: 946731823}
   - component: {fileID: 946731822}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_20_20
+  m_Name: BackgroundTile_Forest_20_20
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108250,7 +108250,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: 123730030514d4b4094cc4e036074ce7, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &946731823
@@ -108265,7 +108265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 20
   y: 20
 --- !u!212 &946731824
@@ -108317,7 +108317,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10040
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 123730030514d4b4094cc4e036074ce7, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -127445,8 +127445,8 @@ MonoBehaviour:
   backgroundTilePrefab: {fileID: 8046875206570296531, guid: f8389c0d32bcf774889bc835df4aac69, type: 3}
   useDarkBackground: 1
   darkBackgroundColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
-  backgroundTileBrushSourceMode: 1
-  paintTileType: 8
+  backgroundTileBrushSourceMode: 0
+  paintTileType: 1
   paintTileSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
   paintTilePrefab: {fileID: 0}
   paintX: 0
@@ -127502,13 +127502,13 @@ MonoBehaviour:
   decorationBrightness: 0.854
   decorationBrushSourceMode: 1
   paintDecorationType: 2
-  paintDecorationSprite: {fileID: 21300000, guid: c855fde2373cd70459ea75ae9380e2e3, type: 3}
+  paintDecorationSprite: {fileID: 21300000, guid: cf560c8880f56df489184ade6bb1c5e3, type: 3}
   paintDecorationPrefab: {fileID: 6978171730127152338, guid: f745253be74444a4fb0ef09ee618644d, type: 3}
   paintDecorationLayerOffset: -1
   decorationPlacementMode: 1
   hasFreePlacementAnchor: 1
-  freePlacementAnchorX: 16
-  freePlacementAnchorY: 20
+  freePlacementAnchorX: 22
+  freePlacementAnchorY: 18
   preventDuplicateDecoration: 1
   decorationSpawnRules:
   - TargetTileType: 1
@@ -210129,7 +210129,7 @@ GameObject:
   - component: {fileID: 1869053929}
   - component: {fileID: 1869053928}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_19_20
+  m_Name: BackgroundTile_Forest_19_20
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -210162,7 +210162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: 2a6bc97d13bb16f459b2d8c2b73155f3, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &1869053929
@@ -210177,7 +210177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 19
   y: 20
 --- !u!212 &1869053930
@@ -210229,7 +210229,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10039
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2a6bc97d13bb16f459b2d8c2b73155f3, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -219769,7 +219769,7 @@ GameObject:
   - component: {fileID: 1961945950}
   - component: {fileID: 1961945949}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_20_18
+  m_Name: BackgroundTile_Forest_20_18
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -219802,7 +219802,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  sourceSprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &1961945950
@@ -219817,7 +219817,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 20
   y: 18
 --- !u!212 &1961945951
@@ -219869,7 +219869,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10038
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5c479b10d048b43b595e7c59d1b14b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -228172,7 +228172,7 @@ GameObject:
   - component: {fileID: 2046237449}
   - component: {fileID: 2046237448}
   m_Layer: 0
-  m_Name: BackgroundTile_Metal_20_19
+  m_Name: BackgroundTile_Forest_20_19
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -228205,7 +228205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3ca2c51bed0c64cb35f8937b3d9e56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundVisualInstance
-  sourceSprite: {fileID: 21300000, guid: b598f15c2d8dce841b785a751a58432f, type: 3}
+  sourceSprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   sourcePrefab: {fileID: 0}
   spawnedVisualRoot: {fileID: 0}
 --- !u!114 &2046237449
@@ -228220,7 +228220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8943d799c2da63949bef6a91109664c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTile
-  tileType: 8
+  tileType: 1
   x: 20
   y: 19
 --- !u!212 &2046237450
@@ -228272,7 +228272,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10039
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: b598f15c2d8dce841b785a751a58432f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
   m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
   m_FlipX: 0
   m_FlipY: 0
