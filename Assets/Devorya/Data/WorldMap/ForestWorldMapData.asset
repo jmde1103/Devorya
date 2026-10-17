@@ -114,6 +114,11 @@ MonoBehaviour:
       - {x: 23, y: 12}
       - {x: 24, y: 11}
       - {x: 24, y: 10}
+    - targetNodeId: ForestMap_01_Maintenance_01
+      routeGridPositions:
+      - {x: 23, y: 13}
+      - {x: 24, y: 14}
+      - {x: 24, y: 15}
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_02
     nodeDisplayName: "\uB808\uBCA8 1"
@@ -180,4 +185,18 @@ MonoBehaviour:
     connections:
     - targetNodeId: ForestMap_01_RuinsEvent_01
       routeGridPositions: []
+    revealRadius: 2
+  - nodeId: ForestMap_01_Maintenance_01
+    nodeDisplayName: "\uC815\uBE44\uB178\uB4DC"
+    gridPosition: {x: 24, y: 15}
+    nodeType: 6
+    nodeStyleData: {fileID: 11400000, guid: 9af2ceb0565162e4da52b560430a2611, type: 2}
+    targetSceneName: EventScene
+    stageBattleData: {fileID: 0}
+    eventSceneData: {fileID: 11400000, guid: 23a713f253464744ba85f173d66e174e, type: 2}
+    shopInventoryData: {fileID: 0}
+    shopLevel: 1
+    initiallyUnlocked: 0
+    initiallyCleared: 0
+    connections: []
     revealRadius: 2

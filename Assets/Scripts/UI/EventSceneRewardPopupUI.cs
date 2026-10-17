@@ -15,6 +15,9 @@ public class EventSceneRewardPopupUI : MonoBehaviour
 {
     private const int MaxRelicCount = 10;
 
+    // <변경부분> 전투 복구와 동일한 기물 보유 한도.
+    private const int MaxPlayerPieceCount = 10;
+
     [Header("Popup UI")]
     [SerializeField]
     private GameObject popupRoot;
@@ -39,6 +42,41 @@ public class EventSceneRewardPopupUI : MonoBehaviour
     [SerializeField]
     private TooltipData goldTooltipData;
 
+    // <변경부분>
+    // 전투 보상창과 동일한 복구 슬롯 프리팹을
+    // 이벤트 보상창에서도 사용한다.
+    [Header("Restoration Reward UI")]
+    [SerializeField]
+    private Transform recoverySlotParent;
+
+    [SerializeField]
+    private GameObject recoveryAreaObject;
+
+    [SerializeField]
+    private GameObject dropAreaObject;
+
+    [SerializeField]
+    private BattleRewardSlotUI pieceRepairSlotPrefab;
+
+    // <변경부분>
+    // BattleEndFlowController와 같은
+    // 폰 90% / 상위 기물 10%의 설정.
+    [Header("Devorya Restoration Pieces")]
+    [SerializeField, Range(0, 100)]
+    private int devoryaPawnRewardPercent = 90;
+
+    [SerializeField]
+    private PieceData devoryaPawnData;
+
+    [SerializeField]
+    private PieceData devoryaKnightData;
+
+    [SerializeField]
+    private PieceData devoryaRookData;
+
+    [SerializeField]
+    private PieceData devoryaBishopData;
+
     [Header("Run HUD - Optional")]
     [SerializeField]
     private RunItemBarUI runItemBarUI;
@@ -59,6 +97,15 @@ public class EventSceneRewardPopupUI : MonoBehaviour
 
     // 처음 생성한 전리품 수.
     private int initialRewardCount;
+
+    // <변경부분>
+    // 복구 결과는 플레이어가 Confirm할 때까지 유지한다.
+    private bool hasRestorationSection;
+
+    // <변경부분>
+    // 생성한 복구 슬롯만 추적하여 팝업 종료 시 정리한다.
+    private readonly List<BattleRewardSlotUI> createdRecoverySlots =
+        new List<BattleRewardSlotUI>();
 
     private bool isOpen;
     private bool finishRequested;
@@ -101,8 +148,20 @@ public class EventSceneRewardPopupUI : MonoBehaviour
     //
     // 성공하면 true를 반환하며,
     // 완료 Callback을 받을 때까지 Event Sequence가 대기한다.
+    // <변경부분>
+    // 기존 보상 전용 호출을 보호한다.
+    public bool TryShow(BattleRewardData rewardData, Action onFinished)
+    {
+        return TryShow(rewardData, true, false, 0, onFinished);
+    }
+
+    // <변경부분>
+    // 전리품과 가상 흡수 카운터 복구를 독립적으로 선택한다.
     public bool TryShow(
         BattleRewardData rewardData,
+        bool useDropRewards,
+        bool useRestoration,
+        int virtualAbsorbCount,
         Action onFinished)
     {
         if (isOpen)
@@ -115,12 +174,15 @@ public class EventSceneRewardPopupUI : MonoBehaviour
             return false;
         }
 
-        if (rewardData == null ||
+          if ((!useDropRewards && !useRestoration) ||
             popupRoot == null ||
-            dropSlotParent == null ||
-            rewardSlotPrefab == null ||
-            confirmButton == null)
-        {
+            confirmButton == null ||
+            (useDropRewards &&
+             (rewardData == null || dropSlotParent == null || rewardSlotPrefab == null)) ||
+            (useRestoration &&
+             (recoverySlotParent == null || pieceRepairSlotPrefab == null ||
+              devoryaPawnData == null || recoverySlotParent == dropSlotParent)))
+            {
             Debug.LogWarning(
                 "Event Reward Popup: " +
                 "보상 데이터 또는 UI 참조가 비어 있습니다.",
@@ -143,8 +205,12 @@ public class EventSceneRewardPopupUI : MonoBehaviour
 
         // <변경부분>
         // 해당 Step을 실행할 때 보상 후보를 한 번만 추첨한다.
+        // <변경부분>
+        // 전리품 OFF이면 BattleRewardData 없이 복구만 실행 가능하다.
         List<BattleRewardOptionRuntimeData> rewards =
-            rewardData.CreateRewardOptions();
+            useDropRewards
+                ? rewardData.CreateRewardOptions()
+                : new List<BattleRewardOptionRuntimeData>();
 
         if (rewards == null)
         {
@@ -189,6 +255,16 @@ public class EventSceneRewardPopupUI : MonoBehaviour
 
         HideImmediately();
 
+        // <변경부분>
+        // 한 번만 지급하며, 전투 흡수 카운터는 수정하지 않는다.
+        // 전투와 같은 보유 상한 / 확률을 사용한다.
+        List<BattleRecoveryRewardRuntimeData> restored =
+            useRestoration
+                ? ApplyEventRestorationReward(
+                    Mathf.Max(0, virtualAbsorbCount),
+                    RunStateManager.Instance)
+                : new List<BattleRecoveryRewardRuntimeData>();
+
         onRewardSelectionFinished =
             onFinished;
 
@@ -197,7 +273,9 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         );
 
         initialRewardCount =
-            pendingRewards.Count;
+     pendingRewards.Count;
+
+        hasRestorationSection = useRestoration; // <변경부분>
 
         pendingClaimAnimations = 0;
         finishRequested = false;
@@ -261,6 +339,52 @@ public class EventSceneRewardPopupUI : MonoBehaviour
    );
         }
 
+        // <변경부분>
+        // 전투 복구와 같은 RewardSlot UI를 사용해
+        // 복구 결과를 표시한다.
+        // 이미 RunState에 지급했으므로 Claim은 연결하지 않는다.
+        for (int i = 0; i < restored.Count; i++)
+        {
+            BattleRecoveryRewardRuntimeData reward = restored[i];
+
+            if (reward == null ||
+                reward.pieceData == null ||
+                reward.amount <= 0)
+            {
+                continue;
+            }
+
+            BattleRewardSlotUI slot = Instantiate(
+                pieceRepairSlotPrefab,
+                recoverySlotParent
+            );
+
+            slot.RefreshRecoveryPiece(reward.pieceData, reward.amount);
+            createdRecoverySlots.Add(slot);
+        }
+
+        // <변경부분>
+        // 선택하지 않은 보상 영역은 숨긴다.
+        if (dropAreaObject != null)
+        {
+            dropAreaObject.SetActive(rewards.Count > 0);
+        }
+
+        if (dropSlotParent != null)
+        {
+            dropSlotParent.gameObject.SetActive(rewards.Count > 0);
+        }
+
+        if (recoveryAreaObject != null)
+        {
+            recoveryAreaObject.SetActive(createdRecoverySlots.Count > 0);
+        }
+
+        if (recoverySlotParent != null)
+        {
+            recoverySlotParent.gameObject.SetActive(createdRecoverySlots.Count > 0);
+        }
+
         RefreshLayouts();
 
         // <변경부분>
@@ -284,6 +408,126 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         }
 
         return true;
+    }
+
+
+    // <변경부분>
+    // BattleEndFlowController와 동일한 기물 복구
+    // 수식 / 확률 / 상한을 적용한다.
+    // RunState에 지급한 뒤 결과를 PieceData별로 모아서 반환한다.
+    private List<BattleRecoveryRewardRuntimeData> ApplyEventRestorationReward(
+        int virtualAbsorbCount,
+        RunStateManager runState)
+    {
+        List<BattleRecoveryRewardRuntimeData> recovered =
+            new List<BattleRecoveryRewardRuntimeData>();
+
+        int rewardCount = Mathf.Max(0, virtualAbsorbCount) / 2;
+
+        for (int i = 0; i < rewardCount; i++)
+        {
+            if (runState.GetPlayerPieceCount() >= MaxPlayerPieceCount)
+            {
+                break;
+            }
+
+            PieceData pieceData = RollEventRestorationPieceData();
+
+            if (pieceData == null)
+            {
+                continue;
+            }
+
+            PlayerPieceRuntimeData runtimeData =
+                PlayerPieceRuntimeData.CreateFromPieceData(pieceData, false);
+
+            if (runtimeData == null ||
+                !runState.TryAddPlayerPiece(runtimeData, MaxPlayerPieceCount))
+            {
+                continue;
+            }
+
+            BattleRecoveryRewardRuntimeData existing = null;
+
+            for (int j = 0; j < recovered.Count; j++)
+            {
+                if (recovered[j].pieceData == pieceData)
+                {
+                    existing = recovered[j];
+                    break;
+                }
+            }
+
+            if (existing != null)
+            {
+                existing.amount++;
+            }
+            else
+            {
+                recovered.Add(
+                    new BattleRecoveryRewardRuntimeData(pieceData, 1)
+                );
+            }
+        }
+
+        Debug.Log(
+            $"Event Restoration: 가상 흡수 {virtualAbsorbCount}, " +
+            $"실제 복구 {GetRestoredPieceCount(recovered)}개",
+            this
+        );
+
+        return recovered;
+    }
+
+
+    // <변경부분>
+    // 전투 복구와 동일한 90% 폰 / 10% 상위 기물 추첨.
+    private PieceData RollEventRestorationPieceData()
+    {
+        if (UnityEngine.Random.Range(0, 100) <
+            Mathf.Clamp(devoryaPawnRewardPercent, 0, 100))
+        {
+            return devoryaPawnData;
+        }
+
+        List<PieceData> advancedCandidates = new List<PieceData>();
+
+        if (devoryaKnightData != null)
+        {
+            advancedCandidates.Add(devoryaKnightData);
+        }
+
+        if (devoryaRookData != null)
+        {
+            advancedCandidates.Add(devoryaRookData);
+        }
+
+        if (devoryaBishopData != null)
+        {
+            advancedCandidates.Add(devoryaBishopData);
+        }
+
+        return advancedCandidates.Count == 0
+            ? devoryaPawnData
+            : advancedCandidates[
+                UnityEngine.Random.Range(0, advancedCandidates.Count)
+            ];
+    }
+
+
+    // <변경부분>
+    // 실제 지급된 복구 기물 수를 계산한다.
+    private static int GetRestoredPieceCount(
+        List<BattleRecoveryRewardRuntimeData> recovered)
+    {
+        int count = 0;
+
+        for (int i = 0; i < recovered.Count; i++)
+        {
+            count += recovered[i].amount;
+        }
+
+        return count;
     }
 
 
@@ -401,8 +645,9 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         // 모든 보상을 받았거나,
         // Confirm으로 남은 보상을 포기한 경우에만 종료.
         if (finishRequested ||
-            initialRewardCount > 0 &&
-            pendingRewards.Count == 0)
+        (!hasRestorationSection &&
+         initialRewardCount > 0 &&
+         pendingRewards.Count == 0))
         {
             FinishRewardSelection();
         }
@@ -465,6 +710,20 @@ public class EventSceneRewardPopupUI : MonoBehaviour
 
         pendingClaimAnimations = 0;
         initialRewardCount = 0;
+        hasRestorationSection = false;
+
+        // <변경부분>
+        // 이전 복구 슬롯을 중복 생성하지 않도록 정리한다.
+        for (int i = 0; i < createdRecoverySlots.Count; i++)
+        {
+            if (createdRecoverySlots[i] != null)
+            {
+                createdRecoverySlots[i].gameObject.SetActive(false);
+                Destroy(createdRecoverySlots[i].gameObject);
+            }
+        }
+
+        createdRecoverySlots.Clear();
 
         pendingRewards.Clear();
 
@@ -511,6 +770,16 @@ public class EventSceneRewardPopupUI : MonoBehaviour
             LayoutRebuilder.ForceRebuildLayoutImmediate(
                 parentRect
             );
+        }
+
+        // <변경부분>
+        // 복구 슬롯 레이아웃도 별도로 갱신한다.
+        RectTransform recoveryRect =
+            recoverySlotParent as RectTransform;
+
+        if (recoveryRect != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(recoveryRect);
         }
     }
 }

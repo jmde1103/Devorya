@@ -35,6 +35,11 @@ public class WorldMapNodeEditorWindow : EditorWindow
     [SerializeField]
     private MapNodeStyleData shopNodeStyle;
 
+    // <변경부분>
+    // 정비 노드에서 사용할 MapNodeStyleData.
+    [SerializeField]
+    private MapNodeStyleData maintenanceNodeStyle;
+
     // 현재 배치할 노드 종류
     [SerializeField]
     private MapNodeType selectedNodeType =
@@ -334,9 +339,17 @@ public class WorldMapNodeEditorWindow : EditorWindow
             );
 
         shopNodeStyle =
+    DrawStyleField(
+        "상점",
+        shopNodeStyle
+    );
+
+        // <변경부분>
+        // 정비 노드 전용 스타일.
+        maintenanceNodeStyle =
             DrawStyleField(
-                "상점",
-                shopNodeStyle
+                "정비",
+                maintenanceNodeStyle
             );
     }
 
@@ -1104,10 +1117,13 @@ public class WorldMapNodeEditorWindow : EditorWindow
     private static bool RequiresEventSceneData(
         MapNodeType nodeType)
     {
+        // <변경부분>
+        // 정비 노드도 EventSceneData를 사용하는 이벤트 계열이다.
         return
             nodeType == MapNodeType.Event ||
             nodeType == MapNodeType.RuinsEvent ||
-            nodeType == MapNodeType.Shop;
+            nodeType == MapNodeType.Shop ||
+            nodeType == MapNodeType.Maintenance;
     }
 
 
@@ -1892,6 +1908,11 @@ false)
 
             case MapNodeType.Shop:
                 return shopNodeStyle;
+
+            // <변경부분>
+            // 정비 노드의 전용 비주얼을 사용한다.
+            case MapNodeType.Maintenance:
+                return maintenanceNodeStyle;
 
             default:
                 return null;

@@ -20,5 +20,10 @@ public enum MapNodeType
     Cleared,
 
     // 아이템이나 유물 등을 구매하는 상점 노드
-    Shop
+    Shop,
+
+    // <변경부분>
+    // 공용 EventScene에서 진행하는 정비 노드.
+    // 이벤트를 완료하면 일반 이벤트처럼 클리어 처리한다.
+    Maintenance = 6
 }

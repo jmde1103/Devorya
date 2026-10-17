@@ -90709,6 +90709,17 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &772995354 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6395773882488420422, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+  m_PrefabInstance: {fileID: 9050744399186627115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
 --- !u!1 &773653747
 GameObject:
   m_ObjectHideFlags: 0
@@ -174869,6 +174880,7 @@ MonoBehaviour:
   actorSpeechBubblePrefab: {fileID: 5673670882893842778, guid: 5d020f5c56c19ee4e844f528f7d94ea5, type: 3}
   cameraShakeTarget: {fileID: 330585546}
   pixelCameraController: {fileID: 330585549}
+  environmentGlobalAmbient: {fileID: 772995354}
   runHUDCanvasGroup: {fileID: 1248682644}
   runHUDFadeDuration: 0.25
 --- !u!1 &1557654980

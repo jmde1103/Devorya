@@ -90,7 +90,12 @@ public enum EventSceneStepType
     //
     // Scene 이동에 성공하면 현재 이벤트 시퀀스는
     // 종료하고, 이후 전투 시스템에 진행을 위임한다.
-    StartBattle = 16
+    StartBattle = 16,
+
+    // <변경부분>
+    // Event Scene의 Global Ambient Light를 부드럽게 변경한다.
+    // 기존 Serialized 값 보호를 위해 Enum 마지막에 추가한다.
+    GlobalLighting = 17
 }
 
 
@@ -890,7 +895,65 @@ public class EventSceneStepData
     // false:
     // Shake만 시작하고 즉시 다음 Event Step으로 진행한다.
     public bool screenShakeWaitForComplete =
+      true;
+
+
+    // =====================================================
+    // Global Lighting (Event Scene 전용)
+    // =====================================================
+
+    [Header("Global Lighting")]
+
+    // <변경부분>
+    // ON: 기존 Global Ambient 조명 페이드 사용.
+    // OFF: 조명값을 건드리지 않고 Screen Flash만 실행 가능.
+    // 기존 EventSceneData를 보호하기 위해 ON이 기본값이다.
+    public bool globalLightingUseGlobalLight =
+     true;
+
+    // <변경부분> 목표 조명 색상.
+    public Color globalLightingTargetColor =
+        Color.white;
+
+    // <변경부분> 목표 조명 밝기.
+    [Min(0f)]
+    public float globalLightingTargetIntensity =
+        1f;
+
+    // <변경부분> 현재 값에서 목표값까지 페이드할 시간.
+    [Min(0f)]
+    public float globalLightingFadeDuration =
+        1f;
+
+  
+    // <변경부분>
+    // 페이드가 끝날 때까지 다음 스텝 진행을 기다릴지.
+    public bool globalLightingWaitForComplete =
         true;
+
+    // <변경부분>
+    // GlobalLighting과 동시에 재생할 화면 전체 색상 플래시.
+    // 기본값은 OFF이므로 기존 EventSceneData에는 영향이 없다.
+    [Header("Screen Flash")]
+    public bool globalLightingUseScreenFlash =
+        false;
+
+    // <변경부분>
+    // 흰색 외에 빨강/파랑/보라 등 원하는 색상을 지정한다.
+    public Color globalLightingFlashColor =
+        Color.white;
+
+    // <변경부분>
+    // 화면을 덮는 색상의 최대 불투명도 (0~1).
+    [Range(0f, 1f)]
+    public float globalLightingFlashStrength =
+        0.9f;
+
+    // <변경부분>
+    // 밝아졌다 사라지는 전체 시간.
+    [Min(0f)]
+    public float globalLightingFlashDuration =
+        0.3f;
 
 
     [Header("Wait")]
@@ -942,7 +1005,24 @@ public class EventSceneStepData
     // 이 필드는 개별 Event Step에 저장되므로
     // 같은 EventSceneData 안에서도 Step마다
     // 서로 다른 BattleRewardData를 지정할 수 있다.
+    // <변경부분>
+    // 기존 전리품 보상 사용 여부.
+    // 기본값 ON으로 기존 Step의 동작을 유지한다.
+    public bool rewardSelectionUseDropRewards = true;
+
+    // <변경부분>
+    // Use Drop Rewards가 켜져 있을 때만 필요하다.
     public BattleRewardData rewardSelectionData;
+
+    // <변경부분>
+    // 가상의 흡수 횟수로 기물을 복구할지 여부.
+    public bool rewardSelectionUseRestoration = false;
+
+    // <변경부분>
+    // 전투 흡수 기록에는 더하지 않고 이 Step에서만 계산한다.
+    // 예: 6이면 최대 3개 복구 (흡수 2회당 기물 1개).
+    [Min(0)]
+    public int rewardSelectionRestorationAbsorbCount = 0;
 
 
     // =====================================================

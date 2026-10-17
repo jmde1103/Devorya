@@ -101,6 +101,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -188,6 +196,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -275,6 +291,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -362,6 +386,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -449,6 +481,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -536,6 +576,204 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uC870\uBA85 \uBC18\uC9DD"
+    stepType: 17
+    stepId: step_9ae2c6b6
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uC870\uBA85 \uBCC0\uD654"
+    stepType: 17
+    stepId: step_4db8d7d2
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 0.29559737, g: 0.3793625, b: 0.59119487, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 0
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -623,6 +861,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -710,6 +956,109 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionData: {fileID: 0}
+    startBattleStageData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uC870\uBA85 \uB9AC\uC14B"
+    stepType: 17
+    stepId: step_02c38524
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: 
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 0.9843137, b: 0.9019608, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -797,6 +1146,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -884,6 +1241,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -994,6 +1359,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1081,6 +1454,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1168,6 +1549,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1255,6 +1644,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1342,6 +1739,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1429,6 +1834,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1516,6 +1929,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1603,6 +2024,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1690,6 +2119,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1777,6 +2214,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1864,6 +2309,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -1951,6 +2404,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -2038,6 +2499,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -2125,6 +2594,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -2212,6 +2689,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -2299,6 +2784,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}
@@ -2386,6 +2879,14 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionData: {fileID: 0}

@@ -2422,6 +2422,122 @@ public class EventSceneDataEditor : Editor
                 break;
 
 
+            // <변경부분>
+            // <변경부분>
+            // <변경부분>
+            // Global Ambient 조명과 Screen Flash를 각각 ON/OFF한다.
+            case EventSceneStepType.GlobalLighting:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Global Lighting",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "globalLightingUseGlobalLight", "Use Global Light"
+                );
+
+                SerializedProperty useGlobalLightProperty =
+                    stepProperty.FindPropertyRelative(
+                        "globalLightingUseGlobalLight"
+                    );
+
+                bool useGlobalLight =
+                    useGlobalLightProperty != null &&
+                    useGlobalLightProperty.boolValue;
+
+                // <변경부분>
+                // Global Light가 ON일 때만 기존 조명 설정을 표시한다.
+                if (useGlobalLight)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "globalLightingTargetColor", "Target Color",
+                        "globalLightingTargetIntensity", "Target Intensity",
+                        "globalLightingFadeDuration", "Fade Duration"
+                    );
+                }
+
+                currentY += 5f;
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Screen Flash",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "globalLightingUseScreenFlash", "Use Screen Flash"
+                );
+
+                SerializedProperty useFlashProperty =
+                    stepProperty.FindPropertyRelative(
+                        "globalLightingUseScreenFlash"
+                    );
+
+                bool useScreenFlash =
+                    useFlashProperty != null &&
+                    useFlashProperty.boolValue;
+
+                if (useScreenFlash)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "globalLightingFlashColor", "Flash Color",
+                        "globalLightingFlashStrength", "Flash Strength",
+                        "globalLightingFlashDuration", "Flash Duration"
+                    );
+                }
+
+                // <변경부분>
+                // Wait는 두 연출에 공통으로 적용한다.
+                if (useGlobalLight || useScreenFlash)
+                {
+                    currentY += 5f;
+
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "globalLightingWaitForComplete", "Wait For Complete"
+                    );
+                }
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    useGlobalLight || useScreenFlash
+                        ? "Global Light와 Screen Flash는 각각 선택적으로 실행됩니다.\n" +
+                          "Wait For Complete는 활성화된 효과가 모두 끝날 때까지 기다립니다."
+                        : "Global Light와 Screen Flash가 모두 OFF입니다. " +
+                          "이 스텝에서는 아무 연출도 실행하지 않습니다.",
+                    useGlobalLight || useScreenFlash
+                        ? MessageType.Info
+                        : MessageType.None,
+                    draw
+                );
+
+                break;
+
+
             case EventSceneStepType.CompleteSequence:
 
                 ProcessEventSceneHelpBox(
@@ -2489,10 +2605,7 @@ public class EventSceneDataEditor : Editor
 
 
             // <변경부분>
-            // Event Scene 선택형 전리품 획득 스텝.
-            //
-            // 기존 BattleRewardData Asset을 직접 연결하여
-            // Gold / Item / Relic의 보상 후보를 설정한다.
+            // 전리품 보상과 가상 흡수량 기반 기물 복구를 독립 설정한다.
             case EventSceneStepType.ShowRewardSelection:
 
                 ProcessEventSceneSectionLabel(
@@ -2507,21 +2620,68 @@ public class EventSceneDataEditor : Editor
                     contentRect,
                     stepProperty,
                     draw,
-                    "rewardSelectionData",
-                    "Battle Reward Data"
+                    "rewardSelectionUseDropRewards", "Use Drop Rewards"
                 );
 
-                // <변경부분>
-                // 보상 데이터가 없는 경우 Inspector에서 경고한다.
-                if (step.rewardSelectionData == null)
+                SerializedProperty useDropProperty =
+                    stepProperty.FindPropertyRelative("rewardSelectionUseDropRewards");
+
+                bool useDropRewards =
+                    useDropProperty != null && useDropProperty.boolValue;
+
+                if (useDropRewards)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "rewardSelectionData", "Battle Reward Data"
+                    );
+                }
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "rewardSelectionUseRestoration", "Use Restoration"
+                );
+
+                SerializedProperty useRestorationProperty =
+                    stepProperty.FindPropertyRelative("rewardSelectionUseRestoration");
+
+                bool useRestoration =
+                    useRestorationProperty != null && useRestorationProperty.boolValue;
+
+                if (useRestoration)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "rewardSelectionRestorationAbsorbCount", "Restoration Absorb Count"
+                    );
+                }
+
+                if (useDropRewards && step.rewardSelectionData == null)
                 {
                     ProcessEventSceneHelpBox(
                         ref currentY,
                         contentRect,
-                        "BattleRewardData가 연결되지 않았습니다.\n" +
-                        "이벤트에서 획득할 금화 / 아이템 / 유물 후보가 " +
-                        "설정된 BattleRewardData Asset을 연결해 주세요.",
+                        "Use Drop Rewards가 ON입니다. BattleRewardData를 연결해 주세요.",
                         MessageType.Warning,
+                        draw
+                    );
+                }
+                else if (!useDropRewards && !useRestoration)
+                {
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "두 보상 모두 OFF이므로 팝업 없이 다음 Step으로 이동합니다.",
+                        MessageType.Info,
                         draw
                     );
                 }
@@ -2530,10 +2690,9 @@ public class EventSceneDataEditor : Editor
                     ProcessEventSceneHelpBox(
                         ref currentY,
                         contentRect,
-                        "연결된 BattleRewardData의 금화 범위, " +
-                        "아이템 후보, 유물 후보 및 등장 확률을 사용합니다.\n" +
-                        "보상 후보는 해당 Step 실행 시 한 번 추첨하도록 구현할 예정입니다.\n" +
-                                               "실제 UI 표시 및 보상 수령 Runtime은 다음 단계에서 연결합니다.",
+                        "전리품은 선택 수령, 복구는 팝업 표시 시 즉시 지급됩니다.\n" +
+                        "가상 흡수 2회당 기물 1개, 최대 보유 10개입니다. " +
+                        "가상 흡수량은 전투 기록을 변경하지 않습니다.",
                         MessageType.Info,
                         draw
                     );

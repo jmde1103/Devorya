@@ -102,9 +102,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uBB34\uBE592"
@@ -189,9 +201,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
@@ -276,9 +300,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC7A1\uB3D9\uC0AC\uB2C8\uB97C \uBC1C\uACAC\uD588\uB2E4."
@@ -411,9 +447,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uBB34\uBE0C"
@@ -498,9 +546,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uD654\uBA74 \uD754\uB4E4\uB9BC"
@@ -585,9 +645,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBCF4\uC0C1 \uBB38\uAD6C"
@@ -683,9 +755,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "UI\uC628"
@@ -770,9 +854,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 1
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBCF4\uC0C1\uD398\uC774\uC9C0"
@@ -857,9 +953,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 11400000, guid: 00b9d4a6fde45cc45a9800edf902b896, type: 2}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC774\uBCA4\uD2B8 \uC644\uB8CC"
@@ -944,9 +1052,21 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 2

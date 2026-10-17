@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering.Universal; // <변경부분> URP 2D Global Light
+using UnityEngine.UI; // <변경부분> 화면 전체 색상 플래시용 Image
 
 // <변경부분>
 // Event Scene 전용 Sequence 실행 Controller.
@@ -78,6 +80,27 @@ public class EventSceneSequenceController : MonoBehaviour
     // 비어 있으면 Main Camera에서 자동 탐색한다.
     [SerializeField]
     private PixelCameraController pixelCameraController;
+
+    // <변경부분>
+    // 현재 Event Scene의 EnvironmentLightingRig에 있는 Global Ambient.
+    // Inspector에서 해당 Light2D 컴포넌트를 연결한다.
+    [Header("Global Lighting")]
+    [SerializeField]
+    private Light2D environmentGlobalAmbient;
+
+    // <변경부분>
+    // 페이드 중첩 방지 및 최초 조명값 복구에 사용한다.
+    private Coroutine globalLightingFadeCoroutine;
+    private bool hasCapturedGlobalLightingBase;
+    private Color globalLightingBaseColor;
+    private float globalLightingBaseIntensity;
+
+    // <변경부분>
+    // GlobalLighting Step의 화면 전체 색상 플래시.
+    // Canvas는 연출할 때만 현재 Scene 안에 생성한다.
+    private GameObject globalLightingFlashCanvasObject;
+    private Image globalLightingFlashImage;
+    private Coroutine globalLightingFlashCoroutine;
 
 
     [Header("Run HUD")]
@@ -517,6 +540,18 @@ public class EventSceneSequenceController : MonoBehaviour
 
 
             // <변경부분>
+            // Global Ambient 조명 페이드 연출.
+            case EventSceneStepType.GlobalLighting:
+
+                yield return
+                    ExecuteGlobalLightingStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            // <변경부분>
             // 지정 Event Actor 위에 SpeechBubble을 표시한다.
             case EventSceneStepType.SpeechBubble:
 
@@ -634,6 +669,424 @@ public class EventSceneSequenceController : MonoBehaviour
 
                 yield break;
         }
+    }
+
+
+    // <변경부분>
+    // Global Light와 Screen Flash를 각각 독립적으로 실행한다.
+    // 두 효과 모두 활성화되어 있으면 동시에 시작한다.
+    private IEnumerator ExecuteGlobalLightingStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        Coroutine flashToWait = null;
+        Coroutine lightingToWait = null;
+
+        // =====================================================
+        // Screen Flash
+        // =====================================================
+
+        // <변경부분>
+        // Global Light 사용 여부와 관계없이 실행한다.
+        // Light2D 참조가 없어도 Screen Flash는 정상 동작한다.
+        if (step.globalLightingUseScreenFlash)
+        {
+            StartGlobalLightingFlash(
+                step.globalLightingFlashColor,
+                Mathf.Clamp01(
+                    step.globalLightingFlashStrength
+                ),
+                Mathf.Max(
+                    0f,
+                    step.globalLightingFlashDuration
+                )
+            );
+
+            flashToWait =
+                globalLightingFlashCoroutine;
+        }
+
+        // =====================================================
+        // Global Light
+        // =====================================================
+
+        // <변경부분>
+        // 체크박스가 OFF이면 기존 조명값과
+        // 진행 중인 조명 페이드를 건드리지 않는다.
+        if (step.globalLightingUseGlobalLight)
+        {
+            if (environmentGlobalAmbient == null)
+            {
+                Debug.LogWarning(
+                    "Event Scene GlobalLighting 실패: " +
+                    "Global Ambient Light2D가 연결되지 않았습니다.",
+                    this
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // 첫 조명 연출 직전에만 원래 값을 기록한다.
+                if (!hasCapturedGlobalLightingBase)
+                {
+                    globalLightingBaseColor =
+                        environmentGlobalAmbient.color;
+
+                    globalLightingBaseIntensity =
+                        environmentGlobalAmbient.intensity;
+
+                    hasCapturedGlobalLightingBase =
+                        true;
+                }
+
+                // <변경부분>
+                // 이전 조명 페이드가 진행 중이라면 중단한다.
+                // 현재 색상과 밝기에서 새 페이드를 시작한다.
+                if (globalLightingFadeCoroutine != null)
+                {
+                    StopCoroutine(
+                        globalLightingFadeCoroutine
+                    );
+
+                    globalLightingFadeCoroutine =
+                        null;
+                }
+
+                float duration =
+                    Mathf.Max(
+                        0f,
+                        step.globalLightingFadeDuration
+                    );
+
+                Color targetColor =
+                    step.globalLightingTargetColor;
+
+                float targetIntensity =
+                    Mathf.Max(
+                        0f,
+                        step.globalLightingTargetIntensity
+                    );
+
+                // <변경부분>
+                // 시간이 0이면 조명을 즉시 변경한다.
+                if (duration <= 0f)
+                {
+                    environmentGlobalAmbient.color =
+                        targetColor;
+
+                    environmentGlobalAmbient.intensity =
+                        targetIntensity;
+                }
+                else
+                {
+                    // <변경부분>
+                    // 기존 조명 페이드 코루틴을 그대로 재사용한다.
+                    globalLightingFadeCoroutine =
+                        StartCoroutine(
+                            FadeGlobalLightingRoutine(
+                                targetColor,
+                                targetIntensity,
+                                duration
+                            )
+                        );
+
+                    lightingToWait =
+                        globalLightingFadeCoroutine;
+                }
+            }
+        }
+
+        // =====================================================
+        // Wait For Complete
+        // =====================================================
+
+        // <변경부분>
+        // OFF이면 두 효과를 시작하고 다음 스텝으로 넘어간다.
+        if (!step.globalLightingWaitForComplete)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // ON이면 실행된 효과들이 끝날 때까지 기다린다.
+        if (lightingToWait != null)
+        {
+            yield return lightingToWait;
+        }
+
+        if (flashToWait != null)
+        {
+            yield return flashToWait;
+        }
+    }
+
+
+    // <변경부분>
+    // 조명값을 Ease In/Out 보간으로 자연스럽게 변경한다.
+    private IEnumerator FadeGlobalLightingRoutine(
+        Color targetColor,
+        float targetIntensity,
+        float duration)
+    {
+        Color startColor =
+            environmentGlobalAmbient.color;
+
+        float startIntensity =
+            environmentGlobalAmbient.intensity;
+
+        float elapsed =
+            0f;
+
+        while (elapsed < duration &&
+               environmentGlobalAmbient != null)
+        {
+            // <변경부분>
+            // Time Scale에 관계없이 연출 시간을 계산한다.
+            elapsed +=
+                Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+            float easedT =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
+
+            environmentGlobalAmbient.color =
+                Color.Lerp(
+                    startColor,
+                    targetColor,
+                    easedT
+                );
+
+            environmentGlobalAmbient.intensity =
+                Mathf.Lerp(
+                    startIntensity,
+                    targetIntensity,
+                    easedT
+                );
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // 페이드 종료 시 목표값을 정확하게 적용한다.
+        if (environmentGlobalAmbient != null)
+        {
+            environmentGlobalAmbient.color =
+                targetColor;
+
+            environmentGlobalAmbient.intensity =
+                targetIntensity;
+        }
+
+        globalLightingFadeCoroutine =
+            null;
+    }
+
+
+    // <변경부분>
+    // GlobalLighting의 화면 전체 색상 플래시를 실행한다.
+    // Scene에만 존재하는 Overlay Canvas를 사용하므로
+    // EnvironmentLightingRig나 Profile Asset 값에는 영향이 없다.
+    private void StartGlobalLightingFlash(
+        Color flashColor,
+        float strength,
+        float duration)
+    {
+        StopGlobalLightingFlashImmediately();
+
+        if (!isActiveAndEnabled ||
+            !gameObject.activeInHierarchy ||
+            strength <= 0f)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 모든 UI 위에 출력하되, 기존 버튼 클릭은 막지 않는다.
+        globalLightingFlashCanvasObject =
+            new GameObject(
+                "EventScene_GlobalLightingFlash",
+                typeof(RectTransform),
+                typeof(Canvas)
+            );
+
+        Canvas flashCanvas =
+            globalLightingFlashCanvasObject.GetComponent<Canvas>();
+
+        flashCanvas.renderMode =
+            RenderMode.ScreenSpaceOverlay;
+        flashCanvas.overrideSorting = true;
+        flashCanvas.sortingOrder = 32000;
+
+        GameObject flashImageObject =
+            new GameObject(
+                "FlashImage",
+                typeof(RectTransform),
+                typeof(Image)
+            );
+
+        RectTransform flashRect =
+            flashImageObject.GetComponent<RectTransform>();
+
+        flashRect.SetParent(
+            globalLightingFlashCanvasObject.transform,
+            false
+        );
+
+        flashRect.anchorMin = Vector2.zero;
+        flashRect.anchorMax = Vector2.one;
+        flashRect.offsetMin = Vector2.zero;
+        flashRect.offsetMax = Vector2.zero;
+
+        globalLightingFlashImage =
+            flashImageObject.GetComponent<Image>();
+
+        globalLightingFlashImage.raycastTarget = false;
+
+        flashColor.a = 0f;
+        globalLightingFlashImage.color = flashColor;
+
+        globalLightingFlashCoroutine = StartCoroutine(
+            PlayGlobalLightingFlashRoutine(
+                flashColor,
+                strength,
+                duration
+            )
+        );
+    }
+
+
+    // <변경부분>
+    // 설정한 색상이 빠르게 나타났다가 서서히 사라진다.
+    // 전체 Duration의 앞 20%는 Fade In, 뒤 80%는 Fade Out이다.
+    private IEnumerator PlayGlobalLightingFlashRoutine(
+        Color flashColor,
+        float strength,
+        float duration)
+    {
+        if (duration <= 0.05f)
+        {
+            // <변경부분>
+            // 매우 짧은 Flash도 최소 한 프레임은 보이게 한다.
+            flashColor.a = strength;
+            globalLightingFlashImage.color = flashColor;
+
+            yield return null;
+        }
+        else
+        {
+            float elapsed = 0f;
+
+            while (elapsed < duration &&
+                   globalLightingFlashImage != null)
+            {
+                float t = Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+                float alpha =
+                    t < 0.2f
+                        ? Mathf.SmoothStep(
+                            0f,
+                            strength,
+                            t / 0.2f
+                        )
+                        : Mathf.SmoothStep(
+                            strength,
+                            0f,
+                            (t - 0.2f) / 0.8f
+                        );
+
+                flashColor.a = alpha;
+                globalLightingFlashImage.color = flashColor;
+
+                elapsed += Time.unscaledDeltaTime;
+
+                yield return null;
+            }
+        }
+
+        // <변경부분>
+        // Flash 종료 시 투명하게 만든 뒤 Overlay 표시를 끈다.
+        if (globalLightingFlashImage != null)
+        {
+            flashColor.a = 0f;
+            globalLightingFlashImage.color = flashColor;
+        }
+
+        if (globalLightingFlashCanvasObject != null)
+        {
+            globalLightingFlashCanvasObject.SetActive(false);
+        }
+
+        globalLightingFlashCoroutine = null;
+    }
+
+
+    // <변경부분>
+    // 새로운 Flash 또는 Scene 전환 시 이전 Overlay를 즉시 제거한다.
+    private void StopGlobalLightingFlashImmediately()
+    {
+        if (globalLightingFlashCoroutine != null)
+        {
+            StopCoroutine(globalLightingFlashCoroutine);
+            globalLightingFlashCoroutine = null;
+        }
+
+        if (globalLightingFlashCanvasObject != null)
+        {
+            globalLightingFlashCanvasObject.SetActive(false);
+
+            Destroy(globalLightingFlashCanvasObject);
+        }
+
+        globalLightingFlashCanvasObject = null;
+        globalLightingFlashImage = null;
+    }
+
+
+    // <변경부분>
+    // Scene 종료 또는 Controller 비활성화 시
+    // 조명 연출을 중지하고 원래 값을 복구한다.
+    private void RestoreGlobalLightingImmediately()
+    {
+        // <변경부분>
+        // Scene 전환 시 화면 Flash가 남지 않게 정리한다.
+        StopGlobalLightingFlashImmediately();
+
+        if (globalLightingFadeCoroutine != null)
+        {
+            StopCoroutine(
+                globalLightingFadeCoroutine
+            );
+
+            globalLightingFadeCoroutine =
+                null;
+        }
+
+        if (hasCapturedGlobalLightingBase &&
+            environmentGlobalAmbient != null)
+        {
+            environmentGlobalAmbient.color =
+                globalLightingBaseColor;
+
+            environmentGlobalAmbient.intensity =
+                globalLightingBaseIntensity;
+        }
+
+        hasCapturedGlobalLightingBase =
+            false;
     }
 
 
@@ -2370,12 +2823,29 @@ attacker.PlayAttackRoutine(
     private IEnumerator ExecuteShowRewardSelectionStepRoutine(
         EventSceneStepData step)
     {
-        if (step == null ||
+        if (step == null)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // 두 보상 모두 OFF면 팝업 없이 다음 Step으로 진행한다.
+        if (!step.rewardSelectionUseDropRewards &&
+            !step.rewardSelectionUseRestoration)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // 전리품을 사용하지 않는 정비 Step에서는
+        // BattleRewardData가 없어도 된다.
+        if (step.rewardSelectionUseDropRewards &&
             step.rewardSelectionData == null)
         {
             Debug.LogWarning(
                 "Event Scene Reward Selection 실패: " +
-                "BattleRewardData가 연결되지 않았습니다."
+                "Use Drop Rewards가 ON이지만 BattleRewardData가 없습니다.",
+                this
             );
 
             yield break;
@@ -2404,8 +2874,11 @@ attacker.PlayAttackRoutine(
             false;
 
         bool started =
-            eventSceneRewardPopupUI.TryShow(
+                        eventSceneRewardPopupUI.TryShow(
                 step.rewardSelectionData,
+                step.rewardSelectionUseDropRewards,
+                step.rewardSelectionUseRestoration,
+                Mathf.Max(0, step.rewardSelectionRestorationAbsorbCount),
                 () =>
                 {
                     rewardSelectionFinished = true;
@@ -2797,6 +3270,11 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
     private void OnDisable()
     {
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // 씬 전환이나 Controller 비활성화 시
+        // 이벤트 연출용 조명값을 복구한다.
+        RestoreGlobalLightingImmediately();
 
         // <변경부분>
         // 이벤트씬 비활성화 시 보상창과 대기 Callback을 정리한다.

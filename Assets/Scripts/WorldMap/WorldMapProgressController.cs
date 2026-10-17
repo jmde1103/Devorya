@@ -1279,10 +1279,13 @@ public class WorldMapProgressController : MonoBehaviour
             targetNodeType == MapNodeType.Battle ||
             targetNodeType == MapNodeType.BossBattle;
 
+        // <변경부분>
+        // 정비 노드도 일반 이벤트와 동일하게 EventSceneData를 받는다.
         bool requiresEventSceneData =
             targetNodeType == MapNodeType.Event ||
             targetNodeType == MapNodeType.RuinsEvent ||
-            targetNodeType == MapNodeType.Shop;
+            targetNodeType == MapNodeType.Shop ||
+            targetNodeType == MapNodeType.Maintenance;
 
 
         // Battle / BossBattle는 실제 StageBattleData가 필수다.
