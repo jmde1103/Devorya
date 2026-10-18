@@ -174966,7 +174966,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1f24c589525b247a0915d1fbb90a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventSceneController
-  eventSceneData: {fileID: 11400000, guid: 7c3b09b8a1fb7a245876308ee1705bf5, type: 2}
+  eventSceneData: {fileID: 11400000, guid: ddac3d8e27c9bb944ad6254477e29316, type: 2}
   backgroundManager: {fileID: 1113883777}
   eventSceneSequenceController: {fileID: 1557539796}
   startAutomatically: 1
