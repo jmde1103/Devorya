@@ -229,7 +229,7 @@ MonoBehaviour:
     spawnActorPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnActorTeam: 1
     spawnActorUseAbsorbedPlayerVisual: 0
-    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorVisualOffset: {x: 0, y: 0.2}
     spawnActorFlipX: 0
     spawnActorSortingMode: 0
     spawnActorSortingLayerName: 
@@ -966,8 +966,8 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 11400000, guid: 00b9d4a6fde45cc45a9800edf902b896, type: 2}
-    rewardSelectionUseRestoration: 0
-    rewardSelectionRestorationAbsorbCount: 0
+    rewardSelectionUseRestoration: 1
+    rewardSelectionRestorationAbsorbCount: 4
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC774\uBCA4\uD2B8 \uC644\uB8CC"

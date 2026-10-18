@@ -148,6 +148,10 @@ public class WorldMapProgressController : MonoBehaviour
     // 현재 검은 구체가 이동 중인지 확인한다.
     private bool isMovingMarker;
 
+    // <변경부분>
+    // 클리어 노드를 여러 개 통과하는 자동 이동 중인지 확인한다.
+    private bool isAutoMovingMarker;
+
     private void Awake()
     {
         if (Instance != null &&
@@ -804,9 +808,11 @@ public class WorldMapProgressController : MonoBehaviour
 
     // MapNodeRuntime이 클릭됐을 때 호출한다.
     public void TryMoveToNode(
-        MapNodeRuntime targetNode)
+      MapNodeRuntime targetNode)
     {
-        if (isMovingMarker)
+        // <변경부분>
+        // 자동 경로의 구간 사이에도 다른 클릭을 받지 않는다.
+        if (isMovingMarker || isAutoMovingMarker)
         {
             return;
         }
@@ -891,16 +897,35 @@ public class WorldMapProgressController : MonoBehaviour
         // Target → Current Connection을 찾아
         // Route Grid Positions를 역순으로 사용한다.
         if (TryFindConnection(
-        currentNodeId,
-        targetNodeId,
-        out connection,
-        out useReverseRoute) ==
-    false)
+    currentNodeId,
+    targetNodeId,
+    out connection,
+    out useReverseRoute) ==
+false)
         {
+            // <변경부분>
+            // 직접 연결되지 않은 목적지는 클리어한 노드를
+            // 경유하여 도달할 수 있는지 탐색한다.
+            List<string> autoRoute;
+
+            if (TryBuildClearedNodeRoute(
+                    currentNodeId,
+                    targetNodeId,
+                    out autoRoute))
+            {
+                ClearSelectableNodePulses();
+
+                StartCoroutine(
+                    MoveMarkerAlongClearedRouteRoutine(autoRoute)
+                );
+
+                return;
+            }
+
             Debug.Log(
                 $"노드 이동 불가: " +
-                $"{currentNodeId} → {targetNodeId} 사이에 " +
-                $"Connection이 없습니다."
+                $"{currentNodeId} → {targetNodeId}까지 " +
+                "클리어한 노드로 연결된 경로가 없습니다."
             );
 
             return;
@@ -1016,16 +1041,251 @@ public class WorldMapProgressController : MonoBehaviour
         return false;
     }
 
+
+    // <변경부분>
+    // 클리어한 노드만 중간 경유지로 사용하는 최단 경로 탐색.
+    private bool TryBuildClearedNodeRoute(
+        string startNodeId,
+        string targetNodeId,
+        out List<string> route)
+    {
+        route = new List<string>();
+
+        if (worldMapBuilder == null ||
+            worldMapBuilder.WorldMapData == null ||
+            worldMapBuilder.WorldMapData.nodePlacements == null ||
+            string.IsNullOrWhiteSpace(startNodeId) ||
+            string.IsNullOrWhiteSpace(targetNodeId))
+        {
+            return false;
+        }
+
+        startNodeId = startNodeId.Trim();
+        targetNodeId = targetNodeId.Trim();
+
+        Queue<string> pending = new Queue<string>();
+
+        HashSet<string> visited =
+            new HashSet<string>(StringComparer.Ordinal);
+
+        Dictionary<string, string> previous =
+            new Dictionary<string, string>(StringComparer.Ordinal);
+
+        pending.Enqueue(startNodeId);
+        visited.Add(startNodeId);
+
+        var placements =
+            worldMapBuilder.WorldMapData.nodePlacements;
+
+        // BFS: 이동 구간 수가 가장 적은 경로를 찾는다.
+        while (pending.Count > 0)
+        {
+            string fromId = pending.Dequeue();
+
+            for (int i = 0; i < placements.Count; i++)
+            {
+                MapNodePlacementData candidate = placements[i];
+
+                if (candidate == null ||
+                    string.IsNullOrWhiteSpace(candidate.nodeId))
+                {
+                    continue;
+                }
+
+                string nextId = candidate.nodeId.Trim();
+
+                if (visited.Contains(nextId))
+                {
+                    continue;
+                }
+
+                bool isFinalTarget =
+                    string.Equals(
+                        nextId,
+                        targetNodeId,
+                        StringComparison.Ordinal
+                    );
+
+                // <변경부분>
+                // 마지막 목적지 이외에는 클리어한 노드만 통과.
+                if (!isFinalTarget &&
+                    !IsClearedRouteNode(nextId))
+                {
+                    continue;
+                }
+
+                if (worldMapBuilder.GetGeneratedNode(nextId) == null)
+                {
+                    continue;
+                }
+
+                MapNodeConnectionData connection;
+                bool reverse;
+
+                if (!TryFindConnection(
+                        fromId,
+                        nextId,
+                        out connection,
+                        out reverse))
+                {
+                    continue;
+                }
+
+                visited.Add(nextId);
+                previous.Add(nextId, fromId);
+
+                if (isFinalTarget)
+                {
+                    string cursor = targetNodeId;
+
+                    while (!string.Equals(
+                               cursor,
+                               startNodeId,
+                               StringComparison.Ordinal))
+                    {
+                        route.Add(cursor);
+                        cursor = previous[cursor];
+                    }
+
+                    route.Reverse();
+
+                    return route.Count > 0;
+                }
+
+                pending.Enqueue(nextId);
+            }
+        }
+
+        return false;
+    }
+
+
+    // <변경부분>
+    // 중간 경유지가 이미 클리어한 노드인지 확인한다.
+    private bool IsClearedRouteNode(string nodeId)
+    {
+        MapNodeRuntime node =
+            worldMapBuilder.GetGeneratedNode(nodeId);
+
+        MapNodePlacementData placement =
+            FindPlacementById(nodeId);
+
+        return node != null &&
+               node.GetNodeType() != MapNodeType.Shop &&
+               (
+                   node.IsCleared() ||
+                   WorldMapRuntimeState.IsNodeCleared(nodeId) ||
+                   (placement != null && placement.initiallyCleared)
+               );
+    }
+
+
+    // <변경부분>
+    // 찾은 경로의 각 노드를 기존 이동 코루틴으로 순차 통과한다.
+    private IEnumerator MoveMarkerAlongClearedRouteRoutine(
+        List<string> route)
+    {
+        if (route == null || route.Count == 0)
+        {
+            yield break;
+        }
+
+        isAutoMovingMarker = true;
+
+        for (int i = 0; i < route.Count; i++)
+        {
+            string nextId = route[i];
+            bool isFinalSegment = i == route.Count - 1;
+
+            if (!isActiveAndEnabled ||
+                (!isFinalSegment &&
+                 !IsClearedRouteNode(nextId)))
+            {
+                break;
+            }
+
+            MapNodeRuntime nextNode =
+                worldMapBuilder.GetGeneratedNode(nextId);
+
+            MapNodeConnectionData connection;
+            bool reverse;
+
+            if (nextNode == null ||
+                !TryFindConnection(
+                    WorldMapRuntimeState.CurrentNodeId,
+                    nextId,
+                    out connection,
+                    out reverse))
+            {
+                Debug.LogWarning(
+                    $"월드맵 자동 이동 중단: {nextId} 연결을 찾을 수 없습니다.",
+                    this
+                );
+
+                break;
+            }
+
+            // <변경부분>
+            // 마지막 이전의 Cleared 노드에서는
+            // 카메라 추적과 이동 상태를 유지한다.
+            yield return MoveMarkerToNodeRoutine(
+                nextNode,
+                connection,
+                reverse,
+                false,
+                !isFinalSegment
+            );
+
+            if (!string.Equals(
+                    WorldMapRuntimeState.CurrentNodeId,
+                    nextId,
+                    StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            // <변경부분>
+            // 경유 중 End Timer가 만료되면 추가 이동하지 않는다.
+            if (!isFinalSegment &&
+                RunStateManager.Instance != null &&
+                RunStateManager.Instance.IsEndTimerExpired)
+            {
+                break;
+            }
+        }
+
+        isAutoMovingMarker = false;
+
+        // <변경부분>
+        // 이동이 예외적으로 중단되었을 때 카메라 입력을 복구한다.
+        if (isMovingMarker && isActiveAndEnabled)
+        {
+            isMovingMarker = false;
+
+            if (worldMapCameraController != null)
+            {
+                worldMapCameraController.SetMarkerFollow(
+                    null,
+                    false
+                );
+            }
+
+            RefreshFogForCurrentNode();
+        }
+    }
+
+
     // 검은 구체가 Waypoint를 순서대로 지나
     // 목적지 노드까지 이동한다.
     //
     // 미클리어 노드에 도착하면 기존처럼 전투 씬으로 진입하고,
     // 이미 클리어된 노드에 도착하면 위치만 변경한 뒤 월드맵에 남는다.
     private IEnumerator MoveMarkerToNodeRoutine(
-  MapNodeRuntime targetNode,
-  MapNodeConnectionData connection,
-  bool useReverseRoute,
-  bool isCurrentShopReentry = false) // <변경부분> 기존 호출과 호환되는 선택 인자
+ MapNodeRuntime targetNode,
+ MapNodeConnectionData connection,
+ bool useReverseRoute,
+ bool isCurrentShopReentry = false, // <변경부분> 기존 호출과 호환되는 선택 인자
+ bool continueAutoRoute = false) // <변경부분> 자동 이동 중간 Cleared 노드
     {
         isMovingMarker =
             true;
@@ -1216,6 +1476,15 @@ public class WorldMapProgressController : MonoBehaviour
         // 마커 위치만 변경한 뒤 월드맵에서 계속 조작할 수 있도록 한다.
         if (isTargetNodeCleared)
         {
+            // <변경부분>
+            // 자동 이동의 중간 Cleared 노드라면
+            // 카메라 추적을 끊지 않고 다음 구간으로 이어간다.
+            // 단, End Timer 만료 시에는 기존 처리로 진행한다.
+            if (continueAutoRoute && !endTimerExpiredAfterMove)
+            {
+                yield break;
+            }
+
             isMovingMarker =
                 false;
 

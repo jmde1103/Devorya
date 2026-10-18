@@ -1033,7 +1033,7 @@ MonoBehaviour:
   applyOnlyToAbsorbedPlayerVisual: 1
   playerHue: 0
   playerSaturation: 0
-  playerBrightness: 0.8
+  playerBrightness: 0.49
   useAdjustedPlayerColor: 1
   animatePlayerColorTransition: 1
   playerColorTransitionDuration: 0.5

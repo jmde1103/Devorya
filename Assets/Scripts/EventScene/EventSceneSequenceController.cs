@@ -2840,23 +2840,32 @@ attacker.PlayAttackRoutine(
         // 전리품을 사용하지 않는 정비 Step에서는
         // BattleRewardData가 없어도 된다.
         if (step.rewardSelectionUseDropRewards &&
-            step.rewardSelectionData == null)
+     step.rewardSelectionData == null)
         {
-            Debug.LogWarning(
+            Debug.LogError(
                 "Event Scene Reward Selection 실패: " +
                 "Use Drop Rewards가 ON이지만 BattleRewardData가 없습니다.",
                 this
             );
+
+            // <변경부분>
+            // 보상 지급 실패 후 이벤트를 정상 완료하지 않도록 중단한다.
+            isSequenceActive = false;
 
             yield break;
         }
 
         if (eventSceneRewardPopupUI == null)
         {
-            Debug.LogWarning(
+            Debug.LogError(
                 "Event Scene Reward Selection 실패: " +
-                "EventSceneRewardPopupUI가 연결되지 않았습니다."
+                "EventSceneRewardPopupUI가 연결되지 않았습니다.",
+                this
             );
+
+            // <변경부분>
+            // 보상 UI 참조가 없으면 정상 완료 경로를 차단한다.
+            isSequenceActive = false;
 
             yield break;
         }
@@ -2887,6 +2896,17 @@ attacker.PlayAttackRoutine(
 
         if (!started)
         {
+            // <변경부분>
+            // 보상 팝업이 열리지 못했는데 정비 노드가
+            // 완료되는 상황을 방지한다.
+            Debug.LogError(
+                "Event Scene Reward Selection 실패: " +
+                "보상 팝업을 열지 못해 이벤트 진행을 중단합니다.",
+                this
+            );
+
+            isSequenceActive = false;
+
             yield break;
         }
 

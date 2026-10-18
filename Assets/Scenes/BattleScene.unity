@@ -55360,7 +55360,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 8.58, y: 77.01}
-  m_SizeDelta: {x: 391.15, y: 66.02}
+  m_SizeDelta: {x: 391.15, y: 58.76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &484974951
 MonoBehaviour:
@@ -55375,13 +55375,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 40
+    m_Left: 45
     m_Right: 0
     m_Top: 25
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
-  m_ChildForceExpandWidth: 1
+  m_Spacing: 90
+  m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0

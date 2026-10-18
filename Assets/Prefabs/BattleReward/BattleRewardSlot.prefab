@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TooltipTrigger
   tooltipData: {fileID: 11400000, guid: d06b053ccb5386d46b1d32785551123b, type: 2}
-  positionMode: 1
+  positionMode: 0
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 500, y: 125}
   sectionPositionOffset: {x: 0, y: 0}

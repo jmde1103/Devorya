@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceFormationData
   formationName: Unit Set_Jellu_01
   description: "\uC824\uB8E8 \uAE30\uBB3C\uC758 \uAE30\uBCF8 \uAD6C\uC131 \uC138\uD2B8\uC785\uB2C8\uB2E4."
+  spawnMode: 0
   spawnDataList:
   - pieceData: {fileID: 11400000, guid: 6ff441806ed07dc4b8e4fed0add136e7, type: 2}
     team: 1
@@ -85,3 +86,5 @@ MonoBehaviour:
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
+  randomPieceCount: 5
+  randomPieceEntries: []
