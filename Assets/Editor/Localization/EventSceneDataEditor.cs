@@ -31,8 +31,13 @@ public class EventSceneDataEditor : Editor
      "EventScene_Dialogue";
 
     private readonly Dictionary<int, bool>
-        stepFoldouts =
-            new Dictionary<int, bool>();
+       stepFoldouts =
+           new Dictionary<int, bool>();
+
+    // <변경부분>
+    // ReorderableList를 그리는 도중에는 Step 목록을 수정하지 않는다.
+    // 버튼 클릭 후 목록 렌더링이 끝나면 복제 요청을 처리한다.
+    private int pendingDuplicateStepIndex = -1;
 
     // <변경부분>
     // Event Scene Step Header 한 줄의 기본 높이.
@@ -952,10 +957,49 @@ public class EventSceneDataEditor : Editor
         EditorGUILayout.Space(3);
 
         eventStepsReorderableList
-            .DoLayoutList();
+     .DoLayoutList();
 
         serializedObject
             .ApplyModifiedProperties();
+
+        // <변경부분>
+        // 버튼 클릭으로 예약된 Step 복제를
+        // ReorderableList의 Draw가 끝난 후 처리한다.
+        if (pendingDuplicateStepIndex >= 0)
+        {
+            int sourceIndex =
+                pendingDuplicateStepIndex;
+
+            pendingDuplicateStepIndex = -1;
+
+            DuplicateEventSceneStep(
+                eventData,
+                sourceIndex
+            );
+
+            // <변경부분>
+            // 목록 구조가 변경되었으므로
+            // SerializedProperty를 다시 동기화한다.
+            serializedObject.Update();
+
+            eventStepsProperty =
+                serializedObject.FindProperty(
+                    "steps"
+                );
+
+            if (eventStepsReorderableList != null)
+            {
+                eventStepsReorderableList.index =
+                    sourceIndex + 1;
+            }
+
+            Repaint();
+
+            // <변경부분>
+            // 목록의 Element 개수가 변경된 현재 GUI Event를
+            // 종료하여 Layout 불일치를 방지한다.
+            GUIUtility.ExitGUI();
+        }
 
         if (stepCount <= 0)
         {
@@ -2410,11 +2454,55 @@ public class EventSceneDataEditor : Editor
                     screenShakeWaitProperty.boolValue;
 
                 ProcessEventSceneHelpBox(
+     ref currentY,
+     contentRect,
+     waitForShake
+         ? "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다."
+         : "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
+     MessageType.Info,
+     draw
+ );
+
+                break;
+
+
+            // <변경부분>
+            // Event Scene 전용 ScreenGlitch 설정.
+            case EventSceneStepType.ScreenGlitch:
+
+                ProcessEventSceneSectionLabel(
                     ref currentY,
                     contentRect,
-                    waitForShake
-                        ? "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다."
-                        : "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
+                    "Screen Glitch",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "screenGlitchStrength", "Glitch Strength",
+                    "screenGlitchDuration", "Glitch Duration",
+                    "screenGlitchWaitForComplete",
+                    "Wait For Complete"
+                );
+
+                SerializedProperty screenGlitchWaitProperty =
+                    stepProperty.FindPropertyRelative(
+                        "screenGlitchWaitForComplete"
+                    );
+
+                bool waitForGlitch =
+                    screenGlitchWaitProperty != null &&
+                    screenGlitchWaitProperty.boolValue;
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    waitForGlitch
+                        ? "화면 글리치가 끝난 뒤 다음 Event Step으로 진행합니다."
+                        : "화면 글리치를 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
                     MessageType.Info,
                     draw
                 );
@@ -2750,6 +2838,26 @@ public class EventSceneDataEditor : Editor
                 }
 
                 break;
+        }
+
+        // <변경부분>
+        // 펼쳐진 모든 Event Scene Step의 맨 아래에
+        // 현재 Step을 바로 아래로 복제하는 버튼을 표시한다.
+        //
+        // ProcessExpandedEventSceneStep은 높이 계산에도 사용되므로
+        // 버튼의 높이 역시 동일한 공용 함수를 통해 계산한다.
+        currentY += 8f;
+
+        if (ProcessEventSceneButton(
+                ref currentY,
+                contentRect,
+                "Duplicate Step Below",
+                draw))
+        {
+            // <변경부분>
+            // ReorderableList Draw 도중 직접 Insert하지 않고
+            // 목록 그리기가 끝난 뒤 처리하도록 예약한다.
+            pendingDuplicateStepIndex = stepIndex;
         }
 
         return
@@ -4701,7 +4809,7 @@ public class EventSceneDataEditor : Editor
 
 
     private void AddStep(
-        EventSceneData eventData)
+     EventSceneData eventData)
     {
         Undo.RecordObject(
             eventData,
@@ -4721,6 +4829,444 @@ public class EventSceneDataEditor : Editor
         EditorUtility.SetDirty(
             eventData
         );
+    }
+
+
+    // <변경부분>
+    // 선택한 Event Scene Step의 설정을 깊은 복사한 뒤
+    // 원본 바로 아래에 새로운 Step으로 삽입한다.
+    //
+    // 모든 Inspector 설정은 유지하지만
+    // Step ID 및 Localization ID는 새로 생성한다.
+    private void DuplicateEventSceneStep(
+        EventSceneData eventData,
+        int sourceIndex)
+    {
+        if (eventData == null ||
+            eventData.steps == null ||
+            sourceIndex < 0 ||
+            sourceIndex >= eventData.steps.Count)
+        {
+            return;
+        }
+
+        EventSceneStepData source =
+            eventData.steps[sourceIndex];
+
+        if (source == null)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // Unity Undo를 통해 Step 복제를 되돌릴 수 있도록 한다.
+        Undo.RecordObject(
+            eventData,
+            "Duplicate Event Scene Step"
+        );
+
+        // <변경부분>
+        // Unity 직렬화 형식으로 전체 설정을 복제한다.
+        // List 및 중첩 Serializable Data는 독립적인 객체로 복사하고
+        // PieceData 등 Unity Asset 참조는 동일하게 유지한다.
+        EventSceneStepData copy =
+            new EventSceneStepData();
+
+        EditorJsonUtility.FromJsonOverwrite(
+            EditorJsonUtility.ToJson(source),
+            copy
+        );
+
+        // <변경부분>
+        // 원본 Step으로 이동하는 기존 Dialogue Choice의
+        // 목적지 ID는 보존하기 위해 새 Step에만 새 ID를 부여한다.
+        copy.stepId =
+            CreateStableId("step");
+
+        copy.dialogueLocalizationId =
+            CreateStableId("dialogue");
+
+        copy.speechBubbleLocalizationId =
+            CreateStableId("speech");
+
+        // <변경부분>
+        // Dialogue Page 개수와 Metadata 개수를 맞춘다.
+        if (copy.stepType == EventSceneStepType.Dialogue)
+        {
+            EnsureStepLocalizationMetadata(copy);
+        }
+
+        if (copy.dialogueLocalizationPages != null)
+        {
+            foreach (
+                EventSceneDialoguePageLocalizationData page
+                in copy.dialogueLocalizationPages)
+            {
+                if (page == null)
+                {
+                    continue;
+                }
+
+                page.localizationId =
+                    CreateStableId("page");
+
+                page.localizedText =
+                    new LocalizedString();
+            }
+        }
+
+        if (copy.dialogueChoices != null)
+        {
+            foreach (
+                EventSceneDialogueChoiceData choice
+                in copy.dialogueChoices)
+            {
+                if (choice == null)
+                {
+                    continue;
+                }
+
+                choice.localizationId =
+                    CreateStableId("choice");
+
+                choice.localizedText =
+                    new LocalizedString();
+
+                // targetStepId는 원본과 같은 설정값으로 유지한다.
+            }
+        }
+
+        copy.speechBubbleLocalizedText =
+            new LocalizedString();
+
+        // <변경부분>
+        // 기존 KR / EN / JA String Table이 존재한다면
+        // 원본 번역값을 새 Localization Key로 독립 복사한다.
+        StringTableCollection collection =
+            DevoryaLocalizationEditorUtility
+                .GetStringTableCollection(
+                    TableCollectionName
+                );
+
+        bool canCopyLocalization =
+            collection != null &&
+            !string.IsNullOrWhiteSpace(
+                eventData.localizationId);
+
+        if (canCopyLocalization)
+        {
+            if (collection.SharedData != null)
+            {
+                Undo.RecordObject(
+                    collection.SharedData,
+                    "Duplicate Event Scene Localization Keys"
+                );
+            }
+
+            if (copy.stepType == EventSceneStepType.Dialogue)
+            {
+                for (int i = 0;
+                     i < copy.dialoguePages.Count;
+                     i++)
+                {
+                    EventSceneDialoguePageLocalizationData
+                        sourcePage =
+                            GetPageLocalizationData(source, i);
+
+                    EventSceneDialoguePageLocalizationData
+                        copiedPage =
+                            GetPageLocalizationData(copy, i);
+
+                    if (copiedPage == null)
+                    {
+                        continue;
+                    }
+
+                    string oldKey =
+                        GetPageKey(
+                            eventData,
+                            source,
+                            sourcePage
+                        );
+
+                    string newKey =
+                        GetPageKey(
+                            eventData,
+                            copy,
+                            copiedPage
+                        );
+
+                    CopyEventSceneTranslationValues(
+                        collection,
+                        oldKey,
+                        newKey,
+                        copy.dialoguePages[i]
+                    );
+
+                    copiedPage.localizedText =
+                        DevoryaLocalizationEditorUtility
+                            .CreateLocalizedStringReference(
+                                collection,
+                                newKey
+                            );
+                }
+
+                if (copy.dialogueChoices != null &&
+                    source.dialogueChoices != null)
+                {
+                    int choiceCount =
+                        Mathf.Min(
+                            source.dialogueChoices.Count,
+                            copy.dialogueChoices.Count
+                        );
+
+                    for (int i = 0;
+                         i < choiceCount;
+                         i++)
+                    {
+                        EventSceneDialogueChoiceData sourceChoice =
+                            source.dialogueChoices[i];
+
+                        EventSceneDialogueChoiceData copiedChoice =
+                            copy.dialogueChoices[i];
+
+                        if (sourceChoice == null ||
+                            copiedChoice == null)
+                        {
+                            continue;
+                        }
+
+                        string oldKey =
+                            GetDialogueChoiceKey(
+                                eventData,
+                                sourceChoice
+                            );
+
+                        string newKey =
+                            GetDialogueChoiceKey(
+                                eventData,
+                                copiedChoice
+                            );
+
+                        CopyEventSceneTranslationValues(
+                            collection,
+                            oldKey,
+                            newKey,
+                            copiedChoice.koreanText
+                        );
+
+                        copiedChoice.localizedText =
+                            DevoryaLocalizationEditorUtility
+                                .CreateLocalizedStringReference(
+                                    collection,
+                                    newKey
+                                );
+                    }
+                }
+            }
+
+            if (copy.stepType == EventSceneStepType.SpeechBubble)
+            {
+                string oldKey =
+                    GetSpeechBubbleKey(
+                        eventData,
+                        source
+                    );
+
+                string newKey =
+                    GetSpeechBubbleKey(
+                        eventData,
+                        copy
+                    );
+
+                CopyEventSceneTranslationValues(
+                    collection,
+                    oldKey,
+                    newKey,
+                    copy.speechBubbleText
+                );
+
+                copy.speechBubbleLocalizedText =
+                    DevoryaLocalizationEditorUtility
+                        .CreateLocalizedStringReference(
+                            collection,
+                            newKey
+                        );
+            }
+        }
+
+        // <변경부분>
+        // 원본 바로 다음 인덱스에 복제본을 삽입한다.
+        eventData.steps.Insert(
+            sourceIndex + 1,
+            copy
+        );
+
+        // <변경부분>
+        // 기존 펼침 상태는 보존하고
+        // 새 복제 Step만 펼쳐진 상태로 표시한다.
+        ShiftEventSceneFoldoutsAfterDuplicate(
+            sourceIndex
+        );
+
+        // <변경부분>
+        // 삽입 후 인덱스가 바뀌므로
+        // 기존 Scene View Tile 선택 상태는 정리한다.
+        CancelAllEventSceneTileSelection();
+
+        EditorUtility.SetDirty(
+            eventData
+        );
+
+        if (canCopyLocalization)
+        {
+            if (collection.SharedData != null)
+            {
+                EditorUtility.SetDirty(
+                    collection.SharedData
+                );
+            }
+
+            AssetDatabase.SaveAssets();
+        }
+    }
+
+
+    // <변경부분>
+    // Step 삽입 시 기존 Index 기반 펼침 상태를 한 칸 이동한다.
+    private void ShiftEventSceneFoldoutsAfterDuplicate(
+        int sourceIndex)
+    {
+        Dictionary<int, bool> shiftedSteps =
+            new Dictionary<int, bool>();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in stepFoldouts)
+        {
+            int newIndex =
+                entry.Key > sourceIndex
+                    ? entry.Key + 1
+                    : entry.Key;
+
+            shiftedSteps[newIndex] =
+                entry.Value;
+        }
+
+        stepFoldouts.Clear();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in shiftedSteps)
+        {
+            stepFoldouts[entry.Key] =
+                entry.Value;
+        }
+
+        stepFoldouts[sourceIndex + 1] =
+            true;
+
+        // <변경부분>
+        // 아래 Dialogue 관리 영역도 Step Index 기반이므로
+        // 동일하게 삽입된 위치 이후 인덱스를 이동한다.
+        Dictionary<int, bool> shiftedDialogues =
+            new Dictionary<int, bool>();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in dialogueStepFoldouts)
+        {
+            int newIndex =
+                entry.Key > sourceIndex
+                    ? entry.Key + 1
+                    : entry.Key;
+
+            shiftedDialogues[newIndex] =
+                entry.Value;
+        }
+
+        dialogueStepFoldouts.Clear();
+
+        foreach (
+    KeyValuePair<int, bool> entry
+    in shiftedDialogues)
+        {
+            dialogueStepFoldouts[entry.Key] =
+                entry.Value;
+        }
+    }
+
+
+    // <변경부분>
+    // 기존 Localization Table의 KR / EN / JA 값을
+    // 복제 Step의 신규 Key로 복사한다.
+    //
+    // 원본 번역 Key나 번역문은 수정하지 않는다.
+    private void CopyEventSceneTranslationValues(
+        StringTableCollection collection,
+        string sourceKey,
+        string targetKey,
+        string koreanFallback)
+    {
+        if (collection == null ||
+            string.IsNullOrWhiteSpace(targetKey))
+        {
+            return;
+        }
+
+        string[] localeCodes =
+        {
+            "ko",
+            "en",
+            "ja"
+        };
+
+        foreach (string localeCode in localeCodes)
+        {
+            StringTable table =
+                collection.GetTable(localeCode)
+                    as StringTable;
+
+            if (table == null)
+            {
+                continue;
+            }
+
+            StringTableEntry sourceEntry =
+                string.IsNullOrWhiteSpace(sourceKey)
+                    ? null
+                    : table.GetEntry(sourceKey);
+
+            // <변경부분>
+            // EN / JA 번역이 없는 경우에는
+            // 임의의 번역문을 생성하지 않는다.
+            if (sourceEntry == null &&
+                localeCode != "ko")
+            {
+                continue;
+            }
+
+            string copiedValue =
+                sourceEntry != null
+                    ? sourceEntry.LocalizedValue
+                    : koreanFallback ?? string.Empty;
+
+            Undo.RecordObject(
+                table,
+                "Duplicate Event Scene Translation"
+            );
+
+            DevoryaLocalizationEditorUtility
+                .SetTableValue(
+                    table,
+                    targetKey,
+                    copiedValue
+                );
+
+            EditorUtility.SetDirty(
+                table
+            );
+        }
     }
 
 

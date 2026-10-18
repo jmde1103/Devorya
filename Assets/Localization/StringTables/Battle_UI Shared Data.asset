@@ -99,6 +99,10 @@ MonoBehaviour:
     m_Key: battle.ui.ability_fail.condition_unmet
     m_Metadata:
       m_Items: []
+  - m_Id: 16123939756052480
+    m_Key: BattleUILocalization
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

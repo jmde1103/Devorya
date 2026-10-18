@@ -102,6 +102,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -201,6 +204,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -300,6 +306,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -323,8 +332,8 @@ MonoBehaviour:
     dialoguePages:
     - "\uB204\uAD70\uAC00 \uB450\uACE0 \uAC04 \uC7A1\uB3D9\uC0AC\uB2C8 \uB354\uBBF8\uB97C
       \uBC1C\uACAC\uD588\uB2E4."
-    - "\uC870\uC0AC\uD574 \uBCF4\uBA74 \uBB54\uAC00 \uC4F8 \uB9CC\uD55C \uAC83\uC774
-      \uB098\uC62C\uC9C0\uB3C4 \uBAA8\uB978\uB2E4."
+    - "\uC870\uC0AC\uD574 \uBCF4\uBA74 \uC4F8 \uB9CC\uD55C \uBB3C\uAC74\uC774 \uB098\uC62C\uC9C0\uB3C4
+      \uBAA8\uB978\uB2E4."
     dialogueLocalizationId: dialogue_4282e4b6
     dialogueLocalizationPages:
     - localizationId: page_91748602
@@ -447,6 +456,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -546,6 +558,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -645,6 +660,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -755,6 +773,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -854,6 +875,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -953,6 +977,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1
@@ -1052,6 +1079,9 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
     globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingTargetIntensity: 1

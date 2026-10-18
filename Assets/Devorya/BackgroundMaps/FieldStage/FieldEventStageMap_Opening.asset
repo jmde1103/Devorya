@@ -9280,18 +9280,18 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 0}
     LocalPositionOffset: {x: 0, y: 0, z: 0}
     LayerOffset: 0
-  - X: 22
-    Y: 19
-    DecorationType: 2
-    DecorationSprite: {fileID: 21300000, guid: ba15c5684e36d3d408e863a322c1b3bc, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: 0.03988421, y: 0.06046176, z: 0}
-    LayerOffset: -1
   - X: 16
     Y: 20
     DecorationType: 2
     DecorationSprite: {fileID: 21300000, guid: c855fde2373cd70459ea75ae9380e2e3, type: 3}
     DecorationPrefab: {fileID: 0}
     LocalPositionOffset: {x: -0.06823468, y: 0.010520697, z: 0}
+    LayerOffset: -1
+  - X: 22
+    Y: 18
+    DecorationType: 2
+    DecorationSprite: {fileID: 21300000, guid: cf560c8880f56df489184ade6bb1c5e3, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.018242717, y: 0.07835281, z: 0}
     LayerOffset: -1
   ShopDisplaySlots: []

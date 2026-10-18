@@ -83,6 +83,34 @@ MonoBehaviour:
     m_Key: event_scene.event_opening_field_stage.dialogue_a2186647.page_6686b868
     m_Metadata:
       m_Items: []
+  - m_Id: 13485366015823872
+    m_Key: event_scene.event_maintenance.dialogue_094e22c4.page_6e514bff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13485384391069696
+    m_Key: event_scene.event_maintenance.dialogue_094e22c4.page_fd6df574
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13493486704267264
+    m_Key: event_scene.event_maintenance.dialogue_4ba05845.page_8d4f94a1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13494882459586560
+    m_Key: event_scene.event_maintenance.dialogue_ed446dc8.page_63d70135
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13495016316604416
+    m_Key: event_scene.event_maintenance.choice.choice_38681588
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13495046221991936
+    m_Key: event_scene.event_maintenance.choice.choice_46cca0a7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13510856315375616
+    m_Key: event_scene.event_maintenance.dialogue_ed446dc8.page_9a3509da
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

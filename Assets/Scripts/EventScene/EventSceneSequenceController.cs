@@ -73,6 +73,14 @@ public class EventSceneSequenceController : MonoBehaviour
 
 
     // <변경부분>
+    // Event Scene 전용 URP 2D Screen Glitch Controller.
+    // Inspector에서 Scene에 배치된 컴포넌트를 연결한다.
+    [Header("Screen Glitch")]
+    [SerializeField]
+    private EventScreenGlitchController eventScreenGlitchController;
+
+
+    // <변경부분>
     // Standalone Event Scene CameraShot에서 사용할
     // 실제 PixelCameraController.
     //
@@ -540,6 +548,18 @@ public class EventSceneSequenceController : MonoBehaviour
 
 
             // <변경부분>
+            // Event Scene 전용 화면 글리치 연출.
+            case EventSceneStepType.ScreenGlitch:
+
+                yield return
+                    ExecuteScreenGlitchStepRoutine(
+                        step
+                    );
+
+                yield break;
+
+
+            // <변경부분>
             // Global Ambient 조명 페이드 연출.
             case EventSceneStepType.GlobalLighting:
 
@@ -553,6 +573,7 @@ public class EventSceneSequenceController : MonoBehaviour
 
             // <변경부분>
             // 지정 Event Actor 위에 SpeechBubble을 표시한다.
+            // Git 작업 과정에서 누락된 기존 실행 분기를 복구한다.
             case EventSceneStepType.SpeechBubble:
 
                 yield return
@@ -668,6 +689,97 @@ public class EventSceneSequenceController : MonoBehaviour
                 );
 
                 yield break;
+        }
+    }
+
+
+    // <변경부분>
+    // Event Scene의 ScreenGlitch Step을 실행한다.
+    //
+    // 실제 화면 효과는 EventScreenGlitchController가 담당한다.
+    // Wait OFF에서는 효과 실행 중에도 다음 Step으로 진행한다.
+    private IEnumerator ExecuteScreenGlitchStepRoutine(
+        EventSceneStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // 필수 Controller가 없거나 비활성화되었으면
+        // 연출을 실행하지 않은 채 다음 Step으로 넘어가지 않는다.
+        if (eventScreenGlitchController == null ||
+            !eventScreenGlitchController.isActiveAndEnabled)
+        {
+            Debug.LogError(
+                "Event Scene ScreenGlitch 실행 실패: " +
+                "EventScreenGlitchController가 연결되지 않았거나 " +
+                "비활성화되어 있습니다.",
+                this
+            );
+
+            StopSequence();
+            yield break;
+        }
+
+        // <변경부분>
+        // 기존 컨트롤러의 PlayGlitch를 재사용한다.
+        // 컨트롤러가 자체적으로 기존 글리치를 정리하고
+        // 새 효과를 시작한다.
+        eventScreenGlitchController.PlayGlitch(
+            Mathf.Clamp01(step.screenGlitchStrength),
+            Mathf.Max(0.05f, step.screenGlitchDuration)
+        );
+
+        // <변경부분>
+        // Material 또는 RawImage 설정 누락 등으로
+        // 글리치가 시작되지 않았다면 Sequence를 중단한다.
+        if (!eventScreenGlitchController.IsPlaying)
+        {
+            Debug.LogError(
+                "Event Scene ScreenGlitch 실행 실패: " +
+                "글리치 효과가 시작되지 않았습니다. " +
+                "Screen Overlay와 Glitch Material 연결을 확인하세요.",
+                this
+            );
+
+            StopSequence();
+            yield break;
+        }
+
+        // <변경부분>
+        // OFF:
+        // 글리치 효과는 별도의 Controller에서 계속 진행하고
+        // Event Sequence는 즉시 다음 Step으로 진행한다.
+        if (!step.screenGlitchWaitForComplete)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // ON:
+        // 글리치 효과가 끝날 때까지 대기한다.
+        // Time Scale에 관계없이 효과 자체의 완료 상태를 확인한다.
+        while (eventScreenGlitchController != null &&
+               eventScreenGlitchController.IsPlaying)
+        {
+            yield return null;
+        }
+
+        // <변경부분>
+        // 대기 도중 Controller가 사라지거나 비활성화되었다면
+        // 정상 완료로 간주하지 않는다.
+        if (eventScreenGlitchController == null ||
+            !eventScreenGlitchController.isActiveAndEnabled)
+        {
+            Debug.LogError(
+                "Event Scene ScreenGlitch 대기 중단: " +
+                "Controller가 사라지거나 비활성화되었습니다.",
+                this
+            );
+
+            StopSequence();
         }
     }
 
@@ -3226,6 +3338,13 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
         StopSequenceCoroutine();
 
         // <변경부분>
+        // Sequence 강제 종료 시 Detached Glitch도 즉시 정리한다.
+        if (eventScreenGlitchController != null)
+        {
+            eventScreenGlitchController.StopGlitch();
+        }
+
+        // <변경부분>
         // 선택형 전리품창이 열린 상태에서 시퀀스가
         // 강제 종료되어도 보상 UI와 Callback을 정리한다.
         if (eventSceneRewardPopupUI != null)
@@ -3290,6 +3409,14 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
     private void OnDisable()
     {
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // Scene 전환이나 Controller 비활성화 시
+        // 화면 글리치가 남지 않도록 즉시 종료한다.
+        if (eventScreenGlitchController != null)
+        {
+            eventScreenGlitchController.StopGlitch();
+        }
 
         // <변경부분>
         // 씬 전환이나 Controller 비활성화 시

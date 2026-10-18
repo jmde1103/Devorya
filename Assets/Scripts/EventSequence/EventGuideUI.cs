@@ -237,6 +237,11 @@ public class EventGuideUI : MonoBehaviour
 
         if (guideText != null)
         {
+            // Dialogue에서 TextMeshPro Rich Text 태그를 사용할 수 있도록 한다.
+            // <size>, <b>, <i>, <color> 등의 태그를 Dialogue 데이터에 직접 사용할 수 있다.
+            guideText.richText =
+                true;
+
             guideText.text =
                 string.Empty;
 

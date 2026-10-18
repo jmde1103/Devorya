@@ -1773,6 +1773,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: 'SpeechBubbleCanvas '
       objectReference: {fileID: 0}
+    - target: {fileID: 5816064586541013590, guid: 5d020f5c56c19ee4e844f528f7d94ea5, type: 3}
+      propertyPath: m_SortingOrder
+      value: 500
+      objectReference: {fileID: 0}
     - target: {fileID: 5904622242848855975, guid: 5d020f5c56c19ee4e844f528f7d94ea5, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0

@@ -193,7 +193,7 @@ MonoBehaviour:
     nodeStyleData: {fileID: 11400000, guid: 9af2ceb0565162e4da52b560430a2611, type: 2}
     targetSceneName: EventScene
     stageBattleData: {fileID: 0}
-    eventSceneData: {fileID: 11400000, guid: 23a713f253464744ba85f173d66e174e, type: 2}
+    eventSceneData: {fileID: 11400000, guid: c56ab45017a56a44abfcee50673b84c1, type: 2}
     shopInventoryData: {fileID: 0}
     shopLevel: 1
     initiallyUnlocked: 0

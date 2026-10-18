@@ -35,6 +35,25 @@ public class EventSceneRewardPopupUI : MonoBehaviour
     [SerializeField]
     private Button confirmButton;
 
+    // <변경부분>
+    // Confirm Button 안의 문구를 보상 형태에 따라 전환한다.
+    //
+    // Drop Confirm Label:
+    // "전리품을 받지 않고 넘기기"
+    //
+    // Restoration Confirm Label:
+    // "계속하기"
+    //
+    // 실제 문구의 KR / EN / JA 로컬라이제이션은
+    // 각 Text 오브젝트가 기존 Localization 방식을 그대로 사용한다.
+    [Header("Confirm Button Labels")]
+
+    [SerializeField]
+    private GameObject dropConfirmLabelObject;
+
+    [SerializeField]
+    private GameObject restorationConfirmLabelObject;
+
     [Header("Reward Slot")]
     [SerializeField]
     private BattleRewardSlotUI rewardSlotPrefab;
@@ -273,7 +292,7 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         );
 
         initialRewardCount =
-     pendingRewards.Count;
+      pendingRewards.Count;
 
         hasRestorationSection = useRestoration; // <변경부분>
 
@@ -282,6 +301,17 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         isOpen = true;
 
         confirmButton.interactable = true;
+
+        // <변경부분>
+        // 전리품이 없는 복구 전용 보상창에서는
+        // Confirm Button을 "계속하기" 문구로 전환한다.
+        //
+        // 전리품이 하나라도 사용되는 보상창에서는
+        // 기존 "전리품을 받지 않고 넘기기" 문구를 유지한다.
+        RefreshConfirmButtonLabel(
+            useDropRewards,
+            useRestoration
+        );
 
         popupRoot.SetActive(true);
 
@@ -652,6 +682,49 @@ public class EventSceneRewardPopupUI : MonoBehaviour
             FinishRewardSelection();
         }
     }
+
+    // <변경부분>
+    // 현재 Reward Selection의 구성에 따라
+    // Confirm Button의 안내 문구를 전환한다.
+    //
+    // Drop Rewards ON:
+    // "전리품을 받지 않고 넘기기"
+    //
+    // Drop Rewards OFF + Restoration ON:
+    // "계속하기"
+    //
+    // 복구는 TryShow()에서 이미 RunState에 자동 지급되므로
+    // Restoration 전용 Confirm Button은
+    // 보상 거절이 아니라 결과 확인 / 다음 Step 진행 역할만 한다.
+    private void RefreshConfirmButtonLabel(
+        bool useDropRewards,
+        bool useRestoration)
+    {
+        if (dropConfirmLabelObject == null ||
+            restorationConfirmLabelObject == null)
+        {
+            Debug.LogWarning(
+                "Event Reward Popup: " +
+                "Confirm Button Label Object 연결을 확인해주세요.",
+                this
+            );
+
+            return;
+        }
+
+        bool isRestorationOnly =
+            !useDropRewards &&
+            useRestoration;
+
+        dropConfirmLabelObject.SetActive(
+            !isRestorationOnly
+        );
+
+        restorationConfirmLabelObject.SetActive(
+            isRestorationOnly
+        );
+    }
+
 
 
     // <변경부분>

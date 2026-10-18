@@ -95,7 +95,12 @@ public enum EventSceneStepType
     // <변경부분>
     // Event Scene의 Global Ambient Light를 부드럽게 변경한다.
     // 기존 Serialized 값 보호를 위해 Enum 마지막에 추가한다.
-    GlobalLighting = 17
+    GlobalLighting = 17,
+
+    // <변경부분>
+    // Event Scene 전용 화면 글리치 효과.
+    // 기존 Step의 Serialized 번호를 변경하지 않는다.
+    ScreenGlitch = 18
 }
 
 
@@ -896,6 +901,35 @@ public class EventSceneStepData
     // Shake만 시작하고 즉시 다음 Event Step으로 진행한다.
     public bool screenShakeWaitForComplete =
       true;
+
+
+    // =====================================================
+    // Screen Glitch (Event Scene 전용)
+    // =====================================================
+
+    [Header("Screen Glitch")]
+
+    // <변경부분>
+    // URP 2D 화면 글리치 효과의 강도.
+    // 0 = 효과 없음, 1 = 최대 강도.
+    [Range(0f, 1f)]
+    public float screenGlitchStrength =
+        0.55f;
+
+    // <변경부분>
+    // 화면 글리치 효과의 전체 지속 시간.
+    [Min(0.05f)]
+    public float screenGlitchDuration =
+        0.4f;
+
+    // <변경부분>
+    // true:
+    // 글리치 효과가 끝난 뒤 다음 Step으로 진행한다.
+    //
+    // false:
+    // 글리치를 시작하고 즉시 다음 Step으로 진행한다.
+    public bool screenGlitchWaitForComplete =
+        true;
 
 
     // =====================================================
