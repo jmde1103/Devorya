@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2307f0da5250446438daa2e3472af07f, type: 3}
+  m_Name: UniqueSkill_JelluSplit
+  m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
+  skillType: 8
+  skillName: "\uBD84\uC5F4"
+  iconSprite: {fileID: 21300000, guid: fbd7c12a2f0ea354c90fcf177131d596, type: 3}
+  description: "자신을 제거하고, 원래 위치와 인접한 빈칸에 젤루 [폰]을 각각 1개씩 생성한다. 생성된 기물에 [공격불가]를 1턴 부여한다."
+  tooltipSections:
+  - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
+    sectionColor: {r: 1, g: 1, b: 1, a: 1}
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 16691838908502016
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 16691838979805184
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedConditionFailMessage:
+    m_TableReference:
+      m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
+    m_TableEntryReference:
+      m_KeyId: 16691838979805185
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  cooldownTurn: 0
+  requiredDeathStack: 0
+  consumeDeathStackOnUse: 0
+  oncePerTurn: 1
+  conditionFailMessage: "\uCD5C\uB300 \uAE30\uBB3C \uC218\uB97C \uCD08\uACFC\uD558\uAC8C
+    \uB418\uC5B4 \uBD84\uC5F4\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  references:
+    version: 2
+    RefIds: []

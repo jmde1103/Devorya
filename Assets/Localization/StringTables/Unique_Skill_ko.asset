@@ -121,6 +121,19 @@ MonoBehaviour:
       \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 16691838908502016
+    m_Localized: "\uBD84\uC5F4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691838979805184
+    m_Localized: "자신을 제거하고, 원래 위치와 인접한 빈칸에 젤루 [폰]을 각각 1개씩 생성한다. 생성된 기물에 [공격불가]를 1턴 부여한다."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691838979805185
+    m_Localized: "\uCD5C\uB300 \uAE30\uBB3C \uC218\uB97C \uCD08\uACFC\uD558\uAC8C
+      \uB418\uC5B4 \uBD84\uC5F4\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

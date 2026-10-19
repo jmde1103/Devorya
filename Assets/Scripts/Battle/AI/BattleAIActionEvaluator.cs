@@ -773,6 +773,9 @@ public class BattleAIActionEvaluator
 
         switch (action.UniqueSkillType)
         {
+            case UniqueSkillType.JelluSplit:
+                return 100f;
+
             case UniqueSkillType.JelluSynthesis:
                 return EvaluateJelluSynthesisAction(
                     action

@@ -2097,6 +2097,7 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
+        PieceTeam skillTeam = skillPiece.Team;
         bool skillUsed = false;
 
         // <변경부분> UniqueSkillData의 아이콘을 함께 전달하여
@@ -2109,6 +2110,11 @@ public class BattleManager : MonoBehaviour
                     result =>
                         skillUsed = result
                 );
+        if (skillUsed && skillData.skillType == UniqueSkillType.JelluSplit)
+        {
+            CompleteJelluSplitUse(skillTeam, skillData);
+            yield break;
+        }
         if (skillUsed == false)
         {
             Debug.LogWarning(
@@ -3704,6 +3710,7 @@ public class BattleManager : MonoBehaviour
         // 스킬 연출 중 추가 입력 방지
         isActionAnimating = true;
 
+        PieceTeam skillTeam = skillPiece.Team;
         bool skillUsed = false;
 
         // <변경부분> 고유스킬 데이터 아이콘을 전달하여
@@ -3717,6 +3724,11 @@ public class BattleManager : MonoBehaviour
             );
 
         // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
+        if (skillUsed && skillData.skillType == UniqueSkillType.JelluSplit)
+        {
+            CompleteJelluSplitUse(skillTeam, skillData);
+            yield break;
+        }
         if (skillUsed)
         {
             // <변경부분> 데이터 설정에 따라 한 턴 1회 사용권 소모
@@ -3778,8 +3790,7 @@ public class BattleManager : MonoBehaviour
             if (skillData != null)
             {
                 string localizedFailMessage =
-                    skillData
-                        .GetLocalizedConditionFailMessage();
+                    battleSkillManager.GetUniqueSkillFailureMessage(skillPiece, skillData);
 
                 if (string.IsNullOrWhiteSpace(
                         localizedFailMessage) == false)
@@ -3799,6 +3810,27 @@ public class BattleManager : MonoBehaviour
     }
 
     // <변경부분> 특정 고유스킬 타입에 맞는 기본 데이터를 가져오는 함수
+    // Split removes its caster; never refresh UI or apply cooldown through that reference.
+    private void CompleteJelluSplitUse(PieceTeam team, UniqueSkillData data)
+    {
+        if (data.oncePerTurn) hasUsedUniqueSkillThisTurn = true;
+        if (data.consumeDeathStackOnUse)
+            ConsumeDeathStackForUniqueSkill(team, data.requiredDeathStack);
+        selectedPiece = null;
+        pendingActionTile = null;
+        pendingAttackTargetPiece = null;
+        ClearHighlights();
+        RefreshTypeIconVisuals();
+        if (battleUIController != null)
+        {
+            battleUIController.RefreshSelectedPieceButtons(null);
+            battleUIController.ClearPlayerStatusOnly();
+            battleUIController.ClearEnemyStatus();
+        }
+        CheckBattleEnd();
+        isActionAnimating = false;
+    }
+
     private UniqueSkillData GetUniqueSkillData(UniqueSkillType skillType)
     {
         // 데이터베이스가 연결되지 않았으면 데이터 없음 처리
@@ -5179,8 +5211,6 @@ public class BattleManager : MonoBehaviour
             pieceManager.ClearTemporaryMoveTypes(endingTeam);
         }
 
-        UpdateStatusEffectTurnState(true);
-
         if (currentTurn == BattleTurn.Player)
         {
             currentTurn =
@@ -5295,6 +5325,7 @@ public class BattleManager : MonoBehaviour
 
     private void UpdateStatusEffectTurnState(bool endingActionRestrictions)
     {
+        if (endingActionRestrictions) return;
         // 현재 턴 주체 진영 계산
         PieceTeam currentTurnTeam = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
 
@@ -5322,10 +5353,7 @@ public class BattleManager : MonoBehaviour
                 }
 
                 // 상태이상 턴 감소 및 만료 처리
-                if (endingActionRestrictions)
-                    piece.ReduceActionRestrictionTurnAndRemoveExpired();
-                else
-                    piece.ReduceStatusEffectTurnAndRemoveExpired();
+                piece.ReduceStatusEffectTurnAndRemoveExpired();
             }
         }
     }

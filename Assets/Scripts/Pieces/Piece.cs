@@ -631,6 +631,11 @@ public class Piece : MonoBehaviour
     // <변경부분> 상태이상을 추가하거나 이미 있으면 지속 턴과 중첩 수를 갱신하는 함수
     public void AddStatusEffect(StatusEffectData statusEffectData)
     {
+        AddStatusEffect(statusEffectData, statusEffectData != null ? statusEffectData.durationTurn : 1);
+    }
+
+    public void AddStatusEffect(StatusEffectData statusEffectData, int duration)
+    {
         // 상태이상 데이터가 없으면 처리 불가
         if (statusEffectData == null)
         {
@@ -644,7 +649,7 @@ public class Piece : MonoBehaviour
         }
 
         // 최소 1턴은 유지되도록 보정
-        int durationTurn = Mathf.Max(1, statusEffectData.durationTurn);
+        int durationTurn = Mathf.Max(1, duration);
 
         // 최소 1중첩은 가능하도록 보정
         int maxStack = Mathf.Max(1, statusEffectData.maxStack);
@@ -801,16 +806,16 @@ public class Piece : MonoBehaviour
     // 만료된 상태효과를 제거한 뒤 필드 UI를 갱신한다.
     public void ReduceStatusEffectTurnAndRemoveExpired()
     {
-        ReduceStatusEffectTurns(false);
+        ReduceStatusEffectTurns();
     }
 
     public void ReduceActionRestrictionTurnAndRemoveExpired()
     {
-        ReduceStatusEffectTurns(true);
+        // Compatibility entry point: effects no longer tick at turn end.
     }
 
-    // Defence, Degeneration and action restrictions tick at the affected team's turn end.
-    private void ReduceStatusEffectTurns(bool atTurnEnd)
+    // All effects tick only when the affected team starts its next turn.
+    private void ReduceStatusEffectTurns()
     {
         for (int i = statusEffects.Count - 1;
              i >= 0;
@@ -824,13 +829,6 @@ public class Piece : MonoBehaviour
                 statusEffects.RemoveAt(i);
                 continue;
             }
-
-            bool expiresAtTurnEnd =
-                statusEffect.effectType == StatusEffectType.AttackDisabled ||
-                statusEffect.effectType == StatusEffectType.ActionDisabled ||
-                statusEffect.effectType == StatusEffectType.Defence ||
-                statusEffect.effectType == StatusEffectType.Degeneration;
-            if (expiresAtTurnEnd != atTurnEnd) continue;
 
             statusEffect.remainingTurn--;
 

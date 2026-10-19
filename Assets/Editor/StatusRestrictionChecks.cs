@@ -78,12 +78,12 @@ public static class StatusRestrictionChecks
                 generator.GenerateActions(team, actions);
                 Check(!actions.Exists(a => a.ActingPiece == actor), "AI skips disabled actor");
                 Check(actor.CanMove && !actor.CanMoveThisTurn, "Base movement flag preserved");
-                actor.ReduceActionRestrictionTurnAndRemoveExpired();
+                actor.ReduceStatusEffectTurnAndRemoveExpired();
                 Check(Equal(validator.GetSelectablePositions(actor), normal), "Movement restored after expiry");
                 cases++;
             }
 
-            // Opponent-applied effects must survive the affected team's turn start.
+            // One-turn effects expire at the next affected-team turn start.
             Array.Clear(grid, 0, grid.Length);
             Piece target = others.Find(p => p.X == 2 && p.Y == 4);
             Effects(actor).Clear(); Effects(target).Clear();
@@ -100,14 +100,14 @@ public static class StatusRestrictionChecks
             target.AddStatusEffect(db.GetData(StatusEffectType.Defence));
             Set(battle, "currentTurn", BattleTurn.Enemy);
             Call(battle, "UpdateStatusEffectTurnState", false);
-            Check(target.HasStatusEffect(StatusEffectType.ActionDisabled), "Survives own turn start");
-            Check(target.HasStatusEffect(StatusEffectType.Defence), "Defence survives own turn start");
+            Check(!target.HasStatusEffect(StatusEffectType.ActionDisabled), "Expires at next own turn start");
+            Check(!target.HasStatusEffect(StatusEffectType.Defence), "Defence expires at next own turn start");
             Call(battle, "UpdateStatusEffectTurnState", true);
-            Check(!target.HasStatusEffect(StatusEffectType.ActionDisabled), "Expires at own turn end");
+            Check(!target.HasStatusEffect(StatusEffectType.ActionDisabled), "Turn end does not restore expired effect");
             Check(actor.HasStatusEffect(StatusEffectType.AttackDisabled), "Other team's status remains");
             Set(battle, "currentTurn", BattleTurn.Player);
             Check(!(bool)Call(battle, "HasNoActionablePieces", PieceTeam.Player), "Temporary restriction does not cause defeat");
-            Call(battle, "UpdateStatusEffectTurnState", true);
+            Call(battle, "UpdateStatusEffectTurnState", false);
             Check(actor.CanAttackThisTurn && validator.IsPieceCurrentlyThreatened(target), "Threat restored after expiry");
             actor.AddStatusEffect(action); actor.AddStatusEffect(action);
             Check(Effects(actor).Count == 1 && Effects(actor)[0].remainingTurn == 1, "Reapply refreshes without duplicating");
@@ -120,9 +120,9 @@ public static class StatusRestrictionChecks
             Check(!skills.CanUseUniqueSkillEffect(actor), "Skill preview blocks action lock");
             Check(!skills.TryUseUniqueSkill(actor), "Direct skill execution blocks action lock");
             Property(actor, "CanMove", false);
-            actor.ReduceActionRestrictionTurnAndRemoveExpired();
+            actor.ReduceStatusEffectTurnAndRemoveExpired();
             Check(!actor.CanMoveThisTurn, "Expiry preserves inherent immobility");
-            // Duration two must cover two affected-team turn ends, for both teams.
+            // Duration two expires at the second affected-team turn start.
             foreach (PieceTeam affectedTeam in new[] { PieceTeam.Player, PieceTeam.Enemy })
             foreach (StatusEffectType effect in new[] { StatusEffectType.Defence, StatusEffectType.Degeneration, StatusEffectType.AttackDisabled, StatusEffectType.ActionDisabled })
             {
@@ -137,16 +137,23 @@ public static class StatusRestrictionChecks
                 Check(Effects(actor)[0].remainingTurn == 2, "Opponent phases preserve duration");
                 Set(battle, "currentTurn", ownTurn);
                 Call(battle, "UpdateStatusEffectTurnState", false);
-                Check(Effects(actor)[0].remainingTurn == 2, "Own start preserves duration");
+                Check(Effects(actor)[0].remainingTurn == 1, "Own start decrements duration once");
                 Call(battle, "UpdateStatusEffectTurnState", true);
-                Check(Effects(actor)[0].remainingTurn == 1, "Own end decrements exactly once");
+                Check(Effects(actor)[0].remainingTurn == 1, "Own end preserves remaining duration");
                 Call(battle, "UpdateStatusEffectTurnState", false);
-                Check(actor.HasStatusEffect(effect), "One remaining turn survives start");
+                Check(!actor.HasStatusEffect(effect), "Second own start expires effect");
                 Call(battle, "UpdateStatusEffectTurnState", true);
-                Check(!actor.HasStatusEffect(effect), "Second own end expires effect");
+                Check(!actor.HasStatusEffect(effect), "Second own end leaves expired effect absent");
                 Effects(actor).Add(new OwnedStatusEffectData(effect, 1, 1));
                 Call(battle, "UpdateStatusEffectTurnState", true);
-                Check(!actor.HasStatusEffect(effect), "One-turn effect applied during own turn expires at its end");
+                Check(actor.HasStatusEffect(effect), "One-turn effect survives application turn end");
+                Set(battle, "currentTurn", otherTurn);
+                Call(battle, "UpdateStatusEffectTurnState", false);
+                Call(battle, "UpdateStatusEffectTurnState", true);
+                Check(actor.HasStatusEffect(effect), "One-turn effect protects throughout opponent turn");
+                Set(battle, "currentTurn", ownTurn);
+                Call(battle, "UpdateStatusEffectTurnState", false);
+                Check(!actor.HasStatusEffect(effect), "One-turn effect expires at next own turn start");
             }
             Effects(actor).Add(new OwnedStatusEffectData(StatusEffectType.Breakthrough, 1, 1));
             Call(battle, "UpdateStatusEffectTurnState", true);

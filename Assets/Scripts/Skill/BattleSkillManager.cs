@@ -434,6 +434,9 @@ public class BattleSkillManager : MonoBehaviour
 
         switch (piece.UniqueSkill)
         {
+            case UniqueSkillType.JelluSplit:
+                return UseOrValidateJelluSplit(piece, false);
+
             case UniqueSkillType.JelluClone:
                 {
                     if (pieceManager == null ||
@@ -599,6 +602,9 @@ public class BattleSkillManager : MonoBehaviour
 
         switch (piece.UniqueSkill)
         {
+            case UniqueSkillType.JelluSplit:
+                return UseOrValidateJelluSplit(piece, true);
+
             case UniqueSkillType.JelluClone:
                 return UseJelluClone(piece);
 
@@ -1033,7 +1039,7 @@ public class BattleSkillManager : MonoBehaviour
 
             // <변경부분> 젤루 Bishop 고유스킬: 젤루 벽
             case PieceType.Bishop:
-                return UniqueSkillType.JelluWall;
+                return UniqueSkillType.JelluSplit;
         }
 
         return UniqueSkillType.None;
@@ -1044,6 +1050,32 @@ public class BattleSkillManager : MonoBehaviour
     // 같은 진영의 Jellu Pawn 한 기를 생성한다.
     //
     // 주변 빈칸 판정은 BattleMoveValidator를 단일 기준으로 사용한다.
+    private bool UseOrValidateJelluSplit(Piece piece, bool execute)
+    {
+        if (pieceManager == null || battleMoveValidator == null ||
+            !pieceManager.CanSplitJelluPiece(piece) || statusEffectDatabase == null) return false;
+        StatusEffectData attackDisabled = statusEffectDatabase.GetData(StatusEffectType.AttackDisabled);
+        if (attackDisabled == null) return false;
+        battleMoveValidator.FillAdjacentEmptyPositions(piece, adjacentEmptyPositions);
+        if (adjacentEmptyPositions.Count == 0) return false;
+        if (!execute) return true;
+        Vector2Int destination = adjacentEmptyPositions[Random.Range(0, adjacentEmptyPositions.Count)];
+        return pieceManager.TrySplitJelluPiece(piece, destination, attackDisabled);
+    }
+
+    public string GetUniqueSkillFailureMessage(Piece piece, UniqueSkillData data)
+    {
+        if (piece != null && piece.UniqueSkill == UniqueSkillType.JelluSplit && pieceManager != null)
+        {
+            if (!pieceManager.CanCreatePieceForTeam(piece.Team) || pieceManager.GetPieceCount(piece.Team) >= 10)
+                return data.GetLocalizedConditionFailMessage();
+            if (battleMoveValidator != null && !battleMoveValidator.HasAdjacentEmptyPosition(piece))
+                return "\uC778\uC811\uD55C \uBE48\uCE78\uC774 \uC5C6\uC5B4 \uBD84\uC5F4\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.";
+            return BattleUILocalization.GetAbilityFailConditionUnmet();
+        }
+        return data.GetLocalizedConditionFailMessage();
+    }
+
     private bool UseJelluMultiply(
         Piece piece)
     {

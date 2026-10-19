@@ -99,6 +99,18 @@ MonoBehaviour:
     m_Key: unique_skill.king_queen_move.condition_fail
     m_Metadata:
       m_Items: []
+  - m_Id: 16691838908502016
+    m_Key: unique_skill.jellu_split.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691838979805184
+    m_Key: unique_skill.jellu_split.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691838979805185
+    m_Key: unique_skill.jellu_split.condition_fail
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

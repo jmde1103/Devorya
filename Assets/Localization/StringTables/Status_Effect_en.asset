@@ -43,6 +43,15 @@ MonoBehaviour:
       of the same race in an adjacent space.
     m_Metadata:
       m_Items: []
+  - m_Id: 16559834879627264
+    m_Localized: Attack Disabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16559834950930432
+    m_Localized: While [Attack Disabled], cannot make a move that would capture an
+      enemy piece.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

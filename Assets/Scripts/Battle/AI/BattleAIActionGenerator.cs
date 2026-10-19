@@ -212,6 +212,12 @@ public class BattleAIActionGenerator
 
         switch (actingPiece.UniqueSkill)
         {
+            case UniqueSkillType.JelluSplit:
+                if (pieceManager.CanSplitJelluPiece(actingPiece) &&
+                    battleMoveValidator.HasAdjacentEmptyPosition(actingPiece))
+                    results.Add(BattleAIAction.CreateUniqueSkill(actingPiece));
+                break;
+
             case UniqueSkillType.JelluSynthesis:
                 AddJelluSynthesisActions(
                     actingPiece,

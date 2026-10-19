@@ -106,6 +106,18 @@ MonoBehaviour:
     m_Localized: "The conditions are not met, so this skill cannot be used.\u738B\u306E\u899A\u9192"
     m_Metadata:
       m_Items: []
+  - m_Id: 16691838908502016
+    m_Localized: Split
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691838979805184
+    m_Localized: "Remove this piece and create one Jellu [Pawn] on its original square and one on an adjacent empty square. Apply [Attack Disabled] to both created pieces for 1 turn."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691838979805185
+    m_Localized: Split cannot be used because it would exceed the maximum piece capacity.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

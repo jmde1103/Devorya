@@ -1446,6 +1446,52 @@ public class PieceManager : MonoBehaviour
 
     // <변경부분> 증식 스킬로 젤루 Pawn을 생성하는 함수
     // 기존 SpawnPiece 경유 없이 "Jellu Pawn" PieceData 기준으로 직접 생성한다.
+    // Validate all creation dependencies before replacing the source.
+    public bool CanSplitJelluPiece(Piece source)
+    {
+        return source != null && source.Team != PieceTeam.Neutral &&
+            source.HasSpeciesTag(PieceSpeciesTag.Jellu) &&
+            !source.HasStatusEffect(StatusEffectType.ActionDisabled) &&
+            boardManager != null && pieces != null &&
+            GetPieceAt(source.X, source.Y) == source &&
+            pieceDatabase != null && pieceDatabase.GetData("Jellu Pawn") != null &&
+            piecePrefab != null && piecePrefab.GetComponent<Piece>() != null &&
+            boardManager.GetTile(source.X, source.Y) != null &&
+            CanCreatePieceForTeam(source.Team) && GetPieceCount(source.Team) < 10;
+    }
+
+    public bool TrySplitJelluPiece(Piece source, Vector2Int adjacentPosition, StatusEffectData attackDisabled = null)
+    {
+        if (!CanSplitJelluPiece(source) || attackDisabled == null || attackDisabled.effectType != StatusEffectType.AttackDisabled) return false;
+        int dx = Mathf.Abs(adjacentPosition.x - source.X);
+        int dy = Mathf.Abs(adjacentPosition.y - source.Y);
+        Tile destination = boardManager.GetTile(adjacentPosition.x, adjacentPosition.y);
+        if (dx > 1 || dy > 1 || dx + dy == 0 || destination == null ||
+            !IsEmpty(adjacentPosition.x, adjacentPosition.y)) return false;
+
+        int x = source.X, y = source.Y;
+        Vector3 origin = source.transform.position;
+        // Keep the source alive until both replacements exist. Failure restores the board.
+        pieces[x, y] = null;
+        Piece first = SpawnJelluPawn(source.Team, x, y);
+        if (first == null) { pieces[x, y] = source; return false; }
+        Piece second = SpawnJelluPawn(source.Team, adjacentPosition.x, adjacentPosition.y);
+        if (second == null)
+        {
+            RemovePiece(first);
+            pieces[x, y] = source;
+            return false;
+        }
+        // This is a replacement, not a capture: no death stacks or death effects.
+        first.AddStatusEffect(attackDisabled, 1);
+        second.AddStatusEffect(attackDisabled, 1);
+        source.gameObject.SetActive(false);
+        Destroy(source.gameObject);
+        PlaySkillSpawnAnimationFromWorldPosition(first, origin);
+        PlaySkillSpawnAnimationFromWorldPosition(second, origin);
+        return true;
+    }
+
     public Piece SpawnJelluPawn(PieceTeam team, int x, int y)
     {
         // <변경부분> Player / Enemy 진영이 최대 기물 수에 도달했다면 젤루 Pawn 생성 불가

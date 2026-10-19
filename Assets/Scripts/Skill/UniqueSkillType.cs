@@ -18,5 +18,6 @@ public enum UniqueSkillType
     JelluDegeneration,
 
     // <변경부분> 액티브 고유스킬: 물/늪 타일 위에서 사용 시 자신에게 돌파 상태 1턴 부여
-    HornHeadbutt
+    HornHeadbutt,
+    JelluSplit
 }
