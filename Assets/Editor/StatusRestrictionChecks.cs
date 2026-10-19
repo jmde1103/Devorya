@@ -101,7 +101,7 @@ public static class StatusRestrictionChecks
             Set(battle, "currentTurn", BattleTurn.Enemy);
             Call(battle, "UpdateStatusEffectTurnState", false);
             Check(target.HasStatusEffect(StatusEffectType.ActionDisabled), "Survives own turn start");
-            Check(!target.HasStatusEffect(StatusEffectType.Defence), "Existing defence expiry unchanged");
+            Check(target.HasStatusEffect(StatusEffectType.Defence), "Defence survives own turn start");
             Call(battle, "UpdateStatusEffectTurnState", true);
             Check(!target.HasStatusEffect(StatusEffectType.ActionDisabled), "Expires at own turn end");
             Check(actor.HasStatusEffect(StatusEffectType.AttackDisabled), "Other team's status remains");
@@ -122,6 +122,37 @@ public static class StatusRestrictionChecks
             Property(actor, "CanMove", false);
             actor.ReduceActionRestrictionTurnAndRemoveExpired();
             Check(!actor.CanMoveThisTurn, "Expiry preserves inherent immobility");
+            // Duration two must cover two affected-team turn ends, for both teams.
+            foreach (PieceTeam affectedTeam in new[] { PieceTeam.Player, PieceTeam.Enemy })
+            foreach (StatusEffectType effect in new[] { StatusEffectType.Defence, StatusEffectType.Degeneration, StatusEffectType.AttackDisabled, StatusEffectType.ActionDisabled })
+            {
+                Effects(actor).Clear(); Effects(target).Clear();
+                Property(actor, "Team", affectedTeam);
+                Effects(actor).Add(new OwnedStatusEffectData(effect, 2, 1));
+                BattleTurn ownTurn = affectedTeam == PieceTeam.Player ? BattleTurn.Player : BattleTurn.Enemy;
+                BattleTurn otherTurn = ownTurn == BattleTurn.Player ? BattleTurn.Enemy : BattleTurn.Player;
+                Set(battle, "currentTurn", otherTurn);
+                Call(battle, "UpdateStatusEffectTurnState", false);
+                Call(battle, "UpdateStatusEffectTurnState", true);
+                Check(Effects(actor)[0].remainingTurn == 2, "Opponent phases preserve duration");
+                Set(battle, "currentTurn", ownTurn);
+                Call(battle, "UpdateStatusEffectTurnState", false);
+                Check(Effects(actor)[0].remainingTurn == 2, "Own start preserves duration");
+                Call(battle, "UpdateStatusEffectTurnState", true);
+                Check(Effects(actor)[0].remainingTurn == 1, "Own end decrements exactly once");
+                Call(battle, "UpdateStatusEffectTurnState", false);
+                Check(actor.HasStatusEffect(effect), "One remaining turn survives start");
+                Call(battle, "UpdateStatusEffectTurnState", true);
+                Check(!actor.HasStatusEffect(effect), "Second own end expires effect");
+                Effects(actor).Add(new OwnedStatusEffectData(effect, 1, 1));
+                Call(battle, "UpdateStatusEffectTurnState", true);
+                Check(!actor.HasStatusEffect(effect), "One-turn effect applied during own turn expires at its end");
+            }
+            Effects(actor).Add(new OwnedStatusEffectData(StatusEffectType.Breakthrough, 1, 1));
+            Call(battle, "UpdateStatusEffectTurnState", true);
+            Check(actor.HasStatusEffect(StatusEffectType.Breakthrough), "Breakthrough does not tick at turn end");
+            Call(battle, "UpdateStatusEffectTurnState", false);
+            Check(!actor.HasStatusEffect(StatusEffectType.Breakthrough), "Breakthrough retains turn-start expiry");
             string report = "PASS: " + assertions + " assertions; " + cases + " board/type/team cases.\n"
                 + "Assets, player/AI movement, captures, simulation, threats, duration, reapply and base flags verified.\n";
             Directory.CreateDirectory("Logs");

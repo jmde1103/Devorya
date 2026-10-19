@@ -809,8 +809,8 @@ public class Piece : MonoBehaviour
         ReduceStatusEffectTurns(true);
     }
 
-    // Existing effects tick at turn start; restrictions tick at the affected team's turn end.
-    private void ReduceStatusEffectTurns(bool actionRestrictions)
+    // Defence, Degeneration and action restrictions tick at the affected team's turn end.
+    private void ReduceStatusEffectTurns(bool atTurnEnd)
     {
         for (int i = statusEffects.Count - 1;
              i >= 0;
@@ -825,10 +825,12 @@ public class Piece : MonoBehaviour
                 continue;
             }
 
-            bool isActionRestriction =
+            bool expiresAtTurnEnd =
                 statusEffect.effectType == StatusEffectType.AttackDisabled ||
-                statusEffect.effectType == StatusEffectType.ActionDisabled;
-            if (isActionRestriction != actionRestrictions) continue;
+                statusEffect.effectType == StatusEffectType.ActionDisabled ||
+                statusEffect.effectType == StatusEffectType.Defence ||
+                statusEffect.effectType == StatusEffectType.Degeneration;
+            if (expiresAtTurnEnd != atTurnEnd) continue;
 
             statusEffect.remainingTurn--;
 
