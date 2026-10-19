@@ -680,7 +680,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // 이동할 수 없는 기물은 선택 불가
-        if (piece.CanMove == false)
+        if (piece.CanMoveThisTurn == false)
         {
             selectedPiece = null;
 
@@ -1935,7 +1935,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // 이동 불가능한 기물은 행동할 수 없다.
-        if (actingPiece.CanMove == false)
+        if (actingPiece.CanMoveThisTurn == false)
         {
             Debug.LogWarning(
                 $"전투 행동 실행 실패: " +
@@ -5179,6 +5179,8 @@ public class BattleManager : MonoBehaviour
             pieceManager.ClearTemporaryMoveTypes(endingTeam);
         }
 
+        UpdateStatusEffectTurnState(true);
+
         if (currentTurn == BattleTurn.Player)
         {
             currentTurn =
@@ -5288,6 +5290,11 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 턴 시작 시 현재 턴 진영 기물의 상태이상 유지 턴을 감소시키는 함수
     private void UpdateAllStatusEffectTurnState()
     {
+        UpdateStatusEffectTurnState(false);
+    }
+
+    private void UpdateStatusEffectTurnState(bool endingActionRestrictions)
+    {
         // 현재 턴 주체 진영 계산
         PieceTeam currentTurnTeam = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
 
@@ -5315,7 +5322,10 @@ public class BattleManager : MonoBehaviour
                 }
 
                 // 상태이상 턴 감소 및 만료 처리
-                piece.ReduceStatusEffectTurnAndRemoveExpired();
+                if (endingActionRestrictions)
+                    piece.ReduceActionRestrictionTurnAndRemoveExpired();
+                else
+                    piece.ReduceStatusEffectTurnAndRemoveExpired();
             }
         }
     }
@@ -5586,7 +5596,15 @@ public class BattleManager : MonoBehaviour
                     continue;
                 }
 
-                if (piece.CanMove == false)
+                // A temporary restriction can expire; it is not a permanent inability to act.
+                if (piece.CanMove &&
+                    (piece.HasStatusEffect(StatusEffectType.ActionDisabled) ||
+                     piece.HasStatusEffect(StatusEffectType.AttackDisabled)))
+                {
+                    return false;
+                }
+
+                if (piece.CanMoveThisTurn == false)
                 {
                     continue;
                 }

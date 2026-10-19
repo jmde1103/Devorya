@@ -14,5 +14,8 @@ public enum StatusEffectType
 
     // <변경부분> 공격받을 때 기존 Defense 방어 효과를
     // 확정 발동시켜 해당 공격을 무효화하는 상태이상
-    Defence
+    Defence,
+
+    AttackDisabled = 4,
+    ActionDisabled = 5
 }

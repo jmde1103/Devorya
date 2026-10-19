@@ -206,6 +206,10 @@ public class Piece : MonoBehaviour
     // <변경부분> 스테이터스 UI에 표시할 현재 기물 이미지
     private Sprite statusUISprite;
 
+    // Base movement permission stays independent from temporary status effects.
+    public bool CanMoveThisTurn => CanMove && !HasStatusEffect(StatusEffectType.ActionDisabled);
+    public bool CanAttackThisTurn => CanMoveThisTurn && !HasStatusEffect(StatusEffectType.AttackDisabled);
+
     public bool CanMove { get; private set; } // 기물의 소속 진영
     public int X { get; private set; } // 현재 보드 X 좌표
     public int Y { get; private set; } // 현재 보드 Y 좌표
@@ -438,6 +442,8 @@ public class Piece : MonoBehaviour
     // 고유 스킬 사용 가능 여부
     public bool CanUseUniqueSkill()
     {
+        if (HasStatusEffect(StatusEffectType.ActionDisabled)) return false;
+
         // 고유 스킬이 없으면 사용 불가
         if (UniqueSkill == UniqueSkillType.None)
         {
@@ -795,6 +801,17 @@ public class Piece : MonoBehaviour
     // 만료된 상태효과를 제거한 뒤 필드 UI를 갱신한다.
     public void ReduceStatusEffectTurnAndRemoveExpired()
     {
+        ReduceStatusEffectTurns(false);
+    }
+
+    public void ReduceActionRestrictionTurnAndRemoveExpired()
+    {
+        ReduceStatusEffectTurns(true);
+    }
+
+    // Existing effects tick at turn start; restrictions tick at the affected team's turn end.
+    private void ReduceStatusEffectTurns(bool actionRestrictions)
+    {
         for (int i = statusEffects.Count - 1;
              i >= 0;
              i--)
@@ -807,6 +824,11 @@ public class Piece : MonoBehaviour
                 statusEffects.RemoveAt(i);
                 continue;
             }
+
+            bool isActionRestriction =
+                statusEffect.effectType == StatusEffectType.AttackDisabled ||
+                statusEffect.effectType == StatusEffectType.ActionDisabled;
+            if (isActionRestriction != actionRestrictions) continue;
 
             statusEffect.remainingTurn--;
 

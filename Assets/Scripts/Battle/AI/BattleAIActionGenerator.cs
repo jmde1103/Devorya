@@ -92,7 +92,7 @@ public class BattleAIActionGenerator
                 }
 
                 // 이동 불가능한 벽이나 특수 기물은 제외
-                if (actingPiece.CanMove == false)
+                if (actingPiece.CanMoveThisTurn == false)
                 {
                     continue;
                 }

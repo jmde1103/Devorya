@@ -200,7 +200,7 @@ public class BattleMoveValidator : MonoBehaviour
 
         // 이동할 수 없는 벽이나 특수 기물은
         // 이동 및 공격 후보를 생성하지 않는다.
-        if (piece.CanMove == false)
+        if (piece.CanMoveThisTurn == false)
         {
             return;
         }
@@ -433,7 +433,7 @@ public class BattleMoveValidator : MonoBehaviour
                 );
 
             if (targetPiece != null &&
-                piece.IsEnemyOf(targetPiece))
+                (piece.CanAttackThisTurn && piece.IsEnemyOf(targetPiece)))
             {
                 attackPositions.Add(position);
             }
@@ -750,7 +750,7 @@ public class BattleMoveValidator : MonoBehaviour
 
         // 합성 후 공격 기대값은
         // 실제 이동 가능한 기물만 평가한다.
-        if (piece.CanMove == false)
+        if (piece.CanMoveThisTurn == false)
         {
             return attackPositions;
         }
@@ -947,7 +947,7 @@ public class BattleMoveValidator : MonoBehaviour
 
                 // 이동 불가능한 벽 또는 특수 기물은
                 // 현재 전투 규칙상 공격 위협에서 제외한다.
-                if (attacker.CanMove == false)
+                if (attacker.CanAttackThisTurn == false)
                 {
                     continue;
                 }
@@ -1066,7 +1066,7 @@ public class BattleMoveValidator : MonoBehaviour
 
                 // 이동 불가능한 벽이나 특수 기물은
                 // 현재 전투 규칙상 공격 위협으로 계산하지 않는다.
-                if (attacker.CanMove == false)
+                if (attacker.CanAttackThisTurn == false)
                 {
                     continue;
                 }
@@ -1148,7 +1148,7 @@ public class BattleMoveValidator : MonoBehaviour
 
                 // 이동 불가능한 중립 벽과 Special은
                 // 현재 전투 규칙상 공격 위협으로 계산하지 않는다.
-                if (attacker.CanMove == false)
+                if (attacker.CanAttackThisTurn == false)
                 {
                     continue;
                 }
@@ -1241,7 +1241,7 @@ public class BattleMoveValidator : MonoBehaviour
 
                 // 이동 불가능한 벽과 특수 기물은
                 // 현재 전투 규칙상 공격 위협으로 계산하지 않는다.
-                if (attacker.CanMove == false)
+                if (attacker.CanAttackThisTurn == false)
                 {
                     continue;
                 }
@@ -1793,7 +1793,7 @@ public class BattleMoveValidator : MonoBehaviour
                 continue;
             }
 
-            if (piece.IsEnemyOf(targetPiece))
+            if ((piece.CanAttackThisTurn && piece.IsEnemyOf(targetPiece)))
             {
                 results.Add(
                     new Vector2Int(
@@ -1856,7 +1856,7 @@ public class BattleMoveValidator : MonoBehaviour
 
             // 처음 만난 기물이 적대 기물이라면
             // 해당 좌표를 공격 기대값 후보로 추가한다.
-            if (piece.IsEnemyOf(targetPiece))
+            if ((piece.CanAttackThisTurn && piece.IsEnemyOf(targetPiece)))
             {
                 results.Add(
                     new Vector2Int(
@@ -1988,7 +1988,7 @@ public class BattleMoveValidator : MonoBehaviour
             else
             {
                 // 적대 기물이 있는 첫 칸은 공격 가능
-                if (piece.IsEnemyOf(targetPiece))
+                if ((piece.CanAttackThisTurn && piece.IsEnemyOf(targetPiece)))
                 {
                     results.Add(
                         new Vector2Int(
@@ -2127,7 +2127,7 @@ public class BattleMoveValidator : MonoBehaviour
         }
 
         // 적대 기물이 있으면 공격 가능
-        return piece.IsEnemyOf(targetPiece);
+        return (piece.CanAttackThisTurn && piece.IsEnemyOf(targetPiece));
     }
 
     // <변경부분> 특정 좌표에 공격 가능한 기물이 있는지 검사하는 함수
@@ -2142,7 +2142,7 @@ public class BattleMoveValidator : MonoBehaviour
         Piece targetPiece = pieceManager.GetPieceAt(x, y);
 
         // 대상 기물이 있고 적대 관계면 공격 가능
-        return targetPiece != null && piece.IsEnemyOf(targetPiece);
+        return targetPiece != null && (piece.CanAttackThisTurn && piece.IsEnemyOf(targetPiece));
     }
 
     // <변경부분> AI 공용 이동 판정 개발 중
