@@ -19,7 +19,7 @@ MonoBehaviour:
   characterFill:
     enabled: 1
     color: {r: 1, g: 0.79607844, b: 0.8235294, a: 1}
-    intensity: 0.58
+    intensity: 0.3
     falloffIntensity: 0.5
     localPosition: {x: 0, y: 0, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}

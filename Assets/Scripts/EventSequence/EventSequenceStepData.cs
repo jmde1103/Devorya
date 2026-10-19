@@ -104,7 +104,13 @@ public enum EventSequenceStepType
     // Battle Event에서 화면 전체 글리치 효과를 실행한다.
     //
     // 기존 EventScreenGlitchController를 재사용한다.
-    ScreenGlitch = 16
+    ScreenGlitch = 16,
+
+    // <변경부분>
+    // Battle Event Step에서 전투 HUD의 표시 여부를 제어한다.
+    //
+    // 기존 enum 값 0~16은 유지하고 마지막에 추가한다.
+    SetBattleUIVisibility = 17
 }
 
 
@@ -544,11 +550,89 @@ public class EventSequenceStepData
     public float globalLightingFlashStrength =
         0.9f;
 
-    // <변경부분>
-    // 플래시가 밝아졌다 사라지는 전체 시간.
+    // 밝아졌다 사라지는 전체 시간.
     [Min(0f)]
     public float globalLightingFlashDuration =
         0.3f;
+
+
+    // =====================================================
+    // Character Fill
+    // =====================================================
+
+    // <변경부분>
+    // 기존 GlobalLighting Step에서 Character_Fill 조명 사용 여부.
+    // 기존 Asset을 보호하기 위해 기본값은 OFF.
+    [Header("Character Fill")]
+    public bool globalLightingUseCharacterFill =
+        false;
+
+    // <변경부분>
+    // Character_Fill의 목표 색상.
+    public Color globalLightingCharacterFillTargetColor =
+        Color.white;
+
+    // <변경부분>
+    // Character_Fill의 목표 밝기.
+    [Min(0f)]
+    public float globalLightingCharacterFillTargetIntensity =
+        1f;
+
+    // <변경부분>
+    // Character_Fill의 독립적인 페이드 시간.
+    [Min(0f)]
+    public float globalLightingCharacterFillFadeDuration =
+        1f;
+
+
+    // =====================================================
+    // Battle UI Visibility
+    // =====================================================
+
+    [Header("Battle UI Visibility")]
+
+    // <변경부분>
+    // true: EndTimerRoot_Battle의 표시 여부를 변경한다.
+    // false: 기존 표시 상태를 유지한다.
+    public bool battleUIChangeEndTimerRoot =
+        true;
+
+    // <변경부분>
+    // Change End Timer Root가 true일 때 사용.
+    // true = 표시 / false = 숨김.
+    public bool battleUIShowEndTimerRoot =
+        false;
+
+    // <변경부분>
+    // true: GoldRoot의 표시 여부를 변경한다.
+    // false: 기존 표시 상태를 유지한다.
+    public bool battleUIChangeGoldRoot =
+        true;
+
+    // <변경부분>
+    // Change Gold Root가 true일 때 사용.
+    // true = 표시 / false = 숨김.
+    public bool battleUIShowGoldRoot =
+        false;
+
+
+    // =====================================================
+    // Battle UI Fade
+    // =====================================================
+
+    // <변경부분>
+    // UI 표시 / 숨김에 걸리는 시간.
+    // 0이면 즉시 적용한다.
+    // 두 UI를 변경할 경우 동시에 페이드한다.
+    [Min(0f)]
+    public float battleUIFadeDuration =
+        0.3f;
+
+    // <변경부분>
+    // true: 페이드가 모두 끝난 뒤 다음 Step 진행.
+    // false: 페이드를 시작하고 즉시 다음 Step 진행.
+    public bool battleUIWaitForComplete =
+        true;
 
 
     [Header("Wait")]

@@ -2557,6 +2557,51 @@ public class EventSceneDataEditor : Editor
 
                 currentY += 5f;
 
+                // <변경부분>
+                // EventScene에서도 Character_Fill 조명을 독립적으로 제어한다.
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Character Fill",
+                    draw
+                );
+
+                ProcessEventSceneProperties(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    draw,
+                    "globalLightingUseCharacterFill",
+                    "Use Character Fill"
+                );
+
+                SerializedProperty useCharacterFillProperty =
+                    stepProperty.FindPropertyRelative(
+                        "globalLightingUseCharacterFill"
+                    );
+
+                bool useCharacterFill =
+                    useCharacterFillProperty != null &&
+                    useCharacterFillProperty.boolValue;
+
+                if (useCharacterFill)
+                {
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "globalLightingCharacterFillTargetColor",
+                        "Fill Color",
+                        "globalLightingCharacterFillTargetIntensity",
+                        "Fill Intensity",
+                        "globalLightingCharacterFillFadeDuration",
+                        "Fill Fade Duration"
+                    );
+                }
+
+                currentY += 5f;
+
                 ProcessEventSceneSectionLabel(
                     ref currentY,
                     contentRect,
@@ -2595,8 +2640,8 @@ public class EventSceneDataEditor : Editor
                 }
 
                 // <변경부분>
-                // Wait는 두 연출에 공통으로 적용한다.
-                if (useGlobalLight || useScreenFlash)
+                // 세 효과 중 하나라도 활성화되어 있으면 대기 옵션 표시.
+                if (useGlobalLight || useCharacterFill || useScreenFlash)
                 {
                     currentY += 5f;
 
@@ -2612,12 +2657,12 @@ public class EventSceneDataEditor : Editor
                 ProcessEventSceneHelpBox(
                     ref currentY,
                     contentRect,
-                    useGlobalLight || useScreenFlash
-                        ? "Global Light와 Screen Flash는 각각 선택적으로 실행됩니다.\n" +
-                          "Wait For Complete는 활성화된 효과가 모두 끝날 때까지 기다립니다."
-                        : "Global Light와 Screen Flash가 모두 OFF입니다. " +
+                    useGlobalLight || useCharacterFill || useScreenFlash
+                        ? "Global Light, Character Fill, Screen Flash는 각각 선택적으로 실행됩니다.\n" +
+                          "Wait For Complete는 활성화된 모든 효과가 끝날 때까지 기다립니다."
+                        : "Global Light, Character Fill, Screen Flash가 모두 OFF입니다. " +
                           "이 스텝에서는 아무 연출도 실행하지 않습니다.",
-                    useGlobalLight || useScreenFlash
+                    useGlobalLight || useCharacterFill || useScreenFlash
                         ? MessageType.Info
                         : MessageType.None,
                     draw

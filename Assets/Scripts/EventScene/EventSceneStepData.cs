@@ -983,11 +983,39 @@ public class EventSceneStepData
     public float globalLightingFlashStrength =
         0.9f;
 
-    // <변경부분>
     // 밝아졌다 사라지는 전체 시간.
     [Min(0f)]
     public float globalLightingFlashDuration =
         0.3f;
+
+
+    // =====================================================
+    // Character Fill
+    // =====================================================
+
+    // <변경부분>
+    // 기존 GlobalLighting Step에서 Character_Fill 조명 사용 여부.
+    // 기존 Asset을 보호하기 위해 기본값은 OFF.
+    [Header("Character Fill")]
+    public bool globalLightingUseCharacterFill =
+        false;
+
+    // <변경부분>
+    // Character_Fill의 목표 색상.
+    public Color globalLightingCharacterFillTargetColor =
+        Color.white;
+
+    // <변경부분>
+    // Character_Fill의 목표 밝기.
+    [Min(0f)]
+    public float globalLightingCharacterFillTargetIntensity =
+        1f;
+
+    // <변경부분>
+    // Character_Fill의 독립적인 페이드 시간.
+    [Min(0f)]
+    public float globalLightingCharacterFillFadeDuration =
+        1f;
 
 
     [Header("Wait")]

@@ -103,6 +103,23 @@ public class EventSceneSequenceController : MonoBehaviour
     private Color globalLightingBaseColor;
     private float globalLightingBaseIntensity;
 
+    // =====================================================
+    // Character Fill
+    // =====================================================
+
+    // <변경부분>
+    // EventScene의 Character_Fill Light2D를 연결한다.
+    [Header("Character Fill")]
+    [SerializeField]
+    private Light2D characterFillLight;
+
+    // <변경부분>
+    // Global Ambient와 독립적인 페이드 및 초기값 보존.
+    private Coroutine characterFillFadeCoroutine;
+    private bool hasCapturedCharacterFillBase;
+    private Color characterFillBaseColor;
+    private float characterFillBaseIntensity;
+
     // <변경부분>
     // GlobalLighting Step의 화면 전체 색상 플래시.
     // Canvas는 연출할 때만 현재 Scene 안에 생성한다.
@@ -798,6 +815,10 @@ public class EventSceneSequenceController : MonoBehaviour
         Coroutine flashToWait = null;
         Coroutine lightingToWait = null;
 
+        // <변경부분>
+        // Character_Fill은 Global Ambient와 독립적으로 진행된다.
+        Coroutine characterFillToWait = null;
+
         // =====================================================
         // Screen Flash
         // =====================================================
@@ -913,16 +934,95 @@ public class EventSceneSequenceController : MonoBehaviour
         }
 
         // =====================================================
-        // Wait For Complete
+        // Character Fill
         // =====================================================
 
         // <변경부분>
-        // OFF이면 두 효과를 시작하고 다음 스텝으로 넘어간다.
+        // Character_Fill의 ON/OFF와 조명값은
+        // Global Ambient, Screen Flash와 독립적으로 처리한다.
+        if (step.globalLightingUseCharacterFill)
+        {
+            if (characterFillLight == null)
+            {
+                Debug.LogWarning(
+                    "Character Fill 실행 실패: " +
+                    "Character_Fill Light2D가 연결되지 않았습니다.",
+                    this
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // 첫 Character Fill 연출 직전에만 원래 값을 보존한다.
+                if (!hasCapturedCharacterFillBase)
+                {
+                    characterFillBaseColor =
+                        characterFillLight.color;
+
+                    characterFillBaseIntensity =
+                        characterFillLight.intensity;
+
+                    hasCapturedCharacterFillBase = true;
+                }
+
+                // <변경부분>
+                // 이전 페이드가 진행 중이라면 중단한다.
+                // 현재 조명값에서 새 목표로 다시 페이드한다.
+                if (characterFillFadeCoroutine != null)
+                {
+                    StopCoroutine(
+                        characterFillFadeCoroutine
+                    );
+
+                    characterFillFadeCoroutine = null;
+                }
+
+                float fillDuration =
+                    Mathf.Max(
+                        0f,
+                        step.globalLightingCharacterFillFadeDuration
+                    );
+
+                Color fillTargetColor =
+                    step.globalLightingCharacterFillTargetColor;
+
+                float fillTargetIntensity =
+                    Mathf.Max(
+                        0f,
+                        step.globalLightingCharacterFillTargetIntensity
+                    );
+
+                // <변경부분>
+                // Fade Duration이 0이면 즉시 적용한다.
+                if (fillDuration <= 0f)
+                {
+                    characterFillLight.color =
+                        fillTargetColor;
+
+                    characterFillLight.intensity =
+                        fillTargetIntensity;
+                }
+                else
+                {
+                    characterFillFadeCoroutine =
+                        StartCoroutine(
+                            FadeCharacterFillRoutine(
+                                fillTargetColor,
+                                fillTargetIntensity,
+                                fillDuration
+                            )
+                        );
+
+                    characterFillToWait =
+                        characterFillFadeCoroutine;
+                }
+            }
+        }
+
         if (!step.globalLightingWaitForComplete)
         {
             yield break;
         }
-
         // <변경부분>
         // ON이면 실행된 효과들이 끝날 때까지 기다린다.
         if (lightingToWait != null)
@@ -933,6 +1033,13 @@ public class EventSceneSequenceController : MonoBehaviour
         if (flashToWait != null)
         {
             yield return flashToWait;
+        }
+
+        // <변경부분>
+        // Character_Fill 페이드도 완료 대기 대상에 포함한다.
+        if (characterFillToWait != null)
+        {
+            yield return characterFillToWait;
         }
     }
 
@@ -1005,6 +1112,75 @@ public class EventSceneSequenceController : MonoBehaviour
             null;
     }
 
+    // =====================================================
+    // Character Fill Fade
+    // =====================================================
+
+    // <변경부분>
+    // Character_Fill 전용 조명 페이드.
+    //
+    // Global Ambient와 별도의 Coroutine으로 실행되며
+    // Time Scale에 영향받지 않는다.
+    private IEnumerator FadeCharacterFillRoutine(
+        Color targetColor,
+        float targetIntensity,
+        float duration)
+    {
+        if (characterFillLight == null)
+        {
+            characterFillFadeCoroutine = null;
+            yield break;
+        }
+
+        Color startColor =
+            characterFillLight.color;
+
+        float startIntensity =
+            characterFillLight.intensity;
+
+        float elapsed = 0f;
+
+        while (elapsed < duration &&
+               characterFillLight != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(elapsed / duration);
+
+            float easedT =
+                Mathf.SmoothStep(0f, 1f, t);
+
+            characterFillLight.color =
+                Color.Lerp(
+                    startColor,
+                    targetColor,
+                    easedT
+                );
+
+            characterFillLight.intensity =
+                Mathf.Lerp(
+                    startIntensity,
+                    targetIntensity,
+                    easedT
+                );
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // 페이드 종료 시 목표값을 정확히 적용한다.
+        if (characterFillLight != null)
+        {
+            characterFillLight.color =
+                targetColor;
+
+            characterFillLight.intensity =
+                targetIntensity;
+        }
+
+        characterFillFadeCoroutine = null;
+    }
 
     // <변경부분>
     // GlobalLighting의 화면 전체 색상 플래시를 실행한다.
@@ -1198,7 +1374,32 @@ public class EventSceneSequenceController : MonoBehaviour
         }
 
         hasCapturedGlobalLightingBase =
-            false;
+      false;
+
+        // <변경부분>
+        // Character_Fill 페이드 중지.
+        if (characterFillFadeCoroutine != null)
+        {
+            StopCoroutine(
+                characterFillFadeCoroutine
+            );
+
+            characterFillFadeCoroutine = null;
+        }
+
+        // <변경부분>
+        // 연출 시작 전 Character_Fill의 원래 값 복구.
+        if (hasCapturedCharacterFillBase &&
+            characterFillLight != null)
+        {
+            characterFillLight.color =
+                characterFillBaseColor;
+
+            characterFillLight.intensity =
+                characterFillBaseIntensity;
+        }
+
+        hasCapturedCharacterFillBase = false;
     }
 
 
@@ -3343,6 +3544,11 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
         {
             eventScreenGlitchController.StopGlitch();
         }
+
+        // <변경부분>
+        // 강제 종료 시 Global Ambient, Character_Fill,
+        // Screen Flash를 모두 정리하고 원래 조명값을 복구한다.
+        RestoreGlobalLightingImmediately();
 
         // <변경부분>
         // 선택형 전리품창이 열린 상태에서 시퀀스가

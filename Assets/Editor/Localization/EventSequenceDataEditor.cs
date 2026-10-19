@@ -45,6 +45,11 @@ public class EventSequenceDataEditor : Editor
             new Dictionary<int, bool>();
 
     // <변경부분>
+    // ReorderableList 렌더링 중에는 목록을 직접 변경하지 않는다.
+    // 복제 버튼을 누르면 목록 그리기가 끝난 뒤 처리한다.
+    private int pendingDuplicateStepIndex = -1;
+
+    // <변경부분>
     // Event Step Header 한 줄의 높이.
     private const float EventStepHeaderHeight =
         24f;
@@ -200,7 +205,8 @@ public class EventSequenceDataEditor : Editor
                 return
                     EventStepHeaderHeight +
                     GetExpandedEventStepHeight(
-                        stepProperty
+                        stepProperty,
+                        index
                     ) +
                     8f;
             };
@@ -343,9 +349,10 @@ public class EventSequenceDataEditor : Editor
                     );
 
                 DrawExpandedEventStep(
-                    contentRect,
-                    stepProperty
-                );
+       contentRect,
+       stepProperty,
+       index
+   );
             };
 
         // =====================================================
@@ -625,10 +632,47 @@ public class EventSequenceDataEditor : Editor
         EditorGUILayout.Space(3);
 
         eventStepsReorderableList
-            .DoLayoutList();
+     .DoLayoutList();
 
         serializedObject
             .ApplyModifiedProperties();
+
+        // <변경부분>
+        // ReorderableList 렌더링이 끝난 다음 복제를 처리한다.
+        if (pendingDuplicateStepIndex >= 0)
+        {
+            int sourceIndex =
+                pendingDuplicateStepIndex;
+
+            pendingDuplicateStepIndex = -1;
+
+            DuplicateEventSequenceStep(
+                sequenceData,
+                sourceIndex
+            );
+
+            // <변경부분>
+            // Step 개수가 변경되었으므로
+            // SerializedProperty를 다시 동기화한다.
+            serializedObject.Update();
+
+            eventStepsProperty =
+                serializedObject.FindProperty(
+                    "steps"
+                );
+
+            if (eventStepsReorderableList != null)
+            {
+                eventStepsReorderableList.index =
+                    sourceIndex + 1;
+            }
+
+            Repaint();
+
+            // <변경부분>
+            // 현재 GUI Event에서 변경 전 Layout을 재사용하지 않는다.
+            GUIUtility.ExitGUI();
+        }
 
         if (stepCount <= 0)
         {
@@ -650,13 +694,9 @@ public class EventSequenceDataEditor : Editor
         );
     }
 
-    // <변경부분>
-    // 펼쳐진 Battle Event Step의 실제 높이를 계산한다.
-    //
-    // ReorderableList 내부에서는 GUILayout 높이 측정을 사용하지 않고,
-    // 실제로 그릴 EditorGUI Property 높이를 그대로 합산한다.
     private float GetExpandedEventStepHeight(
-        SerializedProperty stepProperty)
+       SerializedProperty stepProperty,
+       int stepIndex)
     {
         Rect measureRect =
             new Rect(
@@ -670,6 +710,7 @@ public class EventSequenceDataEditor : Editor
             ProcessExpandedEventStep(
                 measureRect,
                 stepProperty,
+                stepIndex,
                 false
             );
     }
@@ -680,11 +721,13 @@ public class EventSequenceDataEditor : Editor
     // ReorderableList가 제공한 Rect 내부에 직접 그린다.
     private void DrawExpandedEventStep(
         Rect contentRect,
-        SerializedProperty stepProperty)
+        SerializedProperty stepProperty,
+        int stepIndex)
     {
         ProcessExpandedEventStep(
             contentRect,
             stepProperty,
+            stepIndex,
             true
         );
     }
@@ -702,6 +745,7 @@ public class EventSequenceDataEditor : Editor
     private float ProcessExpandedEventStep(
         Rect contentRect,
         SerializedProperty stepProperty,
+        int stepIndex,
         bool draw)
     {
         float startY =
@@ -1299,6 +1343,151 @@ public class EventSequenceDataEditor : Editor
                 break;
 
 
+            // =====================================================
+            // Battle UI Visibility
+            // =====================================================
+
+            // <변경부분>
+            // EndTimerRoot_Battle과 GoldRoot를 각각 제어한다.
+            case EventSequenceStepType.SetBattleUIVisibility:
+
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "End Timer Root",
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "battleUIChangeEndTimerRoot",
+                    "Change End Timer Root",
+                    false,
+                    draw
+                );
+
+                SerializedProperty changeEndTimerProperty =
+                    stepProperty.FindPropertyRelative(
+                        "battleUIChangeEndTimerRoot"
+                    );
+
+                bool changeEndTimer =
+                    changeEndTimerProperty != null &&
+                    changeEndTimerProperty.boolValue;
+
+                if (changeEndTimer)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIShowEndTimerRoot",
+                        "Show End Timer Root",
+                        false,
+                        draw
+                    );
+                }
+
+                currentY += 6f;
+
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Gold Root",
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "battleUIChangeGoldRoot",
+                    "Change Gold Root",
+                    false,
+                    draw
+                );
+
+                SerializedProperty changeGoldProperty =
+                    stepProperty.FindPropertyRelative(
+                        "battleUIChangeGoldRoot"
+                    );
+
+                bool changeGold =
+                    changeGoldProperty != null &&
+                    changeGoldProperty.boolValue;
+
+                if (changeGold)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIShowGoldRoot",
+                        "Show Gold Root",
+                        false,
+                        draw
+                    );
+                }
+
+                currentY += 6f;
+
+                // =================================================
+                // UI Fade
+                // =================================================
+
+                // <변경부분>
+                // 두 UI 중 하나라도 변경하는 경우에만
+                // Fade 옵션을 표시한다.
+                if (changeEndTimer || changeGold)
+                {
+                    ProcessEventStepSectionLabel(
+                        ref currentY,
+                        contentRect,
+                        "UI Fade",
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIFadeDuration",
+                        "Fade Duration",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIWaitForComplete",
+                        "Wait For Complete",
+                        false,
+                        draw
+                    );
+                }
+
+                currentY += 6f;
+
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "Change OFF: 현재 UI 상태 유지.\n" +
+                    "Show OFF: Fade Out / Show ON: Fade In.\n" +
+                    "Fade Duration이 0이면 즉시 전환합니다.\n" +
+                    "Wait For Complete를 켜면 페이드 완료 후 진행합니다.\n" +
+                    "시퀀스 종료 또는 중단 시 최초 상태로 복구합니다.",
+                    MessageType.Info,
+                    5,
+                    draw
+                );
+
+                break;
+
+
             // <변경부분>
             // 보상 팝업을 표시한 뒤에도
             // 다음 Event Step으로 진행하는 전용 Step.
@@ -1466,6 +1655,74 @@ public class EventSequenceDataEditor : Editor
 
                 currentY += 5f;
 
+                // =================================================
+                // Character Fill
+                // =================================================
+
+                // <변경부분>
+                // Character_Fill 사용 여부를 독립적으로 설정한다.
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Character Fill",
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "globalLightingUseCharacterFill",
+                    "Use Character Fill",
+                    false,
+                    draw
+                );
+
+                SerializedProperty useCharacterFillProperty =
+                    stepProperty.FindPropertyRelative(
+                        "globalLightingUseCharacterFill"
+                    );
+
+                bool useCharacterFill =
+                    useCharacterFillProperty != null &&
+                    useCharacterFillProperty.boolValue;
+
+                // <변경부분>
+                // 체크박스가 ON일 때만 색상, 밝기, 페이드 시간을 표시한다.
+                if (useCharacterFill)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingCharacterFillTargetColor",
+                        "Fill Color",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingCharacterFillTargetIntensity",
+                        "Fill Intensity",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingCharacterFillFadeDuration",
+                        "Fill Fade Duration",
+                        false,
+                        draw
+                    );
+                }
+
+                currentY += 5f;
 
                 // =================================================
                 // Screen Flash
@@ -1545,7 +1802,7 @@ public class EventSequenceDataEditor : Editor
                 // Wait For Complete를 표시한다.
                 //
                 // 실제 대기 처리는 다음 런타임 작업에서 구현한다.
-                if (useGlobalLight || useScreenFlash)
+                if (useGlobalLight || useCharacterFill || useScreenFlash)
                 {
                     currentY += 5f;
 
@@ -1561,16 +1818,16 @@ public class EventSequenceDataEditor : Editor
                 }
 
                 // <변경부분>
-                // ON/OFF 상태에 따라 안내 문구를 변경한다.
+                // 세 효과의 ON/OFF 상태를 모두 반영한다.
                 ProcessEventStepHelpBox(
                     ref currentY,
                     contentRect,
-                    useGlobalLight || useScreenFlash
-                        ? "Global Light와 Screen Flash는 각각 선택적으로 실행됩니다.\n" +
-                          "Wait For Complete는 활성화된 효과가 모두 끝날 때까지 기다립니다."
-                        : "Global Light와 Screen Flash가 모두 OFF입니다. " +
+                    useGlobalLight || useCharacterFill || useScreenFlash
+                        ? "Global Light, Character Fill, Screen Flash는 각각 선택적으로 실행됩니다.\n" +
+                          "Wait For Complete는 활성화된 모든 효과가 끝날 때까지 기다립니다."
+                        : "Global Light, Character Fill, Screen Flash가 모두 OFF입니다. " +
                           "이 Step에서는 아무 연출도 실행하지 않습니다.",
-                    useGlobalLight || useScreenFlash
+                    useGlobalLight || useCharacterFill || useScreenFlash
                         ? MessageType.Info
                         : MessageType.None,
                     3,
@@ -1580,11 +1837,69 @@ public class EventSequenceDataEditor : Editor
                 break;
         }
 
+        // <변경부분>
+        // 펼쳐진 모든 Battle Event Step의 맨 아래에
+        // 현재 Step을 복제하는 버튼을 표시한다.
+        //
+        // 높이 계산과 실제 그리기에 동일한 함수를 사용한다.
+        currentY += 8f;
+
+        if (ProcessEventStepButton(
+                ref currentY,
+                contentRect,
+                "Duplicate Step Below",
+                draw))
+        {
+            // <변경부분>
+            // ReorderableList Draw 중에는 Insert하지 않고
+            // 목록 그리기가 끝난 뒤 처리하도록 예약한다.
+            pendingDuplicateStepIndex =
+                stepIndex;
+        }
+
         return
             Mathf.Max(
                 40f,
                 currentY - startY
             );
+    }
+
+
+    // <변경부분>
+    // Rect 기반 Button.
+    // 높이 계산과 실제 GUI 출력을 함께 처리한다.
+    private bool ProcessEventStepButton(
+        ref float currentY,
+        Rect contentRect,
+        string label,
+        bool draw)
+    {
+        float buttonHeight =
+            EditorGUIUtility.singleLineHeight +
+            2f;
+
+        bool clicked =
+            false;
+
+        if (draw)
+        {
+            clicked =
+                GUI.Button(
+                    new Rect(
+                        contentRect.x,
+                        currentY,
+                        contentRect.width,
+                        buttonHeight
+                    ),
+                    label
+                );
+        }
+
+        currentY +=
+            buttonHeight +
+            EditorGUIUtility.standardVerticalSpacing;
+
+        return clicked;
     }
 
 
@@ -1899,8 +2214,404 @@ public class EventSequenceDataEditor : Editor
         );
 
         EditorUtility.SetDirty(
+      sequenceData
+  );
+    }
+
+
+    // =====================================================
+    // Duplicate Event Step
+    // =====================================================
+
+    // <변경부분>
+    // 현재 Battle Event Step을 복제해 원본 바로 아래에 삽입한다.
+    //
+    // Unity Asset 참조는 유지하고
+    // List와 중첩 Serializable 데이터는 독립적으로 복사한다.
+    private void DuplicateEventSequenceStep(
+        EventSequenceData sequenceData,
+        int sourceIndex)
+    {
+        if (sequenceData == null ||
+            sequenceData.steps == null ||
+            sourceIndex < 0 ||
+            sourceIndex >= sequenceData.steps.Count)
+        {
+            return;
+        }
+
+        EventSequenceStepData source =
+            sequenceData.steps[sourceIndex];
+
+        if (source == null)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 복제 작업 전체를 Undo로 되돌릴 수 있도록 기록한다.
+        Undo.RecordObject(
+            sequenceData,
+            "Duplicate Event Sequence Step"
+        );
+
+        // <변경부분>
+        // Unity 직렬화를 사용한 깊은 복사.
+        // 원본 Step의 모든 설정값을 유지한다.
+        EventSequenceStepData copy =
+            new EventSequenceStepData();
+
+        EditorJsonUtility.FromJsonOverwrite(
+            EditorJsonUtility.ToJson(source),
+            copy
+        );
+
+        // =================================================
+        // Localization ID
+        // =================================================
+
+        // <변경부분>
+        // 복제본은 원본과 다른 Localization ID를 가져야 한다.
+        copy.dialogueLocalizationId =
+            CreateStableId("dialogue");
+
+        copy.speechBubbleLocalizationId =
+            CreateStableId("speech");
+
+        // <변경부분>
+        // Dialogue 페이지 수와 Localization Metadata 수를 맞춘다.
+        if (copy.stepType ==
+            EventSequenceStepType.Dialogue)
+        {
+            EnsureStepLocalizationMetadata(
+                copy
+            );
+        }
+
+        // <변경부분>
+        // 복제한 Dialogue Page마다 새로운 Stable ID를 생성한다.
+        if (copy.dialogueLocalizationPages != null)
+        {
+            foreach (
+                EventDialoguePageLocalizationData page
+                in copy.dialogueLocalizationPages)
+            {
+                if (page == null)
+                {
+                    continue;
+                }
+
+                page.localizationId =
+                    CreateStableId("page");
+
+                page.localizedText =
+                    new LocalizedString();
+            }
+        }
+
+        // <변경부분>
+        // SpeechBubble도 기존 Localization Reference를 공유하지 않는다.
+        copy.speechBubbleLocalizedText =
+            new LocalizedString();
+
+
+        // =================================================
+        // Localization Table Copy
+        // =================================================
+
+        StringTableCollection collection =
+            DevoryaLocalizationEditorUtility
+                .GetStringTableCollection(
+                    TableCollectionName
+                );
+
+        bool canCopyLocalization =
+            collection != null &&
+            !string.IsNullOrWhiteSpace(
+                sequenceData.localizationId
+            );
+
+        if (canCopyLocalization)
+        {
+            if (collection.SharedData != null)
+            {
+                Undo.RecordObject(
+                    collection.SharedData,
+                    "Duplicate Event Sequence Localization Keys"
+                );
+            }
+
+            // <변경부분>
+            // Dialogue의 페이지별 KR / EN / JA 번역값을
+            // 새로운 Localization Key로 복사한다.
+            if (copy.stepType ==
+                    EventSequenceStepType.Dialogue &&
+                copy.dialoguePages != null)
+            {
+                for (int i = 0;
+                     i < copy.dialoguePages.Count;
+                     i++)
+                {
+                    EventDialoguePageLocalizationData sourcePage =
+                        GetPageLocalizationData(
+                            source,
+                            i
+                        );
+
+                    EventDialoguePageLocalizationData targetPage =
+                        GetPageLocalizationData(
+                            copy,
+                            i
+                        );
+
+                    if (targetPage == null)
+                    {
+                        continue;
+                    }
+
+                    string oldKey =
+                        GetPageKey(
+                            sequenceData,
+                            source,
+                            sourcePage
+                        );
+
+                    string newKey =
+                        GetPageKey(
+                            sequenceData,
+                            copy,
+                            targetPage
+                        );
+
+                    CopyEventSequenceTranslationValues(
+                        collection,
+                        oldKey,
+                        newKey,
+                        copy.dialoguePages[i]
+                    );
+
+                    targetPage.localizedText =
+                        DevoryaLocalizationEditorUtility
+                            .CreateLocalizedStringReference(
+                                collection,
+                                newKey
+                            );
+                }
+            }
+
+            // <변경부분>
+            // SpeechBubble의 KR / EN / JA 번역도
+            // 새 Localization Key로 독립 복사한다.
+            else if (copy.stepType ==
+                     EventSequenceStepType.SpeechBubble)
+            {
+                string oldKey =
+                    GetSpeechBubbleKey(
+                        sequenceData,
+                        source
+                    );
+
+                string newKey =
+                    GetSpeechBubbleKey(
+                        sequenceData,
+                        copy
+                    );
+
+                CopyEventSequenceTranslationValues(
+                    collection,
+                    oldKey,
+                    newKey,
+                    copy.speechBubbleText
+                );
+
+                copy.speechBubbleLocalizedText =
+                    DevoryaLocalizationEditorUtility
+                        .CreateLocalizedStringReference(
+                            collection,
+                            newKey
+                        );
+            }
+        }
+
+
+        // =================================================
+        // Insert Step
+        // =================================================
+
+        // <변경부분>
+        // 원본 바로 아래에 복제된 Step을 삽입한다.
+        sequenceData.steps.Insert(
+            sourceIndex + 1,
+            copy
+        );
+
+        // <변경부분>
+        // 기존 Foldout 상태를 보존하면서
+        // 새로 복제한 Step은 펼쳐진 상태로 만든다.
+        ShiftEventSequenceFoldoutsAfterDuplicate(
+            sourceIndex
+        );
+
+        EditorUtility.SetDirty(
             sequenceData
         );
+
+        if (canCopyLocalization)
+        {
+            if (collection.SharedData != null)
+            {
+                EditorUtility.SetDirty(
+                    collection.SharedData
+                );
+            }
+
+            AssetDatabase.SaveAssets();
+        }
+    }
+
+
+    // =====================================================
+    // Duplicate Foldout Handling
+    // =====================================================
+
+    // <변경부분>
+    // Step이 삽입되면 기존 Index 기반 Foldout 상태를 이동한다.
+    private void ShiftEventSequenceFoldoutsAfterDuplicate(
+        int sourceIndex)
+    {
+        Dictionary<int, bool> shiftedSteps =
+            new Dictionary<int, bool>();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in eventStepFoldouts)
+        {
+            int newIndex =
+                entry.Key > sourceIndex
+                    ? entry.Key + 1
+                    : entry.Key;
+
+            shiftedSteps[newIndex] =
+                entry.Value;
+        }
+
+        eventStepFoldouts.Clear();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in shiftedSteps)
+        {
+            eventStepFoldouts[entry.Key] =
+                entry.Value;
+        }
+
+        eventStepFoldouts[sourceIndex + 1] =
+            true;
+
+        // <변경부분>
+        // Dialogue / SpeechBubble Localization 영역도
+        // Step Index를 사용하므로 함께 이동시킨다.
+        Dictionary<int, bool> shiftedDialogues =
+            new Dictionary<int, bool>();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in dialogueStepFoldouts)
+        {
+            int newIndex =
+                entry.Key > sourceIndex
+                    ? entry.Key + 1
+                    : entry.Key;
+
+            shiftedDialogues[newIndex] =
+                entry.Value;
+        }
+
+        dialogueStepFoldouts.Clear();
+
+        foreach (
+            KeyValuePair<int, bool> entry
+            in shiftedDialogues)
+        {
+            dialogueStepFoldouts[entry.Key] =
+                entry.Value;
+        }
+    }
+
+
+    // =====================================================
+    // Duplicate Localization
+    // =====================================================
+
+    // <변경부분>
+    // 원본 Localization Table의 한국어 / 영어 / 일본어 값을
+    // 복제 Step의 새로운 Key로 독립 복사한다.
+    //
+    // 기존 번역 Key와 값은 절대 변경하지 않는다.
+    private void CopyEventSequenceTranslationValues(
+        StringTableCollection collection,
+        string sourceKey,
+        string targetKey,
+        string koreanFallback)
+    {
+        if (collection == null ||
+            string.IsNullOrWhiteSpace(targetKey))
+        {
+            return;
+        }
+
+        string[] localeCodes =
+        {
+            "ko",
+            "en",
+            "ja"
+        };
+
+        foreach (string localeCode in localeCodes)
+        {
+            StringTable table =
+                collection.GetTable(localeCode)
+                    as StringTable;
+
+            if (table == null)
+            {
+                continue;
+            }
+
+            StringTableEntry sourceEntry =
+                string.IsNullOrWhiteSpace(sourceKey)
+                    ? null
+                    : table.GetEntry(sourceKey);
+
+            // <변경부분>
+            // EN / JA 번역이 없다면 임의의 번역문을 생성하지 않는다.
+            if (sourceEntry == null &&
+                localeCode != "ko")
+            {
+                continue;
+            }
+
+            string copiedValue =
+                sourceEntry != null
+                    ? sourceEntry.LocalizedValue
+                    : koreanFallback ?? string.Empty;
+
+            Undo.RecordObject(
+                table,
+                "Duplicate Event Sequence Translation"
+            );
+
+            DevoryaLocalizationEditorUtility
+                .SetTableValue(
+                    table,
+                    targetKey,
+                    copiedValue
+                );
+
+            EditorUtility.SetDirty(
+                table
+            );
+        }
     }
 
 

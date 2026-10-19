@@ -21,8 +21,584 @@ MonoBehaviour:
   pauseEnemyAIWhileSequenceActive: 1
   skipNormalPlayerDeployment: 1
   steps:
+  - stepName: "UI\uC228\uAE30\uAE30"
+    stepType: 17
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_cbbf1b50
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_42984987
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.4
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.01
+    battleUIWaitForComplete: 0
+    waitDuration: 0.5
   - stepName: 
-    stepType: 0
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_02315128
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_23ddf353
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.4
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uBC18\uC9DD"
+    stepType: 15
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.5
+    globalLightingFlashDuration: 0.1
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_d60e74be
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_b2761691
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.4
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uBC18\uC9DD"
+    stepType: 15
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_66f0a27b
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_4b0ec0f3
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.5
+    globalLightingFlashDuration: 0.1
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_215127a3
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_18116e0f
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.4
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uBC18\uC9DD"
+    stepType: 15
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_c5b3ca17
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_b08c8bbd
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.5
+    globalLightingFlashDuration: 0.1
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uBC18\uC9DD"
+    stepType: 15
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_331e1512
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_a83f3358
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 0
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 1
+    globalLightingFlashColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingFlashStrength: 0.5
+    globalLightingFlashDuration: 0.1
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uC870\uBA85 \uBCC0\uD654"
+    stepType: 15
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
@@ -74,14 +650,24 @@ MonoBehaviour:
     screenGlitchDuration: 0.4
     screenGlitchWaitForComplete: 1
     globalLightingUseGlobalLight: 1
-    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
-    globalLightingTargetIntensity: 1
+    globalLightingTargetColor: {r: 0.7647059, g: 0.8352941, b: 1, a: 1}
+    globalLightingTargetIntensity: 0.85
     globalLightingFadeDuration: 1
-    globalLightingWaitForComplete: 1
+    globalLightingWaitForComplete: 0
     globalLightingUseScreenFlash: 0
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 1
+    globalLightingCharacterFillTargetColor: {r: 1, g: 0.79607844, b: 0.8235294, a: 1}
+    globalLightingCharacterFillTargetIntensity: 0.58
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0.5
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
     stepType: 5
@@ -148,6 +734,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD14C\uC2A4\uD2B8 \uC2DC\uC791"
     stepType: 1
@@ -234,6 +830,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -300,6 +906,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB8E9 \uC0DD\uC131"
     stepType: 5
@@ -366,6 +982,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC0DD\uC131"
     stepType: 5
@@ -432,6 +1058,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC0DD\uC131"
     stepType: 5
@@ -498,6 +1134,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBD84\uC5F4\uCCB4 \uC124\uBA85"
     stepType: 1
@@ -586,6 +1232,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC124\uBA85"
     stepType: 1
@@ -659,6 +1315,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD"
     stepType: 2
@@ -722,6 +1388,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC124\uBA85"
     stepType: 1
@@ -796,6 +1472,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB8E9 \uC124\uBA85"
     stepType: 1
@@ -869,6 +1555,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB8E9 \uC120\uD0DD"
     stepType: 2
@@ -932,6 +1628,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB8E9 \uC124\uBA85"
     stepType: 1
@@ -1006,6 +1712,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
     stepType: 1
@@ -1079,6 +1795,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
@@ -1142,6 +1868,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
     stepType: 1
@@ -1216,6 +1952,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC124\uBA85"
     stepType: 1
@@ -1289,6 +2035,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC120\uD0DD"
     stepType: 2
@@ -1352,6 +2108,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC124\uBA85"
     stepType: 1
@@ -1426,6 +2192,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -1490,6 +2266,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -1554,6 +2340,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -1618,6 +2414,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
@@ -1682,6 +2488,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -1755,6 +2571,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD"
     stepType: 2
@@ -1818,6 +2644,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -1893,6 +2729,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -1956,6 +2802,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -2031,6 +2887,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
@@ -2096,6 +2962,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -2159,6 +3035,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uC131\uACF5"
     stepType: 1
@@ -2233,6 +3119,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC120\uD0DD"
     stepType: 2
@@ -2297,6 +3193,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC124\uBA85"
     stepType: 1
@@ -2385,6 +3291,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -2449,6 +3365,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uB8E9 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -2545,6 +3471,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB8E9 \uC120\uD0DD"
     stepType: 2
@@ -2608,6 +3544,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -2671,6 +3617,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
@@ -2734,6 +3690,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -2797,6 +3763,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -2861,6 +3837,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 5
   - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -2958,6 +3944,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
@@ -3021,6 +4017,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -3084,6 +4090,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
@@ -3147,6 +4163,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -3210,6 +4236,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -3274,6 +4310,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 5
   - stepName: "\uBE44\uC20D \uC120\uD0DD \uC124\uBA85"
     stepType: 1
@@ -3359,6 +4405,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uBE44\uC20D \uC120\uD0DD"
     stepType: 2
@@ -3422,6 +4478,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -3485,6 +4551,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC77C\uBC18 \uACF5\uACA9"
     stepType: 1
@@ -3559,6 +4635,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
@@ -3622,6 +4708,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0
   - stepName: Wait
     stepType: 7
@@ -3686,6 +4782,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 2
   - stepName: "\uC77C\uBC18 \uACF5\uACA9 \uC131\uACF5"
     stepType: 1
@@ -3759,6 +4865,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
@@ -3822,6 +4938,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
@@ -3885,6 +5011,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
@@ -3948,6 +5084,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
@@ -4011,6 +5157,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uD0B9 \uC0DD\uC131"
     stepType: 5
@@ -4074,6 +5230,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC2B9\uB9AC\uC870\uAC74"
     stepType: 1
@@ -4160,6 +5326,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uD0B9 \uC120\uD0DD"
     stepType: 2
@@ -4226,6 +5402,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
     stepType: 3
@@ -4292,6 +5478,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uD0B9 \uD761\uC218 \uC124\uBA85"
     stepType: 1
@@ -4377,6 +5573,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uD0B9\uD761\uC218"
     stepType: 4
@@ -4444,6 +5650,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
     stepType: 3
@@ -4510,6 +5726,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: 
     stepType: 7
@@ -4572,6 +5798,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 5
   - stepName: " \uB9AC\uC6CC\uB450\uCD9C\uB825"
     stepType: 14
@@ -4634,6 +5870,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0.5
   - stepName: "\uBCF4\uC0C1 \uC124\uBA85"
     stepType: 1
@@ -4709,6 +5955,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 0.5
   - stepName: 
     stepType: 7
@@ -4771,6 +6027,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 3
   - stepName: "\uC804\uD22C\uC2B9\uB9AC \uBCF4\uC0C1"
     stepType: 1
@@ -4845,6 +6111,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC624\uB958 \uBC1C\uC0DD"
     stepType: 1
@@ -4932,6 +6208,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   - stepName: "\uC804\uD22C\uC2B9\uB9AC"
     stepType: 8
@@ -4997,6 +6283,16 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
     waitDuration: 1
   completionType: 2
   completionSceneName: TextCutsceneScene

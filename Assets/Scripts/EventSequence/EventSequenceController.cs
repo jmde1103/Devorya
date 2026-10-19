@@ -49,6 +49,372 @@ public class EventSequenceController : MonoBehaviour
     [SerializeField]
     private EventMarkerUI eventMarkerUI;
 
+
+    // =====================================================
+    // Battle UI Visibility
+    // =====================================================
+
+    [Header("Battle UI Visibility")]
+
+    // <변경부분>
+    // EndTimerRoot_Battle 오브젝트의 CanvasGroup.
+    // UI만 숨기고 타이머 관련 컴포넌트는 활성 상태로 유지한다.
+    [SerializeField]
+    private CanvasGroup endTimerRootBattleCanvasGroup;
+
+    // <변경부분>
+    // GoldRoot 오브젝트의 CanvasGroup.
+    [SerializeField]
+    private CanvasGroup goldRootCanvasGroup;
+
+    // <변경부분>
+    // 이벤트 시작 전 UI 상태를 보관한다.
+    // 숨김, 표시를 여러 번 실행해도 최초 상태는 유지한다.
+    private sealed class BattleUIVisibilityState
+    {
+        public float alpha;
+        public bool interactable;
+        public bool blocksRaycasts;
+    }
+
+    private readonly Dictionary<CanvasGroup, BattleUIVisibilityState>
+      battleUIVisibilityStates =
+          new Dictionary<CanvasGroup, BattleUIVisibilityState>();
+
+    // <변경부분>
+    // EndTimerRoot_Battle과 GoldRoot의 Fade Coroutine을
+    // 각각 독립적으로 관리한다.
+    //
+    // 진행 중 반대 방향의 페이드가 요청되면
+    // 이전 Coroutine을 중단하고 현재 Alpha에서 다시 시작한다.
+    private readonly Dictionary<CanvasGroup, Coroutine>
+        battleUIFadeCoroutines =
+            new Dictionary<CanvasGroup, Coroutine>();
+
+
+    // =====================================================
+    // Battle UI Visibility
+    // =====================================================
+
+    // <변경부분>
+    // 두 UI의 Fade를 동시에 시작하고
+    // Wait For Complete 설정에 따라 완료까지 대기한다.
+    private IEnumerator ExecuteSetBattleUIVisibilityStepRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        float fadeDuration =
+            Mathf.Max(0f, step.battleUIFadeDuration);
+
+        Coroutine endTimerFade = null;
+        Coroutine goldFade = null;
+
+        // <변경부분>
+        // EndTimerRoot_Battle을 변경하도록 설정한 경우에만 실행.
+        if (step.battleUIChangeEndTimerRoot)
+        {
+            endTimerFade =
+                SetBattleUIGroupVisibility(
+                    endTimerRootBattleCanvasGroup,
+                    step.battleUIShowEndTimerRoot,
+                    fadeDuration,
+                    "EndTimerRoot_Battle"
+                );
+        }
+
+        // <변경부분>
+        // GoldRoot를 변경하도록 설정한 경우에만 실행.
+        if (step.battleUIChangeGoldRoot)
+        {
+            goldFade =
+                SetBattleUIGroupVisibility(
+                    goldRootCanvasGroup,
+                    step.battleUIShowGoldRoot,
+                    fadeDuration,
+                    "GoldRoot"
+                );
+        }
+
+        // <변경부분>
+        // 두 Fade는 이미 동시에 시작된 상태다.
+        // 기다리지 않는 경우 다음 Step으로 즉시 진행한다.
+        if (!step.battleUIWaitForComplete)
+        {
+            yield break;
+        }
+
+        if (endTimerFade != null)
+        {
+            yield return endTimerFade;
+        }
+
+        if (goldFade != null)
+        {
+            yield return goldFade;
+        }
+    }
+
+
+    // <변경부분>
+    // 현재 Alpha에서 목표 Alpha까지 Fade를 시작한다.
+    //
+    // 기존 CanvasGroup의 초기 설정을 한 번만 저장하고,
+    // 같은 UI에 새로운 요청이 오면 이전 Fade를 중단한다.
+    private Coroutine SetBattleUIGroupVisibility(
+        CanvasGroup targetGroup,
+        bool visible,
+        float fadeDuration,
+        string rootName)
+    {
+        if (targetGroup == null)
+        {
+            Debug.LogWarning(
+                "Battle UI Visibility 실행 실패: " +
+                $"{rootName} CanvasGroup이 연결되지 않았습니다.",
+                this
+            );
+
+            return null;
+        }
+
+        // =================================================
+        // Initial State
+        // =================================================
+
+        BattleUIVisibilityState originalState;
+
+        if (!battleUIVisibilityStates.TryGetValue(
+                targetGroup,
+                out originalState))
+        {
+            originalState =
+                new BattleUIVisibilityState
+                {
+                    alpha = targetGroup.alpha,
+                    interactable = targetGroup.interactable,
+                    blocksRaycasts = targetGroup.blocksRaycasts
+                };
+
+            battleUIVisibilityStates.Add(
+                targetGroup,
+                originalState
+            );
+        }
+
+        // =================================================
+        // Stop Previous Fade
+        // =================================================
+
+        Coroutine previousFade;
+
+        if (battleUIFadeCoroutines.TryGetValue(
+                targetGroup,
+                out previousFade))
+        {
+            if (previousFade != null)
+            {
+                StopCoroutine(previousFade);
+            }
+
+            battleUIFadeCoroutines.Remove(
+                targetGroup
+            );
+        }
+
+        float targetAlpha =
+            visible ? 1f : 0f;
+
+        // =================================================
+        // Immediate
+        // =================================================
+
+        // <변경부분>
+        // Duration이 0이거나 이미 목표 Alpha라면 즉시 완료.
+        if (fadeDuration <= 0f ||
+            Mathf.Approximately(
+                targetGroup.alpha,
+                targetAlpha
+            ))
+        {
+            targetGroup.alpha =
+                targetAlpha;
+
+            targetGroup.interactable =
+                visible && originalState.interactable;
+
+            targetGroup.blocksRaycasts =
+                visible && originalState.blocksRaycasts;
+
+            return null;
+        }
+
+        // =================================================
+        // Fade
+        // =================================================
+
+        // <변경부분>
+        // 페이드 중에는 투명한 UI가 입력을 가로채거나
+        // 아직 나타나지 않은 버튼이 클릭되지 않도록 한다.
+        // 완전히 표시된 다음 원래 입력 설정을 복구한다.
+        targetGroup.interactable = false;
+        targetGroup.blocksRaycasts = false;
+
+        Coroutine fadeCoroutine =
+            StartCoroutine(
+                FadeBattleUIGroupRoutine(
+                    targetGroup,
+                    targetAlpha,
+                    fadeDuration,
+                    visible,
+                    originalState
+                )
+            );
+
+        battleUIFadeCoroutines[targetGroup] =
+            fadeCoroutine;
+
+        return fadeCoroutine;
+    }
+
+
+    // =====================================================
+    // Battle UI Fade Coroutine
+    // =====================================================
+
+    // <변경부분>
+    // 현재 CanvasGroup Alpha에서 목표 Alpha까지
+    // SmoothStep 보간으로 자연스럽게 전환한다.
+    //
+    // Fade Out: 현재 Alpha -> 0
+    // Fade In : 현재 Alpha -> 1
+    //
+    // Time.unscaledDeltaTime을 사용하므로
+    // 전투 Time Scale이 변경되어도 일정한 속도로 진행한다.
+    private IEnumerator FadeBattleUIGroupRoutine(
+        CanvasGroup targetGroup,
+        float targetAlpha,
+        float duration,
+        bool visible,
+        BattleUIVisibilityState originalState)
+    {
+        if (targetGroup == null)
+        {
+            yield break;
+        }
+
+        float startAlpha =
+            targetGroup.alpha;
+
+        float elapsed =
+            0f;
+
+        while (elapsed < duration &&
+               targetGroup != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(
+                    elapsed / duration
+                );
+
+            float easedT =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    t
+                );
+
+            targetGroup.alpha =
+                Mathf.Lerp(
+                    startAlpha,
+                    targetAlpha,
+                    easedT
+                );
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // Fade 종료 시 최종 Alpha를 정확히 적용한다.
+        if (targetGroup != null)
+        {
+            targetGroup.alpha =
+                targetAlpha;
+
+            // <변경부분>
+            // Fade In 완료 후 원래 UI 입력 설정을 복구한다.
+            // Fade Out 완료 후에는 입력을 차단한 상태를 유지한다.
+            targetGroup.interactable =
+                visible && originalState.interactable;
+
+            targetGroup.blocksRaycasts =
+                visible && originalState.blocksRaycasts;
+        }
+
+        // <변경부분>
+        // 완료된 Coroutine 관리 정보를 제거한다.
+        battleUIFadeCoroutines.Remove(
+            targetGroup
+        );
+    }
+
+
+    private void RestoreBattleUIVisibilityImmediately()
+    {
+        // <변경부분>
+        // 복구 전에 진행 중인 모든 Fade를 중단한다.
+        // 그렇지 않으면 복구한 Alpha를 다음 프레임에
+        // Fade Coroutine이 다시 변경할 수 있다.
+        foreach (
+            KeyValuePair<CanvasGroup, Coroutine> entry
+            in battleUIFadeCoroutines)
+        {
+            if (entry.Value != null)
+            {
+                StopCoroutine(
+                    entry.Value
+                );
+            }
+        }
+
+        battleUIFadeCoroutines.Clear();
+
+        // <변경부분>
+        // 최초 CanvasGroup 상태를 복구한다.
+        foreach (
+            KeyValuePair<CanvasGroup, BattleUIVisibilityState> entry
+            in battleUIVisibilityStates)
+        {
+            CanvasGroup targetGroup =
+                entry.Key;
+
+            BattleUIVisibilityState originalState =
+                entry.Value;
+
+            if (targetGroup == null ||
+                originalState == null)
+            {
+                continue;
+            }
+
+            targetGroup.alpha =
+                originalState.alpha;
+
+            targetGroup.interactable =
+                originalState.interactable;
+
+            targetGroup.blocksRaycasts =
+                originalState.blocksRaycasts;
+        }
+
+        battleUIVisibilityStates.Clear();
+    }
+
     // =====================================================
     // Screen Glitch
     // =====================================================
@@ -82,6 +448,24 @@ public class EventSequenceController : MonoBehaviour
     private Color globalLightingBaseColor;
 
     private float globalLightingBaseIntensity;
+
+
+    // =====================================================
+    // Character Fill
+    // =====================================================
+
+    // <변경부분>
+    // BattleScene의 Character_Fill Light2D를 연결한다.
+    [Header("Character Fill")]
+    [SerializeField]
+    private Light2D characterFillLight;
+
+    // <변경부분>
+    // Global Ambient와 독립적인 페이드 및 초기값 보존.
+    private Coroutine characterFillFadeCoroutine;
+    private bool hasCapturedCharacterFillBase;
+    private Color characterFillBaseColor;
+    private float characterFillBaseIntensity;
 
 
     // =====================================================
@@ -1030,6 +1414,16 @@ public class EventSequenceController : MonoBehaviour
                         step
                     );
                 yield break;
+
+            // <변경부분>
+            // 전투 HUD의 Fade In / Fade Out을 실행한다.
+            // Wait For Complete 옵션도 함께 처리한다.
+            case EventSequenceStepType.SetBattleUIVisibility:
+                yield return
+                    ExecuteSetBattleUIVisibilityStepRoutine(
+                        step
+                    );
+                yield break;
         }
     }
 
@@ -1122,6 +1516,10 @@ public class EventSequenceController : MonoBehaviour
         Coroutine flashToWait = null;
         Coroutine lightingToWait = null;
 
+        // <변경부분>
+        // Character_Fill은 Global Ambient와 독립적으로 진행된다.
+        Coroutine characterFillToWait = null;
+
         // Screen Flash는 Global Light 연결 여부와 무관하게 실행.
         if (step.globalLightingUseScreenFlash)
         {
@@ -1199,6 +1597,10 @@ public class EventSequenceController : MonoBehaviour
             }
         }
 
+        // <변경부분>
+        // Character_Fill 실행.
+        // 아래 별도 공용 코드를 이 위치에 삽입한다.
+
         if (!step.globalLightingWaitForComplete)
         {
             yield break;
@@ -1271,6 +1673,75 @@ public class EventSequenceController : MonoBehaviour
         globalLightingFadeCoroutine = null;
     }
 
+    // =====================================================
+    // Character Fill Fade
+    // =====================================================
+
+    // <변경부분>
+    // Character_Fill 전용 조명 페이드.
+    //
+    // Global Ambient와 별도의 Coroutine으로 실행되며
+    // Time Scale에 영향받지 않는다.
+    private IEnumerator FadeCharacterFillRoutine(
+        Color targetColor,
+        float targetIntensity,
+        float duration)
+    {
+        if (characterFillLight == null)
+        {
+            characterFillFadeCoroutine = null;
+            yield break;
+        }
+
+        Color startColor =
+            characterFillLight.color;
+
+        float startIntensity =
+            characterFillLight.intensity;
+
+        float elapsed = 0f;
+
+        while (elapsed < duration &&
+               characterFillLight != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t =
+                Mathf.Clamp01(elapsed / duration);
+
+            float easedT =
+                Mathf.SmoothStep(0f, 1f, t);
+
+            characterFillLight.color =
+                Color.Lerp(
+                    startColor,
+                    targetColor,
+                    easedT
+                );
+
+            characterFillLight.intensity =
+                Mathf.Lerp(
+                    startIntensity,
+                    targetIntensity,
+                    easedT
+                );
+
+            yield return null;
+        }
+
+        // <변경부분>
+        // 페이드 종료 시 목표값을 정확히 적용한다.
+        if (characterFillLight != null)
+        {
+            characterFillLight.color =
+                targetColor;
+
+            characterFillLight.intensity =
+                targetIntensity;
+        }
+
+        characterFillFadeCoroutine = null;
+    }
 
     // =====================================================
     // Screen Flash
@@ -1451,6 +1922,31 @@ public class EventSequenceController : MonoBehaviour
         }
 
         hasCapturedGlobalLightingBase = false;
+
+        // <변경부분>
+        // Character_Fill 페이드 중지.
+        if (characterFillFadeCoroutine != null)
+        {
+            StopCoroutine(
+                characterFillFadeCoroutine
+            );
+
+            characterFillFadeCoroutine = null;
+        }
+
+        // <변경부분>
+        // 연출 시작 전 Character_Fill의 원래 값 복구.
+        if (hasCapturedCharacterFillBase &&
+            characterFillLight != null)
+        {
+            characterFillLight.color =
+                characterFillBaseColor;
+
+            characterFillLight.intensity =
+                characterFillBaseIntensity;
+        }
+
+        hasCapturedCharacterFillBase = false;
     }
 
 
@@ -2695,6 +3191,11 @@ public class EventSequenceController : MonoBehaviour
         isStepTransitionInputLocked =
             false;
 
+        // <변경부분>
+        // 이벤트에서 숨기거나 표시했던 전투 UI를
+        // 이벤트 실행 전 상태로 복구한다.
+        RestoreBattleUIVisibilityImmediately();
+
         Debug.Log(
             $"이벤트 시퀀스 완료: " +
             $"{sequenceData?.sequenceName}"
@@ -2891,6 +3392,10 @@ public class EventSequenceController : MonoBehaviour
         // 화면 Flash 제거 및 최초 Global Light 값 복구.
         RestoreGlobalLightingImmediately();
 
+        // <변경부분>
+        // 이벤트 강제 종료 시 두 전투 UI의 상태도 복구한다.
+        RestoreBattleUIVisibilityImmediately();
+
         currentStepIndex =
             -1;
 
@@ -2939,6 +3444,11 @@ public class EventSequenceController : MonoBehaviour
         }
 
         RestoreGlobalLightingImmediately();
+
+        // <변경부분>
+        // Scene 전환 또는 Controller 비활성화 시
+        // 남아 있는 Battle UI 숨김 상태를 정리한다.
+        RestoreBattleUIVisibilityImmediately();
 
         isSequenceActive =
             false;
