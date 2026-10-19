@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TileData_Metal
   m_EditorClassIdentifier: Assembly-CSharp::TileData
   tileType: 4
-  tileSprite: {fileID: 21300000, guid: b598f15c2d8dce841b785a751a58432f, type: 3}
+  tileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
   isWalkable: 1
   hasObstacle: 0
   defaultTileEffects: 

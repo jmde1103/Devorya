@@ -1320,6 +1320,264 @@ public class EventSequenceDataEditor : Editor
                 );
 
                 break;
+
+
+            // =====================================================
+            // Screen Glitch
+            // =====================================================
+
+            // <변경부분>
+            // 기존 EventScene의 ScreenGlitch와 동일한
+            // Inspector 설정을 Battle Event에서도 사용한다.
+            case EventSequenceStepType.ScreenGlitch:
+
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Screen Glitch",
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "screenGlitchStrength",
+                    "Glitch Strength",
+                    false,
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "screenGlitchDuration",
+                    "Glitch Duration",
+                    false,
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "screenGlitchWaitForComplete",
+                    "Wait For Complete",
+                    false,
+                    draw
+                );
+
+                SerializedProperty glitchWaitProperty =
+                    stepProperty.FindPropertyRelative(
+                        "screenGlitchWaitForComplete"
+                    );
+
+                bool waitForGlitch =
+                    glitchWaitProperty != null &&
+                    glitchWaitProperty.boolValue;
+
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    waitForGlitch
+                        ? "화면 글리치가 끝난 뒤 다음 Event Step으로 진행합니다."
+                        : "화면 글리치를 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
+                    MessageType.Info,
+                    2,
+                    draw
+                );
+
+                break;
+
+
+            // =====================================================
+            // Global Lighting
+            // =====================================================
+
+            // <변경부분>
+            // 기존 EventScene과 동일하게
+            // Global Light와 Screen Flash를 각각 ON/OFF한다.
+            case EventSequenceStepType.GlobalLighting:
+
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Global Lighting",
+                    draw
+                );
+
+                // <변경부분>
+                // Global Light 사용 여부.
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "globalLightingUseGlobalLight",
+                    "Use Global Light",
+                    false,
+                    draw
+                );
+
+                SerializedProperty useGlobalLightProperty =
+                    stepProperty.FindPropertyRelative(
+                        "globalLightingUseGlobalLight"
+                    );
+
+                bool useGlobalLight =
+                    useGlobalLightProperty != null &&
+                    useGlobalLightProperty.boolValue;
+
+                // <변경부분>
+                // Global Light가 ON일 때만
+                // 색상, 밝기, Fade Duration을 표시한다.
+                if (useGlobalLight)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingTargetColor",
+                        "Target Color",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingTargetIntensity",
+                        "Target Intensity",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingFadeDuration",
+                        "Fade Duration",
+                        false,
+                        draw
+                    );
+                }
+
+                currentY += 5f;
+
+
+                // =================================================
+                // Screen Flash
+                // =================================================
+
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Screen Flash",
+                    draw
+                );
+
+                // <변경부분>
+                // 화면 플래시 사용 여부.
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "globalLightingUseScreenFlash",
+                    "Use Screen Flash",
+                    false,
+                    draw
+                );
+
+                SerializedProperty useScreenFlashProperty =
+                    stepProperty.FindPropertyRelative(
+                        "globalLightingUseScreenFlash"
+                    );
+
+                bool useScreenFlash =
+                    useScreenFlashProperty != null &&
+                    useScreenFlashProperty.boolValue;
+
+                // <변경부분>
+                // Screen Flash가 ON일 때만
+                // 색상, 강도, 지속 시간을 표시한다.
+                if (useScreenFlash)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingFlashColor",
+                        "Flash Color",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingFlashStrength",
+                        "Flash Strength",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingFlashDuration",
+                        "Flash Duration",
+                        false,
+                        draw
+                    );
+                }
+
+
+                // =================================================
+                // Wait For Complete
+                // =================================================
+
+                // <변경부분>
+                // 두 연출 중 하나라도 활성화되어 있을 때만
+                // Wait For Complete를 표시한다.
+                //
+                // 실제 대기 처리는 다음 런타임 작업에서 구현한다.
+                if (useGlobalLight || useScreenFlash)
+                {
+                    currentY += 5f;
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "globalLightingWaitForComplete",
+                        "Wait For Complete",
+                        false,
+                        draw
+                    );
+                }
+
+                // <변경부분>
+                // ON/OFF 상태에 따라 안내 문구를 변경한다.
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    useGlobalLight || useScreenFlash
+                        ? "Global Light와 Screen Flash는 각각 선택적으로 실행됩니다.\n" +
+                          "Wait For Complete는 활성화된 효과가 모두 끝날 때까지 기다립니다."
+                        : "Global Light와 Screen Flash가 모두 OFF입니다. " +
+                          "이 Step에서는 아무 연출도 실행하지 않습니다.",
+                    useGlobalLight || useScreenFlash
+                        ? MessageType.Info
+                        : MessageType.None,
+                    3,
+                    draw
+                );
+
+                break;
         }
 
         return

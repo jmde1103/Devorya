@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 // <변경부분> EventSequenceData의 Step을 순서대로 실행하는
 // 튜토리얼 / 전투 이벤트 / 스토리 이벤트 공용 컨트롤러
@@ -46,6 +48,54 @@ public class EventSequenceController : MonoBehaviour
     // 마커 표시는 생략된다.
     [SerializeField]
     private EventMarkerUI eventMarkerUI;
+
+    // =====================================================
+    // Screen Glitch
+    // =====================================================
+
+    [Header("Screen Glitch")]
+
+    // <변경부분>
+    // BattleScene에 배치된 글리치 컨트롤러.
+    // 기존 EventScene과 동일한 컴포넌트를 사용한다.
+    [SerializeField]
+    private EventScreenGlitchController eventScreenGlitchController;
+
+
+    // =====================================================
+    // Global Lighting
+    // =====================================================
+
+    [Header("Global Lighting")]
+
+    // <변경부분>
+    // BattleScene의 Global Ambient Light2D.
+    [SerializeField]
+    private Light2D environmentGlobalAmbient;
+
+    // <변경부분>
+    // 조명 페이드와 최초 조명값 보존.
+    private Coroutine globalLightingFadeCoroutine;
+
+    private bool hasCapturedGlobalLightingBase;
+
+    private Color globalLightingBaseColor;
+
+    private float globalLightingBaseIntensity;
+
+
+    // =====================================================
+    // Screen Flash
+    // =====================================================
+
+    // <변경부분>
+    // 화면 플래시는 실행 시점에 Overlay Canvas를 생성한다.
+    private GameObject globalLightingFlashCanvasObject;
+
+    private Image globalLightingFlashImage;
+
+    private Coroutine globalLightingFlashCoroutine;
+
 
     [Header("Debug")]
     // <변경부분> 현재 시퀀스 실행 여부는
@@ -962,7 +1012,445 @@ public class EventSequenceController : MonoBehaviour
                         step
                     );
                 yield break;
+
+            // <변경부분>
+            // BattleScene 화면 글리치 연출.
+            case EventSequenceStepType.ScreenGlitch:
+                yield return
+                    ExecuteScreenGlitchStepRoutine(
+                        step
+                    );
+                yield break;
+
+            // <변경부분>
+            // BattleScene 조명 및 화면 플래시 연출.
+            case EventSequenceStepType.GlobalLighting:
+                yield return
+                    ExecuteGlobalLightingStepRoutine(
+                        step
+                    );
+                yield break;
         }
+    }
+
+    // =====================================================
+    // Screen Glitch
+    // =====================================================
+
+    // <변경부분>
+    // 기존 EventScreenGlitchController를 재사용한다.
+    private IEnumerator ExecuteScreenGlitchStepRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        if (eventScreenGlitchController == null ||
+            !eventScreenGlitchController.isActiveAndEnabled)
+        {
+            Debug.LogError(
+                "Battle Event ScreenGlitch 실행 실패: " +
+                "EventScreenGlitchController가 연결되지 않았거나 " +
+                "비활성화되어 있습니다.",
+                this
+            );
+
+            StopSequence();
+            yield break;
+        }
+
+        eventScreenGlitchController.PlayGlitch(
+            Mathf.Clamp01(step.screenGlitchStrength),
+            Mathf.Max(0.05f, step.screenGlitchDuration)
+        );
+
+        if (!eventScreenGlitchController.IsPlaying)
+        {
+            Debug.LogError(
+                "Battle Event ScreenGlitch 실행 실패: " +
+                "글리치 효과가 시작되지 않았습니다. " +
+                "Screen Overlay와 Glitch Material을 확인하세요.",
+                this
+            );
+
+            StopSequence();
+            yield break;
+        }
+
+        if (!step.screenGlitchWaitForComplete)
+        {
+            yield break;
+        }
+
+        while (eventScreenGlitchController != null &&
+               eventScreenGlitchController.IsPlaying)
+        {
+            yield return null;
+        }
+
+        if (eventScreenGlitchController == null ||
+            !eventScreenGlitchController.isActiveAndEnabled)
+        {
+            Debug.LogError(
+                "Battle Event ScreenGlitch 대기 중단: " +
+                "Controller가 사라지거나 비활성화되었습니다.",
+                this
+            );
+
+            StopSequence();
+        }
+    }
+
+
+    // =====================================================
+    // Global Lighting
+    // =====================================================
+
+    // <변경부분>
+    // Global Ambient와 Screen Flash를 독립적으로 실행한다.
+    // 둘 다 활성화되어 있으면 동시에 시작한다.
+    private IEnumerator ExecuteGlobalLightingStepRoutine(
+        EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        Coroutine flashToWait = null;
+        Coroutine lightingToWait = null;
+
+        // Screen Flash는 Global Light 연결 여부와 무관하게 실행.
+        if (step.globalLightingUseScreenFlash)
+        {
+            StartGlobalLightingFlash(
+                step.globalLightingFlashColor,
+                Mathf.Clamp01(step.globalLightingFlashStrength),
+                Mathf.Max(0f, step.globalLightingFlashDuration)
+            );
+
+            flashToWait = globalLightingFlashCoroutine;
+        }
+
+        // Global Light 옵션이 OFF라면 현재 조명을 건드리지 않는다.
+        if (step.globalLightingUseGlobalLight)
+        {
+            if (environmentGlobalAmbient == null)
+            {
+                Debug.LogWarning(
+                    "Battle Event GlobalLighting 실패: " +
+                    "Global Ambient Light2D가 연결되지 않았습니다.",
+                    this
+                );
+            }
+            else
+            {
+                // 최초 조명값은 한 번만 보존한다.
+                if (!hasCapturedGlobalLightingBase)
+                {
+                    globalLightingBaseColor =
+                        environmentGlobalAmbient.color;
+
+                    globalLightingBaseIntensity =
+                        environmentGlobalAmbient.intensity;
+
+                    hasCapturedGlobalLightingBase = true;
+                }
+
+                // 진행 중인 페이드는 중단하고 현재값부터 다시 시작.
+                if (globalLightingFadeCoroutine != null)
+                {
+                    StopCoroutine(globalLightingFadeCoroutine);
+                    globalLightingFadeCoroutine = null;
+                }
+
+                float duration =
+                    Mathf.Max(0f, step.globalLightingFadeDuration);
+
+                Color targetColor =
+                    step.globalLightingTargetColor;
+
+                float targetIntensity =
+                    Mathf.Max(0f, step.globalLightingTargetIntensity);
+
+                if (duration <= 0f)
+                {
+                    environmentGlobalAmbient.color =
+                        targetColor;
+
+                    environmentGlobalAmbient.intensity =
+                        targetIntensity;
+                }
+                else
+                {
+                    globalLightingFadeCoroutine =
+                        StartCoroutine(
+                            FadeGlobalLightingRoutine(
+                                targetColor,
+                                targetIntensity,
+                                duration
+                            )
+                        );
+
+                    lightingToWait = globalLightingFadeCoroutine;
+                }
+            }
+        }
+
+        if (!step.globalLightingWaitForComplete)
+        {
+            yield break;
+        }
+
+        if (lightingToWait != null)
+        {
+            yield return lightingToWait;
+        }
+
+        if (flashToWait != null)
+        {
+            yield return flashToWait;
+        }
+    }
+
+
+    // <변경부분>
+    // Time Scale에 영향받지 않는 SmoothStep 조명 페이드.
+    private IEnumerator FadeGlobalLightingRoutine(
+        Color targetColor,
+        float targetIntensity,
+        float duration)
+    {
+        if (environmentGlobalAmbient == null)
+        {
+            globalLightingFadeCoroutine = null;
+            yield break;
+        }
+
+        Color startColor =
+            environmentGlobalAmbient.color;
+
+        float startIntensity =
+            environmentGlobalAmbient.intensity;
+
+        float elapsed = 0f;
+
+        while (elapsed < duration &&
+               environmentGlobalAmbient != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            float easedT = Mathf.SmoothStep(0f, 1f, t);
+
+            environmentGlobalAmbient.color =
+                Color.Lerp(startColor, targetColor, easedT);
+
+            environmentGlobalAmbient.intensity =
+                Mathf.Lerp(
+                    startIntensity,
+                    targetIntensity,
+                    easedT
+                );
+
+            yield return null;
+        }
+
+        if (environmentGlobalAmbient != null)
+        {
+            environmentGlobalAmbient.color =
+                targetColor;
+
+            environmentGlobalAmbient.intensity =
+                targetIntensity;
+        }
+
+        globalLightingFadeCoroutine = null;
+    }
+
+
+    // =====================================================
+    // Screen Flash
+    // =====================================================
+
+    // <변경부분>
+    // 기존 EventScene과 동일한 Screen Space Overlay 방식.
+    private void StartGlobalLightingFlash(
+        Color flashColor,
+        float strength,
+        float duration)
+    {
+        StopGlobalLightingFlashImmediately();
+
+        if (!isActiveAndEnabled ||
+            !gameObject.activeInHierarchy ||
+            strength <= 0f)
+        {
+            return;
+        }
+
+        globalLightingFlashCanvasObject =
+            new GameObject(
+                "BattleEvent_GlobalLightingFlash",
+                typeof(RectTransform),
+                typeof(Canvas)
+            );
+
+        Canvas flashCanvas =
+            globalLightingFlashCanvasObject.GetComponent<Canvas>();
+
+        flashCanvas.renderMode =
+            RenderMode.ScreenSpaceOverlay;
+
+        flashCanvas.overrideSorting = true;
+        flashCanvas.sortingOrder = 32000;
+
+        GameObject flashImageObject =
+            new GameObject(
+                "FlashImage",
+                typeof(RectTransform),
+                typeof(Image)
+            );
+
+        RectTransform flashRect =
+            flashImageObject.GetComponent<RectTransform>();
+
+        flashRect.SetParent(
+            globalLightingFlashCanvasObject.transform,
+            false
+        );
+
+        flashRect.anchorMin = Vector2.zero;
+        flashRect.anchorMax = Vector2.one;
+        flashRect.offsetMin = Vector2.zero;
+        flashRect.offsetMax = Vector2.zero;
+
+        globalLightingFlashImage =
+            flashImageObject.GetComponent<Image>();
+
+        globalLightingFlashImage.raycastTarget = false;
+
+        flashColor.a = 0f;
+        globalLightingFlashImage.color = flashColor;
+
+        globalLightingFlashCoroutine =
+            StartCoroutine(
+                PlayGlobalLightingFlashRoutine(
+                    flashColor,
+                    strength,
+                    duration
+                )
+            );
+    }
+
+
+    // <변경부분>
+    // 처음 20%는 Fade In, 나머지 80%는 Fade Out.
+    private IEnumerator PlayGlobalLightingFlashRoutine(
+        Color flashColor,
+        float strength,
+        float duration)
+    {
+        if (duration <= 0.05f)
+        {
+            flashColor.a = strength;
+            globalLightingFlashImage.color = flashColor;
+
+            yield return null;
+        }
+        else
+        {
+            float elapsed = 0f;
+
+            while (elapsed < duration &&
+                   globalLightingFlashImage != null)
+            {
+                float t = Mathf.Clamp01(elapsed / duration);
+
+                float alpha =
+                    t < 0.2f
+                        ? Mathf.SmoothStep(
+                            0f,
+                            strength,
+                            t / 0.2f
+                        )
+                        : Mathf.SmoothStep(
+                            strength,
+                            0f,
+                            (t - 0.2f) / 0.8f
+                        );
+
+                flashColor.a = alpha;
+                globalLightingFlashImage.color = flashColor;
+
+                elapsed += Time.unscaledDeltaTime;
+
+                yield return null;
+            }
+        }
+
+        if (globalLightingFlashImage != null)
+        {
+            flashColor.a = 0f;
+            globalLightingFlashImage.color = flashColor;
+        }
+
+        if (globalLightingFlashCanvasObject != null)
+        {
+            globalLightingFlashCanvasObject.SetActive(false);
+        }
+
+        globalLightingFlashCoroutine = null;
+    }
+
+
+    // <변경부분>
+    // 진행 중인 Flash와 Canvas를 즉시 정리한다.
+    private void StopGlobalLightingFlashImmediately()
+    {
+        if (globalLightingFlashCoroutine != null)
+        {
+            StopCoroutine(globalLightingFlashCoroutine);
+            globalLightingFlashCoroutine = null;
+        }
+
+        if (globalLightingFlashCanvasObject != null)
+        {
+            globalLightingFlashCanvasObject.SetActive(false);
+            Destroy(globalLightingFlashCanvasObject);
+        }
+
+        globalLightingFlashCanvasObject = null;
+        globalLightingFlashImage = null;
+    }
+
+
+    // <변경부분>
+    // 강제 종료 또는 컴포넌트 비활성화 시 최초 조명값 복구.
+    private void RestoreGlobalLightingImmediately()
+    {
+        StopGlobalLightingFlashImmediately();
+
+        if (globalLightingFadeCoroutine != null)
+        {
+            StopCoroutine(globalLightingFadeCoroutine);
+            globalLightingFadeCoroutine = null;
+        }
+
+        if (hasCapturedGlobalLightingBase &&
+            environmentGlobalAmbient != null)
+        {
+            environmentGlobalAmbient.color =
+                globalLightingBaseColor;
+
+            environmentGlobalAmbient.intensity =
+                globalLightingBaseIntensity;
+        }
+
+        hasCapturedGlobalLightingBase = false;
     }
 
 
@@ -2392,6 +2880,17 @@ public class EventSequenceController : MonoBehaviour
 
         StopSequenceCoroutine();
 
+        // <변경부분>
+        // 강제 종료 시 글리치가 화면에 남지 않도록 한다.
+        if (eventScreenGlitchController != null)
+        {
+            eventScreenGlitchController.StopGlitch();
+        }
+
+        // <변경부분>
+        // 화면 Flash 제거 및 최초 Global Light 값 복구.
+        RestoreGlobalLightingImmediately();
+
         currentStepIndex =
             -1;
 
@@ -2431,6 +2930,15 @@ public class EventSequenceController : MonoBehaviour
     private void OnDisable()
     {
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // 씬 전환 및 비활성화 시 화면 연출을 정리한다.
+        if (eventScreenGlitchController != null)
+        {
+            eventScreenGlitchController.StopGlitch();
+        }
+
+        RestoreGlobalLightingImmediately();
 
         isSequenceActive =
             false;

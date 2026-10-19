@@ -90,7 +90,21 @@ public enum EventSequenceStepType
     // Wait / Dialogue 등 후속 Step을 실행할 수 있다.
     //
     // 기존 enum 값 0~13은 변경하지 않는다.
-    ShowBattleRewardPopup
+    ShowBattleRewardPopup,
+
+    // <변경부분>
+    // Battle Event에서 Global Ambient 조명 변화와
+    // 화면 전체 Screen Flash를 실행한다.
+    //
+    // 기존 EventScene의 GlobalLighting과 동일한 설정을 사용한다.
+    // 기존 Serialized enum 값 0~14는 변경하지 않는다.
+    GlobalLighting = 15,
+
+    // <변경부분>
+    // Battle Event에서 화면 전체 글리치 효과를 실행한다.
+    //
+    // 기존 EventScreenGlitchController를 재사용한다.
+    ScreenGlitch = 16
 }
 
 
@@ -435,7 +449,106 @@ public class EventSequenceStepData
         2f;
 
     public bool speechBubbleWaitForComplete =
+     true;
+
+
+    // =====================================================
+    // Screen Glitch
+    // =====================================================
+
+    [Header("Screen Glitch")]
+
+    // <변경부분>
+    // URP 2D 화면 글리치 효과의 강도.
+    // 0 = 효과 없음, 1 = 최대 강도.
+    [Range(0f, 1f)]
+    public float screenGlitchStrength =
+        0.55f;
+
+    // <변경부분>
+    // 화면 글리치 효과의 전체 지속 시간.
+    [Min(0.05f)]
+    public float screenGlitchDuration =
+        0.4f;
+
+    // <변경부분>
+    // true:
+    // 글리치 효과가 끝난 뒤 다음 Step으로 진행한다.
+    //
+    // false:
+    // 글리치를 시작하고 즉시 다음 Step으로 진행한다.
+    public bool screenGlitchWaitForComplete =
         true;
+
+
+    // =====================================================
+    // Global Lighting
+    // =====================================================
+
+    [Header("Global Lighting")]
+
+    // <변경부분>
+    // ON: Global Ambient 조명을 변경한다.
+    // OFF: 조명은 변경하지 않고 Screen Flash만 실행할 수 있다.
+    public bool globalLightingUseGlobalLight =
+        true;
+
+    // <변경부분>
+    // 목표 조명 색상.
+    public Color globalLightingTargetColor =
+        Color.white;
+
+    // <변경부분>
+    // 목표 조명 밝기.
+    [Min(0f)]
+    public float globalLightingTargetIntensity =
+        1f;
+
+    // <변경부분>
+    // 현재 조명값에서 목표값까지 페이드할 시간.
+    // 0이면 즉시 변경한다.
+    [Min(0f)]
+    public float globalLightingFadeDuration =
+        1f;
+
+    // <변경부분>
+    // true:
+    // 활성화된 조명 및 플래시 연출이 모두 끝날 때까지 대기한다.
+    //
+    // false:
+    // 연출을 시작하고 즉시 다음 Step으로 진행한다.
+    public bool globalLightingWaitForComplete =
+        true;
+
+
+    // =====================================================
+    // Screen Flash
+    // =====================================================
+
+    [Header("Screen Flash")]
+
+    // <변경부분>
+    // GlobalLighting Step에서 화면 전체 플래시를 실행할지 결정한다.
+    public bool globalLightingUseScreenFlash =
+        false;
+
+    // <변경부분>
+    // 화면 플래시 색상.
+    public Color globalLightingFlashColor =
+        Color.white;
+
+    // <변경부분>
+    // 화면 플래시의 최대 불투명도.
+    // 0 = 투명, 1 = 완전 불투명.
+    [Range(0f, 1f)]
+    public float globalLightingFlashStrength =
+        0.9f;
+
+    // <변경부분>
+    // 플래시가 밝아졌다 사라지는 전체 시간.
+    [Min(0f)]
+    public float globalLightingFlashDuration =
+        0.3f;
 
 
     [Header("Wait")]
