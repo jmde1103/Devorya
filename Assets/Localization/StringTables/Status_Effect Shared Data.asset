@@ -39,6 +39,14 @@ MonoBehaviour:
     m_Key: status_effect.degeneration.description
     m_Metadata:
       m_Items: []
+  - m_Id: 16559834879627264
+    m_Key: status_effect.attack_disabled.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16559834950930432
+    m_Key: status_effect.attack_disabled.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
