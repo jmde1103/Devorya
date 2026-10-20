@@ -58,6 +58,18 @@ MonoBehaviour:
     m_Localized: Has a {percent}% chance to ignore the opponent's Defense and Evasion.
     m_Metadata:
       m_Items: []
+  - m_Id: 16710000000000001
+    m_Localized: "Quick Step"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16710000000000002
+    m_Localized: "After a successful attack, gain one extra move with a {percent}% chance. This move cannot capture a piece."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16710000000000003
+    m_Localized: "After a successful attack, gain one extra move with a {percent}% chance. This move cannot capture a piece."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

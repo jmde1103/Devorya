@@ -5,7 +5,7 @@ using TMPro;
 using System.Collections;
 using UnityEngine.Localization.Settings;
 
-public class BattleManager : MonoBehaviour
+public partial class BattleManager : MonoBehaviour
 {
     // <변경부분> 기물 타입 아이콘 버튼의 3단계 표시 모드
     //
@@ -528,6 +528,8 @@ public class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        if (reinforcementCaster != null && Input.GetKeyDown(KeyCode.Escape))
+            CancelReinforcementSelection(true);
         // Event Sequence 대사 또는 강제 입력 중에는
         // 일반 Battle 단축키를 받지 않는다.
         if (eventSequenceController != null &&
@@ -598,6 +600,8 @@ public class BattleManager : MonoBehaviour
         }
 
         // <변경부분> 새 선택 처리 전에 기존 선택 기물을 저장
+        if (HandleReinforcementSelection(piece)) return;
+
         Piece previousSelectedPiece =
             selectedPiece;
 
@@ -1069,6 +1073,7 @@ public class BattleManager : MonoBehaviour
                 tile.X,
                 tile.Y
             );
+        if (HandleReinforcementSelection(clickedPiece)) return;
 
         // 선택된 기물이 없는 상태에서 기물이 있는 타일을 클릭하면
         // 해당 기물 선택 또는 상대 정보 확인으로 처리한다.
@@ -1496,6 +1501,7 @@ public class BattleManager : MonoBehaviour
                 tile.X,
                 tile.Y
             );
+        if (HandleReinforcementSelection(clickedPiece)) return;
 
         // 아직 배치 기물을 선택하지 않은 상태라면
         // 클릭한 일반 플레이어 기물을 선택한다.
@@ -1883,6 +1889,8 @@ public class BattleManager : MonoBehaviour
         Piece actingPiece,
         Vector2Int targetPosition)
     {
+        if (reinforcementCaster != null) return false;
+        if (quickStepBonusPiece != null && actingPiece != quickStepBonusPiece) return false;
         // <변경부분> 초기 배치 또는 Announcement 연출 중에는
         // Player / AI 실제 이동 및 공격 행동을 시작하지 않는다.
         if (isPlayerDeploymentPhase ||
@@ -2104,11 +2112,12 @@ public class BattleManager : MonoBehaviour
         // 실제 고유스킬보다 아이콘이 먼저 재생되도록 한다.
         yield return
             battleSkillManager
-                .TryUseUniqueSkillRoutine(
+                .TryUseTargetedUniqueSkillRoutine(
                     skillPiece,
                     skillData.iconSprite,
                     result =>
-                        skillUsed = result
+                        skillUsed = result,
+                    action.TargetPiece
                 );
         if (skillUsed && skillData.skillType == UniqueSkillType.JelluSplit)
         {
@@ -2200,11 +2209,36 @@ public class BattleManager : MonoBehaviour
                 tile.Y
             );
 
+
+        bool wasAttack = targetPiece != null;
+        OwnedGeneralSkillData quickStepBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.QuickStep);
+        Piece tauntGuard = pieceManager.FindTauntInterceptor(actingPiece, targetPiece);
+        if (tauntGuard != null)
+        {
+            Vector3 targetStart = targetPiece.transform.position;
+            Vector3 guardStart = tauntGuard.transform.position;
+            if (pieceManager.TrySwapForTaunt(targetPiece, tauntGuard))
+            {
+                Piece protectedPiece = targetPiece;
+                targetPiece = tauntGuard;
+                yield return pieceManager.PlayTauntSwapAnimation(protectedPiece, tauntGuard, targetStart, guardStart);
+                if (targetPiece == null) { isActionAnimating = false; yield break; }
+            }
+        }
+
         // <변경부분> 이번 공격 대상이 현재 보드의
         // 마지막 Enemy 1기인지 행동 시작 전에 저장한다.
         //
         // 빈칸 이동과 중립 기물 공격에는
         // 마지막 공격 카메라 연출을 적용하지 않는다.
+        // Resolve evasion for the actual defender after a possible taunt interception.
+        if (pieceManager.TryChooseEvasionDestination(actingPiece, targetPiece, out Vector2Int escapePosition))
+        {
+            yield return pieceManager.MovePieceRoutine(targetPiece, escapePosition.x, escapePosition.y, true);
+            targetPiece = null;
+            wasAttack = false; // A missed attack cannot trigger Quick Step or capture rewards.
+        }
+
         bool isLastEnemyAttackTarget =
             targetPiece != null &&
             targetPiece.Team == PieceTeam.Enemy &&
@@ -2301,6 +2335,9 @@ public class BattleManager : MonoBehaviour
                 targetPiece.HasStatusEffect(
                     StatusEffectType.Degeneration
                 );
+
+            List<GeneralSkillRuntimeData> degenerationTraits = shouldTriggerDegeneration
+                ? PlayerPieceRuntimeData.FromPiece(targetPiece).generalSkills : null;
 
             PieceTeam degenerationDeadPieceTeam =
                 targetPiece.Team;
@@ -2661,7 +2698,8 @@ public class BattleManager : MonoBehaviour
                     degenerationDeadPieceType,
                     degenerationDeadPieceX,
                     degenerationDeadPieceY,
-                    degenerationSourceWorldPosition
+                    degenerationSourceWorldPosition,
+                    degenerationTraits
                 );
 
                 // 실제 사망한 경우에만 해당 진영 사망 스택 증가
@@ -2780,6 +2818,7 @@ public class BattleManager : MonoBehaviour
             null;
 
         // 이동/공격 후 승패 조건 확인
+        ClearQuickStepBonus();
         CheckBattleEnd();
 
         // 전투가 끝났으면 턴 종료하지 않음
@@ -2881,6 +2920,13 @@ public class BattleManager : MonoBehaviour
 
         // ChanceAttack이 실패했거나
         // 발동 조건이 아니면 연속 발동 상태 초기화
+        if (wasAttack && didCompleteMove && CanActivateQuickStep(actingPiece, quickStepBeforeAction))
+        {
+            yield return battleSkillManager.PlayGeneralSkillActivationBeforeEffectRoutine(actingPiece, GeneralSkillType.QuickStep);
+            ActivateQuickStepBonus(actingPiece);
+            isActionAnimating = false;
+            yield break;
+        }
         chanceAttackBonusPiece = null;
         chanceAttackContinuousCount = 0;
 
@@ -3293,6 +3339,9 @@ public class BattleManager : MonoBehaviour
                 StatusEffectType.Degeneration
             );
 
+        List<GeneralSkillRuntimeData> degenerationTraits = shouldTriggerDegeneration
+            ? PlayerPieceRuntimeData.FromPiece(targetPiece).generalSkills : null;
+
         PieceTeam degenerationDeadPieceTeam =
             targetPiece.Team;
 
@@ -3422,7 +3471,8 @@ public class BattleManager : MonoBehaviour
             degenerationDeadPieceType,
             targetX,
             targetY,
-            degenerationSourceWorldPosition
+            degenerationSourceWorldPosition,
+            degenerationTraits
         );
 
         AddDeathStackForUniqueSkill(
@@ -3483,6 +3533,7 @@ public class BattleManager : MonoBehaviour
 
     public void ToggleAbsorbMode()
     {
+        CancelReinforcementSelection(false);
 
         // <변경부분> 배치 또는 Announcement 중에는
         // 흡수 모드로 진입하지 않는다.
@@ -3540,6 +3591,11 @@ public class BattleManager : MonoBehaviour
 
     public void UseSelectedPieceSkill()
     {
+        if (reinforcementCaster != null && !isActionAnimating)
+        {
+            CancelReinforcementSelection(true);
+            return;
+        }
         // <변경부분> 배치 또는 Announcement가 끝나기 전에는
         // 고유스킬을 사용할 수 없다.
         if (isPlayerDeploymentPhase ||
@@ -3689,6 +3745,11 @@ public class BattleManager : MonoBehaviour
         }
 
         // <변경부분> 합성처럼 애니메이션을 기다려야 하는 스킬을 위해 코루틴으로 실행
+        if (selectedPiece.UniqueSkill == UniqueSkillType.JelluReinforce)
+        {
+            BeginReinforcementSelection(selectedPiece, skillData);
+            return;
+        }
         StartCoroutine(
             UseSelectedPieceSkillRoutine(
                 selectedPiece,
@@ -3700,6 +3761,11 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 고유스킬 실행 코루틴
     // BattleSkillManager의 스킬 코루틴이 끝난 뒤 쿨타임/UI 갱신을 처리
     private IEnumerator UseSelectedPieceSkillRoutine(Piece skillPiece, UniqueSkillData skillData)
+    {
+        return UseSelectedPieceSkillWithTargetRoutine(skillPiece, skillData, null);
+    }
+
+    private IEnumerator UseSelectedPieceSkillWithTargetRoutine(Piece skillPiece, UniqueSkillData skillData, Piece skillTarget)
     {
         // 실행할 기물이 없으면 종료
         if (skillPiece == null)
@@ -3716,11 +3782,12 @@ public class BattleManager : MonoBehaviour
         // <변경부분> 고유스킬 데이터 아이콘을 전달하여
         // 실제 효과보다 아이콘 연출이 먼저 실행되도록 한다.
         yield return
-            battleSkillManager.TryUseUniqueSkillRoutine(
+            battleSkillManager.TryUseTargetedUniqueSkillRoutine(
                 skillPiece,
                 skillData.iconSprite,
                 result =>
-                    skillUsed = result
+                    skillUsed = result,
+                skillTarget
             );
 
         // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
@@ -4393,135 +4460,38 @@ public class BattleManager : MonoBehaviour
         RefreshTypeIconVisuals();
     }
 
-    // <변경부분> 퇴화 상태의 기물이 잡혔을 때
-    // 인접한 빈칸에 중립 젤루 Special 기물을 생성한다.
-    //
-    // 생성되는 기물은 비숍의 JelluWall 스킬과 동일하다.
-    // 죽은 기물의 진영과 관계없이 항상 Neutral로 생성되며,
-    // 이동할 수 없고 다른 진영이 공격할 수 있는 장애물 역할을 한다.
+    // Death creates one allied Jellu pawn with an independent copy of the deceased's traits.
     private void TryTriggerDegenerationOnDeath(
         bool shouldTriggerDegeneration,
         PieceTeam deadPieceTeam,
         PieceType deadPieceType,
         int deadPieceX,
         int deadPieceY,
-        Vector3 sourceWorldPosition)
+        Vector3 sourceWorldPosition,
+        List<GeneralSkillRuntimeData> inheritedTraits)
     {
-        // 퇴화 상태가 아니었다면 처리하지 않는다.
-        if (shouldTriggerDegeneration == false)
+        if (!shouldTriggerDegeneration || deadPieceTeam == PieceTeam.Neutral ||
+            pieceManager == null || boardManager == null ||
+            !pieceManager.CanCreatePieceForTeam(deadPieceTeam) ||
+            pieceManager.GetPieceCount(deadPieceTeam) >= 10) return;
+
+        var emptyPositions = new List<Vector2Int>();
+        for (int dy = -1; dy <= 1; dy++)
+        for (int dx = -1; dx <= 1; dx++)
         {
-            return;
+            if (dx == 0 && dy == 0) continue;
+            int x = deadPieceX + dx, y = deadPieceY + dy;
+            if (IsInsideBoard(x, y) && pieceManager.IsEmpty(x, y))
+                emptyPositions.Add(new Vector2Int(x, y));
         }
+        if (emptyPositions.Count == 0) return;
 
-        // 중립 기물은 현재 퇴화 스킬 사용 대상이 아니다.
-        if (deadPieceTeam ==
-            PieceTeam.Neutral)
-        {
-            return;
-        }
-
-        List<Vector2Int> emptyPositions =
-            new List<Vector2Int>();
-
-        // 사망 위치 주변 8방향을 검사한다.
-        for (int offsetY = -1;
-             offsetY <= 1;
-             offsetY++)
-        {
-            for (int offsetX = -1;
-                 offsetX <= 1;
-                 offsetX++)
-            {
-                // 퇴화는 사망 위치가 아니라
-                // 인접한 빈칸에 기물을 생성한다.
-                if (offsetX == 0 &&
-                    offsetY == 0)
-                {
-                    continue;
-                }
-
-                int targetX =
-                    deadPieceX +
-                    offsetX;
-
-                int targetY =
-                    deadPieceY +
-                    offsetY;
-
-                // 보드 밖 좌표는 제외한다.
-                if (IsInsideBoard(
-                        targetX,
-                        targetY) ==
-                    false)
-                {
-                    continue;
-                }
-
-                // 실제로 비어 있는 좌표만 생성 후보로 저장한다.
-                if (pieceManager.IsEmpty(
-                        targetX,
-                        targetY))
-                {
-                    emptyPositions.Add(
-                        new Vector2Int(
-                            targetX,
-                            targetY
-                        )
-                    );
-                }
-            }
-        }
-
-        // 인접한 빈칸이 없으면 퇴화 효과는 발동하지 않는다.
-        if (emptyPositions.Count == 0)
-        {
-            Debug.Log(
-                "퇴화 발동 실패: " +
-                "인접한 빈칸이 없습니다."
-            );
-
-            return;
-        }
-
-        // 인접 빈칸 중 하나를 무작위로 선택한다.
-        int randomIndex =
-            Random.Range(
-                0,
-                emptyPositions.Count
-            );
-
-        Vector2Int selectedPosition =
-            emptyPositions[randomIndex];
-
-        // <변경부분> 비숍의 JelluWall과 동일한
-        // Neutral / Special / Jellu 기물을 생성한다.
-        //
-        // 사망한 기물은 이미 제거될 수 있으므로
-        // 저장된 사망 월드 위치에서 생성 연출을 시작한다.
-        Piece createdPiece =
-            pieceManager
-                .SpawnJelluWallFromWorldPosition(
-                    selectedPosition.x,
-                    selectedPosition.y,
-                    sourceWorldPosition
-                );
-
-        if (createdPiece == null)
-        {
-            Debug.LogWarning(
-                "퇴화 발동 실패: " +
-                "중립 젤루 기물 생성에 실패했습니다."
-            );
-
-            return;
-        }
-
-        Debug.Log(
-            $"퇴화 발동: " +
-            $"{deadPieceTeam} {deadPieceType} 사망 → " +
-            $"({selectedPosition.x}, {selectedPosition.y})에 " +
-            $"중립 젤루 Special 생성"
-        );
+        Vector2Int destination = emptyPositions[Random.Range(0, emptyPositions.Count)];
+        Piece pawn = pieceManager.SpawnJelluPawnFromWorldPosition(
+            deadPieceTeam, destination.x, destination.y, sourceWorldPosition);
+        if (pawn == null) return;
+        pawn.ApplyGeneralSkillRuntimeData(inheritedTraits);
+        Debug.Log($"Degeneration: {deadPieceTeam} {deadPieceType} -> Jellu Pawn at {destination}");
     }
 
     // <변경부분> 찬스어택이 발동한 기물에게 추가 행동 상태를 부여하는 함수
@@ -4905,6 +4875,9 @@ public class BattleManager : MonoBehaviour
         // 이렇게 하면 AI가 실제로 발동할 수 없는 고유스킬을
         // 평가 후보에 포함한 뒤 최고 점수로 선택하여
         // 실행 단계에서 실패하는 상황을 방지한다.
+        if (action.UniqueSkillType == UniqueSkillType.JelluReinforce)
+            return battleSkillManager.CanUseReinforcementTarget(skillPiece, action.TargetPiece);
+
         return battleSkillManager
             .CanUseUniqueSkillEffect(
                 skillPiece
@@ -5153,6 +5126,8 @@ public class BattleManager : MonoBehaviour
     }
     private void EndTurn()
     {
+        ClearQuickStepBonus();
+        CancelReinforcementSelection(false);
         // 턴이 전환되는 순간 현재 표시 중인 Tooltip을 즉시 닫는다.
         //
         // Player 전용 Action UI가 Enemy 턴 진입과 함께 사라질 때

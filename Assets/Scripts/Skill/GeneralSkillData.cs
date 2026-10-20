@@ -90,6 +90,9 @@ public class GeneralSkillData : ScriptableObject
     [Range(0, 100)]
     public int insightPercent = 30;
 
+    [Header("Quick Step")]
+    [Range(0, 100)] public int quickStepPercent = 30;
+
     // <변경부분> ChanceAttack의 고정 발동 확률을 반환한다.
     public int GetChanceAttackPercent()
     {
@@ -146,6 +149,8 @@ public class GeneralSkillData : ScriptableObject
     {
         switch (skillType)
         {
+            case GeneralSkillType.QuickStep:
+                return Mathf.Clamp(quickStepPercent, 0, 100);
             case GeneralSkillType.ChanceAttack:
                 return GetChanceAttackPercent();
 

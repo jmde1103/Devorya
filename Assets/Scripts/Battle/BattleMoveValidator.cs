@@ -448,6 +448,11 @@ public class BattleMoveValidator : MonoBehaviour
     // 현재 쿨타임이 남아 있더라도 조합 자체에는
     // 중립 젤루를 합성 재료로 활용하는 전략이 존재하므로,
     // 중립 기물 보존 판단에서는 스킬 보유 여부를 기준으로 한다.
+    public bool IsReinforcementMaterial(Piece caster, Piece target)
+    {
+        return JelluSynthesisRules.IsReinforcementMaterial(caster, target, pieceManager);
+    }
+
     public bool HasJelluSynthesisUser(
         PieceTeam team)
     {
@@ -478,16 +483,7 @@ public class BattleMoveValidator : MonoBehaviour
                 }
 
                 // 젤루 합성은 Jellu Pawn 전용이다.
-                if (piece.PieceType !=
-                        PieceType.Pawn ||
-                    piece.HasSpeciesTag(
-                        PieceSpeciesTag.Jellu) ==
-                    false)
-                {
-                    continue;
-                }
-
-                if (piece.UniqueSkill ==
+if (piece.UniqueSkill ==
                     UniqueSkillType.JelluSynthesis)
                 {
                     return true;
@@ -501,92 +497,9 @@ public class BattleMoveValidator : MonoBehaviour
     // <변경부분> 지정한 중립 젤루 Special이
     // 현재 해당 진영의 JelluSynthesis Pawn 인접 8칸에 있어
     // 즉시 합성 재료로 사용할 수 있는지 확인한다.
-    public bool IsNeutralJelluImmediatelyUsableForSynthesis(
-        Piece neutralJelluPiece,
-        PieceTeam synthesisTeam)
+    public bool IsNeutralJelluImmediatelyUsableForSynthesis(Piece piece, PieceTeam team)
     {
-        if (neutralJelluPiece == null ||
-            boardManager == null ||
-            pieceManager == null)
-        {
-            return false;
-        }
-
-        // 실제 중립 젤루 Special만 검사한다.
-        if (neutralJelluPiece.Team !=
-                PieceTeam.Neutral ||
-            neutralJelluPiece.PieceType !=
-                PieceType.Special ||
-            neutralJelluPiece.HasSpeciesTag(
-                PieceSpeciesTag.Jellu) ==
-            false)
-        {
-            return false;
-        }
-
-        // 중립 기물 주변 8칸에
-        // 해당 진영의 합성 Pawn이 있는지 확인한다.
-        for (int offsetY = -1;
-             offsetY <= 1;
-             offsetY++)
-        {
-            for (int offsetX = -1;
-                 offsetX <= 1;
-                 offsetX++)
-            {
-                if (offsetX == 0 &&
-                    offsetY == 0)
-                {
-                    continue;
-                }
-
-                int checkX =
-                    neutralJelluPiece.X +
-                    offsetX;
-
-                int checkY =
-                    neutralJelluPiece.Y +
-                    offsetY;
-
-                if (IsInsideBoard(
-                        checkX,
-                        checkY) ==
-                    false)
-                {
-                    continue;
-                }
-
-                Piece candidatePawn =
-                    pieceManager.GetPieceAt(
-                        checkX,
-                        checkY
-                    );
-
-                if (candidatePawn == null ||
-                    candidatePawn.Team !=
-                        synthesisTeam)
-                {
-                    continue;
-                }
-
-                if (candidatePawn.PieceType !=
-                        PieceType.Pawn ||
-                    candidatePawn.HasSpeciesTag(
-                        PieceSpeciesTag.Jellu) ==
-                    false)
-                {
-                    continue;
-                }
-
-                if (candidatePawn.UniqueSkill ==
-                    UniqueSkillType.JelluSynthesis)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return false; // Neutral pieces are no longer synthesis materials.
     }
 
     // <변경부분> 젤루 합성에 사용할 수 있는 재료 목록을 새 List로 반환한다.
@@ -607,117 +520,17 @@ public class BattleMoveValidator : MonoBehaviour
         return materials;
     }
 
-    // <변경부분> 전달받은 List에 현재 사용할 수 있는 젤루 합성 재료를 채운다.
-    //
-    // AI 후보 생성처럼 매번 새 List를 만들 필요가 없는 곳에서는
-    // 기존 List를 재사용하여 불필요한 GC 할당을 줄일 수 있다.
-    //
-    // 젤루 합성 재료 판정의 단일 기준:
-    // - 시전자 = Jellu Pawn
-    // - 시전자 주변 8칸
-    // - Jellu 태그 보유
-    // - King 제외
-    // - 시전자와 같은 팀 또는 Neutral
-    public void FillJelluSynthesisMaterialCandidates(
-        Piece actingPiece,
-        List<Piece> results)
+    // Adjacent allies matching the caster's piece type; species tags are unrestricted.
+    public void FillJelluSynthesisMaterialCandidates(Piece actingPiece, List<Piece> results)
     {
-        if (results == null)
-        {
-            return;
-        }
-
-        // 이전 판정 결과가 남지 않도록 항상 먼저 초기화한다.
+        if (results == null) return;
         results.Clear();
-
-        if (actingPiece == null ||
-            boardManager == null ||
-            pieceManager == null)
+        if (actingPiece == null || boardManager == null || pieceManager == null) return;
+        for (int y = Mathf.Max(0, actingPiece.Y - 1); y <= Mathf.Min(boardManager.Height - 1, actingPiece.Y + 1); y++)
+        for (int x = Mathf.Max(0, actingPiece.X - 1); x <= Mathf.Min(boardManager.Width - 1, actingPiece.X + 1); x++)
         {
-            return;
-        }
-
-        // 젤루 합성은 Jellu Pawn 전용이다.
-        if (actingPiece.PieceType !=
-                PieceType.Pawn ||
-            actingPiece.HasSpeciesTag(
-                PieceSpeciesTag.Jellu) ==
-            false)
-        {
-            return;
-        }
-
-        // 시전자 주변 8칸을 검사한다.
-        for (int offsetY = -1;
-             offsetY <= 1;
-             offsetY++)
-        {
-            for (int offsetX = -1;
-                 offsetX <= 1;
-                 offsetX++)
-            {
-                // 시전자 자신의 위치는 재료에서 제외한다.
-                if (offsetX == 0 &&
-                    offsetY == 0)
-                {
-                    continue;
-                }
-
-                int targetX =
-                    actingPiece.X +
-                    offsetX;
-
-                int targetY =
-                    actingPiece.Y +
-                    offsetY;
-
-                if (IsInsideBoard(
-                        targetX,
-                        targetY) ==
-                    false)
-                {
-                    continue;
-                }
-
-                Piece candidatePiece =
-                    pieceManager.GetPieceAt(
-                        targetX,
-                        targetY
-                    );
-
-                if (candidatePiece == null)
-                {
-                    continue;
-                }
-
-                // Jellu 태그가 없는 기물은 합성 재료가 아니다.
-                if (candidatePiece.HasSpeciesTag(
-                        PieceSpeciesTag.Jellu) ==
-                    false)
-                {
-                    continue;
-                }
-
-                // King은 승패 조건 보호를 위해 합성 재료에서 제외한다.
-                if (candidatePiece.PieceType ==
-                    PieceType.King)
-                {
-                    continue;
-                }
-
-                // 시전자와 같은 팀 또는 Neutral Jellu만 허용한다.
-                if (candidatePiece.Team !=
-                        actingPiece.Team &&
-                    candidatePiece.Team !=
-                        PieceTeam.Neutral)
-                {
-                    continue;
-                }
-
-                results.Add(
-                    candidatePiece
-                );
-            }
+            Piece candidate = pieceManager.GetPieceAt(x, y);
+            if (JelluSynthesisRules.IsMatchingMaterial(actingPiece, candidate)) results.Add(candidate);
         }
     }
 

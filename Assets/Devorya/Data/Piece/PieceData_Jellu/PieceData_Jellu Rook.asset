@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: 
   description: 
   pieceType: 1
-  uniqueSkill: 7
+  uniqueSkill: 9
   canMove: 1
   localizedDisplayName:
     m_TableReference:

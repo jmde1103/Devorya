@@ -1,7 +1,7 @@
 using System.Collections; // <변경부분> 기물 이동 연출 코루틴 사용
 using System.Collections.Generic; // <변경부분> 런타임 기물 상태 목록 저장에 사용
 using UnityEngine;
-public class PieceManager : MonoBehaviour
+public partial class PieceManager : MonoBehaviour
 {
     [Header("Manager")]
     [SerializeField] private BoardManager boardManager;
@@ -1469,6 +1469,7 @@ public class PieceManager : MonoBehaviour
         if (dx > 1 || dy > 1 || dx + dy == 0 || destination == null ||
             !IsEmpty(adjacentPosition.x, adjacentPosition.y)) return false;
 
+        List<GeneralSkillRuntimeData> inheritedTraits = PlayerPieceRuntimeData.FromPiece(source).generalSkills;
         int x = source.X, y = source.Y;
         Vector3 origin = source.transform.position;
         // Keep the source alive until both replacements exist. Failure restores the board.
@@ -1483,6 +1484,8 @@ public class PieceManager : MonoBehaviour
             return false;
         }
         // This is a replacement, not a capture: no death stacks or death effects.
+        first.ApplyGeneralSkillRuntimeData(inheritedTraits);
+        second.ApplyGeneralSkillRuntimeData(inheritedTraits);
         first.AddStatusEffect(attackDisabled, 1);
         second.AddStatusEffect(attackDisabled, 1);
         source.gameObject.SetActive(false);

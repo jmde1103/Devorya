@@ -43,14 +43,23 @@ public static class JelluSplitChecks
     }
     static IEnumerator Guard(IEnumerator routine)
     {
-        while (true)
+        var stack = new Stack<IEnumerator>();
+        stack.Push(routine);
+        float deadline = Time.realtimeSinceStartup + 180;
+        while (stack.Count > 0)
         {
             object current;
-            try { if (!routine.MoveNext()) break; current = routine.Current; }
+            try
+            {
+                if (Time.realtimeSinceStartup > deadline) throw new TimeoutException("Play Mode checks timed out.");
+                if (!stack.Peek().MoveNext()) { stack.Pop(); continue; }
+                current = stack.Peek().Current;
+            }
             catch (Exception e) { Debug.LogException(e); failed = true; break; }
-            yield return current;
+            if (current is IEnumerator nested) stack.Push(nested);
+            else yield return current;
         }
-        string report = (failed ? "FAIL" : "PASS") + ": " + assertions + " split assertions; Play Mode, real pawn prefab and spawn animation.\n";
+        string report = (failed ? "FAIL" : "PASS") + ": " + assertions + " split/degeneration assertions; Play Mode, inherited traits, real pawn prefab and spawn animation.\n";
         Directory.CreateDirectory("Logs");
         File.WriteAllText("Logs/jellu-split-results.txt", report);
         Debug.Log(report);
@@ -59,6 +68,10 @@ public static class JelluSplitChecks
     static IEnumerator RunCases()
     {
         StatusRestrictionChecks.Run();
+        yield return EvasionChecks.Run();
+        yield return SynthesisAbilityChecks.Run();
+        yield return TauntChecks.Run();
+        yield return QuickStepChecks.Run();
         var db = AssetDatabase.LoadAssetAtPath<PieceDatabase>("Assets/Devorya/Data/Piece/PieceDatabase.asset");
         var skillsDb = AssetDatabase.LoadAssetAtPath<UniqueSkillDatabase>("Assets/Devorya/Data/Skills/Unique/UniqueSkillDatabase.asset");
         var data = skillsDb.GetData(UniqueSkillType.JelluSplit);
@@ -97,6 +110,9 @@ public static class JelluSplitChecks
             manager.InitializePieceGrid(); validator.Initialize(board, manager);
             Set(skill, "pieceManager", manager); Set(skill, "boardManager", board); Set(skill, "battleMoveValidator", validator);
             Piece source = manager.SpawnPieceFromData(bishop, team, 2, 2, true, team == PieceTeam.Player);
+            source.AddGeneralSkill(GeneralSkillType.Defense);
+            source.AddGeneralSkill(GeneralSkillType.Insight);
+            source.AddGeneralSkill(GeneralSkillType.ChanceAttack);
             for (int n = 0; n < count - 1; n++) manager.SpawnJelluPawn(team, n % board.Width, n / board.Width);
             var originalPieces = new HashSet<Piece>();
             for (int y = 0; y < board.Height; y++) for (int x = 0; x < board.Width; x++)
@@ -162,6 +178,8 @@ public static class JelluSplitChecks
                 foreach (Piece p in newborns)
                 {
                     Check(p.Team == team && p.PieceType == PieceType.Pawn, "Team/type preserved");
+                    Check(p.GetGeneralSkills().Count == 3 && p.HasGeneralSkill(GeneralSkillType.Defense) &&
+                        p.HasGeneralSkill(GeneralSkillType.Insight) && p.HasGeneralSkill(GeneralSkillType.ChanceAttack), "Split inherits every trait");
                     Check(p.HasStatusEffect(StatusEffectType.AttackDisabled) && p.CanMoveThisTurn && !p.CanAttackThisTurn, "Both pawns can move but cannot attack");
                     var pawnEffects = (List<OwnedStatusEffectData>)typeof(Piece).GetField("statusEffects", Private).GetValue(p);
                     Check(pawnEffects.Count == 1 && pawnEffects[0].remainingTurn == 1, "Exactly one turn of attack restriction");
@@ -173,6 +191,65 @@ public static class JelluSplitChecks
                     Check(Vector3.Distance(p.transform.position, end) < 0.001f, "Spawn animation reaches destination");
                     Check(p.GetComponentInChildren<Spine.Unity.SkeletonAnimation>() != null, "Spine visual present");
                 }
+            }
+            if (count < 10)
+            {
+                Piece sibling = null;
+                foreach (Piece p in root.GetComponentsInChildren<Piece>())
+                    if (p.Team == team && p != manager.GetPieceAt(2, 2) && !originalPieces.Contains(p)) sibling = p;
+                Check(sibling != null, "Sibling found");
+                manager.GetPieceAt(2, 2).ClearGeneralSkills();
+                Check(sibling.GetGeneralSkills().Count == 3, "Split trait lists are independent");
+            }
+
+            // Invoke the death hook after the source object has actually been destroyed.
+            Piece deceased = manager.GetPieceAt(2, 2);
+            deceased.AddGeneralSkill(GeneralSkillType.Defense);
+            deceased.AddGeneralSkill(GeneralSkillType.Insight);
+            deceased.AddGeneralSkill(GeneralSkillType.ChanceAttack);
+            var inherited = PlayerPieceRuntimeData.FromPiece(deceased).generalSkills;
+            Vector3 deathOrigin = deceased.transform.position;
+            PieceType deadType = deceased.PieceType;
+            int beforeDeath = manager.GetPieceCount(team);
+            var deathBattle = root.GetComponent<BattleManager>() ?? root.AddComponent<BattleManager>();
+            deathBattle.enabled = false;
+            Set(deathBattle, "boardManager", board); Set(deathBattle, "pieceManager", manager);
+            var deathHook = typeof(BattleManager).GetMethod("TryTriggerDegenerationOnDeath", Private);
+            manager.RemovePiece(deceased);
+            yield return null;
+            Check(deceased == null, "Death source destroyed before inheritance");
+            var survivors = new HashSet<Piece>(root.GetComponentsInChildren<Piece>());
+            deathHook.Invoke(deathBattle, new object[] { false, team, deadType, 2, 2, deathOrigin, inherited });
+            Check(manager.GetPieceCount(team) == beforeDeath - 1, "No degeneration means no spawn");
+            deathHook.Invoke(deathBattle, new object[] { true, team, deadType, 2, 2, deathOrigin, inherited });
+            Check(manager.GetPieceCount(team) == beforeDeath, "Death replaces one piece even at original count ten");
+            Piece reborn = null;
+            foreach (Piece p in root.GetComponentsInChildren<Piece>()) if (!survivors.Contains(p))
+            {
+                Check(reborn == null, "Only one degeneration pawn"); reborn = p;
+            }
+            Check(reborn != null && reborn.Team == team && reborn.CurrentPieceData == db.GetData("Jellu Pawn"), "Allied Jellu pawn, not neutral wall");
+            Check((reborn.X != 2 || reborn.Y != 2) && Math.Abs(reborn.X - 2) <= 1 && Math.Abs(reborn.Y - 2) <= 1, "Degeneration spawns adjacent, not on death square");
+            Check(reborn.GetGeneralSkills().Count == 3 && reborn.HasGeneralSkill(GeneralSkillType.Defense) &&
+                reborn.HasGeneralSkill(GeneralSkillType.Insight) && reborn.HasGeneralSkill(GeneralSkillType.ChanceAttack), "Death pawn inherits all traits");
+            inherited.Clear();
+            Check(reborn.GetGeneralSkills().Count == 3, "Snapshot and pawn are independent");
+            Check(reborn.UniqueSkill == UniqueSkillType.JelluSynthesis && !reborn.HasStatusEffect(StatusEffectType.Degeneration), "Pawn ability retained, no inherited degeneration loop");
+            yield return new WaitForSeconds(1.5f);
+            Check(Vector3.Distance(reborn.transform.position, tiles[reborn.X, reborn.Y].transform.position + new Vector3(0, 0.25f, 0)) < 0.001f, "Death spawn animation arrives");
+            if (count == 10)
+            {
+                deathHook.Invoke(deathBattle, new object[] { true, team, deadType, 2, 2, deathOrigin, inherited });
+                Check(manager.GetPieceCount(team) == 10, "Death spawn cannot exceed ten");
+            }
+            if (count == 1)
+            {
+                manager.ClearAllPieces();
+                PieceTeam other = team == PieceTeam.Player ? PieceTeam.Enemy : PieceTeam.Player;
+                for (int y = 1; y <= 3; y++) for (int x = 1; x <= 3; x++)
+                    if (x != 2 || y != 2) manager.SpawnJelluPawn(other, x, y);
+                deathHook.Invoke(deathBattle, new object[] { true, team, PieceType.Knight, 2, 2, deathOrigin, inherited });
+                Check(manager.GetPieceCount(team) == 0, "Surrounded death does not spawn");
             }
             UnityEngine.Object.Destroy(root);
             yield return null;

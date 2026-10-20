@@ -51,6 +51,18 @@ MonoBehaviour:
     m_Key: general_skill.insight.tooltip
     m_Metadata:
       m_Items: []
+  - m_Id: 16710000000000001
+    m_Key: general_skill.quick_step.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16710000000000002
+    m_Key: general_skill.quick_step.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16710000000000003
+    m_Key: general_skill.quick_step.tooltip_format
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
