@@ -822,6 +822,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &8305332
 GameObject:
@@ -916,6 +917,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &8670312
 GameObject:
@@ -2370,6 +2372,7 @@ MonoBehaviour:
   decorationType: 1
   x: 18
   y: 15
+  layerOffset: 0
 --- !u!212 &23557091
 SpriteRenderer:
   serializedVersion: 2
@@ -3547,6 +3550,7 @@ MonoBehaviour:
   decorationType: 1
   x: 23
   y: 0
+  layerOffset: 0
 --- !u!212 &40293074
 SpriteRenderer:
   serializedVersion: 2
@@ -4082,6 +4086,7 @@ MonoBehaviour:
   decorationType: 1
   x: 27
   y: 35
+  layerOffset: 0
 --- !u!212 &41833947
 SpriteRenderer:
   serializedVersion: 2
@@ -4674,7 +4679,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &45107024
 GameObject:
@@ -4831,6 +4836,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &46546934
 GameObject:
@@ -5077,8 +5083,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RunStateManager
   playerPieceRuntimeDataList: []
   goldAmount: 0
+  enableTemporaryShopTestGold: 0
   battleItemDataList: []
   battleRelicDataList: []
+  initialEndTimerCycles: 15
+  remainingEndTimerCycles: 15
+  currentEndTimerTick: 0
+  endStageBattleData: {fileID: 0}
+  endStageBattleSceneName: BattleScene
 --- !u!4 &47045692
 Transform:
   m_ObjectHideFlags: 0
@@ -5142,6 +5154,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 35
+  layerOffset: 0
 --- !u!212 &48641465
 SpriteRenderer:
   serializedVersion: 2
@@ -5785,6 +5798,7 @@ MonoBehaviour:
   battleAnnouncementController: {fileID: 1666002820}
   currentTurn: 0
   turnCount: 0
+  currentStageName: 
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -7252,6 +7266,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &69764107
 GameObject:
@@ -8611,6 +8626,7 @@ MonoBehaviour:
   decorationType: 1
   x: 6
   y: 11
+  layerOffset: 0
 --- !u!212 &83997582
 SpriteRenderer:
   serializedVersion: 2
@@ -11635,6 +11651,7 @@ MonoBehaviour:
   decorationType: 1
   x: 34
   y: 25
+  layerOffset: 0
 --- !u!212 &113025960
 SpriteRenderer:
   serializedVersion: 2
@@ -12880,6 +12897,7 @@ MonoBehaviour:
   decorationType: 1
   x: 25
   y: 17
+  layerOffset: 0
 --- !u!212 &124103850
 SpriteRenderer:
   serializedVersion: 2
@@ -13365,7 +13383,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &129997000
 GameObject:
@@ -13843,6 +13861,7 @@ MonoBehaviour:
   decorationType: 1
   x: 13
   y: 19
+  layerOffset: 0
 --- !u!212 &134372743
 SpriteRenderer:
   serializedVersion: 2
@@ -15523,6 +15542,7 @@ MonoBehaviour:
   decorationType: 1
   x: 8
   y: 25
+  layerOffset: 0
 --- !u!212 &152518342
 SpriteRenderer:
   serializedVersion: 2
@@ -16190,7 +16210,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &158530633
 GameObject:
@@ -17738,6 +17758,7 @@ MonoBehaviour:
   decorationType: 1
   x: 30
   y: 5
+  layerOffset: 0
 --- !u!212 &169283454
 SpriteRenderer:
   serializedVersion: 2
@@ -17845,6 +17866,7 @@ MonoBehaviour:
   decorationType: 1
   x: 37
   y: 1
+  layerOffset: 0
 --- !u!212 &170349635
 SpriteRenderer:
   serializedVersion: 2
@@ -18619,7 +18641,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &176971479
 GameObject:
@@ -19336,6 +19358,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &182835297
 GameObject:
@@ -20221,6 +20244,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &191585762
 GameObject:
@@ -20942,6 +20966,7 @@ MonoBehaviour:
   decorationType: 1
   x: 13
   y: 2
+  layerOffset: 0
 --- !u!212 &198282941
 SpriteRenderer:
   serializedVersion: 2
@@ -21691,6 +21716,7 @@ MonoBehaviour:
   decorationType: 1
   x: 37
   y: 22
+  layerOffset: 0
 --- !u!212 &207005839
 SpriteRenderer:
   serializedVersion: 2
@@ -23261,6 +23287,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &225160317
 GameObject:
@@ -23845,6 +23872,7 @@ MonoBehaviour:
   decorationType: 1
   x: 38
   y: 2
+  layerOffset: 0
 --- !u!212 &228686559
 SpriteRenderer:
   serializedVersion: 2
@@ -24895,6 +24923,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &245404131
 GameObject:
@@ -25265,6 +25294,7 @@ MonoBehaviour:
   decorationType: 1
   x: 36
   y: 36
+  layerOffset: 0
 --- !u!212 &247901426
 SpriteRenderer:
   serializedVersion: 2
@@ -26348,6 +26378,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 50
 --- !u!1 &268408438
 GameObject:
@@ -26775,7 +26806,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &272209941
 GameObject:
@@ -26912,6 +26943,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &272211145
 GameObject:
@@ -26961,6 +26993,7 @@ MonoBehaviour:
   decorationType: 1
   x: 1
   y: 36
+  layerOffset: 0
 --- !u!212 &272211148
 SpriteRenderer:
   serializedVersion: 2
@@ -27660,7 +27693,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &279553940
 GameObject:
@@ -28473,6 +28506,7 @@ MonoBehaviour:
   decorationType: 1
   x: 12
   y: 37
+  layerOffset: 0
 --- !u!212 &287644732
 SpriteRenderer:
   serializedVersion: 2
@@ -29817,6 +29851,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &297617710
 GameObject:
@@ -30351,7 +30386,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &303938992
 GameObject:
@@ -30874,6 +30909,7 @@ MonoBehaviour:
   decorationType: 1
   x: 4
   y: 3
+  layerOffset: 0
 --- !u!212 &313407102
 SpriteRenderer:
   serializedVersion: 2
@@ -31145,7 +31181,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &314751595
 GameObject:
@@ -32671,6 +32707,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &323664331
 GameObject:
@@ -33041,6 +33078,7 @@ MonoBehaviour:
   decorationType: 1
   x: 20
   y: 39
+  layerOffset: 0
 --- !u!212 &326345980
 SpriteRenderer:
   serializedVersion: 2
@@ -33362,6 +33400,7 @@ MonoBehaviour:
   decorationType: 1
   x: 0
   y: 27
+  layerOffset: 0
 --- !u!212 &328136492
 SpriteRenderer:
   serializedVersion: 2
@@ -34304,6 +34343,7 @@ MonoBehaviour:
   dropAreaObject: {fileID: 1147801515}
   dropTitleText: {fileID: 0}
   rewardSlotPrefab: {fileID: 2537777922694835768, guid: 6de50ff11416da142a0ecbc7d7041993, type: 3}
+  pieceRepairSlotPrefab: {fileID: 0}
   goldTooltipData: {fileID: 11400000, guid: d06b053ccb5386d46b1d32785551123b, type: 2}
   confirmButton: {fileID: 553583809}
   continueText: {fileID: 522063335}
@@ -34312,6 +34352,12 @@ MonoBehaviour:
   popupOpenAnimator: {fileID: 337650158}
   addHorizontalLayoutWhenMissing: 1
   automaticSlotSpacing: 12
+  battleUIController: {fileID: 0}
+  absorbSettlementStepInterval: 0.45
+  recoverySlotPopDuration: 0.22
+  recoverySlotStartScale: 0.75
+  recoverySlotPeakScale: 1.12
+  eventSequenceController: {fileID: 0}
 --- !u!1 &338803680
 GameObject:
   m_ObjectHideFlags: 0
@@ -34681,6 +34727,7 @@ MonoBehaviour:
   decorationType: 1
   x: 30
   y: 29
+  layerOffset: 0
 --- !u!212 &340825691
 SpriteRenderer:
   serializedVersion: 2
@@ -35032,6 +35079,7 @@ MonoBehaviour:
   decorationType: 1
   x: 33
   y: 26
+  layerOffset: 0
 --- !u!212 &342912020
 SpriteRenderer:
   serializedVersion: 2
@@ -35246,6 +35294,7 @@ MonoBehaviour:
   decorationType: 1
   x: 13
   y: 14
+  layerOffset: 0
 --- !u!212 &346161718
 SpriteRenderer:
   serializedVersion: 2
@@ -36697,6 +36746,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &364491356
 GameObject:
@@ -36746,6 +36796,7 @@ MonoBehaviour:
   decorationType: 1
   x: 31
   y: 12
+  layerOffset: 0
 --- !u!212 &364491359
 SpriteRenderer:
   serializedVersion: 2
@@ -37784,6 +37835,7 @@ MonoBehaviour:
   decorationType: 1
   x: 20
   y: 15
+  layerOffset: 0
 --- !u!212 &371906405
 SpriteRenderer:
   serializedVersion: 2
@@ -37897,10 +37949,16 @@ MonoBehaviour:
   continueButton: {fileID: 1566874295}
   popupOpenAnimator: {fileID: 0}
   guideText: {fileID: 537248362}
+  selectPanelRoot: {fileID: 0}
+  selectDialoguePanelPrefab: {fileID: 0}
+  choiceClickFeedbackDuration: 0.18
+  choiceClickGhostEndScale: 1.12
+  choiceClickGhostAlpha: 0.4
   continueArrowImage: {fileID: 802418091}
   continueArrowMinAlpha: 0.25
   continueArrowFadeDuration: 0.4
   characterInterval: 0.03
+  typingSkipAdvanceDelay: 0.5
   useUnscaledTime: 1
 --- !u!1 &372434649
 GameObject:
@@ -38057,6 +38115,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 11
+  layerOffset: 0
 --- !u!212 &372931189
 SpriteRenderer:
   serializedVersion: 2
@@ -38649,7 +38708,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &380157970
 GameObject:
@@ -38913,6 +38972,7 @@ MonoBehaviour:
   decorationType: 1
   x: 7
   y: 25
+  layerOffset: 0
 --- !u!212 &382119408
 SpriteRenderer:
   serializedVersion: 2
@@ -40584,7 +40644,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -1820, y: -980}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &407108590
 GameObject:
@@ -40741,6 +40801,7 @@ MonoBehaviour:
   decorationType: 1
   x: 38
   y: 29
+  layerOffset: 0
 --- !u!212 &407590184
 SpriteRenderer:
   serializedVersion: 2
@@ -41082,6 +41143,7 @@ MonoBehaviour:
   decorationType: 1
   x: 29
   y: 24
+  layerOffset: 0
 --- !u!212 &411480109
 SpriteRenderer:
   serializedVersion: 2
@@ -41831,6 +41893,7 @@ MonoBehaviour:
   decorationType: 1
   x: 6
   y: 15
+  layerOffset: 0
 --- !u!212 &416094637
 SpriteRenderer:
   serializedVersion: 2
@@ -42426,6 +42489,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &419329595
 GameObject:
@@ -45925,7 +45989,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &464294048
 GameObject:
@@ -45975,6 +46039,7 @@ MonoBehaviour:
   decorationType: 1
   x: 2
   y: 2
+  layerOffset: 0
 --- !u!212 &464294051
 SpriteRenderer:
   serializedVersion: 2
@@ -47316,7 +47381,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &476380933
 GameObject:
@@ -48336,6 +48401,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &489491098
 GameObject:
@@ -50509,6 +50575,7 @@ MonoBehaviour:
   decorationType: 1
   x: 14
   y: 16
+  layerOffset: 0
 --- !u!212 &517874072
 SpriteRenderer:
   serializedVersion: 2
@@ -51499,7 +51566,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &532107919
 GameObject:
@@ -51977,6 +52044,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &535930233
 GameObject:
@@ -52083,7 +52151,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &535960758
 GameObject:
@@ -55645,6 +55713,7 @@ MonoBehaviour:
   decorationType: 1
   x: 4
   y: 33
+  layerOffset: 0
 --- !u!212 &566856916
 SpriteRenderer:
   serializedVersion: 2
@@ -56501,6 +56570,7 @@ MonoBehaviour:
   decorationType: 1
   x: 21
   y: 14
+  layerOffset: 0
 --- !u!212 &573453362
 SpriteRenderer:
   serializedVersion: 2
@@ -57515,6 +57585,7 @@ MonoBehaviour:
   decorationType: 1
   x: 5
   y: 9
+  layerOffset: 0
 --- !u!212 &584470980
 SpriteRenderer:
   serializedVersion: 2
@@ -58050,6 +58121,7 @@ MonoBehaviour:
   decorationType: 1
   x: 28
   y: 32
+  layerOffset: 0
 --- !u!212 &588041899
 SpriteRenderer:
   serializedVersion: 2
@@ -59158,7 +59230,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &600944493
 GameObject:
@@ -60418,6 +60490,7 @@ MonoBehaviour:
   decorationType: 1
   x: 24
   y: 2
+  layerOffset: 0
 --- !u!212 &615665059
 SpriteRenderer:
   serializedVersion: 2
@@ -61438,7 +61511,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &625127657
 GameObject:
@@ -61488,6 +61561,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 20
+  layerOffset: 0
 --- !u!212 &625127660
 SpriteRenderer:
   serializedVersion: 2
@@ -62829,7 +62903,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &637691207
 GameObject:
@@ -63093,6 +63167,7 @@ MonoBehaviour:
   decorationType: 1
   x: 7
   y: 22
+  layerOffset: 0
 --- !u!212 &639068371
 SpriteRenderer:
   serializedVersion: 2
@@ -63913,7 +63988,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &649677035
 GameObject:
@@ -65183,6 +65258,7 @@ MonoBehaviour:
   decorationType: 1
   x: 38
   y: 15
+  layerOffset: 0
 --- !u!212 &664488602
 SpriteRenderer:
   serializedVersion: 2
@@ -65504,6 +65580,7 @@ MonoBehaviour:
   decorationType: 1
   x: 26
   y: 25
+  layerOffset: 0
 --- !u!212 &668275258
 SpriteRenderer:
   serializedVersion: 2
@@ -65811,6 +65888,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!114 &670389594
 MonoBehaviour:
@@ -70207,7 +70285,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &707651203
 GameObject:
@@ -70685,6 +70763,7 @@ MonoBehaviour:
   decorationType: 1
   x: 5
   y: 24
+  layerOffset: 0
 --- !u!212 &709047020
 SpriteRenderer:
   serializedVersion: 2
@@ -70899,6 +70978,7 @@ MonoBehaviour:
   decorationType: 1
   x: 29
   y: 18
+  layerOffset: 0
 --- !u!212 &710416537
 SpriteRenderer:
   serializedVersion: 2
@@ -71498,7 +71578,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &715557112
 GameObject:
@@ -72215,7 +72295,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &722764287
 GameObject:
@@ -72800,6 +72880,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 34
+  layerOffset: 0
 --- !u!212 &729740548
 SpriteRenderer:
   serializedVersion: 2
@@ -74034,7 +74115,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &745792535
 GameObject:
@@ -74726,6 +74807,7 @@ MonoBehaviour:
   decorationType: 1
   x: 35
   y: 11
+  layerOffset: 0
 --- !u!212 &755447749
 SpriteRenderer:
   serializedVersion: 2
@@ -75582,6 +75664,7 @@ MonoBehaviour:
   decorationType: 1
   x: 26
   y: 35
+  layerOffset: 0
 --- !u!212 &758418321
 SpriteRenderer:
   serializedVersion: 2
@@ -75933,6 +76016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18a7290df02f2442a68e841563c23c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceStatusUIController
+  pieceSpinePreview: {fileID: 0}
   pieceImage: {fileID: 155726075}
   pieceTypeIconImage: {fileID: 251540507}
   generalSkillTexts:
@@ -77836,6 +77920,7 @@ MonoBehaviour:
   decorationType: 1
   x: 16
   y: 30
+  layerOffset: 0
 --- !u!212 &776879506
 SpriteRenderer:
   serializedVersion: 2
@@ -80188,6 +80273,7 @@ MonoBehaviour:
   decorationType: 1
   x: 28
   y: 18
+  layerOffset: 0
 --- !u!212 &802469867
 SpriteRenderer:
   serializedVersion: 2
@@ -81579,6 +81665,7 @@ MonoBehaviour:
   decorationType: 1
   x: 16
   y: 2
+  layerOffset: 0
 --- !u!212 &817939569
 SpriteRenderer:
   serializedVersion: 2
@@ -82492,7 +82579,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &832575517
 GameObject:
@@ -82755,7 +82842,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &835105895
 GameObject:
@@ -82805,6 +82892,7 @@ MonoBehaviour:
   decorationType: 1
   x: 37
   y: 34
+  layerOffset: 0
 --- !u!212 &835105898
 SpriteRenderer:
   serializedVersion: 2
@@ -83019,6 +83107,7 @@ MonoBehaviour:
   decorationType: 1
   x: 8
   y: 12
+  layerOffset: 0
 --- !u!212 &835401411
 SpriteRenderer:
   serializedVersion: 2
@@ -84542,7 +84631,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &855525050
 GameObject:
@@ -85007,6 +85096,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!224 &857694654
 RectTransform:
@@ -85086,6 +85176,7 @@ MonoBehaviour:
   decorationType: 1
   x: 9
   y: 1
+  layerOffset: 0
 --- !u!212 &857708869
 SpriteRenderer:
   serializedVersion: 2
@@ -85300,6 +85391,7 @@ MonoBehaviour:
   decorationType: 1
   x: 34
   y: 37
+  layerOffset: 0
 --- !u!212 &863708305
 SpriteRenderer:
   serializedVersion: 2
@@ -86049,6 +86141,7 @@ MonoBehaviour:
   decorationType: 1
   x: 35
   y: 0
+  layerOffset: 0
 --- !u!212 &870276508
 SpriteRenderer:
   serializedVersion: 2
@@ -86854,7 +86947,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &877429287
 GameObject:
@@ -87974,6 +88067,7 @@ MonoBehaviour:
   decorationType: 1
   x: 20
   y: 37
+  layerOffset: 0
 --- !u!212 &885512958
 SpriteRenderer:
   serializedVersion: 2
@@ -89044,6 +89138,7 @@ MonoBehaviour:
   decorationType: 1
   x: 0
   y: 33
+  layerOffset: 0
 --- !u!212 &896676253
 SpriteRenderer:
   serializedVersion: 2
@@ -89900,6 +89995,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18a7290df02f2442a68e841563c23c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceStatusUIController
+  pieceSpinePreview: {fileID: 0}
   pieceImage: {fileID: 1361242746}
   pieceTypeIconImage: {fileID: 7113310}
   generalSkillTexts:
@@ -90392,7 +90488,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &919299951
 GameObject:
@@ -90636,6 +90732,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &922895246
 GameObject:
@@ -92762,7 +92859,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &951288295
 GameObject:
@@ -92976,7 +93073,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &958165096
 GameObject:
@@ -93511,7 +93608,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &963435169
 GameObject:
@@ -96004,6 +96101,7 @@ MonoBehaviour:
   decorationType: 1
   x: 7
   y: 5
+  layerOffset: 0
 --- !u!212 &994534125
 SpriteRenderer:
   serializedVersion: 2
@@ -96278,6 +96376,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &999090490
 GameObject:
@@ -96541,6 +96640,7 @@ MonoBehaviour:
   decorationType: 1
   x: 30
   y: 38
+  layerOffset: 0
 --- !u!212 &999113785
 SpriteRenderer:
   serializedVersion: 2
@@ -97022,6 +97122,7 @@ MonoBehaviour:
   decorationType: 1
   x: 31
   y: 2
+  layerOffset: 0
 --- !u!212 &1010780605
 SpriteRenderer:
   serializedVersion: 2
@@ -98529,6 +98630,13 @@ MonoBehaviour:
   absorbOffSprite: {fileID: 21300000, guid: 58e3c0f96fba7ad4db8217e7b85e1927, type: 3}
   absorbOnSprite: {fileID: 21300000, guid: 63c2a9c25f26b344ba5fe4a86045c4d9, type: 3}
   deploymentConfirmIconImage: {fileID: 566633811}
+  absorbCountNumText: {fileID: 0}
+  absorbCountIconImage: {fileID: 0}
+  absorbCountPulsePeakScale: 1.23
+  absorbCountPulseDipScale: 0.94
+  absorbCountPulseDuration: 0.32
+  absorbCountGhostMaxScale: 1.45
+  absorbCountGhostStartAlpha: 0.3
   iconPixelBurstEffectPrefab: {fileID: 6012457692454821657, guid: b1763ae852c8a404caa341eb0404fa8f, type: 3}
   iconPixelBurstEffectParent: {fileID: 0}
   absorbIconPixelBurstAnchor: {fileID: 670389589}
@@ -100393,7 +100501,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1051088088
 GameObject:
@@ -101406,6 +101514,7 @@ MonoBehaviour:
   decorationType: 1
   x: 13
   y: 17
+  layerOffset: 0
 --- !u!212 &1060728367
 SpriteRenderer:
   serializedVersion: 2
@@ -104723,6 +104832,7 @@ MonoBehaviour:
   decorationType: 1
   x: 19
   y: 0
+  layerOffset: 0
 --- !u!212 &1094069606
 SpriteRenderer:
   serializedVersion: 2
@@ -106805,7 +106915,10 @@ MonoBehaviour:
   backgroundTilePrefab: {fileID: 8046875206570296531, guid: f8389c0d32bcf774889bc835df4aac69, type: 3}
   useDarkBackground: 1
   darkBackgroundColor: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
+  backgroundTileBrushSourceMode: 0
   paintTileType: 1
+  paintTileSprite: {fileID: 0}
+  paintTilePrefab: {fileID: 0}
   paintX: 0
   paintY: 0
   brushSize: 1
@@ -106820,24 +106933,40 @@ MonoBehaviour:
     Weight: 5
   decorationPrefab: {fileID: 2700466825957312643, guid: 2622db7b65d4a564089224576eb38e34, type: 3}
   decorationParent: {fileID: 594449982}
+  shopRoot: {fileID: 0}
   decorationSets:
-  - DecorationType: 1
+  - SetName: 
+    DecorationType: 1
     DecorationSprites:
     - {fileID: 21300000, guid: c6c741367b4982143b373f4b3d1241c0, type: 3}
     - {fileID: 21300000, guid: 46a406018a35b9f45a046082fc03a9dd, type: 3}
+    ActorOcclusionOffsets: []
   testDecorationType: 1
   testDecorationX: 30
   testDecorationY: 30
   decorationOffset: {x: 0, y: 0, z: 0}
   useDarkDecoration: 1
   decorationBrightness: 0.854
+  decorationBrushSourceMode: 0
   paintDecorationType: 1
+  paintDecorationSprite: {fileID: 0}
+  paintDecorationPrefab: {fileID: 0}
+  paintDecorationLayerOffset: 0
+  decorationPlacementMode: 0
+  hasFreePlacementAnchor: 0
+  freePlacementAnchorX: 0
+  freePlacementAnchorY: 0
   preventDuplicateDecoration: 1
   decorationSpawnRules:
   - TargetTileType: 1
     DecorationType: 1
     SpawnChance: 0.1
   currentMapData: {fileID: 11400000, guid: cfef9f2fa93f4dd4497b2fe408ea2bea, type: 2}
+  environmentLightingController: {fileID: 0}
+  dayNightTransitionDuration: 3
+  editorLightingProfileTime: 0
+  cloudShadowController: {fileID: 0}
+  fireflyEnvironmentController: {fileID: 0}
   newMapDataName: TutorialStage
   mapDataSaveFolder: Assets/Devorya/BackgroundMaps
 --- !u!4 &1113883778
@@ -107451,6 +107580,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleEndFlowController
   moveToMapSceneImmediatelyOnWin: 0
   mapSceneName: WorldMapScene
+  endStageBattleData: {fileID: 0}
+  endStageBattleSceneName: BattleScene
   battleRewardPopupUI: {fileID: 337650159}
   maxPlayerPieceCount: 10
   devoryaPawnRewardPercent: 90
@@ -109452,7 +109583,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1145419498
 GameObject:
@@ -109666,7 +109797,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1147801515
 GameObject:
@@ -110405,6 +110536,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1152215261
 GameObject:
@@ -111086,6 +111218,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1160850507
 GameObject:
@@ -112219,6 +112352,7 @@ MonoBehaviour:
   decorationType: 1
   x: 20
   y: 14
+  layerOffset: 0
 --- !u!212 &1173751495
 SpriteRenderer:
   serializedVersion: 2
@@ -112754,6 +112888,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 27
+  layerOffset: 0
 --- !u!212 &1178356670
 SpriteRenderer:
   serializedVersion: 2
@@ -115379,7 +115514,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1210079340
 GameObject:
@@ -117537,6 +117672,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 50
 --- !u!1 &1235220009
 GameObject:
@@ -118089,6 +118225,7 @@ MonoBehaviour:
   decorationType: 1
   x: 1
   y: 22
+  layerOffset: 0
 --- !u!212 &1243906545
 SpriteRenderer:
   serializedVersion: 2
@@ -119478,6 +119615,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 6
+  layerOffset: 0
 --- !u!212 &1253069644
 SpriteRenderer:
   serializedVersion: 2
@@ -120869,6 +121007,7 @@ MonoBehaviour:
   decorationType: 1
   x: 29
   y: 38
+  layerOffset: 0
 --- !u!212 &1268312459
 SpriteRenderer:
   serializedVersion: 2
@@ -121083,6 +121222,7 @@ MonoBehaviour:
   decorationType: 1
   x: 20
   y: 9
+  layerOffset: 0
 --- !u!212 &1269573362
 SpriteRenderer:
   serializedVersion: 2
@@ -121710,6 +121850,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: -100}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1276092969
 GameObject:
@@ -122231,6 +122372,7 @@ MonoBehaviour:
   decorationType: 1
   x: 30
   y: 15
+  layerOffset: 0
 --- !u!212 &1277423071
 SpriteRenderer:
   serializedVersion: 2
@@ -123301,6 +123443,7 @@ MonoBehaviour:
   decorationType: 1
   x: 37
   y: 23
+  layerOffset: 0
 --- !u!212 &1291099965
 SpriteRenderer:
   serializedVersion: 2
@@ -123465,7 +123608,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1298527620
 GameObject:
@@ -125120,6 +125263,7 @@ MonoBehaviour:
   decorationType: 1
   x: 7
   y: 14
+  layerOffset: 0
 --- !u!212 &1317152743
 SpriteRenderer:
   serializedVersion: 2
@@ -126586,6 +126730,7 @@ MonoBehaviour:
   decorationType: 1
   x: 0
   y: 3
+  layerOffset: 0
 --- !u!212 &1326313032
 SpriteRenderer:
   serializedVersion: 2
@@ -126800,6 +126945,7 @@ MonoBehaviour:
   decorationType: 1
   x: 34
   y: 28
+  layerOffset: 0
 --- !u!212 &1329990724
 SpriteRenderer:
   serializedVersion: 2
@@ -127014,6 +127160,7 @@ MonoBehaviour:
   decorationType: 1
   x: 38
   y: 11
+  layerOffset: 0
 --- !u!212 &1333918839
 SpriteRenderer:
   serializedVersion: 2
@@ -128784,6 +128931,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1364318516
 GameObject:
@@ -131917,7 +132065,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1397662343
 GameObject:
@@ -131967,6 +132115,7 @@ MonoBehaviour:
   decorationType: 1
   x: 1
   y: 37
+  layerOffset: 0
 --- !u!212 &1397662346
 SpriteRenderer:
   serializedVersion: 2
@@ -132375,6 +132524,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1403834169
 GameObject:
@@ -133111,6 +133261,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 50
 --- !u!1 &1411789589
 GameObject:
@@ -134230,6 +134381,7 @@ MonoBehaviour:
   decorationType: 1
   x: 35
   y: 17
+  layerOffset: 0
 --- !u!212 &1420270574
 SpriteRenderer:
   serializedVersion: 2
@@ -134501,7 +134653,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1424826473
 GameObject:
@@ -136659,6 +136811,7 @@ MonoBehaviour:
   decorationType: 1
   x: 32
   y: 14
+  layerOffset: 0
 --- !u!212 &1449131546
 SpriteRenderer:
   serializedVersion: 2
@@ -137144,7 +137297,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1453026262
 GameObject:
@@ -138487,6 +138640,7 @@ MonoBehaviour:
   decorationType: 1
   x: 26
   y: 0
+  layerOffset: 0
 --- !u!212 &1467302787
 SpriteRenderer:
   serializedVersion: 2
@@ -139204,6 +139358,7 @@ MonoBehaviour:
   decorationType: 1
   x: 14
   y: 11
+  layerOffset: 0
 --- !u!212 &1476136473
 SpriteRenderer:
   serializedVersion: 2
@@ -141506,6 +141661,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1505156456
 GameObject:
@@ -141722,6 +141878,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1507511365
 GameObject:
@@ -142254,6 +142411,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1514271225
 GameObject:
@@ -142624,6 +142782,7 @@ MonoBehaviour:
   decorationType: 1
   x: 6
   y: 8
+  layerOffset: 0
 --- !u!212 &1516440011
 SpriteRenderer:
   serializedVersion: 2
@@ -142838,6 +142997,7 @@ MonoBehaviour:
   decorationType: 1
   x: 6
   y: 4
+  layerOffset: 0
 --- !u!212 &1521709151
 SpriteRenderer:
   serializedVersion: 2
@@ -143955,6 +144115,7 @@ MonoBehaviour:
   decorationType: 1
   x: 34
   y: 32
+  layerOffset: 0
 --- !u!212 &1533774284
 SpriteRenderer:
   serializedVersion: 2
@@ -144918,6 +145079,7 @@ MonoBehaviour:
   decorationType: 1
   x: 30
   y: 0
+  layerOffset: 0
 --- !u!212 &1542084350
 SpriteRenderer:
   serializedVersion: 2
@@ -145968,7 +146130,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1550629439
 GameObject:
@@ -146232,6 +146394,7 @@ MonoBehaviour:
   decorationType: 1
   x: 21
   y: 36
+  layerOffset: 0
 --- !u!212 &1554999190
 SpriteRenderer:
   serializedVersion: 2
@@ -146717,7 +146880,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1560279913
 GameObject:
@@ -146732,6 +146895,7 @@ GameObject:
   - component: {fileID: 1560279915}
   - component: {fileID: 1560279914}
   - component: {fileID: 1560279918}
+  - component: {fileID: 1560279919}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -146772,7 +146936,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -146844,6 +147008,138 @@ MonoBehaviour:
   targetButton: {fileID: 0}
   targetRect: {fileID: 0}
   targetGraphic: {fileID: 0}
+--- !u!114 &1560279919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560279913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d30de4d1aa521d43a9a600723bd419c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResponsiveScreenLayout
+  elements:
+  - target: {fileID: 670389589}
+    anchor: {x: 1, y: 0}
+    inset: {x: 24, y: 24}
+    contentBounds:
+      m_Center: {x: 0.000038146973, y: -0.000045776367, z: 0}
+      m_Extent: {x: 100.000015, y: 100.00001, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 646759644}
+    anchor: {x: 0, y: 1}
+    inset: {x: 41.25, y: 203.12488}
+    contentBounds:
+      m_Center: {x: -0.000038146973, y: 0.000036239624, z: 0}
+      m_Extent: {x: 79.99999, y: 25.000013, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 1169879148}
+    anchor: {x: 0, y: 1}
+    inset: {x: 230.83344, y: 203.12488}
+    contentBounds:
+      m_Center: {x: 0.000015258789, y: 0.000036239624, z: 0}
+      m_Extent: {x: 79.99997, y: 25.000013, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 287602614}
+    anchor: {x: 0.5, y: 1}
+    inset: {x: -456.25003, y: 203.12488}
+    contentBounds:
+      m_Center: {x: -0.000038146973, y: 0.000036239624, z: 0}
+      m_Extent: {x: 79.99999, y: 25.000013, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 993747599}
+    anchor: {x: 0, y: 0.5}
+    inset: {x: 41.25, y: 240.00005}
+    contentBounds:
+      m_Center: {x: -0.000038146973, y: 0.000019073486, z: 0}
+      m_Extent: {x: 79.99999, y: 25.000013, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 1897976745}
+    anchor: {x: 1, y: 0.5}
+    inset: {x: 24, y: 0}
+    contentBounds:
+      m_Center: {x: -0.00011444092, y: 0.000015258789, z: 0}
+      m_Extent: {x: 100.000015, y: 99.999985, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 1275822945}
+    anchor: {x: 1, y: 0}
+    inset: {x: 24, y: 260}
+    contentBounds:
+      m_Center: {x: 1.0600357, y: 0.49996185, z: 0}
+      m_Extent: {x: 101.06001, y: 100.500015, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 1454506791}
+    anchor: {x: 0, y: 0}
+    inset: {x: 24, y: 24}
+    contentBounds:
+      m_Center: {x: 32.860016, y: 27.5, z: 0}
+      m_Extent: {x: 232.86002, y: 127.5, z: 0}
+    originalScale: {x: 1, y: 1, z: 1}
+  - target: {fileID: 1136322010}
+    anchor: {x: 1, y: 1}
+    inset: {x: 24, y: 24}
+    contentBounds:
+      m_Center: {x: 76.974976, y: -20.087479, z: 4.5}
+      m_Extent: {x: 277.41254, y: 136.31247, z: 4.5}
+    originalScale: {x: -1, y: 1, z: 1}
+  - target: {fileID: 927991179}
+    anchor: {x: 0.5, y: 0.5}
+    inset: {x: 0, y: 160}
+    contentBounds:
+      m_Center: {x: 0.000030517578, y: 0, z: 0}
+      m_Extent: {x: 275, y: 75, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 395887467}
+    anchor: {x: 0.5, y: 0}
+    inset: {x: 0, y: 24}
+    contentBounds:
+      m_Center: {x: 0, y: 25.499962, z: 0}
+      m_Extent: {x: 281.25, y: 75, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 1727565522}
+    anchor: {x: 0.5, y: 1}
+    inset: {x: 0, y: 120}
+    contentBounds:
+      m_Center: {x: 286.25, y: 0.000036239624, z: 0}
+      m_Extent: {x: 311.25, y: 24.999977, z: 0}
+    originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
+  - target: {fileID: 337650155}
+    anchor: {x: 0.5, y: 0.5}
+    inset: {x: 0, y: 0}
+    contentBounds:
+      m_Center: {x: 0, y: 0.19999695, z: 0}
+      m_Extent: {x: 249.99997, y: 250.24997, z: 0}
+    originalScale: {x: 1.2, y: 1.2, z: 1}
+  - target: {fileID: 1814115442}
+    anchor: {x: 0.5, y: 0}
+    inset: {x: 0, y: 180}
+    contentBounds:
+      m_Center: {x: -0.000030517578, y: -0.0000076293945, z: 0}
+      m_Extent: {x: 299.99997, y: 74.999985, z: 0}
+    originalScale: {x: 1.2, y: 1.2, z: 1}
+  - target: {fileID: 873098532}
+    anchor: {x: 0.5, y: 0}
+    inset: {x: 0, y: 180}
+    contentBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 553.125, y: 95.3125, z: 0}
+    originalScale: {x: 1, y: 1, z: 1}
+  - target: {fileID: 72671837}
+    anchor: {x: 0.5, y: 1}
+    inset: {x: -386.80005, y: 73.70004}
+    contentBounds:
+      m_Center: {x: -0.000030517578, y: 0, z: 0}
+      m_Extent: {x: 80, y: 18.899963, z: 0}
+    originalScale: {x: 1, y: 1, z: 1}
+  - target: {fileID: 1101380429}
+    anchor: {x: 0.5, y: 1}
+    inset: {x: -213.6, y: 73.70004}
+    contentBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 80, y: 18.899963, z: 0}
+    originalScale: {x: 1, y: 1, z: 1}
 --- !u!1 &1561759225
 GameObject:
   m_ObjectHideFlags: 0
@@ -148356,6 +148652,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1579659500
 GameObject:
@@ -148679,6 +148976,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1583832754
 GameObject:
@@ -148835,6 +149133,7 @@ MonoBehaviour:
   decorationType: 1
   x: 2
   y: 34
+  layerOffset: 0
 --- !u!212 &1585481963
 SpriteRenderer:
   serializedVersion: 2
@@ -148942,6 +149241,7 @@ MonoBehaviour:
   decorationType: 1
   x: 22
   y: 36
+  layerOffset: 0
 --- !u!212 &1585625561
 SpriteRenderer:
   serializedVersion: 2
@@ -149671,6 +149971,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1591807651
 GameObject:
@@ -149827,6 +150128,7 @@ MonoBehaviour:
   decorationType: 1
   x: 16
   y: 35
+  layerOffset: 0
 --- !u!212 &1591959048
 SpriteRenderer:
   serializedVersion: 2
@@ -150148,6 +150450,7 @@ MonoBehaviour:
   decorationType: 1
   x: 36
   y: 13
+  layerOffset: 0
 --- !u!212 &1594370501
 SpriteRenderer:
   serializedVersion: 2
@@ -151721,6 +152024,7 @@ MonoBehaviour:
   decorationType: 1
   x: 10
   y: 18
+  layerOffset: 0
 --- !u!212 &1609598939
 SpriteRenderer:
   serializedVersion: 2
@@ -152149,6 +152453,7 @@ MonoBehaviour:
   decorationType: 1
   x: 4
   y: 34
+  layerOffset: 0
 --- !u!212 &1614356765
 SpriteRenderer:
   serializedVersion: 2
@@ -153078,6 +153383,7 @@ GameObject:
   - component: {fileID: 1624233313}
   - component: {fileID: 1624233312}
   - component: {fileID: 1624233314}
+  - component: {fileID: 1624233315}
   m_Layer: 5
   m_Name: BattleTooltipPopup
   m_TagString: Untagged
@@ -153130,6 +153436,8 @@ MonoBehaviour:
   mainDescriptionText: {fileID: 1934699479}
   popupOpenAnimator: {fileID: 0}
   sectionParent: {fileID: 1277156562}
+  baseTooltipBackground: {fileID: 0}
+  sectionGapBelowBase: 0
   defaultSectionPrefab: {fileID: 5949523261928351889, guid: 7fb0b80725d63d54b986d89468079e28, type: 3}
   sectionPrefabs:
   - sectionType: 1
@@ -153196,6 +153504,18 @@ Canvas:
   m_SortingLayerID: 1125793717
   m_SortingOrder: 30
   m_TargetDisplay: 0
+--- !u!114 &1624233315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624233308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 887ae99a86052c74f8d0a238b8ea820b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenBoundedPopup
 --- !u!1 &1624374177
 GameObject:
   m_ObjectHideFlags: 0
@@ -153565,6 +153885,7 @@ MonoBehaviour:
   decorationType: 1
   x: 13
   y: 36
+  layerOffset: 0
 --- !u!212 &1630098230
 SpriteRenderer:
   serializedVersion: 2
@@ -153672,6 +153993,7 @@ MonoBehaviour:
   decorationType: 1
   x: 11
   y: 29
+  layerOffset: 0
 --- !u!212 &1630436664
 SpriteRenderer:
   serializedVersion: 2
@@ -153866,6 +154188,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1639313579
 GameObject:
@@ -154293,7 +154616,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1642655439
 GameObject:
@@ -154721,7 +155044,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1650824907
 GameObject:
@@ -155627,6 +155950,7 @@ MonoBehaviour:
   decorationType: 1
   x: 38
   y: 28
+  layerOffset: 0
 --- !u!212 &1656474654
 SpriteRenderer:
   serializedVersion: 2
@@ -156055,6 +156379,7 @@ MonoBehaviour:
   decorationType: 1
   x: 10
   y: 1
+  layerOffset: 0
 --- !u!212 &1657993292
 SpriteRenderer:
   serializedVersion: 2
@@ -157292,7 +157617,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1125793717
-  m_SortingLayer: 1
+  m_SortingLayer: 3
   m_SortingOrder: 100
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
@@ -158952,7 +159277,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1692093903
 GameObject:
@@ -159537,6 +159862,7 @@ MonoBehaviour:
   decorationType: 1
   x: 12
   y: 8
+  layerOffset: 0
 --- !u!212 &1696159810
 SpriteRenderer:
   serializedVersion: 2
@@ -159751,6 +160077,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1696994737
 GameObject:
@@ -160380,6 +160707,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1702388642
 GameObject:
@@ -161071,6 +161399,7 @@ MonoBehaviour:
   decorationType: 1
   x: 10
   y: 30
+  layerOffset: 0
 --- !u!212 &1712167927
 SpriteRenderer:
   serializedVersion: 2
@@ -161499,6 +161828,7 @@ MonoBehaviour:
   decorationType: 1
   x: 36
   y: 14
+  layerOffset: 0
 --- !u!212 &1713631045
 SpriteRenderer:
   serializedVersion: 2
@@ -162228,6 +162558,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1718324730
 GameObject:
@@ -162548,7 +162879,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1721060248
 GameObject:
@@ -163285,6 +163616,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 50
 --- !u!1 &1727565521
 GameObject:
@@ -163700,6 +164032,7 @@ MonoBehaviour:
   decorationType: 1
   x: 32
   y: 9
+  layerOffset: 0
 --- !u!212 &1733037863
 SpriteRenderer:
   serializedVersion: 2
@@ -164556,6 +164889,7 @@ MonoBehaviour:
   decorationType: 1
   x: 13
   y: 34
+  layerOffset: 0
 --- !u!212 &1740573298
 SpriteRenderer:
   serializedVersion: 2
@@ -165000,7 +165334,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -1820, y: -980}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1744861572
 MonoBehaviour:
@@ -165062,6 +165396,7 @@ MonoBehaviour:
   decorationType: 1
   x: 27
   y: 32
+  layerOffset: 0
 --- !u!212 &1745383852
 SpriteRenderer:
   serializedVersion: 2
@@ -165169,6 +165504,7 @@ MonoBehaviour:
   decorationType: 1
   x: 9
   y: 29
+  layerOffset: 0
 --- !u!212 &1745493471
 SpriteRenderer:
   serializedVersion: 2
@@ -165440,7 +165776,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1746647870
 GameObject:
@@ -166054,7 +166390,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1750363480
 GameObject:
@@ -167281,6 +167617,7 @@ MonoBehaviour:
   decorationType: 1
   x: 22
   y: 0
+  layerOffset: 0
 --- !u!212 &1760239854
 SpriteRenderer:
   serializedVersion: 2
@@ -167816,6 +168153,7 @@ MonoBehaviour:
   decorationType: 1
   x: 21
   y: 28
+  layerOffset: 0
 --- !u!212 &1764326616
 SpriteRenderer:
   serializedVersion: 2
@@ -168769,7 +169107,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1774205866
 GameObject:
@@ -169414,6 +169752,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &1783464246
 GameObject:
@@ -170194,7 +170533,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1796305959
 GameObject:
@@ -170565,6 +170904,7 @@ MonoBehaviour:
   decorationType: 1
   x: 34
   y: 4
+  layerOffset: 0
 --- !u!212 &1797996852
 SpriteRenderer:
   serializedVersion: 2
@@ -172275,6 +172615,7 @@ MonoBehaviour:
   decorationType: 1
   x: 34
   y: 24
+  layerOffset: 0
 --- !u!212 &1820965035
 SpriteRenderer:
   serializedVersion: 2
@@ -173691,7 +174032,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1838161062
 GameObject:
@@ -175453,6 +175794,7 @@ MonoBehaviour:
   decorationType: 1
   x: 3
   y: 4
+  layerOffset: 0
 --- !u!212 &1853204538
 SpriteRenderer:
   serializedVersion: 2
@@ -176737,6 +177079,7 @@ MonoBehaviour:
   decorationType: 1
   x: 39
   y: 35
+  layerOffset: 0
 --- !u!212 &1861271635
 SpriteRenderer:
   serializedVersion: 2
@@ -176951,6 +177294,7 @@ MonoBehaviour:
   decorationType: 1
   x: 35
   y: 25
+  layerOffset: 0
 --- !u!212 &1866326842
 SpriteRenderer:
   serializedVersion: 2
@@ -177807,6 +178151,7 @@ MonoBehaviour:
   decorationType: 1
   x: 15
   y: 27
+  layerOffset: 0
 --- !u!212 &1874666943
 SpriteRenderer:
   serializedVersion: 2
@@ -178078,7 +178423,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1878277119
 GameObject:
@@ -178688,7 +179033,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1884357668
 GameObject:
@@ -179624,6 +179969,7 @@ MonoBehaviour:
   decorationType: 1
   x: 10
   y: 14
+  layerOffset: 0
 --- !u!212 &1887958204
 SpriteRenderer:
   serializedVersion: 2
@@ -179945,6 +180291,7 @@ MonoBehaviour:
   decorationType: 1
   x: 31
   y: 32
+  layerOffset: 0
 --- !u!212 &1892411195
 SpriteRenderer:
   serializedVersion: 2
@@ -184538,7 +184885,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1940543105
 GameObject:
@@ -184752,7 +185099,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1941429877
 GameObject:
@@ -185872,6 +186219,7 @@ MonoBehaviour:
   decorationType: 1
   x: 16
   y: 6
+  layerOffset: 0
 --- !u!212 &1956097938
 SpriteRenderer:
   serializedVersion: 2
@@ -185979,6 +186327,7 @@ MonoBehaviour:
   decorationType: 1
   x: 22
   y: 38
+  layerOffset: 0
 --- !u!212 &1957176179
 SpriteRenderer:
   serializedVersion: 2
@@ -186292,6 +186641,7 @@ MonoBehaviour:
   decorationType: 1
   x: 17
   y: 28
+  layerOffset: 0
 --- !u!212 &1959953713
 SpriteRenderer:
   serializedVersion: 2
@@ -187255,6 +187605,7 @@ MonoBehaviour:
   decorationType: 1
   x: 25
   y: 27
+  layerOffset: 0
 --- !u!212 &1966762259
 SpriteRenderer:
   serializedVersion: 2
@@ -190938,6 +191289,7 @@ MonoBehaviour:
   decorationType: 1
   x: 33
   y: 19
+  layerOffset: 0
 --- !u!212 &2008171700
 SpriteRenderer:
   serializedVersion: 2
@@ -191744,7 +192096,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2023081496
 GameObject:
@@ -191958,7 +192310,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2025012916
 GameObject:
@@ -192599,6 +192951,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &2033523191
 GameObject:
@@ -194680,7 +195033,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1125793717
-  m_SortingLayer: 1
+  m_SortingLayer: 3
   m_SortingOrder: 10
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 9f35698a4335d494195ecd9bcf486cf6, type: 3}
@@ -194833,6 +195186,7 @@ MonoBehaviour:
   decorationType: 1
   x: 25
   y: 19
+  layerOffset: 0
 --- !u!212 &2054261037
 SpriteRenderer:
   serializedVersion: 2
@@ -195853,7 +196207,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2068592003
 GameObject:
@@ -196709,7 +197063,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2078189441
 GameObject:
@@ -197244,7 +197598,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2085812140
 GameObject:
@@ -197782,6 +198136,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &2094732400
 GameObject:
@@ -197938,6 +198293,7 @@ MonoBehaviour:
   decorationType: 1
   x: 25
   y: 33
+  layerOffset: 0
 --- !u!212 &2094786049
 SpriteRenderer:
   serializedVersion: 2
@@ -198259,6 +198615,7 @@ MonoBehaviour:
   decorationType: 1
   x: 8
   y: 38
+  layerOffset: 0
 --- !u!212 &2096271783
 SpriteRenderer:
   serializedVersion: 2
@@ -198851,7 +199208,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2101840236
 GameObject:
@@ -199971,6 +200328,7 @@ MonoBehaviour:
   decorationType: 1
   x: 7
   y: 28
+  layerOffset: 0
 --- !u!212 &2119269429
 SpriteRenderer:
   serializedVersion: 2
@@ -200919,6 +201277,11 @@ MonoBehaviour:
   battleManager: {fileID: 52600099}
   eventGuideUI: {fileID: 372108115}
   eventMarkerUI: {fileID: 1959258274}
+  endTimerRootBattleCanvasGroup: {fileID: 0}
+  goldRootCanvasGroup: {fileID: 0}
+  eventScreenGlitchController: {fileID: 0}
+  environmentGlobalAmbient: {fileID: 0}
+  characterFillLight: {fileID: 0}
 --- !u!4 &2133944368
 Transform:
   m_ObjectHideFlags: 0
@@ -201360,7 +201723,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2140273982
 GameObject:
@@ -201945,6 +202308,7 @@ MonoBehaviour:
   customPositionOffset: {x: 0, y: 0}
   fixedCanvasPosition: {x: 0, y: 0}
   sectionPositionOffset: {x: 0, y: 0}
+  popupOffsetXPerSection: 0
   popupOffsetYPerSection: 0
 --- !u!1 &2144010488
 GameObject:

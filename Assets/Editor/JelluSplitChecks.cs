@@ -74,9 +74,9 @@ public static class JelluSplitChecks
         yield return TauntChecks.Run();
         yield return QuickStepChecks.Run();
         var db = AssetDatabase.LoadAssetAtPath<PieceDatabase>("Assets/Devorya/Data/Piece/PieceDatabase.asset");
-        var skillsDb = AssetDatabase.LoadAssetAtPath<UniqueSkillDatabase>("Assets/Devorya/Data/Skills/Unique/UniqueSkillDatabase.asset");
+        var skillsDb = AssetDatabase.LoadAssetAtPath<UniqueSkillDatabase>("Assets/Devorya/Data/Skills/Unique/\ub2a5\ub825_\ub370\uc774\ud130\ubca0\uc774\uc2a4.asset");
         var data = skillsDb.GetData(UniqueSkillType.JelluSplit);
-        var statusDb = AssetDatabase.LoadAssetAtPath<StatusEffectDatabase>("Assets/Devorya/Data/StatusEffect/StatusEffectDatabase.asset");
+        var statusDb = AssetDatabase.LoadAssetAtPath<StatusEffectDatabase>("Assets/Devorya/Data/StatusEffect/\uc0c1\ud0dc\ud6a8\uacfc_\ub370\uc774\ud130\ubca0\uc774\uc2a4.asset");
         var attackDisabled = statusDb.GetData(StatusEffectType.AttackDisabled);
         Check(data.tooltipSections.Count == 1 && data.tooltipSections[0].statusEffectData == attackDisabled, "Attack-disabled tooltip section linked");
         Check(data.description.Contains("[공격불가]를 1턴") && !data.description.Contains("최대"), "Description updated");

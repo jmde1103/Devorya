@@ -6,8 +6,8 @@ using UnityEngine.Localization;
 // 일반스킬 레벨 시스템은 제거되었으며,
 // 각 스킬은 하나의 고정 확률과 설명만 사용한다.
 [CreateAssetMenu(
-    fileName = "GeneralSkillData",
-    menuName = "Devorya/Skill/General Skill Data"
+    fileName = "\ud2b9\uc131_\uc0c8 \ud2b9\uc131",
+    menuName = "Devorya/\ud2b9\uc131/\ud2b9\uc131 \ub370\uc774\ud130"
 )]
 public class GeneralSkillData : ScriptableObject
 {

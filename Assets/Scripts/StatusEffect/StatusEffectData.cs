@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 
 // <변경부분> 상태이상 기본 데이터를 관리하는 ScriptableObject
-[CreateAssetMenu(fileName = "StatusEffectData", menuName = "Devorya/Status Effect Data")]
+[CreateAssetMenu(fileName = "\uc0c1\ud0dc\ud6a8\uacfc_\uc0c8 \uc0c1\ud0dc\ud6a8\uacfc", menuName = "Devorya/\uc0c1\ud0dc\ud6a8\uacfc/\uc0c1\ud0dc\ud6a8\uacfc \ub370\uc774\ud130")]
 public class StatusEffectData : ScriptableObject
 {
     // 상태이상 종류

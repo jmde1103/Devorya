@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // <변경부분> 상태이상 데이터 목록을 관리하는 데이터베이스
-[CreateAssetMenu(fileName = "StatusEffectDatabase", menuName = "Devorya/Status Effect Database")]
+[CreateAssetMenu(fileName = "\uc0c1\ud0dc\ud6a8\uacfc_\ub370\uc774\ud130\ubca0\uc774\uc2a4", menuName = "Devorya/\uc0c1\ud0dc\ud6a8\uacfc/\ub370\uc774\ud130\ubca0\uc774\uc2a4")]
 public class StatusEffectDatabase : ScriptableObject
 {
     // 등록된 상태이상 데이터 목록

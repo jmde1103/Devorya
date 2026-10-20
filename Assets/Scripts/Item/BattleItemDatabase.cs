@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // <변경부분> BattleItemType으로 BattleItemData를 찾는 아이템 데이터베이스
-[CreateAssetMenu(fileName = "BattleItemDatabase", menuName = "Devorya/Battle/Item Database")]
+[CreateAssetMenu(fileName = "\uc544\uc774\ud15c_\ub370\uc774\ud130\ubca0\uc774\uc2a4", menuName = "Devorya/\uc544\uc774\ud15c/\ub370\uc774\ud130\ubca0\uc774\uc2a4")]
 public class BattleItemDatabase : ScriptableObject
 {
     // 전투 아이템 데이터 목록

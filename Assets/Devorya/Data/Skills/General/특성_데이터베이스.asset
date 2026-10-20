@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 730586183b98d7c4e800478e0439b8e7, type: 3}
+  m_Name: 특성_데이터베이스
+  m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillDatabase
+  generalSkillDatas:
+  - {fileID: 11400000, guid: 052db7fe2f2c06445b75d7b24d29d167, type: 2}
+  - {fileID: 11400000, guid: 5b4235061c6bbd748801bd364c2e5a1c, type: 2}
+  - {fileID: 11400000, guid: 2d03fdea12e4c5a408826872963f1a48, type: 2}
+  - {fileID: 11400000, guid: 04b028c824ed45db920b424c1e922f03, type: 2}
