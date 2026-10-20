@@ -284,13 +284,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 23825031499796
-    m_Localized: The opponent's Bishop-type lifeform has been confirmed to have generated
-      a neutral piece with no detectable life signs.
+    m_Localized: Unusual behavior has been detected in a [King]-type organism. The
+      subject is currently multiplying.
     m_Metadata:
       m_Items: []
   - m_Id: 23825031499797
-    m_Localized: First, we will proceed with a rapid Absorption before the target
-      escapes.
+    m_Localized: Analyzing.... The organism appears to be a liquid-form lifeform
+      possessing various Abilities, including Split, Multiply, and Synthesis.
     m_Metadata:
       m_Items: []
   - m_Id: 23825031499798
@@ -375,6 +375,86 @@ MonoBehaviour:
   - m_Id: 13586786291421184
     m_Localized: Devorya restores a number of pieces equal to half the number of
       enemy lifeforms absorbed during battle.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15071080922877952
+    m_Localized: Unusual behavior has been detected in a [Pawn]-type organism.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15071705370857472
+    m_Localized: Analyzing.... The organism appears to be a liquid-form lifeform
+      possessing various Abilities, including Split, Multiply, and Synthesis.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15083002598658048
+    m_Localized: Approaching the subject to perform a safe absorption procedure.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15089955261517824
+    m_Localized: Warning! Warning! The subject has attacked us.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15089981878571008
+    m_Localized: The subject appears unwilling to cooperate with the absorption procedure.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15089997200363520
+    m_Localized: Adjusting response protocol... We will subdue the subject first,
+      then proceed with absorption.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15090022546542592
+    m_Localized: Use Devorya's [Pawn] to absorb the subject.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15091139019935744
+    m_Localized: Unusual behavior has been detected in a [King]-type organism. The
+      subject is currently multiplying.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15091329814630400
+    m_Localized: Unusual behavior has been detected in a [Pawn]-type organism.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15091668009750528
+    m_Localized: Analyzing.... The organism appears to be a liquid-form lifeform
+      possessing various Abilities, including Split, Multiply, and Synthesis.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15098136599597056
+    m_Localized: The [King]-type subject is attempting to flee.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15098497829834752
+    m_Localized: Use the newly absorbed and reconstructed [Bishop] to pursue the
+      subject.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15102210455769088
+    m_Localized: 'Ability [Split] was used.
+
+      As a side effect of using [Split],
+      the status effect [Attack Disabled] has been applied.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15102249538293760
+    m_Localized: Status effects can be viewed in Status and are automatically removed
+      when their duration expires.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15103484513357824
+    m_Localized: Use the time gained from the Ability to swiftly subdue the remaining
+      enemy subject with Devorya's [Bishop].
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15104377661034496
+    m_Localized: Only the final boss subject remains. There is nowhere left to flee.
+      Please remain still.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15104395168059392
+    m_Localized: When only one enemy piece remains in battle, [Final Absorption]
+      becomes available. Press the button to use [Final Absorption].
     m_Metadata:
       m_Items: []
   references:

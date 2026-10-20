@@ -439,30 +439,32 @@ public class Piece : MonoBehaviour
         return Team != otherPiece.Team; // 일반 진영은 서로 다르면 적
     }
 
-    // 고유 스킬 사용 가능 여부
+    // <변경부분>
+    // 고유 능력(Ability) 사용 가능 여부.
+    //
+    // 기존 한 턴 1회 사용 제한은 제거한다.
+    // 능력별 쿨타임과 행동불가 상태효과는 그대로 적용한다.
     public bool CanUseUniqueSkill()
     {
-        if (HasStatusEffect(StatusEffectType.ActionDisabled)) return false;
+        if (HasStatusEffect(StatusEffectType.ActionDisabled))
+        {
+            return false;
+        }
 
-        // 고유 스킬이 없으면 사용 불가
+        // 고유 능력이 없으면 사용 불가
         if (UniqueSkill == UniqueSkillType.None)
         {
             return false;
         }
 
-        // 고유 스킬 쿨타임이 남아 있으면 사용 불가
+        // <변경부분>
+        // 쿨타임이 남아 있다면 사용 불가.
+        // 쿨타임이 0이면 같은 턴에도 다시 사용할 수 있다.
         if (uniqueSkillCooldown > 0)
         {
             return false;
         }
 
-        // 이번 턴에 이미 고유 스킬을 사용했으면 사용 불가
-        if (hasUsedUniqueSkillThisTurn)
-        {
-            return false;
-        }
-
-        // 고유 스킬 사용 가능
         return true;
     }
 

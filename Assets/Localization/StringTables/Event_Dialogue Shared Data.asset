@@ -327,6 +327,90 @@ MonoBehaviour:
     m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_72a38b6a.page_0f41fb2f
     m_Metadata:
       m_Items: []
+  - m_Id: 15071080922877952
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_6f4cc90f.page_17e76c01
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15071705370857472
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_6f4cc90f.page_4e95f0b1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15083002598658048
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_0c9b92a3.page_fc31f860
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15089955261517824
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_1746687d.page_d5337f24
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15089981878571008
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_1746687d.page_ec04af92
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15089997200363520
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_1746687d.page_55c10ab5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15090022546542592
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_1746687d.page_ab6830d8
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15091139019935744
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_9f2de6fb.page_a6ddb2db
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15091329814630400
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e0637bb1.page_911f8fe1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15091668009750528
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_b0c90a82.page_d3fcd22a
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15098136599597056
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_bd5ca600.page_d180c357
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15098497829834752
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_bd5ca600.page_39867c87
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15102210455769088
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_06824d7b.page_7a23cdd4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15102249538293760
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_06824d7b.page_d431fc41
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15103484513357824
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_06824d7b.page_c814c831
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15104377661034496
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_b3477ee5.page_28e7f060
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15104395168059392
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_b3477ee5.page_a29b7f2e
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949066956800
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e83882f4.page_9ebac676
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949142454272
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e83882f4.page_9ecc0dce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949142454273
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_09a12344.page_24db7f88
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949142454274
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_09a12344.page_b40248c4
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

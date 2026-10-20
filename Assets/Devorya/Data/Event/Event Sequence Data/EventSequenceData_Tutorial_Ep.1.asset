@@ -2217,7 +2217,7 @@ MonoBehaviour:
     showMarker: 0
     markerDisplayType: 0
     markerPositionOffset: {x: 0, y: 0.32}
-    spawnPieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    spawnPieceData: {fileID: 11400000, guid: 8d43bfa8508a8db4c89aadb790da154d, type: 2}
     spawnPieceTeam: 1
     spawnPosition: {x: 0, y: 4}
     spawnOverride:
@@ -2291,7 +2291,7 @@ MonoBehaviour:
     showMarker: 0
     markerDisplayType: 0
     markerPositionOffset: {x: 0, y: 0.32}
-    spawnPieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    spawnPieceData: {fileID: 11400000, guid: 66e0b8dd6ad0e8c47b7c45b87285d7ae, type: 2}
     spawnPieceTeam: 1
     spawnPosition: {x: 3, y: 2}
     spawnOverride:
@@ -2365,7 +2365,7 @@ MonoBehaviour:
     showMarker: 0
     markerDisplayType: 0
     markerPositionOffset: {x: 0, y: 0.32}
-    spawnPieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    spawnPieceData: {fileID: 11400000, guid: 301ab60db8d57664ca6829dba8404847, type: 2}
     spawnPieceTeam: 1
     spawnPosition: {x: 3, y: 0}
     spawnOverride:

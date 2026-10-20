@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8939fc0a949e21540822e23d23e50b09, type: 3}
+  m_Name: EventSequenceData
+  m_EditorClassIdentifier: Assembly-CSharp::EventSequenceData
+  sequenceName: "\uBC30\uD2C0\uC6A9"
+  localizationId: 
+  sequenceMode: 0
+  description: 
+  playAutomatically: 1
+  ignoreNormalBattleEnd: 1
+  pauseEnemyAIWhileSequenceActive: 1
+  skipNormalPlayerDeployment: 1
+  steps: []
+  completionType: 0
+  completionSceneName: 
+  completionCutsceneData: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

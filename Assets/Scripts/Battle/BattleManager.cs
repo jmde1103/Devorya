@@ -218,8 +218,6 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 이동/공격 연출이 진행 중인지 확인하는 값
     // 연출 중 추가 클릭으로 전투 로직이 중복 실행되는 것을 방지
     private bool isActionAnimating = false;
-    // 현재 턴에 고유 스킬을 이미 사용했는지 여부
-    private bool hasUsedUniqueSkillThisTurn = false;
 
     // <변경부분> 플레이어 진영 기물이 잡힌 누적 수
     private int playerDeathStackForUniqueSkill = 0;
@@ -227,6 +225,7 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 적 진영 기물이 잡힌 누적 수
     private int enemyDeathStackForUniqueSkill = 0;
 
+    // <변경부분> 찬스어택 발동으로 추가 행동 중인 기물
     // <변경부분> 찬스어택 발동으로 추가 행동 중인 기물
     private Piece chanceAttackBonusPiece = null;
 
@@ -2061,11 +2060,9 @@ public class BattleManager : MonoBehaviour
     }
 
     // <변경부분> AI 고유스킬의 실제 효과와
-    // 쿨타임, 사망 스택, 턴당 사용 상태를 처리한다.
+    // 쿨타임과 사망 스택을 처리한다.
     //
     // 고유스킬 성공 후에는 턴을 종료하지 않는다.
-    // BattleAIManager가 변경된 보드 상태로 후보를 다시 생성하여
-    // 같은 Enemy 턴에 이동 또는 공격을 이어서 실행한다.
     private IEnumerator ExecuteAIUniqueSkillRoutine(
         BattleAIAction action)
     {
@@ -2126,12 +2123,9 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
-        // 데이터 설정에 따라 턴 전체 고유스킬 사용권을 소모한다.
-        if (skillData.oncePerTurn)
-        {
-            hasUsedUniqueSkillThisTurn =
-                true;
-        }
+        // <변경부분>
+        // 진영 전체의 턴당 능력 사용 횟수 제한은 제거했다.
+        // 기존 사망 스택 소모와 기물별 쿨타임은 유지한다.
 
         // 데이터 설정에 따라 요구 사망 스택을 소모한다.
         if (skillData.consumeDeathStackOnUse)
@@ -3609,18 +3603,9 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // <변경부분> 데이터에서 한 턴 1회 제한이 켜져 있고
-        // 이미 이번 턴에 사용했다면 Ability 사용 불가
-        if (skillData.oncePerTurn &&
-            hasUsedUniqueSkillThisTurn)
-        {
-            ShowUniqueSkillFailMessage(
-                BattleUILocalization
-                    .GetAbilityFailAlreadyUsed()
-            );
-
-            return;
-        }
+        // <변경부분>
+        // 턴당 능력 사용 횟수 제한은 제거한다.
+        // 개별 기물의 쿨타임과 행동불가 상태는 그대로 검사한다.
 
         // <변경부분> 선택된 기물의 고유 스킬 공통 사용 가능 여부 확인
         //
@@ -3723,7 +3708,7 @@ public class BattleManager : MonoBehaviour
                     skillUsed = result
             );
 
-        // <변경부분> 스킬이 실제로 성공했을 때만 턴 사용권과 쿨타임 적용
+        // <변경부분> 스킬이 실제로 성공했을 때만 쿨타임과 사망 스택 적용
         if (skillUsed && skillData.skillType == UniqueSkillType.JelluSplit)
         {
             CompleteJelluSplitUse(skillTeam, skillData);
@@ -3731,11 +3716,9 @@ public class BattleManager : MonoBehaviour
         }
         if (skillUsed)
         {
-            // <변경부분> 데이터 설정에 따라 한 턴 1회 사용권 소모
-            if (skillData.oncePerTurn)
-            {
-                hasUsedUniqueSkillThisTurn = true;
-            }
+            // <변경부분>
+            // 턴당 능력 사용권은 소모하지 않는다.
+            // 기존 능력별 사망 스택 소모 조건은 유지한다.
 
             // <변경부분> 데이터 설정에 따라 사망 스택 소모
             if (skillData.consumeDeathStackOnUse)
@@ -3813,7 +3796,9 @@ public class BattleManager : MonoBehaviour
     // Split removes its caster; never refresh UI or apply cooldown through that reference.
     private void CompleteJelluSplitUse(PieceTeam team, UniqueSkillData data)
     {
-        if (data.oncePerTurn) hasUsedUniqueSkillThisTurn = true;
+        // <변경부분>
+        // JelluSplit도 진영 전체 능력 사용권을 소모하지 않는다.
+        // 기존 시전자 제거 및 사망 스택 처리는 유지한다.
         if (data.consumeDeathStackOnUse)
             ConsumeDeathStackForUniqueSkill(team, data.requiredDeathStack);
         selectedPiece = null;
@@ -4860,7 +4845,9 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
-        // 개별 쿨타임과 기물별 이번 턴 사용 상태를 검사한다.
+        // <변경부분>
+        // 개별 쿨타임, 행동불가 상태, 능력 보유 여부를 검사한다.
+        // 턴당 사용 횟수 제한은 적용하지 않는다.
         if (skillPiece.CanUseUniqueSkill() ==
             false)
         {
@@ -4877,13 +4864,9 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
-        // 데이터에서 턴당 1회 제한을 사용하는 스킬이면
-        // 같은 진영 턴에 다른 고유스킬을 이미 사용한 경우 제외한다.
-        if (skillData.oncePerTurn &&
-            hasUsedUniqueSkillThisTurn)
-        {
-            return false;
-        }
+        // <변경부분>
+        // Enemy AI도 진영 전체 턴당 사용 횟수 제한을 적용하지 않는다.
+        // 필요한 사망 스택과 능력별 쿨타임은 계속 검사한다.
 
         // 필요한 사망 스택이 부족하면 후보에서 제외한다.
         if (HasEnoughDeathStackForUniqueSkill(
@@ -5281,8 +5264,9 @@ public class BattleManager : MonoBehaviour
     // <변경부분> 턴 시작 시 현재 턴 진영 기물의 고유 스킬 상태만 갱신
     private void UpdateAllUniqueSkillTurnState()
     {
-        // 새 턴이 시작되면 턴 전체 고유 스킬 사용권 초기화
-        hasUsedUniqueSkillThisTurn = false;
+        // <변경부분>
+        // 진영 전체 턴당 능력 사용권 초기화는 제거한다.
+        // 기존 기물별 쿨타임 감소는 그대로 유지한다.
 
         // <변경부분> 현재 턴 주체 진영 계산
         PieceTeam currentTurnTeam = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
