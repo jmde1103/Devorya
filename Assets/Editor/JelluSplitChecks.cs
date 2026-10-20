@@ -82,7 +82,7 @@ public static class JelluSplitChecks
         Check(data.description.Contains("[공격불가]를 1턴") && !data.description.Contains("최대"), "Description updated");
         var bishop = db.GetData("Jellu Bishop");
         Check(data != null && data.skillName == "분열", "Split registered");
-        Check(data.oncePerTurn && data.cooldownTurn == 0, "One ability per turn; consumed caster has no cooldown");
+        Check(data.oncePerTurn && data.cooldownTurn == 0, "Legacy data retained; consumed caster has no cooldown");
         Check(bishop.uniqueSkill == UniqueSkillType.JelluSplit, "Bishop default");
         Check(skillsDb.GetData(UniqueSkillType.JelluWall) != null && (int)UniqueSkillType.JelluWall == 5, "Wall preserved");
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/PiecePrefab.prefab");
@@ -158,7 +158,7 @@ public static class JelluSplitChecks
                     Set(battle, "selectedPiece", source); Set(battle, "isBattleEnded", true);
                     yield return (IEnumerator)typeof(BattleManager).GetMethod("UseSelectedPieceSkillRoutine", Private)
                         .Invoke(battle, new object[] { source, data });
-                    Check((bool)typeof(BattleManager).GetField("hasUsedUniqueSkillThisTurn", Private).GetValue(battle), "Turn ability consumed");
+                    Check(typeof(BattleManager).GetField("hasUsedUniqueSkillThisTurn", Private) == null, "No obsolete team-wide ability quota");
                     Check(typeof(BattleManager).GetField("selectedPiece", Private).GetValue(battle) == null, "Removed caster deselected");
                     Check(!(bool)typeof(BattleManager).GetField("isActionAnimating", Private).GetValue(battle), "Input unlocked");
                 }

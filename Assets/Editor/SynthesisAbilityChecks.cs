@@ -136,7 +136,7 @@ public static class SynthesisAbilityChecks
                 yield return null;
             }
             Check(done&&success&&moved,"Absorption moves material into rook");
-            if(battle!=null) Check((bool)Get(battle,"hasUsedUniqueSkillThisTurn")&&rook.GetUniqueSkillCooldown()==3,"Success consumes turn ability and starts cooldown");
+            if(battle!=null) Check(rook.GetUniqueSkillCooldown()==3&&!rook.CanUseUniqueSkill(),"Success starts caster cooldown");
             Check(f.manager.GetPieceAt(3,2)==null&&king!=null,"Only selected material removed");
             Check(rook.HasStatusEffect(StatusEffectType.Defence)&&rook.HasStatusEffect(StatusEffectType.Breakthrough),"Both buffs applied");
             rook.ReduceActionRestrictionTurnAndRemoveExpired(); Check(rook.HasStatusEffect(StatusEffectType.Defence),"Reinforce survives current turn end");
