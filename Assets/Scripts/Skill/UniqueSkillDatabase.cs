@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // <변경부분> 고유스킬 타입에 맞는 UniqueSkillData를 찾아주는 데이터베이스
-[CreateAssetMenu(fileName = "UniqueSkillDatabase", menuName = "Devorya/Skill/Unique Skill Database")]
+[CreateAssetMenu(fileName = "\ub2a5\ub825_\ub370\uc774\ud130\ubca0\uc774\uc2a4", menuName = "Devorya/\ub2a5\ub825/\ub370\uc774\ud130\ubca0\uc774\uc2a4")]
 public class UniqueSkillDatabase : ScriptableObject
 {
     // 고유스킬 데이터 목록

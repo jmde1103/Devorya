@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 
 // <변경부분> 고유스킬 하나의 기본 설정 데이터를 관리하는 ScriptableObject
-[CreateAssetMenu(fileName = "UniqueSkillData", menuName = "Devorya/Skill/Unique Skill Data")]
+[CreateAssetMenu(fileName = "\ub2a5\ub825_\uc0c8 \ub2a5\ub825", menuName = "Devorya/\ub2a5\ub825/\ub2a5\ub825 \ub370\uc774\ud130")]
 public class UniqueSkillData : ScriptableObject
 {
     [Header("Basic")]

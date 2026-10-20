@@ -327,6 +327,7 @@ public class WorldMapCameraController : MonoBehaviour
 
     private void Update()
     {
+        if (WorldMapEventController.InputLocked) { ResetPCDragState(); ResetMobileGestureState(); return; }
         // Map Start Zoom / Map Close Zoom / Marker Follow 중에는
         // 자동 연출이 Camera와 WorldMapRoot를 직접 제어한다.
         if (isPlayingMapStartZoom ||

@@ -34,7 +34,7 @@ public static class StatusRestrictionChecks
             for (int y = 0; y < board.Height; y++)
                 for (int x = 0; x < board.Width; x++)
                     if (x != 2 || y != 2) others.Add(Create(root, x, y));
-            var db = AssetDatabase.LoadAssetAtPath<StatusEffectDatabase>("Assets/Devorya/Data/StatusEffect/StatusEffectDatabase.asset");
+            var db = AssetDatabase.LoadAssetAtPath<StatusEffectDatabase>("Assets/Devorya/Data/StatusEffect/\uc0c1\ud0dc\ud6a8\uacfc_\ub370\uc774\ud130\ubca0\uc774\uc2a4.asset");
             var attack = db.GetData(StatusEffectType.AttackDisabled);
             var action = db.GetData(StatusEffectType.ActionDisabled);
             Check(attack != null && action != null, "Registered assets");

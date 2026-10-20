@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28847ee270aad6346b645bf8628cbc76, type: 3}
+  m_Name: 상태효과_퇴화
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
+  effectType: 1
+  effectName: "\uD1F4\uD654"
+  description: "퇴화 상태에서 죽으면 인접한 빈칸에 같은 진영의 젤루 [폰] 1개를 생성한다. 생성된 기물은 죽은 기물의 특성을 이어받는다."
+  tooltipSections: []
+  localizedEffectName:
+    m_TableReference:
+      m_TableCollectionName: GUID:e842e6af1227296438f192bafb99765c
+    m_TableEntryReference:
+      m_KeyId: 72943439319040
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:e842e6af1227296438f192bafb99765c
+    m_TableEntryReference:
+      m_KeyId: 72943439319041
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  iconSprite: {fileID: 21300000, guid: 46bebc58d7fbb6c4c9700b49a88ab928, type: 3}
+  durationTurn: 1
+  maxStack: 1
+  references:
+    version: 2
+    RefIds: []

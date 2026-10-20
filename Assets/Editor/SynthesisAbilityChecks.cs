@@ -34,8 +34,8 @@ public static class SynthesisAbilityChecks
             validator = root.AddComponent<BattleMoveValidator>();
             skill = root.AddComponent<BattleSkillManager>();
             db = AssetDatabase.LoadAssetAtPath<PieceDatabase>("Assets/Devorya/Data/Piece/PieceDatabase.asset");
-            statuses = AssetDatabase.LoadAssetAtPath<StatusEffectDatabase>("Assets/Devorya/Data/StatusEffect/StatusEffectDatabase.asset");
-            skills = AssetDatabase.LoadAssetAtPath<UniqueSkillDatabase>("Assets/Devorya/Data/Skills/Unique/UniqueSkillDatabase.asset");
+            statuses = AssetDatabase.LoadAssetAtPath<StatusEffectDatabase>("Assets/Devorya/Data/StatusEffect/\uc0c1\ud0dc\ud6a8\uacfc_\ub370\uc774\ud130\ubca0\uc774\uc2a4.asset");
+            skills = AssetDatabase.LoadAssetAtPath<UniqueSkillDatabase>("Assets/Devorya/Data/Skills/Unique/\ub2a5\ub825_\ub370\uc774\ud130\ubca0\uc774\uc2a4.asset");
             var tiles = new Tile[board.Width, board.Height];
             for (int y=0; y<board.Height; y++) for (int x=0; x<board.Width; x++)
             {

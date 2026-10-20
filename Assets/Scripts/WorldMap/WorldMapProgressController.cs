@@ -146,6 +146,7 @@ public class WorldMapProgressController : MonoBehaviour
         0.9f;
 
     // 현재 검은 구체가 이동 중인지 확인한다.
+    public bool IsReadyForEvents { get; private set; }
     private bool isMovingMarker;
 
     // <변경부분>
@@ -489,6 +490,7 @@ public class WorldMapProgressController : MonoBehaviour
                         playerMarker
                     );
         }
+        IsReadyForEvents = true;
     }
 
     // 월드맵 진행 기능에 필요한 참조를 검사한다.
@@ -812,7 +814,7 @@ public class WorldMapProgressController : MonoBehaviour
     {
         // <변경부분>
         // 자동 경로의 구간 사이에도 다른 클릭을 받지 않는다.
-        if (isMovingMarker || isAutoMovingMarker)
+        if (WorldMapEventController.InputLocked || isMovingMarker || isAutoMovingMarker)
         {
             return;
         }

@@ -7,7 +7,9 @@ using UnityEngine.Localization;
 // 실제 실행할 아이템 효과의 종류를 정의한다.
 public enum BattleItemEffectType
 {
+    [InspectorName("\uae30\ubb3c \ubcc0\ud658")]
     ChangePiece = 0,
+    [InspectorName("\uc0c1\ud0dc\ud6a8\uacfc \ubd80\uc5ec")]
     ApplyStatusEffect = 1
 }
 
@@ -37,7 +39,7 @@ public class BattleItemEffectEntry
 }
 
 // <변경부분> 전투 중 사용하는 소모성 아이템 하나의 기본 데이터를 관리하는 ScriptableObject
-[CreateAssetMenu(fileName = "BattleItemData", menuName = "Devorya/Battle/Item Data")]
+[CreateAssetMenu(fileName = "\uc544\uc774\ud15c_\uc0c8 \uc544\uc774\ud15c", menuName = "Devorya/\uc544\uc774\ud15c/\uc544\uc774\ud15c \ub370\uc774\ud130")]
 public class BattleItemData : ScriptableObject
 {
     [Header("Basic")]

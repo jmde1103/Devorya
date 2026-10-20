@@ -16,7 +16,7 @@ public static class QuickStepChecks
     static IEnumerator Execute(BattleManager b,Piece p,Tile tile)=>(IEnumerator)typeof(BattleManager).GetMethod("ExecutePieceActionRoutine",Private).Invoke(b,new object[]{p,tile});
     public static IEnumerator Run()
     {
-        var original=AssetDatabase.LoadAssetAtPath<GeneralSkillDatabase>("Assets/Devorya/Data/Skills/General/GeneralSkillDatabase.asset");
+        var original=AssetDatabase.LoadAssetAtPath<GeneralSkillDatabase>("Assets/Devorya/Data/Skills/General/\ud2b9\uc131_\ub370\uc774\ud130\ubca0\uc774\uc2a4.asset");
         var data=original.GetData(GeneralSkillType.QuickStep);
         Check(data!=null&&data.quickStepPercent==30&&data.skillName=="빠른 발걸음","Registered trait with 30% default");
         foreach(PieceTeam team in new[]{PieceTeam.Player,PieceTeam.Enemy})

@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ec2b140f995cdf4ea8600a28ef6b4a6, type: 3}
+  m_Name: "\uC6D4\uB4DC\uB9F5_\uAE30\uBCF8 \uC774\uBCA4\uD2B8"
+  m_EditorClassIdentifier: Assembly-CSharp::WorldMapEventData
+  eventName: "\uC6D4\uB4DC\uB9F5 \uAE30\uBCF8 \uC774\uBCA4\uD2B8"
+  restoreLightingOnComplete: 1
+  steps:
+  - enabled: 1
+    stepName: "\uAE00\uB9AC\uCE58 \uD6A8\uACFC"
+    type: 3
+    dialoguePages:
+    - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
+    localizedDialoguePages: []
+    lockPlayerInput: 0
+    showUI: 0
+    glitchStrength: 1
+    glitchDuration: 0.5
+    waitForComplete: 1
+    changeGlobalLight: 0
+    lightColor: {r: 0, g: 0, b: 0, a: 0}
+    lightIntensity: 0
+    lightFadeDuration: 0
+    screenFlash: 0
+    flashColor: {r: 0, g: 0, b: 0, a: 0}
+    flashStrength: 0
+    flashDuration: 0
+    flashCount: 0
+    flashInterval: 0
+    waitDuration: 0
+  - enabled: 1
+    stepName: "\uB300\uD654"
+    type: 0
+    dialoguePages:
+    - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
+    localizedDialoguePages: []
+    lockPlayerInput: 0
+    showUI: 0
+    glitchStrength: 0
+    glitchDuration: 0
+    waitForComplete: 0
+    changeGlobalLight: 0
+    lightColor: {r: 0, g: 0, b: 0, a: 0}
+    lightIntensity: 0
+    lightFadeDuration: 0
+    screenFlash: 0
+    flashColor: {r: 0, g: 0, b: 0, a: 0}
+    flashStrength: 0
+    flashDuration: 0
+    flashCount: 0
+    flashInterval: 0
+    waitDuration: 0
+  references:
+    version: 2
+    RefIds: []
