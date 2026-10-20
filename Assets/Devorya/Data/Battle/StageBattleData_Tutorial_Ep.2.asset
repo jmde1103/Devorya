@@ -25,6 +25,8 @@ MonoBehaviour:
   useRunStatePlayerPieces: 1
   savePlayerPiecesToRunState: 1
   enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
-  battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
+  battleRewardData: {fileID: 0}
+  victorySceneName: WorldMapScene
+  victoryCutsceneData: {fileID: 0}
   enemyUniqueSkillUseChance: 0
   enemyGeneralSkillGrantRules: []

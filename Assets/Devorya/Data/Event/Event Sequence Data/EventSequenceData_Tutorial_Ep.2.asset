@@ -5253,6 +5253,78 @@ MonoBehaviour:
     battleUIWaitForComplete: 1
     waitDuration: 0.5
   - stepName: 
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 5
+  - stepName: 
     stepType: 14
     dialoguePages: []
     dialogueLocalizationId: 
