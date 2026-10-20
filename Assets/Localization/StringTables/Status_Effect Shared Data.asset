@@ -47,6 +47,22 @@ MonoBehaviour:
     m_Key: status_effect.attack_disabled.description
     m_Metadata:
       m_Items: []
+  - m_Id: 16700000000000001
+    m_Key: status_effect.taunt.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16700000000000002
+    m_Key: status_effect.taunt.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16720000000000001
+    m_Key: status_effect.evasion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16720000000000002
+    m_Key: status_effect.evasion.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

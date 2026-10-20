@@ -302,7 +302,7 @@ public class PieceAnimationManager : MonoBehaviour
         Piece piece,
         Vector3 targetWorldPosition,
         bool isAbsorbAction,
-        System.Action onImpact = null)
+        System.Action onImpact = null, System.Action onSlamStart = null)
     {
         // 공격할 기물이 없으면 종료
         if (piece == null)
@@ -481,6 +481,7 @@ public class PieceAnimationManager : MonoBehaviour
             }
         }
 
+        onSlamStart?.Invoke();
         // 4단계: 상대 기물 위치로 빠르게 내려찍기
         yield return MoveTransformRoutine(
             piece.transform,

@@ -77,19 +77,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743360
-    m_Localized: "\uC824\uB8E8 \uD569\uC131"
+    m_Localized: "합성"
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743361
-    m_Localized: "\uD0B9\uC744 \uC81C\uC678\uD55C \uAC19\uC740 \uC885\uC871\uC758
-      \uC544\uAD70 \uB610\uB294 \uAC19\uC740 \uC885\uC871\uC758 \uC911\uB9BD \uAE30\uBB3C
-      2\uAC1C\uB97C \uD569\uC131\uD574\n\uB79C\uB364\uD558\uAC8C \uAC19\uC740 \uC885\uC871\uC758
-      \uC0C1\uC704 \uAE30\uBB3C\uB85C \uC2B9\uAE09"
+    m_Localized: "인접한 아군 중 자신과 같은 종류의 기물 2개와 합성하여 자신의 종족을 유지한 채 나이트, 비숍, 룩 중 하나로 무작위 승급한다. 자신에게 [공격불가]를 1턴 부여한다."
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743362
-    m_Localized: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
-      \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Localized: "인접한 아군 중 자신과 같은 종류의 기물이 2개 필요합니다."
     m_Metadata:
       m_Items: []
   - m_Id: 88327840206848
@@ -126,12 +122,24 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16691838979805184
-    m_Localized: "자신을 제거하고, 원래 위치와 인접한 빈칸에 젤루 [폰]을 각각 1개씩 생성한다. 생성된 기물에 [공격불가]를 1턴 부여한다."
+    m_Localized: "자신을 제거하고, 원래 위치와 인접한 빈칸에 젤루 [폰]을 각각 1개씩 생성한다. 생성된 기물은 자신의 특성을 이어받으며, [공격불가]를 1턴 부여받는다."
     m_Metadata:
       m_Items: []
   - m_Id: 16691838979805185
     m_Localized: "\uCD5C\uB300 \uAE30\uBB3C \uC218\uB97C \uCD08\uACFC\uD558\uAC8C
       \uB418\uC5B4 \uBD84\uC5F4\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691840000000001
+    m_Localized: "합성 : 강화"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691840000000002
+    m_Localized: "인접한 아군 [폰] 1개를 무작위로 흡수하고 제거한다. 자신에게 [돌파]와 [방어]를 각각 1턴 부여한다."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16691840000000003
+    m_Localized: "흡수할 수 있는 인접한 아군 [폰]이 없습니다."
     m_Metadata:
       m_Items: []
   references:

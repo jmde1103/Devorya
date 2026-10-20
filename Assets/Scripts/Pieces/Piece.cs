@@ -208,7 +208,9 @@ public class Piece : MonoBehaviour
 
     // Base movement permission stays independent from temporary status effects.
     public bool CanMoveThisTurn => CanMove && !HasStatusEffect(StatusEffectType.ActionDisabled);
-    public bool CanAttackThisTurn => CanMoveThisTurn && !HasStatusEffect(StatusEffectType.AttackDisabled);
+    public bool IsQuickStepMove { get; private set; }
+    public void SetQuickStepMove(bool active) { IsQuickStepMove = active; }
+    public bool CanAttackThisTurn => CanMoveThisTurn && !IsQuickStepMove && !HasStatusEffect(StatusEffectType.AttackDisabled);
 
     public bool CanMove { get; private set; } // 기물의 소속 진영
     public int X { get; private set; } // 현재 보드 X 좌표
@@ -446,10 +448,8 @@ public class Piece : MonoBehaviour
     // 능력별 쿨타임과 행동불가 상태효과는 그대로 적용한다.
     public bool CanUseUniqueSkill()
     {
-        if (HasStatusEffect(StatusEffectType.ActionDisabled))
-        {
-            return false;
-        }
+        if (IsQuickStepMove) return false;
+        if (HasStatusEffect(StatusEffectType.ActionDisabled)) return false;
 
         // 고유 능력이 없으면 사용 불가
         if (UniqueSkill == UniqueSkillType.None)

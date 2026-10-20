@@ -39,8 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 72943439319041
-    m_Localized: When a piece dies while under Degeneration, creates a neutral piece
-      of the same race in an adjacent space.
+    m_Localized: "When this piece dies while under Degeneration, create one allied Jellu [Pawn] on an adjacent empty square. It inherits the traits of the defeated piece."
     m_Metadata:
       m_Items: []
   - m_Id: 16559834879627264
@@ -50,6 +49,22 @@ MonoBehaviour:
   - m_Id: 16559834950930432
     m_Localized: While [Attack Disabled], cannot make a move that would capture an
       enemy piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16700000000000001
+    m_Localized: "Taunt"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16700000000000002
+    m_Localized: "When an adjacent ally is attacked, swap places with that ally and take the attack instead."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16720000000000001
+    m_Localized: "Evasion"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16720000000000002
+    m_Localized: "When attacked, has a 50% chance to move to an adjacent empty tile and evade the attack. The attacker moves to the vacated tile."
     m_Metadata:
       m_Items: []
   references:

@@ -7,7 +7,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 // <변경부분> 전투 중 일반스킬과 스킬 발동 판정을 관리하는 매니저
-public class BattleSkillManager : MonoBehaviour
+public partial class BattleSkillManager : MonoBehaviour
 {
     // <변경부분> 보드 범위 확인에 사용하는 보드 매니저
     private BoardManager boardManager;
@@ -427,13 +427,16 @@ public class BattleSkillManager : MonoBehaviour
     public bool CanUseUniqueSkillEffect(
         Piece piece)
     {
-        if (piece == null || piece.HasStatusEffect(StatusEffectType.ActionDisabled))
+        if (piece == null || piece.IsQuickStepMove || piece.HasStatusEffect(StatusEffectType.ActionDisabled))
         {
             return false;
         }
 
         switch (piece.UniqueSkill)
         {
+            case UniqueSkillType.JelluReinforce:
+                return CanReinforce(piece);
+
             case UniqueSkillType.JelluSplit:
                 return UseOrValidateJelluSplit(piece, false);
 
@@ -496,7 +499,7 @@ public class BattleSkillManager : MonoBehaviour
 
             case UniqueSkillType.JelluSynthesis:
                 {
-                    if (battleMoveValidator == null)
+                    if (statusEffectDatabase == null || statusEffectDatabase.GetData(StatusEffectType.AttackDisabled) == null || battleMoveValidator == null || pieceManager == null || !pieceManager.HasSynthesisPromotion(piece))
                     {
                         return false;
                     }
@@ -595,7 +598,7 @@ public class BattleSkillManager : MonoBehaviour
     public bool TryUseUniqueSkill(Piece piece)
     {
         // 스킬을 사용할 기물이 없으면 실패
-        if (piece == null || piece.HasStatusEffect(StatusEffectType.ActionDisabled))
+        if (piece == null || piece.IsQuickStepMove || piece.HasStatusEffect(StatusEffectType.ActionDisabled))
         {
             return false;
         }
@@ -634,10 +637,12 @@ public class BattleSkillManager : MonoBehaviour
 
     // <변경부분> 고유스킬을 코루틴으로 실행하는 함수
     // 합성처럼 애니메이션 종료 후 실제 효과가 적용되어야 하는 스킬을 처리하기 위해 사용
-    public IEnumerator TryUseUniqueSkillRoutine(
-    Piece piece,
-    Sprite skillIcon,
-    Action<bool> onComplete)
+    public IEnumerator TryUseUniqueSkillRoutine(Piece piece, Sprite skillIcon, Action<bool> onComplete)
+    {
+        return TryUseTargetedUniqueSkillRoutine(piece, skillIcon, onComplete, null);
+    }
+
+    public IEnumerator TryUseTargetedUniqueSkillRoutine(Piece piece, Sprite skillIcon, Action<bool> onComplete, Piece skillTarget)
     {
         if (piece == null)
         {
@@ -667,6 +672,10 @@ public class BattleSkillManager : MonoBehaviour
         switch (piece.UniqueSkill)
         {
             // <변경부분> 젤루 합성은 재료 이동 연출 후 승급되어야 하므로 코루틴으로 처리
+            case UniqueSkillType.JelluReinforce:
+                yield return UseJelluReinforcementRoutine(piece, skillTarget, onComplete);
+                yield break;
+
             case UniqueSkillType.JelluSynthesis:
                 yield return UseJelluSynthesisRoutine(piece, result => skillUsed = result);
                 onComplete?.Invoke(skillUsed);
@@ -888,34 +897,12 @@ public class BattleSkillManager : MonoBehaviour
         }
 
         // 현재 준비된 젤루 상위 기물 중 랜덤 승급
-        List<PieceType> promotionTypes =
-            new List<PieceType>
-            {
-            PieceType.Knight,
-            PieceType.Bishop,
-            PieceType.Rook
-            };
+        PieceData promotionData = pieceManager.ChooseSynthesisPromotion(piece);
+        if (promotionData == null) { onComplete?.Invoke(false); yield break; }
+        PieceType selectedPromotionType = promotionData.pieceType;
+        Vector3 materialStartA = selectedMaterialA.transform.position;
+        Vector3 materialStartB = selectedMaterialB.transform.position;
 
-        PieceType selectedPromotionType =
-            promotionTypes[
-                Random.Range(
-                    0,
-                    promotionTypes.Count
-                )
-            ];
-
-        // 승급 타입에 맞는 젤루 고유스킬 결정
-        UniqueSkillType promotedUniqueSkill =
-            GetJelluPromotionUniqueSkill(
-                selectedPromotionType
-            );
-
-        // <변경부분>
-        // 선택한 두 재료를 List 인덱스로 다시 꺼내지 않고
-        // 확정된 Piece 참조를 직접 전달한다.
-        //
-        // 따라서 selectedMaterials[0], [1]에서 발생할 수 있는
-        // ArgumentOutOfRangeException 경로 자체를 제거한다.
         yield return
             pieceManager
                 .PlaySynthesisMaterialMoveAnimation(
@@ -926,8 +913,10 @@ public class BattleSkillManager : MonoBehaviour
 
         // 연출 중 스킬 사용자 Pawn이 사라졌다면
         // 이후 승급을 실행할 수 없다.
-        if (piece == null)
+        if (piece == null || selectedMaterialA == null || selectedMaterialB == null || !JelluSynthesisRules.IsMatchingMaterial(piece, selectedMaterialA) || !JelluSynthesisRules.IsMatchingMaterial(piece, selectedMaterialB))
         {
+            if (selectedMaterialA != null) selectedMaterialA.transform.position = materialStartA;
+            if (selectedMaterialB != null) selectedMaterialB.transform.position = materialStartB;
             Debug.LogWarning(
                 "젤루 합성 실패: " +
                 "연출 중 스킬 사용자가 사라졌습니다."
@@ -966,11 +955,7 @@ public class BattleSkillManager : MonoBehaviour
         // 선택된 상위 Jellu 타입으로 승급시킨다.
         bool promoteSuccess =
             pieceManager
-                .PromotePieceToJelluType(
-                    piece,
-                    selectedPromotionType,
-                    promotedUniqueSkill
-                );
+                .PromoteBySynthesis(piece, promotionData);
 
         if (promoteSuccess == false)
         {
@@ -991,6 +976,8 @@ public class BattleSkillManager : MonoBehaviour
         // PieceManager에서 이미 원본 색상 상태로 준비되어 있으며,
         // PlayPieceBornAnimation 내부에서 Born이 끝난 뒤
         // Color Adjustment 전환까지 순서대로 처리된다.
+        piece.AddStatusEffect(statusEffectDatabase.GetData(StatusEffectType.AttackDisabled), 1);
+
         yield return
             pieceManager.PlayPieceBornAnimation(
                 piece
@@ -1035,7 +1022,7 @@ public class BattleSkillManager : MonoBehaviour
 
             // 젤루 벽은 Bishop 고유스킬로 이동한 상태
             case PieceType.Rook:
-                return UniqueSkillType.HornHeadbutt;
+                return UniqueSkillType.JelluReinforce;
 
             // <변경부분> 젤루 Bishop 고유스킬: 젤루 벽
             case PieceType.Bishop:

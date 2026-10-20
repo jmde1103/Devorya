@@ -40,9 +40,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 72943439319041
-    m_Localized: "\uD1F4\uD654\uC0C1\uD0DC \uC911 \uAE30\uBB3C\uC774 \uC8FD\uC73C\uBA74
-      \uC778\uC811\uD55C \uACF5\uAC04\uC5D0 \uAC19\uC740 \uC885\uC871\uC758 \uC911\uB9BD\uAE30\uBB3C\uC744
-      \uC0DD\uC131\uD55C\uB2E4."
+    m_Localized: "퇴화 상태에서 죽으면 인접한 빈칸에 같은 진영의 젤루 [폰] 1개를 생성한다. 생성된 기물은 죽은 기물의 특성을 이어받는다."
     m_Metadata:
       m_Items: []
   - m_Id: 16559834879627264
@@ -53,6 +51,22 @@ MonoBehaviour:
     m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uC0C1\uB300
       \uAE30\uBB3C\uC744 \uC7A1\uB294 \uC774\uB3D9 \uACBD\uB85C\uB85C \uC6C0\uC9C1\uC77C
       \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16700000000000001
+    m_Localized: "도발"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16700000000000002
+    m_Localized: "인접한 아군 기물이 공격받으면, 해당 기물과 자리를 바꾸고 대신 공격을 받는다."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16720000000000001
+    m_Localized: "회피"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16720000000000002
+    m_Localized: "공격받으면 50% 확률로 인접한 빈칸으로 이동해 공격을 피한다. 공격한 기물은 회피 전 위치로 이동한다."
     m_Metadata:
       m_Items: []
   references:

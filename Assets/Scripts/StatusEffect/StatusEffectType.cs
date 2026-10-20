@@ -17,5 +17,7 @@ public enum StatusEffectType
     Defence,
 
     AttackDisabled = 4,
-    ActionDisabled = 5
+    ActionDisabled = 5,
+    Taunt = 6,
+    Evasion = 7
 }

@@ -773,6 +773,10 @@ public class BattleAIActionEvaluator
 
         switch (action.UniqueSkillType)
         {
+            case UniqueSkillType.JelluReinforce:
+                if (action.ActingPiece.HasStatusEffect(StatusEffectType.Defence) && action.ActingPiece.HasStatusEffect(StatusEffectType.Breakthrough)) return float.MinValue;
+                return 200f - GetPieceValue(PieceType.Pawn) * 0.1f;
+
             case UniqueSkillType.JelluSplit:
                 return 100f;
 
@@ -1186,12 +1190,7 @@ public class BattleAIActionEvaluator
                 // 해당 재료가 제거된 뒤
                 // Knight/Bishop/Rook 중 하나로 승급했을 때
                 // 즉시 잡을 수 있는 대상의 기대값을 계산한다.
-                float promotionAttackValue =
-                    EvaluateSynthesisPromotionAttackExpectedValue(
-                        actingPiece,
-                        materialA,
-                        materialB
-                    );
+                float promotionAttackValue = 0f; // Promotion grants AttackDisabled for this turn.
 
                 // <변경부분> 해당 재료가 제거된 뒤
                 // Knight/Bishop/Rook 중 하나로 승급했을 때
@@ -1592,50 +1591,7 @@ public class BattleAIActionEvaluator
 
         if (isNeutralJelluSpecial)
         {
-            PieceTeam actingTeam =
-                action.ActingPiece.Team;
-
-            bool hasSynthesisUser =
-                battleMoveValidator != null &&
-                battleMoveValidator
-                    .HasJelluSynthesisUser(
-                        actingTeam
-                    );
-
-            // <변경부분> 해당 진영에 합성 사용자가 있다면
-            // 중립 젤루를 미래 또는 현재 합성 재료로 보존한다.
-            if (hasSynthesisUser)
-            {
-                float score =
-                    NeutralJelluAttackPenaltyWithSynthesis;
-
-                // 현재 합성 Pawn 바로 옆에 있는 중립 젤루는
-                // 즉시 사용할 수 있는 실제 합성 재료이므로
-                // 추가 감점을 적용해 더욱 강하게 보존한다.
-                bool isImmediatelyUsableMaterial =
-                    battleMoveValidator
-                        .IsNeutralJelluImmediatelyUsableForSynthesis(
-                            targetPiece,
-                            actingTeam
-                        );
-
-                if (isImmediatelyUsableMaterial)
-                {
-                    score +=
-                        ImmediatelyUsableNeutralJelluPenalty;
-                }
-
-                return score;
-            }
-
-            // <변경부분> 합성 기물이 없는 조합에서는
-            // 중립 젤루를 공격하는 행동 자체는 허용한다.
-            //
-            // 다만 중립 Special은 이동하거나 직접 공격하지 않으므로
-            // Pawn, Knight, Bishop, Rook 등의 실질적인 위협보다
-            // 우선해서 제거하지 않도록 낮은 점수만 부여한다.
-            return
-                NeutralJelluAttackScoreWithoutSynthesis;
+            return NeutralJelluAttackScoreWithoutSynthesis;
         }
 
         // 일반 Player 기물 공격은 기존 기물 가치 기준을 유지한다.

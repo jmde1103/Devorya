@@ -81,6 +81,12 @@ public class BattleAIAction
     //
     // 실제 사용 가능 여부는 BattleManager.TryExecuteAIUniqueSkill()
     // 내부의 기존 검증을 그대로 사용한다.
+    public static BattleAIAction CreateTargetedUniqueSkill(Piece caster, Piece target)
+    {
+        return new BattleAIAction(BattleAIActionType.UniqueSkill, caster,
+            new Vector2Int(caster.X, caster.Y), new Vector2Int(target.X, target.Y), target, caster.UniqueSkill);
+    }
+
     public static BattleAIAction CreateUniqueSkill(
         Piece actingPiece)
     {

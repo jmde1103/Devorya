@@ -3,7 +3,7 @@ using UnityEngine;
 // <변경부분> PieceType 기준으로 기본 PieceData를 찾아주는 데이터베이스
 // 1차 구조에서는 타입 기준 검색만 제공하고, 나중에 종족/세력별 검색으로 확장 가능하다.
 [CreateAssetMenu(fileName = "PieceDatabase", menuName = "Devorya/Piece/Piece Database")]
-public class PieceDatabase : ScriptableObject
+public partial class PieceDatabase : ScriptableObject
 {
     [Header("Piece Data List")]
     // <변경부분> 프로젝트에서 사용하는 모든 기본 기물 데이터 목록

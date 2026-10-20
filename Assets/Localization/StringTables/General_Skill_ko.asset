@@ -60,6 +60,18 @@ MonoBehaviour:
       \uBB34\uC2DC\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 16710000000000001
+    m_Localized: "빠른 발걸음"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16710000000000002
+    m_Localized: "공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻는다. 추가 이동으로는 상대 기물을 잡을 수 없다."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16710000000000003
+    m_Localized: "공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻는다. 추가 이동으로는 상대 기물을 잡을 수 없다."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

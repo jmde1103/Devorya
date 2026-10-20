@@ -13,13 +13,16 @@ MonoBehaviour:
   m_Name: UniqueSkill_JelluSynthesis
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 4
-  skillName: "\uC824\uB8E8 \uD569\uC131"
+  skillName: "\uD569\uC131"
   iconSprite: {fileID: 21300000, guid: f63416cfa67d856469c21790a1e657d2, type: 3}
-  description: "\uD0B9\uC744 \uC81C\uC678\uD55C \uAC19\uC740 \uC885\uC871\uC758 \uC544\uAD70
-    \uB610\uB294 \uAC19\uC740 \uC885\uC871\uC758 \uC911\uB9BD \uAE30\uBB3C 2\uAC1C\uB97C
-    \uD569\uC131\uD574\n\uB79C\uB364\uD558\uAC8C \uAC19\uC740 \uC885\uC871\uC758
-    \uC0C1\uC704 \uAE30\uBB3C\uB85C \uC2B9\uAE09"
-  tooltipSections: []
+  description: "\uC778\uC811\uD55C \uC544\uAD70 \uC911 \uC790\uC2E0\uACFC \uAC19\uC740
+    \uC885\uB958\uC758 \uAE30\uBB3C 2\uAC1C\uC640 \uD569\uC131\uD558\uC5EC \uC790\uC2E0\uC758
+    \uC885\uC871\uC744 \uC720\uC9C0\uD55C \uCC44 \uB098\uC774\uD2B8, \uBE44\uC20D,
+    \uB8E9 \uC911 \uD558\uB098\uB85C \uBB34\uC791\uC704 \uC2B9\uAE09\uD55C\uB2E4.
+    \uC790\uC2E0\uC5D0\uAC8C [\uACF5\uACA9\uBD88\uAC00]\uB97C 1\uD134 \uBD80\uC5EC\uD55C\uB2E4."
+  tooltipSections:
+  - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
+    sectionColor: {r: 1, g: 0.9451673, b: 0, a: 0}
   localizedSkillName:
     m_TableReference:
       m_TableCollectionName: GUID:be430d2c224cec643986d474b5a45860
@@ -51,8 +54,8 @@ MonoBehaviour:
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
-  conditionFailMessage: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
-    \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  conditionFailMessage: "\uC778\uC811\uD55C \uC544\uAD70 \uC911 \uC790\uC2E0\uACFC
+    \uAC19\uC740 \uC885\uB958\uC758 \uAE30\uBB3C\uC774 2\uAC1C \uD544\uC694\uD569\uB2C8\uB2E4."
   references:
     version: 2
     RefIds: []

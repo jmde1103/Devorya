@@ -212,6 +212,12 @@ public class BattleAIActionGenerator
 
         switch (actingPiece.UniqueSkill)
         {
+            case UniqueSkillType.JelluReinforce:
+                var reinforcementMaterials = new List<Piece>();
+                JelluSynthesisRules.FillReinforcementMaterials(actingPiece, boardManager, pieceManager, reinforcementMaterials);
+                if (reinforcementMaterials.Count > 0) results.Add(BattleAIAction.CreateUniqueSkill(actingPiece));
+                break;
+
             case UniqueSkillType.JelluSplit:
                 if (pieceManager.CanSplitJelluPiece(actingPiece) &&
                     battleMoveValidator.HasAdjacentEmptyPosition(actingPiece))
@@ -281,7 +287,7 @@ public class BattleAIActionGenerator
             );
 
         // 합성에는 서로 다른 유효 재료가 최소 2개 필요하다.
-        if (synthesisMaterialCandidates.Count < 2)
+        if (synthesisMaterialCandidates.Count < 2 || !pieceManager.HasSynthesisPromotion(actingPiece))
         {
             return;
         }
