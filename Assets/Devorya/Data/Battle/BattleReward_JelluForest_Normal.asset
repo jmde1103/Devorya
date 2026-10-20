@@ -19,8 +19,6 @@ MonoBehaviour:
     dropChancePercent: 15
   - itemData: {fileID: 11400000, guid: 97d7d945a1cfee64290ec7033ee49074, type: 2}
     dropChancePercent: 5
-  - itemData: {fileID: 11400000, guid: ad3f242d9b42be4408ed98064886b10f, type: 2}
-    dropChancePercent: 100
   relicDropTable: []
   includeGoldReward: 1
   minGoldAmount: 10

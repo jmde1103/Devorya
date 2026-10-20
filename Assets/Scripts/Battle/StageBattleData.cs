@@ -1,5 +1,15 @@
 using UnityEngine;
 
+// <변경부분> StageBattleData에서 지정하는 기물 타입 아이콘의 초기 표시 방식.
+// 기존 BattleManager 버튼의 3단계 표시 모드와 일치해야 한다.
+public enum StageTypeIconInitialMode
+{
+    All = 0,
+    EnemyOnly = 1,
+    SelectedOnly = 2,
+    UseSavedSetting = 3
+}
+
 // <변경부분> 한 전투 스테이지의 전투 구성 데이터를 관리하는 ScriptableObject
 // 타일 타입, 승패 조건, 적 편성, 적 일반스킬 랜덤 부여 규칙을 Stage 단위로 분리한다.
 [CreateAssetMenu(fileName = "StageBattleData", menuName = "Devorya/Battle/Stage Battle Data")]
@@ -27,6 +37,15 @@ public class StageBattleData : ScriptableObject
     // 현재 StageBattleData가 필요한 Sequence를 결정한다.
     public EventSequenceData eventSequenceData;
 
+    [Header("Type Icon Initial Mode")]
+    // <변경부분> 이 스테이지 진입 시 기물 타입 아이콘의 초기 표시 상태.
+    // All: 전체 표시
+    // EnemyOnly: 적 기본 표시 + 선택/포커스 기물 표시
+    // SelectedOnly: 기본 숨김 + 선택/포커스 기물 표시
+    // UseSavedSetting: PlayerPrefs에 저장된 이전 선택 사용
+    // 실제 아이콘 표시와 버튼의 다음 클릭 단계를 동일한 모드로 동기화한다.
+    public StageTypeIconInitialMode initialTypeIconDisplayMode =
+        StageTypeIconInitialMode.All;
 
     [Header("Battle Announcement")]
 

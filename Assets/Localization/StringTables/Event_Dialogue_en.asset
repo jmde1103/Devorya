@@ -457,6 +457,61 @@ MonoBehaviour:
       becomes available. Press the button to use [Final Absorption].
     m_Metadata:
       m_Items: []
+  - m_Id: 15156251655278592
+    m_Localized: The final [King]-type subject has been absorbed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15156251718193152
+    m_Localized: 'Reconstructing into the absorbed [King]-type form.
+
+      Utilizing
+      the Abilities of various absorbed lifeforms will allow for more efficient mission
+      execution.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15167850965241856
+    m_Localized: No response detected from nearby lifeforms. Searching for a new
+      destination and proceeding.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15168117223854080
+    m_Localized: The final [King]-type subject has been absorbed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15168117232242688
+    m_Localized: 'Reconstructing into the absorbed [King]-type form.
+
+      Utilizing
+      the Abilities of various absorbed lifeforms will allow for more efficient mission
+      execution.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15168117232242689
+    m_Localized: No response detected from nearby lifeforms. Searching for a new
+      destination and proceeding.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15169846950629376
+    m_Localized: 'A [King]-type subject can only be absorbed by a [King]-type Devorya.
+
+      Press
+      the [Final Absorption] button to absorb the target subject.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15170641813180416
+    m_Localized: No response detected from nearby lifeforms. Searching for a new
+      destination and proceeding.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15170696221691904
+    m_Localized: Randomly repairs pieces equal to half the Absorption Counter accumulated
+      through absorption during this battle.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15170834298179584
+    m_Localized: Cannot repair beyond the maximum piece capacity of 10.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

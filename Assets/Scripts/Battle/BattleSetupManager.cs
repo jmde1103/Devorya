@@ -160,6 +160,13 @@ public class BattleSetupManager : MonoBehaviour
         // 수동 좌표 배치 또는 상대 시작 10칸 랜덤 배치를 생성한다.
         SpawnEnemyPieces();
 
+        // <변경부분> StageBattleData에서 지정한 타입 아이콘 초기 표시 모드를 적용한다.
+        // 기물이 생성된 뒤 내부 버튼 모드와 실제 아이콘 표시를 함께 갱신한다.
+        // 따라서 SelectedOnly로 시작하면 첫 클릭 시 All로 정상 전환된다.
+        battleManager.ApplyStageTypeIconInitialMode(
+            stageBattleData.initialTypeIconDisplayMode
+        );
+
         // <변경부분> StageBattleData의 승패 조건을 BattleManager에 전달
         battleManager.SetBattleEndCondition(
     stageBattleData.playerDefeatCondition,

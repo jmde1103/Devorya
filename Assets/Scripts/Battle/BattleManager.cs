@@ -4164,10 +4164,62 @@ public partial class BattleManager : MonoBehaviour
                 selectablePositions[i];
 
             HighlightTile(
-                position.x,
-                position.y
-            );
+     position.x,
+     position.y
+ );
         }
+    }
+
+    // <변경부분> StageBattleData가 지정한 타입 아이콘 초기 표시 모드를 적용한다.
+    // 화면만 바꾸지 않고 버튼의 현재 단계(typeIconDisplayMode)도 동시에 변경한다.
+    // 기존 3단계 버튼 전환, 선택/포커스 아이콘 표시, PlayerPrefs 저장 규칙은 유지한다.
+    public void ApplyStageTypeIconInitialMode(
+        StageTypeIconInitialMode initialMode)
+    {
+        switch (initialMode)
+        {
+            case StageTypeIconInitialMode.EnemyOnly:
+                typeIconDisplayMode = TypeIconDisplayMode.EnemyOnly;
+                break;
+
+            case StageTypeIconInitialMode.SelectedOnly:
+                typeIconDisplayMode = TypeIconDisplayMode.SelectedOnly;
+                break;
+
+            case StageTypeIconInitialMode.UseSavedSetting:
+                {
+                    // 이 스테이지에서만 이전에 저장된 표시 모드를 초기값으로 사용한다.
+                    int savedDisplayMode = PlayerPrefs.GetInt(
+                        TypeIconDisplayModePrefsKey,
+                        (int)TypeIconDisplayMode.All
+                    );
+
+                    // 손상되거나 유효하지 않은 값은 전체 표시로 복구한다.
+                    if (savedDisplayMode < (int)TypeIconDisplayMode.All ||
+                        savedDisplayMode > (int)TypeIconDisplayMode.SelectedOnly)
+                    {
+                        savedDisplayMode = (int)TypeIconDisplayMode.All;
+                    }
+
+                    typeIconDisplayMode =
+                        (TypeIconDisplayMode)savedDisplayMode;
+                    break;
+                }
+
+            case StageTypeIconInitialMode.All:
+            default:
+                typeIconDisplayMode = TypeIconDisplayMode.All;
+                break;
+        }
+
+        // 스테이지가 설정한 현재 버튼 단계에 맞춰 보드 전체 표시를 즉시 갱신한다.
+        // SelectedOnly에서도 선택/확인/AI 포커스 기물은 기존 코드대로 보인다.
+        RefreshTypeIconVisuals();
+
+        Debug.Log(
+            $"스테이지 타입 아이콘 초기 모드 적용: " +
+            $"{initialMode} → {typeIconDisplayMode}"
+        );
     }
 
     // <변경부분> 타입 아이콘 표시 모드를

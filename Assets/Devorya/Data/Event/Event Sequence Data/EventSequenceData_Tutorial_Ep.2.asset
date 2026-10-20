@@ -2846,6 +2846,78 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
+  - stepName: 
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_145d7e9d
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_5a8e40d5
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 3
   - stepName: "\uD761\uC218 \uC131\uACF5 \uB300\uC0AC"
     stepType: 1
     dialoguePages:
@@ -5089,8 +5161,11 @@ MonoBehaviour:
       \uB354 \uC774\uC0C1 \uB3C4\uC8FC\uD560 \uACF3\uC740 \uC5C6\uC2B5\uB2C8\uB2E4.
       \uC6C0\uC9C1\uC774\uC9C0 \uB9C8\uC2ED\uC2DC\uC624."
     - "\uC804\uD22C\uC5D0\uC11C \uC0C1\uB300 \uAE30\uBB3C\uC774 1\uAC1C\uB9CC \uB0A8\uC73C\uBA74
-      [\uB9C8\uBB34\uB9AC \uD761\uC218]\uB97C \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.
-      \uBC84\uD2BC\uC744 \uB20C\uB7EC [\uB9C8\uBB34\uB9AC \uD761\uC218]\uB97C \uC0AC\uC6A9\uD558\uC138\uC694."
+      [\uB9C8\uBB34\uB9AC \uD761\uC218]\uB97C \uC0AC\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4. "
+    - "[\uD0B9] \uD0C0\uC785 \uAC1C\uCCB4\uB294 \uAC19\uC740 [\uD0B9] \uD0C0\uC785\uC758
+      \uB370\uBCF4\uB9AC\uC544\uB9CC \uD761\uC218\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n[\uB9C8\uBB34\uB9AC
+      \uD761\uC218] \uBC84\uD2BC\uC744 \uB20C\uB7EC \uB300\uC0C1 \uAC1C\uCCB4\uB97C
+      \uD761\uC218\uD558\uC138\uC694."
     dialogueLocalizationId: dialogue_b3477ee5
     dialogueLocalizationPages:
     - localizationId: page_28e7f060
@@ -5109,6 +5184,16 @@ MonoBehaviour:
           m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
         m_TableEntryReference:
           m_KeyId: 15104395168059392
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_efc7d60e
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 15169846950629376
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -5252,6 +5337,103 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
+  - stepName: "\uB9C8\uC9C0\uB9C9 \uC124\uBA852"
+    stepType: 1
+    dialoguePages:
+    - "\uB9C8\uC9C0\uB9C9 [\uD0B9] \uD0C0\uC785 \uAC1C\uCCB4\uB97C \uD761\uC218\uD588\uC2B5\uB2C8\uB2E4."
+    - "\uD761\uC218\uD55C [\uD0B9] \uD0C0\uC785\uC758 \uD615\uD0DC\uB85C \uC7AC\uAD6C\uC131\uD569\uB2C8\uB2E4.\n\uC9C0\uAE08\uAE4C\uC9C0
+      \uD761\uC218\uD55C \uB2E4\uC591\uD55C \uC0DD\uBA85\uCCB4\uC758 \uB2A5\uB825\uC744
+      \uD65C\uC6A9\uD55C\uB2E4\uBA74, \uBCF4\uB2E4 \uD6A8\uC728\uC801\uC778 \uC784\uBB34
+      \uC218\uD589\uC774 \uAC00\uB2A5\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_4e820426
+    dialogueLocalizationPages:
+    - localizationId: page_84978925
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 15156251655278592
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_cc1cf273
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 15156251718193152
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_95f5a84e
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
   - stepName: 
     stepType: 7
     dialoguePages: []
@@ -5329,6 +5511,188 @@ MonoBehaviour:
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 7
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_f8d84199
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_cbfe2cf0
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 3
+  - stepName: "\uD761\uC218 \uC124\uBA85"
+    stepType: 1
+    dialoguePages:
+    - "\uC774\uBC88 \uC804\uD22C\uC5D0\uC11C \uD761\uC218\uB97C \uD1B5\uD574 \uC313\uC740
+      \uD761\uC218 \uCE74\uC6B4\uD130 \uC218\uC758 \uC808\uBC18 \uB9CC\uD07C \uAE30\uBB3C\uC744
+      \uB79C\uB364\uC73C\uB85C \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+    - "\uCD5C\uB300 \uAE30\uBB3C \uC218 10\uAC1C \uC774\uC0C1\uC740 \uD68C\uBCF5\uD558\uC9C0
+      \uBABB\uD569\uB2C8\uB2E4."
+    - "\uC8FC\uBCC0 \uC0DD\uBA85\uCCB4\uC758 \uBC18\uC751\uC774 \uAC10\uC9C0\uB418\uC9C0
+      \uC54A\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C\uC6B4 \uBAA9\uC801\uC9C0\uB97C \uD0D0\uC0C9\uD558\uC5EC
+      \uC774\uB3D9\uD569\uB2C8\uB2E4."
+    dialogueLocalizationId: dialogue_d5bad55f
+    dialogueLocalizationPages:
+    - localizationId: page_7db738f0
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 15170696221691904
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_5a6f7cdd
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 15170834298179584
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - localizationId: page_00b467a4
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+        m_TableEntryReference:
+          m_KeyId: 15170641813180416
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
