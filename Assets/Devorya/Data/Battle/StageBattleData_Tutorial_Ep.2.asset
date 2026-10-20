@@ -16,6 +16,7 @@ MonoBehaviour:
   description: 
   eventSequenceData: {fileID: 11400000, guid: ae0ab461fd1e784499f9a07d68a5b0bc, type: 2}
   initialTypeIconDisplayMode: 3
+  hideBattleUIOnStart: 1
   startAnnouncementType: 2
   backgroundMapData: {fileID: 11400000, guid: cfef9f2fa93f4dd4497b2fe408ea2bea, type: 2}
   checkerTileTypeA: 0

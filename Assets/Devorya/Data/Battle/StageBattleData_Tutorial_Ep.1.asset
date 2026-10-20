@@ -16,6 +16,8 @@ MonoBehaviour:
   description: "\uAE30\uBCF8 \uCCB4\uC2A4\uC758 \uADDC\uCE59\uC744 \uC54C\uB824\uC8FC\uB294
     \uD29C\uD1A0\uB9AC\uC5BC"
   eventSequenceData: {fileID: 11400000, guid: c04729b24f0810447b51551ad62b7c4a, type: 2}
+  initialTypeIconDisplayMode: 0
+  hideBattleUIOnStart: 1
   startAnnouncementType: 2
   backgroundMapData: {fileID: 11400000, guid: 9d3487eb836a20b4db4dab527cb2b6be, type: 2}
   checkerTileTypeA: 4
@@ -27,5 +29,7 @@ MonoBehaviour:
   savePlayerPiecesToRunState: 0
   enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   battleRewardData: {fileID: 11400000, guid: 14a8e5fabe1ccae43aef36c3ccc3dc4a, type: 2}
+  victorySceneName: WorldMapScene
+  victoryCutsceneData: {fileID: 0}
   enemyUniqueSkillUseChance: 0
   enemyGeneralSkillGrantRules: []

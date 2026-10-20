@@ -47,6 +47,20 @@ public class StageBattleData : ScriptableObject
     public StageTypeIconInitialMode initialTypeIconDisplayMode =
         StageTypeIconInitialMode.All;
 
+    [Header("Battle UI Initial State")]
+    // <변경부분>
+    // 이 스테이지의 전투 UI를 숨긴 상태로 시작할지 설정한다.
+    //
+    // false:
+    // 일반 전투 UI의 기존 표시 상태를 유지한다.
+    //
+    // true:
+    // 전투 UI를 숨긴 상태로 시작한다.
+    //
+    // UI GameObject 자체는 비활성화하지 않으며,
+    // BattleSetupManager가 CanvasGroup으로 표시와 입력을 제어한다.
+    public bool hideBattleUIOnStart = false;
+
     [Header("Battle Announcement")]
 
     // <변경부분> 이 스테이지의 플레이어 초기 배치 완료 후

@@ -44,9 +44,91 @@ public class BattleSetupManager : MonoBehaviour
     [SerializeField]
     private BattleEndFlowController battleEndFlowController;
 
+    [Header("Battle UI")]
+    // <변경부분>
+    // BattleScene의 일반 전투 UI 전체를 묶는 부모 CanvasGroup.
+    // UI 스크립트 자체는 비활성화하지 않고
+    // 화면 표시와 입력만 제어한다.
+    [SerializeField]
+    private CanvasGroup battleUICanvasGroup;
+
+    // <변경부분>
+    // 전투 UI를 최초로 변경하기 전 CanvasGroup의 원래 상태를 보관한다.
+    // 표시 상태를 복구할 때 기존 Inspector 설정을 덮어쓰지 않기 위함이다.
+    private bool hasCachedBattleUIOriginalState = false;
+
+    private float battleUIOriginalAlpha = 1f;
+    private bool battleUIOriginalInteractable = true;
+    private bool battleUIOriginalBlocksRaycasts = true;
+
     private void Start()
     {
         SetupBattle();
+    }
+
+    // <변경부분>
+    // 전투 UI의 표시 및 입력 상태를 제어한다.
+    //
+    // GameObject 자체는 비활성화하지 않으며,
+    // BattleUIController와 하위 UI 스크립트의 동작은 유지한다.
+    //
+    // 숨김:
+    // Alpha 0, Interactable false, BlocksRaycasts false.
+    //
+    // 표시:
+    // 최초 CanvasGroup 설정값으로 복구한다.
+    public void SetBattleUIVisible(bool isVisible)
+    {
+        if (battleUICanvasGroup == null)
+        {
+            Debug.LogWarning(
+                "Battle UI 표시 변경 실패: " +
+                "Battle UI Canvas Group이 연결되지 않았습니다.",
+                this
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 최초 호출 시에만 CanvasGroup의 원래 설정을 저장한다.
+        if (hasCachedBattleUIOriginalState == false)
+        {
+            battleUIOriginalAlpha =
+                battleUICanvasGroup.alpha;
+
+            battleUIOriginalInteractable =
+                battleUICanvasGroup.interactable;
+
+            battleUIOriginalBlocksRaycasts =
+                battleUICanvasGroup.blocksRaycasts;
+
+            hasCachedBattleUIOriginalState = true;
+        }
+
+        if (isVisible)
+        {
+            // <변경부분>
+            // UI를 표시할 때 모든 속성을 강제로 활성화하지 않고
+            // 최초 CanvasGroup 설정으로 되돌린다.
+            battleUICanvasGroup.alpha =
+                battleUIOriginalAlpha;
+
+            battleUICanvasGroup.interactable =
+                battleUIOriginalInteractable;
+
+            battleUICanvasGroup.blocksRaycasts =
+                battleUIOriginalBlocksRaycasts;
+        }
+        else
+        {
+            // <변경부분>
+            // UI 표시와 입력만 차단한다.
+            // GameObject와 UI 스크립트는 활성 상태로 유지한다.
+            battleUICanvasGroup.alpha = 0f;
+            battleUICanvasGroup.interactable = false;
+            battleUICanvasGroup.blocksRaycasts = false;
+        }
     }
 
     // <변경부분> 현재 StageBattleData 기준으로 전투를 구성하는 함수
@@ -167,11 +249,33 @@ public class BattleSetupManager : MonoBehaviour
             stageBattleData.initialTypeIconDisplayMode
         );
 
+        // <변경부분>
+        // StageBattleData의 설정에 따라
+        // 전투 UI의 초기 표시 상태를 적용한다.
+        //
+        // CanvasGroup이 없고 숨김 기능도 요청하지 않았다면
+        // 일반 전투 흐름을 그대로 유지한다.
+        if (battleUICanvasGroup != null)
+        {
+            SetBattleUIVisible(
+                !stageBattleData.hideBattleUIOnStart
+            );
+        }
+        else if (stageBattleData.hideBattleUIOnStart)
+        {
+            Debug.LogWarning(
+                "Battle UI 초기 숨김 실패: " +
+                "StageBattleData에서 Hide Battle UI On Start가 켜져 있지만 " +
+                "BattleSetupManager의 Battle UI Canvas Group이 연결되지 않았습니다.",
+                this
+            );
+        }
+
         // <변경부분> StageBattleData의 승패 조건을 BattleManager에 전달
         battleManager.SetBattleEndCondition(
-    stageBattleData.playerDefeatCondition,
-    stageBattleData.enemyDefeatCondition
-);
+            stageBattleData.playerDefeatCondition,
+            stageBattleData.enemyDefeatCondition
+        );
 
         // <변경부분> 현재 스테이지가 종료될 때
         // 플레이어 기물 상태를 RunState에 저장할지
