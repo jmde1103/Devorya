@@ -2102,19 +2102,28 @@ public partial class BattleManager : MonoBehaviour
         // <변경부분> UniqueSkillData의 아이콘을 함께 전달하여
         // 실제 고유스킬보다 아이콘이 먼저 재생되도록 한다.
         yield return
-            battleSkillManager
-                .TryUseTargetedUniqueSkillRoutine(
-                    skillPiece,
-                    skillData.iconSprite,
-                    result =>
-                        skillUsed = result,
-                    action.TargetPiece
-                );
+     battleSkillManager
+         .TryUseTargetedUniqueSkillRoutine(
+             skillPiece,
+             skillData.iconSprite,
+             result =>
+                 skillUsed = result,
+             action.TargetPiece
+         );
+
+        // <변경부분> 실제 발동에 성공한 AI 능력만 턴당 횟수에 반영한다.
+        // JelluSplit은 시전 기물이 사라져 조기 종료되므로 분기 전에 집계한다.
+        if (skillUsed && battleAIManager != null)
+        {
+            battleAIManager.NotifyUniqueSkillSucceeded();
+        }
+
         if (skillUsed && skillData.skillType == UniqueSkillType.JelluSplit)
         {
             CompleteJelluSplitUse(skillTeam, skillData);
             yield break;
         }
+
         if (skillUsed == false)
         {
             Debug.LogWarning(
@@ -3071,8 +3080,25 @@ public partial class BattleManager : MonoBehaviour
         }
 
         battleAIManager.SetUniqueSkillUseChance(
-            chancePercent
-        );
+      chancePercent
+  );
+    }
+
+    // <변경부분> StageBattleData의 Enemy AI 턴당 최대 능력 사용 횟수를 전달한다.
+    // 플레이어 능력 사용 제한이나 기물별 쿨타임에는 영향을 주지 않는다.
+    public void SetEnemyAIMaxUniqueSkillUsesPerTurn(int maxUses)
+    {
+        if (battleAIManager == null)
+        {
+            Debug.LogWarning(
+                "Enemy AI 턴당 최대 능력 사용 횟수 적용 실패: " +
+                "BattleAIManager가 연결되지 않았습니다."
+            );
+
+            return;
+        }
+
+        battleAIManager.SetMaxUniqueSkillUsesPerTurn(maxUses);
     }
 
     public void Surrender()
@@ -4822,6 +4848,14 @@ public partial class BattleManager : MonoBehaviour
             action.ActionType !=
                 BattleAIActionType.UniqueSkill ||
             action.ActingPiece == null)
+        {
+            return false;
+        }
+
+        // <변경부분> AI의 확률 판정과 턴당 능력 사용 횟수를 공통으로 검사한다.
+        // 초과한 능력은 후보 평가와 실제 실행 양쪽에서 차단한다.
+        if (battleAIManager != null &&
+            battleAIManager.CanUseUniqueSkillThisEnemyTurn() == false)
         {
             return false;
         }

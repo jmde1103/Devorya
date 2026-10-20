@@ -289,7 +289,13 @@ public class BattleSetupManager : MonoBehaviour
         );
 
         battleManager.SetEnemyAIUniqueSkillUseChance(
-            stageBattleData.enemyUniqueSkillUseChance
+      stageBattleData.enemyUniqueSkillUseChance
+  );
+
+        // <변경부분> StageBattleData에서 지정한
+        // Enemy AI의 턴당 최대 능력 성공 횟수를 전달한다.
+        battleManager.SetEnemyAIMaxUniqueSkillUsesPerTurn(
+            stageBattleData.enemyMaxUniqueSkillUsesPerTurn
         );
 
         // <변경부분> 현재 스테이지의 전투 보상 데이터를

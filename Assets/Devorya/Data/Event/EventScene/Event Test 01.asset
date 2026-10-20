@@ -33,6 +33,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: 
@@ -41,6 +43,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -96,8 +102,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uC774\uB3D9"
@@ -113,6 +139,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: 
@@ -121,6 +149,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -176,8 +208,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBE44\uC20D \uC0DD\uC131"
@@ -193,6 +245,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0.2}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 15, y: 17}
     moveActorId: 
@@ -201,6 +255,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -256,8 +314,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8\uD3F0 \uC0DD\uC131"
@@ -273,6 +351,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0.2}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 17, y: 17}
     moveActorId: 
@@ -281,6 +361,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -336,8 +420,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uB2E4\uC774\uC5B4\uB85C\uADF8"
@@ -351,9 +455,9 @@ MonoBehaviour:
     - localizationId: page_d6c3e1f0
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 14177455842136064
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -365,6 +469,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: 
@@ -373,6 +479,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -428,8 +538,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uC774\uB3D9 1"
@@ -445,6 +575,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: "\uC824\uB8E8 \uD3F0"
@@ -453,6 +585,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 1
     moveActorFlipX: 1
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -508,8 +644,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uC774\uB3D9 2"
@@ -525,6 +681,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: "\uC824\uB8E8 \uD3F0"
@@ -533,6 +691,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 1
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -588,8 +750,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uC81C\uC790\uB9AC \uB6F0\uAE30"
@@ -605,6 +787,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: "\uC824\uB8E8 \uD3F0"
@@ -613,6 +797,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -668,8 +856,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uD3F0 \uC560\uB2C8\uBA54\uC774\uC158"
@@ -685,6 +893,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: 
@@ -693,6 +903,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -748,8 +962,28 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8 \uD3F0 \uC560\uB2C8\uBA54\uC774\uC1582"
@@ -765,6 +999,8 @@ MonoBehaviour:
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0}
     spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
     moveActorId: 
@@ -773,6 +1009,10 @@ MonoBehaviour:
     moveActorArcHeight: 0.5
     moveActorChangeFlipX: 0
     moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
     attackActorId: 
     attackTargetActorId: 
     attackResult: 0
@@ -828,11 +1068,32 @@ MonoBehaviour:
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 0
+  clearCurrentWorldMapNodeOnCompletion: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
   references:

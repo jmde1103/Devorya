@@ -33,6 +33,13 @@ public class BattleAIManager : MonoBehaviour
     private bool allowUniqueSkillThisEnemyTurn =
         true;
 
+    // <변경부분> StageBattleData가 지정한 Enemy AI 능력의 턴당 성공 횟수 상한.
+    // 0이면 이 턴에는 능력 후보를 생성하더라도 평가에서 제외한다.
+    private int maxUniqueSkillUsesPerEnemyTurn = 1;
+
+    // <변경부분> 현재 Enemy 턴에서 실제 발동에 성공한 능력의 누적 횟수.
+    private int usedUniqueSkillCountThisEnemyTurn = 0;
+
     // 실제 전투 규칙과 행동 실행을 담당하는 매니저
     private BattleManager battleManager;
 
@@ -96,6 +103,50 @@ public class BattleAIManager : MonoBehaviour
             Debug.Log(
                 $"Enemy AI 고유스킬 사용 확률 적용: " +
                 $"{uniqueSkillUseChance}%"
+            );
+        }
+    }
+
+    // <변경부분> 스테이지별 Enemy AI 능력 사용 횟수 상한을 적용한다.
+    // 0회도 허용하며, 음수는 0으로 보정한다.
+    public void SetMaxUniqueSkillUsesPerTurn(int maxUses)
+    {
+        maxUniqueSkillUsesPerEnemyTurn = Mathf.Max(0, maxUses);
+
+        if (enableAIDebugLogs)
+        {
+            Debug.Log(
+                $"Enemy AI 턴당 최대 능력 사용 횟수: " +
+                $"{maxUniqueSkillUsesPerEnemyTurn}회"
+            );
+        }
+    }
+
+    // <변경부분> 턴 시작 확률 판정과 성공 횟수 상한을 모두 만족하는지 확인한다.
+    public bool CanUseUniqueSkillThisEnemyTurn()
+    {
+        return allowUniqueSkillThisEnemyTurn &&
+               usedUniqueSkillCountThisEnemyTurn < maxUniqueSkillUsesPerEnemyTurn;
+    }
+
+    // <변경부분> BattleManager의 AI 능력 효과가 실제 성공했을 때만 호출한다.
+    // 시전 실패는 횟수에 포함하지 않는다.
+    public void NotifyUniqueSkillSucceeded()
+    {
+        if (battleManager == null ||
+            battleManager.CurrentTurn != BattleTurn.Enemy)
+        {
+            return;
+        }
+
+        usedUniqueSkillCountThisEnemyTurn++;
+
+        if (enableAIDebugLogs)
+        {
+            Debug.Log(
+                $"Enemy AI 능력 사용 횟수: " +
+                $"{usedUniqueSkillCountThisEnemyTurn}/" +
+                $"{maxUniqueSkillUsesPerEnemyTurn}"
             );
         }
     }
@@ -175,6 +226,10 @@ public class BattleAIManager : MonoBehaviour
             );
         }
 
+        // <변경부분> 새로운 Enemy 턴이 시작되므로
+        // 이전 턴에서 성공한 AI 능력 사용 횟수를 초기화한다.
+        usedUniqueSkillCountThisEnemyTurn = 0;
+
         // <변경부분> Enemy 턴이 시작되는 순간
         // StageBattleData에서 받은 확률을 한 번만 판정한다.
         //
@@ -227,14 +282,13 @@ public class BattleAIManager : MonoBehaviour
             uniqueSkillUseChance;
     }
 
-    // <변경부분> 이번 Enemy 턴에서 고유스킬 사용이 허용되지 않았다면
+    // <변경부분> 확률 판정에 실패했거나 최대 성공 횟수에 도달했다면
     // 생성된 행동 후보 중 UniqueSkill만 제거한다.
-    //
     // 일반 이동과 공격 후보는 그대로 유지한다.
     private void RemoveUniqueSkillActionsForCurrentTurn(
         List<BattleAIAction> actions)
     {
-        if (allowUniqueSkillThisEnemyTurn)
+        if (CanUseUniqueSkillThisEnemyTurn())
         {
             return;
         }
@@ -380,10 +434,9 @@ public class BattleAIManager : MonoBehaviour
                 );
             }
 
-            // <변경부분> 이번 Enemy 턴의
-            // 스테이지 고유스킬 사용 확률 판정에 실패했다면
+            // <변경부분> 확률 판정에 실패했거나
+            // 이번 Enemy 턴의 최대 능력 사용 횟수를 채웠다면
             // 고유스킬 후보만 제거한다.
-            //
             // 이동과 공격 후보는 기존 AI 그대로 유지한다.
             RemoveUniqueSkillActionsForCurrentTurn(
                 actionCandidates
@@ -633,16 +686,10 @@ public class BattleAIManager : MonoBehaviour
             // <변경부분> 고유스킬은 Enemy 턴의 일반 이동·공격 사용권을
             // 즉시 종료하지 않는다.
             //
-            // 합성으로 기물 종류와 보드 배치가 변경됐으므로
-            // 다음 반복에서 전체 Enemy 행동 후보를 다시 생성하고 평가한다.
-            //
-            // 정상적인 젤루 합성은:
-            // 1. hasUsedUniqueSkillThisTurn 적용
-            // 2. 합성 Pawn이 상위 기물로 승급
-            // 3. 기존 JelluSynthesis 후보 소멸
-            //
-            // 순서로 처리되므로 다음 반복에서는
-            // 같은 합성을 다시 선택하지 않고 이동 또는 공격을 판단한다.
+            // <변경부분> 능력 효과 반영 후 다음 반복에서 행동 후보를 다시 평가한다.
+            // 최대 능력 사용 횟수에 도달했다면 다음 반복에서
+            // 고유스킬 후보만 제거하고 이동/공격 후보는 계속 평가한다.
+            // 기물별 쿨타임 및 개별 발동 조건은 BattleManager가 그대로 검사한다.
             if (selectedAction.ActionType ==
                 BattleAIActionType.UniqueSkill)
             {

@@ -111,6 +111,18 @@ MonoBehaviour:
     m_Key: event_scene.event_maintenance.dialogue_ed446dc8.page_9a3509da
     m_Metadata:
       m_Items: []
+  - m_Id: 14177455842136064
+    m_Key: event_scene.event_test_01.dialogue_8e890e83.page_d6c3e1f0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14177483818143744
+    m_Key: event_scene.event_opening_field_stage.dialogue_a2186647.page_a00de5e3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14177483818143745
+    m_Key: event_scene.event_opening_field_stage.speech.speech_a833703d
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

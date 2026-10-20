@@ -114,6 +114,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -216,6 +220,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -318,6 +326,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -468,6 +480,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -570,6 +586,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -672,6 +692,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -774,6 +798,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -876,6 +904,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -978,6 +1010,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -1080,6 +1116,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -1182,6 +1222,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -1284,6 +1328,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -1386,6 +1434,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
@@ -1488,6 +1540,10 @@ MonoBehaviour:
     globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingFlashStrength: 0.9
     globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1

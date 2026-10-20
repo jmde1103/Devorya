@@ -5892,9 +5892,9 @@ MonoBehaviour:
     - localizationId: page_0f41fb2f
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 13586786291421184
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0

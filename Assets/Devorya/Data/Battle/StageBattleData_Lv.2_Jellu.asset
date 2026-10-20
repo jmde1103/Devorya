@@ -16,6 +16,8 @@ MonoBehaviour:
   description: "\uC824\uB8E8\uC138\uD2B8\uB97C \uB123\uC5B4 \uD14C\uC2A4\uD2B8 \uC2A4\uD14C\uC774\uC9C0\uB97C
     \uC9C4\uD589\uD55C\uB2E4."
   eventSequenceData: {fileID: 0}
+  initialTypeIconDisplayMode: 0
+  hideBattleUIOnStart: 0
   startAnnouncementType: 0
   backgroundMapData: {fileID: 11400000, guid: ee51007f97bf8784bbbd030a9dfc3990, type: 2}
   checkerTileTypeA: 0
@@ -30,6 +32,7 @@ MonoBehaviour:
   victorySceneName: WorldMapScene
   victoryCutsceneData: {fileID: 0}
   enemyUniqueSkillUseChance: 60
+  enemyMaxUniqueSkillUsesPerTurn: 1
   enemyGeneralSkillGrantRules:
   - skillType: 1
     grantChancePercent: 30

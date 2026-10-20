@@ -203,6 +203,15 @@ public class StageBattleData : ScriptableObject
     public float enemyUniqueSkillUseChance =
     100f;
 
+    // <변경부분> Enemy AI가 한 번의 Enemy 턴 동안
+    // 실제로 성공시킬 수 있는 고유 능력(Ability)의 최대 사용 횟수.
+    // 0: 해당 스테이지에서는 AI가 능력을 사용하지 않는다.
+    // 1 이상: 확률 판정에 성공한 턴에 지정 횟수까지 사용한다.
+    // 이동/공격 및 ChanceAttack 추가 행동은 이 횟수에 포함하지 않는다.
+    // 플레이어 능력 사용 횟수와 개별 능력 쿨타임에는 영향을 주지 않는다.
+    [Min(0)]
+    public int enemyMaxUniqueSkillUsesPerTurn = 1;
+
     [Header("Enemy General Skill Grant Rules")]
     // <변경부분> 스테이지 시작 시 적 기물에게 랜덤으로 부여할 일반스킬 규칙 목록
     // BattleSetupManager가 이 배열을 읽어서 Enemy 기물에게만 적용한다.
