@@ -644,11 +644,6 @@ public partial class BattleSkillManager : MonoBehaviour
 
     public IEnumerator TryUseTargetedUniqueSkillRoutine(Piece piece, Sprite skillIcon, Action<bool> onComplete, Piece skillTarget)
     {
-        if (piece != null && piece.UniqueSkill == UniqueSkillType.JelluReinforce && !CanUseReinforcementTarget(piece, skillTarget))
-        {
-            onComplete?.Invoke(false);
-            yield break;
-        }
         if (piece == null)
         {
             onComplete?.Invoke(false);

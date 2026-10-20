@@ -30,6 +30,9 @@ public partial class BattleSkillManager
 
     private IEnumerator UseJelluReinforcementRoutine(Piece caster, Piece material, Action<bool> onComplete)
     {
+        JelluSynthesisRules.FillReinforcementMaterials(caster, boardManager, pieceManager, reinforcementCandidates);
+        if (reinforcementCandidates.Count == 0) { onComplete?.Invoke(false); yield break; }
+        material = reinforcementCandidates[UnityEngine.Random.Range(0, reinforcementCandidates.Count)];
         if (!CanUseReinforcementTarget(caster, material)) { onComplete?.Invoke(false); yield break; }
         Vector3 materialStart = material.transform.position;
         yield return pieceManager.PlaySynthesisMaterialMoveAnimation(material, null, caster);

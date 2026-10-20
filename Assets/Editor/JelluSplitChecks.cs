@@ -68,6 +68,7 @@ public static class JelluSplitChecks
     static IEnumerator RunCases()
     {
         StatusRestrictionChecks.Run();
+        yield return StatusFeedbackChecks.Run();
         yield return EvasionChecks.Run();
         yield return SynthesisAbilityChecks.Run();
         yield return TauntChecks.Run();

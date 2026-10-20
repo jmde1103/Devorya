@@ -13,9 +13,13 @@ MonoBehaviour:
   m_Name: UniqueSkill_JelluSynthesis
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 4
-  skillName: "합성"
+  skillName: "\uD569\uC131"
   iconSprite: {fileID: 21300000, guid: f63416cfa67d856469c21790a1e657d2, type: 3}
-  description: "인접한 아군 중 자신과 같은 종류의 기물 2개와 합성하여 자신의 종족을 유지한 채 나이트, 비숍, 룩 중 하나로 무작위 승급한다. 자신에게 [공격불가]를 1턴 부여한다."
+  description: "\uC778\uC811\uD55C \uC544\uAD70 \uC911 \uC790\uC2E0\uACFC \uAC19\uC740
+    \uC885\uB958\uC758 \uAE30\uBB3C 2\uAC1C\uC640 \uD569\uC131\uD558\uC5EC \uC790\uC2E0\uC758
+    \uC885\uC871\uC744 \uC720\uC9C0\uD55C \uCC44 \uB098\uC774\uD2B8, \uBE44\uC20D,
+    \uB8E9 \uC911 \uD558\uB098\uB85C \uBB34\uC791\uC704 \uC2B9\uAE09\uD55C\uB2E4.
+    \uC790\uC2E0\uC5D0\uAC8C [\uACF5\uACA9\uBD88\uAC00]\uB97C 1\uD134 \uBD80\uC5EC\uD55C\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
     sectionColor: {r: 1, g: 0.9451673, b: 0, a: 0}
@@ -50,7 +54,8 @@ MonoBehaviour:
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
-  conditionFailMessage: "인접한 아군 중 자신과 같은 종류의 기물이 2개 필요합니다."
+  conditionFailMessage: "\uC778\uC811\uD55C \uC544\uAD70 \uC911 \uC790\uC2E0\uACFC
+    \uAC19\uC740 \uC885\uB958\uC758 \uAE30\uBB3C\uC774 2\uAC1C \uD544\uC694\uD569\uB2C8\uB2E4."
   references:
     version: 2
     RefIds: []

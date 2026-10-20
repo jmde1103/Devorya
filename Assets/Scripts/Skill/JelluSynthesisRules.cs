@@ -14,9 +14,9 @@ public static class JelluSynthesisRules
     public static bool IsReinforcementMaterial(Piece caster, Piece material, PieceManager manager)
     {
         return caster != null && material != null && manager != null && caster != material &&
-            caster.Team != PieceTeam.Neutral && caster.PieceType == PieceType.Rook &&
-            caster.HasSpeciesTag(PieceSpeciesTag.Jellu) && material.Team == caster.Team &&
-            material.PieceType != PieceType.King &&
+            caster.Team != PieceTeam.Neutral && caster.UniqueSkill == UniqueSkillType.JelluReinforce &&
+            material.Team == caster.Team &&
+            material.PieceType == PieceType.Pawn &&
             Mathf.Abs(caster.X - material.X) <= 1 && Mathf.Abs(caster.Y - material.Y) <= 1 &&
             manager.GetPieceAt(caster.X, caster.Y) == caster &&
             manager.GetPieceAt(material.X, material.Y) == material;

@@ -99,7 +99,7 @@ public static class SynthesisAbilityChecks
         foreach(PieceTeam team in new[]{PieceTeam.Player,PieceTeam.Enemy})
         {
             var f=new Fixture(); Piece rook=f.Spawn("Jellu Rook",team,2,2);
-            Piece king=f.Spawn("Jellu King",team,2,1), material=f.Spawn("Devorya Bishop",team,3,2);
+            Piece king=f.Spawn("Jellu King",team,2,1), material=f.Spawn("Devorya Pawn",team,3,2);
             Piece enemy=f.Spawn("Jellu Pawn",team==PieceTeam.Player?PieceTeam.Enemy:PieceTeam.Player,1,1);
             Piece neutral=f.Spawn("Jellu Pawn",PieceTeam.Neutral,3,3), far=f.Spawn("Jellu Pawn",team,0,0);
             Check(rook.UniqueSkill==UniqueSkillType.JelluReinforce,"Rook default ability");
@@ -107,15 +107,15 @@ public static class SynthesisAbilityChecks
             foreach(Piece invalid in new[]{king,enemy,neutral,far,rook})
             {
                 Check(!f.skill.CanUseReinforcementTarget(rook,invalid),"Invalid reinforcement target rejected");
-                bool used=true; yield return f.skill.TryUseTargetedUniqueSkillRoutine(rook,null,result=>used=result,invalid);
-                Check(!used&&invalid!=null,"Invalid target not consumed");
+
+
             }
             Check(f.skill.CanUseReinforcementTarget(rook,material),"Different species allied material accepted");
             rook.AddStatusEffect(f.statuses.GetData(StatusEffectType.ActionDisabled),1);
             Check(!f.skill.CanUseReinforcementTarget(rook,material),"ActionDisabled prevents reinforce");
             rook.ReduceStatusEffectTurnAndRemoveExpired();
             var actions=new List<BattleAIAction>(); new BattleAIActionGenerator(f.board,f.manager,f.validator).GenerateActions(team,actions);
-            Check(actions.Exists(a=>a.ActingPiece==rook&&a.UniqueSkillType==UniqueSkillType.JelluReinforce&&a.TargetPiece==material),"AI explicit material target");
+            Check(actions.Exists(a=>a.ActingPiece==rook&&a.UniqueSkillType==UniqueSkillType.JelluReinforce&&a.TargetPiece==null),"AI automatic random material");
             Check(!actions.Exists(a=>a.ActingPiece==rook&&a.UniqueSkillType==UniqueSkillType.JelluReinforce&&a.TargetPiece==king),"AI excludes King");
             Vector3 start=material.transform.position; bool done=false,success=false,moved=false;
             BattleManager battle=null;
@@ -125,14 +125,9 @@ public static class SynthesisAbilityChecks
                 Set(battle,"boardManager",f.board); Set(battle,"pieceManager",f.manager); Set(battle,"battleMoveValidator",f.validator);
                 Set(battle,"battleSkillManager",f.skill); Set(battle,"uniqueSkillDatabase",f.skills); Set(battle,"selectedPiece",rook);
                 battle.UseSelectedPieceSkill();
-                Check((Piece)Get(battle,"reinforcementCaster")==rook&&!(bool)Get(battle,"hasUsedUniqueSkillThisTurn"),"Selection begins without consuming ability");
-                battle.SelectPiece(king); Check((Piece)Get(battle,"reinforcementCaster")==rook&&king!=null,"King click keeps selection pending");
-                battle.UseSelectedPieceSkill(); Check((Piece)Get(battle,"reinforcementCaster")==null&&rook.GetUniqueSkillCooldown()==0,"Ability button cancels without cooldown");
-                battle.UseSelectedPieceSkill(); battle.SelectPiece(rook); Check((Piece)Get(battle,"reinforcementCaster")==null,"Caster click cancels");
-                battle.UseSelectedPieceSkill(); battle.SelectPiece(material);
-                Check((Piece)Get(battle,"reinforcementCaster")==null&&(bool)Get(battle,"isActionAnimating"),"Material click executes ability");
+                Check((bool)Get(battle,"isActionAnimating"),"Ability starts immediately without target selection");
             }
-            else f.animation.StartCoroutine(f.skill.TryUseTargetedUniqueSkillRoutine(rook,null,result=>{success=result;done=true;},material));
+            else f.animation.StartCoroutine(f.skill.TryUseUniqueSkillRoutine(rook,null,result=>{success=result;done=true;}));
             float deadline=Time.realtimeSinceStartup+15;
             while(!done&&Time.realtimeSinceStartup<deadline)
             {

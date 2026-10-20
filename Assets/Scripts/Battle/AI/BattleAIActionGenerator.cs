@@ -215,8 +215,7 @@ public class BattleAIActionGenerator
             case UniqueSkillType.JelluReinforce:
                 var reinforcementMaterials = new List<Piece>();
                 JelluSynthesisRules.FillReinforcementMaterials(actingPiece, boardManager, pieceManager, reinforcementMaterials);
-                foreach (Piece material in reinforcementMaterials)
-                    results.Add(BattleAIAction.CreateTargetedUniqueSkill(actingPiece, material));
+                if (reinforcementMaterials.Count > 0) results.Add(BattleAIAction.CreateUniqueSkill(actingPiece));
                 break;
 
             case UniqueSkillType.JelluSplit:

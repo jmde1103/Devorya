@@ -774,9 +774,8 @@ public class BattleAIActionEvaluator
         switch (action.UniqueSkillType)
         {
             case UniqueSkillType.JelluReinforce:
-                if (battleMoveValidator == null || !battleMoveValidator.IsReinforcementMaterial(action.ActingPiece, action.TargetPiece)) return float.MinValue;
                 if (action.ActingPiece.HasStatusEffect(StatusEffectType.Defence) && action.ActingPiece.HasStatusEffect(StatusEffectType.Breakthrough)) return float.MinValue;
-                return 200f - GetPieceValue(action.TargetPiece.PieceType) * 0.1f;
+                return 200f - GetPieceValue(PieceType.Pawn) * 0.1f;
 
             case UniqueSkillType.JelluSplit:
                 return 100f;

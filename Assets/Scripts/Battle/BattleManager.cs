@@ -528,8 +528,6 @@ public partial class BattleManager : MonoBehaviour
 
     private void Update()
     {
-        if (reinforcementCaster != null && Input.GetKeyDown(KeyCode.Escape))
-            CancelReinforcementSelection(true);
         // Event Sequence 대사 또는 강제 입력 중에는
         // 일반 Battle 단축키를 받지 않는다.
         if (eventSequenceController != null &&
@@ -600,7 +598,6 @@ public partial class BattleManager : MonoBehaviour
         }
 
         // <변경부분> 새 선택 처리 전에 기존 선택 기물을 저장
-        if (HandleReinforcementSelection(piece)) return;
 
         Piece previousSelectedPiece =
             selectedPiece;
@@ -1073,7 +1070,6 @@ public partial class BattleManager : MonoBehaviour
                 tile.X,
                 tile.Y
             );
-        if (HandleReinforcementSelection(clickedPiece)) return;
 
         // 선택된 기물이 없는 상태에서 기물이 있는 타일을 클릭하면
         // 해당 기물 선택 또는 상대 정보 확인으로 처리한다.
@@ -1501,7 +1497,6 @@ public partial class BattleManager : MonoBehaviour
                 tile.X,
                 tile.Y
             );
-        if (HandleReinforcementSelection(clickedPiece)) return;
 
         // 아직 배치 기물을 선택하지 않은 상태라면
         // 클릭한 일반 플레이어 기물을 선택한다.
@@ -1889,7 +1884,6 @@ public partial class BattleManager : MonoBehaviour
         Piece actingPiece,
         Vector2Int targetPosition)
     {
-        if (reinforcementCaster != null) return false;
         if (quickStepBonusPiece != null && actingPiece != quickStepBonusPiece) return false;
         // <변경부분> 초기 배치 또는 Announcement 연출 중에는
         // Player / AI 실제 이동 및 공격 행동을 시작하지 않는다.
@@ -2232,9 +2226,10 @@ public partial class BattleManager : MonoBehaviour
         // 빈칸 이동과 중립 기물 공격에는
         // 마지막 공격 카메라 연출을 적용하지 않는다.
         // Resolve evasion for the actual defender after a possible taunt interception.
-        if (pieceManager.TryChooseEvasionDestination(actingPiece, targetPiece, out Vector2Int escapePosition))
+        bool didEvade = pieceManager.TryChooseEvasionDestination(actingPiece, targetPiece, out Vector2Int escapePosition);
+        if (didEvade)
         {
-            yield return pieceManager.MovePieceRoutine(targetPiece, escapePosition.x, escapePosition.y, true);
+            yield return pieceManager.PlayEvadedAttack(actingPiece, targetPiece, escapePosition, null);
             targetPiece = null;
             wasAttack = false; // A missed attack cannot trigger Quick Step or capture rewards.
         }
@@ -2753,7 +2748,7 @@ public partial class BattleManager : MonoBehaviour
                     actingPiece,
                     tile.X,
                     tile.Y,
-                    true
+                    !didEvade
                 );
 
             // <변경부분> 빈칸 이동 애니메이션과
@@ -3533,7 +3528,6 @@ public partial class BattleManager : MonoBehaviour
 
     public void ToggleAbsorbMode()
     {
-        CancelReinforcementSelection(false);
 
         // <변경부분> 배치 또는 Announcement 중에는
         // 흡수 모드로 진입하지 않는다.
@@ -3591,11 +3585,6 @@ public partial class BattleManager : MonoBehaviour
 
     public void UseSelectedPieceSkill()
     {
-        if (reinforcementCaster != null && !isActionAnimating)
-        {
-            CancelReinforcementSelection(true);
-            return;
-        }
         // <변경부분> 배치 또는 Announcement가 끝나기 전에는
         // 고유스킬을 사용할 수 없다.
         if (isPlayerDeploymentPhase ||
@@ -3745,11 +3734,6 @@ public partial class BattleManager : MonoBehaviour
         }
 
         // <변경부분> 합성처럼 애니메이션을 기다려야 하는 스킬을 위해 코루틴으로 실행
-        if (selectedPiece.UniqueSkill == UniqueSkillType.JelluReinforce)
-        {
-            BeginReinforcementSelection(selectedPiece, skillData);
-            return;
-        }
         StartCoroutine(
             UseSelectedPieceSkillRoutine(
                 selectedPiece,
@@ -4876,7 +4860,7 @@ public partial class BattleManager : MonoBehaviour
         // 평가 후보에 포함한 뒤 최고 점수로 선택하여
         // 실행 단계에서 실패하는 상황을 방지한다.
         if (action.UniqueSkillType == UniqueSkillType.JelluReinforce)
-            return battleSkillManager.CanUseReinforcementTarget(skillPiece, action.TargetPiece);
+            return battleSkillManager.CanUseUniqueSkillEffect(skillPiece);
 
         return battleSkillManager
             .CanUseUniqueSkillEffect(
@@ -5127,7 +5111,6 @@ public partial class BattleManager : MonoBehaviour
     private void EndTurn()
     {
         ClearQuickStepBonus();
-        CancelReinforcementSelection(false);
         // 턴이 전환되는 순간 현재 표시 중인 Tooltip을 즉시 닫는다.
         //
         // Player 전용 Action UI가 Enemy 턴 진입과 함께 사라질 때
