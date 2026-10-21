@@ -348,7 +348,7 @@ MonoBehaviour:
     spawnActorPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnActorTeam: 0
     spawnActorUseAbsorbedPlayerVisual: 0
-    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorVisualOffset: {x: 0, y: 0.2}
     spawnActorFlipX: 0
     spawnActorSortingMode: 0
     spawnActorSortingLayerName: Piece

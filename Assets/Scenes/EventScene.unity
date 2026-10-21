@@ -61491,6 +61491,7 @@ MonoBehaviour:
   backgroundManager: {fileID: 1113883777}
   eventSequenceController: {fileID: 2133944367}
   battleEndFlowController: {fileID: 1123980041}
+  battleUICanvasGroup: {fileID: 0}
 --- !u!4 &579071687
 Transform:
   m_ObjectHideFlags: 0

@@ -34,7 +34,7 @@ MonoBehaviour:
   enemyUniqueSkillUseChance: 60
   enemyMaxUniqueSkillUsesPerTurn: 1
   enemyGeneralSkillGrantRules:
-  - skillType: 1
+  - skillType: 4
     grantChancePercent: 30
     allowKing: 0
   - skillType: 2
