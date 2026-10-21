@@ -36,9 +36,14 @@ public static class BattleUILocalization
     private const string RewardDropTitleKey =
         "battle.ui.reward.drop_title";
 
-    // <변경부분> Reward Popup 하단 계속 진행 안내
+    // <변경부분> 미수령 전리품을 포기하고 진행하는 경우의 안내.
+    // 기존 Battle_UI 키는 유지한다.
     private const string RewardContinueKey =
       "battle.ui.reward.continue";
+
+    // <변경부분> 미수령 전리품이 없을 때의 일반 진행 안내.
+    private const string RewardContinueNoPendingKey =
+        "battle.ui.reward.continue_no_pending";
 
     // ============================================================
     // Reward Recovery Piece Tooltip
@@ -110,6 +115,10 @@ public static class BattleUILocalization
     private const string AbilityFailRequirementsNotMetKey =
         "battle.ui.ability_fail.requirements_not_met";
 
+    // <변경부분> 플레이어 능력 사용에 필요한 에너지가 부족한 경우.
+    private const string AbilityFailInsufficientEnergyKey =
+        "battle.ui.ability_fail.insufficient_energy";
+
     private const string AbilityFailConditionUnmetKey =
        "battle.ui.ability_fail.condition_unmet";
 
@@ -147,12 +156,20 @@ public static class BattleUILocalization
                 RewardDropTitleKey
             );
 
-    // Reward Popup 하단 계속 진행 안내.
+    // Reward Popup 하단 미수령 전리품 포기 안내.
     private static readonly LocalizedString
         rewardContinue =
             new LocalizedString(
                 TableCollectionName,
                 RewardContinueKey
+            );
+
+    // <변경부분> 미수령 전리품이 없는 경우의 진행 안내.
+    private static readonly LocalizedString
+        rewardContinueNoPending =
+            new LocalizedString(
+                TableCollectionName,
+                RewardContinueNoPendingKey
             );
 
     // Reward Recovery Tooltip Category.
@@ -240,10 +257,18 @@ public static class BattleUILocalization
             );
 
     private static readonly LocalizedString
-        abilityFailRequirementsNotMet =
+     abilityFailRequirementsNotMet =
+         new LocalizedString(
+             TableCollectionName,
+             AbilityFailRequirementsNotMetKey
+         );
+
+    // <변경부분> 에너지 부족 공통 실패 메시지.
+    private static readonly LocalizedString
+        abilityFailInsufficientEnergy =
             new LocalizedString(
                 TableCollectionName,
-                AbilityFailRequirementsNotMetKey
+                AbilityFailInsufficientEnergyKey
             );
 
     private static readonly LocalizedString
@@ -298,11 +323,20 @@ public static class BattleUILocalization
     }
 
     public static string GetRewardContinueText(
-    string fallbackText)
+  string fallbackText)
     {
         return GetLocalizedTextOrFallback(
             rewardContinue,
             fallbackText
+        );
+    }
+
+    // <변경부분> 미수령 전리품이 없을 때는 포기 안내를 표시하지 않는다.
+    public static string GetRewardContinueNoPendingText()
+    {
+        return GetLocalizedTextOrFallback(
+            rewardContinueNoPending,
+            "클릭하여 계속 진행합니다."
         );
     }
 
@@ -460,6 +494,16 @@ public static class BattleUILocalization
         return GetLocalizedTextOrFallback(
             abilityFailRequirementsNotMet,
             "능력 사용 조건이 부족합니다."
+        );
+    }
+
+    // <변경부분> 현재 Locale 기준 에너지 부족 공통 실패 문구.
+    // 개별 UniqueSkillData의 조건 실패 메시지와 분리하여 관리한다.
+    public static string GetAbilityFailInsufficientEnergy()
+    {
+        return GetLocalizedTextOrFallback(
+            abilityFailInsufficientEnergy,
+            "에너지가 부족하여 능력을 사용할 수 없습니다."
         );
     }
 

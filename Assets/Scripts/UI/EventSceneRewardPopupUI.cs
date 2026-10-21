@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 // <변경부분>
@@ -36,23 +39,26 @@ public class EventSceneRewardPopupUI : MonoBehaviour
     private Button confirmButton;
 
     // <변경부분>
-    // Confirm Button 안의 문구를 보상 형태에 따라 전환한다.
+    // 기존 continueTextOn TMP 오브젝트 하나만 사용한다.
     //
-    // Drop Confirm Label:
-    // "전리품을 받지 않고 넘기기"
+    // 미수령 전리품 있음: "전리품을 받지 않고 넘기기"
+    // 미수령 전리품 없음: "계속하기"
     //
-    // Restoration Confirm Label:
-    // "계속하기"
-    //
-    // 실제 문구의 KR / EN / JA 로컬라이제이션은
-    // 각 Text 오브젝트가 기존 Localization 방식을 그대로 사용한다.
-    [Header("Confirm Button Labels")]
+    // 문구는 Battle_UI Localization String Table에서 가져온다.
+    [Header("Confirm Button Localization")]
 
     [SerializeField]
-    private GameObject dropConfirmLabelObject;
+    private TMP_Text confirmButtonText;
 
+    // <변경부분> 미수령 전리품이 있을 때 사용할 번역.
     [SerializeField]
-    private GameObject restorationConfirmLabelObject;
+    private LocalizedString skipConfirmLocalizedString =
+        new LocalizedString();
+
+    // <변경부분> 미수령 전리품이 없을 때 사용할 번역.
+    [SerializeField]
+    private LocalizedString continueConfirmLocalizedString =
+        new LocalizedString();
 
     [Header("Reward Slot")]
     [SerializeField]
@@ -147,6 +153,32 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         if (popupRoot != null)
         {
             popupRoot.SetActive(false);
+        }
+    }
+
+
+    // <변경부분>
+    // 게임 중 언어를 변경했을 때 버튼 문구를 다시 가져온다.
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged +=
+            OnSelectedLocaleChanged;
+    }
+
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -=
+            OnSelectedLocaleChanged;
+    }
+
+
+    // <변경부분> 팝업이 열려 있는 경우에만 문구를 갱신한다.
+    private void OnSelectedLocaleChanged(Locale locale)
+    {
+        if (isOpen)
+        {
+            RefreshConfirmButtonLabel();
         }
     }
 
@@ -302,16 +334,9 @@ public class EventSceneRewardPopupUI : MonoBehaviour
 
         confirmButton.interactable = true;
 
-        // <변경부분>
-        // 전리품이 없는 복구 전용 보상창에서는
-        // Confirm Button을 "계속하기" 문구로 전환한다.
-        //
-        // 전리품이 하나라도 사용되는 보상창에서는
-        // 기존 "전리품을 받지 않고 넘기기" 문구를 유지한다.
-        RefreshConfirmButtonLabel(
-            useDropRewards,
-            useRestoration
-        );
+        // <변경부분> 실제 미수령 전리품이 남아 있는지에 따라
+        // 포기 안내 또는 일반 진행 안내를 표시한다.
+        RefreshConfirmButtonLabel();
 
         popupRoot.SetActive(true);
 
@@ -631,6 +656,10 @@ public class EventSceneRewardPopupUI : MonoBehaviour
         // 같은 후보의 중복 지급 방지.
         pendingRewards.Remove(reward);
 
+        // <변경부분> 수령 성공으로 미수령 목록이 바뀌었으므로
+        // Confirm Button의 포기/진행 문구를 갱신한다.
+        RefreshConfirmButtonLabel();
+
         // 실제 지급 직후 애니메이션 대기 개수를 증가시킨다.
         pendingClaimAnimations++;
 
@@ -684,45 +713,44 @@ public class EventSceneRewardPopupUI : MonoBehaviour
     }
 
     // <변경부분>
-    // 현재 Reward Selection의 구성에 따라
-    // Confirm Button의 안내 문구를 전환한다.
-    //
-    // Drop Rewards ON:
-    // "전리품을 받지 않고 넘기기"
-    //
-    // Drop Rewards OFF + Restoration ON:
-    // "계속하기"
-    //
-    // 복구는 TryShow()에서 이미 RunState에 자동 지급되므로
-    // Restoration 전용 Confirm Button은
-    // 보상 거절이 아니라 결과 확인 / 다음 Step 진행 역할만 한다.
-    private void RefreshConfirmButtonLabel(
-        bool useDropRewards,
-        bool useRestoration)
+    // 기존 continueTextOn TMP에 번역 문구를 직접 표시한다.
+    // GameObject 활성화 상태는 변경하지 않는다.
+    private void RefreshConfirmButtonLabel()
     {
-        if (dropConfirmLabelObject == null ||
-            restorationConfirmLabelObject == null)
+        if (confirmButtonText == null)
         {
             Debug.LogWarning(
-                "Event Reward Popup: " +
-                "Confirm Button Label Object 연결을 확인해주세요.",
+                "Event Reward Popup: Confirm Button Text 연결을 확인해주세요.",
                 this
             );
 
             return;
         }
 
-        bool isRestorationOnly =
-            !useDropRewards &&
-            useRestoration;
+        // <변경부분> 미수령 전리품 존재 여부에 따라 문구 선택.
+        bool hasPendingRewards =
+            pendingRewards.Count > 0;
 
-        dropConfirmLabelObject.SetActive(
-            !isRestorationOnly
-        );
+        LocalizedString targetString =
+            hasPendingRewards
+                ? skipConfirmLocalizedString
+                : continueConfirmLocalizedString;
 
-        restorationConfirmLabelObject.SetActive(
-            isRestorationOnly
-        );
+        if (targetString == null || targetString.IsEmpty)
+        {
+            Debug.LogWarning(
+                "Event Reward Popup: Confirm Button Localization Key를 확인해주세요.",
+                this
+            );
+
+            return;
+        }
+
+        // <변경부분>
+        // 기존 String Table에서 현재 언어의 번역을 가져와
+        // TMP 오브젝트 하나의 문구만 변경한다.
+        confirmButtonText.text =
+            targetString.GetLocalizedString();
     }
 
 

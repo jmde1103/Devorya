@@ -10,12 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2307f0da5250446438daa2e3472af07f, type: 3}
-  m_Name: 능력_합성_강화
+  m_Name: "\uB2A5\uB825_\uD569\uC131_\uAC15\uD654"
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 9
-  skillName: "합성 : 강화"
+  skillName: "\uD569\uC131 : \uAC15\uD654"
   iconSprite: {fileID: 21300000, guid: 9a2a65b9e94da2e4f9230a80f3de62ec, type: 3}
-  description: "인접한 아군 [폰] 1개를 무작위로 흡수하고 제거한다. 자신에게 [돌파]와 [방어]를 각각 1턴 부여한다."
+  description: "\uC778\uC811\uD55C \uC544\uAD70 [\uD3F0] 1\uAC1C\uB97C \uBB34\uC791\uC704\uB85C
+    \uD761\uC218\uD558\uACE0 \uC81C\uAC70\uD55C\uB2E4. \uC790\uC2E0\uC5D0\uAC8C [\uB3CC\uD30C]\uC640
+    [\uBC29\uC5B4]\uB97C \uAC01\uAC01 1\uD134 \uBD80\uC5EC\uD55C\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: c2bc84be6b2f9304982528565ce5e921, type: 2}
     sectionColor: {r: 1, g: 0.9451673, b: 0, a: 0}
@@ -48,11 +50,13 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  energyCost: 3
   cooldownTurn: 3
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
-  conditionFailMessage: "흡수할 수 있는 인접한 아군 [폰]이 없습니다."
+  conditionFailMessage: "\uD761\uC218\uD560 \uC218 \uC788\uB294 \uC778\uC811\uD55C
+    \uC544\uAD70 [\uD3F0]\uC774 \uC5C6\uC2B5\uB2C8\uB2E4."
   references:
     version: 2
     RefIds: []

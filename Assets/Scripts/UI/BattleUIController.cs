@@ -189,6 +189,12 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 고유스킬 버튼 위에 표시할 쿨타임 숫자 텍스트
     [SerializeField] private TMP_Text uniqueSkillCooldownText;
 
+    // <변경부분>
+    // 고유스킬 버튼에 추가한 Cost 숫자 TMP.
+    // Tooltip과 동일한 실제 에너지 소비량을 표시한다.
+    [Header("Unique Skill Cost")]
+    [SerializeField] private TMP_Text uniqueSkillCostText;
+
     [Header("Unique Skill Database")]
     // <변경부분> 고유스킬 타입으로 아이콘 데이터를 찾기 위한 데이터베이스
     [SerializeField] private UniqueSkillDatabase uniqueSkillDatabase;
@@ -317,15 +323,64 @@ public class BattleUIController : MonoBehaviour
             return;
         }
 
-        // <변경부분> TooltipData.FromUniqueSkillData()가
-        // 현재 Locale의 이름과 설명을 가져오므로
-        // Locale 변경 직후 새로운 번역으로 Tooltip이 재생성된다.
+        // <변경부분>
+        // 기존 TooltipData.FromUniqueSkillData()를 재사용하여
+        // 현재 Locale의 이름, 설명, 기본 Cost를 가져온다.
+        TooltipViewData tooltipViewData =
+            TooltipViewData.FromUniqueSkillData(
+                skillData
+            );
+
+        // <변경부분>
+        // BattleManager에서 실제 적용 중인 에너지 Cost를 가져온다.
+        //
+        // UniqueSkillData.energyCost는 기본값으로 유지하며,
+        // 아이템/유물/효과에 의한 Cost 보정은
+        // 런타임 TooltipViewData에만 반영한다.
+        if (tooltipViewData != null &&
+            battleManager != null)
+        {
+            tooltipViewData.energyCost =
+                battleManager.GetPlayerAbilityEnergyCost(
+                    skillData
+                );
+        }
+
+        // <변경부분>
+        // BattleManager에서 실제 적용 중인 에너지 Cost를 가져온다.
+        //
+        // UniqueSkillData.energyCost는 기본값으로 유지하며,
+        // 아이템/유물/효과에 의한 Cost 보정은
+        // 런타임 TooltipViewData에만 반영한다.
+        if (tooltipViewData != null &&
+            battleManager != null)
+        {
+            tooltipViewData.energyCost =
+                battleManager.GetPlayerAbilityEnergyCost(
+                    skillData
+                );
+        }
+
+        // <변경부분>
+        // Tooltip과 동일한 최종 Cost를
+        // 고유스킬 버튼의 숫자 TMP에도 반영한다.
+        //
+        // 기본 Cost가 0인 능력도 숫자 0으로 표시한다.
+        if (uniqueSkillCostText != null)
+        {
+            uniqueSkillCostText.text =
+                tooltipViewData != null &&
+                tooltipViewData.energyCost.HasValue
+                    ? tooltipViewData.energyCost.Value.ToString()
+                    : string.Empty;
+        }
+
+        // <변경부분>
+        // 최종 Cost와 현재 Locale의 Tooltip 데이터를
+        // 기존 TooltipTrigger에 전달한다.
         uniqueSkillTooltipTrigger
             .SetTooltipViewData(
-                TooltipViewData
-                    .FromUniqueSkillData(
-                        skillData
-                    )
+                tooltipViewData
             );
     }
 
@@ -2001,6 +2056,14 @@ public class BattleUIController : MonoBehaviour
         if (isVisible == false)
         {
             HideUniqueSkillCooldownUI();
+
+            // <변경부분>
+            // 이전 기물의 Cost 숫자를 초기화한다.
+            if (uniqueSkillCostText != null)
+            {
+                uniqueSkillCostText.text =
+                    string.Empty;
+            }
 
             currentActionUniqueSkillType =
                 UniqueSkillType.None;

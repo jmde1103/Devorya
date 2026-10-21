@@ -1,0 +1,297 @@
+DEVORYA UI 위치 자동 배치 구조 및 직접 수정 가이드
+작성 기준: 2026-10-21, 현재 코덱스 작업 경로의 소스와 저장된 씬을 확인하여 작성
+
+1. 핵심 원인
+
+씬에서 UI의 RectTransform 위치를 옮겨도 플레이 시 원래 자동 배치 위치로 돌아가는 직접적인 원인은 Canvas에 붙은 ResponsiveScreenLayout 컴포넌트입니다.
+이 컴포넌트는 씬에 놓인 현재 좌표를 최종 배치 기준으로 사용하지 않습니다.
+Canvas의 elements 목록에 별도로 저장한 anchor, inset, relativeTo, relativeOffset 등의 값으로 UI 위치를 다시 계산합니다.
+또한 originalScale 값을 다시 대입하므로 씬에서 Scale만 변경한 경우 크기도 되돌아갈 수 있습니다.
+
+이 처리는 이전에 요청한 PC/모바일 화면 비율 대응과 화면 잘림 방지를 위해 추가했습니다.
+그러나 씬 뷰에서 직접 옮긴 배치를 설정값으로 다시 저장하는 도구나 자동 동기화 기능은 구현하지 않았습니다.
+결과적으로 Unity에서 직접 UI를 배치하는 기존 작업 방식과 충돌합니다. 사용자가 잘못 설정해서 생긴 현상은 아닙니다.
+이번 요청에서는 설명 문서만 작성했으며 게임 코드나 씬을 추가로 변경하지 않았습니다.
+
+2. 반드시 작업 경로부터 확인
+
+코덱스 작업 경로:
+C:\Users\zntif\.codex\worktrees\status-effect-restrictions\Devorya
+작업 브랜치: codex/status-effect-restrictions
+
+사용자 기본 프로젝트 경로:
+C:\Users\zntif\OneDrive\Documents\GitHub\Devorya
+
+아래 소스 및 씬 설명은 코덱스 작업 경로 기준입니다.
+두 경로는 서로 다른 체크아웃이므로, 한쪽 파일을 바꾼다고 다른 쪽 Unity에 즉시 반영되는 것은 아닙니다.
+최근 추가 작업에는 아직 커밋하지 않은 변경이 있으므로 브랜치 이름만 보고 내용이 같다고 가정하지 마세요.
+Unity Hub 또는 열린 프로젝트 경로를 확인한 뒤 실제 열어 둔 프로젝트의 파일과 비교해야 합니다.
+이 문서는 전달 편의를 위해 사용자 기본 프로젝트의 Docs 폴더에 저장했습니다.
+
+3. 관련 파일
+
+아래 상대 경로 앞에 위의 코덱스 작업 경로를 붙이면 실제 파일 경로가 됩니다.
+
+[실행 중 HUD 배치]
+Assets/Scripts/UI/ResponsiveScreenLayout.cs
+- Canvas에 붙는 자동 배치 컴포넌트입니다.
+- 위치, 크기 제한, 안전 영역, 다른 UI 기준 상대 배치를 담당합니다.
+
+[툴팁 등 팝업 화면 이탈 보정]
+Assets/Scripts/UI/ScreenBoundedPopup.cs
+- 팝업을 화면 안으로 밀어 넣는 별도의 컴포넌트입니다.
+- 화면 가장자리에서 팝업 위치가 바뀌는 현상은 이쪽도 확인해야 합니다.
+
+[초기 자동 배치 설정 생성 도구]
+Assets/Editor/ResponsiveUISetup.cs
+- 여러 씬의 CanvasScaler와 ResponsiveScreenLayout 설정을 생성하고 씬을 저장합니다.
+- Dock 사전에 UI 이름별 기본 기준점과 여백을 지정합니다.
+- 실행 중 매 프레임 이 사전을 읽는 구조는 아닙니다. 실행 중에는 씬에 저장된 elements 값이 쓰입니다.
+
+[마무리 흡수 버튼 위치 수정 및 검증 도구]
+Assets/Editor/AbsorbButtonLayoutFix.cs
+- BattleScene의 Absorb Button을 Skill Button 기준으로 배치하도록 씬을 변경하고 저장합니다.
+- 이후 다양한 화면 크기의 좌표 계산을 검증합니다.
+
+[기타 UI 제어]
+Assets/Scripts/UI/BattleUIController.cs
+- 버튼 표시/숨김, 스케일 애니메이션 등도 처리합니다.
+- 위치 덮어쓰기 원인을 추적할 때 자동 배치 외에 Animator, LayoutGroup, 다른 UI 스크립트도 함께 확인할 수 있습니다.
+
+[주요 씬]
+Assets/Scenes/BattleScene.unity
+Assets/Scenes/WorldMapScene.unity
+Assets/Scenes/EventScene.unity
+그 밖에 초기 설정 도구는 Title, TextCutsceneScene, BattleScenePVP도 대상으로 합니다.
+각 씬은 독립적인 설정을 가집니다. 한 씬의 수정이 다른 씬까지 자동 전파되지는 않습니다.
+
+4. 실행 순서와 덮어쓰기 시점
+
+ResponsiveScreenLayout의 흐름:
+
+Awake
+  -> Canvas 참조 확보
+OnEnable / OnRectTransformDimensionsChange
+  -> dirty = true
+LateUpdate
+  -> dirty이면 Canvas.ForceUpdateCanvases()
+  -> 첫 실행 또는 화면/Canvas/안전 영역 크기 변화 확인
+  -> GetSafeCanvasRect()로 안전 영역을 Canvas 좌표로 변환
+  -> ApplyLayout()
+     -> 각 대상의 localScale을 originalScale로 복원
+     -> contentBounds로 전체 UI 영역 계산
+     -> 너무 크면 화면 안에 들어가도록 축소
+     -> anchor와 inset으로 목표 위치 계산
+     -> 안전 영역 안으로 위치 제한
+     -> target.position 변경
+     -> 마지막에 ApplyRelativePositions() 실행
+
+매 프레임 무조건 고정 위치를 대입하는 방식은 아닙니다.
+하지만 플레이 시작 시 반드시 초기 계산이 일어나며, 해상도/창 크기/Canvas/안전 영역 변화 때 다시 배치됩니다.
+대상 GameObject가 비활성화되어 있어도 elements에 등록되어 있으면 배치 계산 대상입니다.
+따라서 숨겨진 버튼이 나중에 표시될 때도 자동 배치된 위치로 나옵니다.
+
+5. Inspector에서 실제로 수정할 값
+
+씬의 Canvas를 선택하고 Responsive Screen Layout 컴포넌트를 찾습니다.
+화면에서 움직이고 싶은 UI가 들어 있는 '반응형 UI 묶음' 목록을 펼칩니다.
+UI 자체가 아니라 부모 묶음이 등록되어 있을 수도 있습니다.
+
+- 대상 UI / target
+  자동 배치할 RectTransform입니다. 해당 대상의 자식들도 함께 이동합니다.
+
+- 화면 기준점 / anchor
+  RectTransform 자체의 anchorMin/anchorMax와 다른, 이 컴포넌트 전용 값입니다.
+  X=0: 왼쪽, X=0.5: 가로 중앙, X=1: 오른쪽
+  Y=0: 아래, Y=0.5: 세로 중앙, Y=1: 위
+  구현은 연속 비율이 아니라 구간 판정입니다.
+  0.25 미만은 시작 가장자리, 0.75 초과는 끝 가장자리, 그 사이는 중앙으로 처리합니다.
+  예를 들어 X=0.3은 화면 가로 30%가 아니라 중앙으로 해석됩니다.
+
+- 가장자리 여백·중앙 이동 / inset
+  가장자리 기준일 때는 해당 가장자리에서 UI 전체 경계까지의 여백입니다.
+  중앙 기준일 때는 화면 중앙에서 UI 전체 중심까지의 이동량입니다.
+  Canvas 내부 논리 좌표 단위이며 화면의 실제 픽셀 수와 항상 같지는 않습니다.
+  X=1이면 inset.x를 늘릴수록 왼쪽으로 이동합니다.
+  X=0이면 inset.x를 늘릴수록 오른쪽으로 이동합니다.
+  Y=0이면 inset.y를 늘릴수록 위로 이동합니다.
+  Y=1이면 inset.y를 늘릴수록 아래로 이동합니다.
+  중앙 기준이면 양수 X는 오른쪽, 양수 Y는 위쪽입니다.
+
+- 기준 UI / relativeTo
+  비어 있으면 anchor/inset 기준으로만 배치합니다.
+  연결되어 있으면 가장자리 배치 후 해당 UI의 전체 표시 영역 중심을 기준으로 다시 이동합니다.
+  이 경우 대상의 inset만 수정해도 마지막 상대 배치 단계에서 위치가 다시 바뀝니다.
+
+- 기준 UI와의 간격 / relativeOffset
+  relativeTo가 있을 때 사용하는 중심 간 거리입니다.
+  X 음수=왼쪽, Y 음수=아래쪽입니다.
+  가장자리의 inset 부호 규칙과 혼동하지 마세요.
+
+- originalScale / contentBounds
+  HideInInspector로 일반 Inspector에서는 숨겨져 있지만 씬에 저장되어 있습니다.
+  originalScale은 실행 시 복원하는 원래 크기입니다.
+  contentBounds는 대상과 자식 Graphic들의 전체 영역을 이전에 측정한 값입니다.
+  이미지 크기, 자식 배치, 스케일을 바꾸어도 이 저장값이 자동 갱신되지는 않습니다.
+  Inspector Debug 모드나 별도 편집 도구로 확인할 수 있습니다.
+  bounds를 임의로 대충 바꾸는 것보다는 다시 측정하고 저장하는 기능을 만드는 편이 정확합니다.
+
+6. 마무리 흡수 버튼의 현재 저장 설정
+
+코덱스 BattleScene에서 확인한 값:
+
+Absorb Button
+- anchor: (1, 0)
+- inset: (24, 24)
+- relativeTo: Skill Button
+- relativeOffset: 약 (-157.07822, -216.85417)
+- originalScale: 약 (0.8333333, 0.8333333, 1)
+
+Skill Button
+- anchor: (1, 0)
+- inset: (24, 260)
+- relativeTo: 없음
+- originalScale: 약 (0.8333333, 0.8333333, 1)
+
+흡수 버튼은 최종적으로 능력 버튼 중심에서 왼쪽·아래쪽으로 배치됩니다.
+씬에서 Absorb Button의 Pos X/Y만 수정하는 것으로는 최종 위치를 바꿀 수 없습니다.
+
+현재 구조에서 간단히 조정하는 방법:
+1) 플레이를 종료합니다.
+2) Canvas의 Responsive Screen Layout을 선택합니다.
+3) 대상 UI가 Absorb Button인 항목을 찾습니다.
+4) '기준 UI와의 간격'을 수정합니다.
+   - 더 가까이 붙이려면 음수 X/Y의 절댓값을 줄입니다.
+   - 더 왼쪽으로는 X를 더 작게, 더 아래로는 Y를 더 작게 설정합니다.
+5) 씬을 저장하고 플레이하여 확인합니다.
+6) 화면 가장자리에 가까우면 안전 영역 제한으로 요청한 간격과 달라질 수 있습니다.
+
+능력 버튼 위치 자체를 바꾸려면 Skill Button 항목의 inset을 수정합니다.
+그 뒤 흡수 버튼도 능력 버튼의 새 위치를 기준으로 배치됩니다.
+기준 UI를 움직이는 애니메이션을 매 프레임 추적하는 기능은 아닙니다. 배치 갱신 시점에만 상대 위치를 계산합니다.
+상대 기준을 연쇄 연결하거나 순환 연결하는 경우 정렬/순환 감지 기능도 현재 없습니다.
+
+7. 씬에서 직접 드래그한 위치를 사용하고 싶을 때
+
+선택지 A: 특정 UI만 자동 배치에서 제외
+- elements에서 해당 대상 항목을 제거합니다.
+- 일반 RectTransform 앵커와 anchoredPosition으로 배치합니다.
+- 부모가 자동 배치 대상이면 부모 이동의 영향을 계속 받습니다. 상위 계층도 확인하세요.
+- 다른 항목이 해당 UI를 relativeTo로 참조하는지도 확인하세요.
+- 자동 안전 영역 보정과 크기 조정이 빠지므로 여러 비율에서 별도로 확인해야 합니다.
+
+선택지 B: Canvas의 ResponsiveScreenLayout 비활성화
+- 해당 Canvas의 전체 자동 배치가 멈춥니다.
+- 원인 확인에는 간단하지만 모든 HUD의 반응형 배치가 함께 사라집니다.
+- CanvasScaler와 ScreenBoundedPopup은 별도 컴포넌트이므로 계속 작동합니다.
+- 플레이 중 이미 바뀐 좌표는 컴포넌트를 끄는 것만으로 이전 값으로 복구되지 않습니다.
+  플레이를 종료하고 편집 상태에서 설정을 바꾼 뒤 다시 실행하세요.
+
+선택지 C: 직접 배치와 반응형 처리가 공존하도록 구조 개선 (권장 방향)
+- 화면 귀퉁이 HUD는 실제 RectTransform anchor/pivot을 사용합니다.
+- 능력/흡수 버튼은 같은 컨테이너 아래에 놓고, 컨테이너만 안전 영역에 정렬합니다.
+- 버튼끼리의 상대 위치는 씬에서 직접 수정한 로컬 좌표를 유지합니다.
+- 안전 영역을 반영하는 부모 RectTransform을 두고 자식은 일반 Unity UI 방식으로 편집합니다.
+- 단, 현재 SafeAreaRoot라는 이름의 오브젝트가 있다고 해서 별도의 자동 안전 영역 기능이 구현된 것은 아닙니다.
+  현재 안전 영역 처리는 ResponsiveScreenLayout.GetSafeCanvasRect()가 담당합니다.
+- 이 방식으로 바꾸려면 기존 elements 대상에서 중복으로 제어하는 항목을 제거해야 합니다.
+
+현재 방식 유지 시 개선안:
+- 항목별 자동 배치 활성화 옵션 추가
+- '현재 씬 배치를 설정으로 저장' 버튼 추가
+- 선택한 대상의 originalScale/contentBounds 재계산 기능 추가
+- 편집 모드 미리보기와 Undo 지원
+- 설정 재생성 시 relativeTo/relativeOffset과 사용자 수정값 보존
+
+이 개선 기능들은 현재 구현되어 있지 않습니다. 다른 GPT에게 수정 요청할 때의 제안입니다.
+
+8. 현재 배치를 설정으로 저장하는 도구를 만들 때 필요한 계산
+
+항목의 기준점은 유지한 채 현재 보이는 배치를 저장하려면:
+1) Canvas.ForceUpdateCanvases()로 최신 좌표를 확정합니다.
+2) 현재 target.localScale을 originalScale로 저장합니다.
+3) ResponsiveScreenLayout.MeasureContent(target)로 contentBounds를 다시 측정합니다.
+4) BoundsInCanvas()로 Canvas 안에서 현재 경계와 중심을 얻습니다.
+5) 현재 Canvas와 Screen.safeArea에서 safe rect를 계산합니다.
+6) 각 축의 anchor 구간에 따라 inset을 역산합니다.
+   왼쪽: bounds.min.x - safe.xMin
+   오른쪽: safe.xMax - bounds.max.x
+   가로 중앙: bounds.center.x - safe.center.x
+   아래쪽: bounds.min.y - safe.yMin
+   위쪽: safe.yMax - bounds.max.y
+   세로 중앙: bounds.center.y - safe.center.y
+7) relativeTo가 있으면 inset 대신 대상 중심 - 기준 UI 중심으로 relativeOffset을 저장합니다.
+8) Undo.RecordObject, EditorUtility.SetDirty, 씬 변경 표시를 적용합니다.
+9) 보정 중인 플레이 모드 값이나 이미 축소된 값을 원본 스케일로 저장하지 않도록 주의합니다.
+
+9. CanvasScaler와 팝업 보정의 차이
+
+ResponsiveUISetup은 CanvasScaler를 다음처럼 설정합니다.
+- UI Scale Mode: Scale With Screen Size
+- Reference Resolution: 1920 x 1080
+- Screen Match Mode: Expand
+이는 화면 비율에 따른 Canvas의 논리 크기/확대 비율을 정합니다.
+개별 버튼을 특정 모서리로 옮기는 직접적인 처리는 ResponsiveScreenLayout입니다.
+
+ScreenBoundedPopup은:
+- LateUpdate에서 매 프레임 실행합니다.
+- DefaultExecutionOrder(1000)으로 일반 팝업 배치 뒤에 보정합니다.
+- 화면 안전 영역에서 12 논리 단위의 여백을 둡니다.
+- 너무 큰 팝업은 축소하고 화면 밖에 있는 부분은 안쪽으로 이동시킵니다.
+- WorldSpace Canvas는 제외합니다.
+- 축소 후 자동으로 원래 스케일을 복원하는 로직은 이 컴포넌트에 없습니다.
+HUD 고정 배치 문제와 팝업 화면 이탈 보정은 별도로 구분해야 합니다.
+
+10. 설정 생성 스크립트 실행 시 주의점
+
+ResponsiveUISetup.Run은 여러 씬을 열고 저장하는 일괄 변경 도구입니다.
+단순 미리보기나 '현재 수정한 배치를 반영'하는 버튼이 아닙니다.
+Dock 사전에 있는 UI는 사전값으로 다시 설정됩니다.
+각 항목을 새로 만들기 때문에 최근 추가한 relativeTo/relativeOffset도 이 도구를 재실행하면 보존되지 않습니다.
+흡수 버튼의 상대 배치가 사라지는 원인이 될 수 있습니다.
+도구를 수정하지 않은 채 전체 재실행하는 방식으로 해결하지 마세요.
+
+AbsorbButtonLayoutFix.Run 역시 BattleScene을 수정하고 저장한 뒤 검증하고 EditorApplication.Exit를 호출합니다.
+일반 Unity 작업 중 무심코 실행할 용도의 메뉴가 아닙니다.
+ResponsiveUISetup.Run / VerifyOnly 등도 Editor 종료를 호출하므로 별도 검증 실행용으로 취급해야 합니다.
+
+11. 다른 GPT 작업환경에 전달할 요청문
+
+DEVORYA Unity 프로젝트의 UI 편집 방식을 수정하고 싶습니다.
+현재 Canvas의 ResponsiveScreenLayout이 플레이 시작 시 elements의 anchor/inset/originalScale/contentBounds를 기준으로 RectTransform 위치와 스케일을 덮어씁니다.
+그래서 씬 뷰에서 직접 배치한 좌표가 플레이 때 유지되지 않습니다.
+실제 열려 있는 프로젝트 경로와 코덱스 작업 경로가 다를 수 있으므로 먼저 확인해 주세요.
+
+원하는 방향:
+- Unity 씬에서 직접 배치한 위치와 크기를 존중할 것.
+- PC/모바일 해상도 변화와 안전 영역 대응은 유지할 것.
+- 능력 버튼과 마무리 흡수 버튼은 하나의 HUD 그룹으로 관리하고, 그룹 안 배치는 씬에서 직접 수정할 수 있게 할 것.
+- 전체 Canvas를 끄거나 기존 UI를 모두 강제 재배치하지 말 것.
+- 기존 Inspector 데이터 연결, UnityEvent, Localization, 버튼 동작을 보존할 것.
+- Hierarchy 이름은 영문을 유지할 것.
+- 기존 변경 내역을 먼저 확인하고, 씬이나 스크립트를 통째로 이전 버전으로 되돌리지 말 것.
+- 기존 방식 유지가 더 안전하다면 '현재 씬 배치를 자동 배치 설정으로 저장'하는 Editor 도구와 항목별 배치 사용 여부를 먼저 제공할 것.
+- ResponsiveUISetup 재실행 시 사용자 설정과 상대 배치 정보가 사라지지 않게 할 것.
+
+우선 읽을 파일:
+Assets/Scripts/UI/ResponsiveScreenLayout.cs
+Assets/Scripts/UI/ScreenBoundedPopup.cs
+Assets/Editor/ResponsiveUISetup.cs
+Assets/Editor/AbsorbButtonLayoutFix.cs
+Assets/Scenes/BattleScene.unity
+
+12. 수정 후 확인 목록
+
+- 편집 모드에서 위치 변경 -> 저장 -> 플레이 -> 위치 유지
+- 크기 변경 -> 저장 -> 플레이 -> 크기 유지
+- 1920x1080 / 1024x768 / 2560x1080 / 모바일 가로 및 세로 화면
+- 노치와 하단 안전 영역을 가정한 배치
+- 숨겨진 흡수 버튼이 나중에 나타날 때 위치
+- 버튼 애니메이션 중 위치와 크기
+- 툴팁과 대화창 잘림
+- WorldMapScene/EventScene 등 다른 씬의 독립 설정
+- 기존 버튼 클릭과 UnityEvent 연결
+- 수정한 프로젝트 경로와 실제 플레이하는 경로의 일치
+
+기존 흡수 버튼 작업에서 확인한 것은 다섯 화면 크기의 좌표·겹침·잘림·표시/숨김 검사입니다.
+씬에서 드래그한 위치를 런타임 설정으로 자동 반영하는 편집 흐름은 당시 구현하거나 검증한 항목이 아닙니다.

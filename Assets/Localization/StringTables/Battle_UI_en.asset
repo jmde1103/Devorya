@@ -103,7 +103,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16123939756052480
-    m_Localized: Continue
+    m_Localized: Click to continue.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17048176561885184
+    m_Localized: Not enough energy to use this ability.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17084156576665600
+    m_Localized: "\u6226\u5229\u54C1\u3092\u653E\u68C4\u3057\u3066\u9032\u3080"
     m_Metadata:
       m_Items: []
   references:

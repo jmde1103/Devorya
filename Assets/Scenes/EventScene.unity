@@ -5034,6 +5034,7 @@ MonoBehaviour:
   currentTurn: 0
   turnCount: 0
   currentStageName: 
+  baseMaxPlayerAbilityEnergy: 5
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -29418,7 +29419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &287602614
 RectTransform:
   m_ObjectHideFlags: 0
@@ -83934,7 +83935,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1248682642}
+    m_TransformParent: {fileID: 1560279917}
     m_Modifications:
     - target: {fileID: 106021973789343621, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_Name
@@ -83990,15 +83991,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1844310684490895366, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1844310684490895366, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1844310684490895366, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1844310684490895366, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -100359,7 +100360,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &927991179
 RectTransform:
   m_ObjectHideFlags: 0
@@ -106690,7 +106691,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &993747599
 RectTransform:
   m_ObjectHideFlags: 0
@@ -109924,7 +109925,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1031164065
 Transform:
   m_ObjectHideFlags: 0
@@ -133156,7 +133157,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 622929017}
   - {fileID: 1209219830}
   m_Father: {fileID: 1560279917}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -145713,6 +145713,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5823960531336428404, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
   m_PrefabInstance: {fileID: 1745518829}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1380971741 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2898234406861598194, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+  m_PrefabInstance: {fileID: 1745518829}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380971739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1382627929
 GameObject:
   m_ObjectHideFlags: 0
@@ -163734,7 +163745,7 @@ MonoBehaviour:
   eventScreenGlitchController: {fileID: 532668636}
   pixelCameraController: {fileID: 330585549}
   environmentGlobalAmbient: {fileID: 772995354}
-  characterFillLight: {fileID: 0}
+  characterFillLight: {fileID: 2070544707}
   runHUDCanvasGroup: {fileID: 1248682644}
   runHUDFadeDuration: 0.25
 --- !u!1 &1559834694
@@ -163993,6 +164004,7 @@ RectTransform:
   - {fileID: 865496099}
   - {fileID: 271587863}
   - {fileID: 626203127}
+  - {fileID: 622929017}
   - {fileID: 1280854509}
   - {fileID: 1248682642}
   - {fileID: 1247030603}
@@ -181691,7 +181703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1727565522
 RectTransform:
   m_ObjectHideFlags: 0
@@ -183473,7 +183485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1744861571
 RectTransform:
   m_ObjectHideFlags: 0
@@ -183749,12 +183761,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1994606907}
     - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+      propertyPath: confirmButtonText
+      value: 
+      objectReference: {fileID: 1380971741}
+    - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
       propertyPath: dropConfirmLabelObject
       value: 
       objectReference: {fileID: 1380971739}
     - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
       propertyPath: restorationConfirmLabelObject
       value: 
+      objectReference: {fileID: 1943861824}
+    - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+      propertyPath: skipConfirmLocalizedString.m_TableEntryReference.m_KeyId
+      value: 86409495580672
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+      propertyPath: continueConfirmLocalizedString.m_TableEntryReference.m_KeyId
+      value: 16123939756052480
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+      propertyPath: skipConfirmLocalizedString.m_TableReference.m_TableCollectionName
+      value: GUID:1f3ad39bcc28ee04badf56f058a43c33
+      objectReference: {fileID: 0}
+    - target: {fileID: 8936225969011686735, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+      propertyPath: continueConfirmLocalizedString.m_TableReference.m_TableCollectionName
+      value: GUID:1f3ad39bcc28ee04badf56f058a43c33
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -194782,7 +194814,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1897976745
 RectTransform:
   m_ObjectHideFlags: 0
@@ -199992,6 +200024,11 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1943861824 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3918780409183034344, guid: 5b2d44fd4ba29f5468c985c41b59dbd7, type: 3}
+  m_PrefabInstance: {fileID: 1745518829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1944599907
 GameObject:
   m_ObjectHideFlags: 0
@@ -213303,6 +213340,17 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &2070544707 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8462373973833334618, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
+  m_PrefabInstance: {fileID: 9050744399186627115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
 --- !u!1 &2075251747
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,6 +21,13 @@ public class TooltipPopupUI : MonoBehaviour
 
     [SerializeField] private TMP_Text mainDescriptionText;
 
+    // <변경부분>
+    // 능력(Ability) 전용 Cost 표시 영역.
+    // 다른 종류의 Tooltip에서는 CostRoot 전체를 숨긴다.
+    [Header("Ability Cost")]
+    [SerializeField] private GameObject costRoot;
+    [SerializeField] private TMP_Text costValueText;
+
     [Header("Open Animation")]
     // <변경부분> Tooltip 팝업이 열릴 때 지지직 오픈 애니메이션을 재생하는 컴포넌트
     [SerializeField] private PopupOpenAnimator popupOpenAnimator;
@@ -182,6 +189,33 @@ public class TooltipPopupUI : MonoBehaviour
         {
             mainDescriptionText.text =
                 tooltipViewData.mainDescription;
+        }
+
+        // <변경부분>
+        // 능력 Tooltip에 Cost 데이터가 있는 경우에만
+        // CostRoot를 표시한다.
+        //
+        // Cost 0은 정상적인 값이므로 표시하고,
+        // null일 때만 Cost 영역을 숨긴다.
+        bool hasAbilityCost =
+            tooltipViewData.energyCost.HasValue;
+
+        if (costRoot != null)
+        {
+            costRoot.SetActive(
+                hasAbilityCost
+            );
+        }
+
+        // <변경부분>
+        // 숫자는 TooltipViewData에서 전달된 값을 사용한다.
+        // CostLabel은 별도의 TMP/Localization으로 관리한다.
+        if (costValueText != null)
+        {
+            costValueText.text =
+                hasAbilityCost
+                    ? tooltipViewData.energyCost.Value.ToString()
+                    : string.Empty;
         }
 
         // <변경부분> 현재 Tooltip에 포함된 Section 개수를 기록한다.

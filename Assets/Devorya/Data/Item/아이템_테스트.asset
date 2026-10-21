@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45208ce0afc6fac45a3f734ffce3a069, type: 3}
-  m_Name: 아이템_테스트
+  m_Name: "\uC544\uC774\uD15C_\uD14C\uC2A4\uD2B8"
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemData
   itemType: 2
   itemName: "\uD14C\uC2A4\uD2B8"
@@ -42,7 +42,7 @@ MonoBehaviour:
     changeTargetUniqueSkill: 0
     changeTargetGeneralSkill: 0
     useAbsorbedJelluVisual: 1
-    statusEffectData: {fileID: 11400000, guid: 9d1f814c9401420592bb0cda77c2176a, type: 2}
+    statusEffectData: {fileID: 11400000, guid: 6b9a2727598747b6b68c7df732fe6225, type: 2}
     statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
   tooltipSections: []
   changeTargetPieceData: {fileID: 0}

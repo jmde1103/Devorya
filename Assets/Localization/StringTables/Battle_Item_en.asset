@@ -49,7 +49,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 15233677404016641
     m_Localized: Transforms the selected allied piece into a Jellu [Knight], then
-      applies [Attack Disabled] for 1 turn.
+      applies <Attack Disabled> for 1 turn.
     m_Metadata:
       m_Items: []
   references:

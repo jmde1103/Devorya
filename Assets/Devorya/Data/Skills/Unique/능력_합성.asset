@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2307f0da5250446438daa2e3472af07f, type: 3}
-  m_Name: 능력_합성
+  m_Name: "\uB2A5\uB825_\uD569\uC131"
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 4
   skillName: "\uD569\uC131"
@@ -50,6 +50,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  energyCost: 2
   cooldownTurn: 3
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0

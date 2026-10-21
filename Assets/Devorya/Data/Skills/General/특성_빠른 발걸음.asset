@@ -10,13 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c427d0319a4f5524f8896c13f10549fd, type: 3}
-  m_Name: 특성_빠른 발걸음
+  m_Name: "\uD2B9\uC131_\uBE60\uB978 \uBC1C\uAC78\uC74C"
   m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillData
   skillType: 4
-  skillName: "빠른 발걸음"
-  iconSprite: {fileID: 21300000, guid: 2dcd351c500c4d742a0a196506497dd0, type: 3}
-  description: "공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻는다. 추가 이동으로는 상대 기물을 잡을 수 없다."
-  tooltipDescriptionFormat: "공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻는다. 추가 이동으로는 상대 기물을 잡을 수 없다."
+  skillName: "\uBE60\uB978 \uBC1C\uAC78\uC74C"
+  iconSprite: {fileID: 21300000, guid: 750a32d6117f3894799adfbca7c64a7f, type: 3}
+  description: "\uACF5\uACA9\uC5D0 \uC131\uACF5\uD558\uBA74 {percent}% \uD655\uB960\uB85C
+    \uCD94\uAC00 \uC774\uB3D9 \uAE30\uD68C\uB97C 1\uD68C \uC5BB\uB294\uB2E4. \uCD94\uAC00
+    \uC774\uB3D9\uC73C\uB85C\uB294 \uC0C1\uB300 \uAE30\uBB3C\uC744 \uC7A1\uC744 \uC218
+    \uC5C6\uB2E4."
+  tooltipDescriptionFormat: "\uACF5\uACA9\uC5D0 \uC131\uACF5\uD558\uBA74 {percent}%
+    \uD655\uB960\uB85C \uCD94\uAC00 \uC774\uB3D9 \uAE30\uD68C\uB97C 1\uD68C \uC5BB\uB294\uB2E4.
+    \uCD94\uAC00 \uC774\uB3D9\uC73C\uB85C\uB294 \uC0C1\uB300 \uAE30\uBB3C\uC744 \uC7A1\uC744
+    \uC218 \uC5C6\uB2E4."
   tooltipSections: []
   localizedSkillName:
     m_TableReference:
@@ -49,7 +55,7 @@ MonoBehaviour:
   chanceAttackContinuousPenaltyRate: 0.33333334
   defenseGrantChancePercent: 15
   insightPercent: 30
-  quickStepPercent: 30
+  quickStepPercent: 15
   references:
     version: 2
     RefIds: []

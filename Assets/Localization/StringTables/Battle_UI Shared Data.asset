@@ -100,7 +100,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16123939756052480
-    m_Key: BattleUILocalization
+    m_Key: battle.ui.reward.continue_no_pending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17048176561885184
+    m_Key: battle.ui.ability_fail.insufficient_energy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17084156576665600
+    m_Key: 'battle.ui.reward.continue
+
+'
     m_Metadata:
       m_Items: []
   m_Metadata:

@@ -411,14 +411,37 @@ public class BattleRewardPopupUI : MonoBehaviour
                     );
         }
 
-        if (continueText != null)
+        RefreshContinueTextLabel();
+    }
+
+    // <변경부분> 실제 미수령 전리품의 유무로 하단 안내를 구분한다.
+    // 기물 복구는 이미 지급되므로 미수령 전리품에 포함하지 않는다.
+    private void RefreshContinueTextLabel()
+    {
+        if (continueText == null)
         {
-            continueText.text =
-                BattleUILocalization
-                    .GetRewardContinueText(
-                        continueFallbackText
-                    );
+            return;
         }
+
+        bool hasPendingDropRewards =
+            createdDropRewardSlotCount > 0;
+
+        if (battleEndFlowController != null)
+        {
+            List<BattleRewardOptionRuntimeData> remainingRewards =
+                battleEndFlowController
+                    .GetPendingBattleRewardOptionsCopy();
+
+            hasPendingDropRewards =
+                remainingRewards != null &&
+                remainingRewards.Count > 0;
+        }
+
+        continueText.text = hasPendingDropRewards
+            ? BattleUILocalization.GetRewardContinueText(
+                continueFallbackText
+            )
+            : BattleUILocalization.GetRewardContinueNoPendingText();
     }
 
     // <변경부분>
@@ -558,6 +581,10 @@ public class BattleRewardPopupUI : MonoBehaviour
         // 금화·아이템·유물 슬롯이 하나도 없었다면
         // 자동으로 다음 Scene으로 이동하지 않는다.
         createdDropRewardSlotCount = dropSlotCount;
+
+        // <변경부분> 실제 미수령 전리품을 기준으로 안내를 갱신한다.
+        // 복구만 있는 경우에는 일반 진행 문구를 표시한다.
+        RefreshContinueTextLabel();
 
         // <변경부분> Recovery 제목 영역은 보상 유무와 관계없이 항상 표시한다.
         if (recoveryAreaObject != null)
@@ -1182,6 +1209,9 @@ public class BattleRewardPopupUI : MonoBehaviour
             // 이 슬롯의 확대·잔상 애니메이션이
             // 아직 완료되지 않았음을 기록한다.
             pendingDropClaimAnimations++;
+
+            // <변경부분> 마지막 전리품을 수령하면 안내를 일반 진행 문구로 변경한다.
+            RefreshContinueTextLabel();
         }
 
         return claimSucceeded;

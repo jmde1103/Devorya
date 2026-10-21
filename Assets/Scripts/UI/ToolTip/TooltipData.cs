@@ -123,6 +123,12 @@ public class TooltipViewData
     // 기본 설명
     public string mainDescription;
 
+    // <변경부분>
+    // 능력(Ability)의 에너지 Cost.
+    // null이면 Cost가 없는 Tooltip으로 취급한다.
+    // 0은 실제 Cost 0이므로 정상 표시한다.
+    public int? energyCost;
+
     // 팝업 대표 아이콘
     public Sprite icon;
 
@@ -442,6 +448,12 @@ TooltipLocalization
             // <변경부분> 현재 Locale의 Description을 사용한다.
             mainDescription =
                 data.GetLocalizedDescription(),
+
+            // <변경부분>
+            // UniqueSkillData에 등록된 기본 에너지 Cost를 가져온다.
+            // 전투 중 실제 Cost 보정은 BattleUIController에서 적용한다.
+            energyCost =
+                Mathf.Max(0, data.energyCost),
 
             icon =
                 data.iconSprite,
