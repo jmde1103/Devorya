@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2307f0da5250446438daa2e3472af07f, type: 3}
-  m_Name: 능력_왕의 각성
+  m_Name: "\uB2A5\uB825_\uC655\uC758 \uAC01\uC131"
   m_EditorClassIdentifier: Assembly-CSharp::UniqueSkillData
   skillType: 3
   skillName: "\uC655\uC758 \uAC01\uC131"
@@ -46,6 +46,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
+  energyCost: 1
   cooldownTurn: 1
   requiredDeathStack: 1
   consumeDeathStackOnUse: 1

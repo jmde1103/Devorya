@@ -89,6 +89,13 @@ public class BattleEndFlowController : MonoBehaviour
     [SerializeField]
     private BattleRewardPopupUI battleRewardPopupUI;
 
+    // <변경부분>
+    // 전투 패배 시 실행할 게임오버 연출 컨트롤러.
+    // 기존 패배 후 현재 BattleScene 재시작을 대체한다.
+    [Header("Game Over")]
+    [SerializeField]
+    private BattleGameOverSequence gameOverSequence;
+
     [Header("Devorya Recovery Reward")]
     // <변경부분> 플레이어가 보유할 수 있는 최대 기물 수
     [SerializeField] private int maxPlayerPieceCount = 10;
@@ -761,14 +768,16 @@ public class BattleEndFlowController : MonoBehaviour
         );
     }
 
-    // <변경부분> 전투 패배 후 현재 런 데이터를 초기화하고
-    // 현재 전투 씬을 다시 로드한다.
-    // 추후 타이틀 씬이 완성되면 씬 이동 부분만 타이틀 씬으로 교체한다.
+    // <변경부분>
+    // 전투 패배 후 현재 런 데이터를 초기화하고
+    // 게임오버 연출을 재생한 다음 Title 씬으로 이동한다.
+    //
+    // 기존 승리 보상 및 WorldMap 복귀 흐름은 변경하지 않는다.
     private void HandleBattleLose()
     {
         Debug.Log(
             "전투 종료 흐름: 패배 / " +
-            "런 데이터 초기화 후 현재 전투 씬 재시작"
+            "런 데이터 초기화 후 게임오버 연출 시작"
         );
 
         // 패배한 런에서 저장된 기물, 금화, 아이템, 유물 데이터를 제거한다.
@@ -784,23 +793,26 @@ public class BattleEndFlowController : MonoBehaviour
             );
         }
 
-        // 현재 활성화된 전투 씬 정보를 가져온다.
-        Scene currentScene =
-            SceneManager.GetActiveScene();
-
-        if (string.IsNullOrEmpty(currentScene.name))
+        // <변경부분>
+        // 기존 전투 씬 재시작 대신 게임오버 연출을 시작한다.
+        // BattleGameOverSequence가
+        // 전체 화면 글리치 → 암전 → 메시지 → Title 전환을 담당한다.
+        if (gameOverSequence == null)
         {
-            Debug.LogWarning(
-                "패배 후 전투 씬 재시작 실패: " +
-                "현재 씬 이름을 확인할 수 없습니다."
+            Debug.LogError(
+                "게임오버 연출 시작 실패: " +
+                "BattleEndFlowController의 Game Over Sequence가 " +
+                "Inspector에 연결되지 않았습니다.",
+                this
             );
 
             return;
         }
 
-        // 현재 전투 씬을 처음부터 다시 로드한다.
-        SceneManager.LoadScene(
-            currentScene.name
+        gameOverSequence.Play();
+
+        Debug.Log(
+            "전투 패배: 게임오버 연출 재생을 요청했습니다."
         );
     }
 

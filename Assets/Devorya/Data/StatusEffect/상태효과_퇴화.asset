@@ -10,11 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28847ee270aad6346b645bf8628cbc76, type: 3}
-  m_Name: 상태효과_퇴화
+  m_Name: "\uC0C1\uD0DC\uD6A8\uACFC_\uD1F4\uD654"
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
   effectType: 1
   effectName: "\uD1F4\uD654"
-  description: "퇴화 상태에서 죽으면 인접한 빈칸에 같은 진영의 젤루 [폰] 1개를 생성한다. 생성된 기물은 죽은 기물의 특성을 이어받는다."
+  description: "\uD1F4\uD654 \uC0C1\uD0DC\uC5D0\uC11C \uC8FD\uC73C\uBA74 \uC778\uC811\uD55C
+    \uBE48\uCE78\uC5D0 \uAC19\uC740 \uC9C4\uC601\uC758 \uC824\uB8E8 [\uD3F0] 1\uAC1C\uB97C
+    \uC0DD\uC131\uD55C\uB2E4. \uC0DD\uC131\uB41C \uAE30\uBB3C\uC740 \uC8FD\uC740
+    \uAE30\uBB3C\uC758 \uD2B9\uC131\uC744 \uC774\uC5B4\uBC1B\uB294\uB2E4."
   tooltipSections: []
   localizedEffectName:
     m_TableReference:

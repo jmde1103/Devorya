@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45208ce0afc6fac45a3f734ffce3a069, type: 3}
-  m_Name: 아이템_1레벨_부러진 방패
+  m_Name: "\uC544\uC774\uD15C_1\uB808\uBCA8_\uBD80\uB7EC\uC9C4 \uBC29\uD328"
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemData
   itemType: 2
   itemName: "\uBD80\uB7EC\uC9C4 \uBC29\uD328"

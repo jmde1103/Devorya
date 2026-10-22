@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c427d0319a4f5524f8896c13f10549fd, type: 3}
-  m_Name: 특성_방어 자세
+  m_Name: "\uD2B9\uC131_\uBC29\uC5B4 \uC790\uC138"
   m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillData
   skillType: 2
   skillName: "\uBC29\uC5B4 \uC790\uC138"
@@ -20,13 +20,7 @@ MonoBehaviour:
   tooltipDescriptionFormat: "\uC774\uB3D9\uC2DC {percent}% \uD655\uB960\uB85C \uBC29\uC5B4
     \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   tooltipSections:
-  - sectionType: 1
-    statusEffectData: {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}
-    sectionTitle: "\uBC29\uC5B4"
-    sectionCategory: "\uC0C1\uD0DC\uD6A8\uACFC"
-    sectionDescription: "\uC0C1\uB300\uC758 \uACF5\uACA9\uC744 \uBB34\uD6A8\uD654
-      \uD55C\uB2E4."
-    sectionIcon: {fileID: 21300000, guid: 73579cc356e29934088d077dc7a506f4, type: 3}
+  - statusEffectData: {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}
     sectionColor: {r: 0, g: 0, b: 0, a: 0}
   localizedSkillName:
     m_TableReference:
@@ -59,6 +53,7 @@ MonoBehaviour:
   chanceAttackContinuousPenaltyRate: 0.33333334
   defenseGrantChancePercent: 15
   insightPercent: 30
+  quickStepPercent: 30
   references:
     version: 2
     RefIds: []

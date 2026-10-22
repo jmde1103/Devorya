@@ -54,7 +54,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16700000000000001
-    m_Localized: Taunt
+    m_Localized: "Escort"
     m_Metadata:
       m_Items: []
   - m_Id: 16700000000000002

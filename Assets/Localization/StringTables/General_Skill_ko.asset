@@ -270,6 +270,54 @@ MonoBehaviour:
       \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 17798063515635712
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D I"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798063595327488
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+      \uB54C 15% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
+      \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798063595327489
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
+      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798475647946752
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D II"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798475647946753
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+      \uB54C 30% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
+      \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798475647946754
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
+      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798744809017344
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D III"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798744809017345
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+      \uB54C 50% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
+      \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798744809017346
+    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
+      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c427d0319a4f5524f8896c13f10549fd, type: 3}
-  m_Name: 특성_간파
+  m_Name: "\uD2B9\uC131_\uAC04\uD30C"
   m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillData
   skillType: 3
   skillName: "\uAC04\uD30C"
@@ -51,6 +51,7 @@ MonoBehaviour:
   chanceAttackContinuousPenaltyRate: 0.33333334
   defenseGrantChancePercent: 15
   insightPercent: 50
+  quickStepPercent: 30
   references:
     version: 2
     RefIds: []

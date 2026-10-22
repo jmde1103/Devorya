@@ -51,13 +51,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16559834950930432
-    m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uC0C1\uB300
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uC0C1\uB300
       \uAE30\uBB3C\uC744 \uC7A1\uB294 \uC774\uB3D9 \uACBD\uB85C\uB85C \uC6C0\uC9C1\uC77C
       \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 16700000000000001
-    m_Localized: "\uB3C4\uBC1C"
+    m_Localized: "\uD638\uC704"
     m_Metadata:
       m_Items: []
   - m_Id: 16700000000000002
