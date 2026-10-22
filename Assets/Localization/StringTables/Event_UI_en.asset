@@ -26,6 +26,18 @@ MonoBehaviour:
     m_Localized: Your inventory is full.
     m_Metadata:
       m_Items: []
+  - m_Id: 4261142189445120
+    m_Localized: Would you like to play the tutorial?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4261142269136896
+    m_Localized: Yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4261142269136897
+    m_Localized: No
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

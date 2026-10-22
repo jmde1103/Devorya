@@ -69,15 +69,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743360
-    m_Localized: "Synthesis"
+    m_Localized: Synthesis
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743361
-    m_Localized: "Fuse with two adjacent allies of the same piece type as yourself to promote randomly into a Knight, Bishop, or Rook of your species. Gain [Attack Disabled] for 1 turn."
+    m_Localized: Fuse with two adjacent allies of the same piece type as yourself
+      to promote randomly into a Knight, Bishop, or Rook of your species. Gain [Attack
+      Disabled] for 1 turn.
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743362
-    m_Localized: "Requires two adjacent allies of the same piece type as yourself."
+    m_Localized: Requires two adjacent allies of the same piece type as yourself.
     m_Metadata:
       m_Items: []
   - m_Id: 88327840206848
@@ -102,7 +104,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 88777704476674
-    m_Localized: "The conditions are not met, so this skill cannot be used.\u738B\u306E\u899A\u9192"
+    m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
       m_Items: []
   - m_Id: 16691838908502016
@@ -110,7 +112,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16691838979805184
-    m_Localized: "Remove this piece and create one Jellu [Pawn] on its original square and one on an adjacent empty square. Both inherit its traits and receive [Attack Disabled] for 1 turn."
+    m_Localized: Remove this piece and create one Jellu [Pawn] on its original square
+      and one on an adjacent empty square. Both inherit its traits and receive [Attack
+      Disabled] for 1 turn.
     m_Metadata:
       m_Items: []
   - m_Id: 16691838979805185
@@ -118,15 +122,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16691840000000001
-    m_Localized: "Synthesis: Reinforce"
+    m_Localized: 'Synthesis: Reinforce'
     m_Metadata:
       m_Items: []
   - m_Id: 16691840000000002
-    m_Localized: "Absorb and remove one random adjacent allied [Pawn]. Gain [Breakthrough] and [Defence] for 1 turn each."
+    m_Localized: Absorb and remove one random adjacent allied [Pawn]. Gain [Breakthrough]
+      and [Defence] for 1 turn each.
     m_Metadata:
       m_Items: []
   - m_Id: 16691840000000003
-    m_Localized: "There is no adjacent allied [Pawn] to absorb."
+    m_Localized: There is no adjacent allied [Pawn] to absorb.
     m_Metadata:
       m_Items: []
   references:

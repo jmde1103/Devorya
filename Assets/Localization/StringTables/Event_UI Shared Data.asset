@@ -23,6 +23,18 @@ MonoBehaviour:
     m_Key: event.ui.shop.inventory_full
     m_Metadata:
       m_Items: []
+  - m_Id: 4261142189445120
+    m_Key: title.tutorial.question
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4261142269136896
+    m_Key: title.tutorial.yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4261142269136897
+    m_Key: title.tutorial.no
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -79,14 +79,11 @@ public class GeneralSkillDataEditor : Editor
                     skillData
                 );
 
-            string nameKey =
-                $"{baseKey}.name";
+            string nameKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(skillData.localizedSkillName, TableCollectionName, $"{baseKey}.name");
 
-            string descriptionKey =
-                $"{baseKey}.description";
+            string descriptionKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(skillData.localizedDescription, TableCollectionName, $"{baseKey}.description");
 
-            string tooltipKey =
-                $"{baseKey}.tooltip";
+            string tooltipKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(skillData.localizedTooltipDescriptionFormat, TableCollectionName, $"{baseKey}.tooltip");
 
             EditorGUILayout.LabelField(
                 "ÀÚµ¿ Localization Key",

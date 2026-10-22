@@ -39,7 +39,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 332976420950016
-    m_Localized: 
+    m_Localized: "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4\uCCB4 \uD0C0\uC785:
+      [\uBE44\uC20D]"
     m_Metadata:
       m_Items: []
   - m_Id: 335738714066944
@@ -48,7 +49,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 335905739640832
-    m_Localized: 
+    m_Localized: "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4\uCCB4 \uD0C0\uC785:
+      [\uD3F0]"
     m_Metadata:
       m_Items: []
   - m_Id: 338624219058176
@@ -57,7 +59,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 667822833930240
-    m_Localized: 
+    m_Localized: "\uC815\uCCB4\uB97C \uC54C \uC218 \uC5C6\uB294 \uAC80\uC740 \uC874\uC7AC.
+      \uC0DD\uBA85\uCCB4\uB97C \uD761\uC218\uD558\uC5EC \uADF8 \uBAA8\uC2B5\uACFC
+      \uB2A5\uB825\uC744 \uC790\uC2E0\uC758 \uAC83\uC73C\uB85C \uB9CC\uB4E0\uB2E4."
     m_Metadata:
       m_Items: []
   references:

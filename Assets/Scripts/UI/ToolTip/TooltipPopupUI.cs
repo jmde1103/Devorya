@@ -95,6 +95,53 @@ public class TooltipPopupUI : MonoBehaviour
     private Vector2 defaultSectionParentAnchoredPosition;
 
 
+    // Keep the existing sibling hierarchy and authored top edges.
+    private bool hasCapturedBodySize;
+    private float minimumBodyHeight;
+    private float minimumDescriptionHeight;
+    private float bodyBottomPadding;
+    private readonly Vector3[] bodySizingCorners = new Vector3[4];
+
+    private void ResizeBaseTooltipToDescription()
+    {
+        if (baseTooltipBackground == null && popupRoot != null)
+            baseTooltipBackground = popupRoot.Find("Background") as RectTransform;
+        if (baseTooltipBackground == null || mainDescriptionText == null) return;
+        Canvas.ForceUpdateCanvases();
+        var description = mainDescriptionText.rectTransform;
+        if (!hasCapturedBodySize)
+        {
+            minimumBodyHeight = baseTooltipBackground.rect.height;
+            minimumDescriptionHeight = description.rect.height;
+            description.GetWorldCorners(bodySizingCorners);
+            bodyBottomPadding = Mathf.Max(12f,
+                baseTooltipBackground.InverseTransformPoint(bodySizingCorners[0]).y
+                - baseTooltipBackground.rect.yMin);
+            var backgroundImage = baseTooltipBackground.GetComponent<Image>();
+            if (backgroundImage != null && backgroundImage.sprite != null)
+                backgroundImage.type = Image.Type.Sliced;
+            hasCapturedBodySize = true;
+        }
+        // Measure at the existing width; do not shrink fonts to hide overflow.
+        float preferredHeight = mainDescriptionText.GetPreferredValues(
+            mainDescriptionText.text, Mathf.Max(1f, description.rect.width), Mathf.Infinity).y;
+        ResizeHeightKeepingTop(description, Mathf.Max(minimumDescriptionHeight, Mathf.Ceil(preferredHeight)));
+        description.GetWorldCorners(bodySizingCorners);
+        float textBottom = baseTooltipBackground.InverseTransformPoint(bodySizingCorners[0]).y;
+        float requiredHeight = baseTooltipBackground.rect.yMax - textBottom + bodyBottomPadding;
+        ResizeHeightKeepingTop(baseTooltipBackground, Mathf.Max(minimumBodyHeight, requiredHeight));
+        mainDescriptionText.ForceMeshUpdate();
+    }
+
+    private void ResizeHeightKeepingTop(RectTransform rect, float height)
+    {
+        rect.GetWorldCorners(bodySizingCorners);
+        Vector3 previousTop = bodySizingCorners[1];
+        rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        rect.GetWorldCorners(bodySizingCorners);
+        rect.position += previousTop - bodySizingCorners[1];
+    }
+
     private void Awake()
     {
         Instance = this;
@@ -224,6 +271,8 @@ public class TooltipPopupUI : MonoBehaviour
             GetValidSectionCount(
                 tooltipViewData.sections
             );
+
+        ResizeBaseTooltipToDescription();
 
         RefreshSections(
       tooltipViewData.sections

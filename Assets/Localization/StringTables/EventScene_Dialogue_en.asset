@@ -19,7 +19,7 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 734662656
-    m_Localized: "\uC548\uB155"
+    m_Localized: Hello.
     m_Metadata:
       m_Items: []
   - m_Id: 1453953120866304
@@ -51,7 +51,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 12564537832771584
-    m_Localized: 
+    m_Localized: Reboot complete... GPS system error... Signal anomaly. Communication
+      with the laboratory has been lost.
     m_Metadata:
       m_Items: []
   - m_Id: 13485366015823872
@@ -109,6 +110,35 @@ MonoBehaviour:
 
       (Cannot repair beyond the
       maximum piece capacity of 10.)'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1453953196363776
+    m_Localized: The screen shakes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12328324995616768
+    m_Localized: '!@#$!@$!$!@$!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12361164965679104
+    m_Localized: '!@#!$!@$!@$@~~~'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13493486704267264
+    m_Localized: By absorbing the energy remaining in the high-output energy storage
+      unit,
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14177455842136064
+    m_Localized: You can implement various features like these directly in the scene.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14177483818143744
+    m_Localized: Life signs detected nearby.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14177483818143745
+    m_Localized: '!@#!@$!!!!!!!!!!!'
     m_Metadata:
       m_Items: []
   references:

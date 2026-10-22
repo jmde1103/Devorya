@@ -74,14 +74,11 @@ public class UniqueSkillDataEditor : Editor
                     skillData
                 );
 
-            string nameKey =
-                $"{baseKey}.name";
+            string nameKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(skillData.localizedSkillName, TableCollectionName, $"{baseKey}.name");
 
-            string descriptionKey =
-                $"{baseKey}.description";
+            string descriptionKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(skillData.localizedDescription, TableCollectionName, $"{baseKey}.description");
 
-            string conditionFailKey =
-                $"{baseKey}.condition_fail";
+            string conditionFailKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(skillData.localizedConditionFailMessage, TableCollectionName, $"{baseKey}.condition_fail");
 
             EditorGUILayout.LabelField(
                 "ÀÚµ¿ Localization Key",

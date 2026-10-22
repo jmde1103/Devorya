@@ -72,11 +72,9 @@ public class BattleRelicDataEditor : Editor
                     relicData
                 );
 
-            string nameKey =
-                $"{baseKey}.name";
+            string nameKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(relicData.localizedRelicName, TableCollectionName, $"{baseKey}.name");
 
-            string descriptionKey =
-                $"{baseKey}.description";
+            string descriptionKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(relicData.localizedDescription, TableCollectionName, $"{baseKey}.description");
 
             EditorGUILayout.LabelField(
                 "ÀÚµ¿ Localization Key",

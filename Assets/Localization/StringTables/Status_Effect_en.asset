@@ -88,6 +88,14 @@ MonoBehaviour:
     m_Localized: While [Ability Sealed], this piece cannot use abilities.
     m_Metadata:
       m_Items: []
+  - m_Id: 17715458287996928
+    m_Localized: Action Disabled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17715458359300096
+    m_Localized: While [Action Disabled], this piece cannot move or attack this turn.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

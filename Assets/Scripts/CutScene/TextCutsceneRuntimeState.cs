@@ -9,6 +9,13 @@ public static class TextCutsceneRuntimeState
     // <변경부분> 다음 TextCutsceneScene에서
     // 한 번만 사용할 컷씬 데이터.
     private static TextCutsceneData pendingCutsceneData;
+    private static string pendingNextSceneOverride;
+    public static string ConsumeNextSceneOverride()
+    {
+        string result = pendingNextSceneOverride;
+        pendingNextSceneOverride = null;
+        return result;
+    }
 
     // <변경부분> 현재 전달 대기 중인
     // 컷씬 데이터를 읽기 전용으로 반환한다.
@@ -23,10 +30,10 @@ public static class TextCutsceneRuntimeState
     // <변경부분> 다음 TextCutsceneScene에서 실행할
     // 컷씬 데이터를 등록한다.
     public static void SetPendingCutsceneData(
-        TextCutsceneData cutsceneData)
+        TextCutsceneData cutsceneData, string nextSceneOverride = null)
     {
-        pendingCutsceneData =
-            cutsceneData;
+        pendingCutsceneData = cutsceneData;
+        pendingNextSceneOverride = nextSceneOverride;
     }
 
     // <변경부분> 전달된 컷씬 데이터를 한 번 가져온 뒤
@@ -49,6 +56,7 @@ public static class TextCutsceneRuntimeState
     // 남아 있는 컷씬 전달 데이터를 강제로 제거할 때 사용한다.
     public static void Clear()
     {
+        pendingNextSceneOverride = null;
         pendingCutsceneData =
             null;
     }

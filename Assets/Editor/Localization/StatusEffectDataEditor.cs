@@ -74,11 +74,9 @@ public class StatusEffectDataEditor : Editor
                     statusEffectData
                 );
 
-            string nameKey =
-                $"{baseKey}.name";
+            string nameKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(statusEffectData.localizedEffectName, TableCollectionName, $"{baseKey}.name");
 
-            string descriptionKey =
-                $"{baseKey}.description";
+            string descriptionKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(statusEffectData.localizedDescription, TableCollectionName, $"{baseKey}.description");
 
             EditorGUILayout.LabelField(
                 "ÀÚµ¿ Localization Key",

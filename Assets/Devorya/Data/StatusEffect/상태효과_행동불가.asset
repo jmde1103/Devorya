@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28847ee270aad6346b645bf8628cbc76, type: 3}
-  m_Name: 상태효과_행동불가
+  m_Name: "\uC0C1\uD0DC\uD6A8\uACFC_\uD589\uB3D9\uBD88\uAC00"
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
   effectType: 5
   effectName: "\uD589\uB3D9\uBD88\uAC00"
@@ -19,18 +19,18 @@ MonoBehaviour:
   tooltipSections: []
   localizedEffectName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:e842e6af1227296438f192bafb99765c
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 17715458287996928
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   localizedDescription:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:e842e6af1227296438f192bafb99765c
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 17715458359300096
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0

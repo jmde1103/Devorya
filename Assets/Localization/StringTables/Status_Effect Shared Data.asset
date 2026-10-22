@@ -79,6 +79,14 @@ MonoBehaviour:
     m_Key: status_effect_ability_sealed_description
     m_Metadata:
       m_Items: []
+  - m_Id: 17715458287996928
+    m_Key: status_effect.action_disabled.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17715458359300096
+    m_Key: status_effect.action_disabled.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

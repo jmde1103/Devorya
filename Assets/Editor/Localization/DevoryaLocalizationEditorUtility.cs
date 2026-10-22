@@ -15,6 +15,17 @@ using UnityEngine.Localization.Tables;
 // 한 곳에서 관리한다.
 public static class DevoryaLocalizationEditorUtility
 {
+    // Inspector edits must follow the asset's existing reference, not a newly derived key.
+    public static string ResolveLinkedKey(LocalizedString reference, string collectionName, string fallback)
+    {
+        if (reference == null || reference.IsEmpty) return fallback;
+        var collection = GetStringTableCollection(collectionName);
+        if (collection == null) return fallback;
+        var entry = reference.TableEntryReference.KeyId != 0
+            ? collection.SharedData.GetEntry(reference.TableEntryReference.KeyId)
+            : collection.SharedData.GetEntry(reference.TableEntryReference.Key);
+        return entry != null ? entry.Key : fallback;
+    }
     // Localization String Table Collection의 기본 저장 위치.
     private const string DefaultTableDirectory =
         "Assets/Localization/StringTables";

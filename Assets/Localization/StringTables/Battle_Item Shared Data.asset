@@ -79,6 +79,14 @@ MonoBehaviour:
     m_Key: battle_item_WornBoots_description
     m_Metadata:
       m_Items: []
+  - m_Id: 18038769924575232
+    m_Key: battle_item.test.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18038769979101184
+    m_Key: battle_item.test.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

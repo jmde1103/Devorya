@@ -368,8 +368,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 12882623169433600
-    m_Localized: "\uC774\uBC88 \uC804\uD22C\uC5D0\uC11C \uD761\uC218\uD55C \uAE30\uBB3C
-      \uC218\uC5D0 \uB530\uB77C \uB370\uBCF4\uB9AC\uC544\uAC00 \uD68C\uBCF5\uB429\uB2C8\uB2E4."
+    m_Localized: Devorya recovers based on the number of pieces absorbed during this
+      battle.
     m_Metadata:
       m_Items: []
   - m_Id: 13586786291421184
@@ -510,6 +510,23 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 15170834298179584
     m_Localized: Cannot repair beyond the maximum piece capacity of 10.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949066956800
+    m_Localized: Absorbing and reconstructing the [Bishop]-type entity.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949142454272
+    m_Localized: Reconstruction of the absorbed entity's form, ability, traits, and
+      type complete!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949142454273
+    m_Localized: The opposing entity is preparing to attack.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15113949142454274
+    m_Localized: Use the reconstructed [Bishop]-type ability to minimize damage.
     m_Metadata:
       m_Items: []
   references:

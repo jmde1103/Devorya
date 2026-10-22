@@ -591,11 +591,9 @@ public class BattleItemDataEditor : Editor
                 return;
             }
 
-            string nameKey =
-                $"{baseKey}.name";
+            string nameKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(itemData.localizedItemName, TableCollectionName, $"{baseKey}.name");
 
-            string descriptionKey =
-                $"{baseKey}.description";
+            string descriptionKey = DevoryaLocalizationEditorUtility.ResolveLinkedKey(itemData.localizedDescription, TableCollectionName, $"{baseKey}.description");
 
             EditorGUILayout.LabelField(
                 "ÀÚµ¿ Localization Key",

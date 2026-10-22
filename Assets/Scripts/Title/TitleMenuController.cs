@@ -105,6 +105,14 @@ public class TitleMenuController : MonoBehaviour
     // 씬 이동 중 중복 클릭 방지
     private bool isLoadingScene;
 
+    [SerializeField, InspectorName("튜토리얼 선택창")]
+    private TutorialChoicePopup tutorialChoicePopup;
+    [SerializeField, InspectorName("부팅 컷씬")]
+    private TextCutsceneData bootCutsceneData;
+    [SerializeField, InspectorName("튜토리얼 생략 후 씬")]
+    private string skipTutorialSceneName = "WorldMapScene";
+    private bool isChoosingTutorial;
+
 
     private enum TitleMenuType
     {
@@ -149,7 +157,7 @@ public class TitleMenuController : MonoBehaviour
 
     private void OnClickPlay()
     {
-        if (isLoadingScene)
+        if (isLoadingScene || isChoosingTutorial)
         {
             return;
         }
@@ -241,12 +249,27 @@ public class TitleMenuController : MonoBehaviour
         }
 
 
-        if (isLoadingScene)
+        if (isLoadingScene || isChoosingTutorial)
         {
             return;
         }
 
 
+        if (tutorialChoicePopup != null)
+        {
+            isChoosingTutorial = true;
+            tutorialChoicePopup.Show(OnTutorialChosen);
+            return;
+        }
+        OnTutorialChosen(true);
+    }
+
+    private void OnTutorialChosen(bool playTutorial)
+    {
+        if (isLoadingScene) return;
+        isChoosingTutorial = false;
+        TextCutsceneRuntimeState.SetPendingCutsceneData(
+            bootCutsceneData, playTutorial ? null : skipTutorialSceneName);
         isLoadingScene = true;
 
 
@@ -301,7 +324,7 @@ public class TitleMenuController : MonoBehaviour
 
     private void OnClickSetting()
     {
-        if (isLoadingScene)
+        if (isLoadingScene || isChoosingTutorial)
         {
             return;
         }
@@ -380,7 +403,7 @@ public class TitleMenuController : MonoBehaviour
 
         // <변경부분> Scene 전환이 이미 시작됐다면
         // 중복 클릭으로 Coroutine이 여러 번 실행되지 않도록 막는다.
-        if (isLoadingScene)
+        if (isLoadingScene || isChoosingTutorial)
         {
             return;
         }
@@ -441,7 +464,7 @@ public class TitleMenuController : MonoBehaviour
     // Play / Setting이 아닌 화면 영역을 클릭했을 때 호출
     public void OnClickBackground()
     {
-        if (isLoadingScene)
+        if (isLoadingScene || isChoosingTutorial)
         {
             return;
         }

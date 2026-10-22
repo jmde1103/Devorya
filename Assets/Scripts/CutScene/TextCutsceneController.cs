@@ -49,6 +49,7 @@ public class TextCutsceneController : MonoBehaviour
 
     // <변경부분> Scene 시작 시
     // 컷씬이 중복 실행되는 것을 방지한다.
+    private string nextSceneOverride;
     private bool isPlaying =
         false;
 
@@ -96,6 +97,7 @@ public class TextCutsceneController : MonoBehaviour
         //
         // 전달 데이터가 없다면
         // Inspector에 연결된 기본값(Prologue_Boot)을 그대로 사용한다.
+        nextSceneOverride = TextCutsceneRuntimeState.ConsumeNextSceneOverride();
         ResolveCutsceneData();
 
         currentVisibleText =
@@ -1128,8 +1130,18 @@ public class TextCutsceneController : MonoBehaviour
             return;
         }
 
-        string nextSceneName =
-            cutsceneData.nextSceneName;
+        // A title choice overrides only this playback, never the source asset.
+        if (!string.IsNullOrWhiteSpace(nextSceneOverride))
+        {
+            if (!Application.CanStreamedLevelBeLoaded(nextSceneOverride))
+            {
+                Debug.LogError("Cannot load tutorial skip destination: " + nextSceneOverride, this);
+                return;
+            }
+            SceneManager.LoadScene(nextSceneOverride);
+            return;
+        }
+        string nextSceneName = cutsceneData.nextSceneName;
 
         if (string.IsNullOrWhiteSpace(nextSceneName))
         {
