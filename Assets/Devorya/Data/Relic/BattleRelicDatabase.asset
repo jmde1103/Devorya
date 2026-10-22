@@ -14,3 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicDatabase
   relicDatas:
   - {fileID: 11400000, guid: 179ca9bcb92cb6a4aa319c47cdc5c429, type: 2}
+  - {fileID: 11400000, guid: 0c013ac5044c1e4469dc222ed551b5ce, type: 2}
+  - {fileID: 11400000, guid: 421705c697f91714cb26249f5f228189, type: 2}
+  - {fileID: 11400000, guid: ab1da2d4da870ec42977f553b0a23d35, type: 2}

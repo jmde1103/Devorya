@@ -27,7 +27,14 @@ public static class TutorialChoiceChecks
         yield return null;
         foreach(bool tutorial in new[]{false,true}) {
             var title=UnityEngine.Object.FindFirstObjectByType<TitleMenuController>();
-            Call(title,"OnClickPlay");Call(title,"OnClickPlay");yield return new WaitForSecondsRealtime(.7f);
+                        var button=(UnityEngine.UI.Button)Get(title,"playButton");
+            var hover=button.GetComponent<TitlePlayHoverHandler>();Check(hover!=null,"Play hover handler installed");
+            hover.OnPointerEnter(null);Check(Get(title,"selectedMenu").ToString()=="Play"&&!(bool)Get(title,"isChoosingTutorial"),"Hover selects without starting");
+            hover.OnPointerEnter(null);hover.OnPointerExit(null);Check(Get(title,"selectedMenu").ToString()=="None","Hover exit restores idle");
+            if(tutorial)hover.OnPointerEnter(null); // First pass tests click without hover (touch).
+            button.onClick.Invoke();Check((bool)Get(title,"isChoosingTutorial"),"Single click opens choice");
+            button.onClick.Invoke();hover.OnPointerExit(null);Check((bool)Get(title,"isChoosingTutorial"),"Repeated input preserves modal");
+            yield return new WaitForSecondsRealtime(.7f);
             var popup=UnityEngine.Object.FindFirstObjectByType<TutorialChoicePopup>();Check(popup!=null&&popup.IsOpen,"Choice popup opens");
             Check(((TMP_Text)Get(popup,"questionText")).text=="튜토리얼을 진행하시겠습니까?","Question localization");
             Call(title,"OnClickSetting");Check(!(bool)Get(title,"isLoadingScene"),"Background input blocked");

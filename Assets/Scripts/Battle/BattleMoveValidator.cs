@@ -9,15 +9,17 @@ public class BattleMoveValidator : MonoBehaviour
 
     // 기물 위치 확인에 사용하는 기물 매니저
     private PieceManager pieceManager;
+    private BattleManager battleManager;
 
     // <변경부분> BattleManager에서 전투 시작 시 이동 판정기를 초기화하는 함수
-    public void Initialize(BoardManager board, PieceManager pieceManagerRef)
+    public void Initialize(BoardManager board, PieceManager pieceManagerRef, BattleManager battleManagerRef = null)
     {
         // 보드 크기 확인용 매니저 저장
         boardManager = board;
 
         // 좌표별 기물 확인용 매니저 저장
         pieceManager = pieceManagerRef;
+        battleManager = battleManagerRef;
     }
 
     // <변경부분> 지정한 기물 주변 8칸 중
@@ -1760,6 +1762,15 @@ if (piece.UniqueSkill ==
                     forwardY
                 )
             );
+        }
+
+        // 초기 가속은 첫 전진에만 적용하며 중간 칸과 도착 칸이 모두 비어 있어야 한다.
+        int doubleY = piece.Y + direction * 2;
+        if (battleManager != null && battleManager.CanUseInitialAcceleration(piece) &&
+            IsInsideBoard(forwardX, forwardY) && IsInsideBoard(forwardX, doubleY) &&
+            pieceManager.IsEmpty(forwardX, forwardY) && pieceManager.IsEmpty(forwardX, doubleY))
+        {
+            results.Add(new Vector2Int(forwardX, doubleY));
         }
 
         // 왼쪽 대각선 공격 좌표

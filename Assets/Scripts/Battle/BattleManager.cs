@@ -471,7 +471,8 @@ public partial class BattleManager : MonoBehaviour
         {
             battleMoveValidator.Initialize(
                 boardManager,
-                pieceManager
+                pieceManager,
+                this
             );
         }
 
@@ -1877,7 +1878,7 @@ public partial class BattleManager : MonoBehaviour
     public int CurrentPlayerAbilityEnergy => currentPlayerAbilityEnergy;
 
     public int MaxPlayerAbilityEnergy =>
-        Mathf.Max(0, baseMaxPlayerAbilityEnergy + bonusMaxPlayerAbilityEnergy);
+        Mathf.Max(0, baseMaxPlayerAbilityEnergy + bonusMaxPlayerAbilityEnergy + (absorbOverchargeActive ? 1 : 0));
 
     // <변경부분> 능력별 기본 비용과 전투 중 적용된 보정값을 합산한다.
     // UniqueSkillData 에셋의 energyCost는 변경하지 않는다.
@@ -3000,6 +3001,7 @@ public partial class BattleManager : MonoBehaviour
             null;
 
         // 이동/공격 후 승패 조건 확인
+        if (absorbedEnemyPiece) QueueAbsorbOvercharge(actingPiece);
         bool completedItemMove = itemMovePiece == actingPiece && didCompleteMove;
         itemMovePiece = null;
         ClearQuickStepBonus();
@@ -3111,6 +3113,11 @@ public partial class BattleManager : MonoBehaviour
 
         // ChanceAttack이 실패했거나
         // 발동 조건이 아니면 연속 발동 상태 초기화
+        if (absorbedEnemyPiece && TryActivateResidualPropulsion(actingPiece))
+        {
+            isActionAnimating = false;
+            yield break;
+        }
         if (wasAttack && didCompleteMove && CanActivateQuickStep(actingPiece, quickStepBeforeAction))
         {
             yield return battleSkillManager.PlayGeneralSkillActivationBeforeEffectRoutine(actingPiece, GeneralSkillType.QuickStep);
@@ -3732,6 +3739,12 @@ public partial class BattleManager : MonoBehaviour
             yield break;
         }
 
+        QueueAbsorbOvercharge(playerKing);
+        if (TryActivateResidualPropulsion(playerKing))
+        {
+            isActionAnimating = false;
+            yield break;
+        }
         // 예외적으로 전투가 계속된다면 강제 흡수 행동 후 턴을 종료한다.
         isActionAnimating =
             false;
@@ -5477,6 +5490,7 @@ public partial class BattleManager : MonoBehaviour
             pieceManager.ClearTemporaryMoveTypes(endingTeam);
         }
 
+        AdvanceAbsorbOverchargeTurn();
         if (currentTurn == BattleTurn.Player)
         {
             currentTurn =

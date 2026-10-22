@@ -27,6 +27,34 @@ MonoBehaviour:
       is guaranteed once per turn.
     m_Metadata:
       m_Items: []
+  - m_Id: 17556453552951296
+    m_Localized: Initial Acceleration Module
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453620060160
+    m_Localized: An untransformed Devorya [Pawn] can move forward two squares on
+      its first move in battle. Both squares must be empty.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453812998144
+    m_Localized: Residual Thrust Controller
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453812998145
+    m_Localized: Successfully absorbing an enemy piece immediately grants one extra
+      move. This extra move cannot capture an enemy.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453989158912
+    m_Localized: Absorption Overcharger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453989158913
+    m_Localized: Successfully absorbing an enemy piece increases maximum energy by
+      1 during your next turn. The bonus expires when that turn ends and does not
+      stack.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
