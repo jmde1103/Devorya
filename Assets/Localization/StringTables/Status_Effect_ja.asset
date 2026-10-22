@@ -39,7 +39,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 72943439319041
-    m_Localized: "退化状態の駒が倒されると、隣接する空きマスに同じ陣営のジェル [ポーン]を1体生成する。生成した駒は倒された駒の特性を引き継ぐ。"
+    m_Localized: "\u9000\u5316\u72B6\u614B\u306E\u99D2\u304C\u5012\u3055\u308C\u308B\u3068\u3001\u96A3\u63A5\u3059\u308B\u7A7A\u304D\u30DE\u30B9\u306B\u540C\u3058\u9663\u55B6\u306E\u30B8\u30A7\u30EB
+      [\u30DD\u30FC\u30F3]\u30921\u4F53\u751F\u6210\u3059\u308B\u3002\u751F\u6210\u3057\u305F\u99D2\u306F\u5012\u3055\u308C\u305F\u99D2\u306E\u7279\u6027\u3092\u5F15\u304D\u7D99\u3050\u3002"
     m_Metadata:
       m_Items: []
   - m_Id: 16559834879627264
@@ -51,19 +52,35 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16700000000000001
-    m_Localized: "挑発"
+    m_Localized: "\u6311\u767A"
     m_Metadata:
       m_Items: []
   - m_Id: 16700000000000002
-    m_Localized: "隣接する味方が攻撃されると、その駒と位置を入れ替わり、代わりに攻撃を受ける。"
+    m_Localized: "\u96A3\u63A5\u3059\u308B\u5473\u65B9\u304C\u653B\u6483\u3055\u308C\u308B\u3068\u3001\u305D\u306E\u99D2\u3068\u4F4D\u7F6E\u3092\u5165\u308C\u66FF\u308F\u308A\u3001\u4EE3\u308F\u308A\u306B\u653B\u6483\u3092\u53D7\u3051\u308B\u3002"
     m_Metadata:
       m_Items: []
   - m_Id: 16720000000000001
-    m_Localized: "回避"
+    m_Localized: "\u56DE\u907F"
     m_Metadata:
       m_Items: []
   - m_Id: 16720000000000002
-    m_Localized: "攻撃されると、50%の確率で隣接する空きマスへ移動して攻撃を回避する。攻撃した駒は回避前のマスへ移動する。"
+    m_Localized: "\u653B\u6483\u3055\u308C\u308B\u3068\u300150%\u306E\u78BA\u7387\u3067\u96A3\u63A5\u3059\u308B\u7A7A\u304D\u30DE\u30B9\u3078\u79FB\u52D5\u3057\u3066\u653B\u6483\u3092\u56DE\u907F\u3059\u308B\u3002\u653B\u6483\u3057\u305F\u99D2\u306F\u56DE\u907F\u524D\u306E\u30DE\u30B9\u3078\u79FB\u52D5\u3059\u308B\u3002"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17388937073528832
+    m_Localized: "\u79FB\u52D5\u4E0D\u53EF"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17388937149026304
+    m_Localized: "[\u79FB\u52D5\u4E0D\u53EF]\u72B6\u614B\u3067\u306F\u3001\u76F8\u624B\u306E\u99D2\u3092\u53D6\u308B\u79FB\u52D5\u306E\u307F\u53EF\u80FD\u3067\u3059\u3002"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17402470121213952
+    m_Localized: "\u80FD\u529B\u5C01\u5370"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17402470196711424
+    m_Localized: "[\u80FD\u529B\u5C01\u5370]\u72B6\u614B\u3067\u306F\u80FD\u529B\u3092\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
       m_Items: []
   references:

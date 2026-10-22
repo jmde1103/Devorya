@@ -1273,6 +1273,7 @@ public class TextCutsceneController : MonoBehaviour
             $"{nextSceneName} Scene으로 이동합니다."
         );
 
+        WorldMapEventRuntimeState.Queue(cutsceneData.nextWorldMapEventData);
         SceneManager.LoadScene(
             nextSceneName
         );

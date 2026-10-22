@@ -94,7 +94,7 @@ public static class WorldMapEventSetup
     static IEnumerator Checks()
     {
         var root=new GameObject("World map fixture");root.SetActive(false);
-        var controller=root.AddComponent<WorldMapEventController>();Set(controller,"playOnStart",false);
+        var controller=root.AddComponent<WorldMapEventController>();
         var ui=new GameObject("HUD",typeof(CanvasGroup)).GetComponent<CanvasGroup>();ui.transform.SetParent(root.transform);ui.alpha=.8f;
         Set(controller,"controlledUI",new[]{ui});
         var light=new GameObject("Global light").AddComponent<Light2D>();light.transform.SetParent(root.transform);light.lightType=Light2D.LightType.Global;light.color=Color.white;light.intensity=.9f;Set(controller,"globalLight",light);

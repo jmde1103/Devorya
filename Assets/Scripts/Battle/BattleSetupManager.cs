@@ -318,6 +318,7 @@ public class BattleSetupManager : MonoBehaviour
         // 해당 TextCutsceneData도 BattleEndFlowController에 전달한다.
         //
         // null인 일반 전투에서는 아무 컷씬 데이터도 등록하지 않는다.
+        battleEndFlowController.SetVictoryWorldMapEventData(stageBattleData.victoryWorldMapEventData);
         battleEndFlowController.SetVictoryCutsceneData(
             stageBattleData.victoryCutsceneData
         );

@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11210453364ce3247a8810e6e456d266, type: 3}
   m_Name: StatusPanel_GlitchOpenData
   m_EditorClassIdentifier: Assembly-CSharp::PopupOpenAnimationData
+  useScreenGlitch: 1
+  screenGlitchStrength: 0.18
+  screenGlitchMaterial: {fileID: 2100000, guid: 8ebcad4d98d54c346a87a53e1c3361db, type: 2}
   duration: 0.35
   useUnscaledTime: 1
   startScale: {x: 0.96, y: 1.04}

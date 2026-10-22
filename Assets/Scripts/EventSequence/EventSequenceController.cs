@@ -3252,6 +3252,7 @@ public class EventSequenceController : MonoBehaviour
                 // 다음 Scene이 정상 속도로 시작하도록 한다.
                 RestoreGlobalTimeScaleBeforeSceneChange();
 
+                WorldMapEventRuntimeState.Queue(sequenceData.completionWorldMapEventData);
                 SceneManager.LoadScene(
                     "WorldMapScene"
                 );
@@ -3300,6 +3301,7 @@ public class EventSequenceController : MonoBehaviour
                 // Scene Load 직전에 전역 시간을 정상화한다.
                 RestoreGlobalTimeScaleBeforeSceneChange();
 
+                WorldMapEventRuntimeState.Queue(sequenceData.completionWorldMapEventData);
                 SceneManager.LoadScene(
                     sequenceData
                         .completionSceneName
@@ -3308,6 +3310,7 @@ public class EventSequenceController : MonoBehaviour
                 return;
 
             case EventSequenceCompletionType.BattleWin:
+                WorldMapEventRuntimeState.Queue(sequenceData.completionWorldMapEventData);
                 // <변경부분> Event Sequence가 정상 완료되면
                 // 일반 Battle의 승리 처리 흐름으로 연결한다.
                 //

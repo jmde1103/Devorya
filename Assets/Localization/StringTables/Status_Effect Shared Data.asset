@@ -63,6 +63,22 @@ MonoBehaviour:
     m_Key: status_effect.evasion.description
     m_Metadata:
       m_Items: []
+  - m_Id: 17388937073528832
+    m_Key: status_effect_move_disabled_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17388937149026304
+    m_Key: status_effect_move_disabled_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17402470121213952
+    m_Key: status_effect_ability_sealed_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17402470196711424
+    m_Key: status_effect_ability_sealed_description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

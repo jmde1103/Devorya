@@ -2851,6 +2851,8 @@ public class EventSceneDataEditor : Editor
                     contentRect,
                     stepProperty,
                     draw,
+                    "worldMapEventData",
+                    "월드맵 이벤트 데이터 (선택)",
                     "startBattleStageData",
                     "Stage Battle Data",
                     "clearCurrentWorldMapNodeOnVictory",
@@ -4735,6 +4737,18 @@ public class EventSceneDataEditor : Editor
                 );
             }
 
+            if (eventData.completionType != EventSceneCompletionType.None)
+            {
+                EditorGUI.BeginChangeCheck();
+                var nextWorldMapEvent = (WorldMapEventData)EditorGUILayout.ObjectField(
+                    "월드맵 이벤트 데이터 (선택)", eventData.completionWorldMapEventData, typeof(WorldMapEventData), false);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(eventData, "Edit World Map Event Handoff");
+                    eventData.completionWorldMapEventData = nextWorldMapEvent;
+                    EditorUtility.SetDirty(eventData);
+                }
+            }
             if (eventData.completionType ==
                 EventSceneCompletionType.LoadScene)
             {

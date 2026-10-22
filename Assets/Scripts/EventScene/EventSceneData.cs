@@ -126,6 +126,7 @@ public class EventSceneData : ScriptableObject
     // LoadScene으로 TextCutsceneScene에 이동할 경우
     // 다음 TextCutscene에 전달할 Data.
     public TextCutsceneData completionCutsceneData;
+    [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData completionWorldMapEventData;
 
 
     // <변경부분>

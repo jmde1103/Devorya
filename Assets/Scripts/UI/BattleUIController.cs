@@ -346,20 +346,6 @@ public class BattleUIController : MonoBehaviour
                 );
         }
 
-        // <변경부분>
-        // BattleManager에서 실제 적용 중인 에너지 Cost를 가져온다.
-        //
-        // UniqueSkillData.energyCost는 기본값으로 유지하며,
-        // 아이템/유물/효과에 의한 Cost 보정은
-        // 런타임 TooltipViewData에만 반영한다.
-        if (tooltipViewData != null &&
-            battleManager != null)
-        {
-            tooltipViewData.energyCost =
-                battleManager.GetPlayerAbilityEnergyCost(
-                    skillData
-                );
-        }
 
         // <변경부분>
         // Tooltip과 동일한 최종 Cost를

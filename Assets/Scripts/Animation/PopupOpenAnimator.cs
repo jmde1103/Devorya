@@ -18,6 +18,8 @@ public class PopupOpenAnimator : MonoBehaviour
 
     // 현재 실행 중인 애니메이션 코루틴
     private Coroutine openCoroutine;
+    private readonly PopupScreenGlitchEffect screenGlitch = new PopupScreenGlitchEffect();
+    private void OnDestroy() { screenGlitch.Dispose(); }
 
     // <변경부분> 외부 컨트롤러가
     // PopupOpenAnimator의 애니메이션 종료를 기다릴 수 있도록
@@ -135,6 +137,7 @@ public class PopupOpenAnimator : MonoBehaviour
         canvasGroup.blocksRaycasts = animationData.blocksRaycasts;
         canvasGroup.interactable = animationData.interactable;
 
+        screenGlitch.Begin(targetRect, animationData);
         float duration = Mathf.Max(0.001f, animationData.duration);
         float elapsed = 0f;
 
@@ -160,6 +163,7 @@ public class PopupOpenAnimator : MonoBehaviour
             elapsed += deltaTime;
 
             float t = Mathf.Clamp01(elapsed / duration);
+            screenGlitch.Update(t);
             float curveT = animationData.scaleCurve.Evaluate(t);
 
             // 스케일 보간
@@ -265,6 +269,7 @@ public class PopupOpenAnimator : MonoBehaviour
     // <변경부분> 현재 실행 중인 오픈 코루틴을 안전하게 중단한다.
     private void StopOpenCoroutine()
     {
+        screenGlitch.Stop();
         if (openCoroutine == null)
         {
             return;
@@ -299,6 +304,7 @@ public class PopupOpenAnimator : MonoBehaviour
     // <변경부분> 애니메이션 종료 후 팝업을 정확한 최종 상태로 보정
     private void ApplyFinalState()
     {
+        screenGlitch.Stop();
         EnsureReferences();
         CaptureOriginalScaleIfNeeded();
 

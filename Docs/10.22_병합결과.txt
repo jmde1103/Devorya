@@ -1,0 +1,37 @@
+DEVORYA 10.22 병합 결과
+
+기준: 10.22-코덱스-병합-작업 (eda3ce0)
+통합: codex/status-effect-restrictions (ec4b7c4)
+
+10.22 브랜치를 첫 번째 부모로 유지하여 Codex 변경을 병합했습니다.
+BattleScene과 Lv.1 Jellu 스테이지 충돌은 10.22 내용을 보존했습니다.
+Codex 테스트용 보상 설정은 가져오지 않고 기존 보상 데이터를 유지했습니다.
+에너지 잔량 표시, 성공 시 비용 차감, 턴 충전, Cost 보정, 스킬 버튼 Cost TMP,
+툴팁 Cost, 이벤트 보상창의 단일 TMP 및 LocalizedString 구조를 보존했습니다.
+BattleUIController의 동일 Cost 계산 중복 1개만 제거했습니다.
+
+Codex 기능: 월드맵 이벤트 편집/일회성 전달, 이동불가/능력봉인 및 저항 특성,
+열매 및 낡은 장화, 씬 편집 위치를 따르는 반응형 UI, 개체 한정 팝업 글리치.
+전투 씬의 기존 배치를 기준으로 반응형 설정을 저장하고 에너지 카운터도 등록했습니다.
+씬 오브젝트 및 Cost 연결을 교체하지 않았습니다.
+
+병합된 소스로 실행한 검증
+- Unity 6000.4.0f1 컴파일 성공.
+- Merge1022Checks: 스킬 Cost TMP, 에너지 카운터 TMP/매니저, 이벤트 보상창 TMP 연결 통과.
+- SceneUILayoutChecks: 6개 씬, 6개 화면 비율 및 안전영역, 수동 배치/크기 유지 501개 검사 통과.
+- Merge1022EnergyChecks: 기본/보정 Cost, 원본 데이터 유지, 성공 차감, 현재 잔량 TMP,
+  회복 상한, 턴 충전 통과.
+- WornBootsChecks: Unity Play Mode에서 대상 제한, 추가 이동, 원래 행동권 유지,
+  이동 1회 제한, 공격불가 유지/만료 통과.
+- 테스트 로그에 AnimatorController 미재생 경고가 있었으며 검증은 정상 완료했습니다.
+
+검증 범위 제한
+전체 플레이 흐름, 모든 능력과 AI 조합, 실제 모바일/PC 빌드 및 육안 UI 검수는 미실시.
+에너지 부족 팝업과 보상창의 실제 언어 전환은 이번 자동 검증 범위에 포함하지 않았습니다.
+회복 노드 완료 후 월드맵 복귀 문제는 이번 병합에서 해결했다고 판단하지 않습니다.
+이전에 존재한 Assets/_Recovery/0 (10).unity 및 meta는 추적하지 않고 그대로 보존합니다.
+GitHub 원격 푸시는 수행하지 않습니다.
+
+검증 로그 (로컬, Git 제외)
+Logs/StatusEffectValidation/unity-merge-1022.log
+Logs/StatusEffectValidation/unity-merge-1022-energy.log

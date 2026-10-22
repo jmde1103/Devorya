@@ -10,10 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 730586183b98d7c4e800478e0439b8e7, type: 3}
-  m_Name: 특성_데이터베이스
+  m_Name: "\uD2B9\uC131_\uB370\uC774\uD130\uBCA0\uC774\uC2A4"
   m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillDatabase
   generalSkillDatas:
   - {fileID: 11400000, guid: 052db7fe2f2c06445b75d7b24d29d167, type: 2}
   - {fileID: 11400000, guid: 5b4235061c6bbd748801bd364c2e5a1c, type: 2}
   - {fileID: 11400000, guid: 2d03fdea12e4c5a408826872963f1a48, type: 2}
   - {fileID: 11400000, guid: 04b028c824ed45db920b424c1e922f03, type: 2}
+  - {fileID: 11400000, guid: ec0bfc2005b948942b99068da0fcad5d, type: 2}
+  - {fileID: 11400000, guid: ae16ee0695dc92f4f8749ed680e49bb7, type: 2}
+  - {fileID: 11400000, guid: 8e0a085b4307eb347b95e54bf6c01aae, type: 2}
+  - {fileID: 11400000, guid: 873c79e75c5ca2c4bb26f12af7995335, type: 2}
+  - {fileID: 11400000, guid: 8e84871d8e769df44a42d5bb2e091f02, type: 2}
+  - {fileID: 11400000, guid: 997524e3bf073dd449b2ce4863e96d09, type: 2}
+  - {fileID: 11400000, guid: 9ecda043de1702748a3a95ff832908fd, type: 2}
+  - {fileID: 11400000, guid: 4a04da9a1653ab54ba2cd6417fc7b81b, type: 2}
+  - {fileID: 11400000, guid: eb0a105b5edd78f4e914bf0086417469, type: 2}
+  - {fileID: 11400000, guid: 85fe1010d10179746bb257eb1cf0e678, type: 2}
+  - {fileID: 11400000, guid: 970c7a99e5914e441be4007bd4a3f697, type: 2}
+  - {fileID: 11400000, guid: bc5e6e143b089f64d8ea9d4dc5addf7e, type: 2}

@@ -21,6 +21,7 @@ public class WorldMapEventStep
     public WorldMapEventStepType type;
     [TextArea(2, 5)] public List<string> dialoguePages = new List<string>();
     public List<LocalizedString> localizedDialoguePages = new List<LocalizedString>();
+    [HideInInspector] public List<string> dialoguePageIds = new List<string>();
     public bool lockPlayerInput = true;
     public bool showUI = true;
     [Range(0,1)] public float glitchStrength = .55f;
@@ -43,6 +44,7 @@ public class WorldMapEventStep
 public class WorldMapEventData : ScriptableObject
 {
     [InspectorName("이벤트 이름")] public string eventName = "월드맵 이벤트";
+    [TextArea(2,5), InspectorName("작업 메모")] public string description;
     [InspectorName("종료 시 조명 복원")] public bool restoreLightingOnComplete = true;
     [InspectorName("스텝 목록")] public List<WorldMapEventStep> steps = new List<WorldMapEventStep>();
 }

@@ -27,5 +27,9 @@ public enum StatusEffectType
     [UnityEngine.InspectorName("\ud638\uc704")]
     Taunt = 6,
     [UnityEngine.InspectorName("\ud68c\ud53c")]
-    Evasion = 7
+    Evasion = 7,
+    [UnityEngine.InspectorName("이동불가")]
+    MoveDisabled = 8,
+    [UnityEngine.InspectorName("능력봉인")]
+    AbilitySealed = 9
 }

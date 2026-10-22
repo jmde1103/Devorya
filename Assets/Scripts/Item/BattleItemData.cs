@@ -10,7 +10,7 @@ public enum BattleItemEffectType
     [InspectorName("\uae30\ubb3c \ubcc0\ud658")]
     ChangePiece = 0,
     [InspectorName("\uc0c1\ud0dc\ud6a8\uacfc \ubd80\uc5ec")]
-    ApplyStatusEffect = 1
+    ApplyStatusEffect = 1, [InspectorName("상태효과 해제")] RemoveStatusEffect = 2, [InspectorName("추가 이동 1회")] ExtraMove = 3
 }
 
 // <변경부분>

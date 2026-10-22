@@ -427,7 +427,7 @@ public partial class BattleSkillManager : MonoBehaviour
     public bool CanUseUniqueSkillEffect(
         Piece piece)
     {
-        if (piece == null || piece.IsQuickStepMove || piece.HasStatusEffect(StatusEffectType.ActionDisabled))
+        if (piece == null || piece.IsQuickStepMove || piece.IsAbilityBlocked)
         {
             return false;
         }
@@ -598,7 +598,7 @@ public partial class BattleSkillManager : MonoBehaviour
     public bool TryUseUniqueSkill(Piece piece)
     {
         // 스킬을 사용할 기물이 없으면 실패
-        if (piece == null || piece.IsQuickStepMove || piece.HasStatusEffect(StatusEffectType.ActionDisabled))
+        if (piece == null || piece.IsQuickStepMove || piece.IsAbilityBlocked)
         {
             return false;
         }

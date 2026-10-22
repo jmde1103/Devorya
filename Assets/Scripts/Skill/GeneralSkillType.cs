@@ -14,5 +14,29 @@ public enum GeneralSkillType
     [UnityEngine.InspectorName("\uac04\ud30c")]
     Insight,
     [UnityEngine.InspectorName("\ube60\ub978 \ubc1c\uac78\uc74c")]
-    QuickStep = 4
+    QuickStep = 4,
+    [UnityEngine.InspectorName("공격불가 저항 I")]
+    AttackDisabledResistanceBasic = 5,
+    [UnityEngine.InspectorName("공격불가 저항 II")]
+    AttackDisabledResistanceIntermediate = 6,
+    [UnityEngine.InspectorName("공격불가 저항 III")]
+    AttackDisabledResistanceAdvanced = 7,
+    [UnityEngine.InspectorName("행동불가 저항 I")]
+    ActionDisabledResistanceBasic = 8,
+    [UnityEngine.InspectorName("행동불가 저항 II")]
+    ActionDisabledResistanceIntermediate = 9,
+    [UnityEngine.InspectorName("행동불가 저항 III")]
+    ActionDisabledResistanceAdvanced = 10,
+    [UnityEngine.InspectorName("이동불가 저항 I")]
+    MoveDisabledResistanceBasic = 11,
+    [UnityEngine.InspectorName("이동불가 저항 II")]
+    MoveDisabledResistanceIntermediate = 12,
+    [UnityEngine.InspectorName("이동불가 저항 III")]
+    MoveDisabledResistanceAdvanced = 13,
+    [UnityEngine.InspectorName("능력봉인 저항 I")]
+    AbilitySealedResistanceBasic = 14,
+    [UnityEngine.InspectorName("능력봉인 저항 II")]
+    AbilitySealedResistanceIntermediate = 15,
+    [UnityEngine.InspectorName("능력봉인 저항 III")]
+    AbilitySealedResistanceAdvanced = 16
 }

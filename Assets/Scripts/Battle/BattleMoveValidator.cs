@@ -363,6 +363,16 @@ public class BattleMoveValidator : MonoBehaviour
                 );
                 break;
         }
+        // Filter destinations after tracing paths so distant captures remain reachable.
+        if (piece.HasStatusEffect(StatusEffectType.MoveDisabled))
+        {
+            for (int i = results.Count - 1; i >= 0; i--)
+            {
+                Piece target = pieceManager.GetPieceAt(results[i].x, results[i].y);
+                if (target == null || !piece.CanAttackThisTurn || !piece.IsEnemyOf(target))
+                    results.RemoveAt(i);
+            }
+        }
     }
 
     // <변경부분> AI가 일반 이동 후보만 따로 평가할 수 있도록

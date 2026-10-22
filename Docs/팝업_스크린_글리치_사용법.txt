@@ -1,0 +1,19 @@
+팝업 개체 글리치 사용법 (전체 화면 효과를 대체함)
+
+기존처럼 PopupOpenAnimator에 PopupOpenAnimationData를 연결하고 PlayOpen()을 호출합니다.
+PopupOpenAnimator의 Target Rect와 그 자식 Image/RawImage에만 글리치가 적용됩니다.
+화면 전체 Canvas나 화면 캡처는 생성하거나 사용하지 않습니다.
+배경 및 다른 UI는 영향을 받지 않습니다.
+
+데이터 Inspector:
+- 개체 글리치 함께 재생
+- 개체 글리치 강도 (기본 0.18)
+- 개체 글리치 머티리얼: M_PopupLocalGlitch
+기존 duration/useUnscaledTime 및 위치 흔들림/스케일/알파 깜빡임은 그대로 사용합니다.
+글자는 폰트 재질을 유지하고 기존 팝업 흔들림·깜빡임만 적용합니다.
+Image/RawImage에는 가로 줄 오프셋과 RGB 분리 효과를 추가합니다.
+
+완료, CompleteImmediately, 비활성화, 파괴 시 기존 이미지 머티리얼을 복원합니다.
+기존 EventScreenGlitchController는 변경하지 않았습니다.
+코드의 screenGlitch 필드명과 PopupScreenGlitchEffect 클래스명은 기존 데이터 호환을 위해 유지했지만, 실제 동작은 개체 한정 효과입니다.
+이 문서는 이전 전체 화면 스크린 글리치 안내를 대체합니다.

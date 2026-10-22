@@ -446,10 +446,12 @@ public class Piece : MonoBehaviour
     //
     // 기존 한 턴 1회 사용 제한은 제거한다.
     // 능력별 쿨타임과 행동불가 상태효과는 그대로 적용한다.
+    public bool IsAbilityBlocked => HasStatusEffect(StatusEffectType.ActionDisabled) || HasStatusEffect(StatusEffectType.AbilitySealed);
+
     public bool CanUseUniqueSkill()
     {
         if (IsQuickStepMove) return false;
-        if (HasStatusEffect(StatusEffectType.ActionDisabled)) return false;
+        if (IsAbilityBlocked) return false;
 
         // 고유 능력이 없으면 사용 불가
         if (UniqueSkill == UniqueSkillType.None)
@@ -651,6 +653,8 @@ public class Piece : MonoBehaviour
         }
 
         // 최소 1턴은 유지되도록 보정
+        if (StatusResistance.TryResist(generalSkills, statusEffectData.effectType)) return;
+
         int durationTurn = Mathf.Max(1, duration);
 
         // 최소 1중첩은 가능하도록 보정
@@ -736,6 +740,14 @@ public class Piece : MonoBehaviour
 
 
     // <변경부분> 스테이터스 UI 표시용으로 현재 보유 중인 상태이상 목록 전체의 복사본을 반환하는 함수
+    public bool RemoveStatusEffect(StatusEffectType type)
+    {
+        if (type == StatusEffectType.None) return false;
+        int removed = statusEffects.RemoveAll(effect => effect != null && effect.effectType == type);
+        if (removed > 0) RefreshFieldStatusEffectUI();
+        return removed > 0;
+    }
+
     public List<OwnedStatusEffectData> GetStatusEffectsCopy()
     {
         // UI에서 원본 리스트를 직접 수정하지 못하도록 복사 리스트 생성

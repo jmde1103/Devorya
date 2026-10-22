@@ -528,7 +528,7 @@ public partial class BattleManager : MonoBehaviour
         // <변경부분> 게임 시작 시 아이템 효과 핸들러 초기화
         if (battleItemEffectHandler != null)
         {
-            battleItemEffectHandler.Initialize(pieceManager);
+            battleItemEffectHandler.Initialize(pieceManager, this);
         }
 
         // <변경부분> BattleSetupManager의 기물 생성이 끝난 다음 프레임에
@@ -3000,6 +3000,8 @@ public partial class BattleManager : MonoBehaviour
             null;
 
         // 이동/공격 후 승패 조건 확인
+        bool completedItemMove = itemMovePiece == actingPiece && didCompleteMove;
+        itemMovePiece = null;
         ClearQuickStepBonus();
         CheckBattleEnd();
 
@@ -3012,6 +3014,13 @@ public partial class BattleManager : MonoBehaviour
 
         // <변경부분> 흡수 성공 유물 효과는
         // 실제 흡수가 성공했을 때만 발동한다.
+        if (completedItemMove)
+        {
+            ActivateChanceAttackBonus(actingPiece);
+            chanceAttackBonusPiece = null;
+            isActionAnimating = false;
+            yield break;
+        }
         if (absorbedEnemyPiece &&
             TryActivateAbsorbChanceAttackRelic(
                 actingPiece
@@ -5408,6 +5417,7 @@ public partial class BattleManager : MonoBehaviour
     }
     private void EndTurn()
     {
+        itemMovePiece = null;
         ClearQuickStepBonus();
         // 턴이 전환되는 순간 현재 표시 중인 Tooltip을 즉시 닫는다.
         //

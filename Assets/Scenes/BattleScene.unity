@@ -6114,6 +6114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49c4023b04273c849a9bfe10dad39007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneChanger
+  worldMapEventData: {fileID: 0}
 --- !u!1 &55643633
 GameObject:
   m_ObjectHideFlags: 0
@@ -169618,13 +169619,19 @@ MonoBehaviour:
   - target: {fileID: 65093569}
     anchor: {x: 0.5, y: 1}
     inset: {x: 0, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.9522135, y: 0.5555556}
     contentBounds:
-      m_Center: {x: 59.499992, y: 0, z: 0}
-      m_Extent: {x: 171.5, y: 60.000008, z: 0}
+      m_Center: {x: 59.500008, y: 0, z: 0}
+      m_Extent: {x: 171.49998, y: 60.000008, z: 0}
     originalScale: {x: 0.79999995, y: 0.79999995, z: 1}
   - target: {fileID: 670389589}
     anchor: {x: 1, y: 0}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.8683811, y: 0.23307294}
     contentBounds:
       m_Center: {x: 0.000015258789, y: -0.000015258789, z: 0}
       m_Extent: {x: 100.00003, y: 100, z: 0}
@@ -169632,6 +169639,9 @@ MonoBehaviour:
   - target: {fileID: 646759644}
     anchor: {x: 0, y: 1}
     inset: {x: 41.250122, y: 203.12494}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.06488717, y: 0.7158565}
     contentBounds:
       m_Center: {x: 0, y: -0.000009536743, z: 0}
       m_Extent: {x: 79.999954, y: 25.000023, z: 0}
@@ -169639,6 +169649,9 @@ MonoBehaviour:
   - target: {fileID: 1169879148}
     anchor: {x: 0, y: 1}
     inset: {x: 230.83344, y: 203.12494}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.16362852, y: 0.7158565}
     contentBounds:
       m_Center: {x: 0.000015258789, y: -0.000009536743, z: 0}
       m_Extent: {x: 79.99997, y: 25.000023, z: 0}
@@ -169646,6 +169659,9 @@ MonoBehaviour:
   - target: {fileID: 287602614}
     anchor: {x: 0.5, y: 1}
     inset: {x: -456.24997, y: 203.12494}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.2623698, y: 0.7158565}
     contentBounds:
       m_Center: {x: -0.000015258789, y: -0.000009536743, z: 0}
       m_Extent: {x: 80.000015, y: 25.000023, z: 0}
@@ -169653,6 +169669,9 @@ MonoBehaviour:
   - target: {fileID: 993747599}
     anchor: {x: 0, y: 0.5}
     inset: {x: 41.250122, y: 240}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.06488717, y: 0.6666667}
     contentBounds:
       m_Center: {x: 0, y: 0.000009536743, z: 0}
       m_Extent: {x: 79.999954, y: 25.000023, z: 0}
@@ -169660,20 +169679,29 @@ MonoBehaviour:
   - target: {fileID: 1897976745}
     anchor: {x: 1, y: 0.5}
     inset: {x: 24, y: 0}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.042968716, y: 0.5390625}
     contentBounds:
-      m_Center: {x: 0.000038146973, y: 0.000015258789, z: 0}
+      m_Center: {x: -0.000038146973, y: 0.000015258789, z: 0}
       m_Extent: {x: 100.000015, y: 100.000015, z: 0}
     originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
   - target: {fileID: 1275822945}
     anchor: {x: 1, y: 0}
     inset: {x: 24, y: 260}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.9364963, y: 0.30400026}
     contentBounds:
-      m_Center: {x: 1.0599976, y: 0.49999237, z: 0}
-      m_Extent: {x: 101.06005, y: 100.50001, z: 0}
+      m_Center: {x: 17.549995, y: -29.950012, z: 0}
+      m_Extent: {x: 117.55005, y: 130.95001, z: 0}
     originalScale: {x: 0.8333333, y: 0.8333333, z: 1}
   - target: {fileID: 1454506791}
     anchor: {x: 0, y: 0}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.16631511, y: 0.28689235}
     contentBounds:
       m_Center: {x: 32.860016, y: 27.5, z: 0}
       m_Extent: {x: 232.86002, y: 127.5, z: 0}
@@ -169681,6 +169709,9 @@ MonoBehaviour:
   - target: {fileID: 1136322010}
     anchor: {x: 1, y: 1}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.800673, y: 0.74011505}
     contentBounds:
       m_Center: {x: 81.266235, y: -20.08751, z: 4.5}
       m_Extent: {x: 281.7038, y: 136.3125, z: 4.5}
@@ -169688,6 +169719,9 @@ MonoBehaviour:
   - target: {fileID: 927991179}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: 0, y: 160}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.12836374, y: 0.7881944}
     contentBounds:
       m_Center: {x: 0.000030517578, y: 0, z: 0}
       m_Extent: {x: 275, y: 75, z: 0}
@@ -169695,6 +169729,9 @@ MonoBehaviour:
   - target: {fileID: 395887467}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.5, y: 0.23806423}
     contentBounds:
       m_Center: {x: 0, y: 25.499998, z: 0}
       m_Extent: {x: 281.25, y: 56.25, z: 0}
@@ -169702,6 +169739,9 @@ MonoBehaviour:
   - target: {fileID: 1727565522}
     anchor: {x: 0.5, y: 1}
     inset: {x: 0, y: 120}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.43991432, y: 0.806279}
     contentBounds:
       m_Center: {x: 286.25003, y: 0.000036239624, z: 0}
       m_Extent: {x: 311.25, y: 25.000013, z: 0}
@@ -169709,6 +169749,9 @@ MonoBehaviour:
   - target: {fileID: 337650155}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: 0, y: 0}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.5002604, y: 0.48815423}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 249.99997, y: 249.99997, z: 0}
@@ -169716,6 +169759,9 @@ MonoBehaviour:
   - target: {fileID: 1814115442}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 180}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.50000006, y: 0.3220486}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 299.99997, y: 74.99999, z: 0}
@@ -169723,6 +169769,9 @@ MonoBehaviour:
   - target: {fileID: 873098532}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 180}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.5, y: 0.33934027}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 553.125, y: 95.3125, z: 0}
@@ -169730,6 +169779,9 @@ MonoBehaviour:
   - target: {fileID: 72671837}
     anchor: {x: 0.5, y: 1}
     inset: {x: -386.8, y: 73.69995}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.29854167, y: 0.81069446}
     contentBounds:
       m_Center: {x: 0, y: 0.000030517578, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -169737,6 +169789,9 @@ MonoBehaviour:
   - target: {fileID: 1101380429}
     anchor: {x: 0, y: 1}
     inset: {x: 24, y: 24.099976}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.05, y: 0.8451389}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -169744,6 +169799,9 @@ MonoBehaviour:
   - target: {fileID: 865496099}
     anchor: {x: 0.5, y: 1}
     inset: {x: -386.8, y: 130.09998}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.29854167, y: 0.77152777}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -169751,6 +169809,9 @@ MonoBehaviour:
   - target: {fileID: 271587863}
     anchor: {x: 0.5, y: 1}
     inset: {x: -36.300003, y: 129.59998}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.48109373, y: 0.771875}
     contentBounds:
       m_Center: {x: 0, y: 0.000030517578, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -169758,6 +169819,9 @@ MonoBehaviour:
   - target: {fileID: 626203127}
     anchor: {x: 0.5, y: 1}
     inset: {x: -212.4, y: 129.59998}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.389375, y: 0.771875}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -169765,17 +169829,34 @@ MonoBehaviour:
   - target: {fileID: 711201845}
     anchor: {x: 0, y: 1}
     inset: {x: 24, y: 100}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.12552084, y: 0.70694447}
     contentBounds:
-      m_Center: {x: 0, y: 0, z: 0}
+      m_Center: {x: 0, y: -0.000030517578, z: 0}
       m_Extent: {x: 182.81248, y: 182.81248, z: 0}
     originalScale: {x: 1.2, y: 1.2, z: 1}
   - target: {fileID: 2081978989}
     anchor: {x: 0, y: 1}
     inset: {x: 520, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.27178383, y: 0.8343056}
     contentBounds:
-      m_Center: {x: -375.75, y: 426.00006, z: 0}
+      m_Center: {x: -375.75003, y: 426, z: 0}
       m_Extent: {x: 119.75, y: 39.375, z: 0}
-    originalScale: {x: 0.9, y: 0.9, z: 1}
+    originalScale: {x: 0.90000004, y: 0.90000004, z: 1}
+  - target: {fileID: 677187152}
+    anchor: {x: 0.5, y: 0.5}
+    inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.9546615, y: 0.4965278}
+    contentBounds:
+      m_Center: {x: 64.20002, y: -0.000015258789, z: 0}
+      m_Extent: {x: 166.79997, y: 37.999985, z: 0}
+    originalScale: {x: 0.79999995, y: 0.79999995, z: 1}
+  followScenePlacement: 1
 --- !u!1 &1561352836
 GameObject:
   m_ObjectHideFlags: 0

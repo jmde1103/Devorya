@@ -2667,7 +2667,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapEventController
   eventData: {fileID: 0}
-  playOnStart: 1
   dialogueUI: {fileID: 1049000170}
   controlledUI:
   - {fileID: 1893345855}
@@ -5268,6 +5267,9 @@ MonoBehaviour:
   - target: {fileID: 1534553831}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 180}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.5, y: 0.33934024}
     contentBounds:
       m_Center: {x: 0, y: -0.000022888184, z: 0}
       m_Extent: {x: 553.125, y: 95.31251, z: 0}
@@ -5275,10 +5277,14 @@ MonoBehaviour:
   - target: {fileID: 2124941753}
     anchor: {x: 0, y: 1}
     inset: {x: 57.46875, y: 48.46875}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.32184568, y: 0.7270833}
     contentBounds:
       m_Center: {x: -342.05627, y: 327, z: 0}
       m_Extent: {x: 560.475, y: 164.53125, z: 0}
     originalScale: {x: 1, y: 1, z: 1}
+  followScenePlacement: 1
 --- !u!1 &2112086792
 GameObject:
   m_ObjectHideFlags: 0

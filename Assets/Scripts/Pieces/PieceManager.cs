@@ -1451,7 +1451,7 @@ public partial class PieceManager : MonoBehaviour
     {
         return source != null && source.Team != PieceTeam.Neutral &&
             source.HasSpeciesTag(PieceSpeciesTag.Jellu) &&
-            !source.HasStatusEffect(StatusEffectType.ActionDisabled) &&
+            !source.IsAbilityBlocked &&
             boardManager != null && pieces != null &&
             GetPieceAt(source.X, source.Y) == source &&
             pieceDatabase != null && pieceDatabase.GetData("Jellu Pawn") != null &&

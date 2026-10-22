@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c427d0319a4f5524f8896c13f10549fd, type: 3}
+  m_Name: "\uD2B9\uC131_\uD589\uB3D9\uBD88\uAC00 \uC800\uD56D III"
+  m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillData
+  skillType: 10
+  skillName: "\uD589\uB3D9\uBD88\uAC00 \uC800\uD56D III"
+  iconSprite: {fileID: 21300000, guid: fbd36e008d8b5e34199626177db6c69a, type: 3}
+  description: "\uD589\uB3D9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
+    \uB54C 30% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
+    \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+  tooltipDescriptionFormat: "\uD589\uB3D9\uBD88\uAC00 \uC0C1\uD0DC\uD6A8\uACFC\uB97C
+    \uBC1B\uC744 \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
+    \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uB294\uB2E4."
+  tooltipSections:
+  - statusEffectData: {fileID: 11400000, guid: 6b9a2727598747b6b68c7df732fe6225, type: 2}
+    sectionColor: {r: 1, g: 1, b: 1, a: 1}
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: GUID:ae14eba64dcb3d844ae42633ce783a2e
+    m_TableEntryReference:
+      m_KeyId: 17473335743614976
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:ae14eba64dcb3d844ae42633ce783a2e
+    m_TableEntryReference:
+      m_KeyId: 17473335743614977
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedTooltipDescriptionFormat:
+    m_TableReference:
+      m_TableCollectionName: GUID:ae14eba64dcb3d844ae42633ce783a2e
+    m_TableEntryReference:
+      m_KeyId: 17473335743614978
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  chanceAttackPercent: 30
+  chanceAttackContinuousPenaltyRate: 0.33333334
+  defenseGrantChancePercent: 15
+  insightPercent: 30
+  quickStepPercent: 30
+  references:
+    version: 2
+    RefIds: []

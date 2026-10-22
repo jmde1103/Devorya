@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 126c100f88d69564bb649a4943e38bd1, type: 3}
-  m_Name: 상태효과_데이터베이스
+  m_Name: "\uC0C1\uD0DC\uD6A8\uACFC_\uB370\uC774\uD130\uBCA0\uC774\uC2A4"
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectDatabase
   statusEffectDataList:
   - {fileID: 11400000, guid: f02a606ddcaaad54e907582bc6b81132, type: 2}
@@ -20,3 +20,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6b9a2727598747b6b68c7df732fe6225, type: 2}
   - {fileID: 11400000, guid: bbd4c49de94c45bead55a976ba9e43b6, type: 2}
   - {fileID: 11400000, guid: 9d1f814c9401420592bb0cda77c2176a, type: 2}
+  - {fileID: 11400000, guid: 84b4b65394e947f47bd393e66c5cdc7e, type: 2}
+  - {fileID: 11400000, guid: 7764f9ca638a6c446ae98bb899d3d87a, type: 2}

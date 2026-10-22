@@ -1198,6 +1198,7 @@ eventSceneData;
     // 새 런을 시작할 때 월드맵 진행 상태를 전부 초기화한다.
     public static void Clear()
     {
+        WorldMapEventRuntimeState.Clear();
         currentNodeId =
             null;
 

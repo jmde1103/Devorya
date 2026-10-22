@@ -181,6 +181,7 @@ public class StageBattleData : ScriptableObject
     // 실제 컷씬 재생 Scene 이름은
     // victorySceneName에 별도로 지정한다.
     public TextCutsceneData victoryCutsceneData;
+    [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData victoryWorldMapEventData;
 
     [Header("Enemy AI")]
     // Enemy AI가 Enemy 턴 시작 시
