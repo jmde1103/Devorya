@@ -1099,6 +1099,7 @@ public class EventSceneStepData
     // BattleScene의 BattleSetupManager가
     // 기존 PendingStageBattleData 경로로 수신한다.
     public StageBattleData startBattleStageData;
+    [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData worldMapEventData;
 
     // <변경부분>
     // WorldMap에서 진입한 이벤트 노드를

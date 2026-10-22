@@ -11,10 +11,14 @@ public sealed class ResponsiveScreenLayout : MonoBehaviour
         [InspectorName("대상 UI")] public RectTransform target;
         [InspectorName("화면 기준점")] public Vector2 anchor = new Vector2(.5f,.5f);
         [InspectorName("가장자리 여백·중앙 이동")] public Vector2 inset = new Vector2(24,24);
+        [InspectorName("기준 UI")] public RectTransform relativeTo;
+        [InspectorName("기준 UI와의 간격")] public Vector2 relativeOffset;
+        [HideInInspector] public Vector2 authoredCenter;
         [HideInInspector] public Bounds contentBounds;
         [HideInInspector] public Vector3 originalScale;
     }
     [SerializeField, InspectorName("반응형 UI 묶음")] public Element[] elements = Array.Empty<Element>();
+    [SerializeField, InspectorName("씬에서 편집한 배치 사용")] public bool followScenePlacement;
     Canvas canvas;
     Rect lastSafe, lastPixels, lastCanvas;
     Vector2Int lastScreen;
@@ -48,6 +52,7 @@ public sealed class ResponsiveScreenLayout : MonoBehaviour
     {
         if(canvas==null)canvas=GetComponent<Canvas>();
         var root=(RectTransform)canvas.transform;
+        if (followScenePlacement) { ApplyAuthoredLayout(root, safe); return; }
         foreach(var entry in elements){
             if(entry.target==null||entry.target.parent==null)continue;
             entry.target.localScale=entry.originalScale;
@@ -59,6 +64,58 @@ public sealed class ResponsiveScreenLayout : MonoBehaviour
             desired.y=Mathf.Clamp(desired.y,safe.yMin+bounds.extents.y,safe.yMax-bounds.extents.y);
             Vector3 delta=root.TransformVector(new Vector3(desired.x-bounds.center.x,desired.y-bounds.center.y,0));
             entry.target.position+=delta;
+        }
+        ApplyRelativePositions(root, safe);
+    }
+    // Follow other HUD elements after their screen-edge placement has completed.
+    void ApplyRelativePositions(RectTransform root, Rect safe)
+    {
+        foreach (var entry in elements)
+        {
+            if (entry.target == null || entry.relativeTo == null) continue;
+            var bounds = BoundsInCanvas(root, entry.target, entry.contentBounds);
+            var reference = BoundsInCanvas(root, entry.relativeTo, MeasureContent(entry.relativeTo));
+            Vector2 center = (Vector2)reference.center + entry.relativeOffset;
+            center.x = Mathf.Clamp(center.x, safe.xMin + bounds.extents.x, safe.xMax - bounds.extents.x);
+            center.y = Mathf.Clamp(center.y, safe.yMin + bounds.extents.y, safe.yMax - bounds.extents.y);
+            entry.target.position += root.TransformVector((Vector3)center - bounds.center);
+        }
+    }
+    // Called by the editor before scene save/play, never from runtime layout.
+    public void CaptureScenePlacement()
+    {
+        var root = (RectTransform)transform;
+        var rect = root.rect;
+        if (rect.width <= 0 || rect.height <= 0) return;
+        foreach (var entry in elements)
+        {
+            if (entry == null || entry.target == null) continue;
+            entry.originalScale = entry.target.localScale;
+            entry.contentBounds = MeasureContent(entry.target);
+            var bounds = BoundsInCanvas(root, entry.target, entry.contentBounds);
+            entry.authoredCenter = new Vector2((bounds.center.x - rect.xMin) / rect.width,
+                (bounds.center.y - rect.yMin) / rect.height);
+        }
+    }
+    void ApplyAuthoredLayout(RectTransform root, Rect safe)
+    {
+        foreach (var entry in elements)
+        {
+            if (entry == null || entry.target == null || entry.target.parent == null) continue;
+            entry.target.localScale = entry.originalScale;
+            var bounds = BoundsInCanvas(root, entry.target, MeasureContent(entry.target));
+            float fit = Mathf.Min(1, Mathf.Max(1, safe.width - 24) / Mathf.Max(1, bounds.size.x),
+                Mathf.Max(1, safe.height - 24) / Mathf.Max(1, bounds.size.y));
+            if (fit < 1)
+            {
+                entry.target.localScale = entry.originalScale * fit;
+                bounds = BoundsInCanvas(root, entry.target, MeasureContent(entry.target));
+            }
+            var desired = new Vector3(safe.xMin + safe.width * entry.authoredCenter.x,
+                safe.yMin + safe.height * entry.authoredCenter.y, bounds.center.z);
+            desired.x = Mathf.Clamp(desired.x, safe.xMin + bounds.extents.x, safe.xMax - bounds.extents.x);
+            desired.y = Mathf.Clamp(desired.y, safe.yMin + bounds.extents.y, safe.yMax - bounds.extents.y);
+            entry.target.position += root.TransformVector(desired - bounds.center);
         }
     }
     static float Place(float min,float max,float size,float anchor,float inset)

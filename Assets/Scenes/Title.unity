@@ -1951,10 +1951,14 @@ MonoBehaviour:
   - target: {fileID: 904327029}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: -1.8601685, y: 16.278656}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.49903116, y: 0.51130456}
     contentBounds:
-      m_Center: {x: -1.8601685, y: 16.278656, z: 0}
-      m_Extent: {x: 790.00006, y: 443, z: 0}
+      m_Center: {x: -1.8601685, y: 16.278595, z: 0}
+      m_Extent: {x: 790.0001, y: 443, z: 0}
     originalScale: {x: 1, y: 1, z: 1}
+  followScenePlacement: 1
 --- !u!1 &780048082
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,5 +12,5 @@ public enum BattleItemType
     // <변경부분> 선택한 기물에
     // BattleItemData에 연결된 상태효과를 부여하는 아이템
     [UnityEngine.InspectorName("\uc0c1\ud0dc\ud6a8\uacfc \ubd80\uc5ec")]
-    ApplyStatusEffectToSelectedPiece
+    ApplyStatusEffectToSelectedPiece = 2, [UnityEngine.InspectorName("투지열매")] FightingFruit = 3, [UnityEngine.InspectorName("각성열매")] AwakeningFruit = 4, [UnityEngine.InspectorName("활력열매")] VitalityFruit = 5, [UnityEngine.InspectorName("낡은 장화")] WornBoots = 6
 }

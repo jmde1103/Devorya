@@ -22,6 +22,7 @@ using UnityEngine.UI;
 // RunStateManager가 담당한다.
 public class ShopController : MonoBehaviour
 {
+    [SerializeField, InspectorName("월드맵 이벤트 데이터 (선택)")] private WorldMapEventData returnWorldMapEventData;
     [Header("Shop Items")]
 
     // <변경부분>
@@ -1089,6 +1090,7 @@ public class ShopController : MonoBehaviour
 
         // <변경부분>
         // 기존 RunStateManager를 초기화하지 않고 Scene만 전환한다.
+        WorldMapEventRuntimeState.Queue(returnWorldMapEventData);
         SceneManager.LoadScene(returnSceneName);
     }
 

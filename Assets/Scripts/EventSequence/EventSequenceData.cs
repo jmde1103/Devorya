@@ -126,6 +126,7 @@ public class EventSequenceData : ScriptableObject
     // Scene 이동 직전에 TextCutsceneRuntimeState에 등록하여
     // 다음 TextCutsceneScene이 이 데이터를 우선 실행한다.
     public TextCutsceneData completionCutsceneData;
+    [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData completionWorldMapEventData;
 
     // <변경부분> 최소한 실행 가능한 데이터인지 확인한다.
     public bool IsValid()

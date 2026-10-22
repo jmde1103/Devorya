@@ -5,7 +5,7 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(WorldMapEventStep))]
 public class WorldMapEventStepDrawer : PropertyDrawer
 {
-    IEnumerable<(string field,string label)> Fields(SerializedProperty p)
+    public static IEnumerable<(string field,string label)> Fields(SerializedProperty p)
     {
         yield return ("enabled","사용");yield return ("stepName","스텝 이름");yield return ("type","스텝 종류");
         switch((WorldMapEventStepType)p.FindPropertyRelative("type").enumValueIndex){

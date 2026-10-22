@@ -147,6 +147,9 @@ public class GeneralSkillData : ScriptableObject
     // 대표 고정 확률을 반환한다.
     public int GetTooltipMainValue()
     {
+        int resistance = StatusResistance.GetPercent(skillType);
+        if (resistance > 0) return resistance;
+
         switch (skillType)
         {
             case GeneralSkillType.QuickStep:

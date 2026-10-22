@@ -47,6 +47,38 @@ MonoBehaviour:
     m_Key: item.97d7d945a1cfee64290ec7033ee49074.description
     m_Metadata:
       m_Items: []
+  - m_Id: 17784038891327488
+    m_Key: battle_item_FightingFruit_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784038962630656
+    m_Key: battle_item_FightingFruit_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039444975616
+    m_Key: battle_item_AwakeningFruit_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039444975617
+    m_Key: battle_item_AwakeningFruit_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039646302208
+    m_Key: battle_item_VitalityFruit_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039646302209
+    m_Key: battle_item_VitalityFruit_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17792243658788864
+    m_Key: battle_item_WornBoots_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17792243738480640
+    m_Key: battle_item_WornBoots_description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

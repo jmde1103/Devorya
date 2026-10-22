@@ -16,7 +16,7 @@ public partial class BattleSkillManager
 
     private bool CanReinforce(Piece caster)
     {
-        if (caster == null || caster.HasStatusEffect(StatusEffectType.ActionDisabled) || !HasReinforcementEffects()) return false;
+        if (caster == null || caster.IsAbilityBlocked || !HasReinforcementEffects()) return false;
         JelluSynthesisRules.FillReinforcementMaterials(caster, boardManager, pieceManager, reinforcementCandidates);
         return reinforcementCandidates.Count > 0;
     }
@@ -24,7 +24,7 @@ public partial class BattleSkillManager
     public bool CanUseReinforcementTarget(Piece caster, Piece target)
     {
         return caster != null && caster.UniqueSkill == UniqueSkillType.JelluReinforce &&
-            !caster.HasStatusEffect(StatusEffectType.ActionDisabled) && HasReinforcementEffects() &&
+            !caster.IsAbilityBlocked && HasReinforcementEffects() &&
             JelluSynthesisRules.IsReinforcementMaterial(caster, target, pieceManager);
     }
 

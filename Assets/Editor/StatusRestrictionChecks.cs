@@ -65,6 +65,15 @@ public static class StatusRestrictionChecks
                 }
                 var normal = validator.GetSelectablePositions(actor);
                 var emptyOnly = normal.FindAll(p => grid[p.x, p.y] == null);
+                Effects(actor).Add(new OwnedStatusEffectData(StatusEffectType.MoveDisabled, 1, 1));
+                var capturesOnly = normal.FindAll(p => grid[p.x, p.y] != null);
+                Check(Equal(validator.GetSelectablePositions(actor), capturesOnly), "Move lock preserves all captures including distant targets");
+                Check(validator.GetMovePositions(actor).Count == 0, "Move lock blocks empty moves");
+                generator.GenerateActions(team, actions);
+                Check(!actions.Exists(a => a.ActingPiece == actor && a.ActionType == BattleAIActionType.Move), "AI move lock");
+                Effects(actor).Add(new OwnedStatusEffectData(StatusEffectType.AttackDisabled, 1, 1));
+                Check(validator.GetSelectablePositions(actor).Count == 0, "Combined attack and move locks");
+                Effects(actor).Clear();
                 Effects(actor).Add(new OwnedStatusEffectData(StatusEffectType.AttackDisabled, 1, 1));
                 Check(Equal(validator.GetSelectablePositions(actor), emptyOnly), "Attack lock preserves every empty move in order");
                 Check(validator.GetAttackPositions(actor).Count == 0, "No captures");
@@ -119,12 +128,25 @@ public static class StatusRestrictionChecks
             Set(skills, "battleMoveValidator", validator);
             Check(!skills.CanUseUniqueSkillEffect(actor), "Skill preview blocks action lock");
             Check(!skills.TryUseUniqueSkill(actor), "Direct skill execution blocks action lock");
+            Effects(actor).Clear();
+            actor.AddStatusEffect(db.GetData(StatusEffectType.AbilitySealed));
+            Check(actor.CanMoveThisTurn && actor.CanAttackThisTurn, "Ability seal preserves movement and capture");
+            foreach (UniqueSkillType ability in Enum.GetValues(typeof(UniqueSkillType)))
+            {
+                Property(actor, "UniqueSkill", ability);
+                Check(!actor.CanUseUniqueSkill(), "Seal blocks ability permissions: " + ability);
+                Check(!skills.CanUseUniqueSkillEffect(actor), "Seal blocks ability preview: " + ability);
+                Check(!skills.TryUseUniqueSkill(actor), "Seal blocks direct ability execution: " + ability);
+            }
+            Property(actor, "UniqueSkill", UniqueSkillType.JelluClone);
+            actor.ReduceStatusEffectTurnAndRemoveExpired();
+            Check(actor.CanUseUniqueSkill(), "Ability restored after seal expiry");
             Property(actor, "CanMove", false);
             actor.ReduceStatusEffectTurnAndRemoveExpired();
             Check(!actor.CanMoveThisTurn, "Expiry preserves inherent immobility");
             // Duration two expires at the second affected-team turn start.
             foreach (PieceTeam affectedTeam in new[] { PieceTeam.Player, PieceTeam.Enemy })
-            foreach (StatusEffectType effect in new[] { StatusEffectType.Defence, StatusEffectType.Degeneration, StatusEffectType.AttackDisabled, StatusEffectType.ActionDisabled })
+            foreach (StatusEffectType effect in new[] { StatusEffectType.Defence, StatusEffectType.Degeneration, StatusEffectType.AttackDisabled, StatusEffectType.ActionDisabled, StatusEffectType.MoveDisabled, StatusEffectType.AbilitySealed })
             {
                 Effects(actor).Clear(); Effects(target).Clear();
                 Property(actor, "Team", affectedTeam);

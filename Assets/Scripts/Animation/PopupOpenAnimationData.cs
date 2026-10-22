@@ -7,6 +7,11 @@ using UnityEngine;
 )]
 public class PopupOpenAnimationData : ScriptableObject
 {
+    [Header("개체 글리치")]
+    [InspectorName("개체 글리치 함께 재생")] public bool useScreenGlitch;
+    [InspectorName("개체 글리치 강도"), Range(0f, 1f)] public float screenGlitchStrength = 0.18f;
+    [InspectorName("개체 글리치 머티리얼")] public Material screenGlitchMaterial;
+
     [Header("Time")]
     // <변경부분> 팝업 오픈 애니메이션 전체 시간
     public float duration = 0.16f;

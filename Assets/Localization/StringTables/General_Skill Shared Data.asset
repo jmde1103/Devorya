@@ -63,6 +63,150 @@ MonoBehaviour:
     m_Key: general_skill.quick_step.tooltip_format
     m_Metadata:
       m_Items: []
+  - m_Id: 17473334455963648
+    m_Key: general_skill_resistance_AttackDisabledResistanceBasic_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473334531461120
+    m_Key: general_skill_resistance_AttackDisabledResistanceBasic_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473334531461121
+    m_Key: general_skill_resistance_AttackDisabledResistanceBasic_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473334984445952
+    m_Key: general_skill_resistance_AttackDisabledResistanceIntermediate_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473334984445953
+    m_Key: general_skill_resistance_AttackDisabledResistanceIntermediate_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473334984445954
+    m_Key: general_skill_resistance_AttackDisabledResistanceIntermediate_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335185772544
+    m_Key: general_skill_resistance_AttackDisabledResistanceAdvanced_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335185772545
+    m_Key: general_skill_resistance_AttackDisabledResistanceAdvanced_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335185772546
+    m_Key: general_skill_resistance_AttackDisabledResistanceAdvanced_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335370321920
+    m_Key: general_skill_resistance_ActionDisabledResistanceBasic_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335370321921
+    m_Key: general_skill_resistance_ActionDisabledResistanceBasic_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335370321922
+    m_Key: general_skill_resistance_ActionDisabledResistanceBasic_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335559065600
+    m_Key: general_skill_resistance_ActionDisabledResistanceIntermediate_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335559065601
+    m_Key: general_skill_resistance_ActionDisabledResistanceIntermediate_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335559065602
+    m_Key: general_skill_resistance_ActionDisabledResistanceIntermediate_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335743614976
+    m_Key: general_skill_resistance_ActionDisabledResistanceAdvanced_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335743614977
+    m_Key: general_skill_resistance_ActionDisabledResistanceAdvanced_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17473335743614978
+    m_Key: general_skill_resistance_ActionDisabledResistanceAdvanced_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477364905283584
+    m_Key: general_skill_resistance_MoveDisabledResistanceBasic_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477364976586752
+    m_Key: general_skill_resistance_MoveDisabledResistanceBasic_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477364976586753
+    m_Key: general_skill_resistance_MoveDisabledResistanceBasic_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477365416988672
+    m_Key: general_skill_resistance_MoveDisabledResistanceIntermediate_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477365416988673
+    m_Key: general_skill_resistance_MoveDisabledResistanceIntermediate_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477365416988674
+    m_Key: general_skill_resistance_MoveDisabledResistanceIntermediate_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477365609926656
+    m_Key: general_skill_resistance_MoveDisabledResistanceAdvanced_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477365609926657
+    m_Key: general_skill_resistance_MoveDisabledResistanceAdvanced_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17477365614120960
+    m_Key: general_skill_resistance_MoveDisabledResistanceAdvanced_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529668530475008
+    m_Key: general_skill_resistance_AbilitySealedResistanceBasic_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529668614361088
+    m_Key: general_skill_resistance_AbilitySealedResistanceBasic_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529668614361089
+    m_Key: general_skill_resistance_AbilitySealedResistanceBasic_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529669063151616
+    m_Key: general_skill_resistance_AbilitySealedResistanceIntermediate_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529669063151617
+    m_Key: general_skill_resistance_AbilitySealedResistanceIntermediate_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529669063151618
+    m_Key: general_skill_resistance_AbilitySealedResistanceIntermediate_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529669268672512
+    m_Key: general_skill_resistance_AbilitySealedResistanceAdvanced_name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529669268672513
+    m_Key: general_skill_resistance_AbilitySealedResistanceAdvanced_description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17529669268672514
+    m_Key: general_skill_resistance_AbilitySealedResistanceAdvanced_format
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

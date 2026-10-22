@@ -796,6 +796,7 @@ public class RunStateManager : MonoBehaviour
     // <변경부분> 새 런 시작 또는 디버그 초기화용
     public void ClearRunState()
     {
+        WorldMapEventRuntimeState.Clear();
         // <변경부분>
         // 초기화 전의 낮·밤 상태를 기억해 밤→낮 전환을 알린다.
         RunDayNightState previousDayNightState =

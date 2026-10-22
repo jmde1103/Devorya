@@ -863,10 +863,14 @@ MonoBehaviour:
   - target: {fileID: 1011993803}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: 0, y: 0}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.50000006, y: 0.5}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 869.9717, y: 381.56476, z: 0}
     originalScale: {x: 1, y: 1, z: 1}
+  followScenePlacement: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

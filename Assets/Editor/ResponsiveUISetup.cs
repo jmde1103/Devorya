@@ -39,6 +39,7 @@ public static class ResponsiveUISetup
                     var scaler=canvas.GetComponent<CanvasScaler>();if(scaler==null)scaler=canvas.gameObject.AddComponent<CanvasScaler>();
                     scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1920,1080);scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;
                     var layout=canvas.GetComponent<ResponsiveScreenLayout>();if(layout==null)layout=canvas.gameObject.AddComponent<ResponsiveScreenLayout>();
+                    if(layout.followScenePlacement)continue; // Preserve manually authored layouts.
                     var targets=new List<RectTransform>();Collect((RectTransform)canvas.transform,targets);
                     var rect=(RectTransform)canvas.transform;var mode=canvas.renderMode;var size=rect.sizeDelta;
                     canvas.renderMode=RenderMode.WorldSpace;rect.sizeDelta=new Vector2(1920,1080);Canvas.ForceUpdateCanvases();

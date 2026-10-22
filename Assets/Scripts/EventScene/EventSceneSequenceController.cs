@@ -3371,6 +3371,7 @@ attacker.PlayAttackRoutine(
         // <변경부분>
         // BattleScene에 별도 초기화 인자를 직접 전달하지 않는다.
         // 기존 BattleSetupManager가 PendingStageBattleData를 읽는다.
+        WorldMapEventRuntimeState.Queue(step.worldMapEventData);
         SceneManager.LoadScene(
             battleSceneName
         );
@@ -3431,6 +3432,7 @@ attacker.PlayAttackRoutine(
                 // 월드맵 노드 완료를 예약한다.
                 RegisterCurrentEventNodeCompletionIfRequested();
 
+                WorldMapEventRuntimeState.Queue(currentEventSceneData.completionWorldMapEventData);
                 SceneManager.LoadScene(
                     "WorldMapScene"
                 );
@@ -3486,6 +3488,7 @@ attacker.PlayAttackRoutine(
                         );
                 }
 
+                WorldMapEventRuntimeState.Queue(currentEventSceneData.completionWorldMapEventData);
                 SceneManager.LoadScene(
                     currentEventSceneData
                         .completionSceneName

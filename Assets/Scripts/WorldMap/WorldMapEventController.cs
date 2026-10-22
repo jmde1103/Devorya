@@ -9,8 +9,8 @@ public sealed class WorldMapEventController : MonoBehaviour
     public static WorldMapEventController Instance { get; private set; }
     public static bool InputLocked => Instance != null && (Instance.inputLocked || Instance.dialogueActive);
     public bool IsPlaying { get; private set; }
-    [SerializeField, InspectorName("이벤트 데이터")] WorldMapEventData eventData;
-    [SerializeField, InspectorName("씬 진입 시 자동 실행")] bool playOnStart = true;
+    [SerializeField, InspectorName("수동 실행용 이벤트 데이터")] WorldMapEventData eventData;
+
     [SerializeField, InspectorName("대화 UI")] EventGuideUI dialogueUI;
     [SerializeField, InspectorName("숨김·잠금 대상 UI")] CanvasGroup[] controlledUI;
     [SerializeField, InspectorName("글리치 효과")] EventScreenGlitchController glitch;
@@ -28,7 +28,8 @@ public sealed class WorldMapEventController : MonoBehaviour
     {
         yield return null;
         while(WorldMapProgressController.Instance != null && !WorldMapProgressController.Instance.IsReadyForEvents) yield return null;
-        if(playOnStart) PlayEvent();
+        var received = WorldMapEventRuntimeState.Consume();
+        if(received != null) Play(received);
     }
     [ContextMenu("이벤트 실행")]
     public void PlayEvent() { Play(eventData); }

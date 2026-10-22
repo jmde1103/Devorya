@@ -50,6 +50,12 @@ public class UniqueSkillData : ScriptableObject
         new LocalizedString();
 
     [Header("Balance")]
+    // <변경부분> 능력의 기본 에너지 코스트.
+    // 현재는 플레이어가 능력을 사용할 때만 에너지를 소비한다.
+    // 아이템/유물/이벤트에 의한 변경은 BattleManager가 별도로 계산한다.
+    [Min(0)]
+    public int energyCost = 1;
+
     // <변경부분> 고유스킬 사용 후 적용할 쿨타임 턴 수
     public int cooldownTurn = 1;
 

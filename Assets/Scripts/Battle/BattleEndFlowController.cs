@@ -44,6 +44,8 @@ public class BattleEndFlowController : MonoBehaviour
     //
     // null이면 일반 Scene 이동으로 처리한다.
     private TextCutsceneData victoryCutsceneData;
+    private WorldMapEventData victoryWorldMapEventData;
+    public void SetVictoryWorldMapEventData(WorldMapEventData data) { victoryWorldMapEventData = data; }
 
 
 
@@ -915,6 +917,7 @@ public class BattleEndFlowController : MonoBehaviour
         );
 
 
+        WorldMapEventRuntimeState.Queue(victoryWorldMapEventData);
         SceneManager.LoadScene(
             targetEndStageSceneName
         );
@@ -1014,6 +1017,7 @@ public class BattleEndFlowController : MonoBehaviour
             $"{targetSceneName}"
         );
 
+        WorldMapEventRuntimeState.Queue(victoryWorldMapEventData);
         SceneManager.LoadScene(
             targetSceneName
         );

@@ -52,6 +52,39 @@ MonoBehaviour:
       applies [Attack Disabled] for 1 turn.
     m_Metadata:
       m_Items: []
+  - m_Id: 17784038891327488
+    m_Localized: Fighting Fruit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784038962630656
+    m_Localized: Immediately removes [Attack Disabled] from the selected allied piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039444975616
+    m_Localized: Awakening Fruit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039444975617
+    m_Localized: Immediately removes [Ability Sealed] from the selected allied piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039646302208
+    m_Localized: Vitality Fruit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17784039646302209
+    m_Localized: Immediately removes [Move Disabled] from the selected allied piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17792243658788864
+    m_Localized: Worn Boots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17792243738480640
+    m_Localized: Applies [Attack Disabled] for 1 turn to the selected allied piece
+      and immediately grants one extra move.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

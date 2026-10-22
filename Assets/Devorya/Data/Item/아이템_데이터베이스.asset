@@ -10,9 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e80be6f7669cd1846bd4721e0d17554e, type: 3}
-  m_Name: 아이템_데이터베이스
+  m_Name: "\uC544\uC774\uD15C_\uB370\uC774\uD130\uBCA0\uC774\uC2A4"
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemDatabase
   itemDatas:
   - {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}
   - {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
   - {fileID: 11400000, guid: 97d7d945a1cfee64290ec7033ee49074, type: 2}
+  - {fileID: 11400000, guid: 5852d17af1ee777458f1e94953606f2f, type: 2}
+  - {fileID: 11400000, guid: cfb12a986c5111a45ad2b6d28983e816, type: 2}
+  - {fileID: 11400000, guid: cb7875061de200e4c9133b5ea5ee8bba, type: 2}
+  - {fileID: 11400000, guid: 5fa30249bda623b44b80a8e14939b473, type: 2}

@@ -228,6 +228,7 @@ public class TextCutsceneData : ScriptableObject
     // 일반 Scene 이동이나 BattleScene 이동에서는 비워 둔다.
     [Header("Event Scene Transition")]
     public EventSceneData nextEventSceneData;
+    [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData nextWorldMapEventData;
 
     [Header("Battle Transition")]
     // <변경부분> 다음 Scene이 BattleScene인 경우

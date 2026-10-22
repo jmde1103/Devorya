@@ -165,6 +165,8 @@ public class BattleItemDataEditor : Editor
                 () => AddEffect(BattleItemEffectType.ApplyStatusEffect)
             );
 
+            menu.AddItem(new GUIContent("상태효과 해제"), false, () => AddEffect(BattleItemEffectType.RemoveStatusEffect));
+            menu.AddItem(new GUIContent("추가 이동 1회"), false, () => AddEffect(BattleItemEffectType.ExtraMove));
             menu.ShowAsContext();
         }
 
@@ -310,7 +312,7 @@ public class BattleItemDataEditor : Editor
                 );
             }
             else if (type ==
-                     BattleItemEffectType.ApplyStatusEffect)
+                     BattleItemEffectType.ApplyStatusEffect || type == BattleItemEffectType.RemoveStatusEffect)
             {
                 EditorGUILayout.PropertyField(
                     entry.FindPropertyRelative(

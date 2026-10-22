@@ -5034,6 +5034,7 @@ MonoBehaviour:
   currentTurn: 0
   turnCount: 0
   currentStageName: 
+  baseMaxPlayerAbilityEnergy: 5
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -5082,6 +5083,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49c4023b04273c849a9bfe10dad39007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneChanger
+  worldMapEventData: {fileID: 0}
 --- !u!1 &53638998
 GameObject:
   m_ObjectHideFlags: 0
@@ -61491,6 +61493,7 @@ MonoBehaviour:
   backgroundManager: {fileID: 1113883777}
   eventSequenceController: {fileID: 2133944367}
   battleEndFlowController: {fileID: 1123980041}
+  battleUICanvasGroup: {fileID: 0}
 --- !u!4 &579071687
 Transform:
   m_ObjectHideFlags: 0
@@ -85797,6 +85800,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67e4aca9dd59aa74995e21fddc592617, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopController
+  returnWorldMapEventData: {fileID: 0}
   shopItemDisplays: []
   useShopInventoryTest: 0
   testShopInventoryData: {fileID: 11400000, guid: aebdebfb35b026043b4721458d358f3f, type: 2}
@@ -164036,6 +164040,9 @@ MonoBehaviour:
   - target: {fileID: 670389589}
     anchor: {x: 1, y: 0}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.8683811, y: 0.23307294}
     contentBounds:
       m_Center: {x: 0.000015258789, y: -0.000015258789, z: 0}
       m_Extent: {x: 100.00003, y: 100, z: 0}
@@ -164043,6 +164050,9 @@ MonoBehaviour:
   - target: {fileID: 646759644}
     anchor: {x: 0, y: 1}
     inset: {x: 41.250122, y: 203.12494}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.06488717, y: 0.7158565}
     contentBounds:
       m_Center: {x: 0, y: -0.000009536743, z: 0}
       m_Extent: {x: 79.999954, y: 25.000023, z: 0}
@@ -164050,6 +164060,9 @@ MonoBehaviour:
   - target: {fileID: 1169879148}
     anchor: {x: 0, y: 1}
     inset: {x: 230.83344, y: 203.12494}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.16362852, y: 0.7158565}
     contentBounds:
       m_Center: {x: 0.000015258789, y: -0.000009536743, z: 0}
       m_Extent: {x: 79.99997, y: 25.000023, z: 0}
@@ -164057,6 +164070,9 @@ MonoBehaviour:
   - target: {fileID: 287602614}
     anchor: {x: 0.5, y: 1}
     inset: {x: -456.24997, y: 203.12494}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.2623698, y: 0.7158565}
     contentBounds:
       m_Center: {x: -0.000015258789, y: -0.000009536743, z: 0}
       m_Extent: {x: 80.000015, y: 25.000023, z: 0}
@@ -164064,6 +164080,9 @@ MonoBehaviour:
   - target: {fileID: 993747599}
     anchor: {x: 0, y: 0.5}
     inset: {x: 41.250122, y: 240}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.06488717, y: 0.6666667}
     contentBounds:
       m_Center: {x: 0, y: 0.000009536743, z: 0}
       m_Extent: {x: 79.999954, y: 25.000023, z: 0}
@@ -164071,6 +164090,9 @@ MonoBehaviour:
   - target: {fileID: 1897976745}
     anchor: {x: 1, y: 0.5}
     inset: {x: 24, y: 0}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.051868472, y: 0.6507552}
     contentBounds:
       m_Center: {x: -0.000038146973, y: 0.000030517578, z: 0}
       m_Extent: {x: 100.000015, y: 100.00003, z: 0}
@@ -164078,6 +164100,9 @@ MonoBehaviour:
   - target: {fileID: 1275822945}
     anchor: {x: 1, y: 0}
     inset: {x: 24, y: 260}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.9275499, y: 0.32602718}
     contentBounds:
       m_Center: {x: 1.0599976, y: 0.49999237, z: 0}
       m_Extent: {x: 101.06005, y: 100.50001, z: 0}
@@ -164085,6 +164110,9 @@ MonoBehaviour:
   - target: {fileID: 1454506791}
     anchor: {x: 0, y: 0}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.16631511, y: 0.28689235}
     contentBounds:
       m_Center: {x: 32.860016, y: 27.5, z: 0}
       m_Extent: {x: 232.86002, y: 127.5, z: 0}
@@ -164092,6 +164120,9 @@ MonoBehaviour:
   - target: {fileID: 1136322010}
     anchor: {x: 1, y: 1}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.800673, y: 0.74011505}
     contentBounds:
       m_Center: {x: 81.266235, y: -20.08751, z: 4.5}
       m_Extent: {x: 281.7038, y: 136.3125, z: 4.5}
@@ -164099,6 +164130,9 @@ MonoBehaviour:
   - target: {fileID: 927991179}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: 0, y: 160}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.12836374, y: 0.7881944}
     contentBounds:
       m_Center: {x: 0.000030517578, y: 0, z: 0}
       m_Extent: {x: 275, y: 75, z: 0}
@@ -164106,6 +164140,9 @@ MonoBehaviour:
   - target: {fileID: 395887467}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.5, y: 0.23806423}
     contentBounds:
       m_Center: {x: 0, y: 25.500004, z: 0}
       m_Extent: {x: 281.25, y: 75.00001, z: 0}
@@ -164113,6 +164150,9 @@ MonoBehaviour:
   - target: {fileID: 1727565522}
     anchor: {x: 0.5, y: 1}
     inset: {x: 0, y: 120}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.43991432, y: 0.806279}
     contentBounds:
       m_Center: {x: 286.25003, y: 0.000036239624, z: 0}
       m_Extent: {x: 311.25, y: 25.000013, z: 0}
@@ -164120,6 +164160,9 @@ MonoBehaviour:
   - target: {fileID: 1814115442}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 180}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.50000006, y: 0.3220486}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 300, y: 75, z: 0}
@@ -164127,6 +164170,9 @@ MonoBehaviour:
   - target: {fileID: 873098532}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 180}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.5, y: 0.33934197}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 553.125, y: 95.3125, z: 0}
@@ -164134,6 +164180,9 @@ MonoBehaviour:
   - target: {fileID: 1784992063}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: 0, y: 80}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.4921875, y: 0.56319445}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 310.8, y: 218.43, z: 0}
@@ -164141,6 +164190,9 @@ MonoBehaviour:
   - target: {fileID: 72671837}
     anchor: {x: 1, y: 1}
     inset: {x: 204, y: 73.69995}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.8520833, y: 0.81069446}
     contentBounds:
       m_Center: {x: 0, y: 0.000030517578, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -164148,6 +164200,9 @@ MonoBehaviour:
   - target: {fileID: 1101380429}
     anchor: {x: 1, y: 1}
     inset: {x: 30.800049, y: 73.69995}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.9422916, y: 0.81069446}
     contentBounds:
       m_Center: {x: 0, y: 0.000030517578, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -164155,6 +164210,9 @@ MonoBehaviour:
   - target: {fileID: 865496099}
     anchor: {x: 1, y: 1}
     inset: {x: 381, y: 130.09998}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.75989586, y: 0.77152777}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -164162,6 +164220,9 @@ MonoBehaviour:
   - target: {fileID: 271587863}
     anchor: {x: 1, y: 1}
     inset: {x: 30.5, y: 129.59998}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.9424479, y: 0.771875}
     contentBounds:
       m_Center: {x: 0, y: 0.000030517578, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -164169,6 +164230,9 @@ MonoBehaviour:
   - target: {fileID: 626203127}
     anchor: {x: 1, y: 1}
     inset: {x: 206.59998, y: 129.59998}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.85072917, y: 0.771875}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 80, y: 18.900024, z: 0}
@@ -164176,6 +164240,9 @@ MonoBehaviour:
   - target: {fileID: 1280854509}
     anchor: {x: 0.5, y: 0.5}
     inset: {x: 0, y: 0}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.83156246, y: 0.5575694}
     contentBounds:
       m_Center: {x: 982, y: 783, z: 0}
       m_Extent: {x: 250, y: 250, z: 0}
@@ -164183,6 +164250,9 @@ MonoBehaviour:
   - target: {fileID: 1247030603}
     anchor: {x: 0.5, y: 0}
     inset: {x: 0, y: 160}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.50000006, y: 0.3220486}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 300.00003, y: 75, z: 0}
@@ -164190,6 +164260,9 @@ MonoBehaviour:
   - target: {fileID: 607249811}
     anchor: {x: 1, y: 0}
     inset: {x: 244, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.8208333, y: 0.21180555}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 100, y: 40, z: 0}
@@ -164197,6 +164270,9 @@ MonoBehaviour:
   - target: {fileID: 1559834695}
     anchor: {x: 1, y: 0}
     inset: {x: 24, y: 24}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.925, y: 0.21180555}
     contentBounds:
       m_Center: {x: 0, y: 0, z: 0}
       m_Extent: {x: 100, y: 40, z: 0}
@@ -164204,10 +164280,14 @@ MonoBehaviour:
   - target: {fileID: 1209219830}
     anchor: {x: 0, y: 1}
     inset: {x: 34.46875, y: 45.46875}
+    relativeTo: {fileID: 0}
+    relativeOffset: {x: 0, y: 0}
+    authoredCenter: {x: 0.30986652, y: 0.7291667}
     contentBounds:
       m_Center: {x: -365.05627, y: 330, z: 1728}
       m_Extent: {x: 560.475, y: 164.53125, z: 0}
     originalScale: {x: 1, y: 1, z: 1}
+  followScenePlacement: 1
 --- !u!1 &1560989424
 GameObject:
   m_ObjectHideFlags: 0

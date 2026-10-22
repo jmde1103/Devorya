@@ -225,6 +225,22 @@ public partial class BattleManager : MonoBehaviour
     // <변경부분> 적 진영 기물이 잡힌 누적 수
     private int enemyDeathStackForUniqueSkill = 0;
 
+    [Header("Player Ability Energy (Temporary)")]
+    // <변경부분> 테스트용 플레이어 기본 최대 에너지.
+    [SerializeField, Min(0)]
+    private int baseMaxPlayerAbilityEnergy = 5;
+
+    // <변경부분> 현재 에너지와 전투 중 최대치 보정.
+    private int currentPlayerAbilityEnergy = 5;
+    private int bonusMaxPlayerAbilityEnergy = 0;
+
+    // <변경부분> 공용/능력별 코스트 보정.
+    // UniqueSkillData의 원본 값을 직접 수정하지 않는다.
+    private int allPlayerAbilityCostModifier = 0;
+
+    private readonly Dictionary<UniqueSkillType, int> playerAbilityCostModifiers =
+        new Dictionary<UniqueSkillType, int>();
+
     // <변경부분> 찬스어택 발동으로 추가 행동 중인 기물
     // <변경부분> 찬스어택 발동으로 추가 행동 중인 기물
     private Piece chanceAttackBonusPiece = null;
@@ -512,7 +528,7 @@ public partial class BattleManager : MonoBehaviour
         // <변경부분> 게임 시작 시 아이템 효과 핸들러 초기화
         if (battleItemEffectHandler != null)
         {
-            battleItemEffectHandler.Initialize(pieceManager);
+            battleItemEffectHandler.Initialize(pieceManager, this);
         }
 
         // <변경부분> BattleSetupManager의 기물 생성이 끝난 다음 프레임에
@@ -1856,8 +1872,176 @@ public partial class BattleManager : MonoBehaviour
         // 기존 정상 전투 진입점은 그대로 보존한다.
         StartNormalBattleTurn();
     }
+
+    // <변경부분> Player Ability Energy의 현재/최대 값을 외부 효과에서 읽는다.
+    public int CurrentPlayerAbilityEnergy => currentPlayerAbilityEnergy;
+
+    public int MaxPlayerAbilityEnergy =>
+        Mathf.Max(0, baseMaxPlayerAbilityEnergy + bonusMaxPlayerAbilityEnergy);
+
+    // <변경부분> 능력별 기본 비용과 전투 중 적용된 보정값을 합산한다.
+    // UniqueSkillData 에셋의 energyCost는 변경하지 않는다.
+    public int GetPlayerAbilityEnergyCost(UniqueSkillData data)
+    {
+        if (data == null)
+        {
+            return 0;
+        }
+
+        int abilityModifier = 0;
+
+        playerAbilityCostModifiers.TryGetValue(
+            data.skillType,
+            out abilityModifier
+        );
+
+        return Mathf.Max(
+            0,
+            data.energyCost +
+            allPlayerAbilityCostModifier +
+            abilityModifier
+        );
+    }
+
+    // <변경부분> 외부에서 능력 타입만으로 최종 코스트를 조회할 수 있다.
+    public int GetPlayerAbilityEnergyCost(UniqueSkillType abilityType)
+    {
+        return GetPlayerAbilityEnergyCost(
+            GetUniqueSkillData(abilityType)
+        );
+    }
+
+    // <변경부분> 아이템/유물/이벤트에서 현재 에너지를 충전할 때 사용한다.
+    public void RestorePlayerAbilityEnergy(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentPlayerAbilityEnergy = Mathf.Min(
+            MaxPlayerAbilityEnergy,
+            currentPlayerAbilityEnergy + amount
+        );
+
+        Debug.Log(
+            $"[Player Energy] 충전 +{amount}: " +
+            $"{currentPlayerAbilityEnergy}/{MaxPlayerAbilityEnergy}"
+        );
+    }
+
+    // <변경부분> 전투 중 최대 에너지 증감.
+    // 최대치 감소 시 현재 에너지도 변경된 최대치를 초과하지 않도록 한다.
+    // increaseCurrentEnergy가 true라면 최대치 상승분만큼 즉시 충전한다.
+    public void ModifyPlayerMaxAbilityEnergy(
+        int amount,
+        bool increaseCurrentEnergy = false)
+    {
+        int previousMax = MaxPlayerAbilityEnergy;
+
+        bonusMaxPlayerAbilityEnergy += amount;
+
+        int newMax = MaxPlayerAbilityEnergy;
+
+        if (increaseCurrentEnergy && newMax > previousMax)
+        {
+            currentPlayerAbilityEnergy +=
+                newMax - previousMax;
+        }
+
+        currentPlayerAbilityEnergy = Mathf.Clamp(
+            currentPlayerAbilityEnergy,
+            0,
+            newMax
+        );
+
+        Debug.Log(
+            $"[Player Energy] 최대치 변경: " +
+            $"{previousMax} → {newMax}, " +
+            $"현재 {currentPlayerAbilityEnergy}"
+        );
+    }
+
+    // <변경부분> 전체 플레이어 능력에 적용할 코스트 보정.
+    // 양수는 비용 증가, 음수는 감소를 의미한다.
+    // 효과 종료 시 반대값을 적용하여 원상 복구할 수 있다.
+    public void ModifyAllPlayerAbilityCosts(int amount)
+    {
+        allPlayerAbilityCostModifier += amount;
+    }
+
+    // <변경부분> 특정 능력에만 적용할 코스트 보정.
+    // 보정값은 UniqueSkillData 에셋과 분리해서 관리한다.
+    public void ModifyPlayerAbilityCost(
+        UniqueSkillType abilityType,
+        int amount)
+    {
+        if (abilityType == UniqueSkillType.None ||
+            amount == 0)
+        {
+            return;
+        }
+
+        int previous = 0;
+
+        playerAbilityCostModifiers.TryGetValue(
+            abilityType,
+            out previous
+        );
+
+        int result = previous + amount;
+
+        if (result == 0)
+        {
+            playerAbilityCostModifiers.Remove(abilityType);
+        }
+        else
+        {
+            playerAbilityCostModifiers[abilityType] = result;
+        }
+    }
+
+    // <변경부분> 새로운 Player 턴 시작 시 최대치까지 에너지를 충전한다.
+    private void RefreshPlayerAbilityEnergyForTurn()
+    {
+        currentPlayerAbilityEnergy =
+            MaxPlayerAbilityEnergy;
+
+        Debug.Log(
+            $"[Player Energy] 턴 시작 충전: " +
+            $"{currentPlayerAbilityEnergy}/{MaxPlayerAbilityEnergy}"
+        );
+    }
+
+    // <변경부분> 능력 효과가 실제 성공했을 때만 에너지를 소비한다.
+    private void SpendPlayerAbilityEnergyOnSuccess(
+        UniqueSkillData data,
+        int cost)
+    {
+        int safeCost = Mathf.Max(0, cost);
+
+        int previousEnergy = currentPlayerAbilityEnergy;
+
+        currentPlayerAbilityEnergy = Mathf.Max(
+            0,
+            currentPlayerAbilityEnergy - safeCost
+        );
+
+        Debug.Log(
+            $"[Player Energy] {data.skillType} 사용: " +
+            $"-{safeCost} / {previousEnergy} → " +
+            $"{currentPlayerAbilityEnergy}/{MaxPlayerAbilityEnergy}"
+        );
+    }
+
     private void StartNormalBattleTurn()
     {
+        // <변경부분> 첫 Player 턴도 에너지를 최대치까지 채우고 시작한다.
+        if (currentTurn == BattleTurn.Player)
+        {
+            RefreshPlayerAbilityEnergyForTurn();
+        }
+
         // <변경부분> 정상 전투가 시작되는 순간
         // 현재 타입 아이콘 표시 모드를 보드 전체에 확실하게 적용한다.
         //
@@ -2807,6 +2991,8 @@ public partial class BattleManager : MonoBehaviour
             null;
 
         // 이동/공격 후 승패 조건 확인
+        bool completedItemMove = itemMovePiece == actingPiece && didCompleteMove;
+        itemMovePiece = null;
         ClearQuickStepBonus();
         CheckBattleEnd();
 
@@ -2819,6 +3005,13 @@ public partial class BattleManager : MonoBehaviour
 
         // <변경부분> 흡수 성공 유물 효과는
         // 실제 흡수가 성공했을 때만 발동한다.
+        if (completedItemMove)
+        {
+            ActivateChanceAttackBonus(actingPiece);
+            chanceAttackBonusPiece = null;
+            isActionAnimating = false;
+            yield break;
+        }
         if (absorbedEnemyPiece &&
             TryActivateAbsorbChanceAttackRelic(
                 actingPiece
@@ -3718,6 +3911,25 @@ public partial class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분> AI에는 적용하지 않는 플레이어 전용 에너지 검사.
+        // 실제 능력이 실패할 경우에는 아래 코루틴에서 차감하지 않는다.
+        if (selectedPiece.Team == PieceTeam.Player)
+        {
+            int requiredEnergy =
+                GetPlayerAbilityEnergyCost(skillData);
+
+            if (currentPlayerAbilityEnergy < requiredEnergy)
+            {
+                Debug.LogWarning(
+                    $"[Player Energy] 부족: {skillData.skillType} / " +
+                    $"필요 {requiredEnergy}, " +
+                    $"현재 {currentPlayerAbilityEnergy}/{MaxPlayerAbilityEnergy}"
+                );
+
+                return;
+            }
+        }
+
         // <변경부분> 합성처럼 애니메이션을 기다려야 하는 스킬을 위해 코루틴으로 실행
         StartCoroutine(
             UseSelectedPieceSkillRoutine(
@@ -3746,6 +3958,14 @@ public partial class BattleManager : MonoBehaviour
         isActionAnimating = true;
 
         PieceTeam skillTeam = skillPiece.Team;
+
+        // <변경부분> 시전 시작 시의 최종 코스트를 고정한다.
+        // 도중에 코스트 보정이 바뀌더라도 이번 사용 비용은 변하지 않는다.
+        // Enemy 진영은 플레이어 에너지 시스템의 영향을 받지 않는다.
+        int energyCostOnUse = skillTeam == PieceTeam.Player
+            ? GetPlayerAbilityEnergyCost(skillData)
+            : 0;
+
         bool skillUsed = false;
 
         // <변경부분> 고유스킬 데이터 아이콘을 전달하여
@@ -3758,6 +3978,16 @@ public partial class BattleManager : MonoBehaviour
                     skillUsed = result,
                 skillTarget
             );
+
+        // <변경부분> 효과 성공 후에만 플레이어 에너지를 차감한다.
+        // 시전자 제거가 발생하는 JelluSplit 처리보다 반드시 먼저 실행한다.
+        if (skillUsed && skillTeam == PieceTeam.Player)
+        {
+            SpendPlayerAbilityEnergyOnSuccess(
+                skillData,
+                energyCostOnUse
+            );
+        }
 
         // <변경부분> 스킬이 실제로 성공했을 때만 쿨타임과 사망 스택 적용
         if (skillUsed && skillData.skillType == UniqueSkillType.JelluSplit)
@@ -5145,6 +5375,7 @@ public partial class BattleManager : MonoBehaviour
     }
     private void EndTurn()
     {
+        itemMovePiece = null;
         ClearQuickStepBonus();
         // 턴이 전환되는 순간 현재 표시 중인 Tooltip을 즉시 닫는다.
         //
@@ -5235,9 +5466,12 @@ public partial class BattleManager : MonoBehaviour
         }
 
 
-        // <변경부분> 새 플레이어 턴이 시작되면 흡수 유물 찬스어택 발동 여부 초기화
+        // <변경부분> 새 플레이어 턴 시작 시에만 에너지를 최대치로 충전한다.
+        // Enemy 턴에는 플레이어 에너지를 회복하지 않는다.
         if (currentTurn == BattleTurn.Player)
         {
+            RefreshPlayerAbilityEnergyForTurn();
+
             hasUsedAbsorbChanceAttackRelicThisTurn =
                 false;
         }

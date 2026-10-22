@@ -4,13 +4,14 @@ using UnityEngine;
 public class BattleItemEffectHandler : MonoBehaviour
 {
     // 아이템 효과로 기물 정보를 변경할 때 사용하는 기물 매니저
-    private PieceManager pieceManager;
+    private PieceManager pieceManager; private BattleManager battleManager;
 
     // BattleManager에서 전투 시작 시
     // 아이템 효과 핸들러를 초기화하는 함수
     public void Initialize(
-        PieceManager pieceManagerRef)
+        PieceManager pieceManagerRef, BattleManager battleManagerRef = null)
     {
+        battleManager = battleManagerRef;
         pieceManager =
             pieceManagerRef;
     }
@@ -123,6 +124,12 @@ public class BattleItemEffectHandler : MonoBehaviour
                     }
                     break;
 
+                case BattleItemEffectType.ExtraMove:
+                    if (battleManager == null || !battleManager.CanGrantItemMove(targetPiece)) return false;
+                    break;
+                case BattleItemEffectType.RemoveStatusEffect:
+                    if (effect.statusEffectData == null || !targetPiece.HasStatusEffect(effect.statusEffectData.effectType)) return false;
+                    break;
                 case BattleItemEffectType.ApplyStatusEffect:
                     if (effect.statusEffectData == null)
                     {
@@ -159,6 +166,12 @@ public class BattleItemEffectHandler : MonoBehaviour
                     );
                     break;
 
+                case BattleItemEffectType.ExtraMove:
+                    applied = battleManager.TryGrantItemMove(targetPiece);
+                    break;
+                case BattleItemEffectType.RemoveStatusEffect:
+                    applied = targetPiece.RemoveStatusEffect(effect.statusEffectData.effectType);
+                    break;
                 case BattleItemEffectType.ApplyStatusEffect:
                     applied = UseStatusEffectItem(
                         itemData,
