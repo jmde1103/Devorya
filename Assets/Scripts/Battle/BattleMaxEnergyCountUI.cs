@@ -32,7 +32,30 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
     [SerializeField, Range(0f, 1f)]
     private float ghostStartAlpha = 0.3f;
 
+    // <변경부분>
+    // 숫자가 1씩 증가하거나 감소하는 간격(초).
+    // 값이 작을수록 숫자가 빠르게 변경된다.
+    [Header("Number Step Animation")]
+    [SerializeField, Min(0.01f)]
+    private float countUpStepInterval = 0.06f;
+
+    [SerializeField, Min(0.01f)]
+    private float countDownStepInterval = 0.06f;
+
+    // <변경부분>
+    // 마지막으로 확인한 실제 에너지 목표값.
     private int lastMaxEnergy = int.MinValue;
+
+    // <변경부분>
+    // 화면에 현재 표시 중인 숫자.
+    // 실제 에너지 데이터와 분리하여 애니메이션한다.
+    private int displayedEnergy = 0;
+
+    // <변경부분>
+    // 전투 시작 시 최초 카운트업은 한 번만 실행한다.
+    private bool hasInitializedEnergyDisplay = false;
+
+    private Coroutine countCoroutine;
 
     private Vector3 defaultIconScale = Vector3.one;
     private Image ghostImage;
@@ -51,22 +74,56 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
 
     private void OnEnable()
     {
-        lastMaxEnergy = int.MinValue;
-        RefreshMaxEnergy();
+        // <변경부분>
+        // 최초 활성화에서는 반드시 0부터 표시한다.
+        // 이미 초기화된 UI를 다시 활성화할 때는
+        // 처음부터 카운트업하지 않고 실제 잔량으로 동기화한다.
+        if (hasInitializedEnergyDisplay &&
+            battleManager != null)
+        {
+            displayedEnergy =
+                Mathf.Max(
+                    0,
+                    battleManager.CurrentPlayerAbilityEnergy
+                );
+
+            lastMaxEnergy = displayedEnergy;
+        }
+        else
+        {
+            displayedEnergy = 0;
+            lastMaxEnergy = int.MinValue;
+        }
+
+        if (countNumText != null)
+        {
+            countNumText.text =
+                displayedEnergy.ToString();
+        }
     }
 
 
     private void Update()
     {
         // <변경부분>
-        // 실제 최대 에너지 값이 변경되었을 때만 UI 갱신.
+        // 실제 에너지 목표값이 달라졌을 때만
+        // 숫자 증가/감소 애니메이션을 갱신한다.
         RefreshMaxEnergy();
     }
 
 
     private void OnDisable()
     {
+        // <변경부분>
+        // 비활성화 시 진행 중인 숫자 애니메이션을 정리한다.
+        if (countCoroutine != null)
+        {
+            StopCoroutine(countCoroutine);
+            countCoroutine = null;
+        }
+
         StopPulse();
+
         lastMaxEnergy = int.MinValue;
     }
 
@@ -78,28 +135,62 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
             return;
         }
 
-        int maxEnergy =
-            battleManager.CurrentPlayerAbilityEnergy;
+        int currentEnergy =
+            Mathf.Max(
+                0,
+                battleManager.CurrentPlayerAbilityEnergy
+            );
 
-        if (lastMaxEnergy == maxEnergy)
+        // <변경부분>
+        // BattleManager의 현재 에너지는 코드상 초기값 5를 가진다.
+        // Inspector 최대치가 5가 아니라면 최초 턴 충전 전에
+        // 임시로 5가 읽힐 수 있다.
+        //
+        // 따라서 최초에는 현재 에너지가 최대치까지
+        // 초기화된 상태를 확인한 후 카운트업을 시작한다.
+        if (!hasInitializedEnergyDisplay)
+        {
+            if (currentEnergy !=
+                battleManager.MaxPlayerAbilityEnergy)
+            {
+                return;
+            }
+
+            hasInitializedEnergyDisplay = true;
+        }
+
+        if (lastMaxEnergy == currentEnergy)
         {
             return;
         }
 
-        bool playAnimation =
-            lastMaxEnergy != int.MinValue;
+        lastMaxEnergy = currentEnergy;
 
-        lastMaxEnergy = maxEnergy;
-
-        if (countNumText != null)
+        // <변경부분>
+        // 숫자 애니메이션 도중 에너지가 다시 변경되면
+        // 현재 표시 숫자에서 새로운 목표값으로 진행한다.
+        if (countCoroutine != null)
         {
-            countNumText.text =
-                maxEnergy.ToString();
+            StopCoroutine(countCoroutine);
+            countCoroutine = null;
         }
 
-        // 최초 표시에서는 애니메이션을 재생하지 않는다.
-        if (!playAnimation ||
-            iconImage == null ||
+        if (displayedEnergy == currentEnergy)
+        {
+            StopPulse();
+            return;
+        }
+
+        // <변경부분>
+        // 실제 에너지 값은 변경하지 않고
+        // TMP 숫자만 순차적으로 변경한다.
+        countCoroutine =
+            StartCoroutine(
+                AnimateEnergyCountRoutine(currentEnergy)
+            );
+
+        // 기존 아이콘 확대/축소 및 잔상 연출은 유지한다.
+        if (iconImage == null ||
             !iconImage.gameObject.activeInHierarchy)
         {
             StopPulse();
@@ -110,6 +201,50 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
 
         pulseCoroutine =
             StartCoroutine(PlayPulseRoutine());
+    }
+
+
+    // <변경부분>
+    // 표시 숫자를 목표 에너지까지 1씩 증가하거나 감소시킨다.
+    // TimeScale이 0이어도 재생되도록 실시간 대기를 사용한다.
+    private IEnumerator AnimateEnergyCountRoutine(
+        int targetEnergy)
+    {
+        // 최초 0 또는 변경 직전 숫자가
+        // 최소 한 프레임 표시되도록 한다.
+        yield return null;
+
+        while (displayedEnergy != targetEnergy)
+        {
+            int stepDirection =
+                targetEnergy > displayedEnergy
+                    ? 1
+                    : -1;
+
+            displayedEnergy += stepDirection;
+
+            if (countNumText != null)
+            {
+                countNumText.text =
+                    displayedEnergy.ToString();
+            }
+
+            if (displayedEnergy == targetEnergy)
+            {
+                break;
+            }
+
+            float stepInterval =
+                stepDirection > 0
+                    ? countUpStepInterval
+                    : countDownStepInterval;
+
+            yield return new WaitForSecondsRealtime(
+                Mathf.Max(0.01f, stepInterval)
+            );
+        }
+
+        countCoroutine = null;
     }
 
 

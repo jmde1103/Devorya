@@ -207,6 +207,42 @@ MonoBehaviour:
     m_Key: general_skill_resistance_AbilitySealedResistanceAdvanced_format
     m_Metadata:
       m_Items: []
+  - m_Id: 17798063515635712
+    m_Key: general_skill.attack_disabled_resistance_basic.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798063595327488
+    m_Key: general_skill.attack_disabled_resistance_basic.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798063595327489
+    m_Key: general_skill.attack_disabled_resistance_basic.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798475647946752
+    m_Key: general_skill.attack_disabled_resistance_intermediate.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798475647946753
+    m_Key: general_skill.attack_disabled_resistance_intermediate.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798475647946754
+    m_Key: general_skill.attack_disabled_resistance_intermediate.tooltip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798744809017344
+    m_Key: general_skill.attack_disabled_resistance_advanced.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798744809017345
+    m_Key: general_skill.attack_disabled_resistance_advanced.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17798744809017346
+    m_Key: general_skill.attack_disabled_resistance_advanced.tooltip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

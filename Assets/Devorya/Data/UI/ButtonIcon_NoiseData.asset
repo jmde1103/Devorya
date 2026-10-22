@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ButtonIcon_NoiseData
   m_EditorClassIdentifier: Assembly-CSharp::PopupOpenAnimationData
   useScreenGlitch: 1
-  screenGlitchStrength: 0.18
+  screenGlitchStrength: 0.5
   screenGlitchMaterial: {fileID: 2100000, guid: 8ebcad4d98d54c346a87a53e1c3361db, type: 2}
   duration: 0.16
   useUnscaledTime: 1
