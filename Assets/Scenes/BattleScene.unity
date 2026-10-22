@@ -5920,6 +5920,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameOverCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 1542626362837076347, guid: c103721f1134538479acf182688c37c3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1709829551866089014, guid: c103721f1134538479acf182688c37c3, type: 3}
       propertyPath: m_Camera
       value: 
@@ -6211,7 +6215,7 @@ MonoBehaviour:
   currentTurn: 0
   turnCount: 0
   currentStageName: 
-  baseMaxPlayerAbilityEnergy: 5
+  baseMaxPlayerAbilityEnergy: 3
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -74162,6 +74166,12 @@ MonoBehaviour:
   battleManager: {fileID: 52600099}
   countNumText: {fileID: 214380666}
   iconImage: {fileID: 865690386}
+  energyLevelSprites:
+  - {fileID: 21300000, guid: 36567157b09e7b24e9aa89d7e33aaaf2, type: 3}
+  - {fileID: 21300000, guid: d5ec9bda115870a41916267d14fe61ab, type: 3}
+  - {fileID: 21300000, guid: d50cef49329c3814b9f110ebd70d9af0, type: 3}
+  - {fileID: 21300000, guid: f918fbd08b8109d4aba23531751afed0, type: 3}
+  - {fileID: 21300000, guid: 64eed85b73b51b549ada6db5b4370792, type: 3}
   pulsePeakScale: 1.23
   pulseDipScale: 0.94
   pulseDuration: 0.32
@@ -96462,7 +96472,7 @@ RectTransform:
   m_GameObject: {fileID: 865690384}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 677187152}
@@ -96470,7 +96480,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -52, y: 0}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 93.75, y: 62.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &865690386
 MonoBehaviour:
@@ -96492,7 +96502,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5054e23ed930b584fa126e15c8d64488, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 64eed85b73b51b549ada6db5b4370792, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

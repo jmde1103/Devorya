@@ -16,6 +16,13 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
     [SerializeField] private TMP_Text countNumText;
     [SerializeField] private Image iconImage;
 
+    // <변경부분>
+    // 현재 표시 에너지의 비율에 따라 사용하는
+    // 0~4단계 아이콘 스프라이트.
+    [Header("Energy Level Sprites")]
+    [SerializeField]
+    private Sprite[] energyLevelSprites = new Sprite[5];
+
     [Header("Count Animation")]
     [SerializeField, Min(1f)]
     private float pulsePeakScale = 1.23f;
@@ -45,6 +52,11 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
     // <변경부분>
     // 마지막으로 확인한 실제 에너지 목표값.
     private int lastMaxEnergy = int.MinValue;
+
+    // <변경부분>
+    // 아이콘 비율 계산에 사용하는 실제 최대 에너지.
+    // 최대 에너지 버프/디버프가 적용되면 갱신한다.
+    private int lastKnownMaxEnergy = int.MinValue;
 
     // <변경부분>
     // 화면에 현재 표시 중인 숫자.
@@ -100,6 +112,22 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
             countNumText.text =
                 displayedEnergy.ToString();
         }
+
+        // <변경부분>
+        // 현재 화면에 표시된 숫자에 맞는
+        // 에너지 아이콘을 초기 설정한다.
+        lastKnownMaxEnergy =
+            battleManager != null
+                ? Mathf.Max(
+                    0,
+                    battleManager.MaxPlayerAbilityEnergy
+                )
+                : 0;
+
+        UpdateEnergyIcon(
+            displayedEnergy,
+            lastKnownMaxEnergy
+        );
     }
 
 
@@ -125,6 +153,10 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
         StopPulse();
 
         lastMaxEnergy = int.MinValue;
+
+        // <변경부분>
+        // 다시 활성화될 때 최신 최대 에너지를 읽도록 초기화.
+        lastKnownMaxEnergy = int.MinValue;
     }
 
 
@@ -140,6 +172,26 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
                 0,
                 battleManager.CurrentPlayerAbilityEnergy
             );
+
+        // <변경부분>
+        // 에너지 최대치도 별도로 확인한다.
+        // 현재 에너지가 같아도 최대치가 변경되었다면
+        // 아이콘의 비율을 다시 계산한다.
+        int maximumEnergy =
+            Mathf.Max(
+                0,
+                battleManager.MaxPlayerAbilityEnergy
+            );
+
+        if (lastKnownMaxEnergy != maximumEnergy)
+        {
+            lastKnownMaxEnergy = maximumEnergy;
+
+            UpdateEnergyIcon(
+                displayedEnergy,
+                lastKnownMaxEnergy
+            );
+        }
 
         // <변경부분>
         // BattleManager의 현재 에너지는 코드상 초기값 5를 가진다.
@@ -182,25 +234,17 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
         }
 
         // <변경부분>
+        // 목표값이 바뀌면 기존 펄스를 정리한다.
+        // 실제 확대/축소는 숫자가 1씩 변경되는 순간마다 시작한다.
+        StopPulse();
+
+        // <변경부분>
         // 실제 에너지 값은 변경하지 않고
-        // TMP 숫자만 순차적으로 변경한다.
+        // TMP 숫자 및 아이콘을 순차적으로 변경한다.
         countCoroutine =
             StartCoroutine(
                 AnimateEnergyCountRoutine(currentEnergy)
             );
-
-        // 기존 아이콘 확대/축소 및 잔상 연출은 유지한다.
-        if (iconImage == null ||
-            !iconImage.gameObject.activeInHierarchy)
-        {
-            StopPulse();
-            return;
-        }
-
-        StopPulse();
-
-        pulseCoroutine =
-            StartCoroutine(PlayPulseRoutine());
     }
 
 
@@ -221,6 +265,14 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
                     ? 1
                     : -1;
 
+            float stepInterval =
+                Mathf.Max(
+                    0.01f,
+                    stepDirection > 0
+                        ? countUpStepInterval
+                        : countDownStepInterval
+                );
+
             displayedEnergy += stepDirection;
 
             if (countNumText != null)
@@ -229,22 +281,86 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
                     displayedEnergy.ToString();
             }
 
+            // <변경부분>
+            // 표시 숫자가 1씩 변할 때마다
+            // 같은 단계의 에너지 아이콘을 표시한다.
+            UpdateEnergyIcon(
+                displayedEnergy,
+                lastKnownMaxEnergy
+            );
+
+            // <변경부분>
+            // 아이콘 확대/축소 및 잔상 애니메이션도
+            // 숫자가 변하는 매 단계마다 실행한다.
+            if (iconImage != null &&
+                iconImage.gameObject.activeInHierarchy)
+            {
+                StopPulse();
+
+                pulseCoroutine =
+                    StartCoroutine(
+                        PlayPulseRoutine(stepInterval)
+                    );
+            }
+
             if (displayedEnergy == targetEnergy)
             {
                 break;
             }
 
-            float stepInterval =
-                stepDirection > 0
-                    ? countUpStepInterval
-                    : countDownStepInterval;
-
             yield return new WaitForSecondsRealtime(
-                Mathf.Max(0.01f, stepInterval)
+                stepInterval
             );
         }
 
         countCoroutine = null;
+    }
+
+
+    // <변경부분>
+    // 실제 에너지 최대치에 대한 표시 숫자의 비율을
+    // 0~4단계 아이콘으로 변환한다.
+    //
+    // 0일 때는 빈 아이콘을 사용하고,
+    // 에너지가 1 이상이면 최소 1단계를 표시한다.
+    private void UpdateEnergyIcon(
+        int energy,
+        int maximumEnergy)
+    {
+        if (iconImage == null ||
+            energyLevelSprites == null ||
+            energyLevelSprites.Length < 5)
+        {
+            return;
+        }
+
+        int iconLevel = 0;
+
+        if (energy > 0 && maximumEnergy > 0)
+        {
+            float energyRatio =
+                Mathf.Clamp01(
+                    (float)energy / maximumEnergy
+                );
+
+            iconLevel =
+                Mathf.Clamp(
+                    Mathf.RoundToInt(
+                        energyRatio * 4f
+                    ),
+                    1,
+                    4
+                );
+        }
+
+        Sprite nextSprite =
+            energyLevelSprites[iconLevel];
+
+        if (nextSprite != null &&
+            iconImage.sprite != nextSprite)
+        {
+            iconImage.sprite = nextSprite;
+        }
     }
 
 
@@ -312,7 +428,11 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
     }
 
 
-    private IEnumerator PlayPulseRoutine()
+    // <변경부분>
+    // 에너지 카운트가 1씩 바뀌는 간격에 맞춰
+    // 기존 확대/축소 및 잔상 애니메이션을 재생한다.
+    private IEnumerator PlayPulseRoutine(
+        float stepInterval)
     {
         EnsureGhost();
 
@@ -332,8 +452,17 @@ public class BattleMaxEnergyCountUI : MonoBehaviour
             ghostImage.gameObject.SetActive(true);
         }
 
+        // <변경부분>
+        // 기존 Pulse Duration보다 카운트 간격이 짧으면
+        // 해당 간격에 맞춰 펄스를 압축한다.
         float duration =
-            Mathf.Max(0.05f, pulseDuration);
+            Mathf.Max(
+                0.01f,
+                Mathf.Min(
+                    pulseDuration,
+                    stepInterval
+                )
+            );
 
         float elapsed = 0f;
 

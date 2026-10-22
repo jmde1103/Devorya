@@ -193,7 +193,18 @@ public class GameOverSignalNoiseUI : MonoBehaviour
             int tearEnd =
                 tearStart + lineLength;
 
-            int tearColor = noiseRandom.Next(0, 3);
+            // <변경부분>
+            // Inspector의 rgbLineRatio 값을 실제 색상 선택에 반영한다.
+            // 0이면 흰색만, 1이면 RGB 색상만 사용한다.
+            // RGB를 선택한 경우 빨강과 청록을 동일한 확률로 사용한다.
+            bool useRgbLine =
+                noiseRandom.NextDouble() <
+                Mathf.Clamp01(rgbLineRatio);
+
+            int tearColor =
+                useRgbLine
+                    ? noiseRandom.Next(1, 3)
+                    : 0;
 
             for (int x = 0; x < TextureWidth; x++)
             {
