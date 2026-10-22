@@ -23,6 +23,30 @@ MonoBehaviour:
     m_Key: relic.absorb_chance_attack_once_per_turn.description
     m_Metadata:
       m_Items: []
+  - m_Id: 17556453552951296
+    m_Key: relic.initial_acceleration.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453620060160
+    m_Key: relic.initial_acceleration.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453812998144
+    m_Key: relic.residual_propulsion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453812998145
+    m_Key: relic.residual_propulsion.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453989158912
+    m_Key: relic.absorb_overcharge.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17556453989158913
+    m_Key: relic.absorb_overcharge.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

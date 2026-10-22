@@ -79,7 +79,7 @@ public class TitleMenuController : MonoBehaviour
 
     [Header("Play Destination")]
 
-    // Play 두 번째 클릭 시 사용할 StageBattleData
+    // Play 클릭 실행 시 사용할 StageBattleData
     [SerializeField]
     private StageBattleData playStageBattleData;
 
@@ -134,6 +134,9 @@ public class TitleMenuController : MonoBehaviour
             playButton.onClick.AddListener(
                 OnClickPlay
             );
+            var hover = playButton.GetComponent<TitlePlayHoverHandler>();
+            if (hover == null) hover = playButton.gameObject.AddComponent<TitlePlayHoverHandler>();
+            hover.Initialize(this);
         }
 
 
@@ -157,27 +160,31 @@ public class TitleMenuController : MonoBehaviour
 
     private void OnClickPlay()
     {
-        if (isLoadingScene || isChoosingTutorial)
+        if (isLoadingScene || isChoosingTutorial) return;
+        // Mobile keeps the original select-then-confirm interaction.
+        if (Application.isMobilePlatform && selectedMenu != TitleMenuType.Play)
         {
+            SelectPlay();
             return;
         }
-
-
-        // 이미 Play가 선택되어 있다면
-        // 두 번째 클릭 = 실행
-        if (selectedMenu ==
-            TitleMenuType.Play)
-        {
-            ConfirmPlay();
-            return;
-        }
-
-
-        SelectPlay();
+        // Desktop can activate directly, including keyboard input without hover.
+        if (selectedMenu != TitleMenuType.Play) SelectPlay();
+        ConfirmPlay();
     }
 
+    public void OnPlayPointerEnter()
+    {
+        if (Application.isMobilePlatform || isLoadingScene || isChoosingTutorial || playButton == null || !playButton.IsInteractable()) return;
+        if (selectedMenu != TitleMenuType.Play) SelectPlay();
+    }
 
-    // Play 첫 클릭
+    public void OnPlayPointerExit()
+    {
+        // Touch-generated pointer exit must not clear the first-tap selection.
+        if (!Application.isMobilePlatform && selectedMenu == TitleMenuType.Play) OnClickBackground();
+    }
+
+    // Reuse the existing particle, color and scale selection animation.
     private void SelectPlay()
     {
         // 다른 메뉴가 선택되어 있었다면
@@ -218,12 +225,12 @@ public class TitleMenuController : MonoBehaviour
 
         Debug.Log(
             "타이틀 PLAY 선택: " +
-            "한 번 더 누르면 실행됩니다."
+            "클릭하면 실행됩니다."
         );
     }
 
 
-    // Play 두 번째 클릭
+    // Play 클릭 실행
     private void ConfirmPlay()
     {
         if (playStageBattleData == null)

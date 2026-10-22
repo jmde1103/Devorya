@@ -373,6 +373,7 @@ public class Piece : MonoBehaviour
 
     public void Initialize(PieceType pieceType, PieceTeam team, int x, int y, Tile currentTile, bool canMove = true, UniqueSkillType uniqueSkill = UniqueSkillType.None, params PieceSpeciesTag[] initialSpeciesTags)
     {
+        HasMovedThisBattle = false;
         PieceType = pieceType;  // 기물 종류 저장
         Team = team; // 진영 저장
         X = x; // 현재 좌표 저장
@@ -414,8 +415,12 @@ public class Piece : MonoBehaviour
         RefreshSpeechBubblePieceDataOffset();
     }
 
+    // 전투 중 실제 좌표가 바뀐 이력. 유물을 뒤늦게 얻어도 첫 이동을 재사용하지 않는다.
+    public bool HasMovedThisBattle { get; private set; }
+
     public void SetPosition(int x, int y, Tile newTile)  // 기물의 보드 좌표와 현재 타일 정보를 갱신하는 함수
     {
+        if (X != x || Y != y) HasMovedThisBattle = true;
         // 새 X 좌표 저장
         X = x;
 

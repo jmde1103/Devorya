@@ -5,5 +5,11 @@ public enum BattleRelicType
     None,
 
     // <변경부분> 플레이어가 흡수에 성공하면 턴당 1번 찬스어택을 확정 발동시키는 유물
-    AbsorbChanceAttackOncePerTurn
+    AbsorbChanceAttackOncePerTurn,
+    [UnityEngine.InspectorName("초기 가속 모듈")]
+    InitialAcceleration = 2,
+    [UnityEngine.InspectorName("잔류 추진 제어기")]
+    ResidualPropulsion = 3,
+    [UnityEngine.InspectorName("흡수 과충전 장치")]
+    AbsorbOvercharge = 4
 }
