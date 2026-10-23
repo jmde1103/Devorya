@@ -18,7 +18,7 @@ MonoBehaviour:
   initialTypeIconDisplayMode: 3
   hideBattleUIOnStart: 1
   startAnnouncementType: 2
-  backgroundMapData: {fileID: 11400000, guid: cfef9f2fa93f4dd4497b2fe408ea2bea, type: 2}
+  backgroundMapData: {fileID: 11400000, guid: ee51007f97bf8784bbbd030a9dfc3990, type: 2}
   checkerTileTypeA: 0
   checkerTileTypeB: 1
   playerDefeatCondition: 0
@@ -30,5 +30,7 @@ MonoBehaviour:
   battleRewardData: {fileID: 0}
   victorySceneName: WorldMapScene
   victoryCutsceneData: {fileID: 0}
-  enemyUniqueSkillUseChance: 0
+  victoryWorldMapEventData: {fileID: 0}
+  enemyUniqueSkillUseChance: 100
+  enemyMaxUniqueSkillUsesPerTurn: 5
   enemyGeneralSkillGrantRules: []

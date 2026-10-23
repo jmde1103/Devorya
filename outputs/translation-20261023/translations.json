@@ -1,0 +1,1930 @@
+[
+  {
+    "sheet": "특성",
+    "table": "General_Skill",
+    "rows": [
+      {
+        "id": "153956693708800",
+        "name": "간파",
+        "type": "이름",
+        "values": [
+          "간파",
+          "Insight",
+          "看破"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.insight.name",
+        "assets": [
+          "특성_간파"
+        ]
+      },
+      {
+        "id": "153956756623360",
+        "name": "간파",
+        "type": "설명",
+        "values": [
+          " {percent}% 확률로 상대 방어, 회피를 무시합니다.",
+          "Has a {percent}% chance to ignore the opponent's Defense and Evasion.",
+          "{percent}%の確率で相手の「防御」と「回避」を無視します。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.insight.description",
+        "assets": [
+          "특성_간파"
+        ]
+      },
+      {
+        "id": "153956756623361",
+        "name": "간파",
+        "type": "툴팁 설명",
+        "values": [
+          " {percent}% 확률로 상대 방어, 회피를 무시합니다.",
+          "Has a {percent}% chance to ignore the opponent's Defense and Evasion.",
+          "{percent}%の確率で相手の「防御」と「回避」を無視します。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.insight.tooltip",
+        "assets": [
+          "특성_간파"
+        ]
+      },
+      {
+        "id": "17798063515635712",
+        "name": "공격불가 저항 I",
+        "type": "이름",
+        "values": [
+          "공격불가 저항 I",
+          "Attack Disabled Resistance I",
+          "攻撃不可耐性 I"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_basic.name",
+        "assets": [
+          "특성_공격불가 저항 I"
+        ]
+      },
+      {
+        "id": "17473334455963648",
+        "name": "공격불가 저항 I",
+        "type": "이름",
+        "values": [
+          "공격불가 저항 I",
+          "Resistance (Basic): Attack Disabled",
+          "耐性（初級）：攻撃不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceBasic_name",
+        "assets": []
+      },
+      {
+        "id": "17798063595327488",
+        "name": "공격불가 저항 I",
+        "type": "설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "When [Attack Disabled] would be applied, has a 15% chance to resist and prevent the effect.",
+          "［攻撃不可］状態が付与される際、15%の確率で抵抗し、その効果を受けません。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_basic.description",
+        "assets": [
+          "특성_공격불가 저항 I"
+        ]
+      },
+      {
+        "id": "17473334531461120",
+        "name": "공격불가 저항 I",
+        "type": "설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 15% chance to resist Attack Disabled when it is applied.",
+          "攻撃不可が付与される際、15%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceBasic_description",
+        "assets": []
+      },
+      {
+        "id": "17798063595327489",
+        "name": "공격불가 저항 I",
+        "type": "툴팁 설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "When [Attack Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.",
+          "［攻撃不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_basic.tooltip",
+        "assets": [
+          "특성_공격불가 저항 I"
+        ]
+      },
+      {
+        "id": "17473334531461121",
+        "name": "공격불가 저항 I",
+        "type": "툴팁 설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Attack Disabled when it is applied.",
+          "攻撃不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceBasic_format",
+        "assets": []
+      },
+      {
+        "id": "17798475647946752",
+        "name": "공격불가 저항 II",
+        "type": "이름",
+        "values": [
+          "공격불가 저항 II",
+          "Attack Disabled Resistance II",
+          "攻撃不可耐性 II"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_intermediate.name",
+        "assets": [
+          "특성_공격불가 저항 II"
+        ]
+      },
+      {
+        "id": "17473334984445952",
+        "name": "공격불가 저항 II",
+        "type": "이름",
+        "values": [
+          "공격불가 저항 II",
+          "Resistance (Intermediate): Attack Disabled",
+          "耐性（中級）：攻撃不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceIntermediate_name",
+        "assets": []
+      },
+      {
+        "id": "17798475647946753",
+        "name": "공격불가 저항 II",
+        "type": "설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "When [Attack Disabled] would be applied, has a 30% chance to resist and prevent the effect.",
+          "［攻撃不可］状態が付与される際、30%の確率で抵抗し、その効果を受けません。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_intermediate.description",
+        "assets": [
+          "특성_공격불가 저항 II"
+        ]
+      },
+      {
+        "id": "17473334984445953",
+        "name": "공격불가 저항 II",
+        "type": "설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 30% chance to resist Attack Disabled when it is applied.",
+          "攻撃不可が付与される際、30%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceIntermediate_description",
+        "assets": []
+      },
+      {
+        "id": "17798475647946754",
+        "name": "공격불가 저항 II",
+        "type": "툴팁 설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "When [Attack Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.",
+          "［攻撃不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_intermediate.tooltip",
+        "assets": [
+          "특성_공격불가 저항 II"
+        ]
+      },
+      {
+        "id": "17473334984445954",
+        "name": "공격불가 저항 II",
+        "type": "툴팁 설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Attack Disabled when it is applied.",
+          "攻撃不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceIntermediate_format",
+        "assets": []
+      },
+      {
+        "id": "17798744809017344",
+        "name": "공격불가 저항 III",
+        "type": "이름",
+        "values": [
+          "공격불가 저항 III",
+          "Attack Disabled Resistance III",
+          "攻撃不可耐性 III"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_advanced.name",
+        "assets": [
+          "특성_공격불가 저항 III"
+        ]
+      },
+      {
+        "id": "17473335185772544",
+        "name": "공격불가 저항 III",
+        "type": "이름",
+        "values": [
+          "공격불가 저항 III",
+          "Resistance (Advanced): Attack Disabled",
+          "耐性（上級）：攻撃不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceAdvanced_name",
+        "assets": []
+      },
+      {
+        "id": "17798744809017345",
+        "name": "공격불가 저항 III",
+        "type": "설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "When [Attack Disabled] would be applied, has a 50% chance to resist and prevent the effect.",
+          "［攻撃不可］状態が付与される際、50%の確率で抵抗し、その効果を受けません。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_advanced.description",
+        "assets": [
+          "특성_공격불가 저항 III"
+        ]
+      },
+      {
+        "id": "17473335185772545",
+        "name": "공격불가 저항 III",
+        "type": "설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 50% chance to resist Attack Disabled when it is applied.",
+          "攻撃不可が付与される際、50%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceAdvanced_description",
+        "assets": []
+      },
+      {
+        "id": "17798744809017346",
+        "name": "공격불가 저항 III",
+        "type": "툴팁 설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "When [Attack Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.",
+          "［攻撃不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.attack_disabled_resistance_advanced.tooltip",
+        "assets": [
+          "특성_공격불가 저항 III"
+        ]
+      },
+      {
+        "id": "17473335185772546",
+        "name": "공격불가 저항 III",
+        "type": "툴팁 설명",
+        "values": [
+          "공격불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Attack Disabled when it is applied.",
+          "攻撃不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AttackDisabledResistanceAdvanced_format",
+        "assets": []
+      },
+      {
+        "id": "17529668530475008",
+        "name": "능력봉인 저항 I",
+        "type": "이름",
+        "values": [
+          "능력봉인 저항 I",
+          "Resistance (Basic): Ability Sealed",
+          "耐性（初級）：能力封印"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceBasic_name",
+        "assets": [
+          "특성_능력봉인 저항 I"
+        ]
+      },
+      {
+        "id": "17529668614361088",
+        "name": "능력봉인 저항 I",
+        "type": "설명",
+        "values": [
+          "능력봉인 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 15% chance to resist Ability Sealed when it is applied.",
+          "能力封印が付与される際、15%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceBasic_description",
+        "assets": [
+          "특성_능력봉인 저항 I"
+        ]
+      },
+      {
+        "id": "17529668614361089",
+        "name": "능력봉인 저항 I",
+        "type": "툴팁 설명",
+        "values": [
+          "능력봉인 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Ability Sealed when it is applied.",
+          "能力封印が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceBasic_format",
+        "assets": [
+          "특성_능력봉인 저항 I"
+        ]
+      },
+      {
+        "id": "17529669063151616",
+        "name": "능력봉인 저항 II",
+        "type": "이름",
+        "values": [
+          "능력봉인 저항 II",
+          "Resistance (Intermediate): Ability Sealed",
+          "耐性（中級）：能力封印"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceIntermediate_name",
+        "assets": [
+          "특성_능력봉인 저항 II"
+        ]
+      },
+      {
+        "id": "17529669063151617",
+        "name": "능력봉인 저항 II",
+        "type": "설명",
+        "values": [
+          "능력봉인 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 30% chance to resist Ability Sealed when it is applied.",
+          "能力封印が付与される際、30%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceIntermediate_description",
+        "assets": [
+          "특성_능력봉인 저항 II"
+        ]
+      },
+      {
+        "id": "17529669063151618",
+        "name": "능력봉인 저항 II",
+        "type": "툴팁 설명",
+        "values": [
+          "능력봉인 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Ability Sealed when it is applied.",
+          "能力封印が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceIntermediate_format",
+        "assets": [
+          "특성_능력봉인 저항 II"
+        ]
+      },
+      {
+        "id": "17529669268672512",
+        "name": "능력봉인 저항 III",
+        "type": "이름",
+        "values": [
+          "능력봉인 저항 III",
+          "Resistance (Advanced): Ability Sealed",
+          "耐性（上級）：能力封印"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceAdvanced_name",
+        "assets": [
+          "특성_능력봉인 저항 III"
+        ]
+      },
+      {
+        "id": "17529669268672513",
+        "name": "능력봉인 저항 III",
+        "type": "설명",
+        "values": [
+          "능력봉인 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 50% chance to resist Ability Sealed when it is applied.",
+          "能力封印が付与される際、50%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceAdvanced_description",
+        "assets": [
+          "특성_능력봉인 저항 III"
+        ]
+      },
+      {
+        "id": "17529669268672514",
+        "name": "능력봉인 저항 III",
+        "type": "툴팁 설명",
+        "values": [
+          "능력봉인 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Ability Sealed when it is applied.",
+          "能力封印が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_AbilitySealedResistanceAdvanced_format",
+        "assets": [
+          "특성_능력봉인 저항 III"
+        ]
+      },
+      {
+        "id": "102131248533504",
+        "name": "방어 자세",
+        "type": "이름",
+        "values": [
+          "방어 자세",
+          "Defensive Stance",
+          "防御態勢"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.defense.name",
+        "assets": [
+          "특성_방어 자세"
+        ]
+      },
+      {
+        "id": "102131315642368",
+        "name": "방어 자세",
+        "type": "설명",
+        "values": [
+          "이동시 {percent}% 확률로 방어 상태효과를 부여합니다.",
+          "When moving, has a {percent}% chance to gain the Defense status effect.",
+          "移動時、{percent}%の確率で「防御」の状態効果を付与します。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.defense.description",
+        "assets": [
+          "특성_방어 자세"
+        ]
+      },
+      {
+        "id": "102131315642369",
+        "name": "방어 자세",
+        "type": "툴팁 설명",
+        "values": [
+          "이동시 {percent}% 확률로 방어 상태효과를 부여합니다.",
+          "When moving, has a {percent}% chance to gain the Defense status effect.",
+          "移動時、{percent}%の確率で「防御」の状態効果を付与します。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.defense.tooltip",
+        "assets": [
+          "특성_방어 자세"
+        ]
+      },
+      {
+        "id": "16710000000000001",
+        "name": "빠른 발걸음",
+        "type": "이름",
+        "values": [
+          "빠른 발걸음",
+          "Quick Step",
+          "素早い足取り"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.quick_step.name",
+        "assets": [
+          "특성_빠른 발걸음"
+        ]
+      },
+      {
+        "id": "16710000000000002",
+        "name": "빠른 발걸음",
+        "type": "설명",
+        "values": [
+          "공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻는다. 추가 이동으로는 상대 기물을 잡을 수 없다.",
+          "After a successful attack, gain one extra move with a {percent}% chance. This move cannot capture a piece.",
+          "攻撃に成功すると、{percent}%の確率で追加の移動機会を1回得る。この移動では相手の駒を取れない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.quick_step.description",
+        "assets": [
+          "특성_빠른 발걸음"
+        ]
+      },
+      {
+        "id": "16710000000000003",
+        "name": "빠른 발걸음",
+        "type": "툴팁 설명",
+        "values": [
+          "공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻는다. 추가 이동으로는 상대 기물을 잡을 수 없다.",
+          "After a successful attack, gain one extra move with a {percent}% chance. This move cannot capture a piece.",
+          "攻撃に成功すると、{percent}%の確率で追加の移動機会を1回得る。この移動では相手の駒を取れない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.quick_step.tooltip_format",
+        "assets": [
+          "특성_빠른 발걸음"
+        ]
+      },
+      {
+        "id": "17477364905283584",
+        "name": "이동불가 저항 I",
+        "type": "이름",
+        "values": [
+          "이동불가 저항 I",
+          "Resistance (Basic): Move Disabled",
+          "耐性（初級）：移動不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceBasic_name",
+        "assets": [
+          "특성_이동불가 저항 I"
+        ]
+      },
+      {
+        "id": "17477364976586752",
+        "name": "이동불가 저항 I",
+        "type": "설명",
+        "values": [
+          "이동불가 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 15% chance to resist Move Disabled when it is applied.",
+          "移動不可が付与される際、15%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceBasic_description",
+        "assets": [
+          "특성_이동불가 저항 I"
+        ]
+      },
+      {
+        "id": "17477364976586753",
+        "name": "이동불가 저항 I",
+        "type": "툴팁 설명",
+        "values": [
+          "이동불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Move Disabled when it is applied.",
+          "移動不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceBasic_format",
+        "assets": [
+          "특성_이동불가 저항 I"
+        ]
+      },
+      {
+        "id": "17477365416988672",
+        "name": "이동불가 저항 II",
+        "type": "이름",
+        "values": [
+          "이동불가 저항 II",
+          "Resistance (Intermediate): Move Disabled",
+          "耐性（中級）：移動不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceIntermediate_name",
+        "assets": [
+          "특성_이동불가 저항 II"
+        ]
+      },
+      {
+        "id": "17477365416988673",
+        "name": "이동불가 저항 II",
+        "type": "설명",
+        "values": [
+          "이동불가 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 30% chance to resist Move Disabled when it is applied.",
+          "移動不可が付与される際、30%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceIntermediate_description",
+        "assets": [
+          "특성_이동불가 저항 II"
+        ]
+      },
+      {
+        "id": "17477365416988674",
+        "name": "이동불가 저항 II",
+        "type": "툴팁 설명",
+        "values": [
+          "이동불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Move Disabled when it is applied.",
+          "移動不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceIntermediate_format",
+        "assets": [
+          "특성_이동불가 저항 II"
+        ]
+      },
+      {
+        "id": "17477365609926656",
+        "name": "이동불가 저항 III",
+        "type": "이름",
+        "values": [
+          "이동불가 저항 III",
+          "Resistance (Advanced): Move Disabled",
+          "耐性（上級）：移動不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceAdvanced_name",
+        "assets": [
+          "특성_이동불가 저항 III"
+        ]
+      },
+      {
+        "id": "17477365609926657",
+        "name": "이동불가 저항 III",
+        "type": "설명",
+        "values": [
+          "이동불가 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 50% chance to resist Move Disabled when it is applied.",
+          "移動不可が付与される際、50%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceAdvanced_description",
+        "assets": [
+          "특성_이동불가 저항 III"
+        ]
+      },
+      {
+        "id": "17477365614120960",
+        "name": "이동불가 저항 III",
+        "type": "툴팁 설명",
+        "values": [
+          "이동불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Move Disabled when it is applied.",
+          "移動不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_MoveDisabledResistanceAdvanced_format",
+        "assets": [
+          "특성_이동불가 저항 III"
+        ]
+      },
+      {
+        "id": "717885440",
+        "name": "찬스어택",
+        "type": "이름",
+        "values": [
+          "찬스어택",
+          "Chance Attack",
+          "チャンスアタック"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.chance_attack.name",
+        "assets": [
+          "특성_찬스어택"
+        ]
+      },
+      {
+        "id": "793382912",
+        "name": "찬스어택",
+        "type": "설명",
+        "values": [
+          "적 기물을 처치했을 때 \n{percent}% 확률로 추가 행동을 얻습니다.",
+          "When you defeat an enemy piece, you have a {percent}% chance to gain an extra action.",
+          "敵の駒を倒したとき、{percent}%の確率で追加行動を1回獲得します。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.chance_attack.description",
+        "assets": [
+          "특성_찬스어택"
+        ]
+      },
+      {
+        "id": "793382913",
+        "name": "찬스어택",
+        "type": "툴팁 설명",
+        "values": [
+          "적 기물을 처치했을 때 \n{percent}% 확률로 추가 행동을 얻습니다.",
+          "When you defeat an enemy piece, you have a {percent}% chance to gain an extra action.",
+          "敵の駒を倒したとき、{percent}%の確率で追加行動を1回獲得します。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill.chance_attack.tooltip",
+        "assets": [
+          "특성_찬스어택"
+        ]
+      },
+      {
+        "id": "17473335370321920",
+        "name": "행동불가 저항 I",
+        "type": "이름",
+        "values": [
+          "행동불가 저항 I",
+          "Resistance (Basic): Action Disabled",
+          "耐性（初級）：行動不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceBasic_name",
+        "assets": [
+          "특성_행동불가 저항 I"
+        ]
+      },
+      {
+        "id": "17473335370321921",
+        "name": "행동불가 저항 I",
+        "type": "설명",
+        "values": [
+          "행동불가 상태효과를 받을 때 10% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 10% chance to resist Action Disabled when it is applied.",
+          "行動不可が付与される際、10%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceBasic_description",
+        "assets": [
+          "특성_행동불가 저항 I"
+        ]
+      },
+      {
+        "id": "17473335370321922",
+        "name": "행동불가 저항 I",
+        "type": "툴팁 설명",
+        "values": [
+          "행동불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Action Disabled when it is applied.",
+          "行動不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceBasic_format",
+        "assets": [
+          "특성_행동불가 저항 I"
+        ]
+      },
+      {
+        "id": "17473335559065600",
+        "name": "행동불가 저항 II",
+        "type": "이름",
+        "values": [
+          "행동불가 저항 II",
+          "Resistance (Intermediate): Action Disabled",
+          "耐性（中級）：行動不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceIntermediate_name",
+        "assets": [
+          "특성_행동불가 저항 II"
+        ]
+      },
+      {
+        "id": "17473335559065601",
+        "name": "행동불가 저항 II",
+        "type": "설명",
+        "values": [
+          "행동불가 상태효과를 받을 때 20% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 20% chance to resist Action Disabled when it is applied.",
+          "行動不可が付与される際、20%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceIntermediate_description",
+        "assets": [
+          "특성_행동불가 저항 II"
+        ]
+      },
+      {
+        "id": "17473335559065602",
+        "name": "행동불가 저항 II",
+        "type": "툴팁 설명",
+        "values": [
+          "행동불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Action Disabled when it is applied.",
+          "行動不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceIntermediate_format",
+        "assets": [
+          "특성_행동불가 저항 II"
+        ]
+      },
+      {
+        "id": "17473335743614976",
+        "name": "행동불가 저항 III",
+        "type": "이름",
+        "values": [
+          "행동불가 저항 III",
+          "Resistance (Advanced): Action Disabled",
+          "耐性（上級）：行動不可"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceAdvanced_name",
+        "assets": [
+          "특성_행동불가 저항 III"
+        ]
+      },
+      {
+        "id": "17473335743614977",
+        "name": "행동불가 저항 III",
+        "type": "설명",
+        "values": [
+          "행동불가 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a 30% chance to resist Action Disabled when it is applied.",
+          "行動不可が付与される際、30%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceAdvanced_description",
+        "assets": [
+          "특성_행동불가 저항 III"
+        ]
+      },
+      {
+        "id": "17473335743614978",
+        "name": "행동불가 저항 III",
+        "type": "툴팁 설명",
+        "values": [
+          "행동불가 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않는다.",
+          "Has a {percent}% chance to resist Action Disabled when it is applied.",
+          "行動不可が付与される際、{percent}%の確率で抵抗し、その効果を受けない。"
+        ],
+        "status": "입력됨",
+        "key": "general_skill_resistance_ActionDisabledResistanceAdvanced_format",
+        "assets": [
+          "특성_행동불가 저항 III"
+        ]
+      }
+    ]
+  },
+  {
+    "sheet": "능력·스킬",
+    "table": "Unique_Skill",
+    "rows": [
+      {
+        "id": "84051071995904",
+        "name": "복제",
+        "type": "이름",
+        "values": [
+          "복제",
+          "Clone",
+          "複製"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_clone.name",
+        "assets": [
+          "능력_복제"
+        ]
+      },
+      {
+        "id": "84051134910464",
+        "name": "복제",
+        "type": "설명",
+        "values": [
+          "인접한 빈칸 중 무작위 1칸에 자신과 같은 정보를 가진 기물을 복제합니다.",
+          "Creates a duplicate piece with the same data as itself on 1 random adjacent empty tile.",
+          "隣接する空きマスのうちランダムな1マスに、自身と同じデータを持つ駒を複製します。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_clone.description",
+        "assets": [
+          "능력_복제"
+        ]
+      },
+      {
+        "id": "84051134910465",
+        "name": "복제",
+        "type": "사용 실패 안내",
+        "values": [
+          "조건이 맞지 않아 사용할 수 없습니다.",
+          "The conditions are not met, so this skill cannot be used.",
+          "使用条件を満たしていないため、使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_clone.condition_fail",
+        "assets": [
+          "능력_복제"
+        ]
+      },
+      {
+        "id": "16691838908502016",
+        "name": "분열",
+        "type": "이름",
+        "values": [
+          "분열",
+          "Split",
+          "分裂"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_split.name",
+        "assets": [
+          "능력_분열"
+        ]
+      },
+      {
+        "id": "16691838979805184",
+        "name": "분열",
+        "type": "설명",
+        "values": [
+          "자신을 제거하고, 원래 위치와 인접한 빈칸에 젤루 [폰]을 각각 1개씩 생성한다. 생성된 기물은 자신의 특성을 이어받으며, [공격불가]를 1턴 부여받는다.",
+          "Remove this piece and create one Jellu [Pawn] on its original square and one on an adjacent empty square. Both inherit its traits and receive [Attack Disabled] for 1 turn.",
+          "自身を取り除き、元のマスと隣接する空きマスにジェル [ポーン]を1体ずつ生成する。生成した駒は自身の特性を引き継ぎ、[攻撃不可]を1ターン付与される。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_split.description",
+        "assets": [
+          "능력_분열"
+        ]
+      },
+      {
+        "id": "16691838979805185",
+        "name": "분열",
+        "type": "사용 실패 안내",
+        "values": [
+          "최대 기물 수를 초과하게 되어 분열을 사용할 수 없습니다.",
+          "Split cannot be used because it would exceed the maximum piece capacity.",
+          "最大保有駒数を超えるため、分裂を使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_split.condition_fail",
+        "assets": [
+          "능력_분열"
+        ]
+      },
+      {
+        "id": "722079744",
+        "name": "뿔 박치기",
+        "type": "이름",
+        "values": [
+          "뿔 박치기",
+          "Horn Charge",
+          "ホーンチャージ"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.horn_headbutt.name",
+        "assets": [
+          "능력_뿔 박치기"
+        ]
+      },
+      {
+        "id": "793382912",
+        "name": "뿔 박치기",
+        "type": "설명",
+        "values": [
+          "'물' 또는 '늪' 타일 위에서 사용 시 '돌파' 상태효과를 자신에게 1턴 부여한다.",
+          "When used on a 'Water' or 'Swamp' tile, gain 'Breakthrough' for 1 turn.",
+          "「水」または「沼」タイル上で使用すると、自身に「突破」を1ターン付与します。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.horn_headbutt.description",
+        "assets": [
+          "능력_뿔 박치기"
+        ]
+      },
+      {
+        "id": "793382913",
+        "name": "뿔 박치기",
+        "type": "사용 실패 안내",
+        "values": [
+          "조건이 맞지 않아 사용할 수 없습니다.",
+          "The conditions are not met, so this skill cannot be used.",
+          "使用条件を満たしていないため、使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.horn_headbutt.condition_fail",
+        "assets": [
+          "능력_뿔 박치기"
+        ]
+      },
+      {
+        "id": "88777704476672",
+        "name": "왕의 각성",
+        "type": "이름",
+        "values": [
+          "왕의 각성",
+          "King's Awakening",
+          "王の覚醒"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.king_queen_move.name",
+        "assets": [
+          "능력_왕의 각성"
+        ]
+      },
+      {
+        "id": "88777704476673",
+        "name": "왕의 각성",
+        "type": "설명",
+        "values": [
+          "자기 진영 기물이 3개 잡힐 때마다, 이번 턴 동안 Queen처럼 이동/공격 합니다.",
+          "Every time 3 allied pieces are captured, moves and attacks like a Queen for the rest of this turn.",
+          "味方の駒が3体倒されるたびに、このターン中、クイーンと同じように移動・攻撃できます。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.king_queen_move.description",
+        "assets": [
+          "능력_왕의 각성"
+        ]
+      },
+      {
+        "id": "88777704476674",
+        "name": "왕의 각성",
+        "type": "사용 실패 안내",
+        "values": [
+          "조건이 맞지 않아 사용할 수 없습니다.",
+          "The conditions are not met, so this skill cannot be used.",
+          "使用条件を満たしていないため、使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.king_queen_move.condition_fail",
+        "assets": [
+          "능력_왕의 각성"
+        ]
+      },
+      {
+        "id": "88327840206848",
+        "name": "젤루 벽",
+        "type": "이름",
+        "values": [
+          "젤루 벽",
+          "Jellu Wall",
+          "ゼルの壁"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_wall.name",
+        "assets": [
+          "능력_젤루 벽"
+        ]
+      },
+      {
+        "id": "88327840206849",
+        "name": "젤루 벽",
+        "type": "설명",
+        "values": [
+          "기물 앞에 중립기물인  '젤루 벽' 1개를 생성한다.",
+          "Creates 1 neutral 'Jellu Wall' piece in front of itself.",
+          "自身の前方に、中立の駒「ゼルの壁」を1体生成します。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_wall.description",
+        "assets": [
+          "능력_젤루 벽"
+        ]
+      },
+      {
+        "id": "88327840206850",
+        "name": "젤루 벽",
+        "type": "사용 실패 안내",
+        "values": [
+          "조건이 맞지 않아 사용할 수 없습니다.",
+          "The conditions are not met, so this skill cannot be used.",
+          "使用条件を満たしていないため、使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_wall.condition_fail",
+        "assets": [
+          "능력_젤루 벽"
+        ]
+      },
+      {
+        "id": "85520307326976",
+        "name": "증식",
+        "type": "이름",
+        "values": [
+          "증식",
+          "Multiply",
+          "増殖"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_multiply.name",
+        "assets": [
+          "능력_증식"
+        ]
+      },
+      {
+        "id": "85520307326977",
+        "name": "증식",
+        "type": "설명",
+        "values": [
+          "인접한 랜덤한 1칸에 같은 종족 폰을 생성합니다.",
+          "Creates a Pawn of the same race on 1 random adjacent tile.",
+          "隣接するランダムな1マスに、同じ種族のポーンを生成します。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_multiply.description",
+        "assets": [
+          "능력_증식"
+        ]
+      },
+      {
+        "id": "85520307326978",
+        "name": "증식",
+        "type": "사용 실패 안내",
+        "values": [
+          "조건이 맞지 않아 사용할 수 없습니다.",
+          "The conditions are not met, so this skill cannot be used.",
+          "使用条件を満たしていないため、使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_multiply.condition_fail",
+        "assets": [
+          "능력_증식"
+        ]
+      },
+      {
+        "id": "85345065111552",
+        "name": "퇴화",
+        "type": "이름",
+        "values": [
+          "퇴화",
+          "Degeneration",
+          "退化"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_degeneration.name",
+        "assets": [
+          "능력_퇴화"
+        ]
+      },
+      {
+        "id": "85345065111553",
+        "name": "퇴화",
+        "type": "설명",
+        "values": [
+          "자신에게 '퇴화' 상태효과를 1턴 부여한다.",
+          "Grants itself the 'Degeneration' status effect for 1 turn.",
+          "自身に「退化」の状態効果を1ターン付与します。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_degeneration.description",
+        "assets": [
+          "능력_퇴화"
+        ]
+      },
+      {
+        "id": "85345065111554",
+        "name": "퇴화",
+        "type": "사용 실패 안내",
+        "values": [
+          "조건이 맞지 않아 사용할 수 없습니다.",
+          "The conditions are not met, so this skill cannot be used.",
+          "使用条件を満たしていないため、使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_degeneration.condition_fail",
+        "assets": [
+          "능력_퇴화"
+        ]
+      },
+      {
+        "id": "86056217743360",
+        "name": "합성",
+        "type": "이름",
+        "values": [
+          "합성",
+          "Synthesis",
+          "合成"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_synthesis.name",
+        "assets": [
+          "능력_합성"
+        ]
+      },
+      {
+        "id": "86056217743361",
+        "name": "합성",
+        "type": "설명",
+        "values": [
+          "인접한 아군 중 자신과 같은 종류의 기물 2개와 합성하여 자신의 종족을 유지한 채 나이트, 비숍, 룩 중 하나로 무작위 승급한다. 자신에게 [공격불가]를 1턴 부여한다.",
+          "Fuse with two adjacent allies of the same piece type as yourself to promote randomly into a Knight, Bishop, or Rook of your species. Gain [Attack Disabled] for 1 turn.",
+          "隣接する味方のうち、自分と同じ種類の駒2体と合成し、自分の種族を維持したままナイト、ビショップ、ルークのいずれかにランダムで昇格する。自分に[攻撃不可]を1ターン付与する。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_synthesis.description",
+        "assets": [
+          "능력_합성"
+        ]
+      },
+      {
+        "id": "86056217743362",
+        "name": "합성",
+        "type": "사용 실패 안내",
+        "values": [
+          "인접한 아군 중 자신과 같은 종류의 기물이 2개 필요합니다.",
+          "Requires two adjacent allies of the same piece type as yourself.",
+          "隣接する味方のうち、自分と同じ種類の駒が2体必要です。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_synthesis.condition_fail",
+        "assets": [
+          "능력_합성"
+        ]
+      },
+      {
+        "id": "16691840000000001",
+        "name": "합성 : 강화",
+        "type": "이름",
+        "values": [
+          "합성 : 강화",
+          "Synthesis: Reinforce",
+          "合成：強化"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_reinforce.name",
+        "assets": [
+          "능력_합성_강화"
+        ]
+      },
+      {
+        "id": "16691840000000002",
+        "name": "합성 : 강화",
+        "type": "설명",
+        "values": [
+          "인접한 아군 [폰] 1개를 무작위로 흡수하고 제거한다. 자신에게 [돌파]와 [방어]를 각각 1턴 부여한다.",
+          "Absorb and remove one random adjacent allied [Pawn]. Gain [Breakthrough] and [Defence] for 1 turn each.",
+          "隣接する味方の[ポーン]1体をランダムに吸収し、除去する。自分に[突破]と[防御]をそれぞれ1ターン付与する。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_reinforce.description",
+        "assets": [
+          "능력_합성_강화"
+        ]
+      },
+      {
+        "id": "16691840000000003",
+        "name": "합성 : 강화",
+        "type": "사용 실패 안내",
+        "values": [
+          "흡수할 수 있는 인접한 아군 [폰]이 없습니다.",
+          "There is no adjacent allied [Pawn] to absorb.",
+          "吸収できる隣接した味方の[ポーン]がいません。"
+        ],
+        "status": "입력됨",
+        "key": "unique_skill.jellu_reinforce.condition_fail",
+        "assets": [
+          "능력_합성_강화"
+        ]
+      }
+    ]
+  },
+  {
+    "sheet": "아이템",
+    "table": "Battle_Item",
+    "rows": [
+      {
+        "id": "17784039444975616",
+        "name": "각성열매",
+        "type": "이름",
+        "values": [
+          "각성열매",
+          "Awakening Fruit",
+          "覚醒の実"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_AwakeningFruit_name",
+        "assets": [
+          "아이템_각성열매"
+        ]
+      },
+      {
+        "id": "17784039444975617",
+        "name": "각성열매",
+        "type": "설명",
+        "values": [
+          "선택한 아군 기물의 [능력봉인] 상태효과를 즉시 해제합니다.",
+          "Immediately removes [Ability Sealed] from the selected allied piece.",
+          "選択した味方の駒の[能力封印]を即座に解除します。"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_AwakeningFruit_description",
+        "assets": [
+          "아이템_각성열매"
+        ]
+      },
+      {
+        "id": "17792243658788864",
+        "name": "낡은 장화",
+        "type": "이름",
+        "values": [
+          "낡은 장화",
+          "Worn Boots",
+          "古びた長靴"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_WornBoots_name",
+        "assets": [
+          "아이템_낡은 장화"
+        ]
+      },
+      {
+        "id": "17792243738480640",
+        "name": "낡은 장화",
+        "type": "설명",
+        "values": [
+          "선택한 아군 기물에게 [공격불가]를 1턴 부여하고, 즉시 추가 이동 기회를 1회 제공합니다.",
+          "Applies [Attack Disabled] for 1 turn to the selected allied piece and immediately grants one extra move.",
+          "選択した味方の駒に[攻撃不可]を1ターン付与し、即座に追加移動を1回与えます。"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_WornBoots_description",
+        "assets": [
+          "아이템_낡은 장화"
+        ]
+      },
+      {
+        "id": "34076602535936",
+        "name": "부러진 방패",
+        "type": "이름",
+        "values": [
+          "부러진 방패",
+          "Broken Shield",
+          "壊れた盾"
+        ],
+        "status": "입력됨",
+        "key": "item.apply_status_effect_to_selected_piece.name",
+        "assets": [
+          "아이템_1레벨_부러진 방패"
+        ]
+      },
+      {
+        "id": "34076606730240",
+        "name": "부러진 방패",
+        "type": "설명",
+        "values": [
+          "선택한 기물에 상태효과 <방어>,<행동불가> 1턴 부여",
+          "Applies [Defense] and [Action Disabled] to the selected piece for 1 turn.",
+          "選択した駒に[防御]と[行動不可]を1ターン付与します。"
+        ],
+        "status": "입력됨",
+        "key": "item.apply_status_effect_to_selected_piece.description",
+        "assets": [
+          "아이템_1레벨_부러진 방패"
+        ]
+      },
+      {
+        "id": "15233677404016640",
+        "name": "초록색 점액 파편",
+        "type": "이름",
+        "values": [
+          "초록색 점액 파편",
+          "Green Slime Fragment",
+          "緑のスライムの欠片"
+        ],
+        "status": "입력됨",
+        "key": "item.97d7d945a1cfee64290ec7033ee49074.name",
+        "assets": [
+          "아이템_2레벨_초록색 점액 파편"
+        ]
+      },
+      {
+        "id": "15233677404016641",
+        "name": "초록색 점액 파편",
+        "type": "설명",
+        "values": [
+          "선택한 자신의 기물을 젤루 [나이트]으로 변형 후 상태효과 [공격불가] 1턴을 부여한다.",
+          "Transforms the selected allied piece into a Jellu [Knight], then applies <Attack Disabled> for 1 turn.",
+          "選択した味方の駒をゼル［ナイト］に変形させ、その後 <攻撃不可> を1ターン付与します。"
+        ],
+        "status": "입력됨",
+        "key": "item.97d7d945a1cfee64290ec7033ee49074.description",
+        "assets": [
+          "아이템_2레벨_초록색 점액 파편"
+        ]
+      },
+      {
+        "id": "18038769924575232",
+        "name": "테스트",
+        "type": "이름",
+        "values": [
+          "테스트",
+          "Test",
+          "テスト"
+        ],
+        "status": "입력됨",
+        "key": "battle_item.test.name",
+        "assets": [
+          "아이템_테스트"
+        ]
+      },
+      {
+        "id": "18038769979101184",
+        "name": "테스트",
+        "type": "설명",
+        "values": [
+          "행동이 불가합니다.",
+          "Cannot act.",
+          "行動できません。"
+        ],
+        "status": "입력됨",
+        "key": "battle_item.test.description",
+        "assets": [
+          "아이템_테스트"
+        ]
+      },
+      {
+        "id": "17784038891327488",
+        "name": "투지열매",
+        "type": "이름",
+        "values": [
+          "투지열매",
+          "Fighting Fruit",
+          "闘志の実"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_FightingFruit_name",
+        "assets": [
+          "아이템_투지열매"
+        ]
+      },
+      {
+        "id": "17784038962630656",
+        "name": "투지열매",
+        "type": "설명",
+        "values": [
+          "선택한 아군 기물의 [공격불가] 상태효과를 즉시 해제합니다.",
+          "Immediately removes [Attack Disabled] from the selected allied piece.",
+          "選択した味方の駒の[攻撃不可]を即座に解除します。"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_FightingFruit_description",
+        "assets": [
+          "아이템_투지열매"
+        ]
+      },
+      {
+        "id": "15233645984485376",
+        "name": "파란색 점액 파편",
+        "type": "이름",
+        "values": [
+          "파란색 점액 파편",
+          "Blue Slime Fragment",
+          "青いスライムの欠片"
+        ],
+        "status": "입력됨",
+        "key": "item.8e0640762141b5e4d8d4af031c650eeb.name",
+        "assets": [
+          "아이템_1레벨_파란색 점액 파편"
+        ]
+      },
+      {
+        "id": "11941842944",
+        "name": "파란색 점액 파편",
+        "type": "이름",
+        "values": [
+          "파란색 점액 파편",
+          "Blue Slime Fragment",
+          "青いスライムの欠片"
+        ],
+        "status": "입력됨",
+        "key": "item.change_selected_piece_to_jellu_pawn.name",
+        "assets": []
+      },
+      {
+        "id": "15233646059982848",
+        "name": "파란색 점액 파편",
+        "type": "설명",
+        "values": [
+          "선택한 자신의 기물을 젤루 [폰]으로 변형한다.",
+          "Transforms the selected allied piece into a Jellu [Pawn].",
+          "選択した味方の駒をゼル［ポーン］に変形させます。"
+        ],
+        "status": "입력됨",
+        "key": "item.8e0640762141b5e4d8d4af031c650eeb.description",
+        "assets": [
+          "아이템_1레벨_파란색 점액 파편"
+        ]
+      },
+      {
+        "id": "192863145984",
+        "name": "파란색 점액 파편",
+        "type": "설명",
+        "values": [
+          "선택한 자신의 기물을 젤루 [폰]으로 변형한다.",
+          "Transforms the selected allied piece into a Jellu [Pawn].",
+          "選択した味方の駒をゼル［ポーン］に変形させます。"
+        ],
+        "status": "입력됨",
+        "key": "item.change_selected_piece_to_jellu_pawn.description",
+        "assets": []
+      },
+      {
+        "id": "17784039646302208",
+        "name": "활력열매",
+        "type": "이름",
+        "values": [
+          "활력열매",
+          "Vitality Fruit",
+          "活力の実"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_VitalityFruit_name",
+        "assets": [
+          "아이템_활력열매"
+        ]
+      },
+      {
+        "id": "17784039646302209",
+        "name": "활력열매",
+        "type": "설명",
+        "values": [
+          "선택한 아군 기물의 [이동불가] 상태효과를 즉시 해제합니다.",
+          "Immediately removes [Move Disabled] from the selected allied piece.",
+          "選択した味方の駒の[移動不可]を即座に解除します。"
+        ],
+        "status": "입력됨",
+        "key": "battle_item_VitalityFruit_description",
+        "assets": [
+          "아이템_활력열매"
+        ]
+      }
+    ]
+  },
+  {
+    "sheet": "상태효과",
+    "table": "Status_Effect",
+    "rows": [
+      {
+        "id": "16559834879627264",
+        "name": "공격불가",
+        "type": "이름",
+        "values": [
+          "공격불가",
+          "Attack Disabled",
+          "攻撃不可"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.attack_disabled.name",
+        "assets": [
+          "상태효과_공격불가"
+        ]
+      },
+      {
+        "id": "16559834950930432",
+        "name": "공격불가",
+        "type": "설명",
+        "values": [
+          "[공격불가] 상태에서는 상대 기물을 잡는 이동 경로로 움직일 수 없습니다.",
+          "While [Attack Disabled], cannot make a move that would capture an enemy piece.",
+          "［攻撃不可］状態では、相手の駒を取る移動はできません。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.attack_disabled.description",
+        "assets": [
+          "상태효과_공격불가"
+        ]
+      },
+      {
+        "id": "17402470121213952",
+        "name": "능력봉인",
+        "type": "이름",
+        "values": [
+          "능력봉인",
+          "Ability Sealed",
+          "能力封印"
+        ],
+        "status": "입력됨",
+        "key": "status_effect_ability_sealed_name",
+        "assets": [
+          "상태효과_능력봉인"
+        ]
+      },
+      {
+        "id": "17402470196711424",
+        "name": "능력봉인",
+        "type": "설명",
+        "values": [
+          "[능력봉인] 상태에서는 능력을 사용할 수 없습니다.",
+          "While [Ability Sealed], this piece cannot use abilities.",
+          "[能力封印]状態では能力を使用できません。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect_ability_sealed_description",
+        "assets": [
+          "상태효과_능력봉인"
+        ]
+      },
+      {
+        "id": "72098723270656",
+        "name": "돌파",
+        "type": "이름",
+        "values": [
+          "돌파",
+          "Breakthrough",
+          "突破"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.breakthrough.name",
+        "assets": [
+          "상태효과_돌파"
+        ]
+      },
+      {
+        "id": "72098777796608",
+        "name": "돌파",
+        "type": "설명",
+        "values": [
+          "상대 일반스킬 : 방어를 무시한다.",
+          "Ignores the opponent's Normal Skill: Defense.",
+          "相手の一般スキル「防御」を無視します。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.breakthrough.description",
+        "assets": [
+          "상태효과_돌파"
+        ]
+      },
+      {
+        "id": "722079744",
+        "name": "방어",
+        "type": "이름",
+        "values": [
+          "방어",
+          "Defense",
+          "防御"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.defence.name",
+        "assets": [
+          "상태효과_방어"
+        ]
+      },
+      {
+        "id": "793382912",
+        "name": "방어",
+        "type": "설명",
+        "values": [
+          "이번 턴 상대의 공격을 무효화 합니다.",
+          "Negates the opponent's attack this turn.",
+          "このターン、相手の攻撃を無効化します。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.defence.description",
+        "assets": [
+          "상태효과_방어"
+        ]
+      },
+      {
+        "id": "17388937073528832",
+        "name": "이동불가",
+        "type": "이름",
+        "values": [
+          "이동불가",
+          "Move Disabled",
+          "移動不可"
+        ],
+        "status": "입력됨",
+        "key": "status_effect_move_disabled_name",
+        "assets": [
+          "상태효과_이동불가"
+        ]
+      },
+      {
+        "id": "17388937149026304",
+        "name": "이동불가",
+        "type": "설명",
+        "values": [
+          "[이동불가] 상태에서는 상대 기물을 잡는 이동만 할 수 있습니다.",
+          "While [Move Disabled], this piece can only move to capture an opposing piece.",
+          "[移動不可]状態では、相手の駒を取る移動のみ可能です。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect_move_disabled_description",
+        "assets": [
+          "상태효과_이동불가"
+        ]
+      },
+      {
+        "id": "72943439319040",
+        "name": "퇴화",
+        "type": "이름",
+        "values": [
+          "퇴화",
+          "Degeneration",
+          "退化"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.degeneration.name",
+        "assets": [
+          "상태효과_퇴화"
+        ]
+      },
+      {
+        "id": "72943439319041",
+        "name": "퇴화",
+        "type": "설명",
+        "values": [
+          "퇴화 상태에서 죽으면 인접한 빈칸에 같은 진영의 젤루 [폰] 1개를 생성한다. 생성된 기물은 죽은 기물의 특성을 이어받는다.",
+          "When this piece dies while under Degeneration, create one allied Jellu [Pawn] on an adjacent empty square. It inherits the traits of the defeated piece.",
+          "退化状態の駒が倒されると、隣接する空きマスに同じ陣営のジェル [ポーン]を1体生成する。生成した駒は倒された駒の特性を引き継ぐ。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.degeneration.description",
+        "assets": [
+          "상태효과_퇴화"
+        ]
+      },
+      {
+        "id": "17715458287996928",
+        "name": "행동불가",
+        "type": "이름",
+        "values": [
+          "행동불가",
+          "Action Disabled",
+          "行動不可"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.action_disabled.name",
+        "assets": [
+          "상태효과_행동불가"
+        ]
+      },
+      {
+        "id": "17715458359300096",
+        "name": "행동불가",
+        "type": "설명",
+        "values": [
+          "이번 턴 행동불가 상태 기물은 이동 및 공격을 할 수 없습니다.",
+          "While [Action Disabled], this piece cannot move or attack this turn.",
+          "[行動不可]状態の駒は、このターン移動も攻撃もできません。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.action_disabled.description",
+        "assets": [
+          "상태효과_행동불가"
+        ]
+      },
+      {
+        "id": "16700000000000001",
+        "name": "호위",
+        "type": "이름",
+        "values": [
+          "호위",
+          "Escort",
+          "護衛"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.taunt.name",
+        "assets": [
+          "상태효과_호위"
+        ]
+      },
+      {
+        "id": "16700000000000002",
+        "name": "호위",
+        "type": "설명",
+        "values": [
+          "인접한 아군 기물이 공격받으면, 해당 기물과 자리를 바꾸고 대신 공격을 받는다.",
+          "When an adjacent ally is attacked, swap places with that ally and take the attack instead.",
+          "隣接する味方が攻撃されると、その駒と位置を入れ替わり、代わりに攻撃を受ける。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.taunt.description",
+        "assets": [
+          "상태효과_호위"
+        ]
+      },
+      {
+        "id": "16720000000000001",
+        "name": "회피",
+        "type": "이름",
+        "values": [
+          "회피",
+          "Evasion",
+          "回避"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.evasion.name",
+        "assets": [
+          "상태효과_회피"
+        ]
+      },
+      {
+        "id": "16720000000000002",
+        "name": "회피",
+        "type": "설명",
+        "values": [
+          "공격받으면 50% 확률로 인접한 빈칸으로 이동해 공격을 피한다. 공격한 기물은 회피 전 위치로 이동한다.",
+          "When attacked, has a 50% chance to move to an adjacent empty tile and evade the attack. The attacker moves to the vacated tile.",
+          "攻撃されると、50%の確率で隣接する空きマスへ移動して攻撃を回避する。攻撃した駒は回避前のマスへ移動する。"
+        ],
+        "status": "입력됨",
+        "key": "status_effect.evasion.description",
+        "assets": [
+          "상태효과_회피"
+        ]
+      }
+    ]
+  },
+  {
+    "sheet": "유물",
+    "table": "Battle_Relic",
+    "rows": [
+      {
+        "id": "17556453812998144",
+        "name": "잔류 추진 제어기",
+        "type": "이름",
+        "values": [
+          "잔류 추진 제어기",
+          "Residual Thrust Controller",
+          "残留推進制御装置"
+        ],
+        "status": "입력됨",
+        "key": "relic.residual_propulsion.name",
+        "assets": [
+          "유물_잔류 추진 제어기"
+        ]
+      },
+      {
+        "id": "17556453812998145",
+        "name": "잔류 추진 제어기",
+        "type": "설명",
+        "values": [
+          "상대 기물 흡수에 성공하면 즉시 추가 이동 기회를 1회 얻습니다. 추가 이동으로는 공격할 수 없습니다.",
+          "Successfully absorbing an enemy piece immediately grants one extra move. This extra move cannot capture an enemy.",
+          "敵の駒の吸収に成功すると、即座に追加移動を1回得ます。この追加移動では攻撃できません。"
+        ],
+        "status": "입력됨",
+        "key": "relic.residual_propulsion.description",
+        "assets": [
+          "유물_잔류 추진 제어기"
+        ]
+      },
+      {
+        "id": "17556453552951296",
+        "name": "초기 가속 모듈",
+        "type": "이름",
+        "values": [
+          "초기 가속 모듈",
+          "Initial Acceleration Module",
+          "初期加速モジュール"
+        ],
+        "status": "입력됨",
+        "key": "relic.initial_acceleration.name",
+        "assets": [
+          "유물_초기 가속 모듈"
+        ]
+      },
+      {
+        "id": "17556453620060160",
+        "name": "초기 가속 모듈",
+        "type": "설명",
+        "values": [
+          "변형하지 않은 데보리아 [폰]은 전투 중 첫 이동에 한해 앞으로 2칸 이동할 수 있습니다. 이동 경로는 비어 있어야 합니다.",
+          "An untransformed Devorya [Pawn] can move forward two squares on its first move in battle. Both squares must be empty.",
+          "変形していないデボリア[ポーン]は、戦闘中の初回移動に限り前方へ2マス移動できます。経路上の2マスは空いている必要があります。"
+        ],
+        "status": "입력됨",
+        "key": "relic.initial_acceleration.description",
+        "assets": [
+          "유물_초기 가속 모듈"
+        ]
+      },
+      {
+        "id": "17556453989158912",
+        "name": "흡수 과충전 장치",
+        "type": "이름",
+        "values": [
+          "흡수 과충전 장치",
+          "Absorption Overcharger",
+          "吸収過充電装置"
+        ],
+        "status": "입력됨",
+        "key": "relic.absorb_overcharge.name",
+        "assets": [
+          "유물_흡수 과충전 장치"
+        ]
+      },
+      {
+        "id": "17556453989158913",
+        "name": "흡수 과충전 장치",
+        "type": "설명",
+        "values": [
+          "상대 기물 흡수에 성공하면 다음 내 턴 동안 최대 에너지가 1 증가합니다. 해당 턴이 끝나면 원래 값으로 돌아오며, 여러 번 흡수해도 중첩되지 않습니다.",
+          "Successfully absorbing an enemy piece increases maximum energy by 1 during your next turn. The bonus expires when that turn ends and does not stack.",
+          "敵の駒の吸収に成功すると、次の自分のターン中、最大エネルギーが1増加します。そのターンの終了時に元に戻り、効果は重複しません。"
+        ],
+        "status": "입력됨",
+        "key": "relic.absorb_overcharge.description",
+        "assets": [
+          "유물_흡수 과충전 장치"
+        ]
+      },
+      {
+        "id": "1179258880",
+        "name": "흡수의 여운",
+        "type": "이름",
+        "values": [
+          "흡수의 여운",
+          "Echo of Absorption",
+          "吸収の余韻"
+        ],
+        "status": "입력됨",
+        "key": "relic.absorb_chance_attack_once_per_turn.name",
+        "assets": [
+          "BattleRelic_AbsorbChanceAttackOncePerTurn"
+        ]
+      },
+      {
+        "id": "1288310784",
+        "name": "흡수의 여운",
+        "type": "설명",
+        "values": [
+          "플레이어가 흡수에 성공하면 턴당 1번 추가 행동을 확정 발동합니다.",
+          "When the player successfully performs an Absorption, 1 extra action is guaranteed once per turn.",
+          "プレイヤーが吸収に成功すると、1ターンに1回、確定で追加行動を1回獲得します。"
+        ],
+        "status": "입력됨",
+        "key": "relic.absorb_chance_attack_once_per_turn.description",
+        "assets": [
+          "BattleRelic_AbsorbChanceAttackOncePerTurn"
+        ]
+      }
+    ]
+  }
+]

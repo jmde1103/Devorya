@@ -88,9 +88,9 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
-    battleUIChangeEndTimerRoot: 0
+    battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
-    battleUIChangeGoldRoot: 0
+    battleUIChangeGoldRoot: 1
     battleUIShowGoldRoot: 0
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
@@ -496,7 +496,7 @@ MonoBehaviour:
       overrideUniqueSkill: 0
       uniqueSkill: 0
       overrideGeneralSkills: 1
-      generalSkills: 01000000
+      generalSkills: 03000000
       useAbsorbedPlayerVisual: 0
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
@@ -5763,6 +5763,7 @@ MonoBehaviour:
   completionType: 0
   completionSceneName: WorldMapScene
   completionCutsceneData: {fileID: 0}
+  completionWorldMapEventData: {fileID: 0}
   references:
     version: 2
     RefIds: []

@@ -31,6 +31,7 @@ MonoBehaviour:
   battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
   victorySceneName: WorldMapScene
   victoryCutsceneData: {fileID: 0}
+  victoryWorldMapEventData: {fileID: 0}
   enemyUniqueSkillUseChance: 60
   enemyMaxUniqueSkillUsesPerTurn: 1
   enemyGeneralSkillGrantRules:
@@ -41,5 +42,8 @@ MonoBehaviour:
     grantChancePercent: 30
     allowKing: 0
   - skillType: 3
+    grantChancePercent: 30
+    allowKing: 0
+  - skillType: 5
     grantChancePercent: 30
     allowKing: 0

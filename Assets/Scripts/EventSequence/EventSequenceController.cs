@@ -67,6 +67,7 @@ public class EventSequenceController : MonoBehaviour
     [SerializeField]
     private CanvasGroup goldRootCanvasGroup;
 
+
     // <변경부분>
     // 이벤트 시작 전 UI 상태를 보관한다.
     // 숨김, 표시를 여러 번 실행해도 최초 상태는 유지한다.
@@ -75,6 +76,11 @@ public class EventSequenceController : MonoBehaviour
         public float alpha;
         public bool interactable;
         public bool blocksRaycasts;
+
+        // <변경부분>
+        // 부모 CanvasGroup의 영향을 무시하는 설정도
+        // 이벤트 종료 시 원래대로 복원하기 위해 보관한다.
+        public bool ignoreParentGroups;
     }
 
     private readonly Dictionary<CanvasGroup, BattleUIVisibilityState>
@@ -188,15 +194,20 @@ public class EventSequenceController : MonoBehaviour
         BattleUIVisibilityState originalState;
 
         if (!battleUIVisibilityStates.TryGetValue(
-                targetGroup,
-                out originalState))
+            targetGroup,
+            out originalState))
         {
             originalState =
                 new BattleUIVisibilityState
                 {
                     alpha = targetGroup.alpha,
                     interactable = targetGroup.interactable,
-                    blocksRaycasts = targetGroup.blocksRaycasts
+                    blocksRaycasts = targetGroup.blocksRaycasts,
+
+                    // <변경부분>
+                    // 기존 Inspector의 Ignore Parent Groups 설정 보존.
+                    ignoreParentGroups =
+                        targetGroup.ignoreParentGroups
                 };
 
             battleUIVisibilityStates.Add(
@@ -221,9 +232,18 @@ public class EventSequenceController : MonoBehaviour
             }
 
             battleUIFadeCoroutines.Remove(
-                targetGroup
-            );
+       targetGroup
+   );
         }
+
+        // <변경부분>
+        // 이벤트에서 명시적으로 표시할 때는
+        // 상위 Battle UI CanvasGroup이 숨겨져 있어도
+        // 해당 EndTimer / Gold UI만 독립적으로 보이게 한다.
+        //
+        // 숨김 요청에서는 기존 Inspector 설정으로 되돌린다.
+        targetGroup.ignoreParentGroups =
+            visible || originalState.ignoreParentGroups;
 
         float targetAlpha =
             visible ? 1f : 0f;
@@ -403,13 +423,19 @@ public class EventSequenceController : MonoBehaviour
             }
 
             targetGroup.alpha =
-                originalState.alpha;
+    originalState.alpha;
 
             targetGroup.interactable =
                 originalState.interactable;
 
             targetGroup.blocksRaycasts =
                 originalState.blocksRaycasts;
+
+            // <변경부분>
+            // 이벤트가 끝나면 부모 CanvasGroup 무시 설정도
+            // 최초 Inspector 상태로 복원한다.
+            targetGroup.ignoreParentGroups =
+                originalState.ignoreParentGroups;
         }
 
         battleUIVisibilityStates.Clear();
