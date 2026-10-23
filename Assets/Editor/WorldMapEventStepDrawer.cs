@@ -19,6 +19,7 @@ public class WorldMapEventStepDrawer : PropertyDrawer
                 yield return ("screenFlash","화면 반짝임");
                 if(p.FindPropertyRelative("screenFlash").boolValue){yield return ("flashColor","반짝임 색상");yield return ("flashStrength","반짝임 강도");yield return ("flashDuration","한 번의 지속 시간");yield return ("flashCount","반복 횟수");yield return ("flashInterval","반복 간격");}
                 yield return ("waitForComplete","완료 대기");break;
+            case WorldMapEventStepType.RelicReward:yield return ("relicRewardList","유물 보상 목록");break;
             case WorldMapEventStepType.Wait:yield return ("waitDuration","대기 시간");break;
         }
     }

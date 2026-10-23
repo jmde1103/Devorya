@@ -1,0 +1,124 @@
+DEVORYA 유물 선택 이벤트 사용 안내
+
+작업 브랜치: codex/status-effect-restrictions
+이벤트 씬 / 월드맵 이벤트 스탭에서만 사용합니다. 전투 이벤트 스탭에는 추가하지 않았습니다.
+
+1. 스탭 설정
+- 기존 이벤트 데이터에서 스탭을 추가하고 종류를 '유물 선택 보상'으로 선택합니다.
+- '유물 보상 목록'에 Assets/Devorya/Data/Relic/RelicReward/유물보상_기본 목록.asset을 연결합니다.
+- 선택/획득 연출이 끝날 때까지 스탭이 기다리고, 종료 후 다음 스탭으로 진행합니다.
+- 실제 런에서는 기존 RunStateManager가 있어야 합니다.
+- 기존 이벤트 데이터는 자동으로 변경하지 않았으므로 원하는 위치에 스탭을 추가하세요.
+
+2. 유물 보상 목록
+- Create > Devorya > 보상 > 유물 보상 목록으로 새 목록을 만들 수 있습니다.
+- 기존 BattleRewardData의 아이템 보상처럼 항목별 등장 확률을 독립 판정합니다.
+- 같은 BattleRelicRewardDropEntry 구조를 사용합니다.
+- 확률 판정을 통과한 후보를 섞은 뒤 최대 3개를 뽑습니다.
+- 100% 항목이 3개 이상이면 보유하지 않은 후보에서 무작위 3개가 나옵니다.
+- 이미 보유한 종류와 중복 후보는 제외합니다.
+- 후보가 2개면 2개, 1개면 1개를 가운데 정렬합니다.
+- 후보가 없거나 유물 보유 한도 4개에 도달했다면 창 없이 다음 스탭으로 진행합니다.
+- 확률은 희귀도와 별개입니다. 희귀도는 외형 표시용입니다.
+
+3. 유물 데이터
+- BattleRelicData의 '희귀도'를 1~3으로 지정합니다. 기존 데이터의 기본값은 1입니다.
+- 기존 유물 아이콘, 한글 이름/설명 및 연결된 Localization을 그대로 사용합니다.
+- 언어 변경 시 카드 제목과 설명이 갱신됩니다.
+- 현재 세 유물은 이전 작업의 임시 아이콘을 그대로 사용합니다. iconSprite를 교체하면 카드에도 반영됩니다.
+
+4. 편집할 프리팹
+- Assets/Prefabs/RelicUI/RelicRewardCard.prefab: 카드 한 개
+- Assets/Prefabs/RelicUI/Resources/RelicRewardPopup.prefab: 화면 차단 / 안전 영역 / 카드 배열
+- Assets/Prefabs/RelicUI/Resources/RelicInventoryHUD.prefab: 이벤트에서 획득하는 유물의 도착 슬롯
+
+카드의 주요 구조:
+RelicRewardCard
+  Visual
+    PopupRoot
+      Background
+      TextContent
+        TitleText
+        MainDescriptionText
+      SectionParent
+        Diamond1 / Diamond2 / Diamond3
+    IconBackground
+      RelicIconSpine
+    RelicIcon
+
+CommonTooltipPopup의 제목/본문 TMP 오브젝트 설정과 동일 폰트를 재사용합니다.
+기존 PopupOpenAnimator / PopupOpenAnimationData를 각 연출 대상에 연결했습니다.
+원본 CommonTooltipPopup 프리팹은 수정하지 않았습니다.
+배경의 절개와 모서리를 보존하도록 Relic_UI의 원본 비율을 유지합니다.
+
+5. 등장 순서
+- 카드 위치를 1/2/3개 기준으로 먼저 가운데 정렬합니다.
+- 왼쪽부터 설정한 카드 등장 간격으로 Spine 배경을 재생합니다.
+- 각 카드에서 animation 완료 -> Idle -> 유물 아이콘 글리치 -> 배경 글리치 -> 텍스트 글리치 -> 희귀도 순서입니다.
+- 희귀도는 한 개씩 확대/축소/페이드인하며 기존 다이아몬드도 이동해 중앙 정렬합니다.
+- 모든 카드의 등장 연출이 완료된 후 선택을 받습니다.
+
+6. 선택/획득
+- 마우스 호버: 부드러운 확대와 아웃라인 점멸.
+- 클릭: 선택 아웃라인 색 변경, 중복 클릭 차단.
+- 선택하지 않은 카드: 페이드아웃.
+- 선택 카드: 가운데로 이동한 뒤 흰 UI 입자로 분해되어 유물 슬롯으로 이동.
+- 도착 아이콘: 도착 시 글리치로 표시됩니다. 슬롯 배경은 계속 유지됩니다.
+- 선택 성공 시 RunStateManager에 한 번만 등록합니다.
+- 선택 이후 연출 도중 이벤트가 중단되어도 이미 획득한 유물은 유지됩니다.
+- 선택 이전 취소 시에는 획득하지 않고 팝업/입력 잠금을 정리합니다.
+- 이벤트 씬에 유물 슬롯이 없을 경우 편집 가능한 RelicInventoryHUD 프리팹을 생성합니다.
+- 슬롯은 씬에 머무는 동안 표시되며 다음 전투에서는 기존 유물 복원 시스템이 보유 데이터를 읽습니다.
+
+7. Spine/이미지
+- Relic_UI / Relic_UI_Lv / Relic_Icon_Anim_SkeletonData를 사용합니다.
+- 애니메이션 이름: animation, Idle.
+- 원본 에셋 GUID를 유지했습니다.
+- RelicSpineUI.mat는 UI 투명도/CanvasGroup 페이드용 전용 머티리얼입니다.
+
+8. 검증
+- Unity 플레이 모드에서 1/2/3개 정렬, 희귀도 1~3, 중복 클릭 및 다른 카드 연속 클릭을 확인합니다.
+- 한 개만 런에 저장되는지, 보유한 유물이 후보에서 제외되는지 확인합니다.
+- 0% 드롭, 빈 후보, 연출 중 취소와 입력 해제를 확인합니다.
+- 이벤트 씬/월드맵의 실제 스탭 실행 및 획득 후 진행 재개를 확인합니다.
+- Logs/relic-reward-preview.png는 Unity에서 직접 렌더링한 3개 카드 확인 이미지입니다.
+- 실제 모바일 기기 빌드/터치 검증은 별도로 필요합니다.
+
+9. 10월 23일 UI 수정
+- RelicRewardCard.prefab의 TextContent를 아래로 내리고 제목 영역을 늘렸습니다.
+- 카드 아이콘은 32×32 원본을 96×96 UI 영역에 비율 유지하여 표시합니다.
+- 임시 아이콘: Item_Broken Fang.png. 실제 유물 데이터의 iconSprite를 교체하면 반영됩니다.
+- 공통 색상은 Assets/Devorya/Data/Relic/Resources/유물_희귀도 공통 색상.asset에서 관리합니다:
+  각 항목에서 호버 아웃라인 색 / 선택 발광·아웃라인 색 / 흡수 입자 색을 지정합니다.
+  희귀도 1 / 희귀도 2 / 희귀도 3 항목을 각각 설정합니다.
+- RelicPanel.prefab은 직접 제작한 슬롯 프레임과 배치를 유지합니다.
+  슬롯 내부 Image가 유물 아이콘을 표시합니다. 슬롯 배경 4칸은 항상 표시하고, 미보유 아이콘만 숨깁니다.
+- EventScene의 RunHUDRoot, WorldMapScene의 RunStatusHUD에 RelicPanel을 연결했습니다.
+  보상 선택 시 묶음 HUD를 표시하고 실제 유물 슬롯으로 입자가 이동합니다.
+- 슬롯은 4개만 사용하며 직접 편집한 배치를 유지합니다.
+- BattleScene의 직접 편집한 패널 위치를 유지했습니다.
+- SlotHoverFeedback에서 확대 배율, 확대 반응 속도, 아웃라인 색/두께를 조절할 수 있습니다.
+- 기존 팝업 글리치가 재생되는 동안 호버 확대가 애니메이션을 덮어쓰지 않도록 했습니다.
+- 검증 로그: Logs/relic-ui-revision.log
+- 영어 카드 렌더링: Logs/relic-ui-revision-preview.png
+
+10. 슬롯 수정
+- 직접 편집한 4개 슬롯의 RectTransform을 변경하지 않습니다.
+- 슬롯 배경 4칸을 유지하고, 소유하지 않은 아이콘 Image만 비활성화합니다.
+- 팝업 글리치는 슬롯 루트가 아닌 자식 아이콘에만 연결합니다.
+- 입자는 대상 Canvas의 화면 좌표를 팝업 Canvas 좌표로 변환하여 실제 아이콘으로 이동합니다.
+- RelicRewardPopup.prefab의 '흡수 입자 개수' 기본값은 30입니다(기존 44).
+- 유물 선택 이벤트에서 보유 수 4개에 도달하면 추가 선택창을 열지 않습니다. 기존 보유 데이터는 삭제하지 않습니다.
+- 이번 검증 로그: Logs/relic-slot-correction.log
+
+11. 희귀도 색상 공통 관리
+- 모든 유물이 하나의 '유물_희귀도 공통 색상' 에셋을 사용합니다.
+- 개별 유물에서는 희귀도(1~3)만 설정합니다. 색상이나 설정 에셋을 하나씩 연결할 필요가 없습니다.
+- 새로 만드는 유물 데이터도 자동으로 같은 설정을 사용합니다.
+- 유물 데이터 Inspector에 현재 적용되는 색상이 읽기 전용으로 표시됩니다.
+- '공통 희귀도 색상 설정 열기' 버튼으로 공유 설정을 선택할 수 있습니다.
+- 공유 설정에서 호버 아웃라인 / 선택 발광·아웃라인 / 흡수 입자 색상을 희귀도별로 한 번만 지정합니다.
+- 같은 희귀도의 모든 유물 카드에 동일한 색상이 적용됩니다.
+- 카드 프리팹의 별도 색상 설정은 제거했습니다. 기존 3단계 색상 값은 공유 설정에 옮겼습니다.
+- 공통 에셋은 Resources에서 자동으로 불러오므로 파일 이름을 유지하세요.
+- 검증 로그: Logs/relic-rarity-palette.log

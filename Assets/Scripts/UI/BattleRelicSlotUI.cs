@@ -13,6 +13,8 @@ public class BattleRelicSlotUI : MonoBehaviour
     // Locale 변경 시 아이콘이나 슬롯 상태는 건드리지 않고
     // Tooltip만 현재 언어 기준으로 다시 생성하기 위해 저장한다.
     private BattleRelicData currentRelicData;
+    public BattleRelicData CurrentRelicData => currentRelicData;
+    public RectTransform IconRect => relicIconImage != null ? relicIconImage.rectTransform : null;
 
     [Header("UI")]
     [SerializeField] private Image relicIconImage;
@@ -47,6 +49,7 @@ public class BattleRelicSlotUI : MonoBehaviour
     public void Refresh(
         BattleRelicData relicData)
     {
+        bool changed = currentRelicData != relicData;
         bool hasRelic =
             relicData != null &&
             relicData.relicType != BattleRelicType.None;
@@ -57,6 +60,12 @@ public class BattleRelicSlotUI : MonoBehaviour
             hasRelic
                 ? relicData
                 : null;
+
+        gameObject.SetActive(true);
+        var hover = GetComponent<SlotHoverFeedback>();
+        if (hover == null) hover = gameObject.AddComponent<SlotHoverFeedback>();
+        hover.SetAvailable(hasRelic);
+
 
         // 유물 아이콘 갱신.
         if (relicIconImage != null)
@@ -70,6 +79,8 @@ public class BattleRelicSlotUI : MonoBehaviour
                 hasRelic &&
                 relicData.iconSprite != null;
         }
+
+        if (hasRelic && changed) PlayArrival();
 
         // TooltipTrigger가 Inspector에 연결되지 않았다면
         // 현재 오브젝트 또는 자식에서 자동으로 찾는다.
@@ -94,6 +105,11 @@ public class BattleRelicSlotUI : MonoBehaviour
     //
     // Locale 변경 시에는 아이콘이나 슬롯 상태를 갱신하지 않고
     // 이 함수만 다시 호출한다.
+    public void PlayArrival()
+    {
+        var opening = relicIconImage != null ? relicIconImage.GetComponent<PopupOpenAnimator>() : null;
+        if (opening != null && gameObject.activeInHierarchy) opening.PlayOpen();
+    }
     private void RefreshTooltip()
     {
         if (tooltipTrigger == null)

@@ -161,6 +161,9 @@ public class BattleItemSlotUI : MonoBehaviour
     // 아이콘, 버튼 클릭 가능 여부, Tooltip을 갱신한다.
     public void Refresh(BattleItemData itemData)
     {
+        var hover = GetComponent<SlotHoverFeedback>();
+        if (hover == null) hover = gameObject.AddComponent<SlotHoverFeedback>();
+        hover.SetAvailable(itemData != null && itemData.itemType != BattleItemType.None);
         bool hasItem =
             itemData != null &&
             itemData.itemType != BattleItemType.None;
