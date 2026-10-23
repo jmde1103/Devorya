@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b441ffd66f14574be2943e2417bfaf3, type: 3}
-  m_Name: 유물_희귀도 공통 색상
+  m_Name: "\uC720\uBB3C_\uD76C\uADC0\uB3C4 \uACF5\uD1B5 \uC0C9\uC0C1"
   m_EditorClassIdentifier: Assembly-CSharp::RelicRarityPalette
   rarity1:
     hover: {r: 1, g: 1, b: 1, a: 1}
-    selected: {r: 1, g: 0.8, b: 0.25, a: 1}
+    selected: {r: 1, g: 1, b: 1, a: 1}
     particles: {r: 1, g: 1, b: 1, a: 1}
   rarity2:
-    hover: {r: 1, g: 1, b: 1, a: 1}
-    selected: {r: 1, g: 0.8, b: 0.25, a: 1}
-    particles: {r: 1, g: 1, b: 1, a: 1}
+    hover: {r: 0.6194968, g: 0.84481436, b: 1, a: 1}
+    selected: {r: 0, g: 0.48885143, b: 1, a: 1}
+    particles: {r: 0.61960787, g: 0.84313726, b: 1, a: 1}
   rarity3:
-    hover: {r: 1, g: 1, b: 1, a: 1}
-    selected: {r: 1, g: 0.8, b: 0.25, a: 1}
-    particles: {r: 1, g: 1, b: 1, a: 1}
+    hover: {r: 1, g: 0.41823888, b: 0.41823888, a: 1}
+    selected: {r: 1, g: 0.14449675, b: 0, a: 1}
+    particles: {r: 1, g: 0.41960785, b: 0.41960785, a: 1}

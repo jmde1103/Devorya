@@ -122,13 +122,14 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
     worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: 
-    stepType: 0
+    stepType: 19
     stepId: step_fb615118
     dialoguePages: []
     dialogueLocalizationId: 
@@ -229,6 +230,7 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 11400000, guid: 1b42d721f4928584bbe934a870e263e0, type: 2}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
