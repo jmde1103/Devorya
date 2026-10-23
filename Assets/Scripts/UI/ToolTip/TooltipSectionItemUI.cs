@@ -28,6 +28,9 @@ public class TooltipSectionItemUI : MonoBehaviour
             return;
         }
 
+        TooltipTextStyle.Apply(titleText, TooltipTextStyle.StatusRole(sectionData.statusEffectData), true);
+        TooltipTextStyle.Apply(categoryText, TooltipTextRole.Secondary);
+        TooltipTextStyle.Apply(mainDescriptionText, TooltipTextRole.Body);
         gameObject.SetActive(true);
 
         if (backgroundImage != null)
@@ -51,11 +54,58 @@ public class TooltipSectionItemUI : MonoBehaviour
             mainDescriptionText.text = sectionData.sectionDescription;
         }
 
+        ResizeToDescription();
+
         if (iconImage != null)
         {
             iconImage.sprite = sectionData.sectionIcon;
             iconImage.enabled = sectionData.sectionIcon != null;
             iconImage.gameObject.SetActive(sectionData.sectionIcon != null);
         }
+    }
+    private float authoredHeight, authoredTextHeight, authoredBackgroundHeight;
+    private Vector2[] authoredChildPositions;
+    private RectTransform[] authoredChildren;
+
+    // Grow downward without changing the prefab's authored width, header or icon placement.
+    private void ResizeToDescription()
+    {
+        if (mainDescriptionText == null) return;
+        var root = transform as RectTransform;
+        var body = mainDescriptionText.rectTransform;
+        if (root == null) return;
+        if (authoredChildren == null)
+        {
+            authoredHeight = root.rect.height;
+            authoredTextHeight = body.rect.height;
+            authoredBackgroundHeight = backgroundImage != null ? backgroundImage.rectTransform.rect.height : 0;
+            authoredChildren = new RectTransform[root.childCount];
+            authoredChildPositions = new Vector2[root.childCount];
+            for (int i = 0; i < root.childCount; i++)
+            {
+                authoredChildren[i] = root.GetChild(i) as RectTransform;
+                if (authoredChildren[i] != null) authoredChildPositions[i] = authoredChildren[i].anchoredPosition;
+            }
+        }
+        float height = Mathf.Max(authoredTextHeight, Mathf.Ceil(mainDescriptionText.GetPreferredValues(
+            mainDescriptionText.text, Mathf.Max(1f, body.rect.width), Mathf.Infinity).y) + 1f);
+        float extra = height - authoredTextHeight;
+        root.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, authoredHeight + extra);
+        for (int i = 0; i < authoredChildren.Length; i++)
+            if (authoredChildren[i] != null)
+                authoredChildren[i].anchoredPosition = authoredChildPositions[i] + Vector2.up * extra * (1f - authoredChildren[i].anchorMax.y);
+        body.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+        body.anchoredPosition -= Vector2.up * extra * (1f - body.pivot.y);
+        if (backgroundImage != null)
+        {
+            var background = backgroundImage.rectTransform;
+            background.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, authoredBackgroundHeight + extra);
+            background.anchoredPosition -= Vector2.up * extra * (1f - background.pivot.y);
+            if (backgroundImage.sprite != null) backgroundImage.type = Image.Type.Sliced;
+        }
+        var layout = GetComponent<LayoutElement>();
+        if (layout == null) layout = gameObject.AddComponent<LayoutElement>();
+        layout.preferredHeight = authoredHeight + extra;
+        mainDescriptionText.ForceMeshUpdate();
     }
 }

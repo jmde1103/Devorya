@@ -1,9 +1,10 @@
-Shader "Devorya/UI/PopupLocalGlitch"
+﻿Shader "Devorya/UI/PopupLocalGlitch"
 {
  Properties {
   [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
   _Color ("Tint", Color) = (1,1,1,1)
   _GlitchAmount ("Glitch Amount", Range(0,1)) = 0
+  _FlashColor ("Flash Color (Alpha = Strength)", Color) = (1,1,1,0)
   _GlitchPhase ("Glitch Phase", Float) = 0
   _UVRect ("Sprite UV Bounds", Vector) = (0,0,1,1)
   _StencilComp ("Stencil Comparison", Float) = 8
@@ -30,7 +31,7 @@ Shader "Devorya/UI/PopupLocalGlitch"
    #include "UnityUI.cginc"
    struct appdata { float4 vertex:POSITION; float4 color:COLOR; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
    struct v2f { float4 vertex:SV_POSITION; fixed4 color:COLOR; float2 uv:TEXCOORD0; float4 local:TEXCOORD1; UNITY_VERTEX_OUTPUT_STEREO };
-   sampler2D _MainTex; float4 _MainTex_TexelSize, _UVRect, _ClipRect; fixed4 _Color, _TextureSampleAdd; float _GlitchAmount, _GlitchPhase;
+   sampler2D _MainTex; float4 _MainTex_TexelSize, _UVRect, _ClipRect; fixed4 _Color, _TextureSampleAdd, _FlashColor; float _GlitchAmount, _GlitchPhase;
    v2f vert(appdata v){v2f o; UNITY_SETUP_INSTANCE_ID(v); UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); o.local=v.vertex; o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;o.color=v.color*_Color;return o;}
    float hash(float n){return frac(sin(n)*43758.5453);}
    fixed4 sampleSprite(float2 uv){return tex2D(_MainTex,clamp(uv,_UVRect.xy+abs(_MainTex_TexelSize.xy)*.5,_UVRect.zw-abs(_MainTex_TexelSize.xy)*.5))+_TextureSampleAdd;}
@@ -44,6 +45,8 @@ Shader "Devorya/UI/PopupLocalGlitch"
     c.r=sampleSprite(i.uv+float2(shift+split,0)).r;
     c.b=sampleSprite(i.uv+float2(shift-split,0)).b;
     c*=i.color;
+    float flash=saturate(amount*4)*step(.35,hash(floor(_GlitchPhase*25)+91));
+    c.rgb=lerp(c.rgb,_FlashColor.rgb,flash*saturate(_FlashColor.a));
     #ifdef UNITY_UI_CLIP_RECT
      c.a*=UnityGet2DClipping(i.local.xy,_ClipRect);
     #endif

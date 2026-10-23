@@ -23,10 +23,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 793382912
-    m_Localized: When used on a 'Water' or 'Swamp' tile, gain 'Breakthrough' for
+    m_Localized: When used on a [Water] or [Swamp] tile, gains [Breakthrough] for
       1 turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351066
   - m_Id: 793382913
     m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
@@ -36,10 +37,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 84051134910464
-    m_Localized: Creates a duplicate piece with the same data as itself on 1 random
-      adjacent empty tile.
+    m_Localized: Creates a duplicate with the same data on 1 random adjacent empty
+      tile.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351067
   - m_Id: 84051134910465
     m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
@@ -49,9 +51,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 85345065111553
-    m_Localized: Grants itself the 'Degeneration' status effect for 1 turn.
+    m_Localized: Applies [Degeneration] to itself for 1 turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351068
   - m_Id: 85345065111554
     m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
@@ -61,9 +64,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 85520307326977
-    m_Localized: Creates a Pawn of the same race on 1 random adjacent tile.
+    m_Localized: Creates 1 [Pawn] of the same race on a random adjacent empty tile.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351069
   - m_Id: 85520307326978
     m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
@@ -73,11 +77,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743361
-    m_Localized: Fuse with two adjacent allies of the same piece type as yourself
-      to promote randomly into a Knight, Bishop, or Rook of your species. Gain [Attack
-      Disabled] for 1 turn.
+    m_Localized: Fuses with 2 adjacent allied pieces of the same type and randomly
+      promotes into a [Knight], [Bishop], or [Rook] while retaining its race. Gains
+      [Attack Disabled] for 1 turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351070
   - m_Id: 86056217743362
     m_Localized: Requires two adjacent allies of the same piece type as yourself.
     m_Metadata:
@@ -87,9 +92,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 88327840206849
-    m_Localized: Creates 1 neutral 'Jellu Wall' piece in front of itself.
+    m_Localized: Creates 1 neutral [Jellu Wall] piece on the tile directly in front.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351071
   - m_Id: 88327840206850
     m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
@@ -99,10 +105,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 88777704476673
-    m_Localized: Every time 3 allied pieces are captured, moves and attacks like
-      a Queen for the rest of this turn.
+    m_Localized: Every time 3 allied pieces are defeated, can move and attack like
+      a [Queen] for the rest of that turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351072
   - m_Id: 88777704476674
     m_Localized: The conditions are not met, so this skill cannot be used.
     m_Metadata:
@@ -112,11 +119,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16691838979805184
-    m_Localized: Remove this piece and create one Jellu [Pawn] on its original square
-      and one on an adjacent empty square. Both inherit its traits and receive [Attack
-      Disabled] for 1 turn.
+    m_Localized: Removes itself and creates 1 Jellu [Pawn] on its original tile and
+      1 on an adjacent empty tile. Both inherit its Traits and receive [Attack Disabled]
+      for 1 turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351073
   - m_Id: 16691838979805185
     m_Localized: Split cannot be used because it would exceed the maximum piece capacity.
     m_Metadata:
@@ -126,14 +134,87 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16691840000000002
-    m_Localized: Absorb and remove one random adjacent allied [Pawn]. Gain [Breakthrough]
-      and [Defence] for 1 turn each.
+    m_Localized: Absorbs and removes 1 random adjacent allied [Pawn]. Gains [Breakthrough]
+      and [Defense] for 1 turn each.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351074
   - m_Id: 16691840000000003
-    m_Localized: There is no adjacent allied [Pawn] to absorb.
+    m_Localized: There is no adjacent allied [Pawn] that can be absorbed.
     m_Metadata:
       m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 1511529955060351066
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Breakthrough]'
+          role: 3
+        - text: 1 turn
+          role: 5
+    - rid: 1511529955060351067
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: 1
+          role: 5
+    - rid: 1511529955060351068
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Degeneration]'
+          role: 3
+        - text: 1 turn
+          role: 5
+    - rid: 1511529955060351069
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: 1
+          role: 5
+    - rid: 1511529955060351070
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 1 turn
+          role: 5
+        - text: 2
+          role: 5
+    - rid: 1511529955060351071
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: 1
+          role: 5
+    - rid: 1511529955060351072
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: 3
+          role: 5
+    - rid: 1511529955060351073
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 1 turn
+          role: 5
+        - text: 1
+          role: 5
+    - rid: 1511529955060351074
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+        - text: '[Breakthrough]'
+          role: 3
+        - text: 1 turn
+          role: 5
+        - text: 1
+          role: 5

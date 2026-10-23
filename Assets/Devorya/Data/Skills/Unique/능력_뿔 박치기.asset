@@ -15,9 +15,8 @@ MonoBehaviour:
   skillType: 7
   skillName: "\uBFD4 \uBC15\uCE58\uAE30"
   iconSprite: {fileID: 21300000, guid: 9a2a65b9e94da2e4f9230a80f3de62ec, type: 3}
-  description: "'\uBB3C' \uB610\uB294 '\uB2AA' \uD0C0\uC77C \uC704\uC5D0\uC11C \uC0AC\uC6A9
-    \uC2DC '\uB3CC\uD30C' \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uC790\uC2E0\uC5D0\uAC8C
-    1\uD134 \uBD80\uC5EC\uD55C\uB2E4."
+  description: "[\uBB3C] \uB610\uB294 [\uB2AA] \uD0C0\uC77C \uC704\uC5D0\uC11C \uC0AC\uC6A9\uD558\uBA74
+    \uC790\uC2E0\uC5D0\uAC8C [\uB3CC\uD30C]\uB97C 1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: c2bc84be6b2f9304982528565ce5e921, type: 2}
     sectionColor: {r: 1, g: 0.9451673, b: 0, a: 0}

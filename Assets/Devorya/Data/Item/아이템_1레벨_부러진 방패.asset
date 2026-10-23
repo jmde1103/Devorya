@@ -15,8 +15,8 @@ MonoBehaviour:
   itemType: 2
   itemName: "\uBD80\uB7EC\uC9C4 \uBC29\uD328"
   iconSprite: {fileID: 21300000, guid: 59af9fd5b66524a4aa9ecbbae3350b26, type: 3}
-  description: "\uC120\uD0DD\uD55C \uAE30\uBB3C\uC5D0 \uC0C1\uD0DC\uD6A8\uACFC <\uBC29\uC5B4>,<\uD589\uB3D9\uBD88\uAC00>
-    1\uD134 \uBD80\uC5EC"
+  description: "\uC120\uD0DD\uD55C \uC544\uAD70 \uAE30\uBB3C\uC5D0\uAC8C [\uBC29\uC5B4]\uB97C
+    1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   localizedItemName:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed

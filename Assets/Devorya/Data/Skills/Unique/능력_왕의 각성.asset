@@ -15,9 +15,9 @@ MonoBehaviour:
   skillType: 3
   skillName: "\uC655\uC758 \uAC01\uC131"
   iconSprite: {fileID: 0}
-  description: "\uC790\uAE30 \uC9C4\uC601 \uAE30\uBB3C\uC774 3\uAC1C \uC7A1\uD790
-    \uB54C\uB9C8\uB2E4, \uC774\uBC88 \uD134 \uB3D9\uC548 Queen\uCC98\uB7FC \uC774\uB3D9/\uACF5\uACA9
-    \uD569\uB2C8\uB2E4."
+  description: "\uC544\uAD70 \uAE30\uBB3C\uC774 3\uAC1C \uCC98\uCE58\uB420 \uB54C\uB9C8\uB2E4
+    \uD574\uB2F9 \uD134 \uB3D9\uC548 [\uD038]\uCC98\uB7FC \uC774\uB3D9\uD558\uACE0
+    \uACF5\uACA9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
   tooltipSections: []
   localizedSkillName:
     m_TableReference:

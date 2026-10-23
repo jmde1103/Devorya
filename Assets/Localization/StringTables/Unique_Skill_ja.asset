@@ -23,9 +23,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 793382912
-    m_Localized: "\u300C\u6C34\u300D\u307E\u305F\u306F\u300C\u6CBC\u300D\u30BF\u30A4\u30EB\u4E0A\u3067\u4F7F\u7528\u3059\u308B\u3068\u3001\u81EA\u8EAB\u306B\u300C\u7A81\u7834\u300D\u30921\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3057\u307E\u3059\u3002"
+    m_Localized: "\uFF3B\u6C34\uFF3D\u307E\u305F\u306F\uFF3B\u6CBC\uFF3D\u30BF\u30A4\u30EB\u4E0A\u3067\u4F7F\u7528\u3059\u308B\u3068\u3001\u81EA\u8EAB\u306B\uFF3B\u7A81\u7834\uFF3D\u30921\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351057
   - m_Id: 793382913
     m_Localized: "\u4F7F\u7528\u6761\u4EF6\u3092\u6E80\u305F\u3057\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
@@ -37,7 +38,8 @@ MonoBehaviour:
   - m_Id: 84051134910464
     m_Localized: "\u96A3\u63A5\u3059\u308B\u7A7A\u304D\u30DE\u30B9\u306E\u3046\u3061\u30E9\u30F3\u30C0\u30E0\u306A1\u30DE\u30B9\u306B\u3001\u81EA\u8EAB\u3068\u540C\u3058\u30C7\u30FC\u30BF\u3092\u6301\u3064\u99D2\u3092\u8907\u88FD\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351058
   - m_Id: 84051134910465
     m_Localized: "\u4F7F\u7528\u6761\u4EF6\u3092\u6E80\u305F\u3057\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
@@ -47,9 +49,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 85345065111553
-    m_Localized: "\u81EA\u8EAB\u306B\u300C\u9000\u5316\u300D\u306E\u72B6\u614B\u52B9\u679C\u30921\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3057\u307E\u3059\u3002"
+    m_Localized: "\u81EA\u8EAB\u306B\uFF3B\u9000\u5316\uFF3D\u30921\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351059
   - m_Id: 85345065111554
     m_Localized: "\u4F7F\u7528\u6761\u4EF6\u3092\u6E80\u305F\u3057\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
@@ -59,23 +62,25 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 85520307326977
-    m_Localized: "\u96A3\u63A5\u3059\u308B\u30E9\u30F3\u30C0\u30E0\u306A1\u30DE\u30B9\u306B\u3001\u540C\u3058\u7A2E\u65CF\u306E\u30DD\u30FC\u30F3\u3092\u751F\u6210\u3057\u307E\u3059\u3002"
+    m_Localized: "\u96A3\u63A5\u3059\u308B\u7A7A\u304D\u30DE\u30B9\u306E\u3046\u3061\u30E9\u30F3\u30C0\u30E0\u306A1\u30DE\u30B9\u306B\u3001\u540C\u3058\u7A2E\u65CF\u306E\uFF3B\u30DD\u30FC\u30F3\uFF3D\u30921\u4F53\u751F\u6210\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351060
   - m_Id: 85520307326978
     m_Localized: "\u4F7F\u7528\u6761\u4EF6\u3092\u6E80\u305F\u3057\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743360
-    m_Localized: "合成"
+    m_Localized: "\u5408\u6210"
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743361
-    m_Localized: "隣接する味方のうち、自分と同じ種類の駒2体と合成し、自分の種族を維持したままナイト、ビショップ、ルークのいずれかにランダムで昇格する。自分に[攻撃不可]を1ターン付与する。"
+    m_Localized: "\u96A3\u63A5\u3059\u308B\u5473\u65B9\u306E\u3046\u3061\u3001\u81EA\u8EAB\u3068\u540C\u3058\u7A2E\u985E\u306E\u99D22\u4F53\u3068\u5408\u6210\u3057\u3001\u7A2E\u65CF\u3092\u7DAD\u6301\u3057\u305F\u307E\u307E\uFF3B\u30CA\u30A4\u30C8\uFF3D\u3001\uFF3B\u30D3\u30B7\u30E7\u30C3\u30D7\uFF3D\u3001\uFF3B\u30EB\u30FC\u30AF\uFF3D\u306E\u3044\u305A\u308C\u304B\u306B\u30E9\u30F3\u30C0\u30E0\u3067\u6607\u683C\u3057\u307E\u3059\u3002\u81EA\u8EAB\u306B\uFF3B\u653B\u6483\u4E0D\u53EF\uFF3D\u30921\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351061
   - m_Id: 86056217743362
-    m_Localized: "隣接する味方のうち、自分と同じ種類の駒が2体必要です。"
+    m_Localized: "\u96A3\u63A5\u3059\u308B\u5473\u65B9\u306E\u3046\u3061\u3001\u81EA\u5206\u3068\u540C\u3058\u7A2E\u985E\u306E\u99D2\u304C2\u4F53\u5FC5\u8981\u3067\u3059\u3002"
     m_Metadata:
       m_Items: []
   - m_Id: 88327840206848
@@ -83,9 +88,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 88327840206849
-    m_Localized: "\u81EA\u8EAB\u306E\u524D\u65B9\u306B\u3001\u4E2D\u7ACB\u306E\u99D2\u300C\u30BC\u30EB\u306E\u58C1\u300D\u30921\u4F53\u751F\u6210\u3057\u307E\u3059\u3002"
+    m_Localized: "\u81EA\u8EAB\u306E\u524D\u65B9\u306E\u30DE\u30B9\u306B\u3001\u4E2D\u7ACB\u306E\u99D2\uFF3B\u30BC\u30EB\u306E\u58C1\uFF3D\u30921\u4F53\u751F\u6210\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351062
   - m_Id: 88327840206850
     m_Localized: "\u4F7F\u7528\u6761\u4EF6\u3092\u6E80\u305F\u3057\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
@@ -95,9 +101,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 88777704476673
-    m_Localized: "\u5473\u65B9\u306E\u99D2\u304C3\u4F53\u5012\u3055\u308C\u308B\u305F\u3073\u306B\u3001\u3053\u306E\u30BF\u30FC\u30F3\u4E2D\u3001\u30AF\u30A4\u30FC\u30F3\u3068\u540C\u3058\u3088\u3046\u306B\u79FB\u52D5\u30FB\u653B\u6483\u3067\u304D\u307E\u3059\u3002"
+    m_Localized: "\u5473\u65B9\u306E\u99D2\u304C3\u4F53\u5012\u3055\u308C\u308B\u305F\u3073\u306B\u3001\u305D\u306E\u30BF\u30FC\u30F3\u4E2D\u306F\uFF3B\u30AF\u30A4\u30FC\u30F3\uFF3D\u3068\u540C\u3058\u3088\u3046\u306B\u79FB\u52D5\u30FB\u653B\u6483\u3067\u304D\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351063
   - m_Id: 88777704476674
     m_Localized: "\u4F7F\u7528\u6761\u4EF6\u3092\u6E80\u305F\u3057\u3066\u3044\u306A\u3044\u305F\u3081\u3001\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
@@ -107,25 +114,101 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16691838979805184
-    m_Localized: "自身を取り除き、元のマスと隣接する空きマスにジェル [ポーン]を1体ずつ生成する。生成した駒は自身の特性を引き継ぎ、[攻撃不可]を1ターン付与される。"
+    m_Localized: "\u81EA\u8EAB\u3092\u9664\u53BB\u3057\u3001\u5143\u306E\u30DE\u30B9\u3068\u96A3\u63A5\u3059\u308B\u7A7A\u304D\u30DE\u30B9\u306B\u30BC\u30EB\uFF3B\u30DD\u30FC\u30F3\uFF3D\u30921\u4F53\u305A\u3064\u751F\u6210\u3057\u307E\u3059\u3002\u751F\u6210\u3055\u308C\u305F\u99D2\u306F\u81EA\u8EAB\u306E\u7279\u6027\u3092\u5F15\u304D\u7D99\u304E\u3001\uFF3B\u653B\u6483\u4E0D\u53EF\uFF3D\u30921\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3055\u308C\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351064
   - m_Id: 16691838979805185
     m_Localized: "\u6700\u5927\u4FDD\u6709\u99D2\u6570\u3092\u8D85\u3048\u308B\u305F\u3081\u3001\u5206\u88C2\u3092\u4F7F\u7528\u3067\u304D\u307E\u305B\u3093\u3002"
     m_Metadata:
       m_Items: []
   - m_Id: 16691840000000001
-    m_Localized: "合成：強化"
+    m_Localized: "\u5408\u6210\uFF1A\u5F37\u5316"
     m_Metadata:
       m_Items: []
   - m_Id: 16691840000000002
-    m_Localized: "隣接する味方の[ポーン]1体をランダムに吸収し、除去する。自分に[突破]と[防御]をそれぞれ1ターン付与する。"
+    m_Localized: "\u96A3\u63A5\u3059\u308B\u5473\u65B9\u306E\uFF3B\u30DD\u30FC\u30F3\uFF3D1\u4F53\u3092\u30E9\u30F3\u30C0\u30E0\u306B\u5438\u53CE\u3057\u3066\u9664\u53BB\u3057\u307E\u3059\u3002\u81EA\u8EAB\u306B\uFF3B\u7A81\u7834\uFF3D\u3068\uFF3B\u9632\u5FA1\uFF3D\u3092\u305D\u308C\u305E\u308C1\u30BF\u30FC\u30F3\u4ED8\u4E0E\u3057\u307E\u3059\u3002"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351065
   - m_Id: 16691840000000003
-    m_Localized: "吸収できる隣接した味方の[ポーン]がいません。"
+    m_Localized: "\u5438\u53CE\u3067\u304D\u308B\u96A3\u63A5\u3057\u305F\u5473\u65B9\u306E\uFF3B\u30DD\u30FC\u30F3\uFF3D\u304C\u3044\u307E\u305B\u3093\u3002"
     m_Metadata:
       m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 1511529955060351057
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uFF3B\u7A81\u7834\uFF3D"
+          role: 3
+        - text: "1\u30BF\u30FC\u30F3"
+          role: 5
+    - rid: 1511529955060351058
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "1\u30DE\u30B9"
+          role: 5
+    - rid: 1511529955060351059
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uFF3B\u9000\u5316\uFF3D"
+          role: 3
+        - text: "1\u30BF\u30FC\u30F3"
+          role: 5
+    - rid: 1511529955060351060
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "1\u30DE\u30B9"
+          role: 5
+        - text: "1\u4F53"
+          role: 5
+    - rid: 1511529955060351061
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uFF3B\u653B\u6483\u4E0D\u53EF\uFF3D"
+          role: 4
+        - text: "2\u4F53"
+          role: 5
+        - text: "1\u30BF\u30FC\u30F3"
+          role: 5
+    - rid: 1511529955060351062
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "1\u4F53"
+          role: 5
+    - rid: 1511529955060351063
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "3\u4F53"
+          role: 5
+    - rid: 1511529955060351064
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uFF3B\u653B\u6483\u4E0D\u53EF\uFF3D"
+          role: 4
+        - text: "1\u4F53"
+          role: 5
+        - text: "1\u30BF\u30FC\u30F3"
+          role: 5
+    - rid: 1511529955060351065
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uFF3B\u9632\u5FA1\uFF3D"
+          role: 3
+        - text: "\uFF3B\u7A81\u7834\uFF3D"
+          role: 3
+        - text: "1\u4F53"
+          role: 5
+        - text: "1\u30BF\u30FC\u30F3"
+          role: 5

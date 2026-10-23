@@ -75,6 +75,7 @@ public class TitleMenuButtonAnimation : MonoBehaviour
 
     // 현재 선택 여부
     private bool isSelected;
+    private PopupOpenAnimator opening;
 
     // 처음 위치
     private Vector2 baseAnchoredPosition;
@@ -88,6 +89,7 @@ public class TitleMenuButtonAnimation : MonoBehaviour
 
     private void Awake()
     {
+        opening = GetComponent<PopupOpenAnimator>();
         // Target을 연결하지 않았다면
         // 현재 오브젝트의 RectTransform 자동 사용
         if (targetRect == null)
@@ -122,6 +124,7 @@ public class TitleMenuButtonAnimation : MonoBehaviour
 
     private void Update()
     {
+        if (opening != null && opening.IsPlaying) return;
         if (targetRect == null)
         {
             return;
@@ -183,6 +186,7 @@ public class TitleMenuButtonAnimation : MonoBehaviour
     // 선택 크기로 안착하는 애니메이션
     private IEnumerator PlaySelectRoutine()
     {
+        while (opening != null && opening.IsPlaying) yield return null;
         float halfDuration =
             Mathf.Max(
                 0.01f,

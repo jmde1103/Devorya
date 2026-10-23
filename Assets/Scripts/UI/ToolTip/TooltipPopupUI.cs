@@ -206,6 +206,11 @@ public class TooltipPopupUI : MonoBehaviour
             return;
         }
 
+        TooltipTextStyle.Apply(titleText, TooltipTextRole.Title, true);
+        TooltipTextStyle.Apply(categoryText, TooltipTextRole.Secondary);
+        TooltipTextStyle.Apply(levelText, TooltipTextRole.Secondary);
+        TooltipTextStyle.Apply(mainDescriptionText, TooltipTextRole.Body);
+        TooltipTextStyle.Apply(costValueText, TooltipTextRole.Value);
         popupRoot.gameObject.SetActive(true);
 
         if (titleText != null)

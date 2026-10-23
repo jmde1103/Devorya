@@ -150,6 +150,9 @@ public class TitleMenuController : MonoBehaviour
             settingButton.onClick.AddListener(
                 OnClickSetting
             );
+            var hover = settingButton.GetComponent<TitlePlayHoverHandler>();
+            if (hover == null) hover = settingButton.gameObject.AddComponent<TitlePlayHoverHandler>();
+            hover.Initialize(this, true);
         }
     }
 
@@ -331,27 +334,20 @@ public class TitleMenuController : MonoBehaviour
 
     private void OnClickSetting()
     {
-        if (isLoadingScene || isChoosingTutorial)
-        {
-            return;
-        }
-
-
-        // 이미 Setting이 선택되어 있다면
-        // 두 번째 클릭
-        if (selectedMenu ==
-            TitleMenuType.Setting)
-        {
-            ConfirmSetting();
-            return;
-        }
-
-
-        SelectSetting();
+        if(isLoadingScene || isChoosingTutorial)return;
+        if(Application.isMobilePlatform && selectedMenu!=TitleMenuType.Setting){SelectSetting();return;}
+        if(selectedMenu!=TitleMenuType.Setting)SelectSetting();
+        ConfirmSetting();
     }
-
-
-    // Setting 첫 클릭
+    public void OnSettingPointerEnter()
+    {
+        if(Application.isMobilePlatform || isLoadingScene || isChoosingTutorial || settingButton==null || !settingButton.IsInteractable())return;
+        if(selectedMenu!=TitleMenuType.Setting)SelectSetting();
+    }
+    public void OnSettingPointerExit()
+    {
+        if(!Application.isMobilePlatform && selectedMenu==TitleMenuType.Setting)OnClickBackground();
+    }
     private void SelectSetting()
     {
         ResetCurrentButtonSelection();

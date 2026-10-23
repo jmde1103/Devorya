@@ -94,8 +94,7 @@ public class TooltipSectionData
                     .GetStatusEffectCategory(),
 
             sectionDescription =
-                resolvedStatusEffectData
-                    .GetLocalizedDescription(),
+                TooltipTextStyle.Format(resolvedStatusEffectData.localizedDescription, resolvedStatusEffectData.GetLocalizedDescription()),
 
             sectionIcon =
                 resolvedStatusEffectData.iconSprite,
@@ -350,7 +349,7 @@ public class TooltipViewData
                 data.GetLocalizedCategory(),
 
             mainDescription =
-                data.GetLocalizedMainDescription(),
+                TooltipTextStyle.Format(data.localizedMainDescription, data.GetLocalizedMainDescription()),
 
             icon =
                 data.icon,
@@ -403,7 +402,7 @@ TooltipLocalization
             // 현재 Locale Tooltip → 현재 Locale Description →
             // 기존 한국어 Tooltip → 기존 한국어 Description 순으로 처리한다.
             mainDescription =
-         data.GetLocalizedTooltipDescription(),
+         TooltipTextStyle.Format(data.localizedTooltipDescriptionFormat.IsEmpty ? data.localizedDescription : data.localizedTooltipDescriptionFormat, data.GetLocalizedTooltipDescription(), data.GetTooltipMainValue()),
 
             icon =
          data.iconSprite,
@@ -447,7 +446,7 @@ TooltipLocalization
 
             // <변경부분> 현재 Locale의 Description을 사용한다.
             mainDescription =
-                data.GetLocalizedDescription(),
+                TooltipTextStyle.Format(data.localizedDescription, data.GetLocalizedDescription()),
 
             // <변경부분>
             // UniqueSkillData에 등록된 기본 에너지 Cost를 가져온다.
@@ -492,7 +491,7 @@ TooltipLocalization
         .GetItemCategory(),
 
             mainDescription =
-                data.GetLocalizedDescription(),
+                TooltipTextStyle.Format(data.localizedDescription, data.GetLocalizedDescription()),
 
             icon =
                 data.iconSprite,
@@ -534,7 +533,7 @@ TooltipLocalization
 
             // <변경부분> 현재 Locale의 상태효과 설명.
             mainDescription =
-                data.GetLocalizedDescription(),
+                TooltipTextStyle.Format(data.localizedDescription, data.GetLocalizedDescription()),
 
             icon =
                 data.iconSprite,
@@ -574,7 +573,7 @@ TooltipLocalization
             // Localization이 연결되지 않은 기존 Asset은
             // BattleRelicData 내부에서 description으로 fallback한다.
             mainDescription =
-                data.GetLocalizedDescription(),
+                TooltipTextStyle.Format(data.localizedDescription, data.GetLocalizedDescription()),
 
             icon =
                 data.iconSprite,
@@ -624,7 +623,7 @@ TooltipLocalization
             // 도감 / 상세정보 / Tooltip에서 공통으로 재사용할
             // PieceData 자체 설명.
             mainDescription =
-                data.GetLocalizedDescription(),
+                TooltipTextStyle.Format(data.localizedDescription, data.GetLocalizedDescription()),
 
             icon =
                 displayIcon,

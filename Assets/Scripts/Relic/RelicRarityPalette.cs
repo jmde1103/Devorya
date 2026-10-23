@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 // One shared asset is resolved by every relic, including newly created data.
@@ -11,7 +11,8 @@ public sealed class RelicRarityPalette : ScriptableObject
         [InspectorName("호버 아웃라인 색")] public Color hover;
         [InspectorName("선택 발광·아웃라인 색")] public Color selected;
         [InspectorName("흡수 입자 색")] public Color particles;
-        public static Colors Default => new Colors { hover=Color.white, selected=new Color(1,.8f,.25f), particles=Color.white };
+        [InspectorName("아이콘 글리치 반짝임 색"), Tooltip("알파 0이면 반짝임 색을 덧씌우지 않습니다.")] public Color iconGlitch;
+        public static Colors Default => new Colors { hover=Color.white, selected=new Color(1,.8f,.25f), particles=Color.white, iconGlitch=Color.white };
     }
     [SerializeField, InspectorName("희귀도 1")] Colors rarity1 = Colors.Default;
     [SerializeField, InspectorName("희귀도 2")] Colors rarity2 = Colors.Default;

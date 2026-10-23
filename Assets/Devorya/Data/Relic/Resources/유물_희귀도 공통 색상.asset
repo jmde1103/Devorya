@@ -16,11 +16,14 @@ MonoBehaviour:
     hover: {r: 1, g: 1, b: 1, a: 1}
     selected: {r: 1, g: 1, b: 1, a: 1}
     particles: {r: 1, g: 1, b: 1, a: 1}
+    iconGlitch: {r: 1, g: 1, b: 1, a: 1}
   rarity2:
     hover: {r: 0.6194968, g: 0.84481436, b: 1, a: 1}
     selected: {r: 0, g: 0.48885143, b: 1, a: 1}
     particles: {r: 0.61960787, g: 0.84313726, b: 1, a: 1}
+    iconGlitch: {r: 1, g: 1, b: 1, a: 1}
   rarity3:
     hover: {r: 1, g: 0.41823888, b: 0.41823888, a: 1}
     selected: {r: 1, g: 0.14449675, b: 0, a: 1}
     particles: {r: 1, g: 0.41960785, b: 0.41960785, a: 1}
+    iconGlitch: {r: 1, g: 1, b: 1, a: 1}

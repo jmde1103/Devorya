@@ -1,0 +1,161 @@
+﻿DEVORYA 번역·툴팁 스타일 적용 보고서
+작성일: 2026-10-23
+작업 브랜치: codex/status-effect-restrictions
+작업 위치: C:/Users/zntif/.codex/worktrees/status-effect-restrictions/Devorya
+커밋·병합·푸시: 실행하지 않음. 기존 타이틀 버튼 수정은 그대로 보존.
+
+1. 적용 내용
+- 제공한 엑셀의 최종 적용 번역 128개 키 × ko/en/ja = 384개 번역을 기존 String Table에 반영.
+- 기존 Localization 키/ID/GUID와 데이터 참조 유지. 연결 없는 레거시 11개 키도 삭제하지 않음.
+- 데이터 Inspector의 한국어 fallback 필드 56개 동기화.
+- 번역 원문에 색상 태그를 넣지 않음. 기존 String Table 항목의 TooltipSemanticMetadata에 강조할 구절과 의미만 기록.
+- 툴팁 표시 시에만 표준 TMP color 태그로 변환. 일반 안내창·유물 카드의 번역 getter는 원래처럼 일반 문자열 반환.
+- 제목: 흰색 굵게. 본문: 회색 보통. 분류/보조: 짙은 회색.
+- 긍정 효과: 청록. 부정 효과: 붉은색. 수치: 노랑.
+- 상태효과 하단 섹션 제목은 해당 효과 분류 색상 + 굵게.
+- 기존 본문 자동 높이 유지. 퇴화 설명에서 발견한 하단 섹션 잘림을 수정해 섹션과 배경도 아래로 확장.
+- 기존 Hierarchy, 프리팹 연결, 아이콘·헤더의 배치와 오픈 애니메이션 사용 방식 유지.
+- 이 툴팁 경로에는 별도 글자 단위 타이핑이 없어 타이핑 코드를 새로 넣지 않음.
+
+2. 실제 게임 동작을 확인하여 문서와 다르게 적용한 부분
+부러진 방패:
+  실제 아이템 효과 목록에는 방어 한 개만 연결되어 있음.
+  '선택한 아군 기물에게 [방어]를 1턴 동안 부여합니다.'로 세 언어 보정.
+  행동불가를 새로 부여하도록 게임 효과를 변경하지 않음.
+분열:
+  원래 위치 1개 + 인접한 빈칸 1개 = 총 2개 생성 확인. 제공 문구 그대로 적용.
+퇴화:
+  일반 전투 처치/흡수 및 마무리 흡수 제거 경로에서 호출됨.
+  모든 RemovePiece 호출이나 합성 재료 제거에 일괄 발동하는 구조가 아님.
+  '공격 또는 흡수로 제거되면'으로 세 언어 보정.
+  인접한 빈칸과 팀 최대 기물 수 조건은 기존 코드 유지.
+
+3. 공통 색상 수정 위치
+Assets/Resources/TooltipStylePalette.asset
+이 에셋 하나에서 제목/본문/보조 정보/긍정 효과/부정 효과/수치 색상 수정.
+다음에 툴팁을 열 때 전체 툴팁에 공통 적용.
+유물 레어도 발광 팔레트와 별개이며 레어도별 제목 색상은 사용하지 않음.
+
+4. 이후 번역·데이터 작성 방법
+- 기존 데이터 Inspector 또는 Localization String Table의 기존 키에서 번역을 수정.
+- 시스템명: 한국어·영어 [이름], 일본어 ［名前］. 제목에는 괄호를 넣지 않음.
+- 강조하려면 해당 언어 String Table Entry의 Metadata에 TooltipSemanticMetadata를 추가.
+- spans에 강조할 원문 구절과 역할(긍정 효과/부정 효과/수치)을 지정.
+  예: [방어] → 긍정 효과, [공격불가] → 부정 효과, 1턴 → 수치.
+  영어/일본어도 각 번역에 실제 포함된 구절을 등록.
+- 특성의 동적 확률은 {percent}% 또는 {value}를 원문 그대로 지정 가능.
+- 색상 코드 자체를 데이터나 번역에 반복해서 넣지 않음.
+- 메타데이터가 없는 기존 항목은 일반 본문 색으로 정상 표시.
+- 번역에서 강조 구절을 바꿨다면 Metadata의 구절도 함께 변경해야 함.
+- 모든 숫자나 한국어 단어를 런타임에서 추측해 색칠하지 않음.
+- 기존 TMP rich text는 유지하며, 태그 내부에 색상 태그를 끼워 넣지 않음.
+- 작업용 엑셀 입력 변환 자료는 Logs/tooltip-translation-input.json이며 런타임 번역 저장소가 아님.
+
+5. 코드별 변경 목적
+TooltipStylePalette.cs: 공통 6가지 색상과 Inspector 설정.
+TooltipSemanticMetadata.cs: String Table Entry의 명시적 강조 구절/역할 정의.
+TooltipTextStyle.cs: 데이터 해석, 동적 확률 치환 대응, TMP 스타일 적용.
+TooltipData.cs: 툴팁용 ViewData 생성 시에만 강조 적용.
+TooltipPopupUI.cs: 제목/본문/분류/보조/Cost 숫자 스타일.
+TooltipSectionItemUI.cs: 상태 분류 색상, 긴 본문에 맞춘 섹션 높이와 배경 확장.
+TooltipTranslationImport.cs: 기존 키 존재 확인 후 번역·메타데이터·한국어 fallback 적용, 검증 실행.
+TooltipStyleChecks.cs: 실제 프리팹을 이용하는 PlayMode 검증.
+String Tables 15개: 5개 분류 × 3개 언어의 번역과 강조 메타데이터.
+데이터 에셋: 연결된 한국어 이름/설명/툴팁 fallback 동기화만 수행.
+기존 씬·프리팹의 직렬화 값은 이번 작업에서 변경하지 않음.
+
+6. 실행 검증
+Unity 6000.4.0f1 배치 컴파일: 오류 0. 기존 사용 중단 API 경고는 남아 있음.
+번역 적용: 384개 언어별 항목 반영 통과.
+PlayMode 실제 CommonTooltipPopup 프리팹:
+  46개 데이터 × 한국어/영어/일본어 = 138개 표시 검증 통과.
+  특성/능력/아이템/상태효과/유물 전 분류 포함.
+  제목 색상/굵기, 본문/분류 색상, 동적 확률 placeholder 해소 검증.
+  본문 및 하단 상태효과 설명의 TMP overflow 검사 통과.
+  툴팁 열기/닫기, 일반 유물 설명에 색상 태그가 섞이지 않음 확인.
+  무표기 문자열의 기존 rich text 유지, 명시한 숫자만 강조하는 단위 검증 통과.
+최종 로그: Logs/tooltip-final-checks.log
+  TOOLTIP_IMPORT_PASS entries=384
+  TOOLTIP_LOCALE_PASS ko/en/ja
+  TOOLTIP_CHECKED_ASSET_LOCALES 138
+  TOOLTIP_STYLE_PLAYMODE_PASS
+git diff --check 통과.
+검증 중 생성된 동적 폰트 캐시 변경은 원복.
+
+7. 검증 한계
+배치 PlayMode의 데이터·TMP 레이아웃 검증이며 실제 화면을 눈으로 보면서 한 시각 검수는 아님.
+마우스 클릭/모바일 터치 입력, 실제 PC·모바일 빌드, 모든 해상도,
+실제 전투 전체 회귀 플레이는 이번 검증에 포함하지 않음.
+부러진 방패/분열/퇴화 조건은 에셋과 실행 코드 경로를 대조한 결과.
+게임 효과 자체를 바꾸지 않았으며 전투 효과의 재실행 검증을 했다는 의미는 아님.
+
+8. 이번 작업의 수정·추가 파일 전체 목록 (기존 타이틀 수정 제외)
+Assets/Devorya/Data/Item/아이템_1레벨_부러진 방패.asset
+Assets/Devorya/Data/Item/아이템_1레벨_파란색 점액 파편.asset
+Assets/Devorya/Data/Item/아이템_2레벨_초록색 점액 파편.asset
+Assets/Devorya/Data/Item/아이템_낡은 장화.asset
+Assets/Devorya/Data/Relic/BattleRelic_AbsorbChanceAttackOncePerTurn.asset
+Assets/Devorya/Data/Relic/유물_잔류 추진 제어기.asset
+Assets/Devorya/Data/Relic/유물_초기 가속 모듈.asset
+Assets/Devorya/Data/Relic/유물_흡수 과충전 장치.asset
+Assets/Devorya/Data/Skills/General/특성_간파.asset
+Assets/Devorya/Data/Skills/General/특성_공격불가 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_공격불가 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_공격불가 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_방어 자세.asset
+Assets/Devorya/Data/Skills/General/특성_빠른 발걸음.asset
+Assets/Devorya/Data/Skills/General/특성_이동불가 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_이동불가 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_이동불가 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_찬스어택.asset
+Assets/Devorya/Data/Skills/General/특성_행동불가 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_행동불가 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_행동불가 저항 III.asset
+Assets/Devorya/Data/Skills/Unique/능력_분열.asset
+Assets/Devorya/Data/Skills/Unique/능력_뿔 박치기.asset
+Assets/Devorya/Data/Skills/Unique/능력_왕의 각성.asset
+Assets/Devorya/Data/Skills/Unique/능력_젤루 벽.asset
+Assets/Devorya/Data/Skills/Unique/능력_증식.asset
+Assets/Devorya/Data/Skills/Unique/능력_퇴화.asset
+Assets/Devorya/Data/Skills/Unique/능력_합성.asset
+Assets/Devorya/Data/Skills/Unique/능력_합성_강화.asset
+Assets/Devorya/Data/StatusEffect/상태효과_공격불가.asset
+Assets/Devorya/Data/StatusEffect/상태효과_돌파.asset
+Assets/Devorya/Data/StatusEffect/상태효과_방어.asset
+Assets/Devorya/Data/StatusEffect/상태효과_퇴화.asset
+Assets/Devorya/Data/StatusEffect/상태효과_행동불가.asset
+Assets/Devorya/Data/StatusEffect/상태효과_호위.asset
+Assets/Devorya/Data/StatusEffect/상태효과_회피.asset
+Assets/Editor/TooltipStyleChecks.cs
+Assets/Editor/TooltipStyleChecks.cs.meta
+Assets/Editor/TooltipTranslationImport.cs
+Assets/Editor/TooltipTranslationImport.cs.meta
+Assets/Localization/StringTables/Battle_Item_en.asset
+Assets/Localization/StringTables/Battle_Item_ja.asset
+Assets/Localization/StringTables/Battle_Item_ko.asset
+Assets/Localization/StringTables/Battle_Relic_en.asset
+Assets/Localization/StringTables/Battle_Relic_ja.asset
+Assets/Localization/StringTables/Battle_Relic_ko.asset
+Assets/Localization/StringTables/General_Skill_en.asset
+Assets/Localization/StringTables/General_Skill_ja.asset
+Assets/Localization/StringTables/General_Skill_ko.asset
+Assets/Localization/StringTables/Status_Effect_en.asset
+Assets/Localization/StringTables/Status_Effect_ja.asset
+Assets/Localization/StringTables/Status_Effect_ko.asset
+Assets/Localization/StringTables/Unique_Skill_en.asset
+Assets/Localization/StringTables/Unique_Skill_ja.asset
+Assets/Localization/StringTables/Unique_Skill_ko.asset
+Assets/Resources/TooltipStylePalette.asset
+Assets/Resources/TooltipStylePalette.asset.meta
+Assets/Scripts/UI/ToolTip/TooltipData.cs
+Assets/Scripts/UI/ToolTip/TooltipPopupUI.cs
+Assets/Scripts/UI/ToolTip/TooltipSectionItemUI.cs
+Assets/Scripts/UI/ToolTip/TooltipSemanticMetadata.cs
+Assets/Scripts/UI/ToolTip/TooltipSemanticMetadata.cs.meta
+Assets/Scripts/UI/ToolTip/TooltipStylePalette.cs
+Assets/Scripts/UI/ToolTip/TooltipStylePalette.cs.meta
+Assets/Scripts/UI/ToolTip/TooltipTextStyle.cs
+Assets/Scripts/UI/ToolTip/TooltipTextStyle.cs.meta
