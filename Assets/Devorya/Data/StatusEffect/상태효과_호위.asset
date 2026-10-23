@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
   effectType: 6
   effectName: "\uD638\uC704"
-  description: "\uC778\uC811\uD55C \uC544\uAD70 \uAE30\uBB3C\uC774 \uACF5\uACA9\uBC1B\uC73C\uBA74,
+  description: "\uC778\uC811\uD55C \uC544\uAD70 \uAE30\uBB3C\uC774 \uACF5\uACA9\uBC1B\uC73C\uBA74
     \uD574\uB2F9 \uAE30\uBB3C\uACFC \uC790\uB9AC\uB97C \uBC14\uAFB8\uACE0 \uB300\uC2E0
-    \uACF5\uACA9\uC744 \uBC1B\uB294\uB2E4."
+    \uACF5\uACA9\uC744 \uBC1B\uC2B5\uB2C8\uB2E4."
   tooltipSections: []
   localizedEffectName:
     m_TableReference:

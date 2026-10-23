@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -75,6 +75,7 @@ public sealed class RelicRewardCardUI : MonoBehaviour, IPointerEnterHandler, IPo
     {
         if (animator == null) yield break;
         animator.gameObject.SetActive(true);
+        if (animator == iconGlitch) animator.SetGlitchFlashColor(Colors.iconGlitch);
         animator.PlayOpen();
         while (animator.IsPlaying) yield return null;
     }

@@ -17,9 +17,9 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: f63416cfa67d856469c21790a1e657d2, type: 3}
   description: "\uC790\uC2E0\uC744 \uC81C\uAC70\uD558\uACE0, \uC6D0\uB798 \uC704\uCE58\uC640
     \uC778\uC811\uD55C \uBE48\uCE78\uC5D0 \uC824\uB8E8 [\uD3F0]\uC744 \uAC01\uAC01
-    1\uAC1C\uC529 \uC0DD\uC131\uD55C\uB2E4. \uC0DD\uC131\uB41C \uAE30\uBB3C\uC740
+    1\uAC1C\uC529 \uC0DD\uC131\uD569\uB2C8\uB2E4. \uC0DD\uC131\uB41C \uAE30\uBB3C\uC740
     \uC790\uC2E0\uC758 \uD2B9\uC131\uC744 \uC774\uC5B4\uBC1B\uC73C\uBA70, [\uACF5\uACA9\uBD88\uAC00]\uB97C
-    1\uD134 \uBD80\uC5EC\uBC1B\uB294\uB2E4."
+    1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uBC1B\uC2B5\uB2C8\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
     sectionColor: {r: 1, g: 1, b: 1, a: 1}

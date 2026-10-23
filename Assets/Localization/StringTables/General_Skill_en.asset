@@ -23,55 +23,61 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 793382912
-    m_Localized: When you defeat an enemy piece, you have a {percent}% chance to
-      gain an extra action.
+    m_Localized: When this piece defeats an enemy piece, has a {percent}% chance
+      to gain 1 extra action.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351113
   - m_Id: 793382913
-    m_Localized: When you defeat an enemy piece, you have a {percent}% chance to
-      gain an extra action.
+    m_Localized: When this piece defeats an enemy piece, has a {percent}% chance
+      to gain 1 extra action.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351114
   - m_Id: 102131248533504
     m_Localized: Defensive Stance
     m_Metadata:
       m_Items: []
   - m_Id: 102131315642368
-    m_Localized: When moving, has a {percent}% chance to gain the Defense status
-      effect.
+    m_Localized: When moving, has a {percent}% chance to gain [Defense].
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351115
   - m_Id: 102131315642369
-    m_Localized: When moving, has a {percent}% chance to gain the Defense status
-      effect.
+    m_Localized: When moving, has a {percent}% chance to gain [Defense].
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351116
   - m_Id: 153956693708800
     m_Localized: Insight
     m_Metadata:
       m_Items: []
   - m_Id: 153956756623360
-    m_Localized: Has a {percent}% chance to ignore the opponent's Defense and Evasion.
+    m_Localized: Has a {percent}% chance to ignore the opponent's [Defense] and [Evasion].
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351117
   - m_Id: 153956756623361
-    m_Localized: Has a {percent}% chance to ignore the opponent's Defense and Evasion.
+    m_Localized: Has a {percent}% chance to ignore the opponent's [Defense] and [Evasion].
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351118
   - m_Id: 16710000000000001
     m_Localized: Quick Step
     m_Metadata:
       m_Items: []
   - m_Id: 16710000000000002
-    m_Localized: After a successful attack, gain one extra move with a {percent}%
-      chance. This move cannot capture a piece.
+    m_Localized: After a successful attack, has a {percent}% chance to gain 1 extra
+      move. This extra move cannot capture an enemy piece.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351119
   - m_Id: 16710000000000003
-    m_Localized: After a successful attack, gain one extra move with a {percent}%
-      chance. This move cannot capture a piece.
+    m_Localized: After a successful attack, has a {percent}% chance to gain 1 extra
+      move. This extra move cannot capture an enemy piece.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351120
   - m_Id: 17473334455963648
     m_Localized: 'Resistance (Basic): Attack Disabled'
     m_Metadata:
@@ -109,113 +115,149 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17473335370321920
-    m_Localized: 'Resistance (Basic): Action Disabled'
+    m_Localized: Action Disabled Resistance I
     m_Metadata:
       m_Items: []
   - m_Id: 17473335370321921
-    m_Localized: Has a 10% chance to resist Action Disabled when it is applied.
+    m_Localized: When [Action Disabled] would be applied, has a 10% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351121
   - m_Id: 17473335370321922
-    m_Localized: Has a {percent}% chance to resist Action Disabled when it is applied.
+    m_Localized: When [Action Disabled] would be applied, has a {percent}% chance
+      to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351122
   - m_Id: 17473335559065600
-    m_Localized: 'Resistance (Intermediate): Action Disabled'
+    m_Localized: Action Disabled Resistance II
     m_Metadata:
       m_Items: []
   - m_Id: 17473335559065601
-    m_Localized: Has a 20% chance to resist Action Disabled when it is applied.
+    m_Localized: When [Action Disabled] would be applied, has a 20% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351123
   - m_Id: 17473335559065602
-    m_Localized: Has a {percent}% chance to resist Action Disabled when it is applied.
+    m_Localized: When [Action Disabled] would be applied, has a {percent}% chance
+      to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351124
   - m_Id: 17473335743614976
-    m_Localized: 'Resistance (Advanced): Action Disabled'
+    m_Localized: Action Disabled Resistance III
     m_Metadata:
       m_Items: []
   - m_Id: 17473335743614977
-    m_Localized: Has a 30% chance to resist Action Disabled when it is applied.
+    m_Localized: When [Action Disabled] would be applied, has a 30% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351125
   - m_Id: 17473335743614978
-    m_Localized: Has a {percent}% chance to resist Action Disabled when it is applied.
+    m_Localized: When [Action Disabled] would be applied, has a {percent}% chance
+      to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351126
   - m_Id: 17477364905283584
-    m_Localized: 'Resistance (Basic): Move Disabled'
+    m_Localized: Move Disabled Resistance I
     m_Metadata:
       m_Items: []
   - m_Id: 17477364976586752
-    m_Localized: Has a 15% chance to resist Move Disabled when it is applied.
+    m_Localized: When [Move Disabled] would be applied, has a 15% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351127
   - m_Id: 17477364976586753
-    m_Localized: Has a {percent}% chance to resist Move Disabled when it is applied.
+    m_Localized: When [Move Disabled] would be applied, has a {percent}% chance to
+      resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351128
   - m_Id: 17477365416988672
-    m_Localized: 'Resistance (Intermediate): Move Disabled'
+    m_Localized: Move Disabled Resistance II
     m_Metadata:
       m_Items: []
   - m_Id: 17477365416988673
-    m_Localized: Has a 30% chance to resist Move Disabled when it is applied.
+    m_Localized: When [Move Disabled] would be applied, has a 30% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351129
   - m_Id: 17477365416988674
-    m_Localized: Has a {percent}% chance to resist Move Disabled when it is applied.
+    m_Localized: When [Move Disabled] would be applied, has a {percent}% chance to
+      resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351130
   - m_Id: 17477365609926656
-    m_Localized: 'Resistance (Advanced): Move Disabled'
+    m_Localized: Move Disabled Resistance III
     m_Metadata:
       m_Items: []
   - m_Id: 17477365609926657
-    m_Localized: Has a 50% chance to resist Move Disabled when it is applied.
+    m_Localized: When [Move Disabled] would be applied, has a 50% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351131
   - m_Id: 17477365614120960
-    m_Localized: Has a {percent}% chance to resist Move Disabled when it is applied.
+    m_Localized: When [Move Disabled] would be applied, has a {percent}% chance to
+      resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351132
   - m_Id: 17529668530475008
-    m_Localized: 'Resistance (Basic): Ability Sealed'
+    m_Localized: Ability Sealed Resistance I
     m_Metadata:
       m_Items: []
   - m_Id: 17529668614361088
-    m_Localized: Has a 15% chance to resist Ability Sealed when it is applied.
+    m_Localized: When [Ability Sealed] would be applied, has a 15% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351133
   - m_Id: 17529668614361089
-    m_Localized: Has a {percent}% chance to resist Ability Sealed when it is applied.
+    m_Localized: When [Ability Sealed] would be applied, has a {percent}% chance
+      to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351134
   - m_Id: 17529669063151616
-    m_Localized: 'Resistance (Intermediate): Ability Sealed'
+    m_Localized: Ability Sealed Resistance II
     m_Metadata:
       m_Items: []
   - m_Id: 17529669063151617
-    m_Localized: Has a 30% chance to resist Ability Sealed when it is applied.
+    m_Localized: When [Ability Sealed] would be applied, has a 30% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351135
   - m_Id: 17529669063151618
-    m_Localized: Has a {percent}% chance to resist Ability Sealed when it is applied.
+    m_Localized: When [Ability Sealed] would be applied, has a {percent}% chance
+      to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351136
   - m_Id: 17529669268672512
-    m_Localized: 'Resistance (Advanced): Ability Sealed'
+    m_Localized: Ability Sealed Resistance III
     m_Metadata:
       m_Items: []
   - m_Id: 17529669268672513
-    m_Localized: Has a 50% chance to resist Ability Sealed when it is applied.
+    m_Localized: When [Ability Sealed] would be applied, has a 50% chance to resist
+      and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351137
   - m_Id: 17529669268672514
-    m_Localized: Has a {percent}% chance to resist Ability Sealed when it is applied.
+    m_Localized: When [Ability Sealed] would be applied, has a {percent}% chance
+      to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351138
   - m_Id: 17798063515635712
     m_Localized: Attack Disabled Resistance I
     m_Metadata:
@@ -224,12 +266,14 @@ MonoBehaviour:
     m_Localized: When [Attack Disabled] would be applied, has a 15% chance to resist
       and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351139
   - m_Id: 17798063595327489
     m_Localized: When [Attack Disabled] would be applied, has a {percent}% chance
       to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351140
   - m_Id: 17798475647946752
     m_Localized: Attack Disabled Resistance II
     m_Metadata:
@@ -238,12 +282,14 @@ MonoBehaviour:
     m_Localized: When [Attack Disabled] would be applied, has a 30% chance to resist
       and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351141
   - m_Id: 17798475647946754
     m_Localized: When [Attack Disabled] would be applied, has a {percent}% chance
       to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351142
   - m_Id: 17798744809017344
     m_Localized: Attack Disabled Resistance III
     m_Metadata:
@@ -252,12 +298,274 @@ MonoBehaviour:
     m_Localized: When [Attack Disabled] would be applied, has a 50% chance to resist
       and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351143
   - m_Id: 17798744809017346
     m_Localized: When [Attack Disabled] would be applied, has a {percent}% chance
       to resist and prevent the effect.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351144
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 1511529955060351113
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: 1 extra action
+          role: 5
+    - rid: 1511529955060351114
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: 1 extra action
+          role: 5
+    - rid: 1511529955060351115
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351116
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351117
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+        - text: '[Evasion]'
+          role: 3
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351118
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+        - text: '[Evasion]'
+          role: 3
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351119
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: 1 extra move
+          role: 5
+    - rid: 1511529955060351120
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: 1 extra move
+          role: 5
+    - rid: 1511529955060351121
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Action Disabled]'
+          role: 4
+        - text: 10%
+          role: 5
+    - rid: 1511529955060351122
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Action Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351123
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Action Disabled]'
+          role: 4
+        - text: 20%
+          role: 5
+    - rid: 1511529955060351124
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Action Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351125
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Action Disabled]'
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511529955060351126
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Action Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351127
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+        - text: 15%
+          role: 5
+    - rid: 1511529955060351128
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351129
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511529955060351130
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351131
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+        - text: 50%
+          role: 5
+    - rid: 1511529955060351132
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351133
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+        - text: 15%
+          role: 5
+    - rid: 1511529955060351134
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351135
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511529955060351136
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351137
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+        - text: 50%
+          role: 5
+    - rid: 1511529955060351138
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351139
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 15%
+          role: 5
+    - rid: 1511529955060351140
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351141
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511529955060351142
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511529955060351143
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 50%
+          role: 5
+    - rid: 1511529955060351144
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: '{percent}%'
+          role: 5

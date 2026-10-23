@@ -18,6 +18,8 @@ public class PopupOpenAnimator : MonoBehaviour
 
     // 현재 실행 중인 애니메이션 코루틴
     private Coroutine openCoroutine;
+    private Color? glitchFlashColor;
+    public void SetGlitchFlashColor(Color color) { glitchFlashColor = color; }
     private readonly PopupScreenGlitchEffect screenGlitch = new PopupScreenGlitchEffect();
     private void OnDestroy() { screenGlitch.Dispose(); }
 
@@ -137,7 +139,7 @@ public class PopupOpenAnimator : MonoBehaviour
         canvasGroup.blocksRaycasts = animationData.blocksRaycasts;
         canvasGroup.interactable = animationData.interactable;
 
-        screenGlitch.Begin(targetRect, animationData);
+        screenGlitch.Begin(targetRect, animationData, glitchFlashColor);
         float duration = Mathf.Max(0.001f, animationData.duration);
         float elapsed = 0f;
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +11,7 @@ public sealed class PopupScreenGlitchEffect
     float strength;
     static readonly int Amount = Shader.PropertyToID("_GlitchAmount");
     static readonly int Phase = Shader.PropertyToID("_GlitchPhase");
-    public void Begin(RectTransform target, PopupOpenAnimationData data)
+    public void Begin(RectTransform target, PopupOpenAnimationData data, Color? flashColor = null)
     {
         Stop();
         if (target == null || !data.useScreenGlitch || data.screenGlitchMaterial == null || data.screenGlitchStrength <= 0 ||
@@ -25,6 +25,7 @@ public sealed class PopupScreenGlitchEffect
                 runtime = new Material(data.screenGlitchMaterial) { name = "PopupLocalGlitchMaterial" } };
             if (graphic is Image image && image.overrideSprite != null)
                 entry.runtime.SetVector("_UVRect", UnityEngine.Sprites.DataUtility.GetOuterUV(image.overrideSprite));
+            entry.runtime.SetColor("_FlashColor", flashColor ?? Color.clear);
             entry.runtime.SetFloat(Amount, 0);
             entries.Add(entry);graphic.material = entry.runtime;
         }

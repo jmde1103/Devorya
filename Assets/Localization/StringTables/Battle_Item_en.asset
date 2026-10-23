@@ -31,10 +31,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 34076606730240
-    m_Localized: Applies [Defense] and [Action Disabled] to the selected piece for
-      1 turn.
+    m_Localized: Applies [Defense] to the selected allied piece for 1 turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351107
   - m_Id: 15233645984485376
     m_Localized: Blue Slime Fragment
     m_Metadata:
@@ -49,17 +49,19 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 15233677404016641
     m_Localized: Transforms the selected allied piece into a Jellu [Knight], then
-      applies <Attack Disabled> for 1 turn.
+      applies [Attack Disabled] for 1 turn.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351108
   - m_Id: 17784038891327488
-    m_Localized: Fighting Fruit
+    m_Localized: Fighting Spirit Fruit
     m_Metadata:
       m_Items: []
   - m_Id: 17784038962630656
     m_Localized: Immediately removes [Attack Disabled] from the selected allied piece.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351109
   - m_Id: 17784039444975616
     m_Localized: Awakening Fruit
     m_Metadata:
@@ -67,7 +69,8 @@ MonoBehaviour:
   - m_Id: 17784039444975617
     m_Localized: Immediately removes [Ability Sealed] from the selected allied piece.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351110
   - m_Id: 17784039646302208
     m_Localized: Vitality Fruit
     m_Metadata:
@@ -75,16 +78,18 @@ MonoBehaviour:
   - m_Id: 17784039646302209
     m_Localized: Immediately removes [Move Disabled] from the selected allied piece.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351111
   - m_Id: 17792243658788864
     m_Localized: Worn Boots
     m_Metadata:
       m_Items: []
   - m_Id: 17792243738480640
-    m_Localized: Applies [Attack Disabled] for 1 turn to the selected allied piece
-      and immediately grants one extra move.
+    m_Localized: Applies [Attack Disabled] to the selected allied piece for 1 turn
+      and immediately grants 1 extra move.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529955060351112
   - m_Id: 18038769924575232
     m_Localized: Test
     m_Metadata:
@@ -95,4 +100,48 @@ MonoBehaviour:
       m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 1511529955060351107
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+        - text: 1 turn
+          role: 5
+    - rid: 1511529955060351108
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 1 turn
+          role: 5
+    - rid: 1511529955060351109
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+    - rid: 1511529955060351110
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+    - rid: 1511529955060351111
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+    - rid: 1511529955060351112
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 1 turn
+          role: 5
+        - text: 1 extra move
+          role: 5
