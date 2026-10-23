@@ -89,6 +89,7 @@ GameObject:
   - component: {fileID: 6316452243708730831}
   - component: {fileID: 5357845404779523789}
   - component: {fileID: 155509516754512275}
+  - component: {fileID: 8009282623820450568}
   m_Layer: 5
   m_Name: Slot_3
   m_TagString: Untagged
@@ -232,6 +233,22 @@ MonoBehaviour:
   sectionPositionOffset: {x: 0, y: 0}
   popupOffsetXPerSection: 50
   popupOffsetYPerSection: 50
+--- !u!114 &8009282623820450568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924536920049282570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d24b82d146b60dc4596ae57bcdc5bf18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotHoverFeedback
+  hoverScale: 1.06
+  speed: 14
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineSize: {x: 1.5, y: -1.5}
 --- !u!1 &3687076499576723897
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,6 +263,7 @@ GameObject:
   - component: {fileID: 6976176879174859885}
   - component: {fileID: 2963716536865985524}
   - component: {fileID: 2354948557933111224}
+  - component: {fileID: 245724336990733900}
   m_Layer: 5
   m_Name: Slot_0
   m_TagString: Untagged
@@ -389,6 +407,22 @@ MonoBehaviour:
   sectionPositionOffset: {x: 0, y: 0}
   popupOffsetXPerSection: 50
   popupOffsetYPerSection: 50
+--- !u!114 &245724336990733900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3687076499576723897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d24b82d146b60dc4596ae57bcdc5bf18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotHoverFeedback
+  hoverScale: 1.06
+  speed: 14
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineSize: {x: 1.5, y: -1.5}
 --- !u!1 &5548342653268780648
 GameObject:
   m_ObjectHideFlags: 0
@@ -403,6 +437,7 @@ GameObject:
   - component: {fileID: 917952906699161257}
   - component: {fileID: 719971369663489437}
   - component: {fileID: 3185787476623348389}
+  - component: {fileID: 3609853759123080439}
   m_Layer: 5
   m_Name: Slot_2
   m_TagString: Untagged
@@ -546,6 +581,22 @@ MonoBehaviour:
   sectionPositionOffset: {x: 0, y: 0}
   popupOffsetXPerSection: 50
   popupOffsetYPerSection: 50
+--- !u!114 &3609853759123080439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548342653268780648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d24b82d146b60dc4596ae57bcdc5bf18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotHoverFeedback
+  hoverScale: 1.06
+  speed: 14
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineSize: {x: 1.5, y: -1.5}
 --- !u!1 &5671118116790550094
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,6 +903,7 @@ GameObject:
   - component: {fileID: 4991256740834484691}
   - component: {fileID: 6006642979419565558}
   - component: {fileID: 6437466813825765405}
+  - component: {fileID: 6233063512119403467}
   m_Layer: 5
   m_Name: Slot_1
   m_TagString: Untagged
@@ -995,6 +1047,22 @@ MonoBehaviour:
   sectionPositionOffset: {x: 0, y: 0}
   popupOffsetXPerSection: 50
   popupOffsetYPerSection: 50
+--- !u!114 &6233063512119403467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8437260350674495993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d24b82d146b60dc4596ae57bcdc5bf18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotHoverFeedback
+  hoverScale: 1.06
+  speed: 14
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineSize: {x: 1.5, y: -1.5}
 --- !u!1 &9030980984004726473
 GameObject:
   m_ObjectHideFlags: 0

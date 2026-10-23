@@ -100,7 +100,8 @@ public enum EventSceneStepType
     // <변경부분>
     // Event Scene 전용 화면 글리치 효과.
     // 기존 Step의 Serialized 번호를 변경하지 않는다.
-    ScreenGlitch = 18
+    ScreenGlitch = 18,
+    [InspectorName("유물 선택 보상")] RelicReward = 19
 }
 
 
@@ -1075,6 +1076,7 @@ public class EventSceneStepData
     // <변경부분>
     // Use Drop Rewards가 켜져 있을 때만 필요하다.
     public BattleRewardData rewardSelectionData;
+    [InspectorName("유물 보상 목록")] public RelicRewardListData relicRewardList;
 
     // <변경부분>
     // 가상의 흡수 횟수로 기물을 복구할지 여부.

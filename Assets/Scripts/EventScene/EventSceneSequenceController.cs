@@ -218,7 +218,7 @@ public class EventSceneSequenceController : MonoBehaviour
     // ShopItemDisplay 등 Event Scene 상호작용 오브젝트가
     // 현재 입력 가능 여부를 확인할 때 사용하는 공용 상태.
     public bool IsPlayerInteractionLocked =>
-      isPlayerInteractionLocked;
+      isPlayerInteractionLocked || RelicRewardPopupUI.IsOpen;
 
 
     // <변경부분>
@@ -676,6 +676,9 @@ public class EventSceneSequenceController : MonoBehaviour
             // <변경부분>
             // 이벤트씬에서 전리품 선택창을 표시하고
             // 수령 완료 또는 Confirm까지 대기한다.
+            case EventSceneStepType.RelicReward:
+                yield return RelicRewardPopupUI.ShowRoutine(this, step.relicRewardList);
+                break;
             case EventSceneStepType.ShowRewardSelection:
 
                 yield return
@@ -2371,6 +2374,8 @@ attacker.PlayAttackRoutine(
     // Fade Out 시작 시에는 즉시 Raycast를 차단하고,
     // Fade In 완료 후에만 Raycast를 허용하여
     // 보이지 않는 UI가 입력을 가로채지 않도록 한다.
+    public void ShowHUDForRelicReward() { SetRunHUDVisibleImmediately(true); }
+
     private void SetRunHUDVisibleWithFade(
         bool isVisible)
     {
@@ -3529,6 +3534,7 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
     // Event Scene Sequence를 외부에서 즉시 정지한다.
     public void StopSequence()
     {
+        RelicRewardPopupUI.CloseOwned(this);
         isSequenceActive =
             false;
 
@@ -3617,6 +3623,7 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
 
     private void OnDisable()
     {
+        RelicRewardPopupUI.CloseOwned(this);
         StopSequenceCoroutine();
 
         // <변경부분>

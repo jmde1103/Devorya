@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public sealed class WorldMapEventController : MonoBehaviour
 {
     public static WorldMapEventController Instance { get; private set; }
-    public static bool InputLocked => Instance != null && (Instance.inputLocked || Instance.dialogueActive);
+    public static bool InputLocked => RelicRewardPopupUI.IsOpen || (Instance != null && (Instance.inputLocked || Instance.dialogueActive));
     public bool IsPlaying { get; private set; }
     [SerializeField, InspectorName("수동 실행용 이벤트 데이터")] WorldMapEventData eventData;
 
@@ -50,6 +50,7 @@ public sealed class WorldMapEventController : MonoBehaviour
             if(step==null || !step.enabled) continue;
             switch(step.type)
             {
+                case WorldMapEventStepType.RelicReward: yield return RelicRewardPopupUI.ShowRoutine(this, step.relicRewardList); break;
                 case WorldMapEventStepType.Dialogue:
                     if(dialogueUI==null){Debug.LogWarning("월드맵 이벤트: 대화 UI가 연결되지 않았습니다.",this);break;}
                     dialogueActive=true; ApplyUI();
@@ -86,6 +87,7 @@ public sealed class WorldMapEventController : MonoBehaviour
         while(glitch!=null&&glitch.IsPlaying)yield return null;
         Finish(data.restoreLightingOnComplete);
     }
+    public void ShowHUDForRelicReward() { uiVisible=true; ApplyUI(); }
     public void SetInputLocked(bool locked) { inputLocked=locked;ApplyUI(); }
     void ApplyUI()
     {
@@ -124,7 +126,7 @@ public sealed class WorldMapEventController : MonoBehaviour
         flashImage.gameObject.SetActive(false);flashRoutine=null;
     }
     [ContextMenu("이벤트 중단·복원")]
-    public void StopEvent(){StopAllCoroutines();Finish(true);}
+    public void StopEvent(){RelicRewardPopupUI.CloseOwned(this);StopAllCoroutines();Finish(true);}
     void Finish(bool restoreLight)
     {
         if(IsPlaying&&dialogueUI!=null)dialogueUI.HideImmediately();

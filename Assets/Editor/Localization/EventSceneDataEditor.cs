@@ -2739,6 +2739,9 @@ public class EventSceneDataEditor : Editor
 
             // <변경부분>
             // 전리품 보상과 가상 흡수량 기반 기물 복구를 독립 설정한다.
+            case EventSceneStepType.RelicReward:
+                ProcessEventSceneProperties(ref currentY, contentRect, stepProperty, draw, "relicRewardList", "유물 보상 목록");
+                break;
             case EventSceneStepType.ShowRewardSelection:
 
                 ProcessEventSceneSectionLabel(

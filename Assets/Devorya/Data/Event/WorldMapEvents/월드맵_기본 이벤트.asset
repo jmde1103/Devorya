@@ -13,14 +13,40 @@ MonoBehaviour:
   m_Name: "\uC6D4\uB4DC\uB9F5_\uAE30\uBCF8 \uC774\uBCA4\uD2B8"
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapEventData
   eventName: "\uC6D4\uB4DC\uB9F5 \uAE30\uBCF8 \uC774\uBCA4\uD2B8"
+  description: 
   restoreLightingOnComplete: 1
   steps:
-  - enabled: 1
+  - relicRewardList: {fileID: 0}
+    enabled: 1
+    stepName: "\uC0C8 \uC2A4\uD15D"
+    type: 1
+    dialoguePages: []
+    localizedDialoguePages: []
+    dialoguePageIds: []
+    lockPlayerInput: 1
+    showUI: 1
+    glitchStrength: 0.55
+    glitchDuration: 0.4
+    waitForComplete: 1
+    changeGlobalLight: 1
+    lightColor: {r: 1, g: 1, b: 1, a: 1}
+    lightIntensity: 1
+    lightFadeDuration: 0.5
+    screenFlash: 0
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashStrength: 0.7
+    flashDuration: 0.15
+    flashCount: 1
+    flashInterval: 0.1
+    waitDuration: 0.5
+  - relicRewardList: {fileID: 0}
+    enabled: 1
     stepName: "\uAE00\uB9AC\uCE58 \uD6A8\uACFC"
     type: 3
     dialoguePages:
     - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
     localizedDialoguePages: []
+    dialoguePageIds: []
     lockPlayerInput: 0
     showUI: 0
     glitchStrength: 1
@@ -37,12 +63,14 @@ MonoBehaviour:
     flashCount: 0
     flashInterval: 0
     waitDuration: 0
-  - enabled: 1
+  - relicRewardList: {fileID: 0}
+    enabled: 1
     stepName: "\uB300\uD654"
     type: 0
     dialoguePages:
     - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
     localizedDialoguePages: []
+    dialoguePageIds: []
     lockPlayerInput: 0
     showUI: 0
     glitchStrength: 0
@@ -59,6 +87,29 @@ MonoBehaviour:
     flashCount: 0
     flashInterval: 0
     waitDuration: 0
+  - relicRewardList: {fileID: 11400000, guid: 1b42d721f4928584bbe934a870e263e0, type: 2}
+    enabled: 1
+    stepName: "\uC0C8 \uC2A4\uD15D"
+    type: 6
+    dialoguePages: []
+    localizedDialoguePages: []
+    dialoguePageIds: []
+    lockPlayerInput: 1
+    showUI: 1
+    glitchStrength: 0.55
+    glitchDuration: 0.4
+    waitForComplete: 1
+    changeGlobalLight: 1
+    lightColor: {r: 1, g: 1, b: 1, a: 1}
+    lightIntensity: 1
+    lightFadeDuration: 0.5
+    screenFlash: 0
+    flashColor: {r: 1, g: 1, b: 1, a: 1}
+    flashStrength: 0.7
+    flashDuration: 0.15
+    flashCount: 1
+    flashInterval: 0.1
+    waitDuration: 0.5
   references:
     version: 2
     RefIds: []

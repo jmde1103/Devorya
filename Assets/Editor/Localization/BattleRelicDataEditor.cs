@@ -38,6 +38,20 @@ public class BattleRelicDataEditor : Editor
 
         EditorGUILayout.Space(10);
 
+        EditorGUILayout.LabelField("희귀도 공통 색상", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("색상은 모든 유물이 공유합니다. 희귀도를 바꾸면 해당 색상이 자동 적용됩니다.", MessageType.Info);
+        using(new EditorGUI.DisabledScope(true))
+        {
+            var colors=relicData.RarityColors;
+            EditorGUILayout.ColorField("호버 아웃라인", colors.hover);
+            EditorGUILayout.ColorField("선택 발광·아웃라인", colors.selected);
+            EditorGUILayout.ColorField("흡수 입자", colors.particles);
+        }
+        if(GUILayout.Button("공통 희귀도 색상 설정 열기"))
+        {
+            Selection.activeObject=RelicRarityPalette.Shared;
+            EditorGUIUtility.PingObject(RelicRarityPalette.Shared);
+        }
         DrawLocalizationInspector(
             relicData
         );

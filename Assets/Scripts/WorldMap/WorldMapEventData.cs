@@ -10,12 +10,14 @@ public enum WorldMapEventStepType
     [InspectorName("UI 숨김·표시")] UIVisibility = 2,
     [InspectorName("스크린 글리치")] ScreenGlitch = 3,
     [InspectorName("글로벌 조명·반짝임")] GlobalLighting = 4,
-    [InspectorName("대기")] Wait = 5
+    [InspectorName("대기")] Wait = 5,
+    [InspectorName("유물 선택 보상")] RelicReward = 6
 }
 
 [Serializable]
 public class WorldMapEventStep
 {
+    [InspectorName("유물 보상 목록")] public RelicRewardListData relicRewardList;
     public bool enabled = true;
     public string stepName = "새 스텝";
     public WorldMapEventStepType type;

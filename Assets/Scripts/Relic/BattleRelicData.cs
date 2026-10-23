@@ -16,6 +16,10 @@ public class BattleRelicData : ScriptableObject
     // 유물 슬롯에 표시할 아이콘 이미지
     public Sprite iconSprite;
 
+    [Range(1, 3), InspectorName("희귀도")] public int rarity = 1;
+    public RelicRarityPalette.Colors RarityColors => RelicRarityPalette.Shared != null
+        ? RelicRarityPalette.Shared.GetColors(rarity) : RelicRarityPalette.Colors.Default;
+
     // 유물 효과 설명
     [TextArea]
     public string description;
