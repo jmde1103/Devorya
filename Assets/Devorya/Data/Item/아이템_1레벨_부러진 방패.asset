@@ -15,8 +15,8 @@ MonoBehaviour:
   itemType: 2
   itemName: "\uBD80\uB7EC\uC9C4 \uBC29\uD328"
   iconSprite: {fileID: 21300000, guid: 59af9fd5b66524a4aa9ecbbae3350b26, type: 3}
-  description: "\uC120\uD0DD\uD55C \uC544\uAD70 \uAE30\uBB3C\uC5D0\uAC8C [\uBC29\uC5B4]\uB97C
-    1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+  description: "\uC120\uD0DD\uD55C \uC544\uAD70 \uAE30\uBB3C\uC5D0\uAC8C [\uBC29\uC5B4]\uC640
+    [\uACF5\uACA9\uBD88\uAC00]\uB97C \uAC01\uAC01 1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   localizedItemName:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
@@ -45,8 +45,18 @@ MonoBehaviour:
     useAbsorbedJelluVisual: 1
     statusEffectData: {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}
     statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
+  - effectType: 1
+    changeTargetPieceData: {fileID: 0}
+    changeTargetPieceType: 0
+    changeTargetUniqueSkill: 0
+    changeTargetGeneralSkill: 0
+    useAbsorbedJelluVisual: 1
+    statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
+    statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}
+    sectionColor: {r: 0, g: 0, b: 0, a: 0}
+  - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
     sectionColor: {r: 0, g: 0, b: 0, a: 0}
   changeTargetPieceData: {fileID: 0}
   changeTargetPieceType: 0

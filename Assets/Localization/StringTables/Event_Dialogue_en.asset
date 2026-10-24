@@ -130,7 +130,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 805965856
-    m_Localized: Basic function test complete.
+    m_Localized: Basic function tes...ting has been com...ple...ted.
     m_Metadata:
       m_Items: []
   - m_Id: 805965857
@@ -527,6 +527,21 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 15113949142454274
     m_Localized: Use the reconstructed [Bishop]-type ability to minimize damage.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16471816500023296
+    m_Localized: Basic function test complete.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16471816579715072
+    m_Localized: Pro...ceeding with the ne...xt test.... con...tin...u...ing....
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16474093692522496
+    m_Localized: 'Severe imp...act detec...ted. Due to an imp...act exceeding expec...ted
+      levels...
+
+      Sys...tem er...ror....'
     m_Metadata:
       m_Items: []
   references:

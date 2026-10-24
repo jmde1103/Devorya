@@ -31,7 +31,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 34076606730240
-    m_Localized: Applies [Defense] to the selected allied piece for 1 turn.
+    m_Localized: Applies [Defense] and [Attack Disabled] to the selected allied piece
+      for 1 turn each.
     m_Metadata:
       m_Items:
       - rid: 1511529955060351107
