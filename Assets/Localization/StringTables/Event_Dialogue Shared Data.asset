@@ -463,6 +463,18 @@ MonoBehaviour:
     m_Key: event.event_sequence_data_tutorial_ep_1.dialogue_b77d22c7.page_6c9f05e3
     m_Metadata:
       m_Items: []
+  - m_Id: 16652957899165696
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_e83882f4.page_1d18a7da
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16653393033039872
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_32338e67.page_f4bd9fc3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16653393033039873
+    m_Key: event.event_sequence_data_tutorial_ep_2.dialogue_32338e67.page_21681bd9
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -499,8 +499,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15170641813180416
-    m_Localized: No response detected from nearby lifeforms. Searching for a new
-      destination and proceeding.
+    m_Localized: 'No signs of nearby lifeforms detected.
+
+      No additional threats
+      are present.
+
+      Disengaging alert mode.'
     m_Metadata:
       m_Items: []
   - m_Id: 15170696221691904
@@ -542,6 +546,25 @@ MonoBehaviour:
       levels...
 
       Sys...tem er...ror....'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16652957899165696
+    m_Localized: 'Information from absorbed entities is recorded.
+
+      After combat,
+      the number of absorbed entities contributes to the recovery of Devorya Fragments.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16653393033039872
+    m_Localized: 'Using the Ability of a reconstructed piece consumes Devorya''s
+      Energy.
+
+      The amount of Energy consumed varies by Ability, and if Energy
+      reaches 0, no more Abilities can be used for the rest of that turn.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16653393033039873
+    m_Localized: Ae turn, Et the end of thnergy is restored to its maximum.
     m_Metadata:
       m_Items: []
   references:

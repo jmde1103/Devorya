@@ -101,6 +101,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -122,9 +123,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uBB34\uBE592"
     stepType: 10
@@ -207,6 +210,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -228,9 +232,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
     stepType: 3
@@ -313,6 +319,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -334,9 +341,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC7A1\uB3D9\uC0AC\uB2C8\uB97C \uBC1C\uACAC\uD588\uB2E4."
     stepType: 1
@@ -467,6 +476,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -488,9 +498,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uBB34\uBE0C"
     stepType: 10
@@ -573,6 +585,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -594,9 +607,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uD654\uBA74 \uD754\uB4E4\uB9BC"
     stepType: 11
@@ -679,6 +694,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -700,9 +716,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBCF4\uC0C1 \uBB38\uAD6C"
     stepType: 1
@@ -796,6 +814,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -817,9 +836,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "UI\uC628"
     stepType: 13
@@ -902,6 +923,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -923,9 +945,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 1
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uBCF4\uC0C1\uD398\uC774\uC9C0"
     stepType: 15
@@ -1008,6 +1032,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -1029,9 +1054,11 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 11400000, guid: 00b9d4a6fde45cc45a9800edf902b896, type: 2}
-    rewardSelectionUseRestoration: 1
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 4
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC774\uBCA4\uD2B8 \uC644\uB8CC"
     stepType: 12
@@ -1114,6 +1141,7 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -1135,14 +1163,17 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 2
   clearCurrentWorldMapNodeOnCompletion: 1
   completionSceneName: WorldMapScene
   completionCutsceneData: {fileID: 0}
+  completionWorldMapEventData: {fileID: 0}
   references:
     version: 2
     RefIds: []

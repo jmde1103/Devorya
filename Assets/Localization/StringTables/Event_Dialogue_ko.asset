@@ -607,6 +607,16 @@ MonoBehaviour:
       \uC778\u314E\u3150...\n\uC2DC\uC2A4\u314C\u3154\u3141 \uC624...\uB958.... "
     m_Metadata:
       m_Items: []
+  - m_Id: 16653393033039872
+    m_Localized: "\uC0C1\uB300 \uAC1C\uCCB4\uAC00 \uACF5\uACA9\uD560 \uC900\uBE44\uB97C
+      \uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16653393033039873
+    m_Localized: "\uC7AC\uAD6C\uC131\uD55C [\uBE44\uC20D] \uD0C0\uC785\uC758 \uB2A5\uB825\uC744
+      \uD65C\uC6A9\uD558\uC5EC \uD53C\uD574\uB97C \uCD5C\uC18C\uD654 \uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
