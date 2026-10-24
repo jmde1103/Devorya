@@ -9,9 +9,10 @@
 메인에는 병합 시작 전 미커밋 변경이 없었다.
 코덱스의 미커밋 변경은 아이템 UX / 이전 툴팁 작업 / 테스트 씬으로 나눠 모두 커밋으로 보존했다.
 
-지시서의 '아이템 UX만 반영' 범위를 적용했다.
-이전 PieceType 툴팁 색상 작업은 메인에 없었다. 포함 여부를 별도 질문했으나 응답 전이므로 이번 병합에서는 제외하고 백업에 보존했다.
-현재 메인에 이미 존재하는 툴팁 코드와 번역은 그대로 유지했다.
+아이템 UX를 우선 병합한 뒤, 사용자의 '툴팁 색상 작업도 포함' 승인에 따라 PieceType 색상 작업도 추가했다.
+백업 커밋 53f6bb1d를 b084192e로 반영했으며 충돌 없이 통합됐다.
+메인의 최신 한국어·영어·일본어 번역은 보존하고 기물 타입 색상 메타데이터를 추가했다.
+12개 번역 테이블의 모든 m_Localized 값을 추가 병합 전 092d7e65와 비교하여 변경 없음을 확인했다.
 원격 Push는 하지 않았다.
 
 2. 백업
@@ -67,6 +68,10 @@ Unity: 6000.4.0f1
 최종 C# 컴파일 오류: 0
 BattleItemUXChecks.Run: ITEM_UX_PLAYMODE_PASS
 Merge1024SecondChecks.Run: MERGE1024_SECOND_PLAYMODE_PASS
+TooltipStyleChecks.Run: TOOLTIP_STYLE_PLAYMODE_PASS (툴팁 색상 추가 병합 후 실행)
+한국어·영어·일본어 각 46개 데이터, 총 138개 툴팁 표시/잘림/섹션 검증 통과.
+Logs/tooltip-merge-checks.log에 결과 기록.
+검증 중 생성된 동적 폰트 아틀라스 변경은 검증 전 상태로 복구했다.
 git diff --check: 통과
 
 아이템 UX:
@@ -106,7 +111,8 @@ GameOver는 참조·원본 소스 보존을 확인했으며, 패배부터 Title�
 새로운 복합 효과 타입 추가 시 검증기 확장이 필요하며 범용 예외 롤백 시스템은 아니다.
 
 8. Git 최종 처리
-병합 커밋: a2010fd7.
+아이템 UX 병합 커밋: a2010fd7.
+툴팁 색상 추가 커밋: b084192e.
 병합 완료 후 codex/status-effect-restrictions를 메인의 최종 커밋으로 fast-forward하여 맞췄다.
 양쪽 HEAD와 추적 파일 트리가 같으며 미커밋 변경이 없음을 확인했다.
 두 작업 폴더의 Library/Logs 등 무시되는 로컬 캐시까지 복사하는 작업은 하지 않는다.
@@ -140,3 +146,28 @@ Docs/BattleScene_아이템사용UX_구현보고_2026-10-24.txt
 Assets/Editor/Merge1024SecondChecks.cs
 Assets/Editor/Merge1024SecondChecks.cs.meta
 Docs/10.24_2차_안전병합_결과.txt
+
+10. 추가 승인된 PieceType 툴팁 색상
+기물 타입 전용 색상 #B7A6D9를 공통 팔레트에 추가했다.
+기존 역할 enum 숫자는 유지하고 PieceType=6을 추가했다.
+Battle_Item / Battle_Relic / Status_Effect / Unique_Skill의 ko/en/ja 테이블에 색상 메타데이터를 반영했다.
+로컬 테스트 씬 커밋 8d3383e2는 여전히 제외하여 메인의 배치를 유지했다.
+추가 반영 파일:
+Assets/Editor/PieceTypeStyleChecks.cs
+Assets/Editor/PieceTypeStyleChecks.cs.meta
+Assets/Localization/StringTables/Battle_Item_en.asset
+Assets/Localization/StringTables/Battle_Item_ja.asset
+Assets/Localization/StringTables/Battle_Item_ko.asset
+Assets/Localization/StringTables/Battle_Relic_en.asset
+Assets/Localization/StringTables/Battle_Relic_ja.asset
+Assets/Localization/StringTables/Battle_Relic_ko.asset
+Assets/Localization/StringTables/Status_Effect_en.asset
+Assets/Localization/StringTables/Status_Effect_ja.asset
+Assets/Localization/StringTables/Status_Effect_ko.asset
+Assets/Localization/StringTables/Unique_Skill_en.asset
+Assets/Localization/StringTables/Unique_Skill_ja.asset
+Assets/Localization/StringTables/Unique_Skill_ko.asset
+Assets/Resources/TooltipStylePalette.asset
+Assets/Scripts/UI/ToolTip/TooltipSemanticMetadata.cs
+Assets/Scripts/UI/ToolTip/TooltipStylePalette.cs
+Docs/PieceType_툴팁_색상_적용보고_2026-10-24.txt
