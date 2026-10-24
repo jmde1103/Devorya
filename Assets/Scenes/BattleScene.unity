@@ -5922,7 +5922,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1542626362837076347, guid: c103721f1134538479acf182688c37c3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1709829551866089014, guid: c103721f1134538479acf182688c37c3, type: 3}
       propertyPath: m_Camera
@@ -38496,7 +38496,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &337650155
 RectTransform:
   m_ObjectHideFlags: 0
@@ -194776,7 +194776,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1814115442
 RectTransform:
   m_ObjectHideFlags: 0

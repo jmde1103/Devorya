@@ -6310,10 +6310,6 @@ MonoBehaviour:
       \uB79C\uB364\uC73C\uB85C \uD68C\uBCF5\uD569\uB2C8\uB2E4."
     - "\uCD5C\uB300 \uAE30\uBB3C \uC218 10\uAC1C \uC774\uC0C1\uC740 \uD68C\uBCF5\uD558\uC9C0
       \uBABB\uD569\uB2C8\uB2E4."
-    - "\uC8FC\uBCC0 \uC0DD\uBA85\uCCB4\uC758 \uBC18\uC751\uC774 \uAC10\uC9C0\uB418\uC9C0
-      \uC54A\uC2B5\uB2C8\uB2E4.\n\uCD94\uAC00 \uC704\uD611 \uC694\uC18C\uAC00 \uC5C6\uB294
-      \uAC83\uC73C\uB85C \uD310\uB2E8\uD569\uB2C8\uB2E4.\n\uACBD\uACC4 \uBAA8\uB4DC\uB97C
-      \uD574\uC81C\uD569\uB2C8\uB2E4."
     dialogueLocalizationId: dialogue_d5bad55f
     dialogueLocalizationPages:
     - localizationId: page_7db738f0
@@ -6332,16 +6328,6 @@ MonoBehaviour:
           m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
         m_TableEntryReference:
           m_KeyId: 15170834298179584
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
-    - localizationId: page_00b467a4
-      localizedText:
-        m_TableReference:
-          m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
-        m_TableEntryReference:
-          m_KeyId: 15170641813180416
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -6419,8 +6405,8 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: 
-    stepType: 17
+  - stepName: "\uD074\uB9AC\uC5B4"
+    stepType: 8
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
@@ -6497,8 +6483,8 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  completionType: 0
-  completionSceneName: WorldMapScene
+  completionType: 2
+  completionSceneName: EventScene
   completionCutsceneData: {fileID: 0}
   completionWorldMapEventData: {fileID: 0}
   references:

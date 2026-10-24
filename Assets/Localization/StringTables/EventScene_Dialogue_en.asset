@@ -149,6 +149,25 @@ MonoBehaviour:
     m_Localized: Threat response detected. Prepare for combat.
     m_Metadata:
       m_Items: []
+  - m_Id: 15591513854185472
+    m_Localized: 'No signs of nearby lifeforms detected.
+
+      No additional threats
+      are present.
+
+      Disengaging alert mode.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15594546860265472
+    m_Localized: 'Damaged function memory data has been detected during the assigned
+      mission.
+
+      Current Energy is sufficient to repair 1 data entry.
+
+      Displaying
+      the list of available data.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
