@@ -808,12 +808,53 @@ eventSceneData;
             eventSceneData;
 
         if (!string.IsNullOrWhiteSpace(enteredEventNodeId) &&
-            enteredEventNodeId == currentNodeId &&
-            string.IsNullOrWhiteSpace(enteredShopNodeId))
+    enteredEventNodeId == currentNodeId &&
+    string.IsNullOrWhiteSpace(enteredShopNodeId))
         {
             enteredEventSceneData =
                 eventSceneData;
         }
+
+        return true;
+    }
+
+
+    // <변경부분>
+    // Battle Event 완료 후 실행할 EventSceneData를 등록한다.
+    //
+    // 월드맵 Event 노드의 정상 방문 처리와 구분한다.
+    // 기존 BeginEventNode()와 달리 아래 상태를 변경하지 않는다.
+    //
+    // - currentNodeId
+    // - enteredBattleNodeId
+    // - pendingStageBattleData
+    // - hasPendingBattleWin
+    // - isDirectBattle
+    // - enteredEventNodeId
+    // - enteredEventSceneData
+    // - Shop 방문 및 상품 상태
+    //
+    // 오직 다음 EventScene에 전달할 데이터만 설정한다.
+    public static bool SetPendingEventSceneDataFromBattleEvent(
+        EventSceneData eventSceneData)
+    {
+        if (eventSceneData == null)
+        {
+            Debug.LogWarning(
+                "Battle Event의 EventSceneData 전달 실패: " +
+                "EventSceneData가 없습니다."
+            );
+
+            return false;
+        }
+
+        pendingEventSceneData =
+            eventSceneData;
+
+        Debug.Log(
+            "Battle Event의 EventSceneData 전달 완료: " +
+            eventSceneData.name
+        );
 
         return true;
     }

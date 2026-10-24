@@ -1544,9 +1544,26 @@ public class PixelCameraController : MonoBehaviour
         }
 
         lastPieceAttackZoomCoroutine =
-            StartCoroutine(
-                PlayLastPieceAttackZoomRoutine()
-            );
+     StartCoroutine(
+         PlayLastPieceAttackZoomRoutine()
+     );
+    }
+
+    // 마지막 적 공격 후 Born과 Color Adjustment는 정상 속도로 재생하되,
+    // 카메라 Zoom과 위치는 기존 시네마틱 복귀 시점까지 유지한다.
+    // 여러 번 호출되어도 최초 저장한 시간 설정으로만 복원한다.
+    public void RestoreLastPieceAttackTimeScaleOnly()
+    {
+        if (isPlayingLastPieceAttackCinematic == false)
+        {
+            return;
+        }
+
+        Time.timeScale =
+            savedTimeScaleBeforeCinematic;
+
+        Time.fixedDeltaTime =
+            savedFixedDeltaTimeBeforeCinematic;
     }
 
     // <변경부분> 공격 중 대상 위치를 계속 중심에 두면서

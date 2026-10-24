@@ -29,8 +29,8 @@ MonoBehaviour:
   savePlayerPiecesToRunState: 1
   enemyFormationData: {fileID: 11400000, guid: b7df25faa6415dd42b375a3f7a216136, type: 2}
   battleRewardData: {fileID: 11400000, guid: 4c942368de2d2544fb3cdef4dbb7450a, type: 2}
-  victorySceneName: TextCutsceneScene
-  victoryCutsceneData: {fileID: 11400000, guid: 1569fa4846c247d4292a6a0c4eecc547, type: 2}
+  victorySceneName: WorldMapScene
+  victoryCutsceneData: {fileID: 0}
   victoryWorldMapEventData: {fileID: 0}
   enemyUniqueSkillUseChance: 80
   enemyMaxUniqueSkillUsesPerTurn: 2

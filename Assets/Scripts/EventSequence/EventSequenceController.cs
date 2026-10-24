@@ -3837,11 +3837,101 @@ public class EventSequenceController : MonoBehaviour
 
                 WorldMapEventRuntimeState.Queue(sequenceData.completionWorldMapEventData);
                 SceneManager.LoadScene(
-                    sequenceData
-                        .completionSceneName
-                );
+    sequenceData
+        .completionSceneName
+);
 
                 return;
+
+            // =====================================================
+            // EventScene
+            // =====================================================
+
+            case EventSequenceCompletionType.EventScene:
+                {
+                    // <변경부분>
+                    // EventSequenceData에서 선택한 EventSceneData를 사용한다.
+                    EventSceneData nextEventSceneData =
+                        sequenceData.completionEventSceneData;
+
+                    // 필수 데이터 검증.
+                    if (nextEventSceneData == null)
+                    {
+                        Debug.LogWarning(
+                            "이벤트 완료 EventScene 이동 실패: " +
+                            "Completion Event Scene Data가 없습니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    if (!nextEventSceneData.IsValid())
+                    {
+                        Debug.LogWarning(
+                            "이벤트 완료 EventScene 이동 실패: " +
+                            "지정한 EventSceneData가 유효하지 않습니다. / " +
+                            nextEventSceneData.name,
+                            this
+                        );
+
+                        return;
+                    }
+
+                    // <변경부분>
+                    // 공용 EventScene의 실제 Unity Scene 이름.
+                    const string eventSceneName =
+                        "EventScene";
+
+                    // 씬이 Build Profiles의 Scene List에
+                    // 등록되어 있는지 확인한다.
+                    if (!Application.CanStreamedLevelBeLoaded(
+                            eventSceneName))
+                    {
+                        Debug.LogWarning(
+                            "이벤트 완료 EventScene 이동 실패: " +
+                            "EventScene이 Build Profiles의 " +
+                            "Scene List에 등록되어 있지 않습니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    // <변경부분>
+                    // Scene 로드 전에 실행할 EventSceneData를 전달한다.
+                    //
+                    // 기존 WorldMap 노드 및 Battle 상태는 변경하지 않는다.
+                    if (!WorldMapRuntimeState
+                            .SetPendingEventSceneDataFromBattleEvent(
+                                nextEventSceneData))
+                    {
+                        Debug.LogWarning(
+                            "이벤트 완료 EventScene 이동 실패: " +
+                            "EventSceneData 전달에 실패했습니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    // <변경부분>
+                    // 기존 Scene 이동과 동일하게
+                    // 슬로우 모션이 다음 Scene에 남지 않게 복구한다.
+                    RestoreGlobalTimeScaleBeforeSceneChange();
+
+                    Debug.Log(
+                        "Battle Event 완료 - EventScene 이동: " +
+                        nextEventSceneData.name,
+                        this
+                    );
+
+                    SceneManager.LoadScene(
+                        eventSceneName
+                    );
+
+                    return;
+                }
 
             case EventSequenceCompletionType.BattleWin:
                 WorldMapEventRuntimeState.Queue(sequenceData.completionWorldMapEventData);

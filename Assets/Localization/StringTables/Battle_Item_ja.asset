@@ -109,6 +109,8 @@ MonoBehaviour:
           role: 3
         - text: "1\u30BF\u30FC\u30F3"
           role: 5
+        - text: "\uFF3B\u653B\u6483\u4E0D\u53EF\uFF3D"
+          role: 4
     - rid: 1511529955060350992
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

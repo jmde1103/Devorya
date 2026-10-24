@@ -16,19 +16,17 @@ MonoBehaviour:
   - shopLevel: 1
     itemCandidates:
     - itemData: {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}
-      price: 5
-      weight: 30
-    - itemData: {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
-      price: 10
-      weight: 30
-    - itemData: {fileID: 11400000, guid: 97d7d945a1cfee64290ec7033ee49074, type: 2}
       price: 15
       weight: 30
-  - shopLevel: 2
-    itemCandidates:
-    - itemData: {fileID: 11400000, guid: 8e0640762141b5e4d8d4af031c650eeb, type: 2}
+    - itemData: {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
       price: 30
       weight: 30
-    - itemData: {fileID: 11400000, guid: 162bfc7176c9104419b4a3abd940c80d, type: 2}
+    - itemData: {fileID: 11400000, guid: 97d7d945a1cfee64290ec7033ee49074, type: 2}
+      price: 40
+      weight: 30
+    - itemData: {fileID: 11400000, guid: 5852d17af1ee777458f1e94953606f2f, type: 2}
       price: 50
-      weight: 70
+      weight: 30
+    - itemData: {fileID: 11400000, guid: 5fa30249bda623b44b80a8e14939b473, type: 2}
+      price: 50
+      weight: 30

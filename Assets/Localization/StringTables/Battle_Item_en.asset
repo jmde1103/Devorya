@@ -112,6 +112,8 @@ MonoBehaviour:
           role: 3
         - text: 1 turn
           role: 5
+        - text: '[Attack Disabled]'
+          role: 4
     - rid: 1511529955060351108
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

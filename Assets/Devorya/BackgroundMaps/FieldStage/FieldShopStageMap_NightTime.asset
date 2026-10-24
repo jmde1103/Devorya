@@ -9456,21 +9456,21 @@ MonoBehaviour:
     LocalPositionOffset: {x: -0.0017409027, y: 0.33500242, z: 0}
     LayerOffset: 3
   ShopDisplaySlots:
-  - SlotId: 2f4d80222684414e9df9838a4574a8c7
+  - SlotId: 560f07ab7873499c9f0f6940c0aa5d04
     ShopDisplayPrefab: {fileID: 4094777867487052340, guid: 1256f05fc77cc654482b7ab202d7355c, type: 3}
     X: 18
     Y: 21
     LocalPositionOffset: {x: 0, y: 0, z: 0}
-    LayerOffset: -3
-  - SlotId: 28eabe8a8d8b436c8c22a42ed92fedbf
+    LayerOffset: 2
+  - SlotId: 83a8c70eaf5d46e7a1b5ccab858ae89a
     ShopDisplayPrefab: {fileID: 6945985523917260608, guid: 436f6f19003e1584fb0a121a5d128c2e, type: 3}
     X: 19
     Y: 21
     LocalPositionOffset: {x: 0, y: 0, z: 0}
-    LayerOffset: -3
-  - SlotId: dfeeafaed3344fc284ea08a9ea9f2211
+    LayerOffset: 2
+  - SlotId: 4b1913b4693640fe9dab842f6a0ac0bf
     ShopDisplayPrefab: {fileID: 3018111047290120004, guid: af8cd86c01e71694ea14cf469100a08e, type: 3}
     X: 20
     Y: 21
     LocalPositionOffset: {x: 0, y: 0, z: 0}
-    LayerOffset: -3
+    LayerOffset: 2

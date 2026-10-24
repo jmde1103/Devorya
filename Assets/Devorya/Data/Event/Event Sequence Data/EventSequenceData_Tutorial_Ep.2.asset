@@ -6486,6 +6486,7 @@ MonoBehaviour:
   completionType: 2
   completionSceneName: EventScene
   completionCutsceneData: {fileID: 0}
+  completionEventSceneData: {fileID: 11400000, guid: afc30f9c001e16f45b988b1606ebdb45, type: 2}
   completionWorldMapEventData: {fileID: 0}
   references:
     version: 2

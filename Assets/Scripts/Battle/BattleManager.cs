@@ -2910,6 +2910,16 @@ public partial class BattleManager : MonoBehaviour
                 // 최종 위치에서 Born 애니메이션 재생
                 if (shouldPlayAbsorbBornAnimation)
                 {
+                    // 마지막 공격의 타격 연출은 끝났으므로
+                    // Born과 회색 전환은 정상 시간 배율로 재생한다.
+                    // 카메라 위치와 확대 상태는 아직 복원하지 않는다.
+                    if (isPlayingLastEnemyAttackCinematic &&
+                        pixelCameraController != null)
+                    {
+                        pixelCameraController
+                            .RestoreLastPieceAttackTimeScaleOnly();
+                    }
+
                     yield return
                         pieceManager.PlayPieceBornAnimation(
                             actingPiece
@@ -3706,6 +3716,15 @@ public partial class BattleManager : MonoBehaviour
                 targetY,
                 false
             );
+
+        // 마지막 적의 흡수 공격이 끝났으므로
+        // Born 실행 전에 시간 배율과 물리 업데이트 간격만 복원한다.
+        // 카메라 복귀는 기존 RestoreAfter 루틴에서 처리한다.
+        if (pixelCameraController != null)
+        {
+            pixelCameraController
+                .RestoreLastPieceAttackTimeScaleOnly();
+        }
 
         // Enemy King을 완전 흡수해 외형이 변경된 경우
         // 일반 흡수와 동일하게 최종 위치에서 Born을 재생한다.

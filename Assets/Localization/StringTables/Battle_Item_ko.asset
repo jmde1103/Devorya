@@ -119,6 +119,8 @@ MonoBehaviour:
           role: 3
         - text: "1\uD134"
           role: 5
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
     - rid: 1511529955060350977
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45208ce0afc6fac45a3f734ffce3a069, type: 3}
-  m_Name: "\uC544\uC774\uD15C_\uD22C\uC9C0\uC5F4\uB9E4"
+  m_Name: "\uC544\uC774\uD15C_1\uB808\uBCA8_\uB0A1\uC740 \uC7A5\uD654"
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemData
-  itemType: 3
-  itemName: "\uD22C\uC9C0\uC5F4\uB9E4"
-  iconSprite: {fileID: 21300000, guid: 59af9fd5b66524a4aa9ecbbae3350b26, type: 3}
-  description: "\uC120\uD0DD\uD55C \uC544\uAD70 \uAE30\uBB3C\uC758 [\uACF5\uACA9\uBD88\uAC00]
-    \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uC989\uC2DC \uD574\uC81C\uD569\uB2C8\uB2E4."
+  itemType: 6
+  itemName: "\uB0A1\uC740 \uC7A5\uD654"
+  iconSprite: {fileID: 21300000, guid: 1dc5a9846ea2e864194373d69f3feeea, type: 3}
+  description: "\uC120\uD0DD\uD55C \uC544\uAD70 \uAE30\uBB3C\uC5D0\uAC8C [\uACF5\uACA9\uBD88\uAC00]\uB97C
+    1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD558\uACE0, \uC989\uC2DC \uCD94\uAC00 \uC774\uB3D9
+    \uAE30\uD68C\uB97C 1\uD68C \uC81C\uACF5\uD569\uB2C8\uB2E4."
   localizedItemName:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
     m_TableEntryReference:
-      m_KeyId: 17784038891327488
+      m_KeyId: 17792243658788864
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -30,14 +31,14 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:ddcee2caa4940414287f8297c21f27ed
     m_TableEntryReference:
-      m_KeyId: 17784038962630656
+      m_KeyId: 17792243738480640
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   useItemEffectList: 1
   itemEffects:
-  - effectType: 2
+  - effectType: 1
     changeTargetPieceData: {fileID: 0}
     changeTargetPieceType: 0
     changeTargetUniqueSkill: 0
@@ -45,9 +46,15 @@ MonoBehaviour:
     useAbsorbedJelluVisual: 1
     statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
     statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
-  tooltipSections:
-  - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}
-    sectionColor: {r: 1, g: 1, b: 1, a: 1}
+  - effectType: 3
+    changeTargetPieceData: {fileID: 0}
+    changeTargetPieceType: 0
+    changeTargetUniqueSkill: 0
+    changeTargetGeneralSkill: 0
+    useAbsorbedJelluVisual: 1
+    statusEffectData: {fileID: 0}
+    statusEffectTooltipSectionColor: {r: 1, g: 1, b: 1, a: 1}
+  tooltipSections: []
   changeTargetPieceData: {fileID: 0}
   changeTargetPieceType: 0
   changeTargetUniqueSkill: 0

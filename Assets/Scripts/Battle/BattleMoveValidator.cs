@@ -533,18 +533,20 @@ if (piece.UniqueSkill ==
         return materials;
     }
 
-    // Adjacent allies matching the caster's piece type; species tags are unrestricted.
+    // 합성 사용자의 현재 PieceData ID와 동일한
+    // 같은 진영의 Pawn만 주변 8칸에서 재료로 수집한다.
+    // 실제 판정은 JelluSynthesisRules.IsMatchingMaterial()을 공통으로 사용한다.
     public void FillJelluSynthesisMaterialCandidates(Piece actingPiece, List<Piece> results)
     {
         if (results == null) return;
         results.Clear();
         if (actingPiece == null || boardManager == null || pieceManager == null) return;
         for (int y = Mathf.Max(0, actingPiece.Y - 1); y <= Mathf.Min(boardManager.Height - 1, actingPiece.Y + 1); y++)
-        for (int x = Mathf.Max(0, actingPiece.X - 1); x <= Mathf.Min(boardManager.Width - 1, actingPiece.X + 1); x++)
-        {
-            Piece candidate = pieceManager.GetPieceAt(x, y);
-            if (JelluSynthesisRules.IsMatchingMaterial(actingPiece, candidate)) results.Add(candidate);
-        }
+            for (int x = Mathf.Max(0, actingPiece.X - 1); x <= Mathf.Min(boardManager.Width - 1, actingPiece.X + 1); x++)
+            {
+                Piece candidate = pieceManager.GetPieceAt(x, y);
+                if (JelluSynthesisRules.IsMatchingMaterial(actingPiece, candidate)) results.Add(candidate);
+            }
     }
 
 

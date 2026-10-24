@@ -28,7 +28,14 @@ public enum EventSequenceCompletionType
 
     // 일반 Battle 승리 흐름으로 전달한다.
     // 추후 실제 연결 단계에서 처리한다.
-    BattleWin
+    BattleWin,
+
+    // <변경부분>
+    // Event Sequence 완료 후 지정한 EventSceneData를 전달하고
+    // 공용 EventScene으로 이동한다.
+    //
+    // 기존 enum 값 0~3을 변경하지 않는다.
+    EventScene = 4
 }
 
 // <변경부분> 튜토리얼 / 전투 이벤트 / 스토리 이벤트 /
@@ -123,9 +130,22 @@ public class EventSequenceData : ScriptableObject
     // 해당 Scene의 Inspector 기본 데이터가 그대로 사용된다.
     //
     // Data 지정:
+    // Data 지정:
     // Scene 이동 직전에 TextCutsceneRuntimeState에 등록하여
     // 다음 TextCutsceneScene이 이 데이터를 우선 실행한다.
     public TextCutsceneData completionCutsceneData;
+
+    // <변경부분>
+    // Completion Type이 EventScene일 때
+    // 다음 EventScene에서 실행할 이벤트 데이터.
+    //
+    // Scene 전환 전에 WorldMapRuntimeState로 전달하며,
+    // EventSceneController가 수신하여 실행한다.
+    //
+    // 기존 EventSceneData 원본은 변경하지 않는다.
+    [InspectorName("Completion Event Scene Data")]
+    public EventSceneData completionEventSceneData;
+
     [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData completionWorldMapEventData;
 
     // <변경부분> 최소한 실행 가능한 데이터인지 확인한다.
@@ -138,9 +158,19 @@ public class EventSequenceData : ScriptableObject
         }
 
         if (completionType ==
-                EventSequenceCompletionType.LoadScene &&
-            string.IsNullOrWhiteSpace(
-                completionSceneName))
+        EventSequenceCompletionType.LoadScene &&
+    string.IsNullOrWhiteSpace(
+        completionSceneName))
+        {
+            return false;
+        }
+
+        // <변경부분>
+        // EventScene으로 이동하도록 설정했다면
+        // 반드시 실행할 EventSceneData가 지정되어 있어야 한다.
+        if (completionType ==
+                EventSequenceCompletionType.EventScene &&
+            completionEventSceneData == null)
         {
             return false;
         }
