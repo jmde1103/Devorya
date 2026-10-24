@@ -1,0 +1,74 @@
+﻿DEVORYA PieceType 툴팁 스타일 적용 / 2026-10-24
+
+작업 브랜치: codex/status-effect-restrictions
+커밋/병합/푸시하지 않음. 메인 10.24 브랜치는 변경하지 않음.
+
+정의:
+Assets/Scripts/UI/ToolTip/TooltipSemanticMetadata.cs
+TooltipTextRole.PieceType = 6 (기존 역할 번호 유지)
+
+공통 색상:
+Assets/Resources/TooltipStylePalette.asset → 기물 타입
+#B7A6D9 / RGB 183,166,217
+기존 Title/Body/Secondary/Positive/Negative/Value 값은 변경하지 않음.
+
+사용 방법:
+기존 Localization String Table에서 해당 언어 설명 Entry의
+TooltipSemanticMetadata → spans에 강조할 구절을 등록하고 역할을 '기물 타입'으로 선택.
+예: [폰], [Pawn], ［ポーン］
+괄호까지 구절에 포함. 기물 이름 필드나 일반 단어는 등록하지 않음.
+다른 spans는 기존대로 유지:
+[공격불가] → 부정 효과, [방어] → 긍정 효과, 1턴 → 수치.
+폰/나이트/비숍/룩/퀸/킹은 모두 동일 PieceType 색상을 사용.
+
+런타임 언어별 단어 검색기나 새 파서를 추가하지 않음.
+기존 명시적 구절 메타데이터와 공통 Formatter를 그대로 사용.
+번역 원문, Localization 키, 데이터 이름, 기존 참조는 변경하지 않음.
+스타일 메타데이터가 없는 문장은 기존처럼 표시.
+툴팁 외 대화/HUD/일반 팝업 등의 색상은 변경하지 않음.
+기존 TooltipViewData를 통해 특성/능력/아이템/유물/상태효과 및 하단 섹션에서 사용 가능.
+
+실제 반영:
+설명 10개 키 × 3언어 = 30개 Entry.
+초기 가속 모듈, 합성, 증식, 분열, 합성: 강화, 왕의 각성,
+퇴화 상태효과, 파란색 점액 파편(현재/레거시 키), 초록색 점액 파편.
+기존 특성 설명에는 해당 기물 타입 구절이 없어 불필요한 변환을 하지 않음.
+현재 실제 설명에 [킹] 사용 예가 없어 6종 전체는 별도 명시적 테스트 문구로 검증.
+
+검증:
+Unity 6000.4.0f1 컴파일 오류 0.
+PIECE_TYPE_STYLE_PASS:
+- 실제 번역 30개 Entry에서 명시한 구절이 #B7A6D9로 표시.
+- 6종 × 한국어/영어/일본어 동일 역할 검증.
+- PieceType/긍정/부정/수치 복합 표시와 size/bold/기존 color 보존.
+- 메타데이터 없는 문구의 무변환 확인.
+TOOLTIP_STYLE_PLAYMODE_PASS:
+46개 실제 데이터 × 3언어 = 138개 툴팁 프리팹 표시 검사.
+본문/하단 섹션 overflow, 스타일, 확률 치환, 열기/닫기 통과.
+Localization diff에서 m_Localized 원문 변경 없음 확인.
+검증 중 발생한 폰트 캐시는 원복.
+로그: Logs/piece-type-style-checks.log
+
+한계:
+배치 PlayMode 자동 검증이며 실제 화면 육안 검수/모바일 빌드는 미실시.
+현재 툴팁에는 글자 단위 타입라이터가 없어 해당 실동작 검증은 해당 없음.
+기존 글리치 오픈 방식을 유지하며 문자열 Substring 타입라이터를 추가하지 않음.
+
+실제 수정/추가 파일 목록:
+Assets/Localization/StringTables/Battle_Item_en.asset
+Assets/Localization/StringTables/Battle_Item_ja.asset
+Assets/Localization/StringTables/Battle_Item_ko.asset
+Assets/Localization/StringTables/Battle_Relic_en.asset
+Assets/Localization/StringTables/Battle_Relic_ja.asset
+Assets/Localization/StringTables/Battle_Relic_ko.asset
+Assets/Localization/StringTables/Status_Effect_en.asset
+Assets/Localization/StringTables/Status_Effect_ja.asset
+Assets/Localization/StringTables/Status_Effect_ko.asset
+Assets/Localization/StringTables/Unique_Skill_en.asset
+Assets/Localization/StringTables/Unique_Skill_ja.asset
+Assets/Localization/StringTables/Unique_Skill_ko.asset
+Assets/Resources/TooltipStylePalette.asset
+Assets/Scripts/UI/ToolTip/TooltipSemanticMetadata.cs
+Assets/Scripts/UI/ToolTip/TooltipStylePalette.cs
+Assets/Editor/PieceTypeStyleChecks.cs
+Assets/Editor/PieceTypeStyleChecks.cs.meta

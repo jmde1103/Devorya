@@ -168,6 +168,8 @@ MonoBehaviour:
           role: 5
         - text: "1\u4F53"
           role: 5
+        - text: "\uFF3B\u30DD\u30FC\u30F3\uFF3D"
+          role: 6
     - rid: 1511529955060351061
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -178,6 +180,12 @@ MonoBehaviour:
           role: 5
         - text: "1\u30BF\u30FC\u30F3"
           role: 5
+        - text: "\uFF3B\u30CA\u30A4\u30C8\uFF3D"
+          role: 6
+        - text: "\uFF3B\u30D3\u30B7\u30E7\u30C3\u30D7\uFF3D"
+          role: 6
+        - text: "\uFF3B\u30EB\u30FC\u30AF\uFF3D"
+          role: 6
     - rid: 1511529955060351062
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -190,6 +198,8 @@ MonoBehaviour:
         spans:
         - text: "3\u4F53"
           role: 5
+        - text: "\uFF3B\u30AF\u30A4\u30FC\u30F3\uFF3D"
+          role: 6
     - rid: 1511529955060351064
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -200,6 +210,8 @@ MonoBehaviour:
           role: 5
         - text: "1\u30BF\u30FC\u30F3"
           role: 5
+        - text: "\uFF3B\u30DD\u30FC\u30F3\uFF3D"
+          role: 6
     - rid: 1511529955060351065
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -212,3 +224,5 @@ MonoBehaviour:
           role: 5
         - text: "1\u30BF\u30FC\u30F3"
           role: 5
+        - text: "\uFF3B\u30DD\u30FC\u30F3\uFF3D"
+          role: 6

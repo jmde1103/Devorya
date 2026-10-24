@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Metadata;
@@ -10,7 +10,8 @@ public enum TooltipTextRole
     [InspectorName("보조 정보")] Secondary,
     [InspectorName("긍정 효과")] Positive,
     [InspectorName("부정 효과")] Negative,
-    [InspectorName("수치")] Value
+    [InspectorName("수치")] Value,
+    [InspectorName("기물 타입")] PieceType = 6
 }
 
 // Attached to a locale's existing String Table entry, never a second translation source.

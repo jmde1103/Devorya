@@ -26,7 +26,8 @@ MonoBehaviour:
     m_Localized: "\uC120\uD0DD\uD55C \uC790\uC2E0\uC758 \uAE30\uBB3C\uC744 \uC824\uB8E8
       [\uD3F0]\uC73C\uB85C \uBCC0\uD615\uD55C\uB2E4."
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529964079153152
   - m_Id: 34076602535936
     m_Localized: "\uBD80\uB7EC\uC9C4 \uBC29\uD328"
     m_Metadata:
@@ -45,7 +46,8 @@ MonoBehaviour:
     m_Localized: "\uC120\uD0DD\uD55C \uC544\uAD70 \uAE30\uBB3C\uC744 \uC824\uB8E8
       [\uD3F0]\uC73C\uB85C \uBCC0\uD615\uD569\uB2C8\uB2E4."
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 1511529964079153153
   - m_Id: 15233677404016640
     m_Localized: "\uCD08\uB85D\uC0C9 \uC810\uC561 \uD30C\uD3B8"
     m_Metadata:
@@ -125,6 +127,8 @@ MonoBehaviour:
           role: 4
         - text: "1\uD134"
           role: 5
+        - text: "[\uB098\uC774\uD2B8]"
+          role: 6
     - rid: 1511529955060350978
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -153,3 +157,15 @@ MonoBehaviour:
           role: 5
         - text: "1\uD68C"
           role: 5
+    - rid: 1511529964079153152
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD3F0]"
+          role: 6
+    - rid: 1511529964079153153
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD3F0]"
+          role: 6

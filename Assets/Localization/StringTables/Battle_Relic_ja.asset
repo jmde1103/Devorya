@@ -71,6 +71,8 @@ MonoBehaviour:
         spans:
         - text: "2\u30DE\u30B9"
           role: 5
+        - text: "\uFF3B\u30DD\u30FC\u30F3\uFF3D"
+          role: 6
     - rid: 1511529955060350999
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

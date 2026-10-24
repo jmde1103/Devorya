@@ -198,6 +198,8 @@ MonoBehaviour:
           role: 5
         - text: "1\uAC1C"
           role: 5
+        - text: "[\uD3F0]"
+          role: 6
     - rid: 1511529955060350986
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -208,6 +210,12 @@ MonoBehaviour:
           role: 5
         - text: "1\uD134"
           role: 5
+        - text: "[\uB098\uC774\uD2B8]"
+          role: 6
+        - text: "[\uBE44\uC20D]"
+          role: 6
+        - text: "[\uB8E9]"
+          role: 6
     - rid: 1511529955060350987
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -220,6 +228,8 @@ MonoBehaviour:
         spans:
         - text: "3\uAC1C"
           role: 5
+        - text: "[\uD038]"
+          role: 6
     - rid: 1511529955060350989
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -230,6 +240,8 @@ MonoBehaviour:
           role: 5
         - text: "1\uD134"
           role: 5
+        - text: "[\uD3F0]"
+          role: 6
     - rid: 1511529955060350990
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -242,3 +254,5 @@ MonoBehaviour:
           role: 5
         - text: "1\uD134"
           role: 5
+        - text: "[\uD3F0]"
+          role: 6

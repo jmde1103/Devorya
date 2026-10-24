@@ -128,6 +128,8 @@ MonoBehaviour:
           role: 3
         - text: 1
           role: 5
+        - text: '[Pawn]'
+          role: 6
     - rid: 1511529955060351052
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

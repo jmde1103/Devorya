@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "TooltipStylePalette", menuName = "Devorya/UI/툴팁 공통 색상")]
 public sealed class TooltipStylePalette : ScriptableObject
@@ -10,6 +10,8 @@ public sealed class TooltipStylePalette : ScriptableObject
     [InspectorName("부정 효과")] public Color negative = new Color32(216,121,105,255);
     [InspectorName("수치")] public Color value = new Color32(228,198,104,255);
 
+    [InspectorName("기물 타입")] public Color pieceType = new Color32(183,166,217,255);
+
     public Color Get(TooltipTextRole role)
     {
         switch(role)
@@ -19,6 +21,7 @@ public sealed class TooltipStylePalette : ScriptableObject
             case TooltipTextRole.Positive: return positive;
             case TooltipTextRole.Negative: return negative;
             case TooltipTextRole.Value: return value;
+            case TooltipTextRole.PieceType: return pieceType;
             default: return body;
         }
     }

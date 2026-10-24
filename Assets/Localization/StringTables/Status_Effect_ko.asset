@@ -138,6 +138,8 @@ MonoBehaviour:
           role: 3
         - text: "1\uAC1C"
           role: 5
+        - text: "[\uD3F0]"
+          role: 6
     - rid: 1511529955060351040
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

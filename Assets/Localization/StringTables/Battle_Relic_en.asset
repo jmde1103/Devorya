@@ -72,6 +72,8 @@ MonoBehaviour:
         spans:
         - text: 2 tiles
           role: 5
+        - text: '[Pawn]'
+          role: 6
     - rid: 1511529955060351035
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:

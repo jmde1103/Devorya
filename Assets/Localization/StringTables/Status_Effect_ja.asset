@@ -123,6 +123,8 @@ MonoBehaviour:
           role: 3
         - text: "1\u4F53"
           role: 5
+        - text: "\uFF3B\u30DD\u30FC\u30F3\uFF3D"
+          role: 6
     - rid: 1511529955060351148
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
