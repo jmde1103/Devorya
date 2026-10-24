@@ -44,6 +44,67 @@ public class BattleUIController : MonoBehaviour
 
     [SerializeField] private Sprite absorbOffSprite;
     [SerializeField] private Sprite absorbOnSprite;
+    [SerializeField, InspectorName("아이템 취소 아이콘")]
+    private Sprite itemCancelSprite;
+    private bool isItemCancelMode;
+    private static Sprite defaultItemCancelSprite;
+
+    private Sprite GetItemCancelSprite()
+    {
+        if (itemCancelSprite != null) return itemCancelSprite;
+        if (defaultItemCancelSprite != null) return defaultItemCancelSprite;
+        var texture = new Texture2D(16, 16, TextureFormat.RGBA32, false);
+        texture.name = "ItemCancelFallback";
+        texture.filterMode = FilterMode.Point;
+        texture.hideFlags = HideFlags.HideAndDontSave;
+        var pixels = new Color32[256];
+        for (int y = 3; y < 13; y++)
+        for (int x = 3; x < 13; x++)
+            if (Mathf.Abs(x-y) <= 1 || Mathf.Abs(x+y-15) <= 1)
+                pixels[y*16+x] = new Color32(255,255,255,255);
+        texture.SetPixels32(pixels);
+        texture.Apply();
+        defaultItemCancelSprite = Sprite.Create(texture, new Rect(0,0,16,16), new Vector2(.5f,.5f), 16);
+        defaultItemCancelSprite.name = "ItemCancelFallback";
+        defaultItemCancelSprite.hideFlags = HideFlags.HideAndDontSave;
+        return defaultItemCancelSprite;
+    }
+
+    private void ApplyItemCancelIcon()
+    {
+        if (deploymentConfirmIconImage != null) deploymentConfirmIconImage.gameObject.SetActive(false);
+        if (absorbIconImage != null)
+        {
+            absorbIconImage.gameObject.SetActive(true);
+            absorbIconImage.enabled = true;
+            absorbIconImage.sprite = GetItemCancelSprite();
+        }
+        if (absorbTooltipTrigger != null) absorbTooltipTrigger.SetTooltipData(null);
+    }
+
+    private void SetItemCancelMode(bool active)
+    {
+        if (isItemCancelMode == active) return;
+        isItemCancelMode = active;
+        if (active)
+        {
+            StopLastEnemyAbsorbHighlight();
+            ApplyItemCancelIcon();
+            SetAbsorbButtonVisible(true);
+            SetUniqueSkillButtonVisible(false);
+            return;
+        }
+        SetPlayerDeploymentMode(battleManager != null && battleManager.IsPlayerDeploymentPhase);
+        if (battleManager != null && battleManager.IsPlayerDeploymentPhase) return;
+        bool restoreFinish = isLastEnemyAbsorbMode && battleManager != null && !battleManager.IsBattleEnded;
+        SetAbsorbButtonVisible(restoreFinish);
+        if (restoreFinish && isActiveAndEnabled)
+        {
+            PlayLastEnemyAbsorbParticle();
+            lastEnemyAbsorbPulseCoroutine = StartCoroutine(PlayLastEnemyAbsorbPulseRoutine());
+        }
+    }
+
 
     // <변경부분> 초기 배치 단계에서만 표시할 별도의 체크 아이콘 Image
     // 별도 RectTransform을 사용하므로 Inspector에서 크기를 독립적으로 설정한다.
@@ -472,6 +533,12 @@ public class BattleUIController : MonoBehaviour
     // 정상 전투 중에는 기존 흡수 모드를 실행한다.
     private void OnClickAbsorbButton()
     {
+        // Cancellation must never fall through to deployment or final absorption.
+        if (battleManager != null && battleManager.IsItemTargeting)
+        {
+            battleManager.CancelItemTargeting();
+            return;
+        }
         if (battleManager == null)
         {
             Debug.LogWarning(
@@ -1233,6 +1300,14 @@ public class BattleUIController : MonoBehaviour
     }
 
     // <변경부분> 아이템 슬롯 클릭 시 BattleManager에 아이템 사용 요청
+    public void SetItemTargetSlot(int index)
+    {
+        SetItemCancelMode(index >= 0);
+        if (itemSlotUIs == null) return;
+        for (int i = 0; i < itemSlotUIs.Length; i++)
+            if (itemSlotUIs[i] != null) itemSlotUIs[i].SetItemSelected(i == index);
+    }
+
     public void OnClickItemSlot(int slotIndex)
     {
         if (battleManager == null)
@@ -1241,15 +1316,6 @@ public class BattleUIController : MonoBehaviour
                 "BattleManager가 연결되지 않았습니다."
             );
 
-            return;
-        }
-
-        // <변경부분> 현재 Event Sequence가
-        // 특정 Battle 버튼 하나를 강제하고 있다면
-        // 아직 지원하지 않는 Item Slot 입력으로 우회하지 못하게 한다.
-        if (eventSequenceController != null &&
-            eventSequenceController.IsForcedBattleInputActive)
-        {
             return;
         }
 
@@ -1600,6 +1666,13 @@ public class BattleUIController : MonoBehaviour
     public void SetLastEnemyAbsorbMode(
         bool isActive)
     {
+        if (isItemCancelMode)
+        {
+            isLastEnemyAbsorbMode = isActive;
+            StopLastEnemyAbsorbHighlight();
+            ApplyItemCancelIcon();
+            return;
+        }
         if (isLastEnemyAbsorbMode ==
             isActive)
         {
@@ -1864,6 +1937,7 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 흡수 모드 상태에 따라 버튼 위 아이콘만 변경
     public void SetAbsorbModeIcon(bool isAbsorbMode)
     {
+        if (isItemCancelMode) { ApplyItemCancelIcon(); return; }
         if (absorbIconImage == null)
         {
             return;
@@ -2017,7 +2091,7 @@ public class BattleUIController : MonoBehaviour
         }
 
         absorbButton.gameObject.SetActive(
-            isVisible
+            isItemCancelMode || isVisible
         );
     }
 

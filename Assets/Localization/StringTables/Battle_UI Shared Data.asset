@@ -113,6 +113,58 @@ MonoBehaviour:
 '
     m_Metadata:
       m_Items: []
+  - m_Id: 18012707610038272
+    m_Key: battle.ui.item_fail.WrongTurn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535744
+    m_Key: battle.ui.item_fail.Busy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535745
+    m_Key: battle.ui.item_fail.InvalidPiece
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535746
+    m_Key: battle.ui.item_fail.King
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535747
+    m_Key: battle.ui.item_fail.PlayerOnly
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535748
+    m_Key: battle.ui.item_fail.MissingStatus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535749
+    m_Key: battle.ui.item_fail.ExtraMove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535750
+    m_Key: battle.ui.item_fail.Requirements
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535751
+    m_Key: battle.ui.item_fail.NoCandidates
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535752
+    m_Key: battle.ui.item_fail.MissingItem
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707689730048
+    m_Key: battle.ui.item_fail.MissingTarget
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707689730049
+    m_Key: battle.ui.item_fail.Execution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18109936765112320
+    m_Key: battle.ui.item.select_target
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

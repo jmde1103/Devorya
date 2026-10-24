@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // <변경부분> 전투 아이템의 실제 효과 실행을 담당하는 클래스
-public class BattleItemEffectHandler : MonoBehaviour
+public partial class BattleItemEffectHandler : MonoBehaviour
 {
     // 아이템 효과로 기물 정보를 변경할 때 사용하는 기물 매니저
     private PieceManager pieceManager; private BattleManager battleManager;
@@ -21,10 +21,7 @@ public class BattleItemEffectHandler : MonoBehaviour
         BattleItemData itemData,
         Piece targetPiece)
     {
-        if (itemData == null)
-        {
-            return false;
-        }
+        if (ValidateItemEffect(itemData, targetPiece) != BattleItemFailure.None) return false;
 
         // <변경부분>
         // 새로운 목록형 효과를 사용하는 아이템이라면
@@ -97,60 +94,9 @@ public class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        // <변경부분>
-        // 효과 적용 전에 전체 항목 검증.
-        // 데이터가 비어 있다면 기물 상태를 변경하지 않는다.
-        for (int i = 0; i < itemData.itemEffects.Count; i++)
-        {
-            BattleItemEffectEntry effect = itemData.itemEffects[i];
+        // 공통 ValidateItemEffect에서 전체 목록을 검사했다.
+        // 변환 후 이동 가능 여부도 검사하므로 여기서 변환 전 조건으로 재검사하지 않는다.
 
-            if (effect == null)
-            {
-                Debug.LogWarning(
-                    $"아이템 효과 {i + 1}이 비어 있습니다: {itemData.itemName}"
-                );
-                return false;
-            }
-
-            switch (effect.effectType)
-            {
-                case BattleItemEffectType.ChangePiece:
-                    if (pieceManager == null)
-                    {
-                        Debug.LogWarning(
-                            "PieceManager가 연결되지 않았습니다."
-                        );
-                        return false;
-                    }
-                    break;
-
-                case BattleItemEffectType.ExtraMove:
-                    if (battleManager == null || !battleManager.CanGrantItemMove(targetPiece)) return false;
-                    break;
-                case BattleItemEffectType.RemoveStatusEffect:
-                    if (effect.statusEffectData == null || !targetPiece.HasStatusEffect(effect.statusEffectData.effectType)) return false;
-                    break;
-                case BattleItemEffectType.ApplyStatusEffect:
-                    if (effect.statusEffectData == null)
-                    {
-                        Debug.LogWarning(
-                            $"아이템 상태효과 {i + 1}의 데이터가 없습니다: " +
-                            $"{itemData.itemName}"
-                        );
-                        return false;
-                    }
-                    break;
-
-                default:
-                    Debug.LogWarning(
-                        $"지원하지 않는 아이템 효과입니다: {effect.effectType}"
-                    );
-                    return false;
-            }
-        }
-
-        // <변경부분>
-        // 앞의 검증을 통과하면 효과를 목록 순서대로 적용한다.
         for (int i = 0; i < itemData.itemEffects.Count; i++)
         {
             BattleItemEffectEntry effect = itemData.itemEffects[i];
@@ -167,7 +113,7 @@ public class BattleItemEffectHandler : MonoBehaviour
                     break;
 
                 case BattleItemEffectType.ExtraMove:
-                    applied = battleManager.TryGrantItemMove(targetPiece);
+                    applied = true; // Validated before any mutation; committed after the effect list.
                     break;
                 case BattleItemEffectType.RemoveStatusEffect:
                     applied = targetPiece.RemoveStatusEffect(effect.statusEffectData.effectType);
@@ -193,6 +139,9 @@ public class BattleItemEffectHandler : MonoBehaviour
             }
         }
 
+        foreach (var effect in itemData.itemEffects)
+            if (effect.effectType == BattleItemEffectType.ExtraMove)
+                battleManager.CommitValidatedItemMove(targetPiece);
         return true;
     }
 

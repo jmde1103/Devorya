@@ -114,6 +114,58 @@ MonoBehaviour:
     m_Localized: "\u6226\u5229\u54C1\u3092\u653E\u68C4\u3057\u3066\u9032\u3080"
     m_Metadata:
       m_Items: []
+  - m_Id: 18012707610038272
+    m_Localized: Items cannot be used right now.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535744
+    m_Localized: Items cannot be used while another action is in progress.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535745
+    m_Localized: This item cannot be used on that piece.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535746
+    m_Localized: This item cannot be used on a [King].
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535747
+    m_Localized: This item can only be used on your pieces.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535748
+    m_Localized: There is no matching status effect to remove.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535749
+    m_Localized: This piece cannot gain an extra move.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535750
+    m_Localized: The requirements for using this item are not met.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535751
+    m_Localized: There are no valid targets for this item.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707685535752
+    m_Localized: The selected item is no longer available.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707689730048
+    m_Localized: The selected target is no longer available.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18012707689730049
+    m_Localized: The item could not be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18109936765112320
+    m_Localized: Select a piece to use this item on.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
