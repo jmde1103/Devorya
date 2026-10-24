@@ -3588,17 +3588,114 @@ attacker.PlayAttackRoutine(
                 );
 
                 return;
+
+            // =====================================================
+            // EventScene
+            // =====================================================
+
+            case EventSceneCompletionType.EventScene:
+                {
+                    // <변경부분>
+                    // 현재 EventSceneData에 지정된
+                    // 다음 EventSceneData를 가져온다.
+                    EventSceneData nextEventSceneData =
+                        currentEventSceneData.completionEventSceneData;
+
+                    if (nextEventSceneData == null ||
+                        nextEventSceneData == currentEventSceneData)
+                    {
+                        Debug.LogWarning(
+                            "Event Scene 연결 실패: " +
+                            "다음 EventSceneData가 없거나 " +
+                            "현재 데이터와 동일합니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    // <변경부분>
+                    // 다음 이벤트가 실제로 실행 가능한 데이터인지
+                    // Scene 이동 전에 검사한다.
+                    if (!nextEventSceneData.IsValid())
+                    {
+                        Debug.LogWarning(
+                            "Event Scene 연결 실패: " +
+                            $"'{nextEventSceneData.name}' " +
+                            "데이터가 유효하지 않습니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    const string eventSceneName =
+                        "EventScene";
+
+                    // <변경부분>
+                    // 실제 EventScene이 빌드 목록에 등록되었는지 확인한다.
+                    if (!Application.CanStreamedLevelBeLoaded(
+                            eventSceneName))
+                    {
+                        Debug.LogWarning(
+                            "Event Scene 연결 실패: " +
+                            "EventScene이 Build Profiles의 " +
+                            "Scene List에 등록되어 있지 않습니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    // <변경부분>
+                    // 다음 EventSceneData를 RuntimeState에 전달한다.
+                    //
+                    // 월드맵에서 시작한 연속 이벤트라면
+                    // 원래 노드 ID는 유지하고
+                    // 완료 검증용 데이터 참조만 갱신된다.
+                    if (!WorldMapRuntimeState
+                            .SetPendingEventSceneDataFromEventScene(
+                                nextEventSceneData))
+                    {
+                        Debug.LogWarning(
+                            "Event Scene 연결 실패: " +
+                            "다음 EventSceneData를 전달하지 못했습니다.",
+                            this
+                        );
+
+                        return;
+                    }
+
+                    Debug.Log(
+                        $"Event Scene 연결: " +
+                        $"{currentEventSceneData.name} → " +
+                        $"{nextEventSceneData.name}",
+                        this
+                    );
+
+                    // <변경부분>
+                    // 다음 EventScene으로 이어지는 중간 단계이므로
+                    // 월드맵 노드 완료를 아직 예약하지 않는다.
+                    //
+                    // 최종 이벤트에서 WorldMap 또는 LoadScene으로
+                    // 정상 종료할 때 기존 완료 처리를 사용한다.
+                    SceneManager.LoadScene(
+                        eventSceneName
+                    );
+
+                    return;
+                }
         }
     }
 
 
-// <변경부분>
-// 월드맵 이벤트에서 정상적으로 진입한 경우에 한해
-// EventSceneData의 체크박스로 현재 노드 클리어를 예약한다.
-//
-// Cleared 적용 및 다음 노드 해금은 월드맵 복귀 시 실행한다.
-// StartBattle / 강제 종료 / CompletionType.None에서는 호출하지 않는다.
-private void RegisterCurrentEventNodeCompletionIfRequested()
+    // <변경부분>
+    // 월드맵 이벤트에서 정상적으로 진입한 경우에 한해
+    // EventSceneData의 체크박스로 현재 노드 클리어를 예약한다.
+    //
+    // Cleared 적용 및 다음 노드 해금은 월드맵 복귀 시 실행한다.
+    // StartBattle / 강제 종료 / CompletionType.None에서는 호출하지 않는다.
+    private void RegisterCurrentEventNodeCompletionIfRequested()
 {
     if (currentEventSceneData == null ||
         !currentEventSceneData.clearCurrentWorldMapNodeOnCompletion)

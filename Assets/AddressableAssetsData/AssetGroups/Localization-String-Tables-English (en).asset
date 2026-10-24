@@ -87,6 +87,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d0f97ca5685dc13428d01d4c87a44579
+    m_Address: WorldMap_Dialogue_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: daf6a0ffddcd5bb499f201189451367a
     m_Address: Piece_Data_en
     m_ReadOnly: 1

@@ -9274,20 +9274,6 @@ MonoBehaviour:
     LocalPositionOffset: {x: -0.09389755, y: 0.17140675, z: 0}
     LayerOffset: -3
   - X: 19
-    Y: 20
-    DecorationType: 0
-    DecorationSprite: {fileID: 21300000, guid: 07885018d8ffcf5448e94a7d930f2193, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: 0.2157735, y: 0.05664277, z: 0}
-    LayerOffset: -2
-  - X: 19
-    Y: 20
-    DecorationType: 0
-    DecorationSprite: {fileID: 21300000, guid: c840e77025876a04fb625a9a75506467, type: 3}
-    DecorationPrefab: {fileID: 0}
-    LocalPositionOffset: {x: 0.038845778, y: 0.2144432, z: 0}
-    LayerOffset: -2
-  - X: 19
     Y: 19
     DecorationType: 0
     DecorationSprite: {fileID: 21300000, guid: f3883d421b116f54c9b131f8b7af6f3b, type: 3}
@@ -9300,13 +9286,6 @@ MonoBehaviour:
     DecorationSprite: {fileID: 0}
     DecorationPrefab: {fileID: 6978171730127152338, guid: f745253be74444a4fb0ef09ee618644d, type: 3}
     LocalPositionOffset: {x: -0.22119, y: 0.09102386, z: 0}
-    LayerOffset: 1
-  - X: 19
-    Y: 20
-    DecorationType: 4
-    DecorationSprite: {fileID: 0}
-    DecorationPrefab: {fileID: 1145978813125633881, guid: a3f7f3458ecf7534ba8d43ef34266ce8, type: 3}
-    LocalPositionOffset: {x: -0.29110053, y: 0.13793385, z: 0}
     LayerOffset: 1
   - X: 21
     Y: 19
@@ -9363,5 +9342,19 @@ MonoBehaviour:
     DecorationSprite: {fileID: 0}
     DecorationPrefab: {fileID: 6978171730127152338, guid: f745253be74444a4fb0ef09ee618644d, type: 3}
     LocalPositionOffset: {x: -0.22646832, y: 0.061570168, z: 0}
+    LayerOffset: 1
+  - X: 19
+    Y: 20
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 07885018d8ffcf5448e94a7d930f2193, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.09678915, y: 0.0073461533, z: 0}
+    LayerOffset: 2
+  - X: 19
+    Y: 20
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: c840e77025876a04fb625a9a75506467, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.06528947, y: 0.17199755, z: 0}
     LayerOffset: 1
   ShopDisplaySlots: []

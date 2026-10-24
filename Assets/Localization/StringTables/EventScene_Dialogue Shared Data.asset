@@ -139,6 +139,10 @@ MonoBehaviour:
     m_Key: event_scene.event_opening_field_stage.dialogue_ed0b4be3.page_a8b33fa7
     m_Metadata:
       m_Items: []
+  - m_Id: 15660849725837312
+    m_Key: event_scene.event_opening_field_stage.dialogue_5fb6d217.page_e359211f
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

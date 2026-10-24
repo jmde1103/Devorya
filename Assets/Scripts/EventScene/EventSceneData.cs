@@ -9,7 +9,8 @@ public enum EventSceneCompletionType
 {
     None = 0,
     WorldMap = 1,
-    LoadScene = 2
+    LoadScene = 2,
+    EventScene = 3
 }
 
 // <변경부분>
@@ -126,6 +127,18 @@ public class EventSceneData : ScriptableObject
     // LoadScene으로 TextCutsceneScene에 이동할 경우
     // 다음 TextCutscene에 전달할 Data.
     public TextCutsceneData completionCutsceneData;
+
+    // <변경부분>
+    // Completion Type이 EventScene일 때
+    // 다음 EventScene에서 실행할 이벤트 데이터.
+    //
+    // 같은 EventScene을 다시 로드하더라도
+    // 여기서 지정한 새로운 EventSceneData를 실행한다.
+    //
+    // 기존 EventSceneData 원본을 변경하지 않는다.
+    [InspectorName("Completion Event Scene Data")]
+    public EventSceneData completionEventSceneData;
+
     [InspectorName("월드맵 이벤트 데이터 (선택)")] public WorldMapEventData completionWorldMapEventData;
 
 
@@ -148,6 +161,18 @@ public class EventSceneData : ScriptableObject
                 EventSceneCompletionType.LoadScene &&
             string.IsNullOrWhiteSpace(
                 completionSceneName))
+        {
+            return false;
+        }
+
+        // <변경부분>
+        // 다음 EventScene 데이터가 없으면
+        // 씬 이동 후 Inspector 기본 데이터로 되돌아갈 수 있으므로
+        // 필수 데이터로 검사한다.
+        if (completionType ==
+                EventSceneCompletionType.EventScene &&
+            (completionEventSceneData == null ||
+             completionEventSceneData == this))
         {
             return false;
         }

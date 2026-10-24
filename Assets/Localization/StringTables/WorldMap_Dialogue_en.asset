@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: WorldMap_Dialogue_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: c2a2bc6ce49c2e74296ef8813eda2903, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 688525312
+    m_Localized: The surrounding area has been scanned for lifeform signals and anomalies
+      and mapped accordingly.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 743051264
+    m_Localized: "[End Time] has been identified in classified data \u25A0\u25A0\u25A0\u25A0\u25A0."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 514058752000
+    m_Localized: '[End Time] is classified as top-priority information and will be
+      displayed at the top of the screen.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 653557108736
+    m_Localized: "It is recorded as the time remaining until the end of \u25A0\u25A0\u25A0\u25A0\u25A0.\nThe
+      related data is damaged, so further details cannot be accessed."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1882102304768
+    m_Localized: "[End Time] has been identified in classified data \u25A0\u25A0\u25A0\u25A0\u25A0.\n[End
+      Time] is classified as top-priority information and will be displayed at the
+      top of the screen.\n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1882102304769
+    m_Localized: "It is recorded as the time remaining until the end of \u25A0\u25A0\u25A0\u25A0\u25A0.\nThe
+      related data is damaged, so further details cannot be accessed."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1882102304770
+    m_Localized: 'Confirming the assigned top-priority mission.
+
+      Absorb lifeforms
+      to acquire data.
+
+      Commencing mission execution.'
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -852,11 +852,34 @@ eventSceneData;
             eventSceneData;
 
         Debug.Log(
-            "Battle Event의 EventSceneData 전달 완료: " +
-            eventSceneData.name
-        );
+       "Battle Event의 EventSceneData 전달 완료: " +
+       eventSceneData.name
+   );
 
         return true;
+    }
+
+
+    // <변경부분>
+    // EventScene에서 다른 EventScene으로 이동할 때
+    // 다음 EventSceneData를 전달한다.
+    //
+    // 기존 TextCutscene 연속 이벤트 전달 로직을 재사용한다.
+    //
+    // 월드맵 Event에서 시작한 경우:
+    // - 기존 월드맵 노드 ID 유지
+    // - 완료 판정용 EventSceneData를 다음 데이터로 갱신
+    //
+    // 독립 EventScene에서 시작한 경우:
+    // - 새로운 월드맵 노드 방문 기록을 만들지 않는다.
+    //
+    // 기존 Battle / Shop 진행 상태는 초기화하지 않는다.
+    public static bool SetPendingEventSceneDataFromEventScene(
+        EventSceneData eventSceneData)
+    {
+        return SetPendingEventSceneDataFromCutscene(
+            eventSceneData
+        );
     }
 
 

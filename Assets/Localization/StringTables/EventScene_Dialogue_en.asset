@@ -168,6 +168,13 @@ MonoBehaviour:
       the list of available data.'
     m_Metadata:
       m_Items: []
+  - m_Id: 15660849725837312
+    m_Localized: 'Repair of the selected data entry is complete.
+
+      Proceeding
+      while scanning for lifeform signals for the next mission.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

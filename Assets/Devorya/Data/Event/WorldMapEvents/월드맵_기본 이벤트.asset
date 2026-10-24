@@ -13,18 +13,18 @@ MonoBehaviour:
   m_Name: "\uC6D4\uB4DC\uB9F5_\uAE30\uBCF8 \uC774\uBCA4\uD2B8"
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapEventData
   eventName: "\uC6D4\uB4DC\uB9F5 \uAE30\uBCF8 \uC774\uBCA4\uD2B8"
-  description: 
+  description: "UI \uC54C\uB824\uC8FC\uAE30"
   restoreLightingOnComplete: 1
   steps:
   - relicRewardList: {fileID: 0}
     enabled: 1
-    stepName: "\uC0C8 \uC2A4\uD15D"
-    type: 1
+    stepName: "UI\uC228\uAE40"
+    type: 2
     dialoguePages: []
     localizedDialoguePages: []
     dialoguePageIds: []
     lockPlayerInput: 1
-    showUI: 1
+    showUI: 0
     glitchStrength: 0.55
     glitchDuration: 0.4
     waitForComplete: 1
@@ -41,36 +41,22 @@ MonoBehaviour:
     waitDuration: 0.5
   - relicRewardList: {fileID: 0}
     enabled: 1
-    stepName: "\uAE00\uB9AC\uCE58 \uD6A8\uACFC"
-    type: 3
-    dialoguePages:
-    - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
-    localizedDialoguePages: []
-    dialoguePageIds: []
-    lockPlayerInput: 0
-    showUI: 0
-    glitchStrength: 1
-    glitchDuration: 0.5
-    waitForComplete: 1
-    changeGlobalLight: 0
-    lightColor: {r: 0, g: 0, b: 0, a: 0}
-    lightIntensity: 0
-    lightFadeDuration: 0
-    screenFlash: 0
-    flashColor: {r: 0, g: 0, b: 0, a: 0}
-    flashStrength: 0
-    flashDuration: 0
-    flashCount: 0
-    flashInterval: 0
-    waitDuration: 0
-  - relicRewardList: {fileID: 0}
-    enabled: 1
-    stepName: "\uB300\uD654"
+    stepName: "\uB300\uC0AC"
     type: 0
     dialoguePages:
-    - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
-    localizedDialoguePages: []
-    dialoguePageIds: []
+    - "\uC0DD\uBA85\uCCB4 \uBC18\uC751 \uBC0F \uC774\uC0C1 \uBC18\uC751\uC744 \uD3EC\uD568\uD55C
+      \uC8FC\uBCC0 \uD658\uACBD\uC744 \uD0D0\uC0C9\uD574 \uC9C0\uB3C4\uC5D0 \uD45C\uAE30\uD588\uC2B5\uB2C8\uB2E4."
+    localizedDialoguePages:
+    - m_TableReference:
+        m_TableCollectionName: GUID:c2a2bc6ce49c2e74296ef8813eda2903
+      m_TableEntryReference:
+        m_KeyId: 688525312
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    dialoguePageIds:
+    - 04dff21387b044e4a10da3aab57242e8
     lockPlayerInput: 0
     showUI: 0
     glitchStrength: 0
@@ -87,13 +73,75 @@ MonoBehaviour:
     flashCount: 0
     flashInterval: 0
     waitDuration: 0
-  - relicRewardList: {fileID: 11400000, guid: 1b42d721f4928584bbe934a870e263e0, type: 2}
+  - relicRewardList: {fileID: 0}
     enabled: 1
-    stepName: "\uC0C8 \uC2A4\uD15D"
-    type: 6
-    dialoguePages: []
+    stepName: "UI\uC5F4\uAE30"
+    type: 2
+    dialoguePages:
+    - "\uC6D4\uB4DC\uB9F5 \uC785\uB2C8\uB2E4."
     localizedDialoguePages: []
     dialoguePageIds: []
+    lockPlayerInput: 0
+    showUI: 1
+    glitchStrength: 1
+    glitchDuration: 0.5
+    waitForComplete: 1
+    changeGlobalLight: 0
+    lightColor: {r: 0, g: 0, b: 0, a: 0}
+    lightIntensity: 0
+    lightFadeDuration: 0
+    screenFlash: 0
+    flashColor: {r: 0, g: 0, b: 0, a: 0}
+    flashStrength: 0
+    flashDuration: 0
+    flashCount: 0
+    flashInterval: 0
+    waitDuration: 0
+  - relicRewardList: {fileID: 11400000, guid: 1b42d721f4928584bbe934a870e263e0, type: 2}
+    enabled: 1
+    stepName: "\uB300\uC0AC"
+    type: 0
+    dialoguePages:
+    - "\uBCF4\uC548 \uB370\uC774\uD130 \u25A0\u25A0\u25A0\u25A0\u25A0\uC5D0\uC11C
+      [\uC5D4\uB4DC\uD0C0\uC784]\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.\n[\uC5D4\uB4DC\uD0C0\uC784]\uC740
+      \uCD5C\uC6B0\uC120 \uB4F1\uAE09 \uC815\uBCF4\uB85C \uBD84\uB958\uB418\uC5B4
+      \uD654\uBA74 \uC0C1\uB2E8\uC5D0 \uD45C\uC2DC\uD569\uB2C8\uB2E4."
+    - "\u25A0\u25A0\u25A0\u25A0\u25A0\uC758 \uC885\uB8CC\uAE4C\uC9C0 \uB0A8\uC740
+      \uC2DC\uAC04\uC73C\uB85C \uAE30\uB85D\uB418\uC5B4 \uC788\uC2B5\uB2C8\uB2E4.\n\uAD00\uB828
+      \uB370\uC774\uD130\uAC00 \uC190\uC0C1\uB418\uC5B4 \uC0C1\uC138 \uC815\uBCF4\uB294
+      \uD655\uC778\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    - "\uC785\uB825\uB41C \uCD5C\uC6B0\uC120 \uC784\uBB34\uB97C \uD655\uC778\uD569\uB2C8\uB2E4.\n\uC0DD\uBA85\uCCB4\uB97C
+      \uD761\uC218\uD558\uC5EC \uB370\uC774\uD130\uB97C \uD655\uBCF4\uD569\uB2C8\uB2E4.\n\uC784\uBB34
+      \uC218\uD589\uC744 \uAC1C\uC2DC\uD569\uB2C8\uB2E4."
+    localizedDialoguePages:
+    - m_TableReference:
+        m_TableCollectionName: GUID:c2a2bc6ce49c2e74296ef8813eda2903
+      m_TableEntryReference:
+        m_KeyId: 1882102304768
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    - m_TableReference:
+        m_TableCollectionName: GUID:c2a2bc6ce49c2e74296ef8813eda2903
+      m_TableEntryReference:
+        m_KeyId: 1882102304769
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    - m_TableReference:
+        m_TableCollectionName: GUID:c2a2bc6ce49c2e74296ef8813eda2903
+      m_TableEntryReference:
+        m_KeyId: 1882102304770
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    dialoguePageIds:
+    - 69f5e120df5841309971efcb4c7a0f19
+    - 89a10d7dd9b340c3bbfd83f81fb118df
+    - 0912694e2cf34bcca10cba4fdbaefd28
     lockPlayerInput: 1
     showUI: 1
     glitchStrength: 0.55
