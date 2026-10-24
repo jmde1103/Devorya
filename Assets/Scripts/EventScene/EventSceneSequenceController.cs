@@ -168,6 +168,14 @@ public class EventSceneSequenceController : MonoBehaviour
     // 반드시 이 좌표로 복구한다.
     private Vector3 cameraShakeBaseLocalPosition;
 
+    // <변경부분>
+    // 지속 화면 흔들림이 활성화되어 있는지 보관한다.
+    //
+    // 지속 흔들림 중에는 AttackActor의 짧은 Shake가
+    // 기존 지속 흔들림을 덮어쓰지 않도록 한다.
+    private bool isContinuousCameraShakeActive =
+        false;
+
     private bool isSequenceActive =
     false;
 
@@ -560,6 +568,16 @@ public class EventSceneSequenceController : MonoBehaviour
                     ExecuteScreenShakeStepRoutine(
                         step
                     );
+
+                yield break;
+
+
+            // <변경부분>
+            // 화면 흔들림을 즉시 종료하고
+            // 카메라의 원래 로컬 위치를 복구한다.
+            case EventSceneStepType.StopScreenShake:
+
+                StopCameraShakeImmediately();
 
                 yield break;
 
@@ -2229,10 +2247,18 @@ attacker.PlayAttackRoutine(
         }
 
         // <변경부분>
-        // 기존 ScreenShake가 남아 있는 상태에서 CameraShot이 시작되면
-        // 두 Coroutine이 Camera Transform을 동시에 수정할 수 있으므로
-        // 먼저 Shake 기준 위치로 정확하게 복구한다.
-        StopCameraShakeImmediately();
+        // 기존 시간제 ScreenShake가 남아 있다면
+        // CameraShot 실행 전에 정리하는 기존 동작을 유지한다.
+        //
+        // 지속 ScreenShake는 StopScreenShake에서 종료해야 하므로
+        // CameraShot이 실행되었다는 이유만으로 중지하지 않는다.
+        //
+        // 동시 실행 시 Camera Shake Target은
+        // CameraShot의 위치 제어 대상과 분리되어 있어야 한다.
+        if (!isContinuousCameraShakeActive)
+        {
+            StopCameraShakeImmediately();
+        }
 
         // <변경부분>
         // Event CameraShot의 기본 규칙:
@@ -2581,18 +2607,41 @@ attacker.PlayAttackRoutine(
     // false이면 Shake를 시작한 직후
     // 다음 Event Step으로 진행한다.
     private IEnumerator ExecuteScreenShakeStepRoutine(
-        EventSceneStepData step)
+     EventSceneStepData step)
     {
         if (step == null)
         {
             yield break;
         }
 
+        // <변경부분>
+        // 지속 흔들림이 활성화된 상태에서 일반 시간제
+        // ScreenShake가 호출되면 기존 지속 효과를 유지한다.
+        //
+        // 이때 기존 Coroutine 완료를 기다리면
+        // StopScreenShake Step까지 진행하지 못할 수 있으므로
+        // 즉시 다음 Step으로 넘어간다.
+        if (isContinuousCameraShakeActive &&
+            !step.screenShakeContinuous)
+        {
+            yield break;
+        }
+
         StartCameraShake(
             step.screenShakeDuration,
-            step.screenShakeStrength
+            step.screenShakeStrength,
+            step.screenShakeContinuous
         );
 
+        // <변경부분>
+        // 지속 모드는 시작 후 무조건 다음 Step으로 진행한다.
+        // StopScreenShake에서 종료한다.
+        if (step.screenShakeContinuous)
+        {
+            yield break;
+        }
+
+        // 기존 시간제 흔들림의 대기 동작 유지.
         if (step.screenShakeWaitForComplete == false)
         {
             yield break;
@@ -2620,16 +2669,24 @@ attacker.PlayAttackRoutine(
     // <변경부분>
     // Event Scene 공용 Screen Shake를 시작한다.
     //
-    // Battle의 공격 Impact Feedback과 같은 원칙으로
-    // Camera Transform의 Local Position을 짧게 흔든다.
+    // 기존 시간제 Shake 및 지속 Shake를 모두 지원한다.
+    // AttackActor의 기존 호출은 continuous 기본값 false를 사용한다.
     //
-    // 이미 Shake가 실행 중이라면
-    // 기존 Camera를 먼저 정확한 기준 위치로 복구한 뒤
-    // 새로운 Shake를 시작한다.
+    // 지속 흔들림 중 시간제 Shake가 요청되면
+    // 기존 지속 효과를 유지한다.
     private void StartCameraShake(
-    float duration,
-    float strength)
+        float duration,
+        float strength,
+        bool continuous = false)
     {
+        if (isContinuousCameraShakeActive &&
+            !continuous)
+        {
+            return;
+        }
+
+        // 새 지속 흔들림 또는 일반 시간제 흔들림을
+        // 시작할 때 이전 Shake를 정리한다.
         StopCameraShakeImmediately();
 
         // <변경부분>
@@ -2639,9 +2696,16 @@ attacker.PlayAttackRoutine(
         //
         // Camera는 이전 위치로 돌아가지 않는다.
         PixelCameraController cameraController =
-            GetEventPixelCameraController();
+        GetEventPixelCameraController();
 
-        if (cameraController != null &&
+        // <변경부분>
+        // 기존 시간제 Shake는 CameraShot과 겹치지 않도록
+        // 진행 중인 CameraShot을 정리하는 기존 정책을 유지한다.
+        //
+        // 지속 Shake는 별도의 Shake Target을 사용하는 것을 전제로
+        // CameraShot을 강제 중지하지 않는다.
+        if (!continuous &&
+            cameraController != null &&
             cameraController.IsEventCameraShotPlaying)
         {
             cameraController
@@ -2683,7 +2747,10 @@ attacker.PlayAttackRoutine(
                 strength
             );
 
-        if (safeDuration <= 0f ||
+        // <변경부분>
+        // 지속 모드는 Duration과 무관하게 실행한다.
+        // Strength는 두 모드 모두 0보다 커야 한다.
+        if ((!continuous && safeDuration <= 0f) ||
             safeStrength <= 0f)
         {
             return;
@@ -2692,6 +2759,9 @@ attacker.PlayAttackRoutine(
         activeCameraShakeTarget =
             shakeTarget;
 
+        isContinuousCameraShakeActive =
+            continuous;
+
         // <변경부분>
         // 흔들림 도중 위치를 새 기준점으로 잡는 Drift를 방지하기 위해
         // 시작 직전 위치를 한 번만 저장한다.
@@ -2699,30 +2769,34 @@ attacker.PlayAttackRoutine(
             shakeTarget.localPosition;
 
         cameraShakeCoroutine =
-            StartCoroutine(
-                PlayCameraShakeRoutine(
-                    shakeTarget,
-                    cameraShakeBaseLocalPosition,
-                    safeDuration,
-                    safeStrength
-                )
-            );
+      StartCoroutine(
+          PlayCameraShakeRoutine(
+              shakeTarget,
+              cameraShakeBaseLocalPosition,
+              safeDuration,
+              safeStrength,
+              continuous
+          )
+      );
     }
 
 
     // <변경부분>
-    // 지정 Camera Transform을 기준 위치 주변에서 짧게 흔든다.
+    // 시간제 및 지속 화면 흔들림을 실행한다.
+    //
+    // Continuous OFF: duration까지 실행.
+    // Continuous ON : 명시적인 중지 요청이 올 때까지 반복.
     private IEnumerator PlayCameraShakeRoutine(
         Transform shakeTarget,
         Vector3 baseLocalPosition,
         float duration,
-        float strength)
+        float strength,
+        bool continuous)
     {
         float elapsedTime =
             0f;
 
-        while (elapsedTime <
-               duration)
+        while (continuous || elapsedTime < duration)
         {
             if (shakeTarget == null)
             {
@@ -2731,6 +2805,9 @@ attacker.PlayAttackRoutine(
 
                 activeCameraShakeTarget =
                     null;
+
+                isContinuousCameraShakeActive =
+                    false;
 
                 yield break;
             }
@@ -2770,10 +2847,13 @@ attacker.PlayAttackRoutine(
         }
 
         cameraShakeCoroutine =
-            null;
+      null;
 
         activeCameraShakeTarget =
             null;
+
+        isContinuousCameraShakeActive =
+            false;
     }
 
 
@@ -2800,6 +2880,9 @@ attacker.PlayAttackRoutine(
 
         activeCameraShakeTarget =
             null;
+
+        isContinuousCameraShakeActive =
+            false;
     }
 
     // <변경부분>
@@ -3408,9 +3491,14 @@ attacker.PlayAttackRoutine(
         }
 
         Debug.Log(
-    $"Event Scene Sequence 완료: " +
-    $"{currentEventSceneData?.eventName}"
+ $"Event Scene Sequence 완료: " +
+ $"{currentEventSceneData?.eventName}"
 );
+
+        // <변경부분>
+        // StopScreenShake가 없는 상태에서 이벤트가 완료되어도
+        // 지속 흔들림이 남지 않도록 종료한다.
+        StopCameraShakeImmediately();
 
         HandleSequenceCompletion();
     }
@@ -3541,11 +3629,17 @@ private void RegisterCurrentEventNodeCompletionIfRequested()
         currentStepIndex =
      -1;
 
+   
         // <변경부분>
         pendingBranchStepIndex =
             -1;
 
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // 이벤트 강제 종료 시 진행 중인 시간제/지속 흔들림을
+        // 모두 종료하고 카메라 위치를 복구한다.
+        StopCameraShakeImmediately();
 
         // <변경부분>
         // Sequence 강제 종료 시 Detached Glitch도 즉시 정리한다.

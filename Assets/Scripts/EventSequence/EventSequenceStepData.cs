@@ -110,7 +110,17 @@ public enum EventSequenceStepType
     // Battle Event Step에서 전투 HUD의 표시 여부를 제어한다.
     //
     // 기존 enum 값 0~16은 유지하고 마지막에 추가한다.
-    SetBattleUIVisibility = 17
+    SetBattleUIVisibility = 17,
+
+    // <변경부분>
+    // EventScene에 구현된 독립적인 화면 흔들림 연출.
+    //
+    // 기존 enum 값 0~17은 유지한다.
+    ScreenShake = 18,
+
+    // <변경부분>
+    // 현재 실행 중인 화면 흔들림을 즉시 중지한다.
+    StopScreenShake = 19
 }
 
 
@@ -216,6 +226,23 @@ public class EventDialoguePageLocalizationData
     [HideInInspector]
     public LocalizedString localizedText =
         new LocalizedString();
+}
+
+// <변경부분>
+// SetBattleUIVisibility에서 등록된 UI 하나를 제어하는 설정.
+//
+// uiId는 BattleScene의 EventSequenceController에
+// 등록한 UI ID와 일치해야 한다.
+//
+// ScriptableObject에는 씬 오브젝트를 직접 저장하지 않고
+// ID와 표시 여부만 저장한다.
+[Serializable]
+public class EventBattleUIVisibilityTarget
+{
+    public string uiId = string.Empty;
+
+    // false = 숨김, true = 표시.
+    public bool show = false;
 }
 
 // <변경부분> 이벤트 시퀀스 한 단계의 설정 데이터
@@ -455,7 +482,44 @@ public class EventSequenceStepData
         2f;
 
     public bool speechBubbleWaitForComplete =
-     true;
+   true;
+
+
+    // =====================================================
+    // Screen Shake
+    // =====================================================
+
+    [Header("Screen Shake")]
+
+    // <변경부분>
+    // EventScene의 ScreenShake Step과 동일한 설정.
+    //
+    // 실제 카메라 또는 Camera Shake Target의
+    // Local Position을 흔드는 시간이다.
+    [Min(0f)]
+    public float screenShakeDuration =
+        0.12f;
+
+    // <변경부분>
+    // 카메라의 X/Y 위치에 적용되는 최대 흔들림 강도.
+    [Min(0f)]
+    public float screenShakeStrength =
+        0.08f;
+
+    // <변경부분>
+    // true: StopScreenShake가 실행될 때까지 계속 흔든다.
+    // false: 기존 Duration 기반 화면 흔들림을 사용한다.
+    //
+    // 기존 EventSequenceData 에셋 보호를 위해 기본값은 false.
+    public bool screenShakeContinuous =
+        false;
+
+    // <변경부분>
+    // Continuous가 false일 때만 사용한다.
+    // true: 흔들림이 끝난 뒤 다음 Step 실행.
+    // false: 흔들림을 시작하고 다음 Step으로 즉시 진행.
+    public bool screenShakeWaitForComplete =
+        true;
 
 
     // =====================================================
@@ -590,6 +654,24 @@ public class EventSequenceStepData
     // =====================================================
 
     [Header("Battle UI Visibility")]
+
+    // <변경부분>
+    // false: 기존 EndTimer/Gold 전용 설정 사용.
+    // true : 아래 등록 UI 목록 사용.
+    //
+    // 기존 EventSequenceData 에셋과의 호환성을 위해
+    // 기본값은 반드시 false로 유지한다.
+    public bool battleUIUseRegisteredTargets =
+        false;
+
+    // <변경부분>
+    // EventSequenceController에 등록된 UI를
+    // 한 스텝에서 원하는 개수만큼 제어한다.
+    //
+    // 목록의 각 요소는 UI ID와 표시 여부를 가진다.
+    public List<EventBattleUIVisibilityTarget>
+        battleUIVisibilityTargets =
+            new List<EventBattleUIVisibilityTarget>();
 
     // <변경부분>
     // true: EndTimerRoot_Battle의 표시 여부를 변경한다.

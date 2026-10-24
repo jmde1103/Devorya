@@ -127,6 +127,10 @@ MonoBehaviour:
     m_Key: event_scene.event_test_01.dialogue_bc2c72f8.page_d867fb67
     m_Metadata:
       m_Items: []
+  - m_Id: 15489509534339072
+    m_Key: event_scene.event_opening_field_stage.dialogue_34742941.page_d4d32600
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

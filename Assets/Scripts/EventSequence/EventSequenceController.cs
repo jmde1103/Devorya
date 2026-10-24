@@ -67,6 +67,27 @@ public class EventSequenceController : MonoBehaviour
     [SerializeField]
     private CanvasGroup goldRootCanvasGroup;
 
+    // =====================================================
+    // Registered Battle UI Targets
+    // =====================================================
+
+    // <변경부분>
+    // BattleScene에 존재하는 실제 UI를 등록한다.
+    //
+    // UI ID는 EventSequenceData에서 대상을 지정할 때
+    // 사용하며, 동일한 ID를 중복 등록하면 안 된다.
+    [System.Serializable]
+    private sealed class BattleUIBinding
+    {
+        public string uiId;
+        public CanvasGroup canvasGroup;
+    }
+
+    [Header("Registered Battle UI Targets")]
+    [SerializeField]
+    private List<BattleUIBinding> battleUIBindings =
+        new List<BattleUIBinding>();
+
 
     // <변경부분>
     // 이벤트 시작 전 UI 상태를 보관한다.
@@ -103,8 +124,11 @@ public class EventSequenceController : MonoBehaviour
     // =====================================================
 
     // <변경부분>
-    // 두 UI의 Fade를 동시에 시작하고
-    // Wait For Complete 설정에 따라 완료까지 대기한다.
+    // 기존 EndTimer/Gold 전용 방식과
+    // 새 등록 UI 목록 방식을 모두 지원한다.
+    //
+    // 모든 UI의 Fade는 먼저 동시에 시작하고,
+    // Wait For Complete가 true인 경우 완료까지 대기한다.
     private IEnumerator ExecuteSetBattleUIVisibilityStepRoutine(
         EventSequenceStepData step)
     {
@@ -116,52 +140,229 @@ public class EventSequenceController : MonoBehaviour
         float fadeDuration =
             Mathf.Max(0f, step.battleUIFadeDuration);
 
-        Coroutine endTimerFade = null;
-        Coroutine goldFade = null;
+        List<Coroutine> fades =
+            new List<Coroutine>();
 
         // <변경부분>
-        // EndTimerRoot_Battle을 변경하도록 설정한 경우에만 실행.
-        if (step.battleUIChangeEndTimerRoot)
+        // 같은 CanvasGroup이 한 스텝에서 중복 처리되는 것을 방지.
+        HashSet<CanvasGroup> processedGroups =
+            new HashSet<CanvasGroup>();
+
+        // =================================================
+        // Registered UI Targets
+        // =================================================
+
+        if (step.battleUIUseRegisteredTargets)
         {
-            endTimerFade =
-                SetBattleUIGroupVisibility(
-                    endTimerRootBattleCanvasGroup,
-                    step.battleUIShowEndTimerRoot,
-                    fadeDuration,
-                    "EndTimerRoot_Battle"
+            if (step.battleUIVisibilityTargets == null ||
+                step.battleUIVisibilityTargets.Count == 0)
+            {
+                Debug.LogWarning(
+                    "Battle UI Visibility: " +
+                    "등록 UI 모드가 활성화되었지만 " +
+                    "스텝에 지정된 UI가 없습니다.",
+                    this
                 );
+            }
+            else
+            {
+                foreach (
+                    EventBattleUIVisibilityTarget target
+                    in step.battleUIVisibilityTargets)
+                {
+                    if (target == null)
+                    {
+                        continue;
+                    }
+
+                    CanvasGroup targetGroup;
+
+                    if (!TryGetRegisteredBattleUIGroup(
+                            target.uiId,
+                            out targetGroup))
+                    {
+                        continue;
+                    }
+
+                    if (!processedGroups.Add(targetGroup))
+                    {
+                        Debug.LogWarning(
+                            "Battle UI Visibility: " +
+                            $"같은 UI가 한 스텝에 중복 지정되었습니다: " +
+                            $"{target.uiId}",
+                            this
+                        );
+
+                        continue;
+                    }
+
+                    Coroutine fade =
+                        SetBattleUIGroupVisibility(
+                            targetGroup,
+                            target.show,
+                            fadeDuration,
+                            target.uiId
+                        );
+
+                    if (fade != null)
+                    {
+                        fades.Add(fade);
+                    }
+                }
+            }
         }
 
-        // <변경부분>
-        // GoldRoot를 변경하도록 설정한 경우에만 실행.
-        if (step.battleUIChangeGoldRoot)
+        // =================================================
+        // Legacy EndTimer / Gold
+        // =================================================
+
+        else
         {
-            goldFade =
-                SetBattleUIGroupVisibility(
-                    goldRootCanvasGroup,
-                    step.battleUIShowGoldRoot,
-                    fadeDuration,
-                    "GoldRoot"
-                );
+            // 기존 이벤트 에셋의 EndTimer 동작 유지.
+            if (step.battleUIChangeEndTimerRoot)
+            {
+                Coroutine fade =
+                    SetBattleUIGroupVisibility(
+                        endTimerRootBattleCanvasGroup,
+                        step.battleUIShowEndTimerRoot,
+                        fadeDuration,
+                        "EndTimerRoot_Battle"
+                    );
+
+                if (fade != null)
+                {
+                    fades.Add(fade);
+                }
+            }
+
+            // 기존 이벤트 에셋의 Gold 동작 유지.
+            if (step.battleUIChangeGoldRoot)
+            {
+                Coroutine fade =
+                    SetBattleUIGroupVisibility(
+                        goldRootCanvasGroup,
+                        step.battleUIShowGoldRoot,
+                        fadeDuration,
+                        "GoldRoot"
+                    );
+
+                if (fade != null)
+                {
+                    fades.Add(fade);
+                }
+            }
         }
 
-        // <변경부분>
-        // 두 Fade는 이미 동시에 시작된 상태다.
-        // 기다리지 않는 경우 다음 Step으로 즉시 진행한다.
+        // =================================================
+        // Wait For Complete
+        // =================================================
+
         if (!step.battleUIWaitForComplete)
         {
             yield break;
         }
 
-        if (endTimerFade != null)
+        for (int i = 0; i < fades.Count; i++)
         {
-            yield return endTimerFade;
+            if (fades[i] != null)
+            {
+                yield return fades[i];
+            }
+        }
+    }
+
+
+    // <변경부분>
+    // EventSequenceData의 UI ID를
+    // 현재 BattleScene의 CanvasGroup 참조로 변환한다.
+    //
+    // 잘못된 ID, 중복 ID, 미연결 또는 비활성 UI는
+    // 잘못된 오브젝트를 변경하지 않도록 차단한다.
+    private bool TryGetRegisteredBattleUIGroup(
+        string uiId,
+        out CanvasGroup targetGroup)
+    {
+        targetGroup = null;
+
+        string normalizedId =
+            string.IsNullOrWhiteSpace(uiId)
+                ? string.Empty
+                : uiId.Trim();
+
+        if (string.IsNullOrEmpty(normalizedId))
+        {
+            Debug.LogWarning(
+                "Battle UI Visibility 실행 실패: " +
+                "UI ID가 비어 있습니다.",
+                this
+            );
+
+            return false;
         }
 
-        if (goldFade != null)
+        bool found = false;
+
+        if (battleUIBindings != null)
         {
-            yield return goldFade;
+            foreach (BattleUIBinding binding in battleUIBindings)
+            {
+                if (binding == null ||
+                    string.IsNullOrWhiteSpace(binding.uiId))
+                {
+                    continue;
+                }
+
+                if (!string.Equals(
+                        binding.uiId.Trim(),
+                        normalizedId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (found)
+                {
+                    Debug.LogWarning(
+                        "Battle UI Visibility 실행 실패: " +
+                        $"중복 등록된 UI ID입니다: {normalizedId}",
+                        this
+                    );
+
+                    targetGroup = null;
+                    return false;
+                }
+
+                found = true;
+                targetGroup = binding.canvasGroup;
+            }
         }
+
+        if (!found || targetGroup == null)
+        {
+            Debug.LogWarning(
+                "Battle UI Visibility 실행 실패: " +
+                $"UI ID가 없거나 CanvasGroup이 연결되지 않았습니다: " +
+                $"{normalizedId}",
+                this
+            );
+
+            return false;
+        }
+
+        // CanvasGroup은 GameObject 활성화 기능을 대신하지 않는다.
+        if (!targetGroup.gameObject.activeInHierarchy ||
+            !targetGroup.enabled)
+        {
+            Debug.LogWarning(
+                "Battle UI Visibility 실행 실패: " +
+                $"대상 UI가 비활성 상태입니다: {normalizedId}",
+                this
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -440,6 +641,46 @@ public class EventSequenceController : MonoBehaviour
 
         battleUIVisibilityStates.Clear();
     }
+
+    // =====================================================
+    // Screen Glitch
+    // =====================================================
+
+    // =====================================================
+    // Screen Shake
+    // =====================================================
+
+    [Header("Screen Shake")]
+
+    // <변경부분>
+    // BattleScene에서 화면을 흔들 Transform.
+    //
+    // 기존 전투 카메라 연출과 충돌하지 않도록
+    // 가능하면 별도의 Camera Shake Target을 연결한다.
+    //
+    // 연결하지 않으면 Main Camera Transform을 사용한다.
+    [SerializeField]
+    private Transform cameraShakeTarget;
+
+    // <변경부분>
+    // 현재 실행 중인 화면 흔들림 Coroutine.
+    private Coroutine cameraShakeCoroutine;
+
+    // <변경부분>
+    // 실제로 흔들고 있는 Transform과
+    // 흔들림 시작 전 Local Position을 보관한다.
+    private Transform activeCameraShakeTarget;
+
+    private Vector3 cameraShakeBaseLocalPosition;
+
+    // <변경부분>
+    // 지속 화면 흔들림 실행 여부.
+    //
+    // true 상태에서는 일반 시간제 Shake 요청이
+    // 지속 흔들림을 중단하지 않도록 보호한다.
+    private bool isContinuousCameraShakeActive =
+        false;
+
 
     // =====================================================
     // Screen Glitch
@@ -1424,7 +1665,22 @@ public class EventSequenceController : MonoBehaviour
                 yield break;
 
             // <변경부분>
-            // BattleScene 화면 글리치 연출.
+            // EventScene과 동일한 독립 화면 흔들림 Step.
+            case EventSequenceStepType.ScreenShake:
+                yield return
+                    ExecuteScreenShakeStepRoutine(
+                        step
+                    );
+                yield break;
+
+            // <변경부분>
+            // 진행 중인 시간제 또는 지속 화면 흔들림을 종료한다.
+            case EventSequenceStepType.StopScreenShake:
+                StopCameraShakeImmediately();
+                yield break;
+
+            // <변경부분>
+            // BattleScene 화면 글리치 연출..
             case EventSequenceStepType.ScreenGlitch:
                 yield return
                     ExecuteScreenGlitchStepRoutine(
@@ -1452,6 +1708,253 @@ public class EventSequenceController : MonoBehaviour
                 yield break;
         }
     }
+
+    // =====================================================
+    // Screen Shake
+    // =====================================================
+
+    // <변경부분>
+    // EventScene의 ScreenShake Step과 동일하게
+    // 화면 흔들림을 실행한다.
+    //
+    // Wait For Complete가 true이면
+    // 실제 Coroutine이 끝날 때까지 대기한다.
+    private IEnumerator ExecuteScreenShakeStepRoutine(
+       EventSequenceStepData step)
+    {
+        if (step == null)
+        {
+            yield break;
+        }
+
+        StartCameraShake(
+            step.screenShakeDuration,
+            step.screenShakeStrength,
+            step.screenShakeContinuous
+        );
+
+        // <변경부분>
+        // 지속 모드는 종료 시점을 알 수 없으므로
+        // 무조건 다음 Step으로 즉시 진행한다.
+        if (step.screenShakeContinuous)
+        {
+            yield break;
+        }
+
+        // 기존 시간제 흔들림의 대기 설정은 유지한다.
+        if (step.screenShakeWaitForComplete == false)
+        {
+            yield break;
+        }
+
+        while (cameraShakeCoroutine != null)
+        {
+            if (isSequenceActive == false)
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+
+    // <변경부분>
+    // 실제 Camera Shake를 시작한다.
+    //
+    // 이미 흔들리고 있다면 기존 흔들림을 종료하고
+    // 원래 위치로 복원한 다음 새 흔들림을 시작한다.
+    private void StartCameraShake(
+      float duration,
+      float strength,
+      bool continuous = false)
+    {
+        // <변경부분>
+        // 지속 흔들림이 진행 중이면
+        // 일반 시간제 흔들림이 이를 덮어쓰지 않는다.
+        if (isContinuousCameraShakeActive &&
+            !continuous)
+        {
+            return;
+        }
+
+        // 새 지속 흔들림을 시작하는 경우에는
+        // 기존 흔들림을 복구한 뒤 새 설정을 적용한다.
+        StopCameraShakeImmediately();
+
+        Transform shakeTarget =
+            cameraShakeTarget;
+
+        // Inspector에 연결되지 않은 경우
+        // 기존 EventScene처럼 Main Camera를 사용한다.
+        if (shakeTarget == null &&
+            Camera.main != null)
+        {
+            shakeTarget =
+                Camera.main.transform;
+        }
+
+        if (shakeTarget == null)
+        {
+            Debug.LogWarning(
+                "Battle Event ScreenShake 실행 실패: " +
+                "Camera Shake Target 또는 Main Camera를 찾을 수 없습니다.",
+                this
+            );
+
+            return;
+        }
+
+        float safeDuration =
+            Mathf.Max(
+                0f,
+                duration
+            );
+
+        float safeStrength =
+            Mathf.Max(
+                0f,
+                strength
+            );
+
+        // 지속 모드에서는 Duration = 0이어도 실행한다.
+        if ((!continuous && safeDuration <= 0f) ||
+            safeStrength <= 0f)
+        {
+            return;
+        }
+
+        activeCameraShakeTarget =
+            shakeTarget;
+
+        isContinuousCameraShakeActive =
+            continuous;
+
+        // 흔들리는 동안 현재 위치를 다시 기준으로 잡지 않는다.
+        // 흔들림 누적으로 발생하는 Camera Drift를 방지한다.
+        cameraShakeBaseLocalPosition =
+            shakeTarget.localPosition;
+
+        cameraShakeCoroutine =
+     StartCoroutine(
+         PlayCameraShakeRoutine(
+             shakeTarget,
+             cameraShakeBaseLocalPosition,
+             safeDuration,
+             safeStrength,
+             continuous
+         )
+     );
+    }
+
+
+    // <변경부분>
+    // EventScene과 동일한 Random X/Y Offset 방식.
+    //
+    // 시작 시점의 Local Position을 기준으로 흔들며,
+    // 종료 후 반드시 정확한 위치로 복원한다.
+    private IEnumerator PlayCameraShakeRoutine(
+     Transform shakeTarget,
+     Vector3 baseLocalPosition,
+     float duration,
+     float strength,
+     bool continuous)
+    {
+        float elapsedTime =
+            0f;
+
+        // <변경부분>
+        // 시간제 모드는 Duration 종료 시 복구.
+        // 지속 모드는 StopCoroutine으로 중단할 때까지 반복.
+        while (continuous || elapsedTime < duration)
+        {
+            if (shakeTarget == null)
+            {
+                cameraShakeCoroutine =
+                    null;
+
+                activeCameraShakeTarget =
+                    null;
+
+                isContinuousCameraShakeActive =
+                    false;
+
+                yield break;
+            }
+
+            elapsedTime +=
+                Time.deltaTime;
+
+            float randomX =
+                Random.Range(
+                    -strength,
+                    strength
+                );
+
+            float randomY =
+                Random.Range(
+                    -strength,
+                    strength
+                );
+
+            shakeTarget.localPosition =
+                baseLocalPosition +
+                new Vector3(
+                    randomX,
+                    randomY,
+                    0f
+                );
+
+            yield return null;
+        }
+
+        if (shakeTarget != null)
+        {
+            shakeTarget.localPosition =
+                baseLocalPosition;
+        }
+
+        cameraShakeCoroutine =
+        null;
+
+        activeCameraShakeTarget =
+            null;
+
+        isContinuousCameraShakeActive =
+            false;
+    }
+
+
+    // <변경부분>
+    // 진행 중인 Camera Shake를 즉시 종료하고
+    // 시작 전 Local Position으로 복원한다.
+    //
+    // Event 종료 / 중단 / Scene 비활성화에서도 호출한다.
+    private void StopCameraShakeImmediately()
+    {
+        if (cameraShakeCoroutine != null)
+        {
+            StopCoroutine(
+                cameraShakeCoroutine
+            );
+
+            cameraShakeCoroutine =
+                null;
+        }
+
+        if (activeCameraShakeTarget != null)
+        {
+            activeCameraShakeTarget.localPosition =
+                cameraShakeBaseLocalPosition;
+        }
+
+        activeCameraShakeTarget =
+            null;
+
+        isContinuousCameraShakeActive =
+            false;
+    }
+
 
     // =====================================================
     // Screen Glitch
@@ -3222,6 +3725,11 @@ public class EventSequenceController : MonoBehaviour
         // 이벤트 실행 전 상태로 복구한다.
         RestoreBattleUIVisibilityImmediately();
 
+        // <변경부분>
+        // 화면 흔들림 도중 시퀀스가 완료되어도
+        // 카메라가 흔들린 좌표에 남지 않도록 복원한다.
+        StopCameraShakeImmediately();
+
         Debug.Log(
             $"이벤트 시퀀스 완료: " +
             $"{sequenceData?.sequenceName}"
@@ -3411,6 +3919,11 @@ public class EventSequenceController : MonoBehaviour
         StopSequenceCoroutine();
 
         // <변경부분>
+        // 강제 종료 시 화면 흔들림도 종료하고
+        // Camera Transform을 원래 위치로 복구한다.
+        StopCameraShakeImmediately();
+
+        // <변경부분>
         // 강제 종료 시 글리치가 화면에 남지 않도록 한다.
         if (eventScreenGlitchController != null)
         {
@@ -3464,6 +3977,11 @@ public class EventSequenceController : MonoBehaviour
     private void OnDisable()
     {
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // 씬 전환 또는 Controller 비활성화 시
+        // 흔들린 카메라 좌표가 남지 않도록 복구한다.
+        StopCameraShakeImmediately();
 
         // <변경부분>
         // 씬 전환 및 비활성화 시 화면 연출을 정리한다.

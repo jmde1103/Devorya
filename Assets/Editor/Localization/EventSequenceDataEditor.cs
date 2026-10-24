@@ -1348,8 +1348,109 @@ public class EventSequenceDataEditor : Editor
             // =====================================================
 
             // <변경부분>
-            // EndTimerRoot_Battle과 GoldRoot를 각각 제어한다.
+            // 기존 EndTimer/Gold와 등록 UI 목록 모드를 지원한다.
             case EventSequenceStepType.SetBattleUIVisibility:
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "battleUIUseRegisteredTargets",
+                    "Use Registered UI Targets",
+                    false,
+                    draw
+                );
+
+                SerializedProperty useRegisteredTargetsProperty =
+                    stepProperty.FindPropertyRelative(
+                        "battleUIUseRegisteredTargets"
+                    );
+
+                bool useRegisteredTargets =
+                    useRegisteredTargetsProperty != null &&
+                    useRegisteredTargetsProperty.boolValue;
+
+                // =================================================
+                // Registered UI Targets
+                // =================================================
+
+                if (useRegisteredTargets)
+                {
+                    currentY += 6f;
+
+                    ProcessEventStepSectionLabel(
+                        ref currentY,
+                        contentRect,
+                        "Registered UI Targets",
+                        draw
+                    );
+
+                    // <변경부분>
+                    // Unity List의 Size로 개수를 조절하고,
+                    // 각 요소에 UI ID와 Show 값을 설정한다.
+                    //
+                    // includeChildren = true를 사용하여
+                    // 배열의 확장 높이를 정확하게 계산한다.
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIVisibilityTargets",
+                        "UI Targets",
+                        true,
+                        draw
+                    );
+
+                    currentY += 6f;
+
+                    ProcessEventStepSectionLabel(
+                        ref currentY,
+                        contentRect,
+                        "UI Fade",
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIFadeDuration",
+                        "Fade Duration",
+                        false,
+                        draw
+                    );
+
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "battleUIWaitForComplete",
+                        "Wait For Complete",
+                        false,
+                        draw
+                    );
+
+                    currentY += 6f;
+
+                    ProcessEventStepHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "UI ID는 EventSequenceController에 등록된 ID와 일치해야 합니다.\n" +
+                        "UI Targets의 Size로 대상 개수를 지정합니다.\n" +
+                        "Show OFF = 숨김 / Show ON = 표시.\n" +
+                        "이 모드에서는 기존 EndTimer/Gold 전용 설정을 실행하지 않습니다.\n" +
+                        "시퀀스 종료 또는 중단 시 최초 상태로 복구합니다.",
+                        MessageType.Info,
+                        5,
+                        draw
+                    );
+
+                    break;
+                }
+
+                // =================================================
+                // Legacy EndTimer / Gold
+                // =================================================
 
                 ProcessEventStepSectionLabel(
                     ref currentY,
@@ -1505,6 +1606,109 @@ public class EventSequenceDataEditor : Editor
                     "뒤에 Dialogue Step을 배치할 수 있습니다.",
                     MessageType.Info,
                     3,
+                    draw
+                );
+
+                break;
+
+
+            // =====================================================
+            // Screen Shake
+            // =====================================================
+
+            case EventSequenceStepType.ScreenShake:
+
+                ProcessEventStepSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Screen Shake",
+                    draw
+                );
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "screenShakeContinuous",
+                    "Continuous",
+                    false,
+                    draw
+                );
+
+                SerializedProperty continuousShakeProperty =
+                    stepProperty.FindPropertyRelative(
+                        "screenShakeContinuous"
+                    );
+
+                bool continuousShake =
+                    continuousShakeProperty != null &&
+                    continuousShakeProperty.boolValue;
+
+                if (!continuousShake)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "screenShakeDuration",
+                        "Shake Duration",
+                        false,
+                        draw
+                    );
+                }
+
+                ProcessEventStepProperty(
+                    ref currentY,
+                    contentRect,
+                    stepProperty,
+                    "screenShakeStrength",
+                    "Shake Strength",
+                    false,
+                    draw
+                );
+
+                if (!continuousShake)
+                {
+                    ProcessEventStepProperty(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        "screenShakeWaitForComplete",
+                        "Wait For Complete",
+                        false,
+                        draw
+                    );
+                }
+
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    continuousShake
+                        ? "지속 흔들림을 시작하고 즉시 다음 Step으로 진행합니다.\n" +
+                          "이후 StopScreenShake Step에서 종료합니다."
+                        : "지정한 시간 동안 화면을 흔듭니다.\n" +
+                          "Wait For Complete에 따라 다음 Step 진행 시점이 결정됩니다.",
+                    MessageType.Info,
+                    2,
+                    draw
+                );
+
+                break;
+
+
+            // =====================================================
+            // Stop Screen Shake
+            // =====================================================
+
+            case EventSequenceStepType.StopScreenShake:
+
+                ProcessEventStepHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "진행 중인 화면 흔들림을 즉시 종료하고\n" +
+                    "카메라를 흔들림 시작 전 위치로 복구합니다.",
+                    MessageType.Info,
+                    2,
                     draw
                 );
 

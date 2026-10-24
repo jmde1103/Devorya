@@ -2424,6 +2424,10 @@ public class EventSceneDataEditor : Editor
                 break;
 
 
+            // =====================================================
+            // Screen Shake
+            // =====================================================
+
             case EventSceneStepType.ScreenShake:
 
                 ProcessEventSceneSectionLabel(
@@ -2433,35 +2437,106 @@ public class EventSceneDataEditor : Editor
                     draw
                 );
 
+                // <변경부분>
+                // 기존 시간제와 지속 흔들림 중 사용할 방식을 선택한다.
                 ProcessEventSceneProperties(
                     ref currentY,
                     contentRect,
                     stepProperty,
                     draw,
-                    "screenShakeDuration", "Shake Duration",
-                    "screenShakeStrength", "Shake Strength",
-                    "screenShakeWaitForComplete",
-                    "Wait For Complete"
+                    "screenShakeContinuous", "Continuous"
                 );
 
-                SerializedProperty screenShakeWaitProperty =
+                SerializedProperty screenShakeContinuousProperty =
                     stepProperty.FindPropertyRelative(
-                        "screenShakeWaitForComplete"
+                        "screenShakeContinuous"
                     );
 
-                bool waitForShake =
-                    screenShakeWaitProperty != null &&
-                    screenShakeWaitProperty.boolValue;
+                bool isContinuousScreenShake =
+                    screenShakeContinuousProperty != null &&
+                    screenShakeContinuousProperty.boolValue;
+
+                if (isContinuousScreenShake)
+                {
+                    // <변경부분>
+                    // 지속 모드에서는 Duration과 대기 옵션이 필요 없다.
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "screenShakeStrength", "Shake Strength"
+                    );
+
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        "지속 화면 흔들림을 시작합니다.\n" +
+                        "흔들림을 유지한 채 다음 Step으로 진행하며,\n" +
+                        "StopScreenShake Step에서 종료합니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+                else
+                {
+                    // <변경부분>
+                    // 기존 시간제 ScreenShake 설정을 그대로 제공한다.
+                    ProcessEventSceneProperties(
+                        ref currentY,
+                        contentRect,
+                        stepProperty,
+                        draw,
+                        "screenShakeDuration", "Shake Duration",
+                        "screenShakeStrength", "Shake Strength",
+                        "screenShakeWaitForComplete",
+                        "Wait For Complete"
+                    );
+
+                    SerializedProperty screenShakeWaitProperty =
+                        stepProperty.FindPropertyRelative(
+                            "screenShakeWaitForComplete"
+                        );
+
+                    bool waitForShake =
+                        screenShakeWaitProperty != null &&
+                        screenShakeWaitProperty.boolValue;
+
+                    ProcessEventSceneHelpBox(
+                        ref currentY,
+                        contentRect,
+                        waitForShake
+                            ? "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다."
+                            : "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
+                        MessageType.Info,
+                        draw
+                    );
+                }
+
+                break;
+
+
+            // =====================================================
+            // Stop Screen Shake
+            // =====================================================
+
+            case EventSceneStepType.StopScreenShake:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Stop Screen Shake",
+                    draw
+                );
 
                 ProcessEventSceneHelpBox(
-     ref currentY,
-     contentRect,
-     waitForShake
-         ? "화면 흔들림이 끝난 뒤 다음 Event Step으로 진행합니다."
-         : "화면 흔들림을 시작한 뒤 기다리지 않고 다음 Event Step으로 진행합니다.",
-     MessageType.Info,
-     draw
- );
+                    ref currentY,
+                    contentRect,
+                    "진행 중인 화면 흔들림을 즉시 종료합니다.\n" +
+                    "카메라의 흔들림 위치를 원래대로 복구합니다.",
+                    MessageType.Info,
+                    draw
+                );
 
                 break;
 

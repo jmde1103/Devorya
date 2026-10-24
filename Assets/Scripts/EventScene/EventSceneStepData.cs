@@ -101,7 +101,16 @@ public enum EventSceneStepType
     // Event Scene 전용 화면 글리치 효과.
     // 기존 Step의 Serialized 번호를 변경하지 않는다.
     ScreenGlitch = 18,
-    [InspectorName("유물 선택 보상")] RelicReward = 19
+
+    [InspectorName("유물 선택 보상")]
+    RelicReward = 19,
+
+    // <변경부분>
+    // 지정된 시간 또는 지속 모드로 실행 중인
+    // 화면 흔들림을 즉시 종료한다.
+    //
+    // 기존 Serialized enum 값 0~19는 유지한다.
+    StopScreenShake = 20
 }
 
 
@@ -896,12 +905,27 @@ public class EventSceneStepData
 
     // <변경부분>
     // true:
+    // StopScreenShake Step을 실행할 때까지
+    // 화면 흔들림을 계속 유지한다.
+    //
+    // false:
+    // 기존 ScreenShake와 동일하게 Duration만큼 실행한다.
+    //
+    // 기존 EventSceneData의 Serialized 동작을 보호하기 위해
+    // 기본값은 false로 유지한다.
+    public bool screenShakeContinuous =
+        false;
+
+    // <변경부분>
+    // Continuous가 OFF인 경우에만 적용한다.
+    //
+    // true:
     // 화면 흔들림이 끝날 때까지 현재 Step에서 기다린다.
     //
     // false:
     // Shake만 시작하고 즉시 다음 Event Step으로 진행한다.
     public bool screenShakeWaitForComplete =
-      true;
+        true;
 
 
     // =====================================================

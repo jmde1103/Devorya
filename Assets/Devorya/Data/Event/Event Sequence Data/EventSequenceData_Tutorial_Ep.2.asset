@@ -23,7 +23,7 @@ MonoBehaviour:
   pauseEnemyAIWhileSequenceActive: 1
   skipNormalPlayerDeployment: 1
   steps:
-  - stepName: 
+  - stepName: "UI\uC228\uAE30\uAE30"
     stepType: 17
     dialoguePages: []
     dialogueLocalizationId: 
@@ -88,11 +88,23 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 1
+    battleUIVisibilityTargets:
+    - uiId: EndTimer
+      show: 0
+    - uiId: Gold
+      show: 0
+    - uiId: Relic
+      show: 0
+    - uiId: Energy Count
+      show: 0
+    - uiId: Absorb Count
+      show: 0
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
     battleUIShowGoldRoot: 0
-    battleUIFadeDuration: 0.3
+    battleUIFadeDuration: 0.01
     battleUIWaitForComplete: 1
     waitDuration: 0.5
   - stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
@@ -160,6 +172,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -244,6 +258,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -318,6 +334,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -392,6 +410,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -466,6 +486,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -540,6 +562,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -614,6 +638,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -709,6 +735,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -784,6 +812,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -859,6 +889,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -934,6 +966,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1009,6 +1043,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1084,6 +1120,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1159,6 +1197,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1234,6 +1274,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1309,6 +1351,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1384,6 +1428,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1491,6 +1537,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1566,6 +1614,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1673,6 +1723,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1750,6 +1802,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1883,6 +1937,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -1966,6 +2022,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2049,6 +2107,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2132,6 +2192,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2216,6 +2278,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2288,6 +2352,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2360,6 +2426,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2479,6 +2547,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2551,6 +2621,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2623,6 +2695,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2695,6 +2769,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2767,6 +2843,92 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uD761\uC218 \uCE74\uC6B4\uD130 \uC624\uD508"
+    stepType: 17
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_ac5f0055
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_36817d46
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 1
+    battleUIVisibilityTargets:
+    - uiId: EndTimer
+      show: 0
+    - uiId: Gold
+      show: 0
+    - uiId: Relic
+      show: 0
+    - uiId: Energy Count
+      show: 0
+    - uiId: Absorb Count
+      show: 1
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2839,6 +3001,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -2911,6 +3075,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3007,6 +3173,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3079,6 +3247,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3151,6 +3321,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3236,6 +3408,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3308,6 +3482,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3380,6 +3556,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3464,6 +3642,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3550,6 +3730,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3622,6 +3804,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3694,6 +3878,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3789,6 +3975,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3861,6 +4049,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -3933,6 +4123,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4005,6 +4197,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4077,6 +4271,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4149,6 +4345,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4221,6 +4419,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4316,6 +4516,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4388,6 +4590,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4460,6 +4664,92 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: "\uC5D0\uB108\uC9C0 \uCE74\uC6B4\uD2B8 \uC624\uD508"
+    stepType: 17
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_16f94b3e
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_0b7cd8a5
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 1
+    battleUIVisibilityTargets:
+    - uiId: EndTimer
+      show: 0
+    - uiId: Gold
+      show: 0
+    - uiId: Relic
+      show: 0
+    - uiId: Energy Count
+      show: 0
+    - uiId: Absorb Count
+      show: 1
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4532,6 +4822,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4643,6 +4935,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4715,6 +5009,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4787,6 +5083,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4859,6 +5157,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -4931,6 +5231,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5003,6 +5305,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5075,6 +5379,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5147,6 +5453,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5258,6 +5566,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5330,6 +5640,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5427,6 +5739,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5499,6 +5813,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5571,6 +5887,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5643,6 +5961,8 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1
@@ -5753,6 +6073,82 @@ MonoBehaviour:
     globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
     globalLightingCharacterFillTargetIntensity: 1
     globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - stepName: 
+    stepType: 17
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
     battleUIChangeEndTimerRoot: 1
     battleUIShowEndTimerRoot: 0
     battleUIChangeGoldRoot: 1

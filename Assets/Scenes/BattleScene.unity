@@ -6891,6 +6891,7 @@ GameObject:
   - component: {fileID: 65093569}
   - component: {fileID: 65093571}
   - component: {fileID: 65093570}
+  - component: {fileID: 65093572}
   m_Layer: 5
   m_Name: Absorb Count
   m_TagString: Untagged
@@ -6958,6 +6959,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 65093568}
   m_CullTransparentMesh: 1
+--- !u!225 &65093572
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65093568}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &65832561
 GameObject:
   m_ObjectHideFlags: 0
@@ -73644,6 +73657,7 @@ GameObject:
   - component: {fileID: 677187154}
   - component: {fileID: 677187153}
   - component: {fileID: 677187155}
+  - component: {fileID: 677187156}
   m_Layer: 5
   m_Name: Energy Max Count
   m_TagString: Untagged
@@ -73739,6 +73753,18 @@ MonoBehaviour:
   ghostStartAlpha: 0.3
   countUpStepInterval: 0.06
   countDownStepInterval: 0.06
+--- !u!225 &677187156
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 677187151}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &682068302
 GameObject:
   m_ObjectHideFlags: 0
@@ -227849,6 +227875,18 @@ MonoBehaviour:
   eventMarkerUI: {fileID: 1959258274}
   endTimerRootBattleCanvasGroup: {fileID: 1742791697}
   goldRootCanvasGroup: {fileID: 2081978992}
+  battleUIBindings:
+  - uiId: EndTimer
+    canvasGroup: {fileID: 1742791697}
+  - uiId: Gold
+    canvasGroup: {fileID: 2081978992}
+  - uiId: Relic
+    canvasGroup: {fileID: 7760481889925652823}
+  - uiId: Energy Count
+    canvasGroup: {fileID: 677187156}
+  - uiId: Absorb Count
+    canvasGroup: {fileID: 65093572}
+  cameraShakeTarget: {fileID: 0}
   eventScreenGlitchController: {fileID: 1880730733}
   environmentGlobalAmbient: {fileID: 1945166200}
   characterFillLight: {fileID: 1313896880}
@@ -229970,7 +230008,10 @@ PrefabInstance:
     - {fileID: 981547815805901937, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
     - {fileID: 3811751288206626453, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8265040137211664831, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7760481889925652823}
   m_SourcePrefab: {fileID: 100100000, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
 --- !u!114 &7760481889925652819 stripped
 MonoBehaviour:
@@ -230005,6 +230046,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfdfc0137d580da4488e0898c88df9ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
+--- !u!1 &7760481889925652822 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8265040137211664831, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+  m_PrefabInstance: {fileID: 7760481889925652818}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &7760481889925652823
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7760481889925652822}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &9142364205138540927
 PrefabInstance:
   m_ObjectHideFlags: 0
