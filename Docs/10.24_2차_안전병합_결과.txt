@@ -106,8 +106,9 @@ GameOver는 참조·원본 소스 보존을 확인했으며, 패배부터 Title�
 새로운 복합 효과 타입 추가 시 검증기 확장이 필요하며 범용 예외 롤백 시스템은 아니다.
 
 8. Git 최종 처리
-병합 완료 후 codex/status-effect-restrictions를 메인의 최종 커밋으로 fast-forward하여 맞춘다.
-양쪽 HEAD와 추적 파일 트리를 비교하고 미커밋 변경이 없는지 확인한다.
+병합 커밋: a2010fd7.
+병합 완료 후 codex/status-effect-restrictions를 메인의 최종 커밋으로 fast-forward하여 맞췄다.
+양쪽 HEAD와 추적 파일 트리가 같으며 미커밋 변경이 없음을 확인했다.
 두 작업 폴더의 Library/Logs 등 무시되는 로컬 캐시까지 복사하는 작업은 하지 않는다.
 백업 브랜치는 유지한다. 원격 Push는 하지 않는다.
 

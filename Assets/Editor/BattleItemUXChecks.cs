@@ -235,5 +235,3 @@ public static class BattleItemUXChecks
         Debug.Log("ITEM_UX_INPUT_NOTE: SelectTile PC/mobile shared routing exercised; physical device interaction not automated.");
     }
 }
-
-
