@@ -161,14 +161,15 @@ public class BattleMoveValidator : MonoBehaviour
     // 반복 호출이 많은 AI에서는 FillSelectablePositions()를 사용하여
     // 재사용 List에 결과를 채우는 방식을 권장한다.
     public List<Vector2Int> GetSelectablePositions(
-        Piece piece)
+        Piece piece, PieceType? projectedType = null)
     {
         List<Vector2Int> selectablePositions =
             new List<Vector2Int>();
 
         FillSelectablePositions(
             piece,
-            selectablePositions
+            selectablePositions,
+            projectedType
         );
 
         return selectablePositions;
@@ -184,7 +185,7 @@ public class BattleMoveValidator : MonoBehaviour
     // 실제 이동 규칙은 이 함수 한 곳에서만 계산한다.
     public void FillSelectablePositions(
         Piece piece,
-        List<Vector2Int> results)
+        List<Vector2Int> results, PieceType? projectedType = null)
     {
         if (results == null)
         {
@@ -220,7 +221,7 @@ public class BattleMoveValidator : MonoBehaviour
         // 실제 PieceType뿐 아니라
         // KingQueenMove 등의 임시 이동 타입까지 반영한다.
         PieceType moveType =
-            piece.GetCurrentMoveType();
+            projectedType ?? piece.GetCurrentMoveType();
 
         switch (moveType)
         {

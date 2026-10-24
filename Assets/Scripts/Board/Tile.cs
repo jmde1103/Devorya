@@ -365,6 +365,14 @@ public class Tile : MonoBehaviour
     }
 
 
+    public void ShowItemConfirmHighlight(Color color, float intensity)
+    {
+        color.r *= intensity;
+        color.g *= intensity;
+        color.b *= intensity;
+        ChangeTileColorSmooth(color, true);
+    }
+
     public void HideHighlight()  // 타일 표시 원상 복구
     {
         // <변경부분>

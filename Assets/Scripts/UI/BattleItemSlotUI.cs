@@ -11,6 +11,14 @@ public class BattleItemSlotUI : MonoBehaviour
 
     // 이 슬롯의 번호
     private int slotIndex;
+    [SerializeField, InspectorName("아이템 선택 아웃라인 색상")] private Color selectionOutlineColor = new Color(1f, .15f, .15f, 1f);
+    [SerializeField, Min(0), InspectorName("아이템 선택 점멸 속도")] private float selectionPulseSpeed = 2f;
+    public void SetItemSelected(bool selected)
+    {
+        var hover = GetComponent<SlotHoverFeedback>();
+        if (hover != null) hover.SetSelected(selected && !isReadOnlyMode && currentItemData != null, selectionOutlineColor, selectionPulseSpeed);
+    }
+
 
 
     // <변경부분>
@@ -45,6 +53,9 @@ public class BattleItemSlotUI : MonoBehaviour
     // 이벤트 구독을 반드시 해제하여 중복 호출을 방지한다.
     private void OnDisable()
     {
+        if (!isReadOnlyMode && BattleManager.Instance != null && BattleManager.Instance.SelectedItemSlot == slotIndex)
+            BattleManager.Instance.CancelItemTargeting();
+        SetItemSelected(false);
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
     }
@@ -161,6 +172,7 @@ public class BattleItemSlotUI : MonoBehaviour
     // 아이콘, 버튼 클릭 가능 여부, Tooltip을 갱신한다.
     public void Refresh(BattleItemData itemData)
     {
+        SetItemSelected(false);
         var hover = GetComponent<SlotHoverFeedback>();
         if (hover == null) hover = gameObject.AddComponent<SlotHoverFeedback>();
         hover.SetAvailable(itemData != null && itemData.itemType != BattleItemType.None);
@@ -207,7 +219,8 @@ public class BattleItemSlotUI : MonoBehaviour
         // <변경부분> 현재 Locale 기준으로
         // 아이템 Tooltip 표시 데이터를 생성한다.
         RefreshTooltip();
-
+        if (BattleManager.Instance != null)
+            SetItemSelected(BattleManager.Instance.IsSelectedItem(slotIndex, currentItemData));
 
     }
 

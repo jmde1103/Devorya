@@ -1,0 +1,175 @@
+﻿DEVORYA — BattleScene 아이템 사용 UX 구현 보고
+작성일: 2026-10-24
+개정: 대상 선택 안내 및 공용 버튼 취소 기능 포함
+
+1. 작업 위치와 Git 상태
+작업 폴더: C:/Users/zntif/.codex/worktrees/status-effect-restrictions/Devorya
+작업 브랜치: codex/status-effect-restrictions
+이번 변경은 작업 폴더에 저장했으며 커밋·병합·원격 Push는 하지 않았다.
+메인 작업 폴더의 사용자 씬·프리팹·아이템 변경은 수정하지 않았다.
+이전에 진행한 PieceType 툴팁 색상 변경은 그대로 보존했다.
+
+2. 기존 구조와 변경 설계
+기존: 슬롯 클릭 → selectedPiece에 즉시 효과 적용 → 성공 시 슬롯 소모.
+변경: 슬롯 클릭 → 기존 선택 해제 → 대상 선택 안내 및 X 취소 버튼 표시 → 유효한 대상 타일 표시 → 대상 첫 클릭 확인 → 같은 대상 두 번째 클릭 시 적용·소모.
+선택 안내: “아이템을 사용할 기물을 선택해 주세요.”
+기존 실패 안내 팝업의 표시·페이드 흐름을 재사용한다. 실패가 아니라 선택 안내이며 아이템 모드 진입 시 한 번 표시한다.
+KR/EN/JA는 Battle_UI의 battle.ui.item.select_target 키로 관리한다.
+
+아이템 모드의 슬롯, 아이템 참조, 인벤토리 버전, 대상 기물, 확인 타일, 표시 타일 목록을 일반 전투 선택 상태와 분리했다.
+파란색은 Tile.ShowHighlight를 사용한다. 초기 배치와 동일한 색상·오버레이·페이드·글로우·펄스를 재사용한다.
+아이템 확인용 초록색은 별도 API로 표시한다. 일반 이동·공격의 확인 색상은 유지한다.
+PC와 모바일은 기존 PixelCameraController의 SelectTile 전달 경로를 계속 사용한다. Tile.OnMouseDown에 새로운 입력 처리를 추가하지 않았다.
+동일 프레임 중복 전달 및 효과 실행 중 재진입을 차단한다.
+
+3. 효과 검증과 소모
+ValidateItemEffect는 기물이나 아이템, 상태효과, RunState, 난수를 변경하지 않는다.
+단일/복합 효과에 동일한 검증을 사용한다.
+검사 항목: 유효한 활성 대상과 보드 등록, 플레이어 전용, 킹 제한, 상태 데이터, 해제할 상태 존재, 변환 데이터, 추가 이동 가능 여부.
+변환 후 추가 이동은 변환될 타입을 전달해 실제 이동 판정기를 사용한다.
+중복 상태 제거, 추가 이동 중복, 선행 이동 제한 등 실행 도중 실패할 수 있는 조합을 사전 거부한다.
+새로 부여하는 상태는 저항으로 부여되지 않을 수 있으므로, 이를 후속 해제 효과의 확정 전제조건으로 취급하지 않는다.
+복합 효과의 추가 이동 선택/UI 갱신은 목록 적용 후 수행한다.
+선택 당시 인벤토리 버전·아이템 참조와 RunState의 목록을 재확인한다.
+효과 성공 후에만 해당 슬롯 제거 → 슬롯 압축 → UI 갱신을 실행한다.
+
+4. 취소 및 예외 처리
+같은 슬롯 재클릭: 취소.
+공용 배치 확인/마무리 흡수 버튼: 아이템 선택 중에는 X 취소 버튼으로 전환.
+취소 버튼을 눌렀을 때는 배치 완료·마무리 흡수·일반 흡수 입력으로 넘어가지 않는다.
+아이템 모드에서는 마무리 흡수 파티클·펄스를 중지하고 흡수 툴팁을 숨긴다.
+모드 종료 시 배치 체크/일반 흡수 아이콘을 복구한다. 마무리 흡수 가능 상태였다면 해당 버튼과 강조 연출도 복구한다.
+아이템 선택 중 발생한 마무리 흡수 상태 변경은 기억하되 취소 버튼의 X 아이콘과 동작을 유지한다.
+다른 슬롯: 기존 선택 해제 후 새 후보 계산.
+다른 대상: 기존 확인 타일을 파랑으로 되돌리고 새 대상을 초록색으로 표시.
+빈 타일: 선택 유지.
+유효하지 않은 대상: 사유 팝업, 소모 없음, 후보 재계산.
+대상 소실: 확인 상태 제거 및 후보 재계산.
+슬롯/인벤토리 변경: 취소 및 사유 안내.
+ESC/우클릭: 취소. 모바일에서는 같은 슬롯 재탭으로 취소.
+턴 종료, 적 턴, 행동 연출, 이벤트 강제 입력, 전투 종료, 오브젝트 비활성화 시 정리.
+사용 가능 대상 0명: 모드에 진입하지 않고 사유 안내.
+기존 SkillFailurePopup의 표시·페이드 처리를 사용한다.
+
+5. API와 호환성
+BattleManager.UseItemAtSlot(int), BattleItemManager.UseItemAtSlot(int)는 유지하되 대상 선택 모드 진입으로 동작한다.
+BattleManager.TryApplyBattleItemEffect(BattleItemData)의 기존 bool API는 유지한다.
+명시적 Piece를 받는 TryApplyBattleItemEffect(BattleItemData, Piece)를 추가했다.
+BattleItemEffectHandler.TryApplyItemEffect(BattleItemData, Piece)의 bool API를 유지한다.
+실패 코드를 반환하는 ValidateItemEffect와 out 실패 코드를 받는 실행 API를 추가했다.
+기존 이동 판정 API의 호출 방식은 유지하며 선택적인 예상 PieceType 인수를 추가했다.
+기존 SerializeField, UnityEvent 연결, enum 값, 에셋 GUID를 변경하지 않았다.
+기존 CP949 파일은 해당 인코딩으로 저장했고 신규 코드는 UTF-8이다.
+
+6. Inspector 설정 및 연결
+BattleManager:
+- 아이템 대상 확인 색상: 초록색 기본값.
+- 아이템 대상 확인 강도: 기본 1.
+
+BattleUIController:
+- 아이템 취소 아이콘: X 스프라이트를 넣는 새 항목.
+- 기존 Absorb Button과 Absorb Icon Image 연결을 그대로 사용한다.
+- 슬롯을 비워두면 런타임에 생성한 기본 흰색 픽셀 X 아이콘을 사용한다.
+- 기존 배치 체크 이미지와 흡수 OFF/ON 스프라이트 필드는 그대로 유지한다.
+- 별도 버튼이나 Image를 만들거나 UnityEvent를 추가할 필요가 없다.
+
+각 BattleItemSlotUI:
+- 아이템 선택 아웃라인 색상: 붉은색 기본값.
+- 아이템 선택 점멸 속도: 기본 2.
+
+기존 SlotHoverFeedback의 Outline을 공유하므로 호버 표시와 선택 표시가 서로 덮어쓰지 않는다.
+추가 Image, Raycast 대상, UI 오브젝트 연결은 필요하지 않다.
+기존 슬롯·팝업·씬 배치를 수정하지 않았다.
+ReadOnly 슬롯은 선택 모드와 붉은 점멸을 사용하지 않는다.
+
+7. 실제 변경/신규 파일
+[수정]
+Assets/Scripts/Battle/BattleManager.cs
+  슬롯 입력, 업데이트, 선택 입력, 턴 종료·전투 종료에 아이템 모드 연결.
+Assets/Scripts/Battle/BattleManager.ItemMove.cs
+  예상 타입의 이동 가능 검사와 검증 완료 후 추가 이동 처리.
+Assets/Scripts/Battle/BattleMoveValidator.cs
+  실제 기물을 바꾸지 않고 예상 타입으로 이동 경로를 검사하는 선택 인수.
+Assets/Scripts/Board/Tile.cs
+  아이템 확인 전용 색상 표시 API.
+Assets/Scripts/Item/BattleItemEffectHandler.cs
+  공통 사전 검증 연결, 중복 검사 제거, 추가 이동 후처리.
+Assets/Scripts/Item/BattleItemManager.cs
+  슬롯 조회, 인벤토리 버전 및 RunState 일치 검사, 명시적 대상에 대한 성공 시 소모.
+Assets/Scripts/UI/BattleItemSlotUI.cs
+  선택 표시 설정과 갱신·비활성화 정리.
+Assets/Scripts/UI/BattleUIController.cs
+  선택 슬롯 표시 전달, 공통 실패 안내를 받을 수 있는 입력 연결.
+  공용 버튼의 아이템 취소 우선순위, X 스프라이트 설정, 기존 아이콘·마무리 흡수 연출 복구.
+Assets/Scripts/UI/SlotHoverFeedback.cs
+  기존 호버 확대를 유지하면서 선택 아웃라인 점멸 지원.
+Assets/Localization/StringTables/Battle_UI Shared Data.asset
+Assets/Localization/StringTables/Battle_UI_ko.asset
+Assets/Localization/StringTables/Battle_UI_en.asset
+Assets/Localization/StringTables/Battle_UI_ja.asset
+  battle.ui.item_fail.* 실패 안내 12종 및 battle.ui.item.select_target 선택 안내 × 한국어·영어·일본어.
+
+[신규]
+Assets/Scripts/Battle/BattleManager.ItemTargeting.cs
+  아이템 선택 모드 상태·후보·확인·실행·취소 담당. 진입 시 대상 선택 안내 호출.
+Assets/Scripts/Item/BattleItemEffectHandler.Validation.cs
+  부작용 없는 검증과 실패 코드 전달.
+Assets/Scripts/Item/BattleItemFailure.cs
+  실패 코드 및 Localization 조회.
+Assets/Editor/BattleItemUXLocalization.cs
+  실패 사유와 대상 선택 안내의 번역 등록 도구.
+Assets/Editor/BattleItemUXChecks.cs
+  BattleScene 플레이 회귀 검증.
+위 신규 C# 파일의 .meta도 함께 생성됨.
+Docs/BattleScene_아이템사용UX_구현보고_2026-10-24.txt
+
+8. 검증 결과
+선택 안내·공용 취소 버튼을 포함한 최신 코드로 전체 자동 Play Mode 검증을 다시 통과했다.
+추가 확인:
+- 마무리 흡수 상태에서도 아이템 선택 시 X 취소 아이콘이 우선한다.
+- 일반 아이콘·버튼 표시 갱신이 취소 모드를 덮어쓰지 않는다.
+- 취소 버튼 클릭은 아이템 선택만 해제하고 마무리 흡수를 실행하지 않는다.
+- 취소 후 기존 흡수 아이콘과 마무리 흡수 상태를 복구한다.
+- 대상 선택 안내의 한국어·영어·일본어 문자열을 조회한다.
+중간 검증에서 적 킹이 없는 테스트 보드 때문에 승리 조건이 먼저 충족되는 문제가 있었고, 테스트에 적 킹을 추가해 해결했다. 게임 승패 규칙은 변경하지 않았다.
+
+Unity 6000.4.0f1 컴파일: 최종 실행에서 C# 컴파일 오류 0.
+Localization 등록: ITEM_UX_LOCALIZATION_PASS.
+실제 BattleScene을 연 자동 Play Mode 검증: ITEM_UX_PLAYMODE_PASS.
+
+확인한 항목:
+- 사전 검사에서 상태효과·난수 상태가 바뀌지 않음.
+- 기존 기물 선택 해제 및 유효 대상만 후보로 표시.
+- 첫 클릭에서 효과/소모 없음, 다른 후보로 확인 변경.
+- 동일 프레임 중복 전달 무시.
+- 두 번째 클릭에서 효과 적용 및 아이템 1개 소모.
+- RunState와 슬롯 압축 일치.
+- 같은 슬롯 취소, 빈 타일 유지, 잘못된 대상 실패 시 미소모.
+- 행동 진행·적 턴·이벤트 Force 입력·비활성화 시 정리.
+- RunState 불일치 시 효과 차단.
+- 대상 소실 시 확인 해제와 후보 재계산.
+- 해제할 상태 없음, 유효 대상 0명, 플레이어 전용, 킹 제한.
+- 상태 부여/해제, 단일 변환, 잘못된 변환 거부.
+- 복합 효과 사전 실패 시 앞 효과가 적용되지 않음.
+- 추가 이동 복합 효과 및 변환 후 추가 이동.
+- 기존 초기 배치 선택과 아이템 차단.
+- 기존 일반 이동과 공격의 첫 클릭 확인/두 번째 클릭 실행.
+- KR/EN/JA 실패 문구 조회.
+- ReadOnly 슬롯에 선택 아웃라인이 켜지지 않음.
+- git diff --check 통과.
+
+검증 로그:
+Logs/item-ux-compile.log
+Logs/item-ux-playmode.log
+
+9. 미검증 사항과 한계
+실제 PC 사용자의 마우스 조작 및 모바일 실기기 터치/빌드는 수행하지 않았다.
+자동 검증은 PC·모바일이 공유하는 SelectTile 진입점을 호출했다. 실제 포인터/터치 이벤트 전체를 재현한 것은 아니다.
+ESC/우클릭은 입력 처리 코드를 연결했지만 실제 하드웨어 입력으로 자동 검증하지 않았다.
+슬롯 점멸의 육안 가독성, 모든 해상도, WorldMap 전체 흐름, 모든 튜토리얼/씬 전환 조합은 별도 육안 확인이 필요하다.
+새 복합 효과 종류를 추가할 경우 공통 사전 검증도 함께 확장해야 한다.
+현재 효과 유형의 알려진 실패 조건은 사전 차단하지만, 임의의 외부 스크립트 예외까지 복원하는 범용 트랜잭션/롤백 시스템은 추가하지 않았다.
+검증 중 생성한 기물과 아이템은 테스트 플레이에만 존재하며 씬/데이터 에셋으로 저장하지 않았다.
+
+10. 현재 작업 트리 참고
+BattleScene.unity에는 테스트 스테이지 참조 변경과 기존 아이템 확인 색상/강도 필드 직렬화가 발견되었다. 이번 취소 버튼 코드에서는 씬 저장이나 테스트 스테이지 참조 변경을 수행하지 않았으며, 해당 변경은 되돌리지 않고 보존했다.

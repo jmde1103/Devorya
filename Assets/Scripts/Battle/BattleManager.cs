@@ -544,6 +544,7 @@ public partial class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        UpdateItemTargeting();
         // Event Sequence 대사 또는 강제 입력 중에는
         // 일반 Battle 단축키를 받지 않는다.
         if (eventSequenceController != null &&
@@ -598,6 +599,7 @@ public partial class BattleManager : MonoBehaviour
     // 기물을 선택하는 함수
     public void SelectPiece(Piece piece)
     {
+        if (IsItemTargeting) { HandleItemTargetClick(piece != null ? boardManager.GetTile(piece.X, piece.Y) : null); return; }
         // <변경부분> BATTLE START / WARNING 연출 중에는
         // 기물 선택, Status 갱신, Camera Focus를 실행하지 않는다.
         if (isBattleAnnouncementPlaying)
@@ -1026,6 +1028,7 @@ public partial class BattleManager : MonoBehaviour
 
     public void SelectTile(Tile tile)
     {
+        if (IsItemTargeting) { HandleItemTargetClick(tile); return; }
         // <변경부분> Announcement가 화면을 소유하는 동안
         // Tile 선택 / 이동 확인 / 공격 확인을 모두 차단한다.
         if (isBattleAnnouncementPlaying)
@@ -4281,35 +4284,11 @@ public partial class BattleManager : MonoBehaviour
         }
 
         // 실제 아이템 슬롯 검사와 소모 처리는 BattleItemManager가 처리
-        battleItemManager.UseItemAtSlot(slotIndex);
+        BeginItemTargeting(slotIndex);
     }
 
     // <변경부분> BattleItemManager가 아이템 사용 가능 상태인지 확인할 때 호출하는 함수
-    public bool CanUseBattleItem()
-    {
-        // <변경부분> 초기 배치 또는 Announcement가 끝나기 전에는
-        // Battle Item을 사용할 수 없다.
-        if (isPlayerDeploymentPhase ||
-            isBattleAnnouncementPlaying)
-        {
-            return false;
-        }
-
-        // 전투가 끝났으면 아이템 사용 불가
-        if (isBattleEnded)
-        {
-            return false;
-        }
-
-        // 아이템은 플레이어 턴에만 사용 가능
-        if (currentTurn != BattleTurn.Player)
-        {
-            Debug.Log("아이템은 플레이어 턴에만 사용할 수 있습니다.");
-            return false;
-        }
-
-        return true;
-    }
+    public bool CanUseBattleItem() => GetItemInputFailure() == BattleItemFailure.None;
 
     // <변경부분> BattleItemManager가 실제 아이템 효과 실행을 요청할 때 호출하는 함수
     public bool TryApplyBattleItemEffect(BattleItemData itemData)
@@ -5430,6 +5409,7 @@ public partial class BattleManager : MonoBehaviour
     }
     private void EndTurn()
     {
+        CancelItemTargeting();
         itemMovePiece = null;
         ClearQuickStepBonus();
         // 턴이 전환되는 순간 현재 표시 중인 Tooltip을 즉시 닫는다.
@@ -6086,6 +6066,7 @@ public partial class BattleManager : MonoBehaviour
         // 전투 종료 상태 저장
         battleResult = result;
         isBattleEnded = true;
+        CancelItemTargeting();
 
         // 선택 해제
         selectedPiece = null;

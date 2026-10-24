@@ -1,0 +1,141 @@
+﻿DEVORYA — 10.24 2차 안전 병합 결과
+2026-10-24
+
+1. 기준과 범위
+대상 브랜치: 10.24-코덱스-병합-작업-2차
+메인 기준: d3d80f15
+공통 기준: fa8ca21b
+아이템 UX 원본 커밋: 20ba4607
+메인에는 병합 시작 전 미커밋 변경이 없었다.
+코덱스의 미커밋 변경은 아이템 UX / 이전 툴팁 작업 / 테스트 씬으로 나눠 모두 커밋으로 보존했다.
+
+지시서의 '아이템 UX만 반영' 범위를 적용했다.
+이전 PieceType 툴팁 색상 작업은 메인에 없었다. 포함 여부를 별도 질문했으나 응답 전이므로 이번 병합에서는 제외하고 백업에 보존했다.
+현재 메인에 이미 존재하는 툴팁 코드와 번역은 그대로 유지했다.
+원격 Push는 하지 않았다.
+
+2. 백업
+codex/backup-main-before-1024-second: 병합 전 메인 d3d80f15
+codex/backup-pending-before-1024-second: 코덱스의 전체 작업 보존
+  53f6bb1d: PieceType 툴팁 색상 작업
+  8d3383e2: 로컬 테스트 씬 설정
+위 백업은 삭제하지 않았다.
+
+3. 병합 방법과 충돌
+아이템 UX만 분리한 커밋을 메인에 Git 3방향 병합했다.
+텍스트 병합 충돌은 발생하지 않았다.
+BattleManager.cs, BattleUIController.cs 등 파일 전체를 코덱스 버전으로 강제 교체하지 않았다.
+이벤트 신기능은 메인에서 변경된 별도 파일에 있어 원본을 그대로 보존했다.
+Battle_UI 테이블의 기존 모든 엔트리는 변경되지 않았음을 검사했고, 언어별 13개 안내 항목만 추가했다.
+신규 스크립트와 .meta를 함께 반영하고 GUID 중복을 검사했다.
+
+4. 파일별 기능
+BattleManager.cs: 아이템 모드 입력, 취소와 턴/전투 종료 정리.
+BattleManager.ItemTargeting.cs: 독립 대상 선택·확인·실행·안내·취소 상태.
+BattleManager.ItemMove.cs / BattleMoveValidator.cs: 예상 변환 타입의 이동 검증.
+Tile.cs: 기존 표시 체계를 사용하는 아이템 확인 초록색.
+BattleItemEffectHandler.cs / .Validation.cs: 공통 순수 검사, 실패 이유, 복합 효과 선검증.
+BattleItemManager.cs: 슬롯·RunState 정합성 및 성공 시 1개 소모.
+BattleItemFailure.cs: 실패 코드와 Localization 조회.
+BattleItemSlotUI.cs / SlotHoverFeedback.cs: 선택 슬롯 점멸과 기존 호버 유지.
+BattleUIController.cs: 공용 버튼의 X 취소 우선순위와 원래 흡수 UI 복구.
+Battle_UI Shared Data 및 ko/en/ja: 실패 이유 12종과 대상 선택 안내 1종.
+BattleItemUXLocalization.cs: 번역 등록 도구.
+BattleItemUXChecks.cs: 아이템 UX 플레이 검증.
+Merge1024SecondChecks.cs: 최신 이벤트 기능·게임오버 참조에 대한 병합 검증.
+구현보고서는 별도 Docs/BattleScene_아이템사용UX_구현보고_2026-10-24.txt에 유지했다.
+
+5. 원본 보존 결과
+다음 파일은 d3d80f15의 원본과 동일하다(줄바꿈 정규화 비교).
+- EventSequenceController.cs
+- EventSequenceStepData.cs
+- EventSequenceDataEditor.cs
+- EventSceneSequenceController.cs
+- EventSceneStepData.cs
+- EventSceneDataEditor.cs
+- PixelCameraController.cs
+
+Scene / Prefab / Assets/Devorya 데이터: 메인 기준 대비 변경 0.
+코덱스 테스트 스테이지 참조 및 테스트 씬 변경은 가져오지 않았다.
+맵 에디터 복구 데이터와 사용자 설정을 유지했다.
+기존 CP949 C# 파일의 인코딩과 관련 없는 한글 주석을 보존했다.
+기존 enum 숫자, SerializedField 이름, UnityEvent 및 에셋 GUID를 변경하지 않았다.
+신규 아이템 확인 색상·강도 및 취소 스프라이트는 코드 기본값과 기존 연결로 동작하므로 씬 초기화가 필요하지 않다.
+
+6. 병합된 메인에서 실행한 검증
+Unity: 6000.4.0f1
+최종 C# 컴파일 오류: 0
+BattleItemUXChecks.Run: ITEM_UX_PLAYMODE_PASS
+Merge1024SecondChecks.Run: MERGE1024_SECOND_PLAYMODE_PASS
+git diff --check: 통과
+
+아이템 UX:
+- 후보 표시, 첫 클릭 무효과/무소모, 대상 교체, 두 번째 클릭 1개 소모.
+- 같은 프레임 중복 입력 차단과 RunState/슬롯 압축 정합성.
+- 취소 버튼이 마무리 흡수보다 우선하고 실제 흡수를 실행하지 않음.
+- 취소 후 기존 아이콘 및 마무리 흡수 상태 복구.
+- 같은 슬롯 취소, 빈 타일 유지, 무효 대상 미소모.
+- 대상 소실, 사용 가능 대상 0명, 킹/진영 제한.
+- 상태 해제, 변환, 추가 이동, 복합 효과 실패의 선차단.
+- 변환 후 추가 이동 검사와 실행의 일치.
+- 기존 일반 이동/공격 두 번 클릭 및 초기 배치.
+- 이벤트 Force 입력 잠금 및 적 턴/비활성화 정리.
+- WorldMap용 ReadOnly 슬롯의 선택 표시 차단.
+- 한국어·영어·일본어 실패 사유 및 선택 안내 조회.
+
+최신 이벤트 보호:
+- Battle enum 17/18/19 및 EventScene RelicReward 19, StopScreenShake 20 유지.
+- 등록 UI 여러 개를 동시에 표시/숨김, Fade 및 완료 대기.
+- 부모 CanvasGroup 무시와 원래 UI 상태 복구.
+- 기존 EndTimer/Gold 방식 호환.
+- Battle 지속 흔들림, 시간제 흔들림, 중지 후 정확한 카메라 위치 복구.
+- EventScene 지속 흔들림과 CameraShot 병행, 중지/비활성화 시 복구.
+- GameOver 루트와 글리치·노이즈·입력차단·메시지 참조 유지.
+
+로그(메인 작업 폴더):
+Logs/item-ux-merge-playmode.log
+Logs/merge1024-second-checks.log
+Logs/merge1024-second-preservation.json
+
+7. 수동 검증/한계
+실제 PC 마우스 및 모바일 기기 터치·빌드는 수행하지 않았다.
+ESC/우클릭의 물리 입력, 전체 해상도 육안 확인은 남아 있다.
+자동 테스트는 공유 SelectTile 진입점과 실제 컨트롤러 코루틴을 검증한다.
+WorldMap 전체 이동 흐름과 모든 튜토리얼/씬 전환 조합을 통과한 것으로 해석하면 안 된다.
+GameOver는 참조·원본 소스 보존을 확인했으며, 패배부터 Title까지의 전체 연출을 이번에 재생하지는 않았다.
+새로운 복합 효과 타입 추가 시 검증기 확장이 필요하며 범용 예외 롤백 시스템은 아니다.
+
+8. Git 최종 처리
+병합 완료 후 codex/status-effect-restrictions를 메인의 최종 커밋으로 fast-forward하여 맞춘다.
+양쪽 HEAD와 추적 파일 트리를 비교하고 미커밋 변경이 없는지 확인한다.
+두 작업 폴더의 Library/Logs 등 무시되는 로컬 캐시까지 복사하는 작업은 하지 않는다.
+백업 브랜치는 유지한다. 원격 Push는 하지 않는다.
+
+9. 실제 반영 파일 전체(.meta 포함)
+Assets/Editor/BattleItemUXChecks.cs
+Assets/Editor/BattleItemUXChecks.cs.meta
+Assets/Editor/BattleItemUXLocalization.cs
+Assets/Editor/BattleItemUXLocalization.cs.meta
+Assets/Localization/StringTables/Battle_UI Shared Data.asset
+Assets/Localization/StringTables/Battle_UI_en.asset
+Assets/Localization/StringTables/Battle_UI_ja.asset
+Assets/Localization/StringTables/Battle_UI_ko.asset
+Assets/Scripts/Battle/BattleManager.ItemMove.cs
+Assets/Scripts/Battle/BattleManager.ItemTargeting.cs
+Assets/Scripts/Battle/BattleManager.ItemTargeting.cs.meta
+Assets/Scripts/Battle/BattleManager.cs
+Assets/Scripts/Battle/BattleMoveValidator.cs
+Assets/Scripts/Board/Tile.cs
+Assets/Scripts/Item/BattleItemEffectHandler.Validation.cs
+Assets/Scripts/Item/BattleItemEffectHandler.Validation.cs.meta
+Assets/Scripts/Item/BattleItemEffectHandler.cs
+Assets/Scripts/Item/BattleItemFailure.cs
+Assets/Scripts/Item/BattleItemFailure.cs.meta
+Assets/Scripts/Item/BattleItemManager.cs
+Assets/Scripts/UI/BattleItemSlotUI.cs
+Assets/Scripts/UI/BattleUIController.cs
+Assets/Scripts/UI/SlotHoverFeedback.cs
+Docs/BattleScene_아이템사용UX_구현보고_2026-10-24.txt
+Assets/Editor/Merge1024SecondChecks.cs
+Assets/Editor/Merge1024SecondChecks.cs.meta
+Docs/10.24_2차_안전병합_결과.txt

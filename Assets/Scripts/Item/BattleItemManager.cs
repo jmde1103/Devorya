@@ -49,6 +49,7 @@ public class BattleItemManager : MonoBehaviour
     // 현재 전투 슬롯로 복원
     private void RestoreItemsFromRunState()
     {
+        InventoryVersion++;
         itemSlots = new BattleItemData[MaxItemSlotCount];
 
         if (RunStateManager.Instance == null)
@@ -159,6 +160,7 @@ public class BattleItemManager : MonoBehaviour
                 continue;
             }
 
+            InventoryVersion++;
             itemSlots[i] = itemData;
             RefreshItemSlotUI();
 
@@ -183,64 +185,49 @@ public class BattleItemManager : MonoBehaviour
     }
 
     // <변경부분> 특정 슬롯의 아이템을 사용하는 함수
+    public BattleItemData GetItemAtSlot(int index) =>
+        index >= 0 && index < itemSlots.Length ? itemSlots[index] : null;
+
+    // Compatibility entry point: selection only, never immediate consumption.
     public void UseItemAtSlot(int slotIndex)
     {
-        if (battleManager == null)
+        if (battleManager != null) battleManager.BeginItemTargeting(slotIndex);
+    }
+
+    public int InventoryVersion { get; private set; }
+    public bool MatchesRunInventory()
+    {
+        if (RunStateManager.Instance == null) return false;
+        var saved = RunStateManager.Instance.GetBattleItemsCopy();
+        int count = 0;
+        foreach (var item in itemSlots) if (item != null) count++;
+        if (saved.Count != count) return false;
+        for (int i = 0; i < saved.Count; i++) if (saved[i] != itemSlots[i]) return false;
+        return true;
+    }
+
+    private bool applyingItem;
+    public BattleItemFailure TryUseItemAtSlot(int slotIndex, BattleItemData expected, Piece target)
+    {
+        if (applyingItem) return BattleItemFailure.Busy;
+        if (expected == null || GetItemAtSlot(slotIndex) != expected) return BattleItemFailure.MissingItem;
+        if (battleManager == null || RunStateManager.Instance == null) return BattleItemFailure.Requirements;
+        if (!MatchesRunInventory()) return BattleItemFailure.MissingItem;
+        var saved = RunStateManager.Instance.GetBattleItemsCopy();
+        if (slotIndex >= saved.Count || saved[slotIndex] != expected) return BattleItemFailure.MissingItem;
+        applyingItem = true;
+        try
         {
-            Debug.LogWarning("BattleManager가 연결되지 않았습니다.");
-            return;
-        }
-
-        // BattleManager에게 현재 아이템을 사용할 수 있는 전투 상태인지 확인 요청
-        if (battleManager.CanUseBattleItem() == false)
-        {
-            return;
-        }
-
-        // 슬롯 번호가 잘못되었으면 종료
-        if (slotIndex < 0 || slotIndex >= itemSlots.Length)
-        {
-            Debug.LogWarning($"잘못된 아이템 슬롯 번호입니다: {slotIndex}");
-            return;
-        }
-
-        // 해당 슬롯에 아이템이 없으면 종료
-        BattleItemData itemData = itemSlots[slotIndex];
-
-        if (itemData == null || itemData.itemType == BattleItemType.None)
-        {
-            Debug.Log("해당 슬롯에 사용할 아이템이 없습니다.");
-            return;
-        }
-
-        // BattleManager에게 실제 아이템 효과 실행 요청
-        bool itemUsed = battleManager.TryApplyBattleItemEffect(itemData);
-
-        // 효과가 실패했으면 아이템을 소모하지 않음
-        if (itemUsed == false)
-        {
-            return;
-        }
-
-        // <변경부분> 실제 사용에 성공한 아이템을
-        // 런 저장 목록에서도 같은 슬롯 기준으로 제거
-        if (RunStateManager.Instance != null)
-        {
+            var failure = battleManager.TryApplyBattleItemEffect(expected, target);
+            if (failure != BattleItemFailure.None) return failure;
             RunStateManager.Instance.RemoveBattleItemAt(slotIndex);
+            InventoryVersion++;
+            itemSlots[slotIndex] = null;
+            CompressItemSlots();
+            RefreshItemSlotUI();
+            return BattleItemFailure.None;
         }
-        else
-        {
-            Debug.LogWarning(
-                "아이템 사용 저장 반영 실패: RunStateManager가 없습니다."
-            );
-        }
-
-        itemSlots[slotIndex] = null;
-
-        CompressItemSlots();
-        RefreshItemSlotUI();
-
-        Debug.Log($"아이템 사용 완료: {itemData.itemName}");
+        finally { applyingItem = false; }
     }
 
     // <변경부분> 아이템 사용 후 빈 슬롯을 제거하고 왼쪽부터 다시 채우는 함수
