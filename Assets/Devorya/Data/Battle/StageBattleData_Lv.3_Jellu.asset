@@ -32,18 +32,12 @@ MonoBehaviour:
   victorySceneName: WorldMapScene
   victoryCutsceneData: {fileID: 0}
   victoryWorldMapEventData: {fileID: 0}
-  enemyUniqueSkillUseChance: 80
+  enemyUniqueSkillUseChance: 50
   enemyMaxUniqueSkillUsesPerTurn: 2
   enemyGeneralSkillGrantRules:
-  - skillType: 4
-    grantChancePercent: 30
-    allowKing: 0
   - skillType: 2
     grantChancePercent: 30
     allowKing: 0
   - skillType: 3
-    grantChancePercent: 30
-    allowKing: 0
-  - skillType: 5
     grantChancePercent: 30
     allowKing: 0
