@@ -148,7 +148,7 @@ public static class EvasionStanceSetupChecks
                     var flags=BindingFlags.Instance|BindingFlags.NonPublic;
                     var title=(TMPro.TMP_Text)typeof(RelicRewardCardUI).GetField("title",flags).GetValue(card);
                     var body=(TMPro.TMP_Text)typeof(RelicRewardCardUI).GetField("description",flags).GetValue(card);
-                    Check(title.color==TooltipTextStyle.Palette.title && body.color==TooltipTextStyle.Palette.body,"Card base colors");
+                    Check(title.color==new Color(1f-TooltipTextStyle.Palette.title.r,1f-TooltipTextStyle.Palette.title.g,1f-TooltipTextStyle.Palette.title.b,TooltipTextStyle.Palette.title.a) && body.color==new Color(1f-TooltipTextStyle.Palette.body.r,1f-TooltipTextStyle.Palette.body.g,1f-TooltipTextStyle.Palette.body.b,TooltipTextStyle.Palette.body.a),"Card base colors");
                     Check(body.text==TooltipTextStyle.Format(relic.localizedDescription,relic.GetLocalizedDescription()),"Card localized semantic colors");
                 }
                 UnityEngine.Object.Destroy(go);

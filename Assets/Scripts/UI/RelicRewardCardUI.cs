@@ -46,8 +46,10 @@ public sealed class RelicRewardCardUI : MonoBehaviour, IPointerEnterHandler, IPo
             outline.effectColor = color;
         }
     }
-    void SetTitle(string text) { TooltipTextStyle.Apply(title, TooltipTextRole.Title, true); title.text = text; }
-    void SetDescription(string text) { TooltipTextStyle.Apply(description, TooltipTextRole.Body); description.text = TooltipTextStyle.Format(Data.localizedDescription, text); }
+    // White card backgrounds use inverted base colors; semantic rich-text colors stay unchanged.
+    static Color CardTextColor(Color color) => new Color(1f - color.r, 1f - color.g, 1f - color.b, color.a);
+    void SetTitle(string text) { TooltipTextStyle.Apply(title, TooltipTextRole.Title, true); title.color = CardTextColor(title.color); title.text = text; }
+    void SetDescription(string text) { TooltipTextStyle.Apply(description, TooltipTextRole.Body); description.color = CardTextColor(description.color); description.text = TooltipTextStyle.Format(Data.localizedDescription, text); }
     public void Bind(BattleRelicData data, Action<RelicRewardCardUI> choose)
     {
         Unbind();
