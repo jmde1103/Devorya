@@ -2454,6 +2454,7 @@ public partial class BattleManager : MonoBehaviour
         //
         // 행동 시작 전부터 Defense를 가지고 있었다면
         // 흡수 행동이어도 기존 Defense는 정상적으로 발동할 수 있다.
+        OwnedGeneralSkillData evasionDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.EvasionStance);
         OwnedGeneralSkillData defenseDataBeforeAction =
             actingPiece.GetGeneralSkillDataCopy(
                 GeneralSkillType.Defense
@@ -3003,6 +3004,7 @@ public partial class BattleManager : MonoBehaviour
                         defenseDataBeforeAction,
                         null
                     );
+            yield return battleSkillManager.TryGrantEvasionAfterMoveRoutine(actingPiece, evasionDataBeforeAction, null);
         }
 
         // <변경부분> 이동 또는 공격이 실행되었으므로

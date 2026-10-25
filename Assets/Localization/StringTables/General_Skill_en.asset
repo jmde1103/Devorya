@@ -306,6 +306,20 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1511529955060351144
+  - m_Id: 18806884333654016
+    m_Localized: Evasive Stance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18806884430123008
+    m_Localized: When moving, has a {percent}% chance to gain [Evasion].
+    m_Metadata:
+      m_Items:
+      - rid: 1511529988314628100
+  - m_Id: 18806884430123009
+    m_Localized: When moving, has a {percent}% chance to gain [Evasion].
+    m_Metadata:
+      m_Items:
+      - rid: 1511529988314628101
   references:
     version: 2
     RefIds:
@@ -569,3 +583,19 @@ MonoBehaviour:
           role: 4
         - text: '{percent}%'
           role: 5
+    - rid: 1511529988314628100
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: '[Evasion]'
+          role: 3
+    - rid: 1511529988314628101
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: '[Evasion]'
+          role: 3

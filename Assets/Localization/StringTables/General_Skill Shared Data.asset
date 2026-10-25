@@ -243,6 +243,18 @@ MonoBehaviour:
     m_Key: general_skill.attack_disabled_resistance_advanced.tooltip
     m_Metadata:
       m_Items: []
+  - m_Id: 18806884333654016
+    m_Key: general.evasion_stance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18806884430123008
+    m_Key: general.evasion_stance.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18806884430123009
+    m_Key: general.evasion_stance.tooltip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
