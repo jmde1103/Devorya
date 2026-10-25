@@ -85,6 +85,9 @@ public class GeneralSkillData : ScriptableObject
     [Range(0, 100)]
     public int defenseGrantChancePercent = 15;
 
+    [Header("회피 자세"), Range(0, 100), InspectorName("회피 부여 확률 (%)")]
+    public int evasionGrantChancePercent = 15;
+
     [Header("Insight")]
     // <변경부분> Insight 고정 발동 확률
     [Range(0, 100)]
@@ -152,6 +155,8 @@ public class GeneralSkillData : ScriptableObject
 
         switch (skillType)
         {
+            case GeneralSkillType.EvasionStance:
+                return Mathf.Clamp(evasionGrantChancePercent, 0, 100);
             case GeneralSkillType.QuickStep:
                 return Mathf.Clamp(quickStepPercent, 0, 100);
             case GeneralSkillType.ChanceAttack:

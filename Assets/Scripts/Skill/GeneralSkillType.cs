@@ -38,5 +38,7 @@ public enum GeneralSkillType
     [UnityEngine.InspectorName("능력봉인 저항 II")]
     AbilitySealedResistanceIntermediate = 15,
     [UnityEngine.InspectorName("능력봉인 저항 III")]
-    AbilitySealedResistanceAdvanced = 16
+    AbilitySealedResistanceAdvanced = 16,
+    [UnityEngine.InspectorName("회피 자세")]
+    EvasionStance = 17
 }

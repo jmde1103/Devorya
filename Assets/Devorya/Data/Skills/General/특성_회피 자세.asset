@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c427d0319a4f5524f8896c13f10549fd, type: 3}
+  m_Name: "\uD2B9\uC131_\uD68C\uD53C \uC790\uC138"
+  m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillData
+  skillType: 17
+  skillName: "\uD68C\uD53C \uC790\uC138"
+  iconSprite: {fileID: 21300000, guid: 750a32d6117f3894799adfbca7c64a7f, type: 3}
+  description: "\uC774\uB3D9 \uC2DC {percent}% \uD655\uB960\uB85C [\uD68C\uD53C]
+    \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+  tooltipDescriptionFormat: "\uC774\uB3D9 \uC2DC {percent}% \uD655\uB960\uB85C [\uD68C\uD53C]
+    \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+  tooltipSections:
+  - statusEffectData: {fileID: 11400000, guid: 9d1f814c9401420592bb0cda77c2176a, type: 2}
+    sectionColor: {r: 0, g: 0, b: 0, a: 0}
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: General_Skill
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: general.evasion_stance.name
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: General_Skill
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: general.evasion_stance.desc
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedTooltipDescriptionFormat:
+    m_TableReference:
+      m_TableCollectionName: General_Skill
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: general.evasion_stance.tooltip
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  chanceAttackPercent: 30
+  chanceAttackContinuousPenaltyRate: 0.33333334
+  defenseGrantChancePercent: 15
+  evasionGrantChancePercent: 15
+  insightPercent: 30
+  quickStepPercent: 30
+  references:
+    version: 2
+    RefIds: []

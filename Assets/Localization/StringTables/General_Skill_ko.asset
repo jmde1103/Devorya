@@ -350,6 +350,22 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1511529955060351032
+  - m_Id: 18806884333654016
+    m_Localized: "\uD68C\uD53C \uC790\uC138"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18806884430123008
+    m_Localized: "\uC774\uB3D9 \uC2DC {percent}% \uD655\uB960\uB85C [\uD68C\uD53C]
+      \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529988314628096
+  - m_Id: 18806884430123009
+    m_Localized: "\uC774\uB3D9 \uC2DC {percent}% \uD655\uB960\uB85C [\uD68C\uD53C]
+      \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529988314628097
   references:
     version: 2
     RefIds:
@@ -613,3 +629,19 @@ MonoBehaviour:
           role: 4
         - text: '{percent}%'
           role: 5
+    - rid: 1511529988314628096
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: "[\uD68C\uD53C]"
+          role: 3
+    - rid: 1511529988314628097
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: "[\uD68C\uD53C]"
+          role: 3

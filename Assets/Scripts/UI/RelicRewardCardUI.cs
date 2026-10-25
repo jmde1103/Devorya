@@ -46,8 +46,8 @@ public sealed class RelicRewardCardUI : MonoBehaviour, IPointerEnterHandler, IPo
             outline.effectColor = color;
         }
     }
-    void SetTitle(string text) { title.text = text; }
-    void SetDescription(string text) { description.text = text; }
+    void SetTitle(string text) { TooltipTextStyle.Apply(title, TooltipTextRole.Title, true); title.text = text; }
+    void SetDescription(string text) { TooltipTextStyle.Apply(description, TooltipTextRole.Body); description.text = TooltipTextStyle.Format(Data.localizedDescription, text); }
     public void Bind(BattleRelicData data, Action<RelicRewardCardUI> choose)
     {
         Unbind();
@@ -56,7 +56,7 @@ public sealed class RelicRewardCardUI : MonoBehaviour, IPointerEnterHandler, IPo
         selectButton.onClick.RemoveAllListeners();
         selectButton.onClick.AddListener(() => { if (Ready) choose(this); });
         relicIcon.sprite = data.iconSprite;
-        title.text = data.relicName; description.text = data.description;
+        SetTitle(data.relicName); SetDescription(data.description);
         if (!data.localizedRelicName.IsEmpty) data.localizedRelicName.StringChanged += SetTitle;
         if (!data.localizedDescription.IsEmpty) data.localizedDescription.StringChanged += SetDescription;
         foreach (var a in new[] { spineGlitch, iconGlitch, panelGlitch, textGlitch })
