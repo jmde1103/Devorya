@@ -10,6 +10,15 @@ public static class TextCutsceneRuntimeState
     // 한 번만 사용할 컷씬 데이터.
     private static TextCutsceneData pendingCutsceneData;
     private static string pendingNextSceneOverride;
+    private static EventSceneData pendingSkipEvent;
+    private static WorldMapEventData pendingSkipWorldMapEvent;
+    public static void ConsumeSkipEvents(out EventSceneData sceneEvent, out WorldMapEventData worldMapEvent)
+    {
+        sceneEvent = pendingSkipEvent;
+        worldMapEvent = pendingSkipWorldMapEvent;
+        pendingSkipEvent = null;
+        pendingSkipWorldMapEvent = null;
+    }
     public static string ConsumeNextSceneOverride()
     {
         string result = pendingNextSceneOverride;
@@ -30,8 +39,11 @@ public static class TextCutsceneRuntimeState
     // <변경부분> 다음 TextCutsceneScene에서 실행할
     // 컷씬 데이터를 등록한다.
     public static void SetPendingCutsceneData(
-        TextCutsceneData cutsceneData, string nextSceneOverride = null)
+        TextCutsceneData cutsceneData, string nextSceneOverride = null,
+        EventSceneData skipEvent = null, WorldMapEventData skipWorldMapEvent = null)
     {
+        pendingSkipEvent = skipEvent;
+        pendingSkipWorldMapEvent = skipWorldMapEvent;
         pendingCutsceneData = cutsceneData;
         pendingNextSceneOverride = nextSceneOverride;
     }
@@ -56,6 +68,8 @@ public static class TextCutsceneRuntimeState
     // 남아 있는 컷씬 전달 데이터를 강제로 제거할 때 사용한다.
     public static void Clear()
     {
+        pendingSkipEvent = null;
+        pendingSkipWorldMapEvent = null;
         pendingNextSceneOverride = null;
         pendingCutsceneData =
             null;

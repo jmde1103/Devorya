@@ -22,11 +22,26 @@ public static class TutorialChoiceChecks
     static IEnumerator WaitScene(string name){float until=Time.realtimeSinceStartup+20;while(SceneManager.GetActiveScene().name!=name){Check(Time.realtimeSinceStartup<until,"Scene timeout: "+name);yield return null;}yield return null;yield return null;}
     static IEnumerator Cases()
     {
+        var sampleEvent=ScriptableObject.CreateInstance<EventSceneData>();
+        var sampleWorld=ScriptableObject.CreateInstance<WorldMapEventData>();
+        TextCutsceneRuntimeState.SetPendingCutsceneData(null,"EventScene",sampleEvent,sampleWorld);
+        TextCutsceneRuntimeState.ConsumeSkipEvents(out var eventResult,out var worldResult);
+        Check(eventResult==sampleEvent && worldResult==sampleWorld,"Both optional events forwarded");
+        TextCutsceneRuntimeState.ConsumeSkipEvents(out eventResult,out worldResult);
+        Check(eventResult==null && worldResult==null,"Events consumed once");
+        TextCutsceneRuntimeState.SetPendingCutsceneData(null,"WorldMapScene",sampleEvent,sampleWorld);
+        TextCutsceneRuntimeState.SetPendingCutsceneData(null);
+        TextCutsceneRuntimeState.ConsumeSkipEvents(out eventResult,out worldResult);
+        Check(eventResult==null && worldResult==null,"Normal tutorial clears stale skip data");
+        TextCutsceneRuntimeState.Clear();
+        UnityEngine.Object.Destroy(sampleEvent); UnityEngine.Object.Destroy(sampleWorld);
         yield return LocalizationSettings.InitializationOperation;
         LocalizationSettings.SelectedLocale=LocalizationSettings.AvailableLocales.GetLocale("ko");
         yield return null;
         foreach(bool tutorial in new[]{false,true}) {
             var title=UnityEngine.Object.FindFirstObjectByType<TitleMenuController>();
+            typeof(TitleMenuController).GetField("initialEndTimerCycles",Flags).SetValue(title,23);
+            typeof(TitleMenuController).GetField("initialEndTimerTick",Flags).SetValue(title,5);
                         var button=(UnityEngine.UI.Button)Get(title,"playButton");
             var hover=button.GetComponent<TitlePlayHoverHandler>();Check(hover!=null,"Play hover handler installed");
             hover.OnPointerEnter(null);Check(Get(title,"selectedMenu").ToString()=="Play"&&!(bool)Get(title,"isChoosingTutorial"),"Hover selects without starting");
@@ -50,6 +65,7 @@ public static class TutorialChoiceChecks
             // Finish at the existing completion entry point; lengthy typing is not needed for route verification.
             cutscene.StopAllCoroutines();Call(cutscene,"LoadNextScene");
             yield return WaitScene(tutorial?"BattleScene":"WorldMapScene");
+            Check(RunStateManager.Instance != null && RunStateManager.Instance.RemainingEndTimerCycles==23 && RunStateManager.Instance.CurrentEndTimerTick==5,"Title timer applies to both routes");
             if(!tutorial){SceneManager.LoadScene("Title");yield return WaitScene("Title");}
         }
     }

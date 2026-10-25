@@ -351,17 +351,62 @@ public class RunStateManager : MonoBehaviour
     }
 
 
+    private static bool hasPendingTitleTimer;
+    private static int pendingTitleCycles, pendingTitleTick;
+    private static StageBattleData pendingTitleEndStage;
+    private static string pendingTitleEndScene;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ClearPendingTitleTimer() { hasPendingTitleTimer = false; }
+
+    public static void SetNewRunEndTimer(int cycles, int tick, StageBattleData endStage = null, string endScene = "BattleScene")
+    {
+        pendingTitleCycles = Mathf.Max(1, cycles);
+        pendingTitleTick = Mathf.Clamp(tick, 0, EndTimerTicksPerCycle - 1);
+        pendingTitleEndStage = endStage;
+        pendingTitleEndScene = endScene;
+        hasPendingTitleTimer = true;
+        if (Instance != null) Instance.ApplyPendingTitleTimer();
+        else new GameObject("RunStateManager").AddComponent<RunStateManager>();
+    }
+
+    private void ApplyPendingTitleTimer()
+    {
+        if (!hasPendingTitleTimer) return;
+        hasPendingTitleTimer = false;
+        var previous = CurrentDayNightState;
+        if (pendingTitleEndStage != null)
+        {
+            endStageBattleData = pendingTitleEndStage;
+            endStageBattleSceneName = string.IsNullOrWhiteSpace(pendingTitleEndScene) ? "BattleScene" : pendingTitleEndScene;
+        }
+        pendingTitleEndStage = null;
+        pendingTitleEndScene = null;
+        initialEndTimerCycles = pendingTitleCycles;
+        remainingEndTimerCycles = pendingTitleCycles;
+        currentEndTimerTick = pendingTitleTick;
+        EndTimerChanged?.Invoke();
+        if (previous != CurrentDayNightState)
+            DayNightStateChanged?.Invoke(CurrentDayNightState);
+    }
+
     private void Awake()
     {
         // <변경부분> 씬 이동 중에도 하나의 RunStateManager만 유지
         if (Instance != null && Instance != this)
         {
+            if (Instance.endStageBattleData == null && endStageBattleData != null)
+            {
+                Instance.endStageBattleData = endStageBattleData;
+                Instance.endStageBattleSceneName = endStageBattleSceneName;
+            }
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        ApplyPendingTitleTimer();
 
         // <변경부분>
         // Unity Editor 테스트 중에만 임시 Shop Gold를 지급한다.

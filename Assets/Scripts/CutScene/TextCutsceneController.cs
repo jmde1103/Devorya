@@ -49,6 +49,8 @@ public class TextCutsceneController : MonoBehaviour
 
     // <변경부분> Scene 시작 시
     // 컷씬이 중복 실행되는 것을 방지한다.
+    private EventSceneData skipEventSceneData;
+    private WorldMapEventData skipWorldMapEventData;
     private string nextSceneOverride;
     private bool isPlaying =
         false;
@@ -98,6 +100,7 @@ public class TextCutsceneController : MonoBehaviour
         // 전달 데이터가 없다면
         // Inspector에 연결된 기본값(Prologue_Boot)을 그대로 사용한다.
         nextSceneOverride = TextCutsceneRuntimeState.ConsumeNextSceneOverride();
+        TextCutsceneRuntimeState.ConsumeSkipEvents(out skipEventSceneData, out skipWorldMapEventData);
         ResolveCutsceneData();
 
         currentVisibleText =
@@ -1138,6 +1141,9 @@ public class TextCutsceneController : MonoBehaviour
                 Debug.LogError("Cannot load tutorial skip destination: " + nextSceneOverride, this);
                 return;
             }
+            if (skipEventSceneData != null &&
+                !WorldMapRuntimeState.SetPendingEventSceneDataFromCutscene(skipEventSceneData)) return;
+            WorldMapEventRuntimeState.Queue(skipWorldMapEventData);
             SceneManager.LoadScene(nextSceneOverride);
             return;
         }
