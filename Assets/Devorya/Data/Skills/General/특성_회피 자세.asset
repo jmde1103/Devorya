@@ -51,8 +51,8 @@ MonoBehaviour:
     m_LocalVariables: []
   chanceAttackPercent: 30
   chanceAttackContinuousPenaltyRate: 0.33333334
-  defenseGrantChancePercent: 15
-  evasionGrantChancePercent: 20
+  defenseGrantChancePercent: 10
+  evasionGrantChancePercent: 15
   insightPercent: 30
   quickStepPercent: 30
   references:

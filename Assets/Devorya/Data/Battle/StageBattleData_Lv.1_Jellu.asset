@@ -20,6 +20,10 @@ MonoBehaviour:
   hideBattleUIOnStart: 0
   startAnnouncementType: 0
   backgroundMapData: {fileID: 11400000, guid: 922f0a17035f5af4b8aa0e08eb1a39e8, type: 2}
+  forceEndTimerOnStart: 0
+  forcedEndTimerTick: 18
+  freezeEndTimerDuringBattle: 1
+  endTimerExitMode: 0
   checkerTileTypeA: 0
   checkerTileTypeB: 1
   playerDefeatCondition: -1
@@ -36,11 +40,11 @@ MonoBehaviour:
   enemyMaxUniqueSkillUsesPerTurn: 1
   enemyGeneralSkillGrantRules:
   - skillType: 2
-    grantChancePercent: 30
+    grantChancePercent: 15
     allowKing: 0
   - skillType: 3
     grantChancePercent: 30
     allowKing: 0
   - skillType: 17
-    grantChancePercent: 30
+    grantChancePercent: 15
     allowKing: 0

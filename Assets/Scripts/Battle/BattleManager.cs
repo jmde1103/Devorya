@@ -2411,20 +2411,91 @@ public partial class BattleManager : MonoBehaviour
             }
         }
 
+        // <변경부분>
+        // 회피 및 방어 판정 전에 공격자의 Insight 보유 정보를 저장한다.
+        //
+        // 이번 공격 중 흡수/레벨업으로 새로 얻은 Insight는
+        // 즉시 발동하지 않도록 행동 시작 시점의 정보를 사용한다.
+        OwnedGeneralSkillData insightDataBeforeAction =
+            actingPiece.GetGeneralSkillDataCopy(
+                GeneralSkillType.Insight
+            );
+
+        // <변경부분>
+        // 도발 가로막기로 공격 대상이 교체되었다면
+        // 실제 공격 대상의 회피를 판정한다.
+        //
+        // Resolve evasion for the actual defender after a possible taunt interception.
+        bool didEvade = pieceManager.TryChooseEvasionDestination(
+            actingPiece,
+            targetPiece,
+            out Vector2Int escapePosition
+        );
+
+        if (didEvade)
+        {
+            // <변경부분>
+            // 실제로 회피가 성공한 상황에서만
+            // 공격자의 Insight로 회피 무효화를 시도한다.
+            //
+            // 회피가 발생하지 않았다면 Insight 확률을 소모하지 않는다.
+            bool isEvasionCanceledByInsight =
+                battleSkillManager != null &&
+                battleSkillManager.TryActivateInsight(
+                    actingPiece,
+                    insightDataBeforeAction,
+                    GeneralSkillType.EvasionStance
+                );
+
+            if (isEvasionCanceledByInsight)
+            {
+                // <변경부분>
+                // 실제 회피를 무효화하기 전에
+                // 공격자의 Insight 아이콘 확대 연출을 실행한다.
+                yield return
+                    battleSkillManager
+                        .PlayGeneralSkillActivationBeforeEffectRoutine(
+                            actingPiece,
+                            GeneralSkillType.Insight
+                        );
+
+                // <변경부분>
+                // 회피 성공 판정을 취소하고
+                // 기존 공격/흡수 흐름으로 계속 진행한다.
+                didEvade = false;
+
+                Debug.Log(
+                    $"Insight 발동: " +
+                    $"{actingPiece.Team} {actingPiece.PieceType}이 " +
+                    $"{targetPiece.Team} {targetPiece.PieceType}의 " +
+                    $"회피를 무효화했습니다."
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // Insight가 없거나 확률 판정에 실패하면
+                // 기존 회피 이동 및 공격 실패 처리를 유지한다.
+                yield return
+                    pieceManager.PlayEvadedAttack(
+                        actingPiece,
+                        targetPiece,
+                        escapePosition,
+                        null
+                    );
+
+                targetPiece = null;
+
+                // A missed attack cannot trigger Quick Step or capture rewards.
+                wasAttack = false;
+            }
+        }
+
         // <변경부분> 이번 공격 대상이 현재 보드의
         // 마지막 Enemy 1기인지 행동 시작 전에 저장한다.
         //
         // 빈칸 이동과 중립 기물 공격에는
         // 마지막 공격 카메라 연출을 적용하지 않는다.
-        // Resolve evasion for the actual defender after a possible taunt interception.
-        bool didEvade = pieceManager.TryChooseEvasionDestination(actingPiece, targetPiece, out Vector2Int escapePosition);
-        if (didEvade)
-        {
-            yield return pieceManager.PlayEvadedAttack(actingPiece, targetPiece, escapePosition, null);
-            targetPiece = null;
-            wasAttack = false; // A missed attack cannot trigger Quick Step or capture rewards.
-        }
-
         bool isLastEnemyAttackTarget =
             targetPiece != null &&
             targetPiece.Team == PieceTeam.Enemy &&
@@ -2456,18 +2527,13 @@ public partial class BattleManager : MonoBehaviour
         // 흡수 행동이어도 기존 Defense는 정상적으로 발동할 수 있다.
         OwnedGeneralSkillData evasionDataBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.EvasionStance);
         OwnedGeneralSkillData defenseDataBeforeAction =
-            actingPiece.GetGeneralSkillDataCopy(
-                GeneralSkillType.Defense
-            );
+       actingPiece.GetGeneralSkillDataCopy(
+           GeneralSkillType.Defense
+       );
 
-        // <변경부분> 공격 시작 시점의 Insight 보유 정보 저장
-        // 공격 중 흡수/레벨업으로 얻은 Insight가 즉시 발동하지 않도록
-        // 행동 시작 전 상태를 기준으로 판정한다.
-        OwnedGeneralSkillData insightDataBeforeAction =
-            actingPiece.GetGeneralSkillDataCopy(
-                GeneralSkillType.Insight
-            );
-
+        // <변경부분>
+        // Insight 보유 정보 저장은 회피 판정보다 앞쪽으로 이동했다.
+        // 여기서는 중복 저장하지 않는다.
 
         // 이번 행동으로 적대 기물을 처치했는지 확인
         bool killedEnemyPiece = false;

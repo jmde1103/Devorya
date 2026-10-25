@@ -833,7 +833,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 2140616609}
   m_OnClick:
     m_PersistentCalls:
@@ -2192,7 +2192,13 @@ MonoBehaviour:
   settingSceneName: BattleScenePVP
   tutorialChoicePopup: {fileID: 303407104}
   bootCutsceneData: {fileID: 11400000, guid: 60d19553bdec560458f799ec73c55f3f, type: 2}
-  skipTutorialSceneName: WorldMapScene
+  skipTutorialSceneName: EventScene
+  skipEventSceneData: {fileID: 11400000, guid: afc30f9c001e16f45b988b1606ebdb45, type: 2}
+  skipWorldMapEventData: {fileID: 11400000, guid: a15b50886b8de7a4fbac4f2739d1188c, type: 2}
+  initialEndTimerCycles: 5
+  initialEndTimerTick: 0
+  endStageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
+  endStageBattleSceneName: BattleScene
 --- !u!114 &774431158
 MonoBehaviour:
   m_ObjectHideFlags: 0

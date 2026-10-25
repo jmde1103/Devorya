@@ -10,6 +10,16 @@ public enum StageTypeIconInitialMode
     UseSavedSetting = 3
 }
 
+// <변경부분> 스테이지에서 변경한 엔드타이머를 전투 종료 후 처리하는 방식.
+public enum StageEndTimerExitMode
+{
+    [InspectorName("전투 진입 전 시간으로 복구")]
+    RestoreOriginal = 0,
+
+    [InspectorName("변경된 시간 유지")]
+    KeepChangedTime = 1
+}
+
 // <변경부분> 한 전투 스테이지의 전투 구성 데이터를 관리하는 ScriptableObject
 // 타일 타입, 승패 조건, 적 편성, 적 일반스킬 랜덤 부여 규칙을 Stage 단위로 분리한다.
 [CreateAssetMenu(fileName = "StageBattleData", menuName = "Devorya/Battle/Stage Battle Data")]
@@ -87,6 +97,47 @@ public class StageBattleData : ScriptableObject
     // 따라서 같은 BattleScene을 사용하더라도
     // StageBattleData마다 서로 다른 배경 맵을 사용할 수 있다.
     public BackgroundMapData backgroundMapData;
+
+    [Header("엔드타이머 시간 설정")]
+
+    // <변경부분> 이 스테이지 진입 시 현재 런의 엔드타이머 눈금을
+    // 강제로 변경할지 결정한다.
+    //
+    // false:
+    // 일반 스테이지처럼 기존 런의 시간을 사용한다.
+    //
+    // true:
+    // 아래에서 지정한 눈금으로 시간을 변경한다.
+    [InspectorName("스테이지 시작 시 시간 강제 변경")]
+    public bool forceEndTimerOnStart = false;
+
+    // <변경부분> 엔드타이머 24눈금 중 원하는 시간대를 지정한다.
+    //
+    // 0~11: 낮
+    // 12~23: 밤
+    [InspectorName("변경할 엔드타이머 눈금 (0~23)")]
+    [Range(0, 23)]
+    public int forcedEndTimerTick = 18;
+
+    // <변경부분>
+    // true:
+    // 전투 중 턴이 지나도 엔드타이머가 진행되지 않는다.
+    //
+    // false:
+    // 강제로 설정한 눈금부터 기존 시간 진행 규칙을 따른다.
+    [InspectorName("전투 중 시간 고정")]
+    public bool freezeEndTimerDuringBattle = true;
+
+    // <변경부분> 전투 종료 후 시간을 처리하는 방식.
+    //
+    // RestoreOriginal:
+    // 스테이지 진입 전의 엔드타이머 상태로 복구한다.
+    //
+    // KeepChangedTime:
+    // 스테이지에서 변경된 현재 엔드타이머 상태를 유지한다.
+    [InspectorName("전투 종료 후 시간 처리")]
+    public StageEndTimerExitMode endTimerExitMode =
+        StageEndTimerExitMode.RestoreOriginal;
 
     [Header("Checker Tile Type")]
     // <변경부분> 체크무늬 A칸에 사용할 타일 타입

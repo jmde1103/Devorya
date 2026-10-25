@@ -9189,4 +9189,60 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 6978171730127152338, guid: f745253be74444a4fb0ef09ee618644d, type: 3}
     LocalPositionOffset: {x: -0.032390058, y: 0.2197938, z: 0}
     LayerOffset: 2
+  - X: 20
+    Y: 22
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 9cab3ca880b47d846a23574311bc4f9d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.100094914, y: 0.056947708, z: 0}
+    LayerOffset: 1
+  - X: 21
+    Y: 19
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 9cab3ca880b47d846a23574311bc4f9d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.026835263, y: 0.14742541, z: 0}
+    LayerOffset: 1
+  - X: 25
+    Y: 23
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 9cab3ca880b47d846a23574311bc4f9d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.003972411, y: 0.18089056, z: 0}
+    LayerOffset: 1
+  - X: 17
+    Y: 22
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 9cab3ca880b47d846a23574311bc4f9d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.023015738, y: 0.11657381, z: 0}
+    LayerOffset: 1
+  - X: 23
+    Y: 22
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 0f7f8a816e2fd5c428f022c2bbe5e03d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.06762162, y: 0.06295228, z: 0}
+    LayerOffset: 1
+  - X: 17
+    Y: 16
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 0f7f8a816e2fd5c428f022c2bbe5e03d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.011245072, y: 0.03321755, z: 0}
+    LayerOffset: 1
+  - X: 12
+    Y: 18
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 0f7f8a816e2fd5c428f022c2bbe5e03d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.03449416, y: 0.06609213, z: 0}
+    LayerOffset: 1
+  - X: 21
+    Y: 19
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 0f7f8a816e2fd5c428f022c2bbe5e03d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.10159129, y: -0.07249212, z: 0}
+    LayerOffset: 1
   ShopDisplaySlots: []

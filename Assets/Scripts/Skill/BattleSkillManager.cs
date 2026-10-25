@@ -317,10 +317,15 @@ public partial class BattleSkillManager : MonoBehaviour
             return false;
         }
 
-        // 현재 Insight는 Defence 상태효과로 발생한
-        // 방어 판정을 무효화하는 데 사용한다.
+        // <변경부분>
+        // Insight는 방어(Defense)와 회피(EvasionStance)를
+        // 모두 확률적으로 무효화할 수 있다.
+        //
+        // 그 외 특성에 대해서는 기존처럼 발동하지 않는다.
         if (targetCanceledSkillType !=
-            GeneralSkillType.Defense)
+                GeneralSkillType.Defense &&
+            targetCanceledSkillType !=
+                GeneralSkillType.EvasionStance)
         {
             return false;
         }

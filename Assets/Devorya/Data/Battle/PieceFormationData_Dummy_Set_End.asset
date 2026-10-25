@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf21de952584b2e41a1e4cab1af0e259, type: 3}
+  m_Name: PieceFormationData_Dummy_Set_End
+  m_EditorClassIdentifier: Assembly-CSharp::PieceFormationData
+  formationName: Unit Set_Jellu_01
+  description: "\uC824\uB8E8 \uAE30\uBB3C\uC758 \uAE30\uBCF8 \uAD6C\uC131 \uC138\uD2B8\uC785\uB2C8\uB2E4."
+  spawnMode: 0
+  spawnDataList:
+  - pieceData: {fileID: 11400000, guid: 301ab60db8d57664ca6829dba8404847, type: 2}
+    team: 1
+    x: 0
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 66e0b8dd6ad0e8c47b7c45b87285d7ae, type: 2}
+    team: 1
+    x: 1
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 63da720c935f9764d81d14ee40e55b5f, type: 2}
+    team: 1
+    x: 2
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 8d43bfa8508a8db4c89aadb790da154d, type: 2}
+    team: 1
+    x: 3
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: 301ab60db8d57664ca6829dba8404847, type: 2}
+    team: 1
+    x: 4
+    y: 5
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    team: 1
+    x: 0
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    team: 1
+    x: 1
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    team: 1
+    x: 2
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    team: 1
+    x: 3
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    team: 1
+    x: 4
+    y: 4
+    overrideCanMove: 0
+    canMove: 0
+    isAbsorbedPlayerVisual: 0
+  randomPieceCount: 5
+  randomPieceEntries: []
