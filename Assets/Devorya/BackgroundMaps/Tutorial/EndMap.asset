@@ -3507,12 +3507,12 @@ MonoBehaviour:
   - X: 17
     Y: 17
     TileType: 1
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileSprite: {fileID: 21300000, guid: df3a0481cdd8ed5439c92b72250e6515, type: 3}
     TilePrefab: {fileID: 0}
   - X: 17
     Y: 18
     TileType: 1
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileSprite: {fileID: 21300000, guid: 3040a98856d91dc48ac438912d07faea, type: 3}
     TilePrefab: {fileID: 0}
   - X: 17
     Y: 19
@@ -3532,7 +3532,7 @@ MonoBehaviour:
   - X: 17
     Y: 22
     TileType: 1
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileSprite: {fileID: 21300000, guid: 2a6bc97d13bb16f459b2d8c2b73155f3, type: 3}
     TilePrefab: {fileID: 0}
   - X: 17
     Y: 23
@@ -3711,8 +3711,8 @@ MonoBehaviour:
     TilePrefab: {fileID: 0}
   - X: 18
     Y: 18
-    TileType: 8
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileType: 1
+    TileSprite: {fileID: 21300000, guid: 3040a98856d91dc48ac438912d07faea, type: 3}
     TilePrefab: {fileID: 0}
   - X: 18
     Y: 19
@@ -3921,8 +3921,8 @@ MonoBehaviour:
     TilePrefab: {fileID: 0}
   - X: 19
     Y: 20
-    TileType: 8
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileType: 1
+    TileSprite: {fileID: 21300000, guid: 3040a98856d91dc48ac438912d07faea, type: 3}
     TilePrefab: {fileID: 0}
   - X: 19
     Y: 21
@@ -4111,8 +4111,8 @@ MonoBehaviour:
     TilePrefab: {fileID: 0}
   - X: 20
     Y: 18
-    TileType: 8
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileType: 1
+    TileSprite: {fileID: 21300000, guid: 3040a98856d91dc48ac438912d07faea, type: 3}
     TilePrefab: {fileID: 0}
   - X: 20
     Y: 19
@@ -4121,13 +4121,13 @@ MonoBehaviour:
     TilePrefab: {fileID: 0}
   - X: 20
     Y: 20
-    TileType: 8
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileType: 1
+    TileSprite: {fileID: 21300000, guid: df3a0481cdd8ed5439c92b72250e6515, type: 3}
     TilePrefab: {fileID: 0}
   - X: 20
     Y: 21
-    TileType: 8
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileType: 1
+    TileSprite: {fileID: 21300000, guid: dfa1e7901af0666438e4ef25f82bbecc, type: 3}
     TilePrefab: {fileID: 0}
   - X: 20
     Y: 22
@@ -4311,8 +4311,8 @@ MonoBehaviour:
     TilePrefab: {fileID: 0}
   - X: 21
     Y: 18
-    TileType: 8
-    TileSprite: {fileID: 21300000, guid: 77afe00ace5c6ca4287499a95a3c3df4, type: 3}
+    TileType: 1
+    TileSprite: {fileID: 21300000, guid: 0663323cdd4207f4fa2aac503faa2eae, type: 3}
     TilePrefab: {fileID: 0}
   - X: 21
     Y: 19
@@ -8636,4 +8636,67 @@ MonoBehaviour:
     DecorationPrefab: {fileID: 0}
     LocalPositionOffset: {x: 0.13857532, y: 0.06949639, z: 0}
     LayerOffset: 3
+  - X: 17
+    Y: 17
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 3afa42195e5e41642b62592d5d924084, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.013048291, y: 0.011809945, z: 0}
+    LayerOffset: 1
+  - X: 18
+    Y: 25
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 3afa42195e5e41642b62592d5d924084, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.0031077862, y: 0.06748247, z: 0}
+    LayerOffset: 1
+  - X: 18
+    Y: 14
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 3afa42195e5e41642b62592d5d924084, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.014123321, y: 0.13359225, z: 0}
+    LayerOffset: 1
+  - X: 25
+    Y: 17
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 3afa42195e5e41642b62592d5d924084, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.22863054, y: 0.2691927, z: 0}
+    LayerOffset: 1
+  - X: 25
+    Y: 26
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 3afa42195e5e41642b62592d5d924084, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.17666015, y: 0.09032488, z: 0}
+    LayerOffset: 1
+  - X: 16
+    Y: 28
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 3afa42195e5e41642b62592d5d924084, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.16166544, y: 0.09036088, z: 0}
+    LayerOffset: 1
+  - X: 17
+    Y: 22
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 53e11ef4d7f4b834cadc5ddb7a96a7fa, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.03771782, y: 0.18120337, z: 0}
+    LayerOffset: 1
+  - X: 19
+    Y: 20
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: fc6dbf7ad3fd63c40aa908e730e0763b, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: -0.04257968, y: 0.067974806, z: 0}
+    LayerOffset: 1
+  - X: 20
+    Y: 18
+    DecorationType: 0
+    DecorationSprite: {fileID: 21300000, guid: 0f7f8a816e2fd5c428f022c2bbe5e03d, type: 3}
+    DecorationPrefab: {fileID: 0}
+    LocalPositionOffset: {x: 0.05647999, y: 0.041858375, z: 0}
+    LayerOffset: 1
   ShopDisplaySlots: []

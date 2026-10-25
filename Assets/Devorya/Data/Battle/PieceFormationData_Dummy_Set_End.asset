@@ -16,70 +16,70 @@ MonoBehaviour:
   description: "\uC824\uB8E8 \uAE30\uBB3C\uC758 \uAE30\uBCF8 \uAD6C\uC131 \uC138\uD2B8\uC785\uB2C8\uB2E4."
   spawnMode: 0
   spawnDataList:
-  - pieceData: {fileID: 11400000, guid: 301ab60db8d57664ca6829dba8404847, type: 2}
+  - pieceData: {fileID: 11400000, guid: 0c21ca01e21844449bdd3736e2eb3632, type: 2}
     team: 1
     x: 0
     y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: 66e0b8dd6ad0e8c47b7c45b87285d7ae, type: 2}
+  - pieceData: {fileID: 11400000, guid: 125b7e4415b37e143acf22701d125d2f, type: 2}
     team: 1
     x: 1
     y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: 63da720c935f9764d81d14ee40e55b5f, type: 2}
+  - pieceData: {fileID: 11400000, guid: c800e8f44ea212044ac11f8931762fc5, type: 2}
     team: 1
     x: 2
     y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: 8d43bfa8508a8db4c89aadb790da154d, type: 2}
+  - pieceData: {fileID: 11400000, guid: fa20e9cbcfbfa214f953ff25e3f00c2d, type: 2}
     team: 1
     x: 3
     y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: 301ab60db8d57664ca6829dba8404847, type: 2}
+  - pieceData: {fileID: 11400000, guid: 0c21ca01e21844449bdd3736e2eb3632, type: 2}
     team: 1
     x: 4
     y: 5
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+  - pieceData: {fileID: 11400000, guid: 4c7edd7a8e732b445b3df75e054b0f15, type: 2}
     team: 1
     x: 0
     y: 4
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+  - pieceData: {fileID: 11400000, guid: 4c7edd7a8e732b445b3df75e054b0f15, type: 2}
     team: 1
     x: 1
     y: 4
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+  - pieceData: {fileID: 11400000, guid: 4c7edd7a8e732b445b3df75e054b0f15, type: 2}
     team: 1
     x: 2
     y: 4
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+  - pieceData: {fileID: 11400000, guid: 4c7edd7a8e732b445b3df75e054b0f15, type: 2}
     team: 1
     x: 3
     y: 4
     overrideCanMove: 0
     canMove: 0
     isAbsorbedPlayerVisual: 0
-  - pieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+  - pieceData: {fileID: 11400000, guid: 4c7edd7a8e732b445b3df75e054b0f15, type: 2}
     team: 1
     x: 4
     y: 4
