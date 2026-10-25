@@ -3041,6 +3041,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TitleButton
       objectReference: {fileID: 0}
+    - target: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5563,7 +5567,7 @@ MonoBehaviour:
     inset: {x: 57.46875, y: 48.46875}
     relativeTo: {fileID: 0}
     relativeOffset: {x: 0, y: 0}
-    authoredCenter: {x: 0.32184568, y: 0.5095978}
+    authoredCenter: {x: 0.3459206, y: 0.5095978}
     contentBounds:
       m_Center: {x: -342.05627, y: 10.365631, z: 0}
       m_Extent: {x: 560.475, y: 481.16562, z: 0}
@@ -5573,7 +5577,7 @@ MonoBehaviour:
     inset: {x: 32, y: 32}
     relativeTo: {fileID: 0}
     relativeOffset: {x: 0, y: 0}
-    authoredCenter: {x: 0.07440103, y: 0.18608797}
+    authoredCenter: {x: 0.1319144, y: 0.18608797}
     contentBounds:
       m_Center: {x: -58.1, y: 80.65, z: 0}
       m_Extent: {x: 51.200012, y: 87.84999, z: 0}

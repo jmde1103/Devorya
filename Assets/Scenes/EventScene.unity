@@ -21126,6 +21126,7 @@ GameObject:
   - component: {fileID: 188554760}
   - component: {fileID: 188554762}
   - component: {fileID: 188554761}
+  - component: {fileID: 188554763}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -21252,6 +21253,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 188554759}
   m_CullTransparentMesh: 1
+--- !u!114 &188554763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188554759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:934d576c8e22ce94697803544f9d0f90
+    m_TableEntryReference:
+      m_KeyId: 5522870812577792
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 188554761}
+        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+        m_MethodName: SetText
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &189819364
 GameObject:
   m_ObjectHideFlags: 0
@@ -27302,6 +27343,7 @@ GameObject:
   - component: {fileID: 240925631}
   - component: {fileID: 240925633}
   - component: {fileID: 240925632}
+  - component: {fileID: 240925634}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -27428,6 +27470,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 240925630}
   m_CullTransparentMesh: 1
+--- !u!114 &240925634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 240925630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:934d576c8e22ce94697803544f9d0f90
+    m_TableEntryReference:
+      m_KeyId: 5523157761691648
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 240925632}
+        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+        m_MethodName: SetText
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &242720117
 GameObject:
   m_ObjectHideFlags: 0
@@ -177545,7 +177627,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1f24c589525b247a0915d1fbb90a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventSceneController
-  eventSceneData: {fileID: 11400000, guid: c56ab45017a56a44abfcee50673b84c1, type: 2}
+  eventSceneData: {fileID: 11400000, guid: afc30f9c001e16f45b988b1606ebdb45, type: 2}
   backgroundManager: {fileID: 1113883777}
   eventSceneSequenceController: {fileID: 1557539796}
   startAutomatically: 1
@@ -234688,6 +234770,10 @@ PrefabInstance:
     - target: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
       propertyPath: m_Name
       value: TitleButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EventSceneData
   eventName: "\uC624\uD504\uB2DD \uC774\uBCA4\uD2B8 \uC720\uBB3C \uC774\uBCA4\uD2B8
     \uD29C\uD1A0\uB9AC\uC5BC \uC6A9"
-  localizationId: event_opening_field_stage
+  localizationId: event_opening_field_relicstage
   description: "\uD29C\uD1A0\uB9AC\uC5BC\uC774 \uBAA8\uB450 \uB05D\uB098\uACE0 \uC720\uBB3C
     \uB370\uC774\uD130\uB97C \uD68D\uB4DD\uD558\uB294 \uC774\uBCA4"
   backgroundMapData: {fileID: 11400000, guid: d3d6e0cfe062c3c46b6bc19360b8f8b9, type: 2}
@@ -692,9 +692,9 @@ MonoBehaviour:
     - localizationId: page_cc8b664d
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 16053051373424640
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -702,9 +702,9 @@ MonoBehaviour:
     - localizationId: page_a8b33fa7
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 16053051415367680
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
@@ -933,9 +933,9 @@ MonoBehaviour:
     - localizationId: page_e359211f
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 16053051415367681
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
