@@ -1263,6 +1263,7 @@ eventSceneData;
     public static void Clear()
     {
         WorldMapEventRuntimeState.Clear();
+
         currentNodeId =
             null;
 
@@ -1275,7 +1276,15 @@ eventSceneData;
             null;
 
         pendingEventSceneData =
-       null;
+            null;
+
+        // <변경부분>
+        // 이전 이벤트의 방문 상태와 완료 예약도 제거한다.
+        // 새로운 런에서 이전 노드가 잘못 완료되는 것을 방지한다.
+        ClearActiveEventVisit();
+
+        pendingCompletedEventNodeId =
+            null;
 
         // <변경부분>
         // 새 런에서 이전 Shop 데이터를 사용하지 않도록 초기화한다.
@@ -1286,7 +1295,7 @@ eventSceneData;
         ClearActiveShopVisit();
 
         pendingCompletedShopNodeId =
-     null;
+            null;
 
         // <변경부분>
         // 새 런에서는 모든 상점의 고정 재고와 SOLD 기록을 초기화한다.
@@ -1295,12 +1304,10 @@ eventSceneData;
         hasPendingBattleWin =
             false;
 
-
         // <변경부분>
         // 새 Run에서는 이전 Direct Battle 상태도 제거한다.
         isDirectBattle =
             false;
-
 
         clearedNodeIds.Clear();
         unlockedNodeIds.Clear();

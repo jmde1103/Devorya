@@ -41,3 +41,6 @@ MonoBehaviour:
   - skillType: 3
     grantChancePercent: 30
     allowKing: 0
+  - skillType: 17
+    grantChancePercent: 30
+    allowKing: 0

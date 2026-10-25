@@ -45478,6 +45478,11 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &366718682 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
+  m_PrefabInstance: {fileID: 8606523595812752921}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &366776786
 GameObject:
   m_ObjectHideFlags: 0
@@ -128000,6 +128005,19 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1096769205765052720, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
   m_PrefabInstance: {fileID: 8606523595812752921}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1101380433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366718682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f39803505bb6cee44a967a2b3836871b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ReturnToTitleButton
+  titleSceneName: Title
 --- !u!1 &1102309488
 GameObject:
   m_ObjectHideFlags: 0
@@ -128377,6 +128395,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1209219830}
     m_Modifications:
+    - target: {fileID: 286966432795413037, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 538148410850064472, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -128455,6 +128477,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 538148410850064472, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1532720421217533010, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2270007865270122708, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
+      propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8058282787973246563, guid: a1bf8a6e05e36fb47be1f6913fb155d2, type: 3}
@@ -243689,6 +243719,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1767045689163631365, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1767045689163631365, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 52600102}
@@ -243699,7 +243733,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1101380433}
   m_SourcePrefab: {fileID: 100100000, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
 --- !u!1001 &8971723612533458384
 PrefabInstance:

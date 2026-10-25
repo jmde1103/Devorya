@@ -87,7 +87,14 @@ MonoBehaviour:
     shopLevel: 1
     initiallyUnlocked: 0
     initiallyCleared: 0
-    connections: []
+    connections:
+    - targetNodeId: ForestMap_01_Battle_04
+      routeGridPositions:
+      - {x: 30, y: 14}
+      - {x: 30, y: 15}
+      - {x: 29, y: 16}
+      - {x: 28, y: 16}
+      - {x: 27, y: 16}
     revealRadius: 2
   - nodeId: ForestMap_01_Battle_01
     nodeDisplayName: "\uB808\uBCA8 1"
@@ -184,7 +191,12 @@ MonoBehaviour:
     initiallyCleared: 0
     connections:
     - targetNodeId: ForestMap_01_RuinsEvent_01
-      routeGridPositions: []
+      routeGridPositions:
+      - {x: 28, y: 16}
+      - {x: 29, y: 16}
+      - {x: 30, y: 15}
+      - {x: 30, y: 14}
+      - {x: 29, y: 13}
     revealRadius: 2
   - nodeId: ForestMap_01_Maintenance_01
     nodeDisplayName: "\uC815\uBE44\uB178\uB4DC"

@@ -4865,6 +4865,56 @@ public class EventSceneDataEditor : Editor
                     );
                 }
             }
+
+            // <변경부분>
+            // EventScene 완료 방식에서 다음 EventSceneData를 선택한다.
+            if (eventData.completionType ==
+                EventSceneCompletionType.EventScene)
+            {
+                EditorGUI.BeginChangeCheck();
+
+                EventSceneData nextEventSceneData =
+                    (EventSceneData)EditorGUILayout.ObjectField(
+                        "Completion Event Scene Data",
+                        eventData.completionEventSceneData,
+                        typeof(EventSceneData),
+                        false
+                    );
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(
+                        eventData,
+                        "Edit Event Scene Connection"
+                    );
+
+                    eventData.completionEventSceneData =
+                        nextEventSceneData;
+
+                    EditorUtility.SetDirty(
+                        eventData
+                    );
+                }
+
+                if (eventData.completionEventSceneData == null ||
+                    eventData.completionEventSceneData == eventData)
+                {
+                    EditorGUILayout.HelpBox(
+                        "다음 EventSceneData를 지정해주세요. " +
+                        "현재 데이터와 동일한 에셋은 사용할 수 없습니다.",
+                        MessageType.Warning
+                    );
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox(
+                        "현재 EventScene 완료 후 지정한 " +
+                        "EventSceneData를 실행합니다. " +
+                        "중간 연결 단계에서는 월드맵 노드를 완료하지 않습니다.",
+                        MessageType.Info
+                    );
+                }
+            }
         }
     }
 
