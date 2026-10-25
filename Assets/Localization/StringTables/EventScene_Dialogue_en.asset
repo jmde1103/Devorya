@@ -175,6 +175,34 @@ MonoBehaviour:
       while scanning for lifeform signals for the next mission.'
     m_Metadata:
       m_Items: []
+  - m_Id: 16003903980703744
+    m_Localized: A faint signal is being detected from the research facility.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058816
+    m_Localized: Minor spatial distortion detected. An unidentified signal is being
+      received.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058818
+    m_Localized: '........D...Doctor...... Has it... started?
+
+      Doc...tor....'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058819
+    m_Localized: "Th...this body....\nMy... arms... my... legs....\n\nAaaaaaagh\u2014"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058820
+    m_Localized: 'Collapse of the trans...mitted consciousness data confirmed....
+
+      Error....
+      Error....
+
+      Control system damaged.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

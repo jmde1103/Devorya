@@ -143,6 +143,30 @@ MonoBehaviour:
     m_Key: event_scene.event_opening_field_stage.dialogue_5fb6d217.page_e359211f
     m_Metadata:
       m_Items: []
+  - m_Id: 16003903980703744
+    m_Key: event_scene.event_end_ruine_stage.dialogue_428806ad.page_828ea387
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058816
+    m_Key: event_scene.event_end_ruine_stage.dialogue_66421ab6.page_edb1bec1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058817
+    m_Key: event_scene.event_end_ruine_stage.dialogue_66421ab6.page_0a664bf2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058818
+    m_Key: event_scene.event_end_ruine_stage.speech.speech_06baf48f
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058819
+    m_Key: event_scene.event_end_ruine_stage.speech.speech_3f74675e
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058820
+    m_Key: event_scene.event_end_ruine_stage.speech.speech_02f2b3d1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -78,11 +78,11 @@ MonoBehaviour:
   - nodeId: ForestMap_01_RuinsEvent_01
     nodeDisplayName: "\uB808\uBCA8 1"
     gridPosition: {x: 29, y: 13}
-    nodeType: 3
-    nodeStyleData: {fileID: 11400000, guid: 348de8add6495f7418525c62714542d7, type: 2}
-    targetSceneName: BattleScene
+    nodeType: 2
+    nodeStyleData: {fileID: 11400000, guid: ca1d7159da3d76b4cb26be4415084675, type: 2}
+    targetSceneName: EventScene
     stageBattleData: {fileID: 0}
-    eventSceneData: {fileID: 11400000, guid: 7c3b09b8a1fb7a245876308ee1705bf5, type: 2}
+    eventSceneData: {fileID: 11400000, guid: 050a73bca3bfd4b4c8353679e22cb47f, type: 2}
     shopInventoryData: {fileID: 0}
     shopLevel: 1
     initiallyUnlocked: 0
@@ -201,6 +201,20 @@ MonoBehaviour:
   - nodeId: ForestMap_01_Maintenance_01
     nodeDisplayName: "\uC815\uBE44\uB178\uB4DC"
     gridPosition: {x: 24, y: 15}
+    nodeType: 6
+    nodeStyleData: {fileID: 11400000, guid: 9af2ceb0565162e4da52b560430a2611, type: 2}
+    targetSceneName: EventScene
+    stageBattleData: {fileID: 0}
+    eventSceneData: {fileID: 11400000, guid: c56ab45017a56a44abfcee50673b84c1, type: 2}
+    shopInventoryData: {fileID: 0}
+    shopLevel: 1
+    initiallyUnlocked: 0
+    initiallyCleared: 0
+    connections: []
+    revealRadius: 2
+  - nodeId: ForestMap_01_Maintenance_02
+    nodeDisplayName: "\uC815\uBE44\uB178\uB4DC"
+    gridPosition: {x: 25, y: 23}
     nodeType: 6
     nodeStyleData: {fileID: 11400000, guid: 9af2ceb0565162e4da52b560430a2611, type: 2}
     targetSceneName: EventScene

@@ -144,6 +144,36 @@ MonoBehaviour:
     m_Localized: "\uC4F8 \uB9CC\uD55C \uAC83\uC744 \uBC1C\uACAC\uD588\uB2E4!"
     m_Metadata:
       m_Items: []
+  - m_Id: 16003903980703744
+    m_Localized: "\uC5F0\uAD6C \uAE30\uAD00\uC758 \uBBF8\uC57D\uD55C \uAC10\uC9C0
+      \uC2E0\uD638\uAC00 \uC7A1\uD799\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058816
+    m_Localized: "\uC791\uC740 \uACF5\uAC04 \uC678\uACE1 \uBCC0\uC218 \uBC1C\uC0DD
+      \uC2DC\uC2DD\uBCC4 \uBD88\uAC00\uB2A5\uD55C \uC54C\uC218\uC5C6\uB294 \uC2E0\uD638\uAC00
+      \uC7A1\uD799\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058817
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058818
+    m_Localized: "...................\uBC14...\uBC2A.....\uBC15\uC0AC\uB2C8\u3141......\uC2DC\uC791
+      \uB42B\uB098\uC694?... \uBC15\uC0AC\uB2C8"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058819
+    m_Localized: "\u3141...\uC774...\uBAB8.... \uB0B4.... \uD327...\uB2E4..\uB9B4
+      \uC544\uC544\u314F\uC544\uC544\uC544\uC545"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16003904161058820
+    m_Localized: "\uC804....\uC1A1\uB41C...\uC815\uC2E0 \uBD95\uAD34 \uD655\uC778
+      ....\uC624\uB958 \uB370\uC774....\uD130\uB97C \uD3D0\uAE30...\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
