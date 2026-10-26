@@ -39,7 +39,8 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   speciesTags: 02000000
-  defaultGeneralSkills: []
+  defaultGeneralSkills:
+  - skillType: 0
   playerSprite: {fileID: 0}
   enemySprite: {fileID: 0}
   neutralSprite: {fileID: 0}

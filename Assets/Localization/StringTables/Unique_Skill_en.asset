@@ -135,7 +135,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 16691840000000002
     m_Localized: Absorbs and removes 1 random adjacent allied [Pawn]. Gains [Breakthrough]
-      and [Defense] for 1 turn each.
+      and [Evasion] for 1 turn each.
     m_Metadata:
       m_Items:
       - rid: 1511529955060351074
@@ -222,7 +222,7 @@ MonoBehaviour:
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: '[Defense]'
+        - text: '[Evasion]'
           role: 3
         - text: '[Breakthrough]'
           role: 3

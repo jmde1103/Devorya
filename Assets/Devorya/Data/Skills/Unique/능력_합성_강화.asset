@@ -17,11 +17,11 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: 9a2a65b9e94da2e4f9230a80f3de62ec, type: 3}
   description: "\uC778\uC811\uD55C \uC544\uAD70 [\uD3F0] 1\uAC1C\uB97C \uBB34\uC791\uC704\uB85C
     \uD761\uC218\uD558\uACE0 \uC81C\uAC70\uD569\uB2C8\uB2E4. \uC790\uC2E0\uC5D0\uAC8C
-    [\uB3CC\uD30C]\uC640 [\uBC29\uC5B4]\uB97C \uAC01\uAC01 1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    [\uB3CC\uD30C]\uC640 [\uD68C\uD53C]\uB97C \uAC01\uAC01 1\uD134 \uB3D9\uC548 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: c2bc84be6b2f9304982528565ce5e921, type: 2}
     sectionColor: {r: 1, g: 0.9451673, b: 0, a: 0}
-  - statusEffectData: {fileID: 11400000, guid: d2a0c81ca8c2eae49ab0970259ff7b27, type: 2}
+  - statusEffectData: {fileID: 11400000, guid: 9d1f814c9401420592bb0cda77c2176a, type: 2}
     sectionColor: {r: 1, g: 0.9451673, b: 0, a: 0}
   localizedSkillName:
     m_TableReference:

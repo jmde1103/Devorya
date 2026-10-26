@@ -155,7 +155,7 @@ MonoBehaviour:
   - m_Id: 16691840000000002
     m_Localized: "\uC778\uC811\uD55C \uC544\uAD70 [\uD3F0] 1\uAC1C\uB97C \uBB34\uC791\uC704\uB85C
       \uD761\uC218\uD558\uACE0 \uC81C\uAC70\uD569\uB2C8\uB2E4. \uC790\uC2E0\uC5D0\uAC8C
-      [\uB3CC\uD30C]\uC640 [\uBC29\uC5B4]\uB97C \uAC01\uAC01 1\uD134 \uB3D9\uC548
+      [\uB3CC\uD30C]\uC640 [\uD68C\uD53C]\uB97C \uAC01\uAC01 1\uD134 \uB3D9\uC548
       \uBD80\uC5EC\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
@@ -246,7 +246,7 @@ MonoBehaviour:
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: "[\uBC29\uC5B4]"
+        - text: "[\uD68C\uD53C]"
           role: 3
         - text: "[\uB3CC\uD30C]"
           role: 3
