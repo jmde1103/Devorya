@@ -6600,6 +6600,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   selectionOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   selectionPulseSpeed: 2
+  selectionScale: 1.06
   slotButton: {fileID: 45107027}
   itemIconImage: {fileID: 1825739333}
   tooltipTrigger: {fileID: 45107030}
@@ -6749,6 +6750,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7abdfcbb7d92df418ce4b2738578a47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RunStateManager
+  endTimerDestination: 0
+  endEventSceneData: {fileID: 0}
+  endEventSceneName: EventScene
   playerPieceRuntimeDataList: []
   goldAmount: 0
   enableTemporaryShopTestGold: 0
@@ -63037,6 +63041,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   selectionOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   selectionPulseSpeed: 2
+  selectionScale: 1.06
   slotButton: {fileID: 535706720}
   itemIconImage: {fileID: 1906248681}
   tooltipTrigger: {fileID: 535706723}
@@ -119235,6 +119240,7 @@ MonoBehaviour:
   absorbOffSprite: {fileID: 21300000, guid: 58e3c0f96fba7ad4db8217e7b85e1927, type: 3}
   absorbOnSprite: {fileID: 21300000, guid: 63c2a9c25f26b344ba5fe4a86045c4d9, type: 3}
   itemCancelSprite: {fileID: 0}
+  itemCancelIconSizeRatio: 0.55
   deploymentConfirmIconImage: {fileID: 566633811}
   absorbCountNumText: {fileID: 0}
   absorbCountIconImage: {fileID: 0}
@@ -190436,6 +190442,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   selectionOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   selectionPulseSpeed: 2
+  selectionScale: 1.06
   slotButton: {fileID: 1696296247}
   itemIconImage: {fileID: 1511553291}
   tooltipTrigger: {fileID: 1696296250}
@@ -234108,6 +234115,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemSlotUI
   selectionOutlineColor: {r: 1, g: 0.15, b: 0.15, a: 1}
   selectionPulseSpeed: 2
+  selectionScale: 1.06
   slotButton: {fileID: 2143243970}
   itemIconImage: {fileID: 8041341}
   tooltipTrigger: {fileID: 2143243974}
