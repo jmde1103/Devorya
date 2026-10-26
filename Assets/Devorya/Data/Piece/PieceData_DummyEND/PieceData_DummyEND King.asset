@@ -18,7 +18,7 @@ MonoBehaviour:
     \uB354\uBBF8\uB77C \uBD88\uB9AC\uACE0 \uC788\uB2E4.\n\uB354\uBBF8 \uD0C0\uC785
     : [\uD0B9]"
   pieceType: 4
-  uniqueSkill: 0
+  uniqueSkill: 12
   canMove: 1
   localizedDisplayName:
     m_TableReference:

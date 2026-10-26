@@ -5127,6 +5127,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7abdfcbb7d92df418ce4b2738578a47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RunStateManager
+  endTimerDestination: 0
+  endEventSceneData: {fileID: 0}
+  endEventSceneName: EventScene
   playerPieceRuntimeDataList: []
   goldAmount: 0
   enableTemporaryShopTestGold: 0
@@ -5135,7 +5138,7 @@ MonoBehaviour:
   initialEndTimerCycles: 15
   remainingEndTimerCycles: 10
   currentEndTimerTick: 0
-  endStageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
+  endStageBattleData: {fileID: 11400000, guid: 0d313660a7b13aa4fa1a5b758425ae26, type: 2}
   endStageBattleSceneName: BattleScene
 --- !u!4 &47045692
 Transform:
@@ -117352,6 +117355,7 @@ MonoBehaviour:
   absorbOffSprite: {fileID: 21300000, guid: 58e3c0f96fba7ad4db8217e7b85e1927, type: 3}
   absorbOnSprite: {fileID: 21300000, guid: 63c2a9c25f26b344ba5fe4a86045c4d9, type: 3}
   itemCancelSprite: {fileID: 21300000, guid: 387474cee75030d4293f7ee29e1c5457, type: 3}
+  itemCancelIconSizeRatio: 0.55
   deploymentConfirmIconImage: {fileID: 566633811}
   absorbCountNumText: {fileID: 913047770}
   absorbCountIconImage: {fileID: 65093570}

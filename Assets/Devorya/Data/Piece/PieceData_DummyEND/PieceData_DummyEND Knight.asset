@@ -18,7 +18,7 @@ MonoBehaviour:
     \uB354\uBBF8\uB77C \uBD88\uB9AC\uACE0 \uC788\uB2E4.\n\uB354\uBBF8 \uD0C0\uC785
     : [\uB098\uC774\uD2B8]"
   pieceType: 2
-  uniqueSkill: 0
+  uniqueSkill: 13
   canMove: 1
   localizedDisplayName:
     m_TableReference:
@@ -39,7 +39,8 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   speciesTags: 02000000
-  defaultGeneralSkills: []
+  defaultGeneralSkills:
+  - skillType: 18
   playerSprite: {fileID: 0}
   enemySprite: {fileID: 0}
   neutralSprite: {fileID: 0}

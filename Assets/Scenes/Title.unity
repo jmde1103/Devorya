@@ -2198,6 +2198,9 @@ MonoBehaviour:
   initialEndTimerCycles: 5
   initialEndTimerTick: 0
   endStageBattleData: {fileID: 11400000, guid: 0d313660a7b13aa4fa1a5b758425ae26, type: 2}
+  endTimerDestination: 1
+  endEventSceneData: {fileID: 11400000, guid: 050a73bca3bfd4b4c8353679e22cb47f, type: 2}
+  endEventSceneName: EventScene
   endStageBattleSceneName: BattleScene
 --- !u!114 &774431158
 MonoBehaviour:
