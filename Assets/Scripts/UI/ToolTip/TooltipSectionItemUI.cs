@@ -8,6 +8,7 @@ public class TooltipSectionItemUI : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private Image backgroundImage;
+    [SerializeField, InspectorName("자동 높이 조절 배경")] private Image layoutBackgroundImage;
     [SerializeField] private TMP_Text titleText;
 
     // <변경부분> 상태효과 / 키워드 / 태그 같은 보조 분류 텍스트
@@ -74,11 +75,16 @@ public class TooltipSectionItemUI : MonoBehaviour
         var root = transform as RectTransform;
         var body = mainDescriptionText.rectTransform;
         if (root == null) return;
+        // Keep optional section tint separate from the authored background used for sizing.
+        if (layoutBackgroundImage == null)
+            layoutBackgroundImage = backgroundImage != null ? backgroundImage : transform.Find("Background")?.GetComponent<Image>();
+        var sizingBackground = layoutBackgroundImage;
+        mainDescriptionText.textWrappingMode = TextWrappingModes.Normal;
         if (authoredChildren == null)
         {
             authoredHeight = root.rect.height;
             authoredTextHeight = body.rect.height;
-            authoredBackgroundHeight = backgroundImage != null ? backgroundImage.rectTransform.rect.height : 0;
+            authoredBackgroundHeight = sizingBackground != null ? sizingBackground.rectTransform.rect.height : 0;
             authoredChildren = new RectTransform[root.childCount];
             authoredChildPositions = new Vector2[root.childCount];
             for (int i = 0; i < root.childCount; i++)
@@ -96,12 +102,12 @@ public class TooltipSectionItemUI : MonoBehaviour
                 authoredChildren[i].anchoredPosition = authoredChildPositions[i] + Vector2.up * extra * (1f - authoredChildren[i].anchorMax.y);
         body.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         body.anchoredPosition -= Vector2.up * extra * (1f - body.pivot.y);
-        if (backgroundImage != null)
+        if (sizingBackground != null)
         {
-            var background = backgroundImage.rectTransform;
+            var background = sizingBackground.rectTransform;
             background.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, authoredBackgroundHeight + extra);
             background.anchoredPosition -= Vector2.up * extra * (1f - background.pivot.y);
-            if (backgroundImage.sprite != null) backgroundImage.type = Image.Type.Sliced;
+            if (sizingBackground.sprite != null) sizingBackground.type = Image.Type.Sliced;
         }
         var layout = GetComponent<LayoutElement>();
         if (layout == null) layout = gameObject.AddComponent<LayoutElement>();
