@@ -23,7 +23,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 793382912
-    m_Localized: While [Defense], negates the opponent's attack.
+    m_Localized: While [Defense], negates the opponent's attack. Removes [Defense]
+      after successfully blocking an attack.
     m_Metadata:
       m_Items:
       - rid: 1511529955060351049
@@ -33,6 +34,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 72098777796608
     m_Localized: While [Breakthrough], ignores the opponent's [Defense] status effect.
+      Removes [Breakthrough] after a successful attack that bypasses the target's
+      [Defense].
     m_Metadata:
       m_Items:
       - rid: 1511529955060351050
@@ -72,7 +75,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 16720000000000002
     m_Localized: When attacked, has a 50% chance to move to an adjacent empty tile
-      and evade the attack. The attacking piece moves to the vacated tile.
+      and evade the attack. The attacking piece moves to the vacated tile. Removes
+      [Evasion] after successfully evading an attack.
     m_Metadata:
       m_Items:
       - rid: 1511529955060351053
@@ -103,6 +107,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1511529955060351056
+  - m_Id: 18825411195179008
+    m_Localized: Teleportation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18825411291648000
+    m_Localized: At the end of its team's turn, moves to a random empty tile on the
+      field, then removes [Teleportation].
+    m_Metadata:
+      m_Items:
+      - rid: 1511530002400673793
   references:
     version: 2
     RefIds:
@@ -142,6 +156,8 @@ MonoBehaviour:
         spans:
         - text: 50%
           role: 5
+        - text: '[Evasion]'
+          role: 3
     - rid: 1511529955060351054
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -160,3 +176,9 @@ MonoBehaviour:
         spans:
         - text: '[Action Disabled]'
           role: 4
+    - rid: 1511530002400673793
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Teleportation]'
+          role: 3

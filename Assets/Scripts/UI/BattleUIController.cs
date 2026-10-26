@@ -46,6 +46,12 @@ public class BattleUIController : MonoBehaviour
     [SerializeField] private Sprite absorbOnSprite;
     [SerializeField, InspectorName("아이템 취소 아이콘")]
     private Sprite itemCancelSprite;
+    [SerializeField, Range(0.1f, 1f), InspectorName("아이템 취소 아이콘 크기 비율")]
+    private float itemCancelIconSizeRatio = 0.55f;
+    private Vector2 itemCancelOriginalSizeDelta;
+    private bool itemCancelOriginalPreserveAspect;
+    private Image.Type itemCancelOriginalImageType;
+    private bool itemCancelLayoutCaptured;
     private bool isItemCancelMode;
     private static Sprite defaultItemCancelSprite;
 
@@ -77,6 +83,23 @@ public class BattleUIController : MonoBehaviour
         {
             absorbIconImage.gameObject.SetActive(true);
             absorbIconImage.enabled = true;
+            if (!itemCancelLayoutCaptured)
+            {
+                itemCancelOriginalSizeDelta = absorbIconImage.rectTransform.sizeDelta;
+                itemCancelOriginalPreserveAspect = absorbIconImage.preserveAspect;
+                itemCancelOriginalImageType = absorbIconImage.type;
+                itemCancelLayoutCaptured = true;
+            }
+            var iconRect = absorbIconImage.rectTransform;
+            var buttonRect = absorbButton != null ? absorbButton.transform as RectTransform : iconRect.parent as RectTransform;
+            if (buttonRect != null && iconRect != buttonRect)
+            {
+                float size = Mathf.Min(buttonRect.rect.width, buttonRect.rect.height) * itemCancelIconSizeRatio;
+                iconRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size);
+                iconRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+            }
+            absorbIconImage.type = Image.Type.Simple;
+            absorbIconImage.preserveAspect = true;
             absorbIconImage.sprite = GetItemCancelSprite();
         }
         if (absorbTooltipTrigger != null) absorbTooltipTrigger.SetTooltipData(null);
@@ -93,6 +116,13 @@ public class BattleUIController : MonoBehaviour
             SetAbsorbButtonVisible(true);
             SetUniqueSkillButtonVisible(false);
             return;
+        }
+        if (itemCancelLayoutCaptured && absorbIconImage != null)
+        {
+            absorbIconImage.rectTransform.sizeDelta = itemCancelOriginalSizeDelta;
+            absorbIconImage.preserveAspect = itemCancelOriginalPreserveAspect;
+            absorbIconImage.type = itemCancelOriginalImageType;
+            itemCancelLayoutCaptured = false;
         }
         SetPlayerDeploymentMode(battleManager != null && battleManager.IsPlayerDeploymentPhase);
         if (battleManager != null && battleManager.IsPlayerDeploymentPhase) return;

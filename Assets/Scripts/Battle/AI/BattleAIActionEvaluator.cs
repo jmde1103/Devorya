@@ -773,6 +773,14 @@ public class BattleAIActionEvaluator
 
         switch (action.UniqueSkillType)
         {
+            case UniqueSkillType.GuardSelf:
+                return action.ActingPiece.HasStatusEffect(StatusEffectType.Defence) ? float.MinValue : 100f;
+            case UniqueSkillType.EvadeSelf:
+                return action.ActingPiece.HasStatusEffect(StatusEffectType.Evasion) ? float.MinValue : 100f;
+            case UniqueSkillType.TeleportSelf:
+                return action.ActingPiece.HasStatusEffect(StatusEffectType.Teleport) ? float.MinValue : 80f;
+            case UniqueSkillType.Virus:
+                return 150f;
             case UniqueSkillType.JelluReinforce:
                 if (action.ActingPiece.HasStatusEffect(StatusEffectType.Defence) && action.ActingPiece.HasStatusEffect(StatusEffectType.Breakthrough)) return float.MinValue;
                 return 200f - GetPieceValue(PieceType.Pawn) * 0.1f;

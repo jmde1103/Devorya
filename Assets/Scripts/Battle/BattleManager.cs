@@ -523,7 +523,7 @@ public partial class BattleManager : MonoBehaviour
                 boardManager,
                 pieceManager,
                 battleMoveValidator
-            );
+            , uniqueSkillDatabase);
         }
 
         // <변경부분> 게임 시작 시 아이템 효과 핸들러 초기화
@@ -2395,6 +2395,7 @@ public partial class BattleManager : MonoBehaviour
             );
 
 
+        bool usedBreakthrough = false;
         bool wasAttack = targetPiece != null;
         OwnedGeneralSkillData quickStepBeforeAction = actingPiece.GetGeneralSkillDataCopy(GeneralSkillType.QuickStep);
         Piece tauntGuard = pieceManager.FindTauntInterceptor(actingPiece, targetPiece);
@@ -2483,6 +2484,9 @@ public partial class BattleManager : MonoBehaviour
                         escapePosition,
                         null
                     );
+                if (targetPiece != null && targetPiece.X == escapePosition.x && targetPiece.Y == escapePosition.y &&
+                    pieceManager.GetPieceAt(escapePosition.x, escapePosition.y) == targetPiece)
+                    targetPiece.RemoveStatusEffect(StatusEffectType.Evasion);
 
                 targetPiece = null;
 
@@ -2643,6 +2647,9 @@ public partial class BattleManager : MonoBehaviour
             //
             // Defense 일반스킬 자체는 공격을 직접 방어하지 않으며,
             // 이동 완료 후 일정 확률로 Defence 상태효과를 부여하는 역할만 한다.
+            bool isAbsorbGuardActivated = isAbsorbAction && targetPiece.HasGeneralSkill(GeneralSkillType.AbsorbGuard);
+            usedBreakthrough = shouldIgnoreDefenseByBreakthrough && hasDefenceStatusEffect &&
+                !isLastEnemyAttackTarget && !isAbsorbGuardActivated;
             bool isDefenseActivated =
                 isLastEnemyAttackTarget == false &&
                 shouldIgnoreDefenseByBreakthrough == false &&
@@ -2672,7 +2679,7 @@ public partial class BattleManager : MonoBehaviour
             // 공격자의 Insight로 무효화를 시도한다.
             bool isDefenseCanceledByInsight = false;
 
-            if (isDefenseActivated)
+            if (isDefenseActivated && !isAbsorbGuardActivated)
             {
                 isDefenseCanceledByInsight =
                     battleSkillManager != null &&
@@ -2743,15 +2750,20 @@ public partial class BattleManager : MonoBehaviour
             }
 
             // Defense가 성공했고 Insight로 무효화되지 않은 경우
-            if (isDefenseActivated &&
-                isDefenseCanceledByInsight == false)
+            if (isAbsorbGuardActivated || (isDefenseActivated &&
+                isDefenseCanceledByInsight == false))
             {
+                if (isAbsorbGuardActivated && battleSkillManager != null)
+                    yield return battleSkillManager.PlayGeneralSkillActivationBeforeEffectRoutine(targetPiece, GeneralSkillType.AbsorbGuard);
                 // <변경부분> 방어 성공 전용 공격 반동 연출 실행
                 yield return
                     pieceManager.PlayPieceBlockedAttackMoveAnimation(
                         actingPiece,
                         targetWorldPosition
                     );
+                if (!isAbsorbGuardActivated && targetPiece != null)
+                    targetPiece.RemoveStatusEffect(StatusEffectType.Defence);
+
 
                 // 흡수 공격이 방어되었다면 흡수 모드 해제
                 if (isAbsorbAction)
@@ -3082,6 +3094,8 @@ public partial class BattleManager : MonoBehaviour
             null;
 
         // 이동/공격 후 승패 조건 확인
+        if (usedBreakthrough && actingPiece != null && (killedEnemyPiece || absorbedEnemyPiece))
+            actingPiece.RemoveStatusEffect(StatusEffectType.Breakthrough);
         if (absorbedEnemyPiece) QueueAbsorbOvercharge(actingPiece);
         bool completedItemMove = itemMovePiece == actingPiece && didCompleteMove;
         itemMovePiece = null;
@@ -3659,6 +3673,18 @@ public partial class BattleManager : MonoBehaviour
                     .PrepareLastPieceAttackCinematicRoutine(
                         targetTile.transform
                     );
+        }
+
+        if (targetPiece.HasGeneralSkill(GeneralSkillType.AbsorbGuard))
+        {
+            if (battleSkillManager != null)
+                yield return battleSkillManager.PlayGeneralSkillActivationBeforeEffectRoutine(targetPiece, GeneralSkillType.AbsorbGuard);
+            yield return pieceManager.PlayPieceBlockedAttackMoveAnimation(playerKing, targetWorldPosition);
+            if (pixelCameraController != null)
+                yield return pixelCameraController.RestoreAfterLastPieceAttackCinematicRoutine();
+            isActionAnimating = false;
+            RefreshLastEnemyAbsorbOpportunity();
+            yield break;
         }
 
         // <변경부분> 기존 흡수 공격의 이동, Absorb, Down_Absorb,
@@ -5494,7 +5520,32 @@ public partial class BattleManager : MonoBehaviour
 
         return true;
     }
+    private bool isResolvingTurnEnd;
     private void EndTurn()
+    {
+        if (isResolvingTurnEnd || isBattleEnded) return;
+        PieceTeam team = currentTurn == BattleTurn.Player ? PieceTeam.Player : PieceTeam.Enemy;
+        if (pieceManager != null && pieceManager.HasTurnEndTeleport(team))
+        {
+            isResolvingTurnEnd = true;
+            isActionAnimating = true;
+            CancelItemTargeting();
+            ClearHighlights();
+            if (battleUIController != null) battleUIController.HideActionButtons();
+            StartCoroutine(ResolveTurnEndTeleport(team));
+            return;
+        }
+        CompleteTurnTransition();
+    }
+
+    private IEnumerator ResolveTurnEndTeleport(PieceTeam team)
+    {
+        try { yield return pieceManager.PlayTurnEndTeleports(team, () => isBattleEnded); }
+        finally { isResolvingTurnEnd = false; isActionAnimating = false; }
+        if (!isBattleEnded) CompleteTurnTransition();
+    }
+
+    private void CompleteTurnTransition()
     {
         CancelItemTargeting();
         itemMovePiece = null;

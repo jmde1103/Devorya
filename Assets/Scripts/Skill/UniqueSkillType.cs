@@ -30,5 +30,9 @@ public enum UniqueSkillType
     [UnityEngine.InspectorName("\ubd84\uc5f4")]
     JelluSplit,
     [UnityEngine.InspectorName("\ud569\uc131 : \uac15\ud654")]
-    JelluReinforce
+    JelluReinforce = 9,
+    [UnityEngine.InspectorName("방어하기")] GuardSelf = 10,
+    [UnityEngine.InspectorName("공간이동")] TeleportSelf = 11,
+    [UnityEngine.InspectorName("바이러스")] Virus = 12,
+    [UnityEngine.InspectorName("회피하기")] EvadeSelf = 13
 }

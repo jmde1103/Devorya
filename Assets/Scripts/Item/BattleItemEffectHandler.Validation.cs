@@ -20,7 +20,7 @@ public partial class BattleItemEffectHandler
         if (target == null || !target.isActiveAndEnabled || pieceManager == null ||
             pieceManager.GetPieceAt(target.X, target.Y) != target) return BattleItemFailure.MissingTarget;
         if (item.onlyPlayerPiece && target.Team != PieceTeam.Player) return BattleItemFailure.PlayerOnly;
-        if (item.blockUseOnKing && target.PieceType == PieceType.King) return BattleItemFailure.King;
+        if (ChangesPiece(item) && target.PieceType == PieceType.King) return BattleItemFailure.King;
         if (!item.useItemEffectList)
         {
             if (item.itemType == BattleItemType.ChangeSelectedPieceToJelluPawn)
@@ -37,12 +37,10 @@ public partial class BattleItemEffectHandler
         foreach (var effect in item.itemEffects)
         {
             if (effect == null) return BattleItemFailure.Requirements;
-            if (item.blockUseOnKing && projectedType == PieceType.King &&
-                (effect.effectType == BattleItemEffectType.ApplyStatusEffect || effect.effectType == BattleItemEffectType.ChangePiece))
-                return BattleItemFailure.King;
             switch (effect.effectType)
             {
                 case BattleItemEffectType.ChangePiece:
+                    if(projectedType==PieceType.King)return BattleItemFailure.King;
                     if (!ValidChange(effect.changeTargetPieceData, effect.changeTargetPieceType,
                         effect.changeTargetUniqueSkill, effect.changeTargetGeneralSkill)) return BattleItemFailure.Requirements;
                     projectedType = effect.changeTargetPieceData != null ? effect.changeTargetPieceData.pieceType : effect.changeTargetPieceType;
@@ -66,6 +64,15 @@ public partial class BattleItemEffectHandler
             }
         }
         return BattleItemFailure.None;
+    }
+
+    public static bool ChangesPiece(BattleItemData item)
+    {
+        if(item==null)return false;
+        if(!item.useItemEffectList)return item.itemType==BattleItemType.ChangeSelectedPieceToJelluPawn;
+        if(item.itemEffects!=null)foreach(var effect in item.itemEffects)
+            if(effect!=null && effect.effectType==BattleItemEffectType.ChangePiece)return true;
+        return false;
     }
 
     private static bool ValidStatus(StatusEffectData data) =>

@@ -1,0 +1,194 @@
+﻿DEVORYA 2026-10-26 안전 병합 및 아이템 취소 아이콘 수정 보고
+
+1. Git 병합
+대상: 10.26-코덱스-병합-작업
+기준 커밋: 4242996f (사용자가 마지막으로 저장한 업데이트 포함)
+소스: codex/status-effect-restrictions, 기능 커밋 bd6e6d3e
+공통 조상: f3579fa1
+소스의 미커밋 구현 파일 79개를 선별 커밋하여 병합했다.
+관련 없는 사용자 씬/테스트 데이터 13개는 소스 작업 공간에 그대로 보존했다.
+이번 지시서대로 대상 브랜치만 병합한다. 다른 브랜치 자동 동기화와 원격 push는 하지 않았다.
+최종 병합 커밋 해시는 채팅 완료 보고와 이 문서를 포함하는 Git 커밋에서 확인 가능하다.
+
+백업:
+- codex/backup-1026-development: a05f2a40
+- codex/backup-1026-development-final: 4242996f
+- codex/backup-1026-source-head: f3579fa1
+- C:/Users/zntif/.codex/worktrees/status-effect-restrictions/Devorya/Logs/merge-1026/all-uncommitted-before.zip
+  소스의 변경/미추적 파일 전체 백업. ZIP 무결성과 개별 내용 비교 완료.
+
+2. 충돌 해결
+BattleManager.cs:
+개발 브랜치의 행동 시작 시 간파 정보 스냅샷 및 회피 무효화 처리 유지.
+중복 회피 판정은 추가하지 않고 성공한 회피 이동 뒤 Evasion 소모만 결합.
+흡수 방어, 방어/돌파 1회 소비, 공간이동 턴 종료 처리도 통합.
+BattleSkillManager.cs:
+기존 간파의 방어·회피 무효화 조건과 개발 코멘트 유지.
+신규 능력 라우팅 및 데이터베이스 연결만 추가.
+RunStateManager.cs:
+개발 브랜치의 스테이지 시간 강제변경/고정/복구 처리 보존.
+새 런 초기화와 종료 목적지 설정 추가. 이전 종료 스테이지가 None 설정에 남지 않도록 정리.
+자동 병합된 Unique_Skill 3개 언어 테이블도 합성: 강화 항목을 기준 커밋과 비교했다.
+
+3. 최우선 보호: 합성: 강화
+병합 전 개발 데이터와 KR/EN/JA 설명: 돌파 + 회피, 각각 1턴.
+병합 전 개발 런타임 코드는 여전히 돌파 + 방어로 하드코딩되어 있었다.
+코덱스 원본 런타임도 돌파 + 방어였다.
+최종: 실행 코드의 필수 데이터 검사와 실제 부여 대상을 Evasion으로 수정했다.
+새 방어는 부여하지 않는다. 기존에 다른 경로로 보유하던 방어를 삭제하지도 않는다.
+능력 에셋 자체와 GUID, 회피 tooltipSections 연결, 비용 3, 재사용 3턴,
+재료 흡수 애니메이션은 개발 브랜치 그대로 유지했다.
+KR/EN/JA 합성: 강화 설명 항목은 4242996f의 내용을 그대로 보존했다.
+실제 플레이 검사: 양 진영에서 회피+돌파 적용, 방어 미적용, 재료 소모/이동 및 만료 확인.
+합성 강화 검사 36개 통과.
+
+4. 아이템 취소 아이콘 크기 (추가 요청)
+원인: 취소 스프라이트를 기존 200x200 흡수 아이콘 영역에 그대로 표시했다.
+BattleUIController에서 취소 모드만 버튼 짧은 변의 55% 크기로 제한한다.
+Image Simple + Preserve Aspect로 아이콘 종횡비를 유지한다.
+취소 종료 시 기존 sizeDelta, Image 타입, Preserve Aspect를 복원한다.
+씬/프리팹 배치와 기존 스프라이트 참조는 변경하지 않았다.
+Inspector: Battle UI Controller > 아이템 취소 아이콘 크기 비율 (기본 0.55).
+실제 BattleScene 테스트에서 버튼 영역의 60% 이하인지, 종횡비 유지 및 원래 크기 복원을 검사했다.
+버튼의 클릭 영역 자체는 줄이지 않는다.
+
+5. 통합 기능
+- 엔드타이머 종료 목적지 Battle/Event, 이벤트 None, 중복 진입 차단 및 새 런 초기화.
+- 기존 스테이지별 시간 고정/복구와 낮밤 설정 유지.
+- 게임오버에서 런 기물/인벤토리/월드맵/이벤트/컷씬/시간 상태 초기화.
+- 기존 게임오버 연출 소스 및 씬 설정 보존.
+- 아이템 첫 클릭 Select 연출과 타입 아이콘, 두 번째 클릭 확정.
+- 킹 상태효과/해제/추가 이동 허용, 킹 변환 차단. 직렬화 필드 유지.
+- 아이템 선택 확대 및 빨간 아웃라인 유지.
+- 방어하기/회피하기/공간이동/바이러스 및 공간이동 상태 데이터 통합.
+- 바이러스 대상마다 독립 50:50 선택, 선택된 상태만 기존 저항 경로 적용, 바이러스만 2턴.
+- 실제 발동 성공 시 방어/회피/돌파/공간이동 1회 소비.
+- 흡수 방어 특성: 일반 흡수·마무리 흡수 차단 및 기존 방어 반동 연출.
+- 관련 한국어 데이터 및 KR/EN/JA Localization, 기존 의미별 색상 유지.
+
+6. 실제 병합 프로젝트 검증
+실행 위치: C:/Users/zntif/OneDrive/Documents/GitHub/Devorya
+Unity 6000.4.0f1에서 재컴파일 및 Play Mode 실행.
+STATUS_ABILITIES_PLAY_PASS checks=470
+CONSUMPTION_PLAY_PASS checks=47
+Evasion checks PASS: 198
+END_TIMER_REGRESSION_PASS checks=12
+Synthesis checks PASS: 36 (합성 강화 부분)
+RUN_ITEMS_PLAY_PASS checks=54
+기존 BattleItemUXChecks도 호출해 실행. 추가한 취소 아이콘 여백/원상복원 검사 통과.
+실제 BattleScene -> EventScene(None) 및 BattleScene 패배 -> Title 두 번 실행 통과.
+로그:
+- Logs/merge-1026/status-final.log
+- Logs/merge-1026/items.log
+첫 시도 status.log는 과거 SynthesisAbilityChecks의 종족 무관 합성 기대값으로 실패했다.
+개발 브랜치에서 합성은 동일 PieceData ID의 Pawn으로 변경되어 있었다.
+개발 규칙은 변경하지 않고 이번 보호 대상인 강화 검사만 분리해 재실행했다.
+오래된 전체 SynthesisAbilityChecks.Run의 모든 합성 시나리오가 통과했다고 주장하지 않는다.
+
+7. 보존 확인 및 제한
+씬/프리팹/ProjectSettings는 기준 4242996f 대비 변경 없음.
+JelluSynthesisRules, StageBattleData, BattleSetupManager는 기준 커밋과 Git diff 없음.
+변경된 기존 .meta의 GUID 변경 없음. 신규 C#의 .meta 누락 없음.
+파일 삭제 없음. 기존 CP949 등 인코딩을 유지했다.
+Git 공백 검사에는 Unity 생성 신규 .meta의 빈 필드 뒤 공백만 존재한다.
+Unity의 기존 obsolete API/에셋 경고는 남아 있으며 이번 범위에서 일괄 정리하지 않았다.
+PC/모바일 빌드 및 실제 모바일 터치는 실행하지 않았다.
+모든 해상도의 최종 외형과 연출 미감은 수동 확인하지 않았다.
+자동 검증은 실제 코드/씬 경로를 실행했지만 전체 플레이 루프와 모든 AI 조합의 완전 검증은 아니다.
+
+8. 대상 기준 최종 변경 파일 목록 (보고서 자신 제외)
+Assets/Devorya/Data/Item/아이템_1레벨_파란색 점액 파편.asset
+Assets/Devorya/Data/Item/아이템_2레벨_초록색 점액 파편.asset
+Assets/Devorya/Data/Skills/General/특성_데이터베이스.asset
+Assets/Devorya/Data/Skills/General/특성_흡수 방어.asset
+Assets/Devorya/Data/Skills/General/특성_흡수 방어.asset.meta
+Assets/Devorya/Data/Skills/Unique/능력_공간이동.asset
+Assets/Devorya/Data/Skills/Unique/능력_공간이동.asset.meta
+Assets/Devorya/Data/Skills/Unique/능력_데이터베이스.asset
+Assets/Devorya/Data/Skills/Unique/능력_바이러스.asset
+Assets/Devorya/Data/Skills/Unique/능력_바이러스.asset.meta
+Assets/Devorya/Data/Skills/Unique/능력_방어하기.asset
+Assets/Devorya/Data/Skills/Unique/능력_방어하기.asset.meta
+Assets/Devorya/Data/Skills/Unique/능력_회피하기.asset
+Assets/Devorya/Data/Skills/Unique/능력_회피하기.asset.meta
+Assets/Devorya/Data/StatusEffect/상태효과_공간이동.asset
+Assets/Devorya/Data/StatusEffect/상태효과_공간이동.asset.meta
+Assets/Devorya/Data/StatusEffect/상태효과_데이터베이스.asset
+Assets/Devorya/Data/StatusEffect/상태효과_돌파.asset
+Assets/Devorya/Data/StatusEffect/상태효과_방어.asset
+Assets/Devorya/Data/StatusEffect/상태효과_회피.asset
+Assets/Editor/AbsorbGuardSetupChecks.cs
+Assets/Editor/AbsorbGuardSetupChecks.cs.meta
+Assets/Editor/BattleItemUXChecks.cs
+Assets/Editor/ConsumptionChecks.cs
+Assets/Editor/ConsumptionChecks.cs.meta
+Assets/Editor/EvasionChecks.cs
+Assets/Editor/Localization/BattleItemDataEditor.cs
+Assets/Editor/RunItemsChecks.cs
+Assets/Editor/RunItemsChecks.cs.meta
+Assets/Editor/StatusAbilitiesChecks.cs
+Assets/Editor/StatusAbilitiesChecks.cs.meta
+Assets/Editor/StatusAbilitiesSetup.cs
+Assets/Editor/StatusAbilitiesSetup.cs.meta
+Assets/Editor/SynthesisAbilityChecks.cs
+Assets/Localization/StringTables/Battle_Item_en.asset
+Assets/Localization/StringTables/Battle_Item_ja.asset
+Assets/Localization/StringTables/Battle_Item_ko.asset
+Assets/Localization/StringTables/General_Skill Shared Data.asset
+Assets/Localization/StringTables/General_Skill_en.asset
+Assets/Localization/StringTables/General_Skill_ja.asset
+Assets/Localization/StringTables/General_Skill_ko.asset
+Assets/Localization/StringTables/Status_Effect Shared Data.asset
+Assets/Localization/StringTables/Status_Effect_en.asset
+Assets/Localization/StringTables/Status_Effect_ja.asset
+Assets/Localization/StringTables/Status_Effect_ko.asset
+Assets/Localization/StringTables/Unique_Skill Shared Data.asset
+Assets/Localization/StringTables/Unique_Skill_en.asset
+Assets/Localization/StringTables/Unique_Skill_ja.asset
+Assets/Localization/StringTables/Unique_Skill_ko.asset
+Assets/Scripts/Battle/AI/BattleAIActionEvaluator.cs
+Assets/Scripts/Battle/AI/BattleAIActionGenerator.cs
+Assets/Scripts/Battle/BattleEndFlowController.cs
+Assets/Scripts/Battle/BattleManager.ItemTargeting.cs
+Assets/Scripts/Battle/BattleManager.cs
+Assets/Scripts/EventScene/EventSceneController.cs
+Assets/Scripts/Item/BattleItemEffectHandler.Validation.cs
+Assets/Scripts/Item/BattleItemEffectHandler.cs
+Assets/Scripts/Pieces/PieceManager.Teleport.cs
+Assets/Scripts/Pieces/PieceManager.Teleport.cs.meta
+Assets/Scripts/Pieces/RunStateManager.EndDestination.cs
+Assets/Scripts/Pieces/RunStateManager.EndDestination.cs.meta
+Assets/Scripts/Pieces/RunStateManager.cs
+Assets/Scripts/Skill/BattleSkillManager.Reinforcement.cs
+Assets/Scripts/Skill/BattleSkillManager.StatusAbilities.cs
+Assets/Scripts/Skill/BattleSkillManager.StatusAbilities.cs.meta
+Assets/Scripts/Skill/BattleSkillManager.cs
+Assets/Scripts/Skill/GeneralSkillType.cs
+Assets/Scripts/Skill/UniqueSkillData.cs
+Assets/Scripts/Skill/UniqueSkillType.cs
+Assets/Scripts/StatusEffect/StatusEffectType.cs
+Assets/Scripts/Title/ReturnToTitleButton.cs
+Assets/Scripts/Title/TitleMenuController.cs
+Assets/Scripts/UI/BattleItemSlotUI.cs
+Assets/Scripts/UI/BattleUIController.cs
+Assets/Scripts/UI/SlotHoverFeedback.cs
+Assets/Scripts/WorldMap/WorldMapProgressController.cs
+Docs/바이러스_수정_검증보고_2026-10-26.txt
+Docs/상태효과_1회발동_해제_구현보고_2026-10-26.txt
+Docs/신규_능력_공간이동_구현보고_2026-10-25.txt
+Docs/엔드타이머_게임오버_아이템_개선보고_2026-10-26.txt
+
+9. 소스 작업 공간에 별도 보존한 사용자 파일
+Assets/AddressableAssetsData/AddressableAssetSettings.asset
+Assets/Devorya/Data/Battle/PieceFormationData.asset
+Assets/Devorya/Data/Battle/PieceFormationData_DummyTest.asset
+Assets/Devorya/Data/Battle/PieceFormationData_DummyTest.asset.meta
+Assets/Devorya/Data/Battle/StageBattleData test.asset
+Assets/Devorya/Data/Battle/StageBattleData test.asset.meta
+Assets/Devorya/Data/Battle/StageBattleData_Battle.asset
+Assets/Devorya/Data/Piece/PieceData_Dummy/PieceData_Dummy Bishop.asset
+Assets/Devorya/Data/Piece/PieceData_Dummy/PieceData_Dummy King.asset
+Assets/Devorya/Data/Piece/PieceData_Dummy/PieceData_Dummy Knight.asset
+Assets/Devorya/Data/Piece/PieceData_Dummy/PieceData_Dummy Pawn.asset
+Assets/Devorya/Data/Piece/PieceData_Dummy/PieceData_Dummy Rook.asset
+Assets/Scenes/BattleScene.unity

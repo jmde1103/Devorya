@@ -320,6 +320,22 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1511529988314628101
+  - m_Id: 18888465454862336
+    m_Localized: Absorption Guard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18888465559719936
+    m_Localized: Blocks absorption attacks and knocks the attacker back. Also blocks
+      finishing absorption.
+    m_Metadata:
+      m_Items:
+      - rid: 1511529993413328900
+  - m_Id: 18888465563914240
+    m_Localized: Blocks absorption attacks and knocks the attacker back. Also blocks
+      finishing absorption.
+    m_Metadata:
+      m_Items:
+      - rid: 1511529993413328901
   references:
     version: 2
     RefIds:
@@ -598,4 +614,16 @@ MonoBehaviour:
         - text: '{percent}%'
           role: 5
         - text: '[Evasion]'
+          role: 3
+    - rid: 1511529993413328900
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: absorption attacks
+          role: 3
+    - rid: 1511529993413328901
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: absorption attacks
           role: 3

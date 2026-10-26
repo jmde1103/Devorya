@@ -105,10 +105,7 @@ public class BattleItemDataEditor : Editor
             new GUIContent("Only Player Piece")
         );
 
-        EditorGUILayout.PropertyField(
-            serializedObject.FindProperty("blockUseOnKing"),
-            new GUIContent("Block Use On King")
-        );
+        EditorGUILayout.HelpBox("기물 변환 아이템만 킹에게 사용할 수 없습니다. 다른 효과는 기존 조건을 따릅니다.", MessageType.Info);
 
         SerializedProperty list =
             serializedObject.FindProperty("itemEffects");

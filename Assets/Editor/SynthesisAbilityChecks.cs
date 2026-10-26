@@ -96,6 +96,11 @@ public static class SynthesisAbilityChecks
             Check(success&&c.CurrentPieceData.pieceId.StartsWith("Devorya "),"Non-pawn promotion remains same species");
             f.Dispose(); yield return null;
         }
+        yield return RunReinforcement();
+    }
+
+    public static IEnumerator RunReinforcement()
+    {
         foreach(PieceTeam team in new[]{PieceTeam.Player,PieceTeam.Enemy})
         {
             var f=new Fixture(); Piece rook=f.Spawn("Jellu Rook",team,2,2);
@@ -124,6 +129,7 @@ public static class SynthesisAbilityChecks
                 battle=f.root.AddComponent<BattleManager>(); battle.enabled=false;
                 Set(battle,"boardManager",f.board); Set(battle,"pieceManager",f.manager); Set(battle,"battleMoveValidator",f.validator);
                 Set(battle,"battleSkillManager",f.skill); Set(battle,"uniqueSkillDatabase",f.skills); Set(battle,"selectedPiece",rook);
+                Set(battle,"currentPlayerAbilityEnergy",10);
                 battle.UseSelectedPieceSkill();
                 Check((bool)Get(battle,"isActionAnimating"),"Ability starts immediately without target selection");
             }
@@ -132,15 +138,15 @@ public static class SynthesisAbilityChecks
             while(!done&&Time.realtimeSinceStartup<deadline)
             {
                 if(material!=null&&Vector3.Distance(start,material.transform.position)>.01f)moved=true;
-                if(battle!=null&&!(bool)Get(battle,"isActionAnimating")) { done=true; success=rook.HasStatusEffect(StatusEffectType.Defence); }
+                if(battle!=null&&!(bool)Get(battle,"isActionAnimating")) { done=true; success=rook.HasStatusEffect(StatusEffectType.Evasion); }
                 yield return null;
             }
             Check(done&&success&&moved,"Absorption moves material into rook");
             if(battle!=null) Check(rook.GetUniqueSkillCooldown()==3&&!rook.CanUseUniqueSkill(),"Success starts caster cooldown");
             Check(f.manager.GetPieceAt(3,2)==null&&king!=null,"Only selected material removed");
-            Check(rook.HasStatusEffect(StatusEffectType.Defence)&&rook.HasStatusEffect(StatusEffectType.Breakthrough),"Both buffs applied");
-            rook.ReduceActionRestrictionTurnAndRemoveExpired(); Check(rook.HasStatusEffect(StatusEffectType.Defence),"Reinforce survives current turn end");
-            rook.ReduceStatusEffectTurnAndRemoveExpired(); Check(!rook.HasStatusEffect(StatusEffectType.Defence)&&!rook.HasStatusEffect(StatusEffectType.Breakthrough),"Both buffs expire next own turn");
+            Check(!rook.HasStatusEffect(StatusEffectType.Defence)&&rook.HasStatusEffect(StatusEffectType.Evasion)&&rook.HasStatusEffect(StatusEffectType.Breakthrough),"Evasion and breakthrough applied");
+            rook.ReduceActionRestrictionTurnAndRemoveExpired(); Check(rook.HasStatusEffect(StatusEffectType.Evasion),"Reinforce survives current turn end");
+            rook.ReduceStatusEffectTurnAndRemoveExpired(); Check(!rook.HasStatusEffect(StatusEffectType.Evasion)&&!rook.HasStatusEffect(StatusEffectType.Breakthrough),"Both buffs expire next own turn");
             Check(!f.skill.CanUseUniqueSkillEffect(rook),"No remaining valid adjacent material");
             f.Dispose(); yield return null;
         }

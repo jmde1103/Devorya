@@ -366,6 +366,24 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1511529988314628097
+  - m_Id: 18888465454862336
+    m_Localized: "\uD761\uC218 \uBC29\uC5B4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18888465559719936
+    m_Localized: "\uD761\uC218 \uACF5\uACA9\uC744 \uB9C9\uACE0 \uACF5\uACA9\uD55C
+      \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4. \uB9C8\uBB34\uB9AC \uD761\uC218\uB3C4
+      \uB9C9\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529993413328896
+  - m_Id: 18888465563914240
+    m_Localized: "\uD761\uC218 \uACF5\uACA9\uC744 \uB9C9\uACE0 \uACF5\uACA9\uD55C
+      \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4. \uB9C8\uBB34\uB9AC \uD761\uC218\uB3C4
+      \uB9C9\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529993413328897
   references:
     version: 2
     RefIds:
@@ -644,4 +662,16 @@ MonoBehaviour:
         - text: '{percent}%'
           role: 5
         - text: "[\uD68C\uD53C]"
+          role: 3
+    - rid: 1511529993413328896
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uD761\uC218 \uACF5\uACA9"
+          role: 3
+    - rid: 1511529993413328897
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "\uD761\uC218 \uACF5\uACA9"
           role: 3

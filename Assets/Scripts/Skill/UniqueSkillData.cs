@@ -49,6 +49,9 @@ public class UniqueSkillData : ScriptableObject
     public LocalizedString localizedConditionFailMessage =
         new LocalizedString();
 
+    [Header("능력 연출")]
+    [InspectorName("대상 파티클 프리팹 (바이러스)")] public PixelBurstEffect targetPixelBurstPrefab;
+
     [Header("Balance")]
     // <변경부분> 능력의 기본 에너지 코스트.
     // 현재는 플레이어가 능력을 사용할 때만 에너지를 소비한다.

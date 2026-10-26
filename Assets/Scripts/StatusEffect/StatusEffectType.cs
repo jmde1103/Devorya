@@ -31,5 +31,6 @@ public enum StatusEffectType
     [UnityEngine.InspectorName("이동불가")]
     MoveDisabled = 8,
     [UnityEngine.InspectorName("능력봉인")]
-    AbilitySealed = 9
+    AbilitySealed = 9,
+    [UnityEngine.InspectorName("공간이동")] Teleport = 10
 }

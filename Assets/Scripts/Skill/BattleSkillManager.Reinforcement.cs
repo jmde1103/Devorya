@@ -11,7 +11,7 @@ public partial class BattleSkillManager
     {
         return statusEffectDatabase != null &&
             statusEffectDatabase.GetData(StatusEffectType.Breakthrough) != null &&
-            statusEffectDatabase.GetData(StatusEffectType.Defence) != null;
+            statusEffectDatabase.GetData(StatusEffectType.Evasion) != null;
     }
 
     private bool CanReinforce(Piece caster)
@@ -45,7 +45,7 @@ public partial class BattleSkillManager
         // Material consumption is not a combat death and does not trigger death effects.
         pieceManager.RemovePiece(material);
         caster.AddStatusEffect(statusEffectDatabase.GetData(StatusEffectType.Breakthrough), 1);
-        caster.AddStatusEffect(statusEffectDatabase.GetData(StatusEffectType.Defence), 1);
+        caster.AddStatusEffect(statusEffectDatabase.GetData(StatusEffectType.Evasion), 1);
         onComplete?.Invoke(true);
     }
 }

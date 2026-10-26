@@ -78,7 +78,7 @@ public partial class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        if (itemData.blockUseOnKing &&
+        if (ChangesPiece(itemData) &&
             targetPiece.PieceType == PieceType.King)
         {
             Debug.Log("King 기물에는 이 아이템을 사용할 수 없습니다.");
@@ -186,7 +186,7 @@ public partial class BattleItemEffectHandler : MonoBehaviour
             return false;
         }
 
-        if (itemData.blockUseOnKing &&
+        if (ChangesPiece(itemData) &&
             targetPiece.PieceType == PieceType.King)
         {
             Debug.Log(
@@ -321,15 +321,7 @@ public partial class BattleItemEffectHandler : MonoBehaviour
         }
 
         // King 사용 제한 검사
-        if (itemData.blockUseOnKing &&
-            targetPiece.PieceType == PieceType.King)
-        {
-            Debug.Log(
-                "King 기물에는 이 아이템을 사용할 수 없습니다."
-            );
 
-            return false;
-        }
 
         // <변경부분>
         // 효과 목록의 StatusEffectData를 우선 사용한다.

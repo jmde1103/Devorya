@@ -13,7 +13,7 @@ public enum RunDayNightState
     Night = 1
 }
 
-public class RunStateManager : MonoBehaviour
+public partial class RunStateManager : MonoBehaviour
 {
     public static RunStateManager Instance { get; private set; }
 
@@ -533,6 +533,9 @@ public class RunStateManager : MonoBehaviour
         if (!hasPendingTitleTimer) return;
         hasPendingTitleTimer = false;
         var previous = CurrentDayNightState;
+        endTimerDestination=EndTimerDestinationType.Battle;
+        endEventSceneData=null;endEventSceneName="EventScene";
+        endDestinationEntered=false;hasPendingEndEvent=false;pendingEndEvent=null;
 
         // <변경부분> 새로운 런 시작 시 이전 전투의
         // 임시 시간 강제 변경 설정을 모두 해제한다.
@@ -542,7 +545,6 @@ public class RunStateManager : MonoBehaviour
         activeStageEndTimerExitMode =
             StageEndTimerExitMode.RestoreOriginal;
 
-        if (pendingTitleEndStage != null)
         {
             endStageBattleData = pendingTitleEndStage;
             endStageBattleSceneName = string.IsNullOrWhiteSpace(pendingTitleEndScene) ? "BattleScene" : pendingTitleEndScene;
@@ -1008,7 +1010,8 @@ public class RunStateManager : MonoBehaviour
     // <변경부분> 새 런 시작 또는 디버그 초기화용
     public void ClearRunState()
     {
-        WorldMapEventRuntimeState.Clear();
+        ClearTransientRunState();
+        ResetEndDestination();
         // <변경부분>
         // 초기화 전의 낮·밤 상태를 기억해 밤→낮 전환을 알린다.
         RunDayNightState previousDayNightState =

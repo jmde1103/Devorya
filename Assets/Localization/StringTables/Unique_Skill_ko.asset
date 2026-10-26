@@ -165,6 +165,65 @@ MonoBehaviour:
       [\uD3F0]\uC774 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 18842575679655936
+    m_Localized: "\uBC29\uC5B4\uD558\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842575750959104
+    m_Localized: "\uC790\uC2E0\uC5D0\uAC8C [\uBC29\uC5B4]\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405632
+  - m_Id: 18842575755153408
+    m_Localized: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
+      \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778112
+    m_Localized: "\uACF5\uAC04\uC774\uB3D9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778113
+    m_Localized: "\uC790\uC2E0\uC5D0\uAC8C [\uACF5\uAC04\uC774\uB3D9]\uC744 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405633
+  - m_Id: 18842576178778114
+    m_Localized: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
+      \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545216
+    m_Localized: "\uBC14\uC774\uB7EC\uC2A4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545217
+    m_Localized: "\uC0C1\uB300 \uAE30\uBB3C \uC911 \uCD5C\uB300 3\uAC1C\uB97C \uBB34\uC791\uC704\uB85C
+      \uC120\uD0DD\uD558\uC5EC \uAC01 \uAE30\uBB3C\uC5D0 [\uACF5\uACA9\uBD88\uAC00]
+      \uB610\uB294 [\uC774\uB3D9\uBD88\uAC00] \uC911 \uD558\uB098\uB97C \uBB34\uC791\uC704\uB85C
+      \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405634
+  - m_Id: 18842576497545218
+    m_Localized: "\uD6A8\uACFC\uB97C \uBD80\uC5EC\uD560 \uC0C1\uB300 \uAE30\uBB3C\uC774
+      \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146496
+    m_Localized: "\uD68C\uD53C\uD558\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146497
+    m_Localized: "\uC790\uC2E0\uC5D0\uAC8C [\uD68C\uD53C]\uB97C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405635
+  - m_Id: 18842576791146498
+    m_Localized: "\uC870\uAC74\uC774 \uB9DE\uC9C0 \uC54A\uC544 \uC0AC\uC6A9\uD560
+      \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -256,3 +315,31 @@ MonoBehaviour:
           role: 5
         - text: "[\uD3F0]"
           role: 6
+    - rid: 1511529994958405632
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uBC29\uC5B4]"
+          role: 3
+    - rid: 1511529994958405633
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uAC04\uC774\uB3D9]"
+          role: 3
+    - rid: 1511529994958405634
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: "3\uAC1C"
+          role: 5
+    - rid: 1511529994958405635
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD68C\uD53C]"
+          role: 3
