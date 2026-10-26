@@ -781,17 +781,7 @@ public class BattleEndFlowController : MonoBehaviour
         );
 
         // 패배한 런에서 저장된 기물, 금화, 아이템, 유물 데이터를 제거한다.
-        if (RunStateManager.Instance != null)
-        {
-            RunStateManager.Instance.ClearRunState();
-        }
-        else
-        {
-            Debug.LogWarning(
-                "패배 후 런 데이터 초기화 실패: " +
-                "RunStateManager가 없습니다."
-            );
-        }
+        RunStateManager.ResetCurrentRun();
 
         // <변경부분>
         // 기존 전투 씬 재시작 대신 게임오버 연출을 시작한다.
@@ -827,115 +817,12 @@ public class BattleEndFlowController : MonoBehaviour
     // 일반 Battle 승리 흐름을 그대로 진행해야 함.
     private bool TryMoveToEndStageAfterTimerExpired()
     {
-        // 승리했을 때만 엔드 스테이지 강제 진입을 적용한다.
-        //
-        // 패배는 기존 패배 처리 흐름을 그대로 사용한다.
-        if (lastBattleResult !=
-            BattleResult.Win)
-        {
-            return false;
-        }
-
-
-        // <변경부분>
-        // End Timer 상태와 End Stage 설정의 SSOT는
-        // RunStateManager 하나만 사용한다.
-        RunStateManager runStateManager =
-            RunStateManager.Instance;
-
-
-        // RunStateManager가 없거나
-        // 엔드 타이머가 아직 남아 있다면 일반 승리 흐름이다.
-        if (runStateManager == null ||
-            runStateManager.IsEndTimerExpired == false)
-        {
-            return false;
-        }
-
-
-        // 이미 BeginDirectBattle()을 통해 시작된 Battle이라면
-        // 현재 전투가 End Stage이므로 다시 End Stage로 보내지 않는다.
-        if (WorldMapRuntimeState.IsDirectBattle)
-        {
-            return false;
-        }
-
-
-        // <변경부분>
-        // BattleEndFlowController가 별도로 End Stage 설정을
-        // 소유하지 않고 RunStateManager의 공통 설정을 가져온다.
-        StageBattleData targetEndStageBattleData =
-            runStateManager.EndStageBattleData;
-
-        string targetEndStageSceneName =
-            runStateManager.EndStageBattleSceneName;
-
-
-        // 여기까지 왔다면
-        // "승리 + 엔드 타이머 만료"는 이미 확정된 상태다.
-        //
-        // End Stage 설정 오류 때문에 기존 WorldMap으로
-        // 잘못 fallback하지 않도록 현재 이동 흐름을 중단한다.
-        if (targetEndStageBattleData == null)
-        {
-            Debug.LogError(
-                "엔드 스테이지 이동 실패: " +
-                "RunStateManager의 " +
-                "End Stage Battle Data가 연결되지 않았습니다."
-            );
-
-            return true;
-        }
-
-
-        if (string.IsNullOrWhiteSpace(
-                targetEndStageSceneName))
-        {
-            Debug.LogError(
-                "엔드 스테이지 이동 실패: " +
-                "RunStateManager의 " +
-                "End Stage Battle Scene Name이 비어 있습니다."
-            );
-
-            return true;
-        }
-
-
-        // 특정 WorldMap Node에 종속시키지 않고
-        // End Stage의 StageBattleData만 다음 BattleScene에 전달한다.
-        bool directBattleRegistered =
-            WorldMapRuntimeState.BeginDirectBattle(
-                targetEndStageBattleData
-            );
-
-
-        if (directBattleRegistered == false)
-        {
-            Debug.LogError(
-                "엔드 스테이지 이동 실패: " +
-                "End Stage Battle Data 등록에 실패했습니다."
-            );
-
-            return true;
-        }
-
-
-        Debug.Log(
-            $"엔드 타이머 만료: " +
-            $"현재 Battle 보상 정산 완료 후 " +
-            $"End Stage로 이동합니다. / " +
-            $"{targetEndStageBattleData.name} / " +
-            $"{targetEndStageSceneName}"
-        );
-
-
+        if(lastBattleResult!=BattleResult.Win)return false;
+        var run=RunStateManager.Instance;
+        if(run==null || !run.TryPrepareEndDestination(out string scene))return false;
+        if(run.EndTimerDestination==EndTimerDestinationType.Event)WorldMapRuntimeState.MarkBattleWon();
         WorldMapEventRuntimeState.Queue(victoryWorldMapEventData);
-        SceneManager.LoadScene(
-            targetEndStageSceneName
-        );
-
-
-        return true;
+        SceneManager.LoadScene(scene);return true;
     }
 
 

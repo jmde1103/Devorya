@@ -61,9 +61,35 @@ public class BattleSetupManager : MonoBehaviour
     private bool battleUIOriginalInteractable = true;
     private bool battleUIOriginalBlocksRaycasts = true;
 
+    // <변경부분> 이번 전투에서 시간 강제 변경을 적용했는지 기록한다.
+    private bool hasAppliedStageEndTimerOverride = false;
+
     private void Start()
     {
         SetupBattle();
+    }
+
+    // <변경부분> 실제로 전투 씬을 떠날 때 시간 설정을 종료한다.
+    //
+    // 전투가 승리/패배로 끝났더라도
+    // 보상 팝업이나 결과 연출 중에는 현재 시간대를 유지한다.
+    //
+    // Scene 이동으로 BattleSetupManager가 제거되는 시점에
+    // StageBattleData에서 설정한 복구/유지 방식을 적용한다.
+    private void OnDestroy()
+    {
+        if (hasAppliedStageEndTimerOverride == false)
+        {
+            return;
+        }
+
+        if (RunStateManager.Instance != null)
+        {
+            RunStateManager.Instance
+                .EndStageEndTimerOverride();
+        }
+
+        hasAppliedStageEndTimerOverride = false;
     }
 
     // <변경부분>
@@ -189,10 +215,10 @@ public class BattleSetupManager : MonoBehaviour
         }
 
         if (boardManager == null ||
-    pieceManager == null ||
-    battleManager == null ||
-    backgroundManager == null ||
-    battleEndFlowController == null)
+pieceManager == null ||
+battleManager == null ||
+backgroundManager == null ||
+battleEndFlowController == null)
         {
             Debug.LogError(
                 "BattleSetupManager 실패: " +
@@ -201,6 +227,33 @@ public class BattleSetupManager : MonoBehaviour
             );
 
             return;
+        }
+
+        // <변경부분> 스테이지 데이터에서 시간 강제 변경을 요청했다면
+        // 배경을 불러오기 전에 현재 엔드타이머 눈금을 변경한다.
+        //
+        // 일반 스테이지는 기본값이 false이므로
+        // 기존 런의 시간을 그대로 유지한다.
+        if (stageBattleData.forceEndTimerOnStart)
+        {
+            if (RunStateManager.Instance != null)
+            {
+                hasAppliedStageEndTimerOverride =
+                    RunStateManager.Instance
+                        .BeginStageEndTimerOverride(
+                            stageBattleData.forcedEndTimerTick,
+                            stageBattleData.freezeEndTimerDuringBattle,
+                            stageBattleData.endTimerExitMode
+                        );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "스테이지 시간 강제 변경 실패: " +
+                    "RunStateManager가 존재하지 않습니다.",
+                    this
+                );
+            }
         }
 
         battleManager.SetStageName(

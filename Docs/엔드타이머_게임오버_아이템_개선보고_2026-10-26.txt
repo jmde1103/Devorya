@@ -1,0 +1,127 @@
+﻿DEVORYA 엔드타이머·게임오버·전투 아이템 개선 보고
+작성일: 2026-10-26
+작업 브랜치: codex/status-effect-restrictions
+작업 기준 커밋: f3579fa1 + 기존 미커밋 능력/바이러스/상태효과 작업
+다른 브랜치에 커밋·병합하지 않았습니다.
+
+1. 실제 원인과 초기화
+패배 처리 HandleBattleLose는 RunStateManager.ClearRunState만 호출했고, 이 함수는 WorldMapEventRuntimeState 외 월드맵 static 기록을 지우지 않았습니다.
+수동 타이틀 복귀에는 별도로 WorldMapRuntimeState.Clear 및 TextCutsceneRuntimeState.Clear가 있어 종료 경로마다 결과가 달랐습니다.
+타이틀 OnTutorialChosen도 이전 월드맵 기록을 정리하지 않고 새 타이머/컷씬만 설정했습니다.
+
+ResetCurrentRun을 공통 진입점으로 추가하고 ClearRunState가 전체 런 종속 static 데이터도 정리하도록 연결했습니다.
+패배, 수동 타이틀 복귀, 타이틀의 새 게임 확정에 적용합니다. 승리 보상/일반 씬 전환에는 호출하지 않습니다.
+정리 대상: 기물/아이템/유물/골드, 현재 노드/클리어/해금, 포그 탐색/미리보기, 이벤트 방문/완료와 대기 데이터, 상점 방문/재고/구매 기록, 전투 결과/대기 데이터, 컷씬 및 스킵 목적지, 월드맵 이벤트, 임시 스테이지 타이머, 최종 목적지/진입 기록, Time.timeScale.
+런 데이터만 지우고 게임오버 오브젝트·카메라·코루틴은 파괴하지 않습니다. BattleGameOverSequence 연출 코드는 수정하지 않았습니다.
+반복 호출은 안전합니다. 기존 에디터 전용 상점 테스트 골드 옵션은 유지합니다(기본 꺼짐).
+Localization 관리자와 포인터 레이캐스트 캐시는 런 진행 데이터가 아니므로 제거하지 않습니다.
+
+2. 엔드타이머 종료 목적지
+TitleMenuController에 '엔드타이머 종료 후 이동 유형', '종료 이벤트 데이터', '종료 이벤트 씬 이름'을 추가했습니다.
+기본값은 전투 스테이지입니다. 기존 endStageBattleData/endStageBattleSceneName과 기존 4인자 SetNewRunEndTimer API를 보존했습니다.
+전투 선택: 기존 전투 데이터/씬 이름을 사용합니다.
+이벤트 선택: EventSceneData와 이벤트 씬 이름을 사용하며 데이터 None도 유효합니다.
+실제 목적지와 진입 기록은 RunStateManager가 보유합니다.
+WorldMapProgressController 및 BattleEndFlowController는 같은 TryPrepareEndDestination을 호출합니다.
+전투 중 만료 시에는 기존 보상 확인 후 MoveToMapScene에서 이동합니다. 전투를 즉시 중단시키지 않습니다.
+이벤트 진입 시 현재 전투 승리 기록을 남겨 월드맵 복귀 후 해당 노드를 다시 전투하는 일이 없도록 했습니다.
+엔드 이벤트 진입 기록은 일반 노드 기록과 별도로 보유하며 이후 복귀 시 재진입하지 않습니다.
+새 런 및 게임오버 초기화 시 목적지 기록도 제거합니다.
+로드 불가 씬은 오류를 기록하고 진입 완료로 표시하지 않습니다.
+
+3. 명시적인 이벤트 데이터 None
+일반 대기 이벤트가 없는 상황과 '종료 이벤트 데이터를 명시적으로 None으로 설정'한 상황을 bool+payload로 구분합니다.
+EventSceneController는 명시적인 종료 전달을 먼저 소비합니다.
+None이면 hasStarted를 설정하고 기본 씬 화면을 유지하며 배경 교체/시퀀스 실행을 생략합니다.
+일반 이벤트/상점/단독 EventScene의 기존 Inspector fallback은 그대로 유지합니다.
+
+4. 스테이지별 타이머 고정 보존
+조사 당시 고정 기능은 개발 작업 폴더에만 있고 코덱스 작업 트리에는 없었습니다.
+관련 차이가 타이머 확장뿐임을 비교한 뒤 RunStateManager, StageBattleData, BattleSetupManager의 해당 개발 코드를 코덱스 작업에 반영했습니다.
+개발 작업 폴더 원본은 수정하지 않았습니다.
+24눈금, 진입 눈금 지정, 전투 중 시간 고정, 종료 시 원래 시간 복구/변경 시간 유지 규칙을 보존합니다.
+초기화는 이전 임시 고정을 해제하며, 씬 종료 OnDestroy가 초기화한 과거 시간을 되살리지 않도록 활성 플래그도 해제합니다.
+
+5. 아이템 대상 첫 선택
+BattleManager.ItemTargeting에서 첫 유효 대상 클릭 시 기존 ShowOnlySelectedPieceTypeIcon과 PlayPieceSelectAnimation을 재사용합니다.
+대상 변경/취소/적용 전에는 기존 Deselect 연출과 타입 표시를 정리합니다.
+일반 SelectPiece의 이동 경로 표시/공격 처리 전체를 호출하지 않으므로 아이템 선택을 이유로 이동·공격하지 않습니다.
+두 번째 클릭 확정, 실제 성공 시 소비, 실패 시 기존 유지/안내, 인벤토리 변경 감지는 보존합니다.
+
+6. 킹 아이템 제한
+기존 blockUseOnKing 검사가 검증과 실제 효과 처리 여러 곳에서 모든 효과를 차단했습니다.
+상태 부여/해제 및 추가 이동은 킹이라는 이유로 막지 않도록 변경했습니다. 다른 사용 조건은 유지합니다.
+사용자 확인에 따라 기물 변환 아이템만 킹에 사용 불가로 유지합니다.
+변환 아이템으로 킹 타입을 없애면 기존 타입 기반 승패 판정과 충돌하므로 타입을 바꾸지 않고 실패하며 소비하지 않습니다.
+직렬화 호환성을 위해 blockUseOnKing 필드는 보존하지만 기존 범용 차단 기능은 사용하지 않습니다. Inspector의 낡은 토글 대신 현재 규칙 안내를 표시합니다.
+파란색/초록색 점액 파편 설명에 킹 사용 불가를 3개 언어로 추가했습니다.
+
+7. 선택 확대/빨간 아웃라인
+실제 선택 소유자는 기존 BattleManager.targetItemSlot입니다. 슬롯은 해당 상태만 반영합니다.
+SlotHoverFeedback의 기존 Outline과 확대 애니메이션을 재사용하며 selected > hover > 기본 우선순위로 배율을 정합니다.
+마우스 이탈은 hover만 해제하며 선택 확대/빨간 Outline을 해제하지 않습니다.
+BattleItemSlotUI에 선택 확대 배율(기본 1.06)을 추가했습니다. 기존 선택 아웃라인 색상/점멸 속도 설정은 유지합니다.
+새 Canvas/카메라/셰이더/레이캐스트 이미지를 만들지 않습니다. 읽기 전용 슬롯은 선택 강조를 무시합니다.
+
+8. 수정/추가 C#
+Assets/Scripts/Pieces/RunStateManager.cs
+Assets/Scripts/Pieces/RunStateManager.EndDestination.cs (+ .meta, 신규)
+Assets/Scripts/Battle/StageBattleData.cs
+Assets/Scripts/Battle/BattleSetupManager.cs
+Assets/Scripts/Title/TitleMenuController.cs
+Assets/Scripts/Title/ReturnToTitleButton.cs
+Assets/Scripts/Battle/BattleEndFlowController.cs
+Assets/Scripts/WorldMap/WorldMapProgressController.cs
+Assets/Scripts/EventScene/EventSceneController.cs
+Assets/Scripts/Battle/BattleManager.ItemTargeting.cs
+Assets/Scripts/Item/BattleItemEffectHandler.cs
+Assets/Scripts/Item/BattleItemEffectHandler.Validation.cs
+Assets/Scripts/UI/SlotHoverFeedback.cs
+Assets/Scripts/UI/BattleItemSlotUI.cs
+Assets/Editor/Localization/BattleItemDataEditor.cs
+Assets/Editor/BattleItemUXChecks.cs
+Assets/Editor/RunItemsChecks.cs (+ .meta, 신규)
+Assets/Editor/StatusAbilitiesChecks.cs
+기존 CP949/UTF-8 및 줄바꿈을 보존하여 수정했습니다.
+
+9. 데이터/씬/프리팹 및 연결
+기존 씬과 프리팹 파일은 직접 수정하지 않았습니다. 새 필드는 코드 기본값을 사용합니다.
+타이틀에서 종료 이동 유형을 선택하고 해당 데이터/씬 이름을 지정하면 됩니다.
+변환 아이템 2개의 description 및 기존 아이템 Localization 테이블 ko/en/ja 설명을 갱신했습니다. 키/GUID/아이콘/효과/슬롯 연결은 유지합니다.
+선택 피드백은 기존 슬롯 초기화에서 연결되므로 수동 컴포넌트 추가는 필요 없습니다.
+
+10. 실제 등록된 번역
+아이템_1레벨_파란색 점액 파편 | item.8e0640762141b5e4d8d4af031c650eeb.description | ko | 선택한 아군 기물을 젤루 [폰]으로 변형합니다. [킹]에게는 사용할 수 없습니다.
+아이템_1레벨_파란색 점액 파편 | item.8e0640762141b5e4d8d4af031c650eeb.description | en | Transforms the selected allied piece into a Jellu [Pawn]. Cannot be used on a [King].
+아이템_1레벨_파란색 점액 파편 | item.8e0640762141b5e4d8d4af031c650eeb.description | ja | 選択した味方の駒をゼル［ポーン］に変形させます。 ［キング］には使用できません。
+아이템_2레벨_초록색 점액 파편 | item.97d7d945a1cfee64290ec7033ee49074.description | ko | 선택한 아군 기물을 젤루 [나이트]로 변형한 뒤, [공격불가]를 1턴 동안 부여합니다. [킹]에게는 사용할 수 없습니다.
+아이템_2레벨_초록색 점액 파편 | item.97d7d945a1cfee64290ec7033ee49074.description | en | Transforms the selected allied piece into a Jellu [Knight], then applies [Attack Disabled] for 1 turn. Cannot be used on a [King].
+아이템_2레벨_초록색 점액 파편 | item.97d7d945a1cfee64290ec7033ee49074.description | ja | 選択した味方の駒をゼル［ナイト］に変形させ、その後［攻撃不可］を1ターン付与します。 ［キング］には使用できません。
+
+11. 검증 기록
+Logs/run-items.log: RUN_ITEMS_PLAY_PASS checks=50.
+실제 BattleScene을 로드하여 기존 BattleItemUXChecks를 포함한 아이템 대상/소비/슬롯압축/취소/읽기전용/일반 이동·공격 검증을 실행했습니다.
+킹 상태 부여 허용과 변환 거부, 커서 이탈 후 선택 확대/빨간 Outline 유지, 해제 복원을 확인했습니다.
+런 리셋 반복, 노드/대기 이벤트/컷씬 초기화, 인벤토리 비움, 새 타이머 적용, 임시 고정 및 원래 시간 복구를 확인했습니다.
+실제 EventScene을 로드하여 명시적인 None이 Inspector fallback을 막는 것을 확인했습니다.
+실제 BattleScene 패배 처리 → 기존 GameOver 연출 → Title 도달을 2회 반복하고 초기화 상태를 확인했습니다.
+타이틀 복귀 후 새 런 타이머 적용도 확인했습니다.
+Logs/run-items-regression.log: STATUS_ABILITIES_PLAY_PASS checks=470, CONSUMPTION_PLAY_PASS checks=47, Evasion checks PASS: 198, END_TIMER_REGRESSION_PASS checks=12.
+고정 타이머 중 실제 EndTurn/공간이동, 기본 전투 목적지, 잘못된 씬 미소모, 포그·상점 사전 기록 삭제, 원래 시간 복구 및 변경 시간 유지 검증 통과.
+Logs/run-items-final.log: RUN_ITEMS_PLAY_PASS checks=54.
+킹 첫 클릭 선택/미소비, 두 번째 클릭 효과/1회 소비/킹 타입 유지, 복합 변환 목록의 부분 적용 방지, 변환 후 상태 부여 허용을 추가 확인했습니다. 실제 게임오버→타이틀 2회 반복도 최종 실행에서 다시 통과했습니다.
+최종 컴파일 오류 및 테스트 예외 없음. git diff --check 통과.
+
+12. 수동 확인 및 검증 한계
+자동 테스트는 실제 씬 로드/게임오버 연출을 사용했지만, 월드맵의 여러 노드를 직접 클릭하고 상점에서 구매한 뒤 패배하는 전체 수동 여정과 동일하지는 않습니다.
+노드/포그/상점 런타임 기록의 초기화는 테스트 데이터로 검증합니다. 실제 상점 UI 구매부터 이어지는 전 과정은 수동 확인이 필요합니다.
+타이틀 버튼을 클릭해 부팅 컷씬·튜토리얼 전체를 끝내는 시나리오, 전투 승리 보상창에서 여러 보상을 수령한 뒤 엔드 이벤트 진입하는 전 과정은 별도 수동 확인이 필요합니다.
+데이터 있는 엔드 이벤트는 전달을 확인했으며, 모든 이벤트 데이터 콘텐츠의 연출 완료까지 확인한 것은 아닙니다.
+모바일 실기기 터치/PC 실행 파일 빌드 및 화면상 연출의 품질은 미검증입니다. 공통 SelectTile 경로와 UI PointerExit 상태를 자동 검증했습니다.
+검증 씬의 일부 상태 아이콘 Animator 미연결 경고는 기존과 동일하며 해당 애니메이션 외형은 수동 확인이 필요합니다.
+
+13. 남은 주의사항
+새 엔드 목적지 설정은 RunStateManager에 적용되며 씬 이름은 Build Profiles에 등록되어 있어야 합니다.
+유효하지 않은 씬 이름은 진입을 완료 처리하지 않습니다. 기존 목적지 이동 흐름이 이어질 수 있으므로 Inspector 설정을 확인해야 합니다.
+킹 변환 아이템은 이번 사용자 결정에 따라 명시적으로 금지됩니다. 킹 타입을 보존한 외형/이동 패턴 변환 기능은 추가하지 않았습니다.
+이전 능력/바이러스/1회 발동 상태효과 작업과 사용자 미커밋 데이터는 함께 보존했습니다.

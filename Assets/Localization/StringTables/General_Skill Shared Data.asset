@@ -255,6 +255,18 @@ MonoBehaviour:
     m_Key: general.evasion_stance.tooltip
     m_Metadata:
       m_Items: []
+  - m_Id: 18888465454862336
+    m_Key: general.absorb_guard.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18888465559719936
+    m_Key: general.absorb_guard.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18888465563914240
+    m_Key: general.absorb_guard.tooltip
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

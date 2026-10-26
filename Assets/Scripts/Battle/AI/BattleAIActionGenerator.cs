@@ -212,6 +212,12 @@ public class BattleAIActionGenerator
 
         switch (actingPiece.UniqueSkill)
         {
+            case UniqueSkillType.GuardSelf:
+            case UniqueSkillType.TeleportSelf:
+            case UniqueSkillType.Virus:
+            case UniqueSkillType.EvadeSelf:
+                results.Add(BattleAIAction.CreateUniqueSkill(actingPiece));
+                break;
             case UniqueSkillType.JelluReinforce:
                 var reinforcementMaterials = new List<Piece>();
                 JelluSynthesisRules.FillReinforcementMaterials(actingPiece, boardManager, pieceManager, reinforcementMaterials);

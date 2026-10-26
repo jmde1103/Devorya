@@ -1,0 +1,153 @@
+﻿DEVORYA 신규 능력 및 공간이동 상태효과 구현 보고
+작성일: 2026-10-25
+작업 경로: C:/Users/zntif/.codex/worktrees/status-effect-restrictions/Devorya
+브랜치: codex/status-effect-restrictions
+상태: 구현 및 Unity 자동 플레이 검증 완료. 커밋/병합은 하지 않음.
+
+1. 구현 내용
+- 방어하기: 비용 3. 자신에게 [방어]를 부여합니다.
+- 공간이동: 비용 2. 자신에게 [공간이동]을 부여합니다.
+- 바이러스: 비용 3. 상대 기물 중 무작위로 최대 3개를 선택하여 [공격불가]와 [이동불가]를 각각 1턴 동안 부여합니다.
+- 회피하기: 비용 2. 자신에게 [회피]를 부여합니다.
+- 상태효과 공간이동: 자신의 턴이 종료되면 필드의 빈 타일 중 한 곳으로 무작위 이동합니다.
+방어/회피/공간이동은 각 상태 데이터의 지속 시간을 사용하며 현재 모두 1턴입니다. 바이러스는 두 효과에 각각 1턴을 명시합니다.
+
+2. 처리 순서와 재사용
+바이러스: 사용 기물 Select → 중복 없는 상대 최대 3개 선택 → 각 대상 위치에 BlackPixelBurstEffect 2 동시 재생 → 모든 파티클 종료 대기 → 각 대상에 공격불가/이동불가 독립 부여.
+기존 PixelBurstEffect와 실제 프리팹을 연결했습니다. 원본 프리팹은 변경하지 않고 생성된 파티클의 반복만 끕니다.
+상태 부여는 기존 AddStatusEffect를 사용하므로 개별 저항을 적용합니다. 대상이 없으면 실패하며 에너지를 소비하지 않습니다.
+공간이동: 해당 팀 턴 종료 → 대상별 Select → 0.2초 페이드아웃 → 빈 타일로 같은 기물 이동 → 기존 Born → Idle → 다음 턴.
+이동 가능한 빈 타일이 없으면 건너뜁니다. 기물을 새로 생성하지 않으므로 팀/종류/특성/다른 상태를 유지합니다. 일반 이동의 공격/보너스 이동 처리를 호출하지 않습니다.
+턴 종료 이동 중 입력을 잠그고 모든 이동 완료 후 다음 턴으로 진행합니다. 취소 시 투명도를 복구합니다.
+기존 에너지, 실패 안내, 능력봉인, 추가 이동 제한, 툴팁 섹션, AI 후보/점수 구조를 재사용했습니다.
+간파의 기존 방어 취소 경로를 회피에도 연결했습니다. 실제 회피 성공 판정 시 간파가 성공하면 회피를 취소합니다.
+
+3. Inspector 설정
+기물의 고유 능력에서 방어하기/공간이동/바이러스/회피하기를 선택합니다.
+각 능력 데이터에서 비용과 기존 사용 제한 설정을 조정할 수 있습니다.
+능력_바이러스의 '대상 파티클 프리팹 (바이러스)'에는 기존 BlackPixelBurstEffect 2가 연결되어 있습니다.
+방어/회피/공간이동 지속 시간을 바꾸려면 해당 상태효과 데이터의 지속 턴을 수정합니다.
+툴팁 하단 상태 설명은 능력 데이터의 기존 tooltipSections에 연결했습니다.
+공간이동 아이콘은 기존 증식 이미지를 임시 사용합니다. 바이러스는 공격불가 아이콘을 사용합니다. 각 데이터에서 교체할 수 있습니다.
+Inspector와 데이터 이름은 한글, 런타임 생성 오브젝트 이름은 영문입니다. 기존 enum 값은 유지하고 끝에 추가했습니다.
+
+4. 이번 작업의 소스 파일
+수정:
+Assets/Scripts/Skill/UniqueSkillType.cs
+Assets/Scripts/StatusEffect/StatusEffectType.cs
+Assets/Scripts/Skill/UniqueSkillData.cs
+Assets/Scripts/Skill/BattleSkillManager.cs
+Assets/Scripts/Battle/BattleManager.cs
+Assets/Scripts/Battle/AI/BattleAIActionGenerator.cs
+Assets/Scripts/Battle/AI/BattleAIActionEvaluator.cs
+신규 (+ 각 .meta):
+Assets/Scripts/Skill/BattleSkillManager.StatusAbilities.cs
+Assets/Scripts/Pieces/PieceManager.Teleport.cs
+Assets/Editor/StatusAbilitiesSetup.cs
+Assets/Editor/StatusAbilitiesChecks.cs
+Setup은 에셋/번역 등록용 개발 도구이며 게임 실행 중 자동 재등록하지 않습니다. 재실행하면 신규 데이터의 기본 문구/비용을 다시 설정하므로 수동 편집 후에는 주의해야 합니다.
+
+5. 데이터 및 Localization
+신규 (+ 각 .meta):
+Assets/Devorya/Data/Skills/Unique/능력_방어하기.asset
+Assets/Devorya/Data/Skills/Unique/능력_공간이동.asset
+Assets/Devorya/Data/Skills/Unique/능력_바이러스.asset
+Assets/Devorya/Data/Skills/Unique/능력_회피하기.asset
+Assets/Devorya/Data/StatusEffect/상태효과_공간이동.asset
+수정: 능력_데이터베이스.asset, 상태효과_데이터베이스.asset
+수정: Assets/Localization/StringTables 아래 Unique_Skill 및 Status_Effect의 Shared Data, ko, en, ja 테이블.
+기존 키를 유지하고 신규 키를 추가했습니다. 유리한 효과/불리한 효과/수치에 기존 의미별 색상 메타데이터를 적용했습니다.
+아래 영어/일본어 신규 번역은 구현용 초안이며 기존 용어집을 따랐습니다.
+
+[Unique_Skill]
+unique_skill.guard_self.name
+KO 방어하기
+EN Defend
+JA 防御する
+unique_skill.guard_self.description
+KO 자신에게 [방어]를 부여합니다.
+EN Grants [Defense] to itself.
+JA 自身に［防御］を付与します。
+
+unique_skill.teleport_self.name
+KO 공간이동
+EN Teleportation
+JA 空間移動
+unique_skill.teleport_self.description
+KO 자신에게 [공간이동]을 부여합니다.
+EN Grants [Teleportation] to itself.
+JA 自身に［空間移動］を付与します。
+
+unique_skill.virus.name
+KO 바이러스
+EN Virus
+JA ウイルス
+unique_skill.virus.description
+KO 상대 기물 중 무작위로 최대 3개를 선택하여 [공격불가]와 [이동불가]를 각각 1턴 동안 부여합니다.
+EN Randomly selects up to 3 enemy pieces and inflicts [Attack Disabled] and [Move Disabled] on each for 1 turn.
+JA 相手の駒をランダムで最大3体選び、それぞれに［攻撃不可］と［移動不可］を1ターン付与します。
+
+unique_skill.evade_self.name
+KO 회피하기
+EN Evade
+JA 回避する
+unique_skill.evade_self.description
+KO 자신에게 [회피]를 부여합니다.
+EN Grants [Evasion] to itself.
+JA 自身に［回避］を付与します。
+
+unique_skill.guard_self.condition_fail
+unique_skill.teleport_self.condition_fail
+unique_skill.evade_self.condition_fail
+KO 조건이 맞지 않아 사용할 수 없습니다.
+EN The conditions are not met, so this skill cannot be used.
+JA 使用条件を満たしていないため、使用できません。
+
+unique_skill.virus.condition_fail
+KO 효과를 부여할 상대 기물이 없습니다.
+EN There are no enemy pieces to affect.
+JA 効果を付与できる相手の駒がいません。
+
+[Status_Effect]
+status_effect.teleport.name
+KO 공간이동
+EN Teleportation
+JA 空間移動
+status_effect.teleport.description
+KO 자신의 턴이 종료되면 필드의 빈 타일 중 한 곳으로 무작위 이동합니다.
+EN At the end of its team’s turn, moves to a random empty tile on the field.
+JA 自分のターン終了時、フィールドの空いているマスのいずれかにランダムで移動します。
+
+6. 실제 실행 검증
+Unity 6000.4.0f1에서 별도 빈 검증 씬을 사용해 실제 기물/보드와 코루틴을 실행했습니다.
+- Logs/status-abilities.log: 등록 및 1차 플레이 통과.
+- Logs/status-abilities-regression.log: STATUS_ABILITIES_PLAY_PASS checks=210.
+- 4개 능력 비용, 에너지 부족 차단, 성공 시 비용 소비.
+- 능력봉인/추가 이동 중 사용 차단.
+- 양 팀 바이러스 대상 0/1/2/5개에서 최대 3개 선택 및 상태 지속.
+- 바이러스 파티클 동시 생성과 종료 전 상태 미부여, 종료 후 부여.
+- 두 저항의 독립 판정 100개 시드 비교.
+- 대상 없는 바이러스 실패 시 에너지 유지.
+- 양 팀 공간이동, 복수 대상 충돌 방지, 기존 상태 유지, 목적지 없는 경우 유지.
+- 실제 EndTurn 호출의 입력 잠금 및 다음 턴 전환 순서.
+- 이동 취소 시 위치 및 투명도 복구.
+- 간파 확률 0/100에서 방어와 회피 상호작용.
+- 기존 EvasionChecks 회피 회귀 검증 함께 실행.
+- 3개 언어 신규 이름/설명 및 의미별 색상 확인.
+- git diff --check 검사: 오류 없음. 기존 저장 방식에 따른 LF/CRLF 안내는 있음.
+
+7. 검증하지 않은 범위
+PC/모바일 실행 파일 빌드, 실제 기기 입력, 모든 해상도의 UI 육안 확인은 수행하지 않았습니다.
+AI 후보와 점수는 연결했지만 완전한 실제 스테이지의 AI 대전 전체를 자동 검증한 것은 아닙니다.
+실제 씬 전환/게임 종료의 모든 조합은 미검증이며 취소 콜백 및 복구 경로를 검증했습니다.
+애니메이션 코루틴 순서는 검증했지만 연출의 미감과 화면상 자연스러움은 사용자 플레이 확인이 필요합니다.
+
+8. 보존 및 위험 범위
+기존 방어/회피 데이터의 지속 규칙과 기존 enum 값/GUID를 유지했습니다.
+기존 입력/턴 전환/공격 판정과 맞닿는 변경이므로 실제 스테이지에서 기존 능력과 함께 확인하는 것이 좋습니다.
+씬/프리팹 원본, URP 2D 설정은 수정하지 않았습니다. Spine은 프로젝트의 기존 Select/Born/Idle 경로와 색상 API를 사용합니다.
+이전 미커밋 '흡수 방어' 작업은 그대로 보존되어 있으며 공유 BattleManager 변경도 함께 작업 트리에 있습니다. 해당 특성/General_Skill 변경은 이번 신규 능력 작업과 구분해야 합니다.
+
+9. 전달 상태
+코덱스 전용 브랜치에 구현과 검증용 파일, 데이터, 번역이 저장되어 있습니다.
+메인 10.24-코덱스-병합-작업-2차에 병합하지 않았으며 새 커밋/PR도 만들지 않았습니다.

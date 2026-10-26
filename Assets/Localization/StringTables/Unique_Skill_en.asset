@@ -143,6 +143,59 @@ MonoBehaviour:
     m_Localized: There is no adjacent allied [Pawn] that can be absorbed.
     m_Metadata:
       m_Items: []
+  - m_Id: 18842575679655936
+    m_Localized: Defend
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842575750959104
+    m_Localized: Grants [Defense] to itself.
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405636
+  - m_Id: 18842575755153408
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778112
+    m_Localized: Teleportation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778113
+    m_Localized: Grants [Teleportation] to itself.
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405637
+  - m_Id: 18842576178778114
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545216
+    m_Localized: Virus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545217
+    m_Localized: Randomly selects up to 3 enemy pieces and inflicts either [Attack
+      Disabled] or [Move Disabled] on each.
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405638
+  - m_Id: 18842576497545218
+    m_Localized: There are no enemy pieces to affect.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146496
+    m_Localized: Evade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146497
+    m_Localized: Grants [Evasion] to itself.
+    m_Metadata:
+      m_Items:
+      - rid: 1511529994958405639
+  - m_Id: 18842576791146498
+    m_Localized: The conditions are not met, so this skill cannot be used.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -232,3 +285,31 @@ MonoBehaviour:
           role: 5
         - text: '[Pawn]'
           role: 6
+    - rid: 1511529994958405636
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Defense]'
+          role: 3
+    - rid: 1511529994958405637
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Teleportation]'
+          role: 3
+    - rid: 1511529994958405638
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: '[Move Disabled]'
+          role: 4
+        - text: 3 enemy pieces
+          role: 5
+    - rid: 1511529994958405639
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Evasion]'
+          role: 3

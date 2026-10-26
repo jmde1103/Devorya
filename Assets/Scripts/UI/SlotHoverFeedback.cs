@@ -12,8 +12,9 @@ public sealed class SlotHoverFeedback : MonoBehaviour, IPointerEnterHandler, IPo
     bool selected;
     Color selectedColor;
     float selectedSpeed;
-    public void SetSelected(bool value, Color color, float pulseSpeed)
-    { selected=value; selectedColor=color; selectedSpeed=pulseSpeed; }
+    float selectionScale;
+    public void SetSelected(bool value, Color color, float pulseSpeed, float scale = 1.06f)
+    { selected=value; selectedColor=color; selectedSpeed=pulseSpeed; selectionScale=scale; }
     Outline outline;
     Vector3 baseScale;
     bool initialized, hovered, available = true;
@@ -40,7 +41,7 @@ public sealed class SlotHoverFeedback : MonoBehaviour, IPointerEnterHandler, IPo
         // Opening animation owns the transform until it finishes.
         var opening=GetComponent<PopupOpenAnimator>();
         if(opening!=null&&opening.IsPlaying)return;
-        transform.localScale=Vector3.Lerp(transform.localScale,baseScale*(hovered?hoverScale:1),1-Mathf.Exp(-speed*Time.unscaledDeltaTime));
+        transform.localScale=Vector3.Lerp(transform.localScale,baseScale*(selected?selectionScale:hovered?hoverScale:1),1-Mathf.Exp(-speed*Time.unscaledDeltaTime));
         if(outline!=null){outline.enabled=(hovered||selected)&&available;
             var color=selected?selectedColor:outlineColor;
             if(selected)color.a*=.45f+.55f*(.5f+.5f*Mathf.Sin(Time.unscaledTime*selectedSpeed*Mathf.PI*2));

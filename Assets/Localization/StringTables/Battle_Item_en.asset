@@ -42,7 +42,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15233646059982848
-    m_Localized: Transforms the selected allied piece into a Jellu [Pawn].
+    m_Localized: Transforms the selected allied piece into a Jellu [Pawn]. Cannot
+      be used on a [King].
     m_Metadata:
       m_Items:
       - rid: 1511529964079153157
@@ -52,7 +53,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 15233677404016641
     m_Localized: Transforms the selected allied piece into a Jellu [Knight], then
-      applies [Attack Disabled] for 1 turn.
+      applies [Attack Disabled] for 1 turn. Cannot be used on a [King].
     m_Metadata:
       m_Items:
       - rid: 1511529955060351108
@@ -124,6 +125,8 @@ MonoBehaviour:
           role: 5
         - text: '[Knight]'
           role: 6
+        - text: '[King]'
+          role: 6
     - rid: 1511529955060351109
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -163,4 +166,6 @@ MonoBehaviour:
       data:
         spans:
         - text: '[Pawn]'
+          role: 6
+        - text: '[King]'
           role: 6

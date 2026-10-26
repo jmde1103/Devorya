@@ -123,6 +123,13 @@ public class TitleMenuController : MonoBehaviour
     [Header("엔드 스테이지")]
     [SerializeField, InspectorName("엔드 스테이지 전투 데이터")]
     private StageBattleData endStageBattleData;
+    [SerializeField, InspectorName("엔드타이머 종료 후 이동 유형")]
+    private EndTimerDestinationType endTimerDestination;
+    [SerializeField, InspectorName("종료 이벤트 데이터")]
+    private EventSceneData endEventSceneData;
+    [SerializeField, InspectorName("종료 이벤트 씬 이름")]
+    private string endEventSceneName = "EventScene";
+
     [SerializeField, InspectorName("엔드 스테이지 씬 이름")]
     private string endStageBattleSceneName = "BattleScene";
     private bool isChoosingTutorial;
@@ -292,7 +299,8 @@ public class TitleMenuController : MonoBehaviour
     {
         if (isLoadingScene) return;
         isChoosingTutorial = false;
-        RunStateManager.SetNewRunEndTimer(initialEndTimerCycles, initialEndTimerTick, endStageBattleData, endStageBattleSceneName);
+        RunStateManager.ResetCurrentRun();
+        RunStateManager.SetNewRunEndTimer(initialEndTimerCycles, initialEndTimerTick, endStageBattleData, endStageBattleSceneName, endTimerDestination, endEventSceneData, endEventSceneName);
         TextCutsceneRuntimeState.SetPendingCutsceneData(
             bootCutsceneData, playTutorial ? null : skipTutorialSceneName,
             playTutorial ? null : skipEventSceneData,

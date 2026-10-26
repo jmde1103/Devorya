@@ -13,7 +13,7 @@ public enum RunDayNightState
     Night = 1
 }
 
-public class RunStateManager : MonoBehaviour
+public partial class RunStateManager : MonoBehaviour
 {
     public static RunStateManager Instance { get; private set; }
 
@@ -132,6 +132,21 @@ public class RunStateManager : MonoBehaviour
     private int currentEndTimerTick =
         0;
 
+    // <변경부분> 스테이지 전용 엔드타이머 시간 설정.
+    //
+    // 실제 런 데이터와 구분하여 관리한다.
+    // 해당 스테이지가 끝나면 복구하거나 변경된 시간을 유지한다.
+    private bool isStageEndTimerOverrideActive = false;
+    private bool isStageEndTimerFrozen = false;
+
+    private StageEndTimerExitMode activeStageEndTimerExitMode =
+        StageEndTimerExitMode.RestoreOriginal;
+
+    // <변경부분> 전투 진입 직전의 런 시간.
+    // 원래 시간 복구 모드에서 사용한다.
+    private int endTimerCyclesBeforeStageOverride = 0;
+    private int endTimerTickBeforeStageOverride = 0;
+
 
     // <변경부분>
     // Run 전체에서 공통으로 사용할 End Stage 설정.
@@ -241,6 +256,138 @@ public class RunStateManager : MonoBehaviour
     }
 
 
+    // <변경부분> 스테이지에서 지정한 엔드타이머 설정을 적용한다.
+    //
+    // 전투 진입 전의 런 시간을 보관한 후
+    // 지정한 눈금으로 현재 시간을 강제로 변경한다.
+    //
+    // 남은 사이클 수는 변경하지 않는다.
+    public bool BeginStageEndTimerOverride(
+        int forcedTick,
+        bool freezeDuringBattle,
+        StageEndTimerExitMode exitMode)
+    {
+        // 이미 시간 강제 변경이 적용 중이라면
+        // 원래 시간을 덮어쓰지 않는다.
+        if (isStageEndTimerOverrideActive)
+        {
+            Debug.LogWarning(
+                "스테이지 시간 강제 변경 실패: " +
+                "이미 다른 스테이지의 설정이 적용 중입니다.",
+                this
+            );
+
+            return false;
+        }
+
+        RunDayNightState previousDayNightState =
+            CurrentDayNightState;
+
+        // <변경부분> 원래 런 시간 저장.
+        endTimerCyclesBeforeStageOverride =
+            remainingEndTimerCycles;
+
+        endTimerTickBeforeStageOverride =
+            currentEndTimerTick;
+
+        // <변경부분> 현재 스테이지 설정 저장.
+        activeStageEndTimerExitMode =
+            exitMode;
+
+        isStageEndTimerFrozen =
+            freezeDuringBattle;
+
+        isStageEndTimerOverrideActive =
+            true;
+
+        // <변경부분> 현재 눈금을 지정한 값으로 변경한다.
+        currentEndTimerTick =
+            Mathf.Clamp(
+                forcedTick,
+                0,
+                EndTimerTicksPerCycle - 1
+            );
+
+        // 현재 엔드타이머 UI 갱신.
+        EndTimerChanged?.Invoke();
+
+        // 낮과 밤이 변경되었다면 기존 조명 구독자에게 알린다.
+        if (previousDayNightState != CurrentDayNightState)
+        {
+            DayNightStateChanged?.Invoke(
+                CurrentDayNightState
+            );
+        }
+
+        Debug.Log(
+            $"스테이지 엔드타이머 강제 변경: " +
+            $"눈금 {currentEndTimerTick}, " +
+            $"시간 고정 {isStageEndTimerFrozen}, " +
+            $"종료 처리 {activeStageEndTimerExitMode}",
+            this
+        );
+
+        return true;
+    }
+
+
+    // <변경부분> 스테이지를 떠날 때 시간 강제 변경을 종료한다.
+    //
+    // 원래 시간 복구:
+    // 진입 전 사이클과 눈금을 모두 복구한다.
+    //
+    // 변경된 시간 유지:
+    // 전투 종료 당시의 사이클과 눈금을 그대로 유지한다.
+    public void EndStageEndTimerOverride()
+    {
+        if (isStageEndTimerOverrideActive == false)
+        {
+            return;
+        }
+
+        RunDayNightState previousDayNightState =
+            CurrentDayNightState;
+
+        bool shouldRestore =
+            activeStageEndTimerExitMode ==
+            StageEndTimerExitMode.RestoreOriginal;
+
+        // <변경부분> 임시 시간 설정 해제.
+        isStageEndTimerOverrideActive = false;
+        isStageEndTimerFrozen = false;
+
+        activeStageEndTimerExitMode =
+            StageEndTimerExitMode.RestoreOriginal;
+
+        if (shouldRestore)
+        {
+            remainingEndTimerCycles =
+                endTimerCyclesBeforeStageOverride;
+
+            currentEndTimerTick =
+                endTimerTickBeforeStageOverride;
+        }
+
+        // 엔드타이머 UI 갱신.
+        EndTimerChanged?.Invoke();
+
+        // 시간대 변경 여부에 따라 기존 조명 이벤트 발생.
+        if (previousDayNightState != CurrentDayNightState)
+        {
+            DayNightStateChanged?.Invoke(
+                CurrentDayNightState
+            );
+        }
+
+        Debug.Log(
+            shouldRestore
+                ? "스테이지 종료: 진입 전 엔드타이머 시간으로 복구했습니다."
+                : "스테이지 종료: 변경된 엔드타이머 시간을 유지합니다.",
+            this
+        );
+    }
+
+
     // <변경부분>
     // Battle Turn, WorldMap 이동 등에서 공통으로 사용하는
     // Run 시간 진행 함수.
@@ -249,7 +396,7 @@ public class RunStateManager : MonoBehaviour
     // Battle / WorldMap은 각자 타이머를 계산하지 않고
     // 이 함수에 소모할 눈금 수만 전달한다.
     public bool AdvanceEndTimer(
-        int tickAmount)
+       int tickAmount)
     {
         if (tickAmount <= 0)
         {
@@ -262,6 +409,17 @@ public class RunStateManager : MonoBehaviour
             return false;
         }
 
+        // <변경부분> 스테이지에서 엔드타이머 시간을 고정했다면
+        // 기존 턴 진행은 유지하고 시간 진행만 차단한다.
+        //
+        // 최종전투처럼 남은 사이클이 0인 상태에서도
+        // 강제로 설정한 밤 시간대가 유지되도록
+        // 기존 시간 소진 판정보다 먼저 확인한다.
+        if (isStageEndTimerOverrideActive &&
+            isStageEndTimerFrozen)
+        {
+            return false;
+        }
 
         // 이미 시간이 모두 소진된 Run에서는
         // 추가 시간 진행을 허용하지 않는다.
@@ -375,7 +533,18 @@ public class RunStateManager : MonoBehaviour
         if (!hasPendingTitleTimer) return;
         hasPendingTitleTimer = false;
         var previous = CurrentDayNightState;
-        if (pendingTitleEndStage != null)
+        endTimerDestination=EndTimerDestinationType.Battle;
+        endEventSceneData=null;endEventSceneName="EventScene";
+        endDestinationEntered=false;hasPendingEndEvent=false;pendingEndEvent=null;
+
+        // <변경부분> 새로운 런 시작 시 이전 전투의
+        // 임시 시간 강제 변경 설정을 모두 해제한다.
+        isStageEndTimerOverrideActive = false;
+        isStageEndTimerFrozen = false;
+
+        activeStageEndTimerExitMode =
+            StageEndTimerExitMode.RestoreOriginal;
+
         {
             endStageBattleData = pendingTitleEndStage;
             endStageBattleSceneName = string.IsNullOrWhiteSpace(pendingTitleEndScene) ? "BattleScene" : pendingTitleEndScene;
@@ -841,11 +1010,20 @@ public class RunStateManager : MonoBehaviour
     // <변경부분> 새 런 시작 또는 디버그 초기화용
     public void ClearRunState()
     {
-        WorldMapEventRuntimeState.Clear();
+        ClearTransientRunState();
+        ResetEndDestination();
         // <변경부분>
         // 초기화 전의 낮·밤 상태를 기억해 밤→낮 전환을 알린다.
         RunDayNightState previousDayNightState =
             CurrentDayNightState;
+
+        // <변경부분> 새 런 시작 시
+        // 이전 전투의 시간 강제 변경 상태도 초기화한다.
+        isStageEndTimerOverrideActive = false;
+        isStageEndTimerFrozen = false;
+
+        activeStageEndTimerExitMode =
+            StageEndTimerExitMode.RestoreOriginal;
 
         // <변경부분> 새 런 시작 시 저장된 플레이어 기물 상태 초기화
         playerPieceRuntimeDataList.Clear();

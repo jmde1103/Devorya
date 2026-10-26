@@ -65,8 +65,17 @@ public partial class BattleManager
         }
     }
 
+    private void ClearItemPieceSelection()
+    {
+        if(confirmedItemPiece!=null && pieceManager!=null)
+            pieceManager.PlayPieceDeselectAnimation(confirmedItemPiece);
+        if(confirmedItemPiece!=null && selectedPiece==confirmedItemPiece)
+            ShowOnlySelectedPieceTypeIcon(null);
+    }
+
     private void ClearItemTiles()
     {
+        ClearItemPieceSelection();
         foreach (var tile in itemTargetTiles) if (tile != null) tile.HideHighlight();
         itemTargetTiles.Clear();
         confirmedItemPiece = null;
@@ -147,7 +156,10 @@ public partial class BattleManager
         if (confirmedItemPiece != piece || confirmedItemTile != tile)
         {
             if (confirmedItemTile != null) confirmedItemTile.ShowHighlight();
+            ClearItemPieceSelection();
             confirmedItemPiece = piece;
+            ShowOnlySelectedPieceTypeIcon(piece);
+            pieceManager.PlayPieceSelectAnimation(piece);
             confirmedItemTile = tile;
             if (!itemTargetTiles.Contains(tile)) itemTargetTiles.Add(tile);
             tile.ShowItemConfirmHighlight(itemConfirmColor, itemConfirmIntensity);

@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c427d0319a4f5524f8896c13f10549fd, type: 3}
+  m_Name: "\uD2B9\uC131_\uD761\uC218 \uBC29\uC5B4"
+  m_EditorClassIdentifier: Assembly-CSharp::GeneralSkillData
+  skillType: 18
+  skillName: "\uD761\uC218 \uBC29\uC5B4"
+  iconSprite: {fileID: 21300000, guid: 73579cc356e29934088d077dc7a506f4, type: 3}
+  description: "\uD761\uC218 \uACF5\uACA9\uC744 \uB9C9\uACE0 \uACF5\uACA9\uD55C \uAE30\uBB3C\uC744
+    \uD295\uACA8\uB0C5\uB2C8\uB2E4. \uB9C8\uBB34\uB9AC \uD761\uC218\uB3C4 \uB9C9\uC2B5\uB2C8\uB2E4."
+  tooltipDescriptionFormat: "\uD761\uC218 \uACF5\uACA9\uC744 \uB9C9\uACE0 \uACF5\uACA9\uD55C
+    \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4. \uB9C8\uBB34\uB9AC \uD761\uC218\uB3C4
+    \uB9C9\uC2B5\uB2C8\uB2E4."
+  tooltipSections: []
+  localizedSkillName:
+    m_TableReference:
+      m_TableCollectionName: General_Skill
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: general.absorb_guard.name
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: General_Skill
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: general.absorb_guard.desc
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedTooltipDescriptionFormat:
+    m_TableReference:
+      m_TableCollectionName: General_Skill
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: general.absorb_guard.tooltip
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  chanceAttackPercent: 30
+  chanceAttackContinuousPenaltyRate: 0.33333334
+  defenseGrantChancePercent: 10
+  evasionGrantChancePercent: 20
+  insightPercent: 50
+  quickStepPercent: 30
+  references:
+    version: 2
+    RefIds: []

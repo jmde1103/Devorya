@@ -88,7 +88,7 @@ public static class BattleItemUXChecks
         for(int i=0;i<10;i++)Check(handler.ValidateItemEffect(item,a)==BattleItemFailure.None,"Pure validation");
         Check(random.Equals(UnityEngine.Random.state)&&!a.HasStatusEffect(status.effectType),"Preview has no effects/random draws");
         Check(handler.ValidateItemEffect(item,enemy)==BattleItemFailure.PlayerOnly,"Player-only reason");
-        Check(handler.ValidateItemEffect(item,king)==BattleItemFailure.King,"King reason");
+        Check(handler.ValidateItemEffect(item,king)==BattleItemFailure.None,"King accepts status item");
         var ui=Get<BattleUIController>(bm,"battleUIController");
         ui.SetLastEnemyAbsorbMode(true);
         var icon=Get<Image>(ui,"absorbIconImage");
@@ -104,11 +104,11 @@ public static class BattleItemUXChecks
         bm.UseItemAtSlot(0);
         Check(bm.IsItemTargeting&&!bm.HasSelectedPiece(),"Slot selects mode and deselects piece");
         var targets=Get<List<Tile>>(bm,"itemTargetTiles");
-        Check(targets.Count==2,"Only valid occupied blue tiles");
+        Check(targets.Count==3,"Only valid occupied blue tiles");
         var tile=board.GetTile(a.X,a.Y);var tileB=board.GetTile(b.X,b.Y);
         bm.SelectTile(tile);
         Check(run.GetBattleItemsCopy().Count==2&&!a.HasStatusEffect(status.effectType),"First click no consumption/effect");
-        Check(Get<Tile>(bm,"confirmedItemTile")==tile,"First click confirms tile");
+        Check(Get<Tile>(bm,"confirmedItemTile")==tile && Get<Piece>(bm,"selectedPiece")==a,"First click confirms and selects piece");
         bm.SelectTile(tile);
         Check(run.GetBattleItemsCopy().Count==2,"Duplicate delivery in same frame ignored");
         yield return null;

@@ -79,6 +79,11 @@ public class EventSceneController : MonoBehaviour
         //
         // Consume 방식으로 한 번 읽은 뒤 RuntimeState에서 제거하여
         // 이전 이벤트 데이터가 다음 EventScene에 재사용되지 않게 한다.
+        if (RunStateManager.TryConsumeEndEvent(out EventSceneData endData))
+        {
+            eventSceneData=endData;
+            if(endData==null){hasStarted=true;return;}
+        }
         EventSceneData runtimeEventSceneData =
             WorldMapRuntimeState
                 .ConsumePendingEventSceneData();

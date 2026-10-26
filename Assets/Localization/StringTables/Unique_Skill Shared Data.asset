@@ -123,6 +123,54 @@ MonoBehaviour:
     m_Key: unique_skill.jellu_reinforce.condition_fail
     m_Metadata:
       m_Items: []
+  - m_Id: 18842575679655936
+    m_Key: unique_skill.guard_self.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842575750959104
+    m_Key: unique_skill.guard_self.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842575755153408
+    m_Key: unique_skill.guard_self.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778112
+    m_Key: unique_skill.teleport_self.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778113
+    m_Key: unique_skill.teleport_self.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576178778114
+    m_Key: unique_skill.teleport_self.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545216
+    m_Key: unique_skill.virus.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545217
+    m_Key: unique_skill.virus.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576497545218
+    m_Key: unique_skill.virus.condition_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146496
+    m_Key: unique_skill.evade_self.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146497
+    m_Key: unique_skill.evade_self.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18842576791146498
+    m_Key: unique_skill.evade_self.condition_fail
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

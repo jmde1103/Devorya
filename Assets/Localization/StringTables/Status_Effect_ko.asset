@@ -24,7 +24,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 793382912
     m_Localized: "[\uBC29\uC5B4] \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uC0C1\uB300\uC758
-      \uACF5\uACA9\uC744 \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
+      \uACF5\uACA9\uC744 \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4. \uBC29\uC5B4\uC5D0
+      \uC131\uACF5\uD558\uBA74 [\uBC29\uC5B4] \uC0C1\uD0DC\uAC00 \uD574\uC81C\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 1511529955060351037
@@ -34,7 +35,9 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 72098777796608
     m_Localized: "[\uB3CC\uD30C] \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uC0C1\uB300\uC758
-      [\uBC29\uC5B4] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBB34\uC2DC\uD569\uB2C8\uB2E4."
+      [\uBC29\uC5B4] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBB34\uC2DC\uD569\uB2C8\uB2E4.
+      \uC0C1\uB300\uC758 \uBC29\uC5B4\uB97C \uBB34\uC2DC\uD558\uC5EC \uACF5\uACA9\uC5D0
+      \uC131\uACF5\uD558\uBA74 [\uB3CC\uD30C] \uC0C1\uD0DC\uAC00 \uD574\uC81C\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 1511529955060351038
@@ -79,7 +82,8 @@ MonoBehaviour:
     m_Localized: "\uACF5\uACA9\uBC1B\uC73C\uBA74 50% \uD655\uB960\uB85C \uC778\uC811\uD55C
       \uBE48\uCE78\uC73C\uB85C \uC774\uB3D9\uD558\uC5EC \uACF5\uACA9\uC744 \uD68C\uD53C\uD569\uB2C8\uB2E4.
       \uACF5\uACA9\uD55C \uAE30\uBB3C\uC740 \uD68C\uD53C \uC804 \uC704\uCE58\uB85C
-      \uC774\uB3D9\uD569\uB2C8\uB2E4."
+      \uC774\uB3D9\uD569\uB2C8\uB2E4. \uD68C\uD53C\uC5D0 \uC131\uACF5\uD558\uBA74
+      [\uD68C\uD53C] \uC0C1\uD0DC\uAC00 \uD574\uC81C\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 1511529955060351041
@@ -113,6 +117,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1511529955060351044
+  - m_Id: 18825411195179008
+    m_Localized: "\uACF5\uAC04\uC774\uB3D9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18825411291648000
+    m_Localized: "\uC790\uC2E0\uC758 \uC9C4\uC601 \uD134\uC774 \uC885\uB8CC\uB418\uBA74
+      \uD544\uB4DC\uC758 \uBE48 \uD0C0\uC77C \uC911 \uD55C \uACF3\uC73C\uB85C \uBB34\uC791\uC704
+      \uC774\uB3D9\uD55C \uB4A4 [\uACF5\uAC04\uC774\uB3D9] \uC0C1\uD0DC\uAC00 \uD574\uC81C\uB429\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1511530002400673792
   references:
     version: 2
     RefIds:
@@ -152,6 +167,8 @@ MonoBehaviour:
         spans:
         - text: 50%
           role: 5
+        - text: "[\uD68C\uD53C]"
+          role: 3
     - rid: 1511529955060351042
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -170,3 +187,9 @@ MonoBehaviour:
         spans:
         - text: "[\uD589\uB3D9\uBD88\uAC00]"
           role: 4
+    - rid: 1511530002400673792
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uAC04\uC774\uB3D9]"
+          role: 3

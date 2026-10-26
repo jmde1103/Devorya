@@ -15,7 +15,8 @@ MonoBehaviour:
   effectType: 3
   effectName: "\uBC29\uC5B4"
   description: "[\uBC29\uC5B4] \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uC0C1\uB300\uC758
-    \uACF5\uACA9\uC744 \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
+    \uACF5\uACA9\uC744 \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4. \uBC29\uC5B4\uC5D0 \uC131\uACF5\uD558\uBA74
+    [\uBC29\uC5B4] \uC0C1\uD0DC\uAC00 \uD574\uC81C\uB429\uB2C8\uB2E4."
   tooltipSections: []
   localizedEffectName:
     m_TableReference:

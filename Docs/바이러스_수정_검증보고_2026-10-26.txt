@@ -1,0 +1,75 @@
+﻿DEVORYA 바이러스 수정 보고 — 2026-10-26
+브랜치: codex/status-effect-restrictions
+
+1. 원인
+BattleManager.CompleteTurnTransition에서 진영을 전환한 뒤 UpdateAllStatusEffectTurnState가 들어오는 진영의 상태를 감소시킵니다.
+Piece.ReduceStatusEffectTurns는 remainingTurn을 즉시 1 감소시키고 0이면 제거합니다.
+따라서 상대 턴 전에 지속시간 1로 부여했던 바이러스 상태는 대상의 행동 기회가 오기 전에 제거되었습니다.
+
+2. 해결 방식
+공통 시스템을 변경하지 않고 바이러스가 부여한 효과에만 AddStatusEffect(data, 2)를 사용했습니다.
+적용 직후 2 → 대상의 다음 자기 턴 시작 시 1(제한 유지) → 그다음 자기 턴 시작 시 0(만료)입니다.
+공통 상태 데이터의 기본값, 다른 능력/특성/아이템의 부여 시간과 만료 규칙은 변경하지 않았습니다.
+공통 시스템에 적용 시점별 별도 상태를 추가하는 방식은 직렬화 및 다른 효과와의 회귀 범위를 넓히므로 채택하지 않았습니다.
+
+각 대상마다 Random.Range(0, 2)를 별도로 호출해 공격불가 또는 이동불가 하나만 선택합니다.
+선택된 효과를 기존 AddStatusEffect로 한 번 전달하므로 저항 판정도 해당 효과에만 이루어집니다.
+저항 성공 시 대체 효과를 부여하지 않습니다. 대상이 유효하면 저항 여부와 무관하게 기존 사용 성공 처리를 유지합니다.
+기존 최대 3개 대상 추첨, 파티클 동시 재생과 종료 대기, Select 연출, 비용, AI 경로는 그대로입니다.
+
+3. 수정 파일(이번 요청 기준)
+Assets/Scripts/Skill/BattleSkillManager.StatusAbilities.cs
+  바이러스 대상별 효과 선택과 전용 지속시간 2 적용. 다른 능력 런타임 변경 없음.
+Assets/Editor/StatusAbilitiesSetup.cs
+  바이러스 문구/색상 등록 갱신. 다른 데이터를 재등록하지 않는 UpdateVirusOnly 추가.
+Assets/Editor/StatusAbilitiesChecks.cs
+  기존 검증의 바이러스 기대값 수정, 양 진영 실제 턴 전환 및 이동 경로 검증, 확률/저항 검증 확장.
+Assets\Devorya\Data\Skills\Unique\능력_바이러스.asset
+Assets\Localization\StringTables\Unique_Skill_en.asset
+Assets\Localization\StringTables\Unique_Skill_ja.asset
+Assets\Localization\StringTables\Unique_Skill_ko.asset
+
+변경 전 데이터 파일 해시와 비교해 위 네 에셋 외 데이터 변경이 없는 것을 확인했습니다.
+기존 미커밋 데이터, enum, GUID, 직렬화 필드, 프리팹, tooltipSections 연결을 보존했습니다.
+이번에 편집한 C#은 UTF-8/기존 줄바꿈을 유지했습니다. 기존 CP949 공통 파일은 편집하지 않았습니다.
+
+4. Localization
+테이블: Unique_Skill
+키: unique_skill.virus.description (변경 없음)
+KR: 상대 기물 중 최대 3개를 무작위로 선택하여 각 기물에 [공격불가] 또는 [이동불가] 중 하나를 무작위로 부여합니다.
+EN: Randomly selects up to 3 enemy pieces and inflicts either [Attack Disabled] or [Move Disabled] on each.
+JA: 相手の駒をランダムで最大3体選び、それぞれに［攻撃不可］または［移動不可］のいずれかをランダムで付与します。
+공격불가/이동불가의 Negative 강조와 최대 3개의 Value 강조를 유지하고 제거된 턴 수 강조만 제거했습니다.
+이름, 비용 3, 기존 상태효과 툴팁 섹션, 다른 능력의 문구는 유지했습니다.
+
+5. Unity 실행 검증
+Unity 6000.4.0f1 batchmode에서 기존 실제 기물/보드 프리팹을 활용한 플레이 검증 실행.
+1차 로그: Logs/virus-fix.log — STATUS_ABILITIES_PLAY_PASS checks=465.
+최종 로그: Logs/virus-fix-final.log — STATUS_ABILITIES_PLAY_PASS checks=470.
+컴파일 오류 및 테스트 예외 없음. 모든 대상 저항 시에도 비용 3 소비 검증 통과.
+- 양 진영에 대해 실제 EndTurn 호출 이후 공격불가/이동불가의 제한이 남는지 검증.
+- 공격불가: 빈 타일 이동 허용, 상대 포획 경로 제외.
+- 이동불가: 빈 타일 이동 제외, 상대 포획 경로 허용.
+- 다음 자기 턴까지 경과한 뒤 두 경로가 다시 허용되는지 검증.
+- 실제 바이러스 코루틴으로 양 진영 대상 수 0/1/2/3/5에서 성공/실패와 최대 3개 제한 검증.
+- 대상당 효과가 하나인지, 첫 감소 후 유지되고 두 번째 감소 후 만료되는지 검증.
+- 200개 난수 시드로 선택된 효과와 기존 저항의 결과 대조, 저항 시 다른 효과로 대체되지 않는지 검증.
+- 각 대상의 파티클이 진행 중일 때 두 상태 모두 없고, 연출 완료 후 하나만 적용되는지 검증.
+- 대상 0개 실패 시 에너지 미소비 검증.
+- 실제 능력 실행 후 모든 대상이 저항한 경우의 에너지 소비 추가 검증.
+
+6. 회귀 검증
+기존 방어하기/회피하기/공간이동의 비용, 상태 부여, 능력봉인 및 추가 이동 중 사용 제한을 재실행했습니다.
+간파 0%/100%의 방어·회피 무효화, 공간이동의 양 진영 턴 종료 처리, 목적지 없음, 입력 잠금, 취소 복구를 재검증했습니다.
+기존 EvasionChecks의 회피/호위/흡수 상호작용 검증을 함께 실행했습니다.
+공통 공격불가/이동불가/방어/회피 기본 지속시간 1 유지 여부를 확인했습니다.
+
+7. 미검증 및 주의점
+완성된 스테이지에서의 수동 플레이, PC/모바일 빌드, 연출의 육안 평가는 이번 검증에 포함하지 않았습니다.
+실제 턴 전환과 이동 가능 경로는 검증했으나 전체 AI 대전 시뮬레이션은 실행하지 않았습니다.
+빈 검증 씬의 상태 아이콘 Animator에 연결된 컨트롤러가 없어 경고가 출력됩니다. UI 경고 애니메이션의 외형은 별도 확인이 필요합니다.
+기존에 다른 원인으로 반대 상태효과가 이미 있으면 제거하지 않습니다. 바이러스가 새로 부여하는 효과만 하나입니다.
+재부여 시 동일 상태의 지속시간을 갱신하는 기존 AddStatusEffect 규칙도 유지됩니다.
+상태 UI는 내부 카운터 2를 표시할 수 있으며 능력 설명에는 요청대로 턴 수를 넣지 않았습니다.
+
+커밋 및 메인 브랜치 병합은 하지 않았습니다.

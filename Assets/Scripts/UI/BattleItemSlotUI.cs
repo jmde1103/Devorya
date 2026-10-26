@@ -13,10 +13,11 @@ public class BattleItemSlotUI : MonoBehaviour
     private int slotIndex;
     [SerializeField, InspectorName("아이템 선택 아웃라인 색상")] private Color selectionOutlineColor = new Color(1f, .15f, .15f, 1f);
     [SerializeField, Min(0), InspectorName("아이템 선택 점멸 속도")] private float selectionPulseSpeed = 2f;
+    [SerializeField, Min(1), InspectorName("아이템 선택 확대 배율")] private float selectionScale = 1.06f;
     public void SetItemSelected(bool selected)
     {
         var hover = GetComponent<SlotHoverFeedback>();
-        if (hover != null) hover.SetSelected(selected && !isReadOnlyMode && currentItemData != null, selectionOutlineColor, selectionPulseSpeed);
+        if (hover != null) hover.SetSelected(selected && !isReadOnlyMode && currentItemData != null, selectionOutlineColor, selectionPulseSpeed, selectionScale);
     }
 
 

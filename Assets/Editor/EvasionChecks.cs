@@ -44,10 +44,11 @@ public static class EvasionChecks
                 Check(f.manager.GetPieceAt(defender.X,defender.Y)==defender&&defender.CurrentTile==f.board.GetTile(defender.X,defender.Y),"Escape grid and tile agree");
                 Check(attacker.PieceType==PieceType.Rook,"Evaded absorption does not copy target");
                 if(mode=="taunt")Check(target!=null&&target.X==1&&target.Y==2,"Taunt-protected ally stays safe");
-                defender.ReduceActionRestrictionTurnAndRemoveExpired();Check(defender.HasStatusEffect(StatusEffectType.Evasion),"Effect survives current turn end");
+                Check(!defender.HasStatusEffect(StatusEffectType.Evasion),"Successful evasion consumed");
+                defender.ReduceActionRestrictionTurnAndRemoveExpired();
                 defender.ReduceStatusEffectTurnAndRemoveExpired();Check(!defender.HasStatusEffect(StatusEffectType.Evasion),"Effect expires next own turn");
             }
-            else if(mode=="defence")Check(defender!=null&&attacker.Y==0,"Failed evasion still allows defence");
+            else if(mode=="defence")Check(defender!=null&&attacker.Y==0&&!defender.HasStatusEffect(StatusEffectType.Defence)&&defender.HasStatusEffect(StatusEffectType.Evasion),"Only successful defence consumed");
             else Check(defender==null&&f.manager.GetPieceAt(2,2)==attacker,"Failed roll or no space resolves normal capture");
             f.Dispose();yield return null;
         }

@@ -43,8 +43,9 @@ public partial class BattleSkillManager : MonoBehaviour
     public void Initialize(
         BoardManager board,
         PieceManager pieceManagerRef,
-        BattleMoveValidator moveValidator)
+        BattleMoveValidator moveValidator, UniqueSkillDatabase abilityDatabase = null)
     {
+        effectAbilityDatabase = abilityDatabase;
         // 보드 범위 및 타일 확인용
         boardManager =
             board;
@@ -320,7 +321,7 @@ public partial class BattleSkillManager : MonoBehaviour
         // 현재 Insight는 Defence 상태효과로 발생한
         // 방어 판정을 무효화하는 데 사용한다.
         if (targetCanceledSkillType !=
-            GeneralSkillType.Defense)
+            GeneralSkillType.Defense && targetCanceledSkillType != GeneralSkillType.EvasionStance)
         {
             return false;
         }
@@ -432,6 +433,7 @@ public partial class BattleSkillManager : MonoBehaviour
             return false;
         }
 
+        if (IsStatusAbility(piece.UniqueSkill)) return CanUseStatusAbility(piece);
         switch (piece.UniqueSkill)
         {
             case UniqueSkillType.JelluReinforce:
@@ -597,6 +599,7 @@ public partial class BattleSkillManager : MonoBehaviour
     // <변경부분> 고유스킬 종류에 따라 실제 효과를 실행하는 함수
     public bool TryUseUniqueSkill(Piece piece)
     {
+        if (piece != null && IsStatusAbility(piece.UniqueSkill)) return ApplySelfStatusAbility(piece);
         // 스킬을 사용할 기물이 없으면 실패
         if (piece == null || piece.IsQuickStepMove || piece.IsAbilityBlocked)
         {
@@ -667,6 +670,11 @@ public partial class BattleSkillManager : MonoBehaviour
                     skillIcon
                 );
 
+        if (piece != null && piece.UniqueSkill == UniqueSkillType.Virus)
+        {
+            yield return UseVirusRoutine(piece, onComplete);
+            yield break;
+        }
         bool skillUsed = false;
 
         switch (piece.UniqueSkill)

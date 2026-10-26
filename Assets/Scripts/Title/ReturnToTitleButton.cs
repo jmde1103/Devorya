@@ -73,33 +73,22 @@ public sealed class ReturnToTitleButton : MonoBehaviour
         //
         // 플레이어 기물, 골드, 아이템, 유물,
         // 엔드 타이머 등을 초기화한다.
-        if (RunStateManager.Instance != null)
-        {
-            RunStateManager.Instance.ClearRunState();
-        }
-        else
-        {
-            Debug.LogWarning(
-                "타이틀 복귀: RunStateManager가 없어 " +
-                "런 데이터 초기화를 실행하지 못했습니다.",
-                this
-            );
-        }
+        RunStateManager.ResetCurrentRun();
 
         // <변경부분>
         // 월드맵 노드, 포그, 방문 기록,
         // 이벤트/전투 대기 데이터와 상점 상태를 초기화한다.
-        WorldMapRuntimeState.Clear();
+
 
         // <변경부분>
         // 다음 TextCutscene에 전달할 데이터가
         // 이전 런에서 남아 있지 않도록 초기화한다.
-        TextCutsceneRuntimeState.Clear();
+
 
         // <변경부분>
         // 전투 슬로모션이나 일시정지 상태에서
         // 타이틀로 돌아와도 정상 속도로 실행한다.
-        Time.timeScale = 1f;
+
 
         Debug.Log(
             "런 초기화 완료. 타이틀 씬으로 이동합니다.",
