@@ -23,11 +23,11 @@ public static class TooltipTextStyle
         }
     }
 
-    public static void Apply(TMP_Text target, TooltipTextRole role, bool bold = false)
+    public static void Apply(TMP_Text target, TooltipTextRole role, bool bold = false, TooltipSurface surface = TooltipSurface.DarkSurface)
     {
         if (target == null) return;
         target.richText = true;
-        target.color = Palette.Get(role);
+        target.color = Palette.Get(role, surface);
         target.fontStyle = bold ? FontStyles.Bold : FontStyles.Normal;
     }
 
@@ -45,15 +45,15 @@ public static class TooltipTextStyle
         }
     }
 
-    public static string Format(LocalizedString reference, string text, int? value = null)
+    public static string Format(LocalizedString reference, string text, int? value = null, TooltipSurface surface = TooltipSurface.DarkSurface)
     {
         if (string.IsNullOrEmpty(text) || reference == null || reference.IsEmpty) return text;
         var result = LocalizationSettings.StringDatabase.GetTableEntry(
             reference.TableReference, reference.TableEntryReference);
-        return Format(text, result.Entry?.GetMetadata<TooltipSemanticMetadata>(), value);
+        return Format(text, result.Entry?.GetMetadata<TooltipSemanticMetadata>(), value, surface);
     }
 
-    public static string Format(string text, TooltipSemanticMetadata metadata, int? value = null)
+    public static string Format(string text, TooltipSemanticMetadata metadata, int? value = null, TooltipSurface surface = TooltipSurface.DarkSurface)
     {
         if (string.IsNullOrEmpty(text) || metadata == null || metadata.spans == null) return text;
         // Match only translator-authored fragments. Never infer statuses or numbers from prose.
@@ -81,7 +81,7 @@ public static class TooltipTextStyle
         foreach (var range in ranges)
         {
             output.Append(text, cursor, range.start - cursor);
-            output.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Palette.Get(range.role))).Append('>');
+            output.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(Palette.Get(range.role, surface))).Append('>');
             output.Append(text, range.start, range.length).Append("</color>");
             cursor = range.start + range.length;
         }

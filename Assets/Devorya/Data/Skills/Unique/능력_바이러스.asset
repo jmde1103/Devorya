@@ -15,9 +15,9 @@ MonoBehaviour:
   skillType: 12
   skillName: "\uBC14\uC774\uB7EC\uC2A4"
   iconSprite: {fileID: 21300000, guid: 3d5b4471a256f5c4a936abb6daa18a25, type: 3}
-  description: "\uC0C1\uB300 \uAE30\uBB3C \uC911 \uCD5C\uB300 3\uAC1C\uB97C \uBB34\uC791\uC704\uB85C
-    \uC120\uD0DD\uD558\uC5EC \uAC01 \uAE30\uBB3C\uC5D0 [\uACF5\uACA9\uBD88\uAC00]
-    \uB610\uB294 [\uC774\uB3D9\uBD88\uAC00] \uC911 \uD558\uB098\uB97C \uBB34\uC791\uC704\uB85C
+  description: "\uC0C1\uB300 \uAE30\uBB3C \uCD5C\uB300 3\uAC1C\uB97C \uBB34\uC791\uC704\uB85C
+    \uC120\uD0DD\uD558\uC5EC \uAC01\uAC01 [\uACF5\uACA9\uBD88\uAC00] \uB610\uB294
+    [\uC774\uB3D9\uBD88\uAC00] \uC911 \uD558\uB098\uB97C \uBB34\uC791\uC704\uB85C
     \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: d5837345c75c4909a52e9c620a8b1641, type: 2}

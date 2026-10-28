@@ -1,0 +1,493 @@
+﻿DEVORYA 텍스트 간결화·LightSurface 작업 보고
+기준: 텍스트 통합 가이드 v2 / 2026-10-28 작업 지시서
+
+1. 작업 상태
+브랜치: codex/text-guide-v2-continue
+기준 커밋: dbdf5590 (모바일 빌드)
+앞서 codex/text-guide-v2에 저장되어 있던 UI 색상 파일 3개를 최신 기준 위로 가져와 이어서 수정했습니다.
+이번 작업의 신규 커밋 및 메인 브랜치 병합은 하지 않았습니다.
+Localization 45키 × 3언어 = 135항목 적용. 이미 간결했던 열매 EN/JA 문구는 유지했습니다.
+31개 데이터 에셋의 한국어 기본 설명/툴팁 형식 총 45필드를 동기화했습니다.
+Localization String Table이 유일한 런타임 번역 원본입니다.
+Logs의 JSON은 일회성 검토·마이그레이션 입력이며 게임에서 참조하지 않습니다.
+
+2. 색상 관리와 적용
+공통 에셋: Assets/Resources/TooltipStylePalette.asset
+코드: Assets/Scripts/UI/ToolTip/TooltipStylePalette.cs
+DarkSurface: 기존 title/body/secondary/positive/negative/value/pieceType 필드 및 색상 유지.
+LightSurface: 같은 에셋에 lightTitle/lightBody/lightSecondary/lightPositive/lightNegative/lightValue/lightPieceType 추가.
+제목·본문 #1F1F1F / 보조 #666666 / 긍정 #2F7F8D / 부정 #A64F43 / 수치 #8A6A00 / 기물 #70599C.
+TooltipTextStyle.Apply/Format의 선택적 surface 인수 기본값은 DarkSurface입니다.
+흰 배경 RelicRewardCardUI의 제목/설명만 LightSurface를 명시적으로 선택합니다.
+기존 단순 색 반전은 제거했고, Localization의 의미 메타데이터도 선택한 Surface 색상을 사용합니다.
+다른 밝은 UI에 자동 적용하지 않으며 유물별 색상 설정이나 문자열 자동 추론은 추가하지 않았습니다.
+확률/수치/상태효과/기물 타입은 번역 항목에 지정된 의미 구간만 강조합니다.
+
+3. 중요한 조건을 유지한 항목
+- 빠른 발걸음·잔류 추진 제어기: 추가 이동으로 공격 불가.
+- 파란색/초록색 점액 파편: 킹 사용 불가, 초록색의 변형 후 상태 부여 순서. 기존 문구 유지.
+- 흡수 과충전: 다음 자기 턴 동안 최대 에너지 +1, 중첩 불가. bool 기반 예약/활성 상태 확인.
+- 초기 가속: 변형하지 않은 데보리아 폰, 첫 이동, 앞으로 2칸 유지. 일반적인 빈 경로 설명만 제거.
+- 회피: 50%, 인접한 빈칸, 공격자가 회피 전 칸으로 이동 유지. 성공 후 소모를 '1회'로 표현.
+- 방어·돌파: 실제 성공 시 1회 소모 확인. 상태 해제의 반복 설명 제거.
+- 공간이동: 자기 진영 턴 종료 시 이동 성공 후 소모하므로 '1회'로 간결화.
+- 퇴화: 공격/흡수 제거 조건, 동일 진영 젤루 폰 1개, 인접 빈칸, 특성 계승 유지.
+- 바이러스: 최대 3개 무작위 대상, 대상마다 두 효과 중 하나를 독립적으로 선택한다는 정보 유지.
+  지시서 예시보다 '각각/중 하나'를 남겨 두 효과 동시 적용으로 오해하지 않도록 했습니다.
+  지속시간·확률·파티클·비용·저항 로직은 수정하지 않았습니다.
+- 합성·분열·합성: 강화: 재료 수/생성 위치/종족 유지/특성 계승/지속시간이 핵심이므로 기존 문구 유지.
+- 젤루 벽·흡수의 여운·간파·확률 자세 등 이미 짧은 문구는 유지.
+
+4. 확인 필요하여 수정하지 않은 항목
+복제(unique_skill.jellu_clone.description):
+PieceManager.ClonePieceTo는 타입·진영·이동 허용·능력·종족 태그·PieceData·흡수 외형을 복사합니다.
+현재 특성 및 상태효과 전체 복사 호출은 없습니다. '자신을 복제'가 모든 정보를 복사한다는 의미로
+받아들여질 수 있으므로 기존 3개 언어 문구와 동작을 유지했습니다. 복사 범위 기획 확인 필요.
+증식(unique_skill.jellu_multiply.description):
+설명은 '같은 종족'이나 UseJelluMultiply → SpawnJelluPawnFromSource → SpawnJelluPawn은
+'Jellu Pawn' 데이터를 사용합니다. 다른 종족이 능력을 사용하는 경우 설명과 불일치 가능성이 있습니다.
+지시서의 불확실한 항목 보류 원칙에 따라 번역/동작 모두 유지했습니다.
+이 두 항목은 미해결 확인 사항이며 이번 작업에서 해결한 것으로 간주하지 않습니다.
+기존 미연결/구형 Localization 별칭 및 테스트 아이템의 문구는 사용처 확인 없이 일괄 변경하지 않았습니다.
+
+5. 실제 검증 결과
+Unity 6000.4.0f1, TooltipTranslationImport.RunGuideV2 실행.
+- C# 컴파일 오류 0.
+- 현재 원본 문구를 이전 추출본과 대조하는 검사를 전 항목 통과한 뒤 적용.
+- TOOLTIP_IMPORT_PASS entries=135 fallbackFields=45.
+- 기존 검정 툴팁: 53개 데이터 × KR/EN/JA = 159개 표시 검사 통과.
+  제목/본문/카테고리 색상, 굵기, 동적 확률 치환, 본문/섹션 넘침, 닫기 검사 포함.
+- 유물 카드: 4종 × 3언어 = 12회 Bind/Spine·글리치·희귀도 등장 연출 완료 검사 통과.
+  LightSurface 제목/본문/의미 태그, 실제 번역, 넘침, 깨진 태그 검사 통과.
+- DarkSurface 7역할 색상 불변 및 LightSurface 7역할 색상/태그 검사 통과.
+- 명시하지 않은 숫자를 자동 강조하지 않는 검사 통과.
+- TOOLTIP_LOCALE_PASS ko/en/ja 및 TOOLTIP_STYLE_PLAYMODE_PASS 확인.
+- 저장된 테이블 총 444개 항목 대조: 대상 외 번역 불변, 키 ID 보존.
+- 저장된 한국어 fallback 45필드 일치 확인.
+- 31개 데이터 에셋의 설명·툴팁 형식 외 필드 불변 확인.
+- Git diff 공백 오류 검사 통과. 기존 GUID·enum 값·프리팹/씬 연결 변경 없음.
+Unity 저장 중 추가된 기존 기본값 필드와 테스트로 갱신된 동적 폰트 캐시는 변경에서 제외했습니다.
+로그: Logs/text-guide-v2-unity.log / Logs/text-guide-v2-verify.txt
+초기 라이선스 재연결 메시지와 기존 심볼릭 링크 경고는 있었으나 최종 컴파일·Play 검증은 완료했습니다.
+
+6. 검증 범위와 한계
+이번에는 실제 프리팹의 자동 Play Mode 표시/등장 검증을 수행했습니다.
+전체 전투 플레이, 모바일 실기기 빌드, 모든 해상도에서의 수동 시각 검수는 실행하지 않았습니다.
+전투/이동/저항/지속시간 시스템 C#은 변경하지 않았습니다.
+수정 범위의 툴팁·유물 카드 자동 회귀 검사에서 실패는 없었습니다.
+
+7. 수정 파일 전체 목록
+Assets/Devorya/Data/Item/아이템_1레벨_낡은 장화.asset
+Assets/Devorya/Data/Item/아이템_2레벨_투지열매.asset
+Assets/Devorya/Data/Item/아이템_각성열매.asset
+Assets/Devorya/Data/Item/아이템_활력열매.asset
+Assets/Devorya/Data/Relic/유물_잔류 추진 제어기.asset
+Assets/Devorya/Data/Relic/유물_초기 가속 모듈.asset
+Assets/Devorya/Data/Relic/유물_흡수 과충전 장치.asset
+Assets/Devorya/Data/Skills/General/특성_공격불가 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_공격불가 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_공격불가 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_빠른 발걸음.asset
+Assets/Devorya/Data/Skills/General/특성_이동불가 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_이동불가 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_이동불가 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_행동불가 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_행동불가 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_행동불가 저항 III.asset
+Assets/Devorya/Data/Skills/General/특성_흡수 방어.asset
+Assets/Devorya/Data/Skills/Unique/능력_바이러스.asset
+Assets/Devorya/Data/StatusEffect/상태효과_공간이동.asset
+Assets/Devorya/Data/StatusEffect/상태효과_공격불가.asset
+Assets/Devorya/Data/StatusEffect/상태효과_능력봉인.asset
+Assets/Devorya/Data/StatusEffect/상태효과_돌파.asset
+Assets/Devorya/Data/StatusEffect/상태효과_방어.asset
+Assets/Devorya/Data/StatusEffect/상태효과_이동불가.asset
+Assets/Devorya/Data/StatusEffect/상태효과_퇴화.asset
+Assets/Devorya/Data/StatusEffect/상태효과_행동불가.asset
+Assets/Devorya/Data/StatusEffect/상태효과_회피.asset
+Assets/Editor/TooltipStyleChecks.cs
+Assets/Editor/TooltipTranslationImport.cs
+Assets/Localization/StringTables/Battle_Item_en.asset
+Assets/Localization/StringTables/Battle_Item_ja.asset
+Assets/Localization/StringTables/Battle_Item_ko.asset
+Assets/Localization/StringTables/Battle_Relic_en.asset
+Assets/Localization/StringTables/Battle_Relic_ja.asset
+Assets/Localization/StringTables/Battle_Relic_ko.asset
+Assets/Localization/StringTables/General_Skill_en.asset
+Assets/Localization/StringTables/General_Skill_ja.asset
+Assets/Localization/StringTables/General_Skill_ko.asset
+Assets/Localization/StringTables/Status_Effect_en.asset
+Assets/Localization/StringTables/Status_Effect_ja.asset
+Assets/Localization/StringTables/Status_Effect_ko.asset
+Assets/Localization/StringTables/Unique_Skill_en.asset
+Assets/Localization/StringTables/Unique_Skill_ja.asset
+Assets/Localization/StringTables/Unique_Skill_ko.asset
+Assets/Resources/TooltipStylePalette.asset
+Assets/Scripts/UI/RelicRewardCardUI.cs
+Assets/Scripts/UI/ToolTip/TooltipStylePalette.cs
+Assets/Scripts/UI/ToolTip/TooltipTextStyle.cs
+
+8. Localization 키 및 문구 전후 전체 목록
+
+[1] General_Skill / general_skill.attack_disabled_resistance_basic.description
+KO 이전: [공격불가] 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [공격불가]를 받을 때 15% 확률로 무효화합니다.
+EN 이전: When [Attack Disabled] would be applied, has a 15% chance to resist and prevent the effect.
+EN 적용: Has a 15% chance to prevent [Attack Disabled] when it would be applied.
+JA 이전: ［攻撃不可］状態が付与される際、15%の確率で抵抗し、その効果を受けません。
+JA 적용: ［攻撃不可］が付与される際、15%の確率で無効化します。
+
+[2] General_Skill / general_skill.attack_disabled_resistance_basic.tooltip
+KO 이전: [공격불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [공격불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Attack Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Attack Disabled] when it would be applied.
+JA 이전: ［攻撃不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［攻撃不可］が付与される際、{percent}%の確率で無効化します。
+
+[3] General_Skill / general_skill.attack_disabled_resistance_intermediate.description
+KO 이전: [공격불가] 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [공격불가]를 받을 때 30% 확률로 무효화합니다.
+EN 이전: When [Attack Disabled] would be applied, has a 30% chance to resist and prevent the effect.
+EN 적용: Has a 30% chance to prevent [Attack Disabled] when it would be applied.
+JA 이전: ［攻撃不可］状態が付与される際、30%の確率で抵抗し、その効果を受けません。
+JA 적용: ［攻撃不可］が付与される際、30%の確率で無効化します。
+
+[4] General_Skill / general_skill.attack_disabled_resistance_intermediate.tooltip
+KO 이전: [공격불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [공격불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Attack Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Attack Disabled] when it would be applied.
+JA 이전: ［攻撃不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［攻撃不可］が付与される際、{percent}%の確率で無効化します。
+
+[5] General_Skill / general_skill.attack_disabled_resistance_advanced.description
+KO 이전: [공격불가] 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [공격불가]를 받을 때 50% 확률로 무효화합니다.
+EN 이전: When [Attack Disabled] would be applied, has a 50% chance to resist and prevent the effect.
+EN 적용: Has a 50% chance to prevent [Attack Disabled] when it would be applied.
+JA 이전: ［攻撃不可］状態が付与される際、50%の確率で抵抗し、その効果を受けません。
+JA 적용: ［攻撃不可］が付与される際、50%の確率で無効化します。
+
+[6] General_Skill / general_skill.attack_disabled_resistance_advanced.tooltip
+KO 이전: [공격불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [공격불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Attack Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Attack Disabled] when it would be applied.
+JA 이전: ［攻撃不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［攻撃不可］が付与される際、{percent}%の確率で無効化します。
+
+[7] General_Skill / general_skill_resistance_AbilitySealedResistanceBasic_description
+KO 이전: [능력봉인] 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [능력봉인]를 받을 때 15% 확률로 무효화합니다.
+EN 이전: When [Ability Sealed] would be applied, has a 15% chance to resist and prevent the effect.
+EN 적용: Has a 15% chance to prevent [Ability Sealed] when it would be applied.
+JA 이전: ［能力封印］状態が付与される際、15%の確率で抵抗し、その効果を受けません。
+JA 적용: ［能力封印］が付与される際、15%の確率で無効化します。
+
+[8] General_Skill / general_skill_resistance_AbilitySealedResistanceBasic_format
+KO 이전: [능력봉인] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [능력봉인]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Ability Sealed] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Ability Sealed] when it would be applied.
+JA 이전: ［能力封印］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［能力封印］が付与される際、{percent}%の確率で無効化します。
+
+[9] General_Skill / general_skill_resistance_AbilitySealedResistanceIntermediate_description
+KO 이전: [능력봉인] 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [능력봉인]를 받을 때 30% 확률로 무효화합니다.
+EN 이전: When [Ability Sealed] would be applied, has a 30% chance to resist and prevent the effect.
+EN 적용: Has a 30% chance to prevent [Ability Sealed] when it would be applied.
+JA 이전: ［能力封印］状態が付与される際、30%の確率で抵抗し、その効果を受けません。
+JA 적용: ［能力封印］が付与される際、30%の確率で無効化します。
+
+[10] General_Skill / general_skill_resistance_AbilitySealedResistanceIntermediate_format
+KO 이전: [능력봉인] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [능력봉인]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Ability Sealed] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Ability Sealed] when it would be applied.
+JA 이전: ［能力封印］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［能力封印］が付与される際、{percent}%の確率で無効化します。
+
+[11] General_Skill / general_skill_resistance_AbilitySealedResistanceAdvanced_description
+KO 이전: [능력봉인] 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [능력봉인]를 받을 때 50% 확률로 무효화합니다.
+EN 이전: When [Ability Sealed] would be applied, has a 50% chance to resist and prevent the effect.
+EN 적용: Has a 50% chance to prevent [Ability Sealed] when it would be applied.
+JA 이전: ［能力封印］状態が付与される際、50%の確率で抵抗し、その効果を受けません。
+JA 적용: ［能力封印］が付与される際、50%の確率で無効化します。
+
+[12] General_Skill / general_skill_resistance_AbilitySealedResistanceAdvanced_format
+KO 이전: [능력봉인] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [능력봉인]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Ability Sealed] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Ability Sealed] when it would be applied.
+JA 이전: ［能力封印］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［能力封印］が付与される際、{percent}%の確率で無効化します。
+
+[13] General_Skill / general_skill_resistance_MoveDisabledResistanceBasic_description
+KO 이전: [이동불가] 상태효과를 받을 때 15% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [이동불가]를 받을 때 15% 확률로 무효화합니다.
+EN 이전: When [Move Disabled] would be applied, has a 15% chance to resist and prevent the effect.
+EN 적용: Has a 15% chance to prevent [Move Disabled] when it would be applied.
+JA 이전: ［移動不可］状態が付与される際、15%の確率で抵抗し、その効果を受けません。
+JA 적용: ［移動不可］が付与される際、15%の確率で無効化します。
+
+[14] General_Skill / general_skill_resistance_MoveDisabledResistanceBasic_format
+KO 이전: [이동불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [이동불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Move Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Move Disabled] when it would be applied.
+JA 이전: ［移動不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［移動不可］が付与される際、{percent}%の確率で無効化します。
+
+[15] General_Skill / general_skill_resistance_MoveDisabledResistanceIntermediate_description
+KO 이전: [이동불가] 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [이동불가]를 받을 때 30% 확률로 무효화합니다.
+EN 이전: When [Move Disabled] would be applied, has a 30% chance to resist and prevent the effect.
+EN 적용: Has a 30% chance to prevent [Move Disabled] when it would be applied.
+JA 이전: ［移動不可］状態が付与される際、30%の確率で抵抗し、その効果を受けません。
+JA 적용: ［移動不可］が付与される際、30%の確率で無効化します。
+
+[16] General_Skill / general_skill_resistance_MoveDisabledResistanceIntermediate_format
+KO 이전: [이동불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [이동불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Move Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Move Disabled] when it would be applied.
+JA 이전: ［移動不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［移動不可］が付与される際、{percent}%の確率で無効化します。
+
+[17] General_Skill / general_skill_resistance_MoveDisabledResistanceAdvanced_description
+KO 이전: [이동불가] 상태효과를 받을 때 50% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [이동불가]를 받을 때 50% 확률로 무효화합니다.
+EN 이전: When [Move Disabled] would be applied, has a 50% chance to resist and prevent the effect.
+EN 적용: Has a 50% chance to prevent [Move Disabled] when it would be applied.
+JA 이전: ［移動不可］状態が付与される際、50%の確率で抵抗し、その効果を受けません。
+JA 적용: ［移動不可］が付与される際、50%の確率で無効化します。
+
+[18] General_Skill / general_skill_resistance_MoveDisabledResistanceAdvanced_format
+KO 이전: [이동불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [이동불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Move Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Move Disabled] when it would be applied.
+JA 이전: ［移動不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［移動不可］が付与される際、{percent}%の確率で無効化します。
+
+[19] General_Skill / general_skill_resistance_ActionDisabledResistanceBasic_description
+KO 이전: [행동불가] 상태효과를 받을 때 10% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [행동불가]를 받을 때 10% 확률로 무효화합니다.
+EN 이전: When [Action Disabled] would be applied, has a 10% chance to resist and prevent the effect.
+EN 적용: Has a 10% chance to prevent [Action Disabled] when it would be applied.
+JA 이전: ［行動不可］状態が付与される際、10%の確率で抵抗し、その効果を受けません。
+JA 적용: ［行動不可］が付与される際、10%の確率で無効化します。
+
+[20] General_Skill / general_skill_resistance_ActionDisabledResistanceBasic_format
+KO 이전: [행동불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [행동불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Action Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Action Disabled] when it would be applied.
+JA 이전: ［行動不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［行動不可］が付与される際、{percent}%の確率で無効化します。
+
+[21] General_Skill / general_skill_resistance_ActionDisabledResistanceIntermediate_description
+KO 이전: [행동불가] 상태효과를 받을 때 20% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [행동불가]를 받을 때 20% 확률로 무효화합니다.
+EN 이전: When [Action Disabled] would be applied, has a 20% chance to resist and prevent the effect.
+EN 적용: Has a 20% chance to prevent [Action Disabled] when it would be applied.
+JA 이전: ［行動不可］状態が付与される際、20%の確率で抵抗し、その効果を受けません。
+JA 적용: ［行動不可］が付与される際、20%の確率で無効化します。
+
+[22] General_Skill / general_skill_resistance_ActionDisabledResistanceIntermediate_format
+KO 이전: [행동불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [행동불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Action Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Action Disabled] when it would be applied.
+JA 이전: ［行動不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［行動不可］が付与される際、{percent}%の確率で無効化します。
+
+[23] General_Skill / general_skill_resistance_ActionDisabledResistanceAdvanced_description
+KO 이전: [행동불가] 상태효과를 받을 때 30% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [행동불가]를 받을 때 30% 확률로 무효화합니다.
+EN 이전: When [Action Disabled] would be applied, has a 30% chance to resist and prevent the effect.
+EN 적용: Has a 30% chance to prevent [Action Disabled] when it would be applied.
+JA 이전: ［行動不可］状態が付与される際、30%の確率で抵抗し、その効果を受けません。
+JA 적용: ［行動不可］が付与される際、30%の確率で無効化します。
+
+[24] General_Skill / general_skill_resistance_ActionDisabledResistanceAdvanced_format
+KO 이전: [행동불가] 상태효과를 받을 때 {percent}% 확률로 저항하여 해당 효과를 받지 않습니다.
+KO 적용: [행동불가]를 받을 때 {percent}% 확률로 무효화합니다.
+EN 이전: When [Action Disabled] would be applied, has a {percent}% chance to resist and prevent the effect.
+EN 적용: Has a {percent}% chance to prevent [Action Disabled] when it would be applied.
+JA 이전: ［行動不可］状態が付与される際、{percent}%の確率で抵抗し、その効果を受けません。
+JA 적용: ［行動不可］が付与される際、{percent}%の確率で無効化します。
+
+[25] General_Skill / general_skill.quick_step.description
+KO 이전: 공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻습니다. 추가 이동으로는 상대 기물을 잡을 수 없습니다.
+KO 적용: 공격에 성공하면 {percent}% 확률로 추가 이동을 1회 얻습니다. 추가 이동으로는 공격할 수 없습니다.
+EN 이전: After a successful attack, has a {percent}% chance to gain 1 extra move. This extra move cannot capture an enemy piece.
+EN 적용: After a successful attack, has a {percent}% chance to gain 1 extra move. This extra move cannot be used to attack.
+JA 이전: 攻撃に成功すると、{percent}%の確率で追加移動を1回得ます。この追加移動では相手の駒を取れません。
+JA 적용: 攻撃に成功すると、{percent}%の確率で追加移動を1回得ます。この追加移動では攻撃できません。
+
+[26] General_Skill / general_skill.quick_step.tooltip_format
+KO 이전: 공격에 성공하면 {percent}% 확률로 추가 이동 기회를 1회 얻습니다. 추가 이동으로는 상대 기물을 잡을 수 없습니다.
+KO 적용: 공격에 성공하면 {percent}% 확률로 추가 이동을 1회 얻습니다. 추가 이동으로는 공격할 수 없습니다.
+EN 이전: After a successful attack, has a {percent}% chance to gain 1 extra move. This extra move cannot capture an enemy piece.
+EN 적용: After a successful attack, has a {percent}% chance to gain 1 extra move. This extra move cannot be used to attack.
+JA 이전: 攻撃に成功すると、{percent}%の確率で追加移動を1回得ます。この追加移動では相手の駒を取れません。
+JA 적용: 攻撃に成功すると、{percent}%の確率で追加移動を1回得ます。この追加移動では攻撃できません。
+
+[27] General_Skill / general.absorb_guard.desc
+KO 이전: 흡수 공격을 막고 공격한 기물을 튕겨냅니다. 마무리 흡수도 막습니다.
+KO 적용: 흡수 공격과 [마무리 흡수]를 막고 공격한 기물을 튕겨냅니다.
+EN 이전: Blocks absorption attacks and knocks the attacker back. Also blocks finishing absorption.
+EN 적용: Blocks absorption attacks and [Finishing Absorption], knocking the attacker back.
+JA 이전: 吸収攻撃を防ぎ、攻撃した駒を弾き返します。とどめの吸収も防ぎます。
+JA 적용: 吸収攻撃と［とどめの吸収］を防ぎ、攻撃した駒を弾き返します。
+
+[28] General_Skill / general.absorb_guard.tooltip
+KO 이전: 흡수 공격을 막고 공격한 기물을 튕겨냅니다. 마무리 흡수도 막습니다.
+KO 적용: 흡수 공격과 [마무리 흡수]를 막고 공격한 기물을 튕겨냅니다.
+EN 이전: Blocks absorption attacks and knocks the attacker back. Also blocks finishing absorption.
+EN 적용: Blocks absorption attacks and [Finishing Absorption], knocking the attacker back.
+JA 이전: 吸収攻撃を防ぎ、攻撃した駒を弾き返します。とどめの吸収も防ぎます。
+JA 적용: 吸収攻撃と［とどめの吸収］を防ぎ、攻撃した駒を弾き返します。
+
+[29] Status_Effect / status_effect.attack_disabled.description
+KO 이전: [공격불가] 상태에서는 상대 기물을 잡는 이동을 할 수 없습니다.
+KO 적용: 상대 기물을 잡을 수 없습니다.
+EN 이전: While [Attack Disabled], cannot make a move that would capture an enemy piece.
+EN 적용: Cannot capture enemy pieces.
+JA 이전: ［攻撃不可］状態では、相手の駒を取る移動はできません。
+JA 적용: 相手の駒を取れません。
+
+[30] Status_Effect / status_effect_ability_sealed_description
+KO 이전: [능력봉인] 상태에서는 능력을 사용할 수 없습니다.
+KO 적용: 능력을 사용할 수 없습니다.
+EN 이전: While [Ability Sealed], cannot use Abilities.
+EN 적용: Cannot use Abilities.
+JA 이전: ［能力封印］状態では、能力を使用できません。
+JA 적용: 能力を使用できません。
+
+[31] Status_Effect / status_effect.action_disabled.description
+KO 이전: [행동불가] 상태에서는 이동 및 공격을 할 수 없습니다.
+KO 적용: 이동 및 공격을 할 수 없습니다.
+EN 이전: While [Action Disabled], cannot move or attack.
+EN 적용: Cannot move or attack.
+JA 이전: ［行動不可］状態では、移動も攻撃もできません。
+JA 적용: 移動も攻撃もできません。
+
+[32] Status_Effect / status_effect_move_disabled_description
+KO 이전: [이동불가] 상태에서는 상대 기물을 잡는 이동만 할 수 있습니다.
+KO 적용: 상대 기물을 잡는 이동만 할 수 있습니다.
+EN 이전: While [Move Disabled], can only move to capture an enemy piece.
+EN 적용: Can only move to capture an enemy piece.
+JA 이전: ［移動不可］状態では、相手の駒を取る移動のみ可能です。
+JA 적용: 相手の駒を取る移動のみ可能です。
+
+[33] Status_Effect / status_effect.breakthrough.description
+KO 이전: [돌파] 상태에서는 상대의 [방어] 상태효과를 무시합니다. 상대의 방어를 무시하여 공격에 성공하면 [돌파] 상태가 해제됩니다.
+KO 적용: 상대의 [방어]를 1회 무시합니다.
+EN 이전: While [Breakthrough], ignores the opponent's [Defense] status effect. Removes [Breakthrough] after a successful attack that bypasses the target's [Defense].
+EN 적용: Ignores the opponent's [Defense] once.
+JA 이전: ［突破］状態では、相手の［防御］状態を無視します。 相手の［防御］を無視して攻撃に成功すると、［突破］状態が解除されます。
+JA 적용: 相手の［防御］を1回無視します。
+
+[34] Status_Effect / status_effect.defence.description
+KO 이전: [방어] 상태에서는 상대의 공격을 무효화합니다. 방어에 성공하면 [방어] 상태가 해제됩니다.
+KO 적용: 상대의 공격을 1회 방어합니다.
+EN 이전: While [Defense], negates the opponent's attack. Removes [Defense] after successfully blocking an attack.
+EN 적용: Blocks 1 enemy attack.
+JA 이전: ［防御］状態では、相手の攻撃を無効化します。 攻撃の防御に成功すると、［防御］状態が解除されます。
+JA 적용: 相手の攻撃を1回防ぎます。
+
+[35] Status_Effect / status_effect.teleport.description
+KO 이전: 자신의 진영 턴이 종료되면 필드의 빈 타일 중 한 곳으로 무작위 이동한 뒤 [공간이동] 상태가 해제됩니다.
+KO 적용: 자신의 진영 턴 종료 시 무작위 빈 타일로 1회 이동합니다.
+EN 이전: At the end of its team's turn, moves to a random empty tile on the field, then removes [Teleportation].
+EN 적용: Moves once to a random empty tile at the end of its team's turn.
+JA 이전: 自陣営のターン終了時、フィールドの空いているマスのいずれかにランダムで移動し、その後［空間移動］状態が解除されます。
+JA 적용: 自陣営のターン終了時、ランダムな空きマスへ1回移動します。
+
+[36] Status_Effect / status_effect.degeneration.description
+KO 이전: [퇴화] 상태의 기물이 공격 또는 흡수로 제거되면 인접한 빈칸에 같은 진영의 젤루 [폰] 1개를 생성합니다. 생성된 기물은 제거된 기물의 특성을 이어받습니다.
+KO 적용: 공격 또는 흡수로 제거되면 인접한 빈칸에 같은 진영의 젤루 [폰] 1개를 생성하고 특성을 계승합니다.
+EN 이전: When a piece under [Degeneration] is removed by an attack or absorption, creates 1 allied Jellu [Pawn] on an adjacent empty tile. The created piece inherits the Traits of the removed piece.
+EN 적용: When removed by an attack or absorption, creates 1 allied Jellu [Pawn] on an adjacent empty tile with its Traits.
+JA 이전: ［退化］状態の駒が攻撃または吸収で除去されると、隣接する空きマスに同じ陣営のゼル［ポーン］を1体生成します。生成された駒は除去された駒の特性を引き継ぎます。
+JA 적용: 攻撃または吸収で除去されると、隣接する空きマスに特性を引き継いだ同じ陣営のゼル［ポーン］を1体生成します。
+
+[37] Status_Effect / status_effect.evasion.description
+KO 이전: 공격받으면 50% 확률로 인접한 빈칸으로 이동하여 공격을 회피합니다. 공격한 기물은 회피 전 위치로 이동합니다. 회피에 성공하면 [회피] 상태가 해제됩니다.
+KO 적용: 공격받으면 50% 확률로 인접한 빈칸으로 1회 회피합니다. 공격한 기물은 회피 전 위치로 이동합니다.
+EN 이전: When attacked, has a 50% chance to move to an adjacent empty tile and evade the attack. The attacking piece moves to the vacated tile. Removes [Evasion] after successfully evading an attack.
+EN 적용: When attacked, has a 50% chance to evade once to an adjacent empty tile. The attacker moves to the vacated tile.
+JA 이전: 攻撃されると、50%の確率で隣接する空きマスへ移動して攻撃を回避します。攻撃した駒は回避前のマスへ移動します。 回避に成功すると、［回避］状態が解除されます。
+JA 적용: 攻撃されると、50%の確率で隣接する空きマスへ1回回避します。攻撃した駒は回避前のマスへ移動します。
+
+[38] Unique_Skill / unique_skill.virus.description
+KO 이전: 상대 기물 중 최대 3개를 무작위로 선택하여 각 기물에 [공격불가] 또는 [이동불가] 중 하나를 무작위로 부여합니다.
+KO 적용: 무작위 상대 기물 최대 3개에 각각 [공격불가] 또는 [이동불가] 중 하나를 무작위로 부여합니다.
+EN 이전: Randomly selects up to 3 enemy pieces and inflicts either [Attack Disabled] or [Move Disabled] on each.
+EN 적용: Inflicts either [Attack Disabled] or [Move Disabled] at random on each of up to 3 random enemy pieces.
+JA 이전: 相手の駒をランダムで最大3体選び、それぞれに［攻撃不可］または［移動不可］のいずれかをランダムで付与します。
+JA 적용: 相手の駒をランダムで最大3体選び、それぞれに［攻撃不可］か［移動不可］のどちらかをランダムで付与します。
+
+[39] Battle_Item / battle_item_FightingFruit_description
+KO 이전: 선택한 아군 기물의 [공격불가] 상태효과를 즉시 해제합니다.
+KO 적용: 선택한 아군 기물의 [공격불가]를 즉시 해제합니다.
+EN 이전: Immediately removes [Attack Disabled] from the selected allied piece.
+EN 적용: Immediately removes [Attack Disabled] from the selected allied piece.
+JA 이전: 選択した味方の駒の［攻撃不可］を即座に解除します。
+JA 적용: 選択した味方の駒の［攻撃不可］を即座に解除します。
+
+[40] Battle_Item / battle_item_AwakeningFruit_description
+KO 이전: 선택한 아군 기물의 [능력봉인] 상태효과를 즉시 해제합니다.
+KO 적용: 선택한 아군 기물의 [능력봉인]를 즉시 해제합니다.
+EN 이전: Immediately removes [Ability Sealed] from the selected allied piece.
+EN 적용: Immediately removes [Ability Sealed] from the selected allied piece.
+JA 이전: 選択した味方の駒の［能力封印］を即座に解除します。
+JA 적용: 選択した味方の駒の［能力封印］を即座に解除します。
+
+[41] Battle_Item / battle_item_VitalityFruit_description
+KO 이전: 선택한 아군 기물의 [이동불가] 상태효과를 즉시 해제합니다.
+KO 적용: 선택한 아군 기물의 [이동불가]를 즉시 해제합니다.
+EN 이전: Immediately removes [Move Disabled] from the selected allied piece.
+EN 적용: Immediately removes [Move Disabled] from the selected allied piece.
+JA 이전: 選択した味方の駒の［移動不可］を即座に解除します。
+JA 적용: 選択した味方の駒の［移動不可］を即座に解除します。
+
+[42] Battle_Item / battle_item_WornBoots_description
+KO 이전: 선택한 아군 기물에게 [공격불가]를 1턴 동안 부여하고, 즉시 추가 이동 기회를 1회 제공합니다.
+KO 적용: 선택한 아군 기물에게 [공격불가]를 1턴 부여하고 추가 이동을 1회 제공합니다.
+EN 이전: Applies [Attack Disabled] to the selected allied piece for 1 turn and immediately grants 1 extra move.
+EN 적용: Applies [Attack Disabled] to the selected allied piece for 1 turn and grants 1 extra move.
+JA 이전: 選択した味方の駒に［攻撃不可］を1ターン付与し、即座に追加移動を1回与えます。
+JA 적용: 選択した味方の駒に［攻撃不可］を1ターン付与し、追加移動を1回与えます。
+
+[43] Battle_Relic / relic.residual_propulsion.description
+KO 이전: 상대 기물을 흡수하면 즉시 추가 이동 기회를 1회 얻습니다. 추가 이동으로는 공격할 수 없습니다.
+KO 적용: 상대 기물을 흡수하면 추가 이동을 1회 얻습니다. 추가 이동으로는 공격할 수 없습니다.
+EN 이전: After absorbing an enemy piece, immediately gains 1 extra move. This extra move cannot be used to attack.
+EN 적용: After absorbing an enemy piece, gains 1 extra move. This extra move cannot be used to attack.
+JA 이전: 相手の駒を吸収すると、即座に追加移動を1回得ます。この追加移動では攻撃できません。
+JA 적용: 相手の駒を吸収すると、追加移動を1回得ます。この追加移動では攻撃できません。
+
+[44] Battle_Relic / relic.initial_acceleration.description
+KO 이전: 변형하지 않은 데보리아 [폰]은 전투 중 첫 이동에 한해 앞으로 2칸 이동할 수 있습니다. 이동 경로의 2칸이 모두 비어 있어야 합니다.
+KO 적용: 변형하지 않은 데보리아 [폰]은 첫 이동에 한해 앞으로 2칸 이동할 수 있습니다.
+EN 이전: An untransformed Devorya [Pawn] can move forward 2 tiles on its first move in battle. Both tiles must be empty.
+EN 적용: An untransformed Devorya [Pawn] can move forward 2 tiles on its first move.
+JA 이전: 変形していないデボリア［ポーン］は、戦闘中の初回移動に限り前方へ2マス移動できます。経路上の2マスは空いている必要があります。
+JA 적용: 変形していないデボリア［ポーン］は、初回移動に限り前方へ2マス移動できます。
+
+[45] Battle_Relic / relic.absorb_overcharge.description
+KO 이전: 상대 기물을 흡수하면 다음 자신의 턴 동안 최대 에너지가 1 증가합니다. 해당 턴이 종료되면 원래 값으로 돌아오며, 여러 번 흡수해도 중첩되지 않습니다.
+KO 적용: 상대 기물을 흡수하면 다음 자신의 턴 동안 최대 에너지가 1 증가합니다. 중첩되지 않습니다.
+EN 이전: After absorbing an enemy piece, maximum Energy increases by 1 during your next turn. The bonus expires at the end of that turn and does not stack.
+EN 적용: After absorbing an enemy piece, maximum Energy increases by 1 during your next turn. Does not stack.
+JA 이전: 相手の駒を吸収すると、次の自分のターン中、最大エネルギーが1増加します。そのターンの終了時に元に戻り、効果は重複しません。
+JA 적용: 相手の駒を吸収すると、次の自分のターン中、最大エネルギーが1増加します。効果は重複しません。

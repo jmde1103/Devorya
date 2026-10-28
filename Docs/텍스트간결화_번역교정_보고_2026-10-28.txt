@@ -1,0 +1,101 @@
+﻿DEVORYA 텍스트 간결화 번역 교정 보고
+
+작업 브랜치: codex/text-guide-v2-continue
+기존 작업을 유지한 번역 교정만 수행. 커밋 및 다른 개발 브랜치 병합 없음.
+
+변경 요약
+- 능력봉인 저항 I/II/III 설명·동적 형식 6개 KR 키: [능력봉인]를 → [능력봉인]을.
+- 각성열매 1개 KR 키: 같은 조사 교정.
+- 흡수 방어 설명·툴팁 2개 키: EN Final Absorption / JA フィニッシュ吸収.
+  KR은 지정된 최종 문구와 이미 일치하여 그대로 유지.
+- 바이러스 1개 KR 키: 대상 선정과 각 대상 효과 추첨이 구별되도록 지정된 문구 적용.
+- 총 10키, 확인·적용한 언어 항목 14개 중 실제 문구 변경은 12개.
+- 한국어 데이터 5개 에셋의 8필드 동기화. 흡수 방어의 한국어 기본 문구도 일치 확인.
+- 확률·대상 수·지속시간·비용·전투 로직·씬·프리팹·GUID·Inspector 설정 변경 없음.
+- 복제·증식 기획 및 문구는 변경하지 않음.
+
+적용 방법
+TooltipTranslationImport.RunGuideV2Corrections 진입점으로 교정 대상 14개 항목만 처리.
+원본 문구가 검토된 이전 값과 다르면 중단하는 검사를 통과한 후 적용.
+이전 전체 번역 가져오기 Run/RunGuideV2는 실행하지 않음.
+흡수 방어 의미 구간의 텍스트만 새 EN/JA 용어에 맞추고 Positive 역할 유지.
+그 밖의 의미 구간·역할 및 {percent} 치환 변수 유지.
+런타임 번역 SSOT는 기존 Localization String Table이며 별도 런타임 번역 저장소 없음.
+
+검증 결과
+Unity 6000.4.0f1 컴파일 오류 0.
+TOOLTIP_IMPORT_PASS entries=14 fallbackFields=8.
+53개 데이터 × KR/EN/JA = 159개 툴팁 Play Mode 검사 통과.
+동적 확률 치환, 제목/본문/섹션 표시, 본문·섹션 넘침, 닫기 검사 통과.
+유물 카드 4종 × 3언어 = 12회 등장 연출·LightSurface·번역·텍스트 넘침 검사 통과.
+DarkSurface/LightSurface 7개 의미 역할 색상 및 태그 검사 통과.
+TOOLTIP_LOCALE_PASS ko/en/ja 및 TOOLTIP_STYLE_PLAYMODE_PASS 확인.
+수정 대상이 포함된 5개 테이블의 246개 항목 대조: 지정 항목 외 문구 불변.
+그 외 Localization 테이블 및 Shared Data 파일은 교정 전과 바이트 단위로 동일.
+지정 항목의 저장된 의미 구간·역할, 한국어 fallback, Localization ID 보존 확인.
+공통 TooltipStylePalette.asset은 교정 전과 바이트 단위로 동일.
+데이터 에셋은 설명·툴팁 형식 외 필드 불변 확인.
+Unity 저장 시 자동 추가된 기존 기본값 필드 및 테스트 폰트 캐시는 교정 전 상태로 복원.
+전체 전투 플레이와 모바일 실기기 테스트는 이번 번역 교정 검증 범위에 포함하지 않음.
+
+검증 로그
+Logs/text-guide-v2-corrections-unity.log
+검토 입력: Logs/text-guide-v2-corrections.json (일회성 편집 입력, 게임 미참조)
+
+수정 파일 목록 (이번 교정 기준)
+Assets/Devorya/Data/Item/아이템_각성열매.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 I.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 II.asset
+Assets/Devorya/Data/Skills/General/특성_능력봉인 저항 III.asset
+Assets/Devorya/Data/Skills/Unique/능력_바이러스.asset
+Assets/Localization/StringTables/Battle_Item_ko.asset
+Assets/Localization/StringTables/General_Skill_en.asset
+Assets/Localization/StringTables/General_Skill_ja.asset
+Assets/Localization/StringTables/General_Skill_ko.asset
+Assets/Localization/StringTables/Unique_Skill_ko.asset
+Assets/Editor/TooltipTranslationImport.cs (교정 전용 실행 진입점 1줄 추가)
+Docs/텍스트간결화_번역교정_보고_2026-10-28.txt (본 보고서)
+
+최종 문구 전체 목록
+
+General_Skill / general_skill_resistance_AbilitySealedResistanceBasic_description / KO
+[능력봉인]을 받을 때 15% 확률로 무효화합니다.
+
+General_Skill / general_skill_resistance_AbilitySealedResistanceBasic_format / KO
+[능력봉인]을 받을 때 {percent}% 확률로 무효화합니다.
+
+General_Skill / general_skill_resistance_AbilitySealedResistanceIntermediate_description / KO
+[능력봉인]을 받을 때 30% 확률로 무효화합니다.
+
+General_Skill / general_skill_resistance_AbilitySealedResistanceIntermediate_format / KO
+[능력봉인]을 받을 때 {percent}% 확률로 무효화합니다.
+
+General_Skill / general_skill_resistance_AbilitySealedResistanceAdvanced_description / KO
+[능력봉인]을 받을 때 50% 확률로 무효화합니다.
+
+General_Skill / general_skill_resistance_AbilitySealedResistanceAdvanced_format / KO
+[능력봉인]을 받을 때 {percent}% 확률로 무효화합니다.
+
+General_Skill / general.absorb_guard.desc / KO
+흡수 공격과 [마무리 흡수]를 막고 공격한 기물을 튕겨냅니다.
+
+General_Skill / general.absorb_guard.desc / EN
+Blocks absorption attacks and [Final Absorption], knocking the attacker back.
+
+General_Skill / general.absorb_guard.desc / JA
+吸収攻撃と［フィニッシュ吸収］を防ぎ、攻撃した駒を弾き返します。
+
+General_Skill / general.absorb_guard.tooltip / KO
+흡수 공격과 [마무리 흡수]를 막고 공격한 기물을 튕겨냅니다.
+
+General_Skill / general.absorb_guard.tooltip / EN
+Blocks absorption attacks and [Final Absorption], knocking the attacker back.
+
+General_Skill / general.absorb_guard.tooltip / JA
+吸収攻撃と［フィニッシュ吸収］を防ぎ、攻撃した駒を弾き返します。
+
+Unique_Skill / unique_skill.virus.description / KO
+상대 기물 최대 3개를 무작위로 선택하여 각각 [공격불가] 또는 [이동불가] 중 하나를 무작위로 부여합니다.
+
+Battle_Item / battle_item_AwakeningFruit_description / KO
+선택한 아군 기물의 [능력봉인]을 즉시 해제합니다.
