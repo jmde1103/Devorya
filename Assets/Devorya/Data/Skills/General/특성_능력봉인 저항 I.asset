@@ -15,12 +15,10 @@ MonoBehaviour:
   skillType: 14
   skillName: "\uB2A5\uB825\uBD09\uC778 \uC800\uD56D I"
   iconSprite: {fileID: 21300000, guid: fbd36e008d8b5e34199626177db6c69a, type: 3}
-  description: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-    \uB54C 15% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-    \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
-  tooltipDescriptionFormat: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C
-    \uBC1B\uC744 \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-    \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  description: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C 15% \uD655\uB960\uB85C
+    \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
+  tooltipDescriptionFormat: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C
+    {percent}% \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
   tooltipSections:
   - statusEffectData: {fileID: 11400000, guid: 7764f9ca638a6c446ae98bb899d3d87a, type: 2}
     sectionColor: {r: 1, g: 1, b: 1, a: 1}

@@ -64,6 +64,17 @@ public static class TooltipStyleChecks
         var md=new TooltipSemanticMetadata();
         md.spans.Add(new TooltipSemanticMetadata.Span{text="{percent}%",role=TooltipTextRole.Value});
         Check(TooltipTextStyle.Format("30% and 7",md,30)=="<color=#E4C668>30%</color> and 7","Only explicit numbers, dynamic values");
+        string[] dark={"FFFFFF","C9CECA","737A75","75C9D6","D87969","E4C668","B7A6D9"};
+        string[] light={"1F1F1F","1F1F1F","666666","2F7F8D","A64F43","8A6A00","70599C"};
+        for(int i=0;i<dark.Length;i++)
+        {
+            var role=(TooltipTextRole)i;
+            Check(ColorUtility.ToHtmlStringRGB(TooltipTextStyle.Palette.Get(role))==dark[i],"Dark palette regression "+role);
+            Check(ColorUtility.ToHtmlStringRGB(TooltipTextStyle.Palette.Get(role,TooltipSurface.LightSurface))==light[i],"Light palette "+role);
+            var semantic=new TooltipSemanticMetadata();
+            semantic.spans.Add(new TooltipSemanticMetadata.Span{text="test",role=role});
+            Check(TooltipTextStyle.Format("test 7",semantic,surface:TooltipSurface.LightSurface)=="<color=#"+light[i]+">test</color> 7","Light semantic role "+role);
+        }
         var root=new GameObject("TooltipCheckCanvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
         var canvas=root.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;
         var scaler=root.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1920,1080);
@@ -73,6 +84,9 @@ public static class TooltipStyleChecks
         var title=Field<TMP_Text>(popup,"titleText");
         var body=Field<TMP_Text>(popup,"mainDescriptionText");
         var category=Field<TMP_Text>(popup,"categoryText");
+        var cardPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/RelicUI/RelicRewardCard.prefab");
+        var cardObject=UnityEngine.Object.Instantiate(cardPrefab,root.transform);
+        var card=cardObject.GetComponent<RelicRewardCardUI>();
         int count=0;
         foreach(string locale in new[]{"ko","en","ja"})
         {
@@ -101,6 +115,22 @@ public static class TooltipStyleChecks
                 popup.Hide();
                 Check(!Field<RectTransform>(popup,"popupRoot").gameObject.activeSelf,"Close works");
                 count++;
+            }
+            foreach(var relic in Assets("BattleRelicData").Cast<BattleRelicData>())
+            {
+                card.Bind(relic,_=>{});
+                yield return card.Reveal();
+                yield return null;
+                var cardTitle=Field<TMP_Text>(card,"title");
+                var cardBody=Field<TMP_Text>(card,"description");
+                Canvas.ForceUpdateCanvases();
+                cardBody.ForceMeshUpdate();
+                Check(card.Ready,"Card reveal completes");
+                Check(cardTitle.color==TooltipTextStyle.Palette.lightTitle && cardTitle.fontStyle==FontStyles.Bold,"Card light title");
+                Check(cardBody.color==TooltipTextStyle.Palette.lightBody,"Card light body");
+                Check(cardBody.text==TooltipTextStyle.Format(relic.localizedDescription,relic.GetLocalizedDescription(),surface:TooltipSurface.LightSurface),"Card localized semantics "+locale+" "+relic.name);
+                Check(!cardBody.isTextOverflowing,"Card overflow "+locale+" "+relic.name);
+                Check(!cardBody.GetParsedText().Contains("<color"),"Card rich tags");
             }
             Debug.Log("TOOLTIP_LOCALE_PASS "+locale);
         }

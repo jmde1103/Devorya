@@ -72,20 +72,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 16710000000000002
     m_Localized: "\uACF5\uACA9\uC5D0 \uC131\uACF5\uD558\uBA74 {percent}% \uD655\uB960\uB85C
-      \uCD94\uAC00 \uC774\uB3D9 \uAE30\uD68C\uB97C 1\uD68C \uC5BB\uC2B5\uB2C8\uB2E4.
-      \uCD94\uAC00 \uC774\uB3D9\uC73C\uB85C\uB294 \uC0C1\uB300 \uAE30\uBB3C\uC744
-      \uC7A1\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+      \uCD94\uAC00 \uC774\uB3D9\uC744 1\uD68C \uC5BB\uC2B5\uB2C8\uB2E4. \uCD94\uAC00
+      \uC774\uB3D9\uC73C\uB85C\uB294 \uACF5\uACA9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351007
+      - rid: 1511530069013037060
   - m_Id: 16710000000000003
     m_Localized: "\uACF5\uACA9\uC5D0 \uC131\uACF5\uD558\uBA74 {percent}% \uD655\uB960\uB85C
-      \uCD94\uAC00 \uC774\uB3D9 \uAE30\uD68C\uB97C 1\uD68C \uC5BB\uC2B5\uB2C8\uB2E4.
-      \uCD94\uAC00 \uC774\uB3D9\uC73C\uB85C\uB294 \uC0C1\uB300 \uAE30\uBB3C\uC744
-      \uC7A1\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+      \uCD94\uAC00 \uC774\uB3D9\uC744 1\uD68C \uC5BB\uC2B5\uB2C8\uB2E4. \uCD94\uAC00
+      \uC774\uB3D9\uC73C\uB85C\uB294 \uACF5\uACA9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351008
+      - rid: 1511530069013037061
   - m_Id: 17473334455963648
     m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D I"
     m_Metadata:
@@ -139,217 +137,193 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17473335370321921
-    m_Localized: "[\uD589\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 10% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uD589\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 10% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351009
+      - rid: 1511530069013037062
   - m_Id: 17473335370321922
-    m_Localized: "[\uD589\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uD589\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351010
+      - rid: 1511530069013037063
   - m_Id: 17473335559065600
     m_Localized: "\uD589\uB3D9\uBD88\uAC00 \uC800\uD56D II"
     m_Metadata:
       m_Items: []
   - m_Id: 17473335559065601
-    m_Localized: "[\uD589\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 20% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uD589\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 20% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351011
+      - rid: 1511530069013037064
   - m_Id: 17473335559065602
-    m_Localized: "[\uD589\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uD589\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351012
+      - rid: 1511530069013037065
   - m_Id: 17473335743614976
     m_Localized: "\uD589\uB3D9\uBD88\uAC00 \uC800\uD56D III"
     m_Metadata:
       m_Items: []
   - m_Id: 17473335743614977
-    m_Localized: "[\uD589\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 30% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uD589\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 30% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351013
+      - rid: 1511530069013037066
   - m_Id: 17473335743614978
-    m_Localized: "[\uD589\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uD589\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351014
+      - rid: 1511530069013037067
   - m_Id: 17477364905283584
     m_Localized: "\uC774\uB3D9\uBD88\uAC00 \uC800\uD56D I"
     m_Metadata:
       m_Items: []
   - m_Id: 17477364976586752
-    m_Localized: "[\uC774\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 15% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uC774\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 15% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351015
+      - rid: 1511530069013037068
   - m_Id: 17477364976586753
-    m_Localized: "[\uC774\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uC774\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351016
+      - rid: 1511530069013037069
   - m_Id: 17477365416988672
     m_Localized: "\uC774\uB3D9\uBD88\uAC00 \uC800\uD56D II"
     m_Metadata:
       m_Items: []
   - m_Id: 17477365416988673
-    m_Localized: "[\uC774\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 30% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uC774\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 30% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351017
+      - rid: 1511530069013037070
   - m_Id: 17477365416988674
-    m_Localized: "[\uC774\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uC774\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351018
+      - rid: 1511530069013037071
   - m_Id: 17477365609926656
     m_Localized: "\uC774\uB3D9\uBD88\uAC00 \uC800\uD56D III"
     m_Metadata:
       m_Items: []
   - m_Id: 17477365609926657
-    m_Localized: "[\uC774\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 50% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uC774\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 50% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351019
+      - rid: 1511530069013037072
   - m_Id: 17477365614120960
-    m_Localized: "[\uC774\uB3D9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uC774\uB3D9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351020
+      - rid: 1511530069013037073
   - m_Id: 17529668530475008
     m_Localized: "\uB2A5\uB825\uBD09\uC778 \uC800\uD56D I"
     m_Metadata:
       m_Items: []
   - m_Id: 17529668614361088
-    m_Localized: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 15% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C 15% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351021
+      - rid: 1511530069212528642
   - m_Id: 17529668614361089
-    m_Localized: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351022
+      - rid: 1511530069212528643
   - m_Id: 17529669063151616
     m_Localized: "\uB2A5\uB825\uBD09\uC778 \uC800\uD56D II"
     m_Metadata:
       m_Items: []
   - m_Id: 17529669063151617
-    m_Localized: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 30% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C 30% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351023
+      - rid: 1511530069212528644
   - m_Id: 17529669063151618
-    m_Localized: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351024
+      - rid: 1511530069212528645
   - m_Id: 17529669268672512
     m_Localized: "\uB2A5\uB825\uBD09\uC778 \uC800\uD56D III"
     m_Metadata:
       m_Items: []
   - m_Id: 17529669268672513
-    m_Localized: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 50% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C 50% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351025
+      - rid: 1511530069212528646
   - m_Id: 17529669268672514
-    m_Localized: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uB2A5\uB825\uBD09\uC778]\uC744 \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351026
+      - rid: 1511530069212528647
   - m_Id: 17798063515635712
     m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D I"
     m_Metadata:
       m_Items: []
   - m_Id: 17798063595327488
-    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 15% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 15% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351027
+      - rid: 1511530069013037080
   - m_Id: 17798063595327489
-    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351028
+      - rid: 1511530069013037081
   - m_Id: 17798475647946752
     m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D II"
     m_Metadata:
       m_Items: []
   - m_Id: 17798475647946753
-    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 30% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 30% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351029
+      - rid: 1511530069013037082
   - m_Id: 17798475647946754
-    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351030
+      - rid: 1511530069013037083
   - m_Id: 17798744809017344
     m_Localized: "\uACF5\uACA9\uBD88\uAC00 \uC800\uD56D III"
     m_Metadata:
       m_Items: []
   - m_Id: 17798744809017345
-    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C 50% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9 \uD6A8\uACFC\uB97C
-      \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C 50% \uD655\uB960\uB85C
+      \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351031
+      - rid: 1511530069013037084
   - m_Id: 17798744809017346
-    m_Localized: "[\uACF5\uACA9\uBD88\uAC00] \uC0C1\uD0DC\uD6A8\uACFC\uB97C \uBC1B\uC744
-      \uB54C {percent}% \uD655\uB960\uB85C \uC800\uD56D\uD558\uC5EC \uD574\uB2F9
-      \uD6A8\uACFC\uB97C \uBC1B\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+    m_Localized: "[\uACF5\uACA9\uBD88\uAC00]\uB97C \uBC1B\uC744 \uB54C {percent}%
+      \uD655\uB960\uB85C \uBB34\uD6A8\uD654\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351032
+      - rid: 1511530069013037085
   - m_Id: 18806884333654016
     m_Localized: "\uD68C\uD53C \uC790\uC138"
     m_Metadata:
@@ -371,19 +345,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 18888465559719936
-    m_Localized: "\uD761\uC218 \uACF5\uACA9\uC744 \uB9C9\uACE0 \uACF5\uACA9\uD55C
-      \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4. \uB9C8\uBB34\uB9AC \uD761\uC218\uB3C4
-      \uB9C9\uC2B5\uB2C8\uB2E4."
+    m_Localized: "\uD761\uC218 \uACF5\uACA9\uACFC [\uB9C8\uBB34\uB9AC \uD761\uC218]\uB97C
+      \uB9C9\uACE0 \uACF5\uACA9\uD55C \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529993413328896
+      - rid: 1511530069212528648
   - m_Id: 18888465563914240
-    m_Localized: "\uD761\uC218 \uACF5\uACA9\uC744 \uB9C9\uACE0 \uACF5\uACA9\uD55C
-      \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4. \uB9C8\uBB34\uB9AC \uD761\uC218\uB3C4
-      \uB9C9\uC2B5\uB2C8\uB2E4."
+    m_Localized: "\uD761\uC218 \uACF5\uACA9\uACFC [\uB9C8\uBB34\uB9AC \uD761\uC218]\uB97C
+      \uB9C9\uACE0 \uACF5\uACA9\uD55C \uAE30\uBB3C\uC744 \uD295\uACA8\uB0C5\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 1511529993413328897
+      - rid: 1511530069212528649
   references:
     version: 2
     RefIds:
@@ -439,214 +411,6 @@ MonoBehaviour:
           role: 3
         - text: '{percent}%'
           role: 5
-    - rid: 1511529955060351007
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '{percent}%'
-          role: 5
-        - text: "1\uD68C"
-          role: 5
-    - rid: 1511529955060351008
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '{percent}%'
-          role: 5
-        - text: "1\uD68C"
-          role: 5
-    - rid: 1511529955060351009
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uD589\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: 10%
-          role: 5
-    - rid: 1511529955060351010
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uD589\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351011
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uD589\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: 20%
-          role: 5
-    - rid: 1511529955060351012
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uD589\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351013
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uD589\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: 30%
-          role: 5
-    - rid: 1511529955060351014
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uD589\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351015
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uC774\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: 15%
-          role: 5
-    - rid: 1511529955060351016
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uC774\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351017
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uC774\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: 30%
-          role: 5
-    - rid: 1511529955060351018
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uC774\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351019
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uC774\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: 50%
-          role: 5
-    - rid: 1511529955060351020
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uC774\uB3D9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351021
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uB2A5\uB825\uBD09\uC778]"
-          role: 4
-        - text: 15%
-          role: 5
-    - rid: 1511529955060351022
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uB2A5\uB825\uBD09\uC778]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351023
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uB2A5\uB825\uBD09\uC778]"
-          role: 4
-        - text: 30%
-          role: 5
-    - rid: 1511529955060351024
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uB2A5\uB825\uBD09\uC778]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351025
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uB2A5\uB825\uBD09\uC778]"
-          role: 4
-        - text: 50%
-          role: 5
-    - rid: 1511529955060351026
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uB2A5\uB825\uBD09\uC778]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351027
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uACF5\uACA9\uBD88\uAC00]"
-          role: 4
-        - text: 15%
-          role: 5
-    - rid: 1511529955060351028
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uACF5\uACA9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351029
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uACF5\uACA9\uBD88\uAC00]"
-          role: 4
-        - text: 30%
-          role: 5
-    - rid: 1511529955060351030
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uACF5\uACA9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
-    - rid: 1511529955060351031
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uACF5\uACA9\uBD88\uAC00]"
-          role: 4
-        - text: 50%
-          role: 5
-    - rid: 1511529955060351032
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: "[\uACF5\uACA9\uBD88\uAC00]"
-          role: 4
-        - text: '{percent}%'
-          role: 5
     - rid: 1511529988314628096
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -663,15 +427,223 @@ MonoBehaviour:
           role: 5
         - text: "[\uD68C\uD53C]"
           role: 3
-    - rid: 1511529993413328896
+    - rid: 1511530069013037060
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: "\uD761\uC218 \uACF5\uACA9"
+        - text: '{percent}%'
+          role: 5
+        - text: "1\uD68C"
+          role: 5
+    - rid: 1511530069013037061
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '{percent}%'
+          role: 5
+        - text: "1\uD68C"
+          role: 5
+    - rid: 1511530069013037062
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD589\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: 10%
+          role: 5
+    - rid: 1511530069013037063
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD589\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037064
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD589\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: 20%
+          role: 5
+    - rid: 1511530069013037065
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD589\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037066
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD589\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511530069013037067
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uD589\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037068
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: 15%
+          role: 5
+    - rid: 1511530069013037069
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037070
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511530069013037071
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037072
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: 50%
+          role: 5
+    - rid: 1511530069013037073
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uC774\uB3D9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037080
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: 15%
+          role: 5
+    - rid: 1511530069013037081
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037082
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511530069013037083
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069013037084
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: 50%
+          role: 5
+    - rid: 1511530069013037085
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uACF5\uACA9\uBD88\uAC00]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069212528642
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB2A5\uB825\uBD09\uC778]"
+          role: 4
+        - text: 15%
+          role: 5
+    - rid: 1511530069212528643
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB2A5\uB825\uBD09\uC778]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069212528644
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB2A5\uB825\uBD09\uC778]"
+          role: 4
+        - text: 30%
+          role: 5
+    - rid: 1511530069212528645
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB2A5\uB825\uBD09\uC778]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069212528646
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB2A5\uB825\uBD09\uC778]"
+          role: 4
+        - text: 50%
+          role: 5
+    - rid: 1511530069212528647
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB2A5\uB825\uBD09\uC778]"
+          role: 4
+        - text: '{percent}%'
+          role: 5
+    - rid: 1511530069212528648
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: "[\uB9C8\uBB34\uB9AC \uD761\uC218]"
           role: 3
-    - rid: 1511529993413328897
+    - rid: 1511530069212528649
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: "\uD761\uC218 \uACF5\uACA9"
+        - text: "[\uB9C8\uBB34\uB9AC \uD761\uC218]"
           role: 3

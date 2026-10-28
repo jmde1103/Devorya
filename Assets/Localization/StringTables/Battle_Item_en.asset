@@ -65,7 +65,7 @@ MonoBehaviour:
     m_Localized: Immediately removes [Attack Disabled] from the selected allied piece.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351109
+      - rid: 1511530069013037170
   - m_Id: 17784039444975616
     m_Localized: Awakening Fruit
     m_Metadata:
@@ -74,7 +74,7 @@ MonoBehaviour:
     m_Localized: Immediately removes [Ability Sealed] from the selected allied piece.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351110
+      - rid: 1511530069013037171
   - m_Id: 17784039646302208
     m_Localized: Vitality Fruit
     m_Metadata:
@@ -83,17 +83,17 @@ MonoBehaviour:
     m_Localized: Immediately removes [Move Disabled] from the selected allied piece.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351111
+      - rid: 1511530069013037172
   - m_Id: 17792243658788864
     m_Localized: Worn Boots
     m_Metadata:
       m_Items: []
   - m_Id: 17792243738480640
     m_Localized: Applies [Attack Disabled] to the selected allied piece for 1 turn
-      and immediately grants 1 extra move.
+      and grants 1 extra move.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351112
+      - rid: 1511530069013037173
   - m_Id: 18038769924575232
     m_Localized: Test
     m_Metadata:
@@ -127,34 +127,6 @@ MonoBehaviour:
           role: 6
         - text: '[King]'
           role: 6
-    - rid: 1511529955060351109
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Attack Disabled]'
-          role: 4
-    - rid: 1511529955060351110
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Ability Sealed]'
-          role: 4
-    - rid: 1511529955060351111
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Move Disabled]'
-          role: 4
-    - rid: 1511529955060351112
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Attack Disabled]'
-          role: 4
-        - text: 1 turn
-          role: 5
-        - text: 1 extra move
-          role: 5
     - rid: 1511529964079153156
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
@@ -169,3 +141,31 @@ MonoBehaviour:
           role: 6
         - text: '[King]'
           role: 6
+    - rid: 1511530069013037170
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+    - rid: 1511530069013037171
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Ability Sealed]'
+          role: 4
+    - rid: 1511530069013037172
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Move Disabled]'
+          role: 4
+    - rid: 1511530069013037173
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: 1 turn
+          role: 5
+        - text: 1 extra move
+          role: 5

@@ -174,11 +174,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 18842576497545217
-    m_Localized: Randomly selects up to 3 enemy pieces and inflicts either [Attack
-      Disabled] or [Move Disabled] on each.
+    m_Localized: Inflicts either [Attack Disabled] or [Move Disabled] at random on
+      each of up to 3 random enemy pieces.
     m_Metadata:
       m_Items:
-      - rid: 1511529994958405638
+      - rid: 1511530069013037140
   - m_Id: 18842576497545218
     m_Localized: There are no enemy pieces to affect.
     m_Metadata:
@@ -297,19 +297,19 @@ MonoBehaviour:
         spans:
         - text: '[Teleportation]'
           role: 3
-    - rid: 1511529994958405638
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Attack Disabled]'
-          role: 4
-        - text: '[Move Disabled]'
-          role: 4
-        - text: 3 enemy pieces
-          role: 5
     - rid: 1511529994958405639
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
         - text: '[Evasion]'
           role: 3
+    - rid: 1511530069013037140
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: 3
+          role: 5
+        - text: '[Attack Disabled]'
+          role: 4
+        - text: '[Move Disabled]'
+          role: 4

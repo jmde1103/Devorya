@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectData
   effectType: 9
   effectName: "\uB2A5\uB825\uBD09\uC778"
-  description: "[\uB2A5\uB825\uBD09\uC778] \uC0C1\uD0DC\uC5D0\uC11C\uB294 \uB2A5\uB825\uC744
-    \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  description: "\uB2A5\uB825\uC744 \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
   tooltipSections: []
   localizedEffectName:
     m_TableReference:

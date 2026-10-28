@@ -23,43 +23,37 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 793382912
-    m_Localized: While [Defense], negates the opponent's attack. Removes [Defense]
-      after successfully blocking an attack.
+    m_Localized: Blocks 1 enemy attack.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351049
+      - rid: 1511530069013037135
   - m_Id: 72098723270656
     m_Localized: Breakthrough
     m_Metadata:
       m_Items: []
   - m_Id: 72098777796608
-    m_Localized: While [Breakthrough], ignores the opponent's [Defense] status effect.
-      Removes [Breakthrough] after a successful attack that bypasses the target's
-      [Defense].
+    m_Localized: Ignores the opponent's [Defense] once.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351050
+      - rid: 1511530069013037136
   - m_Id: 72943439319040
     m_Localized: Degeneration
     m_Metadata:
       m_Items: []
   - m_Id: 72943439319041
-    m_Localized: When a piece under [Degeneration] is removed by an attack or absorption,
-      creates 1 allied Jellu [Pawn] on an adjacent empty tile. The created piece
-      inherits the Traits of the removed piece.
+    m_Localized: When removed by an attack or absorption, creates 1 allied Jellu
+      [Pawn] on an adjacent empty tile with its Traits.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351051
+      - rid: 1511530069013037137
   - m_Id: 16559834879627264
     m_Localized: Attack Disabled
     m_Metadata:
       m_Items: []
   - m_Id: 16559834950930432
-    m_Localized: While [Attack Disabled], cannot make a move that would capture an
-      enemy piece.
+    m_Localized: Cannot capture enemy pieces.
     m_Metadata:
-      m_Items:
-      - rid: 1511529955060351052
+      m_Items: []
   - m_Id: 16700000000000001
     m_Localized: Guard
     m_Metadata:
@@ -74,111 +68,80 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16720000000000002
-    m_Localized: When attacked, has a 50% chance to move to an adjacent empty tile
-      and evade the attack. The attacking piece moves to the vacated tile. Removes
-      [Evasion] after successfully evading an attack.
+    m_Localized: When attacked, has a 50% chance to evade once to an adjacent empty
+      tile. The attacker moves to the vacated tile.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351053
+      - rid: 1511530069013037138
   - m_Id: 17388937073528832
     m_Localized: Move Disabled
     m_Metadata:
       m_Items: []
   - m_Id: 17388937149026304
-    m_Localized: While [Move Disabled], can only move to capture an enemy piece.
+    m_Localized: Can only move to capture an enemy piece.
     m_Metadata:
-      m_Items:
-      - rid: 1511529955060351054
+      m_Items: []
   - m_Id: 17402470121213952
     m_Localized: Ability Sealed
     m_Metadata:
       m_Items: []
   - m_Id: 17402470196711424
-    m_Localized: While [Ability Sealed], cannot use Abilities.
+    m_Localized: Cannot use Abilities.
     m_Metadata:
-      m_Items:
-      - rid: 1511529955060351055
+      m_Items: []
   - m_Id: 17715458287996928
     m_Localized: Action Disabled
     m_Metadata:
       m_Items: []
   - m_Id: 17715458359300096
-    m_Localized: While [Action Disabled], cannot move or attack.
+    m_Localized: Cannot move or attack.
     m_Metadata:
-      m_Items:
-      - rid: 1511529955060351056
+      m_Items: []
   - m_Id: 18825411195179008
     m_Localized: Teleportation
     m_Metadata:
       m_Items: []
   - m_Id: 18825411291648000
-    m_Localized: At the end of its team's turn, moves to a random empty tile on the
-      field, then removes [Teleportation].
+    m_Localized: Moves once to a random empty tile at the end of its team's turn.
     m_Metadata:
       m_Items:
-      - rid: 1511530002400673793
+      - rid: 1511530069013037139
   references:
     version: 2
     RefIds:
-    - rid: 1511529955060351049
+    - rid: 1511530069013037135
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: '[Defense]'
-          role: 3
-    - rid: 1511529955060351050
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Defense]'
-          role: 3
-        - text: '[Breakthrough]'
-          role: 3
-    - rid: 1511529955060351051
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Degeneration]'
-          role: 3
         - text: 1
           role: 5
-        - text: '[Pawn]'
-          role: 6
-    - rid: 1511529955060351052
+    - rid: 1511530069013037136
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: '[Attack Disabled]'
-          role: 4
-    - rid: 1511529955060351053
+        - text: '[Defense]'
+          role: 3
+        - text: once
+          role: 5
+    - rid: 1511530069013037137
+      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
+      data:
+        spans:
+        - text: '[Pawn]'
+          role: 6
+        - text: 1
+          role: 5
+    - rid: 1511530069013037138
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
         - text: 50%
           role: 5
-        - text: '[Evasion]'
-          role: 3
-    - rid: 1511529955060351054
+        - text: once
+          role: 5
+    - rid: 1511530069013037139
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: '[Move Disabled]'
-          role: 4
-    - rid: 1511529955060351055
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Ability Sealed]'
-          role: 4
-    - rid: 1511529955060351056
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Action Disabled]'
-          role: 4
-    - rid: 1511530002400673793
-      type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
-      data:
-        spans:
-        - text: '[Teleportation]'
-          role: 3
+        - text: once
+          role: 5

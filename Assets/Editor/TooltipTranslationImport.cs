@@ -13,16 +13,32 @@ public static class TooltipTranslationImport
     [Serializable] public class Input { public Row[] entries; }
     [Serializable] public class Row
     {
-        public string collection, key, locale, text;
+        public string collection, key, locale, text, previous;
         public TooltipSemanticMetadata.Span[] spans;
     }
 
-    public static void Run()
+    public static void Run() => Import("Logs/tooltip-translation-input.json", 384, false);
+    public static void RunGuideV2() => Import("Logs/text-guide-v2-input.json", 135, true);
+    public static void RunGuideV2Corrections() => Import("Logs/text-guide-v2-corrections.json", 14, true);
+
+    static void Import(string inputPath, int expectedCount, bool verifyPrevious)
     {
         try
         {
-            var input = JsonUtility.FromJson<Input>(File.ReadAllText("Logs/tooltip-translation-input.json"));
-            if(input.entries.Length != 384) throw new Exception("Expected 128 keys x 3 locales");
+            var input = JsonUtility.FromJson<Input>(File.ReadAllText(inputPath));
+            if(input.entries.Length != expectedCount) throw new Exception("Unexpected input count");
+            // Validate the entire migration before touching any tables. Refuse stale exports.
+            if (verifyPrevious)
+            foreach (var row in input.entries)
+            {
+                var c = LocalizationEditorSettings.GetStringTableCollection(row.collection);
+                var t = c?.GetTable(new LocaleIdentifier(row.locale)) as StringTable;
+                var e = t?.GetEntry(row.key);
+                if (e == null || (e.Value != row.previous && e.Value != row.text))
+                    throw new Exception("Source changed since review: " + row.key + " / " + row.locale);
+                if (row.spans.Any(span => !row.text.Contains(span.text)))
+                    throw new Exception("Invalid semantic span: " + row.key);
+            }
             foreach(var row in input.entries)
             {
                 var collection = LocalizationEditorSettings.GetStringTableCollection(row.collection);
@@ -74,8 +90,9 @@ public static class TooltipTranslationImport
             const string path=folder+"/TooltipStylePalette.asset";
             if(AssetDatabase.LoadAssetAtPath<TooltipStylePalette>(path)==null)
                 AssetDatabase.CreateAsset(ScriptableObject.CreateInstance<TooltipStylePalette>(),path);
+            if (verifyPrevious) EditorUtility.SetDirty(AssetDatabase.LoadAssetAtPath<TooltipStylePalette>(path));
             AssetDatabase.SaveAssets();
-            Debug.Log("TOOLTIP_IMPORT_PASS entries=384 fallbackFields="+synced);
+            Debug.Log("TOOLTIP_IMPORT_PASS entries="+input.entries.Length+" fallbackFields="+synced);
             TooltipStyleChecks.Run();
         }
         catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}

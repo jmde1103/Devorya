@@ -33,30 +33,30 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 17556453620060160
     m_Localized: An untransformed Devorya [Pawn] can move forward 2 tiles on its
-      first move in battle. Both tiles must be empty.
+      first move.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351034
+      - rid: 1511530069013037088
   - m_Id: 17556453812998144
     m_Localized: Residual Thrust Controller
     m_Metadata:
       m_Items: []
   - m_Id: 17556453812998145
-    m_Localized: After absorbing an enemy piece, immediately gains 1 extra move.
-      This extra move cannot be used to attack.
+    m_Localized: After absorbing an enemy piece, gains 1 extra move. This extra move
+      cannot be used to attack.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351035
+      - rid: 1511530069013037089
   - m_Id: 17556453989158912
     m_Localized: Absorption Overcharger
     m_Metadata:
       m_Items: []
   - m_Id: 17556453989158913
     m_Localized: After absorbing an enemy piece, maximum Energy increases by 1 during
-      your next turn. The bonus expires at the end of that turn and does not stack.
+      your next turn. Does not stack.
     m_Metadata:
       m_Items:
-      - rid: 1511529955060351036
+      - rid: 1511530069013037090
   references:
     version: 2
     RefIds:
@@ -66,21 +66,21 @@ MonoBehaviour:
         spans:
         - text: 1 extra action
           role: 5
-    - rid: 1511529955060351034
+    - rid: 1511530069013037088
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: 2 tiles
-          role: 5
         - text: '[Pawn]'
           role: 6
-    - rid: 1511529955060351035
+        - text: 2 tiles
+          role: 5
+    - rid: 1511530069013037089
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
-        - text: 1 extra move
+        - text: 1
           role: 5
-    - rid: 1511529955060351036
+    - rid: 1511530069013037090
       type: {class: TooltipSemanticMetadata, ns: , asm: Assembly-CSharp}
       data:
         spans:
