@@ -253,6 +253,16 @@ public class EventBattleUIVisibilityTarget
 [Serializable]
 public class EventSequenceStepData
 {
+    [Header("튜토리얼 행동 안내")]
+    [InspectorName("튜토리얼 안내 표시")]
+    public bool showTutorialInstruction = false;
+    [TextArea(2, 6), InspectorName("한국어 안내")]
+    public string tutorialInstructionText = string.Empty;
+    [HideInInspector] public string tutorialInstructionLocalizationId;
+    [HideInInspector] public LocalizedString tutorialInstructionLocalizedText = new LocalizedString();
+    public bool IsForceActionStep => stepType == EventSequenceStepType.ForcePieceSelect ||
+        stepType == EventSequenceStepType.ForceTileSelect || stepType == EventSequenceStepType.ForceButton;
+
     [Header("Basic")]
     // Inspector에서 단계의 용도를 쉽게 확인하기 위한 이름
     public string stepName;

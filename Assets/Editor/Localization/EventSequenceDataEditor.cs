@@ -27,7 +27,7 @@ using UnityEditorInternal;
 // English / Japanese:
 // 이 Inspector에서 직접 편집
 [CustomEditor(typeof(EventSequenceData))]
-public class EventSequenceDataEditor : Editor
+public partial class EventSequenceDataEditor : Editor
 {
     private const string TableCollectionName =
         "Event_Dialogue";
@@ -2261,61 +2261,18 @@ public class EventSequenceDataEditor : Editor
     // ForcePieceSelect / ForceTileSelect / ForceButton에서 사용하는
     // Marker 설정을 Rect 기반으로 출력한다.
     private void ProcessEventMarkerSettings(
-        ref float currentY,
-        Rect contentRect,
-        SerializedProperty stepProperty,
-        bool draw)
+        ref float currentY, Rect contentRect, SerializedProperty stepProperty, bool draw)
     {
-        currentY +=
-            5f;
-
-        ProcessEventStepSectionLabel(
-            ref currentY,
-            contentRect,
-            "Marker",
-            draw
-        );
-
-        ProcessEventStepProperty(
-            ref currentY,
-            contentRect,
-            stepProperty,
-            "showMarker",
-            "Show Marker",
-            false,
-            draw
-        );
-
-        SerializedProperty showMarkerProperty =
-            stepProperty.FindPropertyRelative(
-                "showMarker"
-            );
-
-        if (showMarkerProperty == null ||
-            showMarkerProperty.boolValue == false)
+        currentY += 5f;
+        ProcessEventStepSectionLabel(ref currentY, contentRect, "Marker", draw);
+        ProcessEventStepProperty(ref currentY, contentRect, stepProperty, "showMarker", "Show Marker", false, draw);
+        SerializedProperty showMarkerProperty = stepProperty.FindPropertyRelative("showMarker");
+        if (showMarkerProperty != null && showMarkerProperty.boolValue)
         {
-            return;
+            ProcessEventStepProperty(ref currentY, contentRect, stepProperty, "markerDisplayType", "Display Type", false, draw);
+            ProcessEventStepProperty(ref currentY, contentRect, stepProperty, "markerPositionOffset", "Position Offset", false, draw);
         }
-
-        ProcessEventStepProperty(
-            ref currentY,
-            contentRect,
-            stepProperty,
-            "markerDisplayType",
-            "Display Type",
-            false,
-            draw
-        );
-
-        ProcessEventStepProperty(
-            ref currentY,
-            contentRect,
-            stepProperty,
-            "markerPositionOffset",
-            "Position Offset",
-            false,
-            draw
-        );
+        ProcessTutorialInstructionSettings(ref currentY, contentRect, stepProperty, draw);
     }
 
     // <변경부분>
@@ -2517,6 +2474,8 @@ public class EventSequenceDataEditor : Editor
         // SpeechBubble도 기존 Localization Reference를 공유하지 않는다.
         copy.speechBubbleLocalizedText =
             new LocalizedString();
+        copy.tutorialInstructionLocalizationId = CreateStableId("instruction");
+        copy.tutorialInstructionLocalizedText = new LocalizedString();
 
 
         // =================================================
@@ -2634,6 +2593,13 @@ public class EventSequenceDataEditor : Editor
                             collection,
                             newKey
                         );
+            }
+            if (copy.IsForceActionStep && !string.IsNullOrEmpty(source.tutorialInstructionLocalizationId))
+            {
+                string oldKey = GetTutorialInstructionKey(sequenceData, source);
+                string newKey = GetTutorialInstructionKey(sequenceData, copy);
+                CopyEventSequenceTranslationValues(collection, oldKey, newKey, copy.tutorialInstructionText);
+                copy.tutorialInstructionLocalizedText = DevoryaLocalizationEditorUtility.CreateLocalizedStringReference(collection, newKey);
             }
         }
 
@@ -2993,7 +2959,7 @@ public class EventSequenceDataEditor : Editor
         ) ||
         HasAnySpeechBubbleStep(
             sequenceData
-        )
+        ) || HasAnyTutorialInstruction(sequenceData)
     );
 
         using (new EditorGUI.DisabledScope(
@@ -3011,7 +2977,7 @@ public class EventSequenceDataEditor : Editor
         if (canSync == false)
         {
             EditorGUILayout.HelpBox(
-     "Localization ID와 최소 1개의 Dialogue Page 또는 SpeechBubble Step이 필요합니다.",
+     "Localization ID와 최소 1개의 Dialogue Page, SpeechBubble 또는 활성화된 튜토리얼 안내 Step이 필요합니다.",
      MessageType.None
  );
         }
@@ -3925,6 +3891,13 @@ public class EventSequenceDataEditor : Editor
                     continue;
                 }
 
+                if (step.IsForceActionStep && step.showTutorialInstruction)
+                {
+                    string instructionKey = GetTutorialInstructionKey(sequenceData, step);
+                    DevoryaLocalizationEditorUtility.SetTableValue(koreanTable, instructionKey, step.tutorialInstructionText ?? string.Empty);
+                    step.tutorialInstructionLocalizedText = DevoryaLocalizationEditorUtility.CreateLocalizedStringReference(collection, instructionKey);
+                }
+
                 // <변경부분>
                 // 기존 Dialogue Page Localization은 그대로 유지한다.
                 if (step.stepType ==
@@ -4126,6 +4099,8 @@ public class EventSequenceDataEditor : Editor
 
                 continue;
             }
+
+            EnsureTutorialInstructionMetadata(sequenceData, step, usedStepIds);
 
             if (step.stepType ==
                 EventSequenceStepType.SpeechBubble)

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 
 // <변경부분> 전투 화면의 버튼 UI를 관리하는 컨트롤러
-public class BattleUIController : MonoBehaviour
+public partial class BattleUIController : MonoBehaviour
 {
     [Header("Manager")]
     [SerializeField] private BattleManager battleManager;
@@ -55,7 +55,11 @@ public class BattleUIController : MonoBehaviour
     private bool isItemCancelMode;
     private bool cancelPreviousInteractable;
 
-    private void LateUpdate() => RefreshSharedCancelButton();
+    private void LateUpdate()
+    {
+        RefreshSharedCancelButton();
+        KeepTutorialInstructionNonBlocking();
+    }
 
     public void RefreshSharedCancelButton()
     {
@@ -370,6 +374,8 @@ public class BattleUIController : MonoBehaviour
     // Locale 변경 이벤트 구독을 해제한다.
     private void OnDisable()
     {
+        EndTutorialInstruction();
+        HideUniqueSkillFailureMessageImmediately();
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
 
@@ -2323,6 +2329,7 @@ public class BattleUIController : MonoBehaviour
             uniqueSkillFailureMessageCoroutine = null;
         }
 
+        PauseTutorialInstruction();
         uniqueSkillFailureMessageCoroutine = StartCoroutine(ShowUniqueSkillFailureMessageRoutine(message));
     }
 
@@ -2370,9 +2377,9 @@ public class BattleUIController : MonoBehaviour
             yield return null;
         }
 
-        HideUniqueSkillFailureMessageImmediately();
-
         uniqueSkillFailureMessageCoroutine = null;
+        HideUniqueSkillFailureMessageImmediately();
+        ResumeTutorialInstruction();
     }
 
     // <변경부분> 고유스킬 실패 메시지를 즉시 숨기는 함수
