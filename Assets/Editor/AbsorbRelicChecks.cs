@@ -33,6 +33,12 @@ public static class AbsorbRelicChecks
         SessionState.SetBool(Pending, true);
         EditorApplication.EnterPlaymode();
     }
+    public static void ValidateExisting()
+    {
+        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        SessionState.SetBool(Pending, true);
+        EditorApplication.EnterPlaymode();
+    }
     static void Setup()
     {
         string[] descriptions = {
@@ -133,14 +139,22 @@ public static class AbsorbRelicChecks
         var blocker = f.Spawn("Jellu Pawn", PieceTeam.Player, 0, 1);
         Check(!f.validator.GetSelectablePositions(pawn).Contains(new Vector2Int(0, 2)), "Cannot jump over piece");
         var transformed = f.Spawn("Jellu Pawn", PieceTeam.Player, 3, 0);
-        Check(!b.CanUseInitialAcceleration(transformed), "Other species excluded");
+        Check(b.CanUseInitialAcceleration(transformed), "Other species pawn included");
+        Check(f.validator.GetSelectablePositions(transformed).Contains(new Vector2Int(3, 2)), "Jellu pawn double move");
+        var destinationBlocker = f.Spawn("Jellu Pawn", PieceTeam.Enemy, 3, 2);
+        Check(!f.validator.GetSelectablePositions(transformed).Contains(new Vector2Int(3, 2)), "Double move cannot capture");
         var enemy = f.Spawn("Devorya Pawn", PieceTeam.Enemy, 3, 4);
         Check(!b.CanUseInitialAcceleration(enemy), "Enemy excluded");
-        pawn.SetAbsorbedJelluVisual(true); Check(!b.CanUseInitialAcceleration(pawn), "Absorbed form excluded"); pawn.SetAbsorbedJelluVisual(false);
+        pawn.SetAbsorbedJelluVisual(true); Check(b.CanUseInitialAcceleration(pawn), "Absorbed pawn included"); pawn.SetAbsorbedJelluVisual(false);
         var firstMover = f.Spawn("Devorya Pawn", PieceTeam.Player, 4, 0);
         yield return f.manager.MovePieceRoutine(firstMover, 4, 2, false);
         Check(firstMover.HasMovedThisBattle && !b.CanUseInitialAcceleration(firstMover), "First move consumed");
         var actor = f.Spawn("Devorya Rook", PieceTeam.Player, 1, 0);
+        Check(!b.CanUseInitialAcceleration(actor), "Non-pawn excluded");
+        var slots = new[] { db.GetData(Types[0]), db.GetData(Types[1]), db.GetData(Types[2]) };
+        Set(relics, "relicSlots", new BattleRelicData[3]);
+        Check(!b.CanUseInitialAcceleration(pawn), "Relic required");
+        Set(relics, "relicSlots", slots);
         f.Spawn("Jellu Pawn", PieceTeam.Enemy, 1, 2);
         int originalMax = b.MaxPlayerAbilityEnergy;
         Set(b, "isAbsorbMode", true);

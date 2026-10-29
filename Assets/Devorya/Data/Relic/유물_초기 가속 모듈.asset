@@ -16,9 +16,7 @@ MonoBehaviour:
   relicName: "\uCD08\uAE30 \uAC00\uC18D \uBAA8\uB4C8"
   iconSprite: {fileID: 21300000, guid: 6c64aa021c0fcf64a9850be821aebd1f, type: 3}
   rarity: 2
-  description: "\uBCC0\uD615\uD558\uC9C0 \uC54A\uC740 \uB370\uBCF4\uB9AC\uC544 [\uD3F0]\uC740
-    \uCCAB \uC774\uB3D9\uC5D0 \uD55C\uD574 \uC55E\uC73C\uB85C 2\uCE78 \uC774\uB3D9\uD560
-    \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+  description: "[\ud3f0]\uc740 \uccab \uc774\ub3d9\uc5d0 \ud55c\ud574 \uc55e\uc73c\ub85c 2\uce78 \uc774\ub3d9\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4."
   tooltipSections: []
   localizedRelicName:
     m_TableReference:

@@ -32,8 +32,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17556453620060160
-    m_Localized: An untransformed Devorya [Pawn] can move forward 2 tiles on its
-      first move.
+    m_Localized: "A [Pawn] can move forward 2 tiles on its first move."
     m_Metadata:
       m_Items:
       - rid: 1511530069013037088
