@@ -77,7 +77,7 @@ public sealed class WorldMapEventDataEditor : Editor
             EditorGUILayout.LabelField("Localization ID",AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Data)));
             EditorGUILayout.HelpBox("에셋과 페이지의 고정 ID를 사용합니다. 이름이나 스텝 순서를 바꿔도 번역 연결은 유지됩니다.",MessageType.None);
             if(GUILayout.Button("Localization 생성 / 한국어 동기화"))pending=()=>{WorldMapEventAuthoring.Sync(Data);AssetDatabase.SaveAssets();};
-            EditorGUILayout.Space(8);EditorGUILayout.LabelField("Dialogue Pages",EditorStyles.boldLabel);
+            EditorGUILayout.Space(8);EditorGUILayout.LabelField("Dialogstring old=page<(step.dialoguePages?.Count??0)?step.dialoguePages[page]:\"\";ue Pages", EditorStyles.boldLabel);
             using(new EditorGUILayout.HorizontalScope()) {
                 if(GUILayout.Button("▼ 전체 펼치기"))foreach(var step in Data.steps)if(step.type==WorldMapEventStepType.Dialogue)expandedDialogue.Add(step);
                 if(GUILayout.Button("▲ 전체 접기"))expandedDialogue.Clear();
@@ -102,14 +102,21 @@ public sealed class WorldMapEventDataEditor : Editor
     }
     void DrawPage(WorldMapEventStep step,int page,int count,StringTableCollection collection,string key)
     {
-        using(new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
-            using(new EditorGUILayout.HorizontalScope()) {
-                EditorGUILayout.LabelField($"Page {page+1}",EditorStyles.boldLabel);
-                using(new EditorGUI.DisabledScope(page==0))if(GUILayout.Button("▲",GUILayout.Width(28)))pending=()=>WorldMapEventAuthoring.MovePage(Data,step,page,page-1);
-                using(new EditorGUI.DisabledScope(page==count-1))if(GUILayout.Button("▼",GUILayout.Width(28)))pending=()=>WorldMapEventAuthoring.MovePage(Data,step,page,page+1);
-                if(GUILayout.Button("삭제",GUILayout.Width(45)))pending=()=>WorldMapEventAuthoring.RemovePage(Data,step,page);
+        using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField($"Page {page + 1}", EditorStyles.boldLabel);
+                using (new EditorGUI.DisabledScope(page == 0)) if (GUILayout.Button("▲", GUILayout.Width(28))) pending = () => WorldMapEventAuthoring.MovePage(Data, step, page, page - 1);
+                using (new EditorGUI.DisabledScope(page == count - 1)) if (GUILayout.Button("▼", GUILayout.Width(28))) pending = () => WorldMapEventAuthoring.MovePage(Data, step, page, page + 1);
+
+                // 현재 페이지에서도 전체 Dialogue Step을 즉시 접을 수 있도록 한다.
+                // 기존 pending 처리 흐름을 사용하여 GUI 렌더링 중 목록 상태 변경을 방지한다.
+                if (GUILayout.Button("▲ 전체 접기", GUILayout.Width(95))) pending = () => expandedDialogue.Clear();
+
+                if (GUILayout.Button("삭제", GUILayout.Width(45))) pending = () => WorldMapEventAuthoring.RemovePage(Data, step, page);
             }
-            string old=page<(step.dialoguePages?.Count??0)?step.dialoguePages[page]:"";
+            string old = page < (step.dialoguePages?.Count ?? 0) ? step.dialoguePages[page] : "";
             EditorGUILayout.LabelField("Korean");EditorGUI.BeginChangeCheck();string value=EditorGUILayout.TextArea(old??"",GUILayout.MinHeight(55));
             if(EditorGUI.EndChangeCheck()){Undo.RecordObject(Data,"Edit World Map Dialogue Korean");WorldMapEventAuthoring.Normalize(step);step.dialoguePages[page]=value;EditorUtility.SetDirty(Data);}
             if(collection==null||string.IsNullOrEmpty(key))EditorGUILayout.HelpBox("Localization 생성 / 한국어 동기화를 실행하면 Stable Key와 EN / JA 입력란이 생성됩니다.",MessageType.None);

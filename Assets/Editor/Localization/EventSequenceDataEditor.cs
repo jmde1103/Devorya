@@ -3264,8 +3264,8 @@ public class EventSequenceDataEditor : Editor
         }
 
         if (GUILayout.Button(
-                "삭제",
-                GUILayout.Width(45)))
+         "삭제",
+         GUILayout.Width(45)))
         {
             RemoveDialoguePage(
                 sequenceData,
@@ -3274,6 +3274,23 @@ public class EventSequenceDataEditor : Editor
             );
 
             EditorGUILayout.EndHorizontal();
+            return true;
+        }
+
+        // 현재 페이지 위치에서 모든 Dialogue Step을 접는다.
+        // 기존 페이지 및 Localization 데이터를 변경하지 않는다.
+        if (GUILayout.Button(
+                "▲ 전체 접기",
+                GUILayout.Width(95)))
+        {
+            EditorGUILayout.EndHorizontal();
+
+            SetAllDialogueStepFoldouts(
+                sequenceData,
+                false
+            );
+
+            GUIUtility.ExitGUI();
             return true;
         }
 
@@ -3439,12 +3456,43 @@ public class EventSequenceDataEditor : Editor
                     "D2"
                 );
 
-            expanded =
-                EditorGUILayout.Foldout(
-                    expanded,
-                    $"Step{stepNumber} - {safeStepName}",
-                    true
-                );
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                expanded =
+                    EditorGUILayout.Foldout(
+                        expanded,
+                        $"Step{stepNumber} - {safeStepName}",
+                        true
+                    );
+
+                // SpeechBubble Step만 전체 접기.
+                // Dialogue 편집 목록은 그대로 유지한다.
+                if (GUILayout.Button(
+                        "▲ 전체 접기",
+                        GUILayout.Width(95)))
+                {
+                    for (int i = 0;
+                         i < sequenceData.steps.Count;
+                         i++)
+                    {
+                        EventSequenceStepData targetStep =
+                            sequenceData.steps[i];
+
+                        if (targetStep == null ||
+                            targetStep.stepType !=
+                                EventSequenceStepType.SpeechBubble)
+                        {
+                            continue;
+                        }
+
+                        dialogueStepFoldouts[i] =
+                            false;
+                    }
+
+                    Repaint();
+                    GUIUtility.ExitGUI();
+                }
+            }
 
             dialogueStepFoldouts[
                 stepIndex] =
