@@ -10,7 +10,7 @@ using UnityEngine.UI;
 //
 // 이 컴포넌트와 EventSequenceData가 연결된 경우에만 동작하며,
 // 비활성화하거나 데이터가 없으면 기존 Battle 시스템에는 전혀 관여하지 않는다.
-public class EventSequenceController : MonoBehaviour
+public partial class EventSequenceController : MonoBehaviour
 {
     // <변경부분> 현재 스테이지에서 실행할 EventSequenceData.
     //
@@ -1068,6 +1068,7 @@ public class EventSequenceController : MonoBehaviour
 
         isStepTransitionInputLocked =
             true;
+        EndForceTutorialInstruction();
     }
 
     // <변경부분> BattleManager가 타일 입력을 처리하기 전에
@@ -1182,6 +1183,7 @@ public class EventSequenceController : MonoBehaviour
 
         isStepTransitionInputLocked =
             true;
+        EndForceTutorialInstruction();
     }
 
     // <변경부분> Battle UI가 실제 버튼 기능을 실행하기 전에
@@ -1277,6 +1279,7 @@ public class EventSequenceController : MonoBehaviour
 
         isStepTransitionInputLocked =
             true;
+        EndForceTutorialInstruction();
     }
 
     // <변경부분> Event Sequence의 모든 실행 상태를
@@ -1397,6 +1400,7 @@ public class EventSequenceController : MonoBehaviour
             return;
         }
 
+        if (isSequenceActive) StopSequence();
         sequenceData =
             newSequenceData;
 
@@ -1501,10 +1505,12 @@ public class EventSequenceController : MonoBehaviour
                 $"{step.stepType}"
             );
 
+            EndForceTutorialInstruction();
             yield return
                 ExecuteStepRoutine(
                     step
                 );
+            EndForceTutorialInstruction();
 
             // CompleteSequence Step이 실행되면
             // 내부에서 isSequenceActive가 false가 되므로 즉시 종료한다.
@@ -2697,6 +2703,7 @@ public class EventSequenceController : MonoBehaviour
     private IEnumerator ExecuteForcePieceSelectStepRoutine(
         EventSequenceStepData step)
     {
+        BeginForceTutorialInstruction(step);
         requiredPiecePosition =
     step.targetPiecePosition;
 
@@ -2768,6 +2775,7 @@ public class EventSequenceController : MonoBehaviour
     private IEnumerator ExecuteForceTileSelectStepRoutine(
         EventSequenceStepData step)
     {
+        BeginForceTutorialInstruction(step);
         requiredTilePosition =
      step.targetTilePosition;
 
@@ -2830,6 +2838,7 @@ public class EventSequenceController : MonoBehaviour
     private IEnumerator ExecuteForceButtonStepRoutine(
         EventSequenceStepData step)
     {
+        BeginForceTutorialInstruction(step);
         if (step.targetButton ==
             EventSequenceButtonType.None)
         {
@@ -3707,6 +3716,7 @@ public class EventSequenceController : MonoBehaviour
     // <변경부분> 현재 시퀀스를 정상 완료 처리한다.
     public void CompleteSequence()
     {
+        EndForceTutorialInstruction();
         if (isSequenceActive == false)
         {
             return;
@@ -4051,6 +4061,7 @@ public class EventSequenceController : MonoBehaviour
     // 현재 실행 중인 메인 코루틴 정리
     private void StopSequenceCoroutine()
     {
+        EndForceTutorialInstruction();
         if (sequenceCoroutine == null)
         {
             return;

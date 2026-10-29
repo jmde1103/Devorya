@@ -3815,12 +3815,30 @@ public class EventSceneDataEditor : Editor
                 }
 
                 bool remove =
+     GUILayout.Button(
+         "삭제",
+         GUILayout.Width(45)
+     );
+
+                // 선택지에서도 Dialogue 편집 목록을 한번에 접을 수 있다.
+                bool collapseAllDialogue =
                     GUILayout.Button(
-                        "삭제",
-                        GUILayout.Width(45)
+                        "▲ 전체 접기",
+                        GUILayout.Width(95)
                     );
 
                 EditorGUILayout.EndHorizontal();
+
+                if (collapseAllDialogue)
+                {
+                    SetAllDialogueStepFoldouts(
+                        eventData,
+                        false
+                    );
+
+                    GUIUtility.ExitGUI();
+                    return;
+                }
 
                 if (moveUp || moveDown || remove)
                 {
@@ -4193,12 +4211,43 @@ public class EventSceneDataEditor : Editor
                     "D2"
                 );
 
-            expanded =
-                EditorGUILayout.Foldout(
-                    expanded,
-                    $"Step{stepNumber} - {safeStepName}",
-                    true
-                );
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                expanded =
+                    EditorGUILayout.Foldout(
+                        expanded,
+                        $"Step{stepNumber} - {safeStepName}",
+                        true
+                    );
+
+                // SpeechBubble만 전체 접기.
+                // Dialogue Step의 펼침 상태는 보존한다.
+                if (GUILayout.Button(
+                        "▲ 전체 접기",
+                        GUILayout.Width(95)))
+                {
+                    for (int i = 0;
+                         i < eventData.steps.Count;
+                         i++)
+                    {
+                        EventSceneStepData targetStep =
+                            eventData.steps[i];
+
+                        if (targetStep == null ||
+                            targetStep.stepType !=
+                                EventSceneStepType.SpeechBubble)
+                        {
+                            continue;
+                        }
+
+                        dialogueStepFoldouts[i] =
+                            false;
+                    }
+
+                    Repaint();
+                    GUIUtility.ExitGUI();
+                }
+            }
 
             dialogueStepFoldouts[
                 stepIndex] =
@@ -4552,8 +4601,8 @@ public class EventSceneDataEditor : Editor
         }
 
         if (GUILayout.Button(
-                "삭제",
-                GUILayout.Width(45)))
+        "삭제",
+        GUILayout.Width(45)))
         {
             RemoveDialoguePage(
                 eventData,
@@ -4562,6 +4611,23 @@ public class EventSceneDataEditor : Editor
             );
 
             EditorGUILayout.EndHorizontal();
+
+            GUIUtility.ExitGUI();
+            return true;
+        }
+
+        // 현재 페이지에서도 이벤트씬의 전체 Dialogue Step을 접는다.
+        // 텍스트 데이터 및 Localization 값은 수정하지 않는다.
+        if (GUILayout.Button(
+                "▲ 전체 접기",
+                GUILayout.Width(95)))
+        {
+            EditorGUILayout.EndHorizontal();
+
+            SetAllDialogueStepFoldouts(
+                eventData,
+                false
+            );
 
             GUIUtility.ExitGUI();
             return true;
