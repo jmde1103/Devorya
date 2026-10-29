@@ -8,8 +8,8 @@ public partial class BattleManager
     public bool CanUseInitialAcceleration(Piece piece)
     {
         return piece != null && piece.Team == PieceTeam.Player &&
-            piece.PieceType == PieceType.Pawn && piece.HasSpeciesTag(PieceSpeciesTag.Devorya) &&
-            !piece.IsAbsorbedJelluVisual && !piece.HasMovedThisBattle &&
+            piece.PieceType == PieceType.Pawn &&
+            !piece.HasMovedThisBattle &&
             HasRelic(BattleRelicType.InitialAcceleration);
     }
 
