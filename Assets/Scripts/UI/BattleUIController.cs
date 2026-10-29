@@ -53,6 +53,20 @@ public class BattleUIController : MonoBehaviour
     private Image.Type itemCancelOriginalImageType;
     private bool itemCancelLayoutCaptured;
     private bool isItemCancelMode;
+    private bool cancelPreviousInteractable;
+
+    private void LateUpdate() => RefreshSharedCancelButton();
+
+    public void RefreshSharedCancelButton()
+    {
+        bool targeting = battleManager != null && battleManager.IsItemTargeting;
+        bool bonus = battleManager != null && battleManager.HasPendingPlayerBonusAction;
+        SetItemCancelMode(targeting || bonus);
+        if (isItemCancelMode && absorbButton != null)
+            absorbButton.interactable = targeting
+                ? battleManager.GetItemInputFailure() == BattleItemFailure.None
+                : battleManager.CanCancelBonusAction;
+    }
     private static Sprite defaultItemCancelSprite;
 
     private Sprite GetItemCancelSprite()
@@ -111,12 +125,15 @@ public class BattleUIController : MonoBehaviour
         isItemCancelMode = active;
         if (active)
         {
+            if (absorbButton != null) cancelPreviousInteractable = absorbButton.interactable;
             StopLastEnemyAbsorbHighlight();
             ApplyItemCancelIcon();
             SetAbsorbButtonVisible(true);
-            SetUniqueSkillButtonVisible(false);
+            if (battleManager != null && battleManager.IsItemTargeting)
+                SetUniqueSkillButtonVisible(false);
             return;
         }
+        if (absorbButton != null) absorbButton.interactable = cancelPreviousInteractable;
         if (itemCancelLayoutCaptured && absorbIconImage != null)
         {
             absorbIconImage.rectTransform.sizeDelta = itemCancelOriginalSizeDelta;
@@ -567,6 +584,12 @@ public class BattleUIController : MonoBehaviour
         if (battleManager != null && battleManager.IsItemTargeting)
         {
             battleManager.CancelItemTargeting();
+            return;
+        }
+        if (battleManager != null && battleManager.HasPendingPlayerBonusAction)
+        {
+            battleManager.TryCancelBonusAction();
+            RefreshSharedCancelButton();
             return;
         }
         if (battleManager == null)
@@ -1332,7 +1355,7 @@ public class BattleUIController : MonoBehaviour
     // <변경부분> 아이템 슬롯 클릭 시 BattleManager에 아이템 사용 요청
     public void SetItemTargetSlot(int index)
     {
-        SetItemCancelMode(index >= 0);
+        RefreshSharedCancelButton();
         if (itemSlotUIs == null) return;
         for (int i = 0; i < itemSlotUIs.Length; i++)
             if (itemSlotUIs[i] != null) itemSlotUIs[i].SetItemSelected(i == index);

@@ -221,6 +221,52 @@ public static class BattleItemUXChecks
             new BattleItemEffectEntry{effectType=BattleItemEffectType.ExtraMove}};
         Check(handler.ValidateItemEffect(transformMove,a)==BattleItemFailure.None,"Projected transform then move validates");
         Check(handler.TryApplyItemEffect(transformMove,a)&&a.PieceType==PieceType.Rook&&a.IsQuickStepMove,"Projected composite executes without partial failure");
+        // The same physical button cancels a committed extra move without refunding the item.
+        a.AddStatusEffect(status);
+        ui.RefreshSharedCancelButton();
+        var cancelButton=Get<Button>(ui,"absorbButton");
+        Check(cancelButton.gameObject.activeSelf && Get<bool>(ui,"isItemCancelMode"),"Extra move displays existing X button");
+        Check(cancelButton.interactable && icon.preserveAspect,"Extra move cancel is usable and fitted");
+        var itemCount=manager.GetItemAtSlot(0);
+        ui.GetType().GetMethod("OnClickAbsorbButton",Flags).Invoke(ui,null);
+        Check(!a.IsQuickStepMove && bm.GetChanceAttackBonusPiece()==null && !bm.HasPendingPlayerBonusAction,"Item bonus fully cleared");
+        Check(Get<BattleTurn>(bm,"currentTurn")==BattleTurn.Player,"Cancel item bonus preserves normal action");
+        Check(a.HasStatusEffect(StatusEffectType.AttackDisabled) && manager.GetItemAtSlot(0)==itemCount,"Cancellation retains applied status and inventory");
+        Check(Get<Tile>(bm,"pendingActionTile")==null && !bm.TryCancelBonusAction(),"Confirmation cleared and repeated cancel ignored");
+        foreach(string activation in new[]{"ActivateQuickStepBonus","ActivateChanceAttackBonus"})
+        {
+            Set(bm,"currentTurn",BattleTurn.Player);Set(bm,"isActionAnimating",false);
+            bm.GetType().GetMethod(activation,Flags).Invoke(bm,new object[]{b});
+            ui.RefreshSharedCancelButton();
+            Check(bm.CanCancelBonusAction && cancelButton.gameObject.activeSelf,"Shared bonus cancellable: "+activation);
+            Set(bm,"isActionAnimating",true);ui.RefreshSharedCancelButton();
+            Check(!cancelButton.interactable && !bm.TryCancelBonusAction(),"Animation rejects cancellation");
+            Set(bm,"isActionAnimating",false);
+            Set(bm,"currentTurn",BattleTurn.Enemy);
+            Check(!bm.TryCancelBonusAction(),"Enemy bonus cannot be cancelled by player");
+            Set(bm,"currentTurn",BattleTurn.Player);
+            Set(bm,"isPlayerDeploymentPhase",true);
+            Check(!bm.TryCancelBonusAction(),"Deployment cannot cancel bonus");
+            Set(bm,"isPlayerDeploymentPhase",false);
+            if(eventController!=null)
+            {
+                Set(eventController,"isSequenceActive",true);Set(eventController,"isWaitingForTileSelection",true);
+                Set(bm,"eventSequenceController",eventController);
+                Check(!bm.TryCancelBonusAction(),"Forced event input blocks bonus cancellation");
+                Set(eventController,"isSequenceActive",false);Set(eventController,"isWaitingForTileSelection",false);
+                Set(bm,"eventSequenceController",null);
+            }
+            Set(bm,"targetItemSlot",0);ui.SetItemTargetSlot(0);
+            ui.GetType().GetMethod("OnClickAbsorbButton",Flags).Invoke(ui,null);
+            Check(!bm.IsItemTargeting && bm.HasPendingPlayerBonusAction,"Item target cancel has priority over bonus cancel");
+            ui.RefreshSharedCancelButton();
+            Check(Get<bool>(ui,"isItemCancelMode"),"X remains for pending bonus after item target cancellation");
+            ui.GetType().GetMethod("OnClickAbsorbButton",Flags).Invoke(ui,null);
+            Check(Get<BattleTurn>(bm,"currentTurn")==BattleTurn.Enemy && !bm.HasPendingPlayerBonusAction,"Post-action bonus cancellation ends turn");
+            Check(!b.IsQuickStepMove && bm.GetChanceAttackBonusPiece()==null,"Bonus flags cleared before next turn");
+            ui.RefreshSharedCancelButton();
+            Check(!Get<bool>(ui,"isItemCancelMode"),"Shared button exits cancellation mode");
+        }
         foreach(var locale in LocalizationSettings.AvailableLocales.Locales)
         {
             if(!new[]{"ko","en","ja"}.Contains(locale.Identifier.Code))continue;
