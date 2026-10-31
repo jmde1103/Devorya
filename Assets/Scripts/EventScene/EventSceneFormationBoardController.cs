@@ -69,6 +69,42 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
     private bool isFormationOpen;
 
+    // =====================================================
+    // Formation Selection
+    // =====================================================
+
+    // <변경부분>
+    // 기존 배틀씬의 플레이어 스테이터스 UI를 재사용한다.
+    // BattleUIController 없이 상태 표시 기능만 호출한다.
+    [Header("Formation Selection")]
+    [SerializeField]
+    private PieceStatusUIController playerStatusUIController;
+
+    // <변경부분>
+    // 기물 선택 시 기존 배틀의 Tile Focus 기능을 사용한다.
+    [SerializeField]
+    private PixelCameraController pixelCameraController;
+
+    // <변경부분>
+    // 카메라 드래그와 기물 클릭을 구분할 최소 이동 거리.
+    [SerializeField, Min(1f)]
+    private float clickDragThresholdPixels = 12f;
+
+    // 현재 배치 대상으로 선택된 플레이어 기물.
+    private Piece selectedFormationPiece;
+
+    // PC 클릭 상태.
+    private bool pcClickCandidate;
+    private bool pcWasDragged;
+    private Vector2 pcPressScreenPosition;
+    private Tile pcPressedTile;
+
+    // 모바일 터치 상태.
+    private bool touchClickCandidate;
+    private int touchFingerId = -1;
+    private Vector2 touchPressScreenPosition;
+    private Tile touchPressedTile;
+
     public bool IsFormationOpen => isFormationOpen;
 
     public BoardManager BoardManager => boardManager;
@@ -77,6 +113,30 @@ public class EventSceneFormationBoardController : MonoBehaviour
     {
         // 이벤트 시작 전에는 편성 보드를 표시하지 않는다.
         CloseFormationBoard();
+    }
+
+    // <변경부분>
+    // 편성 화면이 열려 있을 때만 기물 선택 입력을 처리한다.
+    //
+    // 실제 Camera Drag / Zoom은 기존 PixelCameraController가
+    // 그대로 담당한다.
+    private void Update()
+    {
+        if (!isFormationOpen ||
+            formationBoardRoot == null ||
+            !formationBoardRoot.activeInHierarchy)
+        {
+            return;
+        }
+
+        if (Application.isMobilePlatform)
+        {
+            HandleMobileFormationInput();
+        }
+        else
+        {
+            HandlePCFormationInput();
+        }
     }
 
     // <변경부분>
@@ -297,12 +357,444 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         isFormationOpen = true;
 
+        // <변경부분>
+        // 편성 화면이 열릴 때 이전 스테이터스 표시를 정리한다.
+        if (playerStatusUIController != null)
+        {
+            playerStatusUIController.Clear();
+        }
+
         Debug.Log(
             "기물 편성 보드 활성화 완료: 5x2 / 10 Tiles",
             this
         );
 
         return true;
+    }
+
+    // =====================================================
+    // PC Selection Input
+    // =====================================================
+
+    // <변경부분>
+    // 기존 카메라와 동일하게 클릭 시작/종료 타일이 같고
+    // 드래그가 발생하지 않은 경우에만 선택한다.
+    private void HandlePCFormationInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            pcClickCandidate = false;
+            pcWasDragged = false;
+            pcPressedTile = null;
+
+            // UI 버튼 위에서 시작한 클릭은 무시한다.
+            if (Tile.IsPointerOverUI())
+            {
+                return;
+            }
+
+            pcClickCandidate = true;
+
+            pcPressScreenPosition =
+                Input.mousePosition;
+
+            pcPressedTile =
+                GetFormationTileAtScreenPosition(
+                    pcPressScreenPosition
+                );
+
+            return;
+        }
+
+        if (!pcClickCandidate)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButton(0))
+        {
+            if (Vector2.Distance(
+                    pcPressScreenPosition,
+                    Input.mousePosition) >=
+                clickDragThresholdPixels)
+            {
+                pcWasDragged = true;
+            }
+        }
+
+        if (!Input.GetMouseButtonUp(0))
+        {
+            return;
+        }
+
+        Tile pressedTile = pcPressedTile;
+
+        bool isValidClick =
+            !pcWasDragged &&
+            pressedTile != null &&
+            !Tile.IsPointerOverUI() &&
+            Vector2.Distance(
+                pcPressScreenPosition,
+                Input.mousePosition) <
+            clickDragThresholdPixels;
+
+        pcClickCandidate = false;
+        pcWasDragged = false;
+        pcPressedTile = null;
+
+        if (!isValidClick)
+        {
+            return;
+        }
+
+        Tile releasedTile =
+            GetFormationTileAtScreenPosition(
+                Input.mousePosition
+            );
+
+        if (releasedTile == pressedTile)
+        {
+            HandleFormationTileClick(
+                releasedTile
+            );
+        }
+    }
+
+    // =====================================================
+    // Mobile Selection Input
+    // =====================================================
+
+    // <변경부분>
+    // 모바일에서는 한 손가락 Tap만 선택으로 처리한다.
+    // 두 손가락 핀치 또는 드래그는 기존 카메라에 위임한다.
+    private void HandleMobileFormationInput()
+    {
+        if (Input.touchCount == 0)
+        {
+            ResetFormationTouchInput();
+            return;
+        }
+
+        // 멀티터치가 시작되면 기물 선택 후보를 취소한다.
+        if (Input.touchCount != 1)
+        {
+            ResetFormationTouchInput();
+            return;
+        }
+
+        Touch touch = Input.GetTouch(0);
+
+        if (touch.phase == TouchPhase.Began)
+        {
+            ResetFormationTouchInput();
+
+            if (Tile.IsScreenPositionOverUI(
+                    touch.position))
+            {
+                return;
+            }
+
+            touchClickCandidate = true;
+            touchFingerId = touch.fingerId;
+
+            touchPressScreenPosition =
+                touch.position;
+
+            touchPressedTile =
+                GetFormationTileAtScreenPosition(
+                    touch.position
+                );
+
+            return;
+        }
+
+        if (!touchClickCandidate ||
+            touch.fingerId != touchFingerId)
+        {
+            return;
+        }
+
+        if (touch.phase == TouchPhase.Moved)
+        {
+            if (Vector2.Distance(
+                    touchPressScreenPosition,
+                    touch.position) >=
+                clickDragThresholdPixels)
+            {
+                ResetFormationTouchInput();
+            }
+
+            return;
+        }
+
+        if (touch.phase == TouchPhase.Canceled)
+        {
+            ResetFormationTouchInput();
+            return;
+        }
+
+        if (touch.phase != TouchPhase.Ended)
+        {
+            return;
+        }
+
+        Tile pressedTile = touchPressedTile;
+
+        bool isValidTap =
+            pressedTile != null &&
+            !Tile.IsScreenPositionOverUI(
+                touch.position) &&
+            Vector2.Distance(
+                touchPressScreenPosition,
+                touch.position) <
+            clickDragThresholdPixels;
+
+        ResetFormationTouchInput();
+
+        if (!isValidTap)
+        {
+            return;
+        }
+
+        Tile releasedTile =
+            GetFormationTileAtScreenPosition(
+                touch.position
+            );
+
+        if (releasedTile == pressedTile)
+        {
+            HandleFormationTileClick(
+                releasedTile
+            );
+        }
+    }
+
+    private void ResetFormationTouchInput()
+    {
+        touchClickCandidate = false;
+        touchFingerId = -1;
+        touchPressedTile = null;
+        touchPressScreenPosition = Vector2.zero;
+    }
+
+    // =====================================================
+    // Formation Tile Detection
+    // =====================================================
+
+    // <변경부분>
+    // 클릭한 화면 좌표에서 편성용 Tile만 조회한다.
+    // 기존 Event BackgroundTile이나 다른 Collider는 무시한다.
+    private Tile GetFormationTileAtScreenPosition(
+        Vector2 screenPosition)
+    {
+        Camera selectionCamera =
+            pixelCameraController != null
+                ? pixelCameraController.GetComponent<Camera>()
+                : null;
+
+        if (selectionCamera == null)
+        {
+            selectionCamera = Camera.main;
+        }
+
+        if (selectionCamera == null ||
+            boardManager == null ||
+            formationBoardRoot == null)
+        {
+            return null;
+        }
+
+        float worldPlaneDistance =
+            Mathf.Abs(
+                selectionCamera.transform.position.z
+            );
+
+        Vector3 worldPosition =
+            selectionCamera.ScreenToWorldPoint(
+                new Vector3(
+                    screenPosition.x,
+                    screenPosition.y,
+                    worldPlaneDistance
+                )
+            );
+
+        Collider2D[] colliders =
+            Physics2D.OverlapPointAll(
+                new Vector2(
+                    worldPosition.x,
+                    worldPosition.y
+                )
+            );
+
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider == null)
+            {
+                continue;
+            }
+
+            Tile tile = collider.GetComponent<Tile>();
+
+            if (tile == null)
+            {
+                tile =
+                    collider.GetComponentInParent<Tile>();
+            }
+
+            if (tile == null ||
+                !tile.transform.IsChildOf(
+                    formationBoardRoot.transform))
+            {
+                continue;
+            }
+
+            // 다른 BoardManager의 타일과 혼동하지 않는다.
+            if (boardManager.GetTile(
+                    tile.X,
+                    tile.Y) == tile)
+            {
+                return tile;
+            }
+        }
+
+        return null;
+    }
+
+    // =====================================================
+    // Formation Piece Selection
+    // =====================================================
+
+    // <변경부분>
+    // 기물 선택과 스테이터스 확인만 처리한다.
+    //
+    // 이번 단계에서는 일반 이동/공격/배치 이동을 실행하지 않는다.
+    private void HandleFormationTileClick(
+        Tile tile)
+    {
+        if (!isFormationOpen ||
+            tile == null ||
+            pieceManager == null)
+        {
+            return;
+        }
+
+        Piece clickedPiece =
+            pieceManager.GetPieceAt(
+                tile.X,
+                tile.Y
+            );
+
+        // 빈칸은 다음 단계의 자리배치 대상으로 남겨둔다.
+        if (clickedPiece == null ||
+            clickedPiece.Team != PieceTeam.Player)
+        {
+            return;
+        }
+
+        // 동일한 기물을 다시 클릭하면 선택을 취소한다.
+        if (clickedPiece == selectedFormationPiece)
+        {
+            ClearFormationSelection();
+            return;
+        }
+
+        // 이전에 선택한 기물이 있으면 먼저 Down -> Idle.
+        if (selectedFormationPiece != null)
+        {
+            pieceManager.PlayPieceDeselectAnimation(
+                selectedFormationPiece
+            );
+
+            selectedFormationPiece = null;
+        }
+
+        // 기존 플레이어 스테이터스 UI 표시.
+        // King 등 배치 이동 불가 기물도 정보 확인은 가능하다.
+        if (playerStatusUIController != null)
+        {
+            playerStatusUIController.Refresh(
+                clickedPiece
+            );
+        }
+        else
+        {
+            Debug.LogWarning(
+                "기물 편성: Player Status UI가 연결되지 않았습니다.",
+                this
+            );
+        }
+
+        // 기존 BattleScene의 기물 선택 카메라 포커스 재사용.
+        if (pixelCameraController == null &&
+            Camera.main != null)
+        {
+            pixelCameraController =
+                Camera.main.GetComponent<
+                    PixelCameraController>();
+        }
+
+        if (pixelCameraController != null)
+        {
+            pixelCameraController.FocusOnTile(
+                tile.transform
+            );
+        }
+
+        // King, Queen, Special은 정보 확인만 허용한다.
+        if (!CanSelectFormationPiece(clickedPiece))
+        {
+            return;
+        }
+
+        selectedFormationPiece = clickedPiece;
+
+        // 기존 배틀 초기배치의 Select -> Select_Idle 사용.
+        pieceManager.PlayPieceSelectAnimation(
+            selectedFormationPiece
+        );
+    }
+
+    // <변경부분>
+    // 일반 배틀 초기배치와 동일한 선택 허용 규칙.
+    private bool CanSelectFormationPiece(Piece piece)
+    {
+        if (piece == null ||
+            piece.Team != PieceTeam.Player)
+        {
+            return false;
+        }
+
+        switch (piece.PieceType)
+        {
+            case PieceType.Pawn:
+            case PieceType.Knight:
+            case PieceType.Rook:
+            case PieceType.Bishop:
+                return true;
+        }
+
+        return false;
+    }
+
+    // <변경부분>
+    // 선택 해제 시 기존 Down -> Idle 애니메이션을 실행하고
+    // 플레이어 스테이터스창을 닫는다.
+    private void ClearFormationSelection()
+    {
+        if (selectedFormationPiece != null &&
+            pieceManager != null)
+        {
+            pieceManager.PlayPieceDeselectAnimation(
+                selectedFormationPiece
+            );
+        }
+
+        selectedFormationPiece = null;
+
+        if (playerStatusUIController != null)
+        {
+            playerStatusUIController.Clear();
+        }
     }
 
     // <변경부분>
@@ -342,7 +834,18 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 보드를 숨기고 대기 중인 Event Step을 해제하는 역할만 한다.
     public void CloseFormationBoard()
     {
+        // <변경부분>
+        // 편성 종료 시 선택된 기물의 애니메이션과
+        // 스테이터스 UI를 원래 상태로 돌린다.
+        ClearFormationSelection();
+
         isFormationOpen = false;
+
+        // 진행 중이던 클릭/터치 입력을 폐기한다.
+        pcClickCandidate = false;
+        pcWasDragged = false;
+        pcPressedTile = null;
+        ResetFormationTouchInput();
 
         if (formationBoardRoot != null)
         {
