@@ -42,6 +42,8 @@ public class BattleItemEffectEntry
 [CreateAssetMenu(fileName = "\uc544\uc774\ud15c_\uc0c8 \uc544\uc774\ud15c", menuName = "Devorya/\uc544\uc774\ud15c/\uc544\uc774\ud15c \ub370\uc774\ud130")]
 public class BattleItemData : ScriptableObject
 {
+    [Min(0), InspectorName("판매 가격 (G)")] public int sellPrice;
+    public int SellPrice => Mathf.Max(0, sellPrice);
     [Header("Basic")]
     // 아이템 종류
     public BattleItemType itemType = BattleItemType.None;

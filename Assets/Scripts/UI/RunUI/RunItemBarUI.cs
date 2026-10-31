@@ -12,6 +12,13 @@ using UnityEngine;
 // BattleItemSlotUI의 아이콘 / Localization / Tooltip 기능만 재사용한다.
 public class RunItemBarUI : MonoBehaviour
 {
+    public void SetShopContext(ShopController owner)
+    {
+        if (itemSlotUIs == null) return;
+        for (int i = 0; i < itemSlotUIs.Length; i++)
+            if (itemSlotUIs[i] != null) itemSlotUIs[i].SetShopContext(owner, i);
+    }
+
     // <변경부분>
     // RunStateManager의 공통 아이템 보유 제한을 사용한다.
     //

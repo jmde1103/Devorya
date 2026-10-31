@@ -12,7 +12,7 @@ using UnityEngine.UI;
 // UIButtonNoiseAnimator
 // PixelBurstEffect
 // 구조를 재사용한다.
-public class FieldAbsorbButton : MonoBehaviour
+public partial class FieldAbsorbButton : MonoBehaviour
 {
     [Header("Button")]
     // 실제 클릭 입력을 받는 Button
@@ -215,6 +215,7 @@ public class FieldAbsorbButton : MonoBehaviour
 
     private void OnDisable()
     {
+        contextAction = null;
         if (absorbButton != null)
         {
             absorbButton.onClick.RemoveListener(
@@ -276,6 +277,7 @@ public class FieldAbsorbButton : MonoBehaviour
     Action<bool> modeChangedAction,
     BattleUIController ownerUIController)
     {
+        contextAction = null;
         AutoBindReferences();
 
         // BattleUIController가 기존 흡수 버튼 설정을 전달한다.
@@ -445,6 +447,8 @@ public class FieldAbsorbButton : MonoBehaviour
     // OFF / ON 상태만 반전한다.
     private void HandleButtonClicked()
     {
+        if (contextAction != null) { contextAction(); return; }
+
         // <변경부분> 튜토리얼 / 이벤트에서
         // 현재 Absorb 버튼 입력이 허용되지 않았다면
         // 필드 흡수 버튼의 모든 동작을 차단한다.

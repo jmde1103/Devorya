@@ -19,7 +19,7 @@ using UnityEngine;
 //
 // 전투용 BattleUIController와는 독립적으로 동작한다.
 [RequireComponent(typeof(CanvasGroup))]
-public class ShopFailurePopupUI : MonoBehaviour
+public partial class ShopFailurePopupUI : MonoBehaviour
 {
     [Header("UI References")]
 
@@ -74,6 +74,8 @@ public class ShopFailurePopupUI : MonoBehaviour
 
     private void OnDisable()
     {
+        instructionOwner = null;
+        PauseInstruction();
         // Scene 종료 또는 Shop UI 정리 중
         // 실행 중인 Coroutine을 안전하게 종료한다.
         if (displayCoroutine != null)
@@ -159,6 +161,7 @@ public class ShopFailurePopupUI : MonoBehaviour
         }
 
         // 새 메시지 표시 준비.
+        PauseInstruction();
         messageText.text = message;
         messageText.gameObject.SetActive(true);
 
@@ -252,6 +255,7 @@ public class ShopFailurePopupUI : MonoBehaviour
         HideVisualImmediately();
 
         displayCoroutine = null;
+        ResumeInstruction();
     }
 
 

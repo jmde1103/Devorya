@@ -599,6 +599,7 @@ public partial class RunStateManager : MonoBehaviour
         }
 
         goldAmount = TemporaryShopTestGoldAmount;
+        GoldChanged?.Invoke(goldAmount);
 
         Debug.Log(
             $"[TEMP Shop Test] " +
@@ -665,6 +666,8 @@ public partial class RunStateManager : MonoBehaviour
     }
 
     // <변경부분> 현재 런에서 보유 중인 금화량을 반환하는 함수
+    public event System.Action<int> GoldChanged;
+
     public int GetGoldAmount()
     {
         return goldAmount;
@@ -679,6 +682,7 @@ public partial class RunStateManager : MonoBehaviour
         }
 
         goldAmount += amount;
+        GoldChanged?.Invoke(goldAmount);
 
         Debug.Log($"금화 획득: +{amount} / 현재 보유 금화 {goldAmount}");
     }
@@ -724,6 +728,7 @@ public partial class RunStateManager : MonoBehaviour
 
         // 모든 조건을 통과했으므로 실제 Gold를 차감한다.
         goldAmount -= amount;
+        GoldChanged?.Invoke(goldAmount);
 
         Debug.Log(
             $"Gold 차감 완료: -{amount}G / " +
@@ -885,6 +890,7 @@ public partial class RunStateManager : MonoBehaviour
         // 구매 가격만큼 Gold를 차감한다.
         // 0G 상품은 기존 Gold가 유지된다.
         goldAmount -= price;
+        GoldChanged?.Invoke(goldAmount);
 
         Debug.Log(
             $"[RunStateManager] 아이템 구매 성공: " +
@@ -1036,6 +1042,7 @@ public partial class RunStateManager : MonoBehaviour
 
         // <변경부분> 새 런 시작 시 금화도 초기화
         goldAmount = 0;
+        GoldChanged?.Invoke(goldAmount);
 
         // <변경부분>
         // [TEMP SHOP TEST]

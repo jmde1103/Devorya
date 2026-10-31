@@ -1,124 +1,127 @@
 using TMPro;
 using UnityEngine;
 
-
-// <변경부분>
-// RunStateManager가 보유하고 있는 현재 Run 금화를
-// Battle / WorldMap UI에 표시하는 공용 컴포넌트.
-//
-// 금화 데이터 자체를 저장하거나 변경하지 않고,
-// RunStateManager의 현재 값을 읽어서 화면에 표시한다.
 public class RunGoldUI : MonoBehaviour
 {
     [Header("UI References")]
-
-    // 현재 보유 금화를 표시할 TMP Text.
-    [SerializeField]
-    private TMP_Text goldAmountText;
-
-
+    [SerializeField] private TMP_Text goldAmountText;
     [Header("Display")]
+    [SerializeField] private bool useThousandsSeparator = true;
+    [SerializeField, Range(0.25f, 0.8f), InspectorName("골드 카운팅 시간")] private float countDuration = 0.5f;
+    [SerializeField, Min(1f), InspectorName("숫자 확대 배율")] private float pulseScale = 1.12f;
+    [SerializeField, Min(0.05f), InspectorName("숫자 확대 시간")] private float pulseDuration = 0.25f;
+    [SerializeField, InspectorName("판매 예상 금액 색상")] private Color previewColor = new Color(0.2f, 0.85f, 0.3f);
+    [SerializeField, InspectorName("판매 증감액 텍스트 (선택)")] private TMP_Text previewDeltaText;
+    private RunStateManager source;
+    private object previewOwner;
+    private int previewAmount, actualGold, targetGold;
+    private float displayedGold, startGold, elapsed, pulseElapsed;
+    private bool initialized, counting, pulsing, captured;
+    private Color originalColor;
+    private Vector3 originalScale;
+    private float deltaElapsed, deltaAlpha;
+    private bool deltaClosing;
+    public int DisplayedGold => Mathf.RoundToInt(displayedGold);
+    public int TargetGold => targetGold;
+    public bool IsPreviewing => previewOwner != null;
 
-    // 1000 이상 금액을 1,000 형태로 표시할지 여부.
-    [SerializeField]
-    private bool useThousandsSeparator =
-        true;
-
-
-    // 마지막으로 UI에 표시한 금액.
-    //
-    // 실제 값이 바뀌었을 때만 TMP Text를 다시 갱신하여
-    // 매 프레임 불필요한 문자열 생성을 피한다.
-    private int lastDisplayedGold =
-        int.MinValue;
-
-
-    private void OnEnable()
+    private void OnEnable() { initialized = false; Bind(); }
+    private void OnDisable()
     {
-        RefreshImmediately();
+        if (source != null) source.GoldChanged -= OnGoldChanged;
+        source = null; previewOwner = null; previewAmount = 0; counting = pulsing = false;
+        if (goldAmountText != null && captured) { goldAmountText.color = originalColor; goldAmountText.transform.localScale = originalScale; }
+        if (previewDeltaText != null) previewDeltaText.gameObject.SetActive(false);
+        initialized = false;
     }
-
-
+    private void Bind()
+    {
+        var manager = RunStateManager.Instance;
+        if (source == manager && initialized) return;
+        if (source != null) source.GoldChanged -= OnGoldChanged;
+        source = manager;
+        if (source == null) return;
+        Capture(); source.GoldChanged += OnGoldChanged;
+        actualGold = source.GetGoldAmount(); displayedGold = targetGold = actualGold;
+        counting = pulsing = false; initialized = true; Render();
+    }
+    private void Capture()
+    {
+        if (captured || goldAmountText == null) return;
+        originalColor = goldAmountText.color; originalScale = goldAmountText.transform.localScale; captured = true;
+    }
+    // External refresh requests must not snap an in-progress change animation.
+    public void RefreshImmediately() { Bind(); if (source != null) OnGoldChanged(source.GetGoldAmount()); }
+    private void OnGoldChanged(int value)
+    {
+        actualGold = value;
+        SetTarget((int)System.Math.Min(int.MaxValue, (long)value + previewAmount));
+    }
+    private void SetTarget(int value)
+    {
+        if (!initialized) { displayedGold = targetGold = value; initialized = true; Render(); return; }
+        if (value == targetGold) return;
+        startGold = displayedGold; targetGold = value; elapsed = pulseElapsed = 0f;
+        counting = !Mathf.Approximately(startGold, value); pulsing = counting;
+    }
+    public void ShowSalePreview(object owner, int amount)
+    {
+        if (owner == null) return;
+        Bind(); previewOwner = owner; previewAmount = Mathf.Max(0, amount);
+        if (goldAmountText != null) goldAmountText.color = previewColor;
+        EnsureDeltaText(); deltaClosing = false; deltaElapsed = 0; deltaAlpha = 1;
+        if (previewDeltaText != null) { previewDeltaText.text = "+" + previewAmount + "G"; previewDeltaText.gameObject.SetActive(true); }
+        OnGoldChanged(source != null ? source.GetGoldAmount() : actualGold);
+    }
+    public void EndSalePreview(object owner, bool committing = false)
+    {
+        if (!ReferenceEquals(previewOwner, owner)) return;
+        previewOwner = null; previewAmount = 0; deltaClosing = true; deltaElapsed = 0;
+        if (goldAmountText != null && captured) goldAmountText.color = originalColor;
+        // The following transaction event targets the same number already previewed.
+        if (!committing) OnGoldChanged(source != null ? source.GetGoldAmount() : actualGold);
+    }
+    private void EnsureDeltaText()
+    {
+        if (previewDeltaText != null || goldAmountText == null) return;
+        var go = new GameObject("SaleGoldDelta", typeof(RectTransform));
+        go.transform.SetParent(goldAmountText.transform.parent, false);
+        previewDeltaText = go.AddComponent<TextMeshProUGUI>();
+        previewDeltaText.font = goldAmountText.font; previewDeltaText.fontSharedMaterial = goldAmountText.fontSharedMaterial;
+        previewDeltaText.fontSize = goldAmountText.fontSize * 0.65f; previewDeltaText.color = Color.white;
+        previewDeltaText.alignment = TextAlignmentOptions.Center; previewDeltaText.raycastTarget = false;
+        var rect = previewDeltaText.rectTransform; var origin = goldAmountText.rectTransform;
+        rect.anchorMin = origin.anchorMin; rect.anchorMax = origin.anchorMax; rect.pivot = origin.pivot;
+        rect.sizeDelta = origin.sizeDelta; rect.anchoredPosition = origin.anchoredPosition + Vector2.up * (origin.rect.height * 0.75f);
+    }
     private void Update()
     {
-        RunStateManager runStateManager =
-            RunStateManager.Instance;
-
-
-        if (runStateManager == null)
+        Bind(); if (!initialized) return;
+        float dt = Time.unscaledDeltaTime;
+        if (counting)
         {
-            return;
+            elapsed += dt; float t = Mathf.Clamp01(elapsed / Mathf.Clamp(countDuration, 0.25f, 0.8f));
+            displayedGold = Mathf.Lerp(startGold, targetGold, 1f - Mathf.Pow(1f - t, 3));
+            if (t >= 1f) { displayedGold = targetGold; counting = false; }
+            Render();
         }
-
-
-        int currentGold =
-            runStateManager.GetGoldAmount();
-
-
-        // 금액이 그대로라면
-        // Text 문자열을 다시 만들 필요가 없다.
-        if (currentGold ==
-            lastDisplayedGold)
+        if (pulsing && goldAmountText != null)
         {
-            return;
+            pulseElapsed += dt; float t = Mathf.Clamp01(pulseElapsed / Mathf.Max(0.05f, pulseDuration));
+            goldAmountText.transform.localScale = originalScale * (1f + (pulseScale - 1f) * Mathf.Sin(Mathf.PI * t));
+            if (t >= 1) { goldAmountText.transform.localScale = originalScale; pulsing = false; }
         }
-
-
-        ApplyGoldAmount(
-            currentGold
-        );
+        if (previewDeltaText != null && previewDeltaText.gameObject.activeSelf)
+        {
+            deltaElapsed += dt; float t = Mathf.Clamp01(deltaElapsed / 0.25f);
+            float scale = deltaClosing ? Mathf.Lerp(1f, 0.9f, t) : Mathf.Lerp(0.9f, 1f, t) + 0.2f * Mathf.Sin(Mathf.PI*t);
+            previewDeltaText.transform.localScale = Vector3.one * scale;
+            previewDeltaText.color = new Color(1,1,1,deltaClosing ? 1f-t : deltaAlpha);
+            if (deltaClosing && t >= 1) previewDeltaText.gameObject.SetActive(false);
+        }
     }
-
-
-    // 외부에서 즉시 갱신이 필요한 경우에도 사용할 수 있다.
-    public void RefreshImmediately()
+    private void Render()
     {
-        RunStateManager runStateManager =
-            RunStateManager.Instance;
-
-
-        if (runStateManager == null)
-        {
-            return;
-        }
-
-
-        ApplyGoldAmount(
-            runStateManager.GetGoldAmount()
-        );
-    }
-
-
-    // <변경부분>
-    // 실제 TMP Text에 금액을 적용한다.
-    //
-    // Gold UI는 항상 숫자 오른쪽에
-    // 통화 단위 "G"를 표시한다.
-    //
-    // 예:
-    // 50   → 50G
-    // 1000 → 1,000G
-    private void ApplyGoldAmount(
-        int goldAmount)
-    {
-        lastDisplayedGold =
-            goldAmount;
-
-
-        if (goldAmountText == null)
-        {
-            return;
-        }
-
-
-        string formattedGold =
-            useThousandsSeparator
-                ? goldAmount.ToString("N0")
-                : goldAmount.ToString();
-
-
-        goldAmountText.text =
-      formattedGold +
-      "<space=0.08em>G";
+        if (goldAmountText != null) goldAmountText.text = (useThousandsSeparator ? DisplayedGold.ToString("N0") : DisplayedGold.ToString()) + "<space=0.08em>G";
     }
 }

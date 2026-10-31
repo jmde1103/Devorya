@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // <변경부분> 전투 화면에서 꾹 누른 아이콘 옆에 설명 팝업을 표시하는 UI
-public class TooltipPopupUI : MonoBehaviour
+public partial class TooltipPopupUI : MonoBehaviour
 {
     public static TooltipPopupUI Instance { get; private set; }
 
@@ -128,7 +128,7 @@ public class TooltipPopupUI : MonoBehaviour
         ResizeHeightKeepingTop(description, Mathf.Max(minimumDescriptionHeight, Mathf.Ceil(preferredHeight)));
         description.GetWorldCorners(bodySizingCorners);
         float textBottom = baseTooltipBackground.InverseTransformPoint(bodySizingCorners[0]).y;
-        float requiredHeight = baseTooltipBackground.rect.yMax - textBottom + bodyBottomPadding;
+        float requiredHeight = baseTooltipBackground.rect.yMax - textBottom + bodyBottomPadding + (showShopPrice ? 32f : 0f);
         ResizeHeightKeepingTop(baseTooltipBackground, Mathf.Max(minimumBodyHeight, requiredHeight));
         mainDescriptionText.ForceMeshUpdate();
     }
@@ -277,6 +277,7 @@ public class TooltipPopupUI : MonoBehaviour
                 tooltipViewData.sections
             );
 
+        PrepareShopPrice(tooltipViewData);
         ResizeBaseTooltipToDescription();
 
         RefreshSections(

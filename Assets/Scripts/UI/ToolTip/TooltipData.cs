@@ -109,6 +109,9 @@ public class TooltipSectionData
 // 기존 SkillData / ItemData / RelicData / StatusEffectData의 이름, 설명, 아이콘을 재사용하기 위해 만든 런타임 데이터
 public class TooltipViewData
 {
+    public int? shopSellPrice;
+    public TooltipViewData WithShopPrice(int price) { shopSellPrice = Mathf.Max(0, price); return this; }
+
     // 팝업 상단 제목
     public string title;
 

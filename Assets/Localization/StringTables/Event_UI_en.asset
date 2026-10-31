@@ -38,6 +38,22 @@ MonoBehaviour:
     m_Localized: No
     m_Metadata:
       m_Items: []
+  - m_Id: 7593346357399552
+    m_Localized: Sell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7593346483228672
+    m_Localized: Click an item to sell.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7593346483228673
+    m_Localized: 'Sell Price: {price}G'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7593346483228674
+    m_Localized: This item cannot be sold.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -1589,6 +1589,7 @@ public class EventSceneSequenceController : MonoBehaviour
                     step.spawnActorUseAbsorbedPlayerVisual
                 );
 
+        if (step.spawnActorSpineOverride != null) visualPrefab = step.spawnActorSpineOverride;
         if (visualPrefab == null)
         {
             Debug.LogWarning(
@@ -1727,6 +1728,12 @@ backgroundManager
             );
         }
        
+        if (step.spawnActorIsShopkeeper)
+        {
+            var shop = FindFirstObjectByType<ShopController>();
+            if (shop != null) shop.RegisterMerchant(actor);
+        }
+
         activeActors.Add(
             step.spawnActorId,
             actor

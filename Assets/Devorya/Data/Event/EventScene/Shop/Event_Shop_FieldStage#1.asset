@@ -115,6 +115,7 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E8\uC0C1\uC778"
     spawnActorPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
+    spawnActorIsShopkeeper: 1
     spawnActorTeam: 1
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0.2}
