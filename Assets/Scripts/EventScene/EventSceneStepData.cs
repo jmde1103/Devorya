@@ -380,6 +380,8 @@ public class EventSceneStepData
     // scientist_01
     // devorya_king
     public string spawnActorId;
+    [InspectorName("상점주인으로 생성")] public bool spawnActorIsShopkeeper;
+    [InspectorName("Spine 프리팹 재정의 (선택)")] public GameObject spawnActorSpineOverride;
 
     public PieceData spawnActorPieceData;
 

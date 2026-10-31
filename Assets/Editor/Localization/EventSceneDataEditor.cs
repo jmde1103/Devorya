@@ -1223,6 +1223,8 @@ public class EventSceneDataEditor : Editor
                     draw,
                     "spawnActorId", "Actor ID",
                     "spawnActorPieceData", "Piece Data",
+                    "spawnActorIsShopkeeper", "상점주인으로 생성",
+                    "spawnActorSpineOverride", "Spine 프리팹 재정의 (선택)",
                     "spawnActorTeam", "Visual Team"
                 );
 

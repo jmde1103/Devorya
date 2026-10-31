@@ -94290,6 +94290,9 @@ MonoBehaviour:
   selectedItemTooltipOffsetPerSection: {x: 0, y: 200}
   runItemBarUI: {fileID: 1994606907}
   shopFailurePopupUI: {fileID: 1247030604}
+  merchantFieldButtonTemplate: {fileID: 8406400170467343146, guid: cb1de46a12a25e046a6d309c8ba02305, type: 3}
+  sellIcon: {fileID: 21300000, guid: 96eb06079e651fb4f883389ac4b6a4e2, type: 3}
+  sellCancelIcon: {fileID: 21300000, guid: ed68b46adb4a388469b515a1253ad4bd, type: 3}
 --- !u!1 &788599907
 GameObject:
   m_ObjectHideFlags: 0

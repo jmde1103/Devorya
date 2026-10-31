@@ -4,7 +4,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 // <변경부분> 전투 아이템 슬롯 하나의 아이콘 표시와 클릭 입력을 관리하는 UI
-public class BattleItemSlotUI : MonoBehaviour
+public partial class BattleItemSlotUI : MonoBehaviour
 {
     // 이 슬롯을 관리하는 상위 전투 UI 컨트롤러
     private BattleUIController battleUIController;
@@ -232,23 +232,17 @@ public class BattleItemSlotUI : MonoBehaviour
     // Tooltip을 다시 열면 변경된 언어가 표시된다.
     private void RefreshTooltip()
     {
-        if (tooltipTrigger == null)
-        {
-            return;
-        }
-
-        tooltipTrigger.SetTooltipViewData(
-            currentItemData != null
-                ? TooltipViewData.FromBattleItemData(
-                    currentItemData
-                )
-                : null
-        );
+        if (tooltipTrigger == null) return;
+        var view = currentItemData != null ? TooltipViewData.FromBattleItemData(currentItemData) : null;
+        if (view != null && shopOwner != null && shopOwner.isActiveAndEnabled) view.WithShopPrice(currentItemData.SellPrice);
+        tooltipTrigger.SetTooltipViewData(view);
     }
 
     // <변경부분> 슬롯 클릭 시 상위 BattleUIController에 슬롯 번호를 전달하는 함수
     private void OnClickSlot()
     {
+        if (shopOwner != null && isReadOnlyMode) { shopOwner.SelectSaleItem(shopSlotIndex, currentItemData, itemIconImage != null ? itemIconImage.rectTransform : transform as RectTransform); return; }
+
         // <변경부분>
         // WorldMap 등의 읽기 전용 슬롯에서는
         // Tooltip 확인만 허용하고 실제 아이템 사용 요청은 보내지 않는다.

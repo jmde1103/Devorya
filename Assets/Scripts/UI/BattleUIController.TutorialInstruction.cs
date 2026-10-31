@@ -95,7 +95,7 @@ public partial class BattleUIController
             float max = Mathf.Clamp(tutorialInstructionMaxAlpha, 0.1f, 1f);
             float min = Mathf.Clamp(tutorialInstructionMinAlpha, 0.1f, max);
             float t = Mathf.PingPong(elapsed / Mathf.Max(0.05f, tutorialInstructionPulseDuration), 1f);
-            uniqueSkillFailureCanvasGroup.alpha = Mathf.Lerp(max, min, Mathf.SmoothStep(0f, 1f, t));
+            uniqueSkillFailureCanvasGroup.alpha = InstructionPulse.Alpha(elapsed, tutorialInstructionPulseDuration, min, max);
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }

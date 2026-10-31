@@ -20,7 +20,7 @@ using UnityEngine.UI;
 //
 // Gold와 아이템 데이터의 실제 변경은
 // RunStateManager가 담당한다.
-public class ShopController : MonoBehaviour
+public partial class ShopController : MonoBehaviour
 {
     [SerializeField, InspectorName("월드맵 이벤트 데이터 (선택)")] private WorldMapEventData returnWorldMapEventData;
     [Header("Shop Items")]
@@ -277,6 +277,8 @@ public class ShopController : MonoBehaviour
     // 구매 버튼과 나가기 버튼의 런타임 이벤트를 정리한다.
     private void OnDestroy()
     {
+        CancelSelling();
+
         if (purchaseButton != null)
         {
             purchaseButton.onClick.RemoveListener(
@@ -296,6 +298,8 @@ public class ShopController : MonoBehaviour
 
     private void OnEnable()
     {
+        InitializeSaleUI();
+
         LocalizationSettings.SelectedLocaleChanged -=
             OnSelectedLocaleChanged;
 
@@ -319,6 +323,9 @@ public class ShopController : MonoBehaviour
 
     private void OnDisable()
     {
+        CancelSelling();
+        BindInventoryForShop(false);
+
         // <변경부분>
         // ShopRoot 비활성화 시 선택 Tooltip을 정리한다.
         LocalizationSettings.SelectedLocaleChanged -=
@@ -915,6 +922,8 @@ public class ShopController : MonoBehaviour
     public void HandleItemClicked(
         ShopItemDisplay clickedItem)
     {
+        if (IsSelling) return;
+
         if (clickedItem == null ||
             clickedItem.HasItem == false)
         {
@@ -957,6 +966,8 @@ public class ShopController : MonoBehaviour
     // 상품 클릭은 이 함수를 직접 호출하지 않는다.
     public void OnPurchaseButtonClicked()
     {
+        if (IsSelling) { ConfirmSale(); return; }
+
         // <변경부분>
         // 버튼의 클릭 이벤트가 실제로 전달되는지 확인한다.
         Debug.Log(
@@ -1071,6 +1082,7 @@ public class ShopController : MonoBehaviour
 
         // <변경부분>
         // 중복 종료 및 구매 입력 방지.
+        CancelSelling();
         isExitingShop = true;
 
         if (exitShopButton != null)
@@ -1119,7 +1131,7 @@ public class ShopController : MonoBehaviour
         TooltipViewData viewData =
             TooltipViewData.FromBattleItemData(
                 selectedItemDisplay.ItemData
-            );
+            ).WithShopPrice(selectedItemDisplay.ItemData.SellPrice);
 
         if (viewData == null)
         {
@@ -1191,6 +1203,8 @@ public class ShopController : MonoBehaviour
     // 같은 상품 재클릭이나 다른 상품 선택 때도 글리치 연출을 재생한다.
     private void UpdatePurchaseButtonState()
     {
+        if (IsSelling) { RefreshSellButton(); return; }
+
         if (purchaseButton == null)
         {
             return;
@@ -1260,6 +1274,8 @@ public class ShopController : MonoBehaviour
     // 선택한 아이템의 Tooltip 문자열을 다시 생성한다.
     private void OnSelectedLocaleChanged(Locale selectedLocale)
     {
+        RefreshSaleLanguage();
+
         if (selectedItemDisplay != null &&
             selectedItemDisplay.HasItem)
         {
@@ -1286,6 +1302,8 @@ public class ShopController : MonoBehaviour
     private void TryPurchaseSelectedItem(
         ShopItemDisplay clickedItem)
     {
+        if (IsSelling) return;
+
         if (clickedItem == null ||
             clickedItem.HasItem == false)
         {

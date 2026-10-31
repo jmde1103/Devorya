@@ -35,6 +35,22 @@ MonoBehaviour:
     m_Key: title.tutorial.no
     m_Metadata:
       m_Items: []
+  - m_Id: 7593346357399552
+    m_Key: event.ui.shop.sell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7593346483228672
+    m_Key: event.ui.shop.sell_instruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7593346483228673
+    m_Key: event.ui.shop.sell_price
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7593346483228674
+    m_Key: event.ui.shop.sell_unavailable
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

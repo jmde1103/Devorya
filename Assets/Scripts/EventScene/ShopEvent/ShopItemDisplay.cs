@@ -557,7 +557,7 @@ public class ShopItemDisplay :
                 ? TooltipViewData
                     .FromBattleItemData(
                         itemData
-                    )
+                    ).WithShopPrice(itemData.SellPrice)
                 : null;
 
         tooltipTrigger.SetTooltipViewData(
@@ -573,6 +573,7 @@ public class ShopItemDisplay :
         bool forceRefresh)
     {
         bool interactionAllowed =
+            (shopController == null || !shopController.IsSelling) &&
             HasItem &&
             eventSceneSequenceController != null &&
             eventSceneSequenceController
