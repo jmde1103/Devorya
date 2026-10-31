@@ -21,7 +21,19 @@ MonoBehaviour:
   pauseEnemyAIWhileSequenceActive: 1
   skipNormalPlayerDeployment: 1
   steps:
-  - stepName: "UI\uC228\uAE30\uAE30"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "UI\uC228\uAE30\uAE30"
     stepType: 17
     dialoguePages: []
     dialogueLocalizationId: dialogue_cbbf1b50
@@ -109,7 +121,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.01
     battleUIWaitForComplete: 0
     waitDuration: 0.5
-  - stepName: 
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: 
     stepType: 7
     dialoguePages: []
     dialogueLocalizationId: dialogue_02315128
@@ -187,7 +211,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uBC18\uC9DD"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBC18\uC9DD"
     stepType: 15
     dialoguePages: []
     dialogueLocalizationId: 
@@ -265,7 +301,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uC870\uBA85 \uBCC0\uD654"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC870\uBA85 \uBCC0\uD654"
     stepType: 15
     dialoguePages: []
     dialogueLocalizationId: 
@@ -343,7 +391,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB370\uBCF4\uB9AC\uC544 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
@@ -425,7 +485,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD14C\uC2A4\uD2B8 \uC2DC\uC791"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD14C\uC2A4\uD2B8 \uC2DC\uC791"
     stepType: 1
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
@@ -527,7 +599,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
@@ -609,7 +693,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB8E9 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
@@ -691,7 +787,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB098\uC774\uD2B8 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
@@ -773,7 +881,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBE44\uC20D \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uC758 \uAC00\uB3D9\uC744 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4.
@@ -855,7 +975,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBD84\uC5F4\uCCB4 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBD84\uC5F4\uCCB4 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uB294 \uB124 \uAC00\uC9C0 \uD615\uD0DC\uC758 \uBD84\uC5F4\uCCB4\uB97C
@@ -959,7 +1091,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1048,7 +1192,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_7bdfa437
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19183330889699328
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1127,7 +1283,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD3F0\uC740 \uC790\uC2E0\uC758 \uC9C4\uD589 \uBC29\uD5A5\uC73C\uB85C 1\uCE78
@@ -1217,7 +1385,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB8E9 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB8E9 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1306,7 +1486,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB8E9 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_425908a4
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19183394194329600
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1385,7 +1577,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB8E9 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB8E9\uC740 \uC0C1\uD558\uC88C\uC6B0 \uC9C1\uC120 \uBC29\uD5A5\uC73C\uB85C
@@ -1475,7 +1679,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB098\uC774\uD2B8 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1564,7 +1780,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_da723054
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19175433715716096
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1643,7 +1871,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB098\uC774\uD2B8\uB294 \uB2E4\uB978 \uAE30\uBB3C\uC744 \uB6F0\uC5B4\uB118\uC5B4
@@ -1733,7 +1973,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBE44\uC20D \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uBE44\uC20D \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1822,7 +2074,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBE44\uC20D \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_81ba7f7a
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -1901,7 +2165,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBE44\uC20D \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
@@ -1991,7 +2267,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
@@ -2071,7 +2359,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
@@ -2151,7 +2451,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
@@ -2231,7 +2543,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uD3F0 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uD3F0 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uBE44\uC20D\uC740 \uB300\uAC01\uC120 \uBC29\uD5A5\uC73C\uB85C \uC774\uB3D9\uD560
@@ -2311,7 +2635,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -2400,7 +2736,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_f3da0269
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19175657435697152
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
@@ -2479,7 +2827,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD3F0 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD3F0\uC740 \uC9C4\uD589 \uBC29\uD5A5\uC758 \uB300\uAC01\uC120 1\uCE78\uC5D0
@@ -2570,7 +2930,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_e0479374
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19176168767492096
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
@@ -2649,7 +3021,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD761\uC218 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD761\uC218 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD761\uC218 \uAC00\uB2A5\uD55C \uB300\uC0C1\uC5D0\uB294 \uD761\uC218 \uC544\uC774\uCF58\uC774
@@ -2740,7 +3124,20 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uD761\uC218 \uBC84\uD2BC\uC744 \uD65C\uC131\uD654\uD574
+      \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_c8281b09
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19176721530621952
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
     dialoguePages:
     - "\uD761\uC218 \uAC00\uB2A5\uD55C \uB300\uC0C1\uC5D0\uB294 \uD761\uC218 \uC544\uC774\uCF58\uC774
@@ -2821,7 +3218,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_7fe90cf5
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19177235286724608
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB2E4\uC2DC \uD3F0 \uAE30\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694"
@@ -2900,7 +3309,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD761\uC218 \uC131\uACF5"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD761\uC218 \uC131\uACF5"
     stepType: 1
     dialoguePages:
     - "\uB300\uC0C1\uC758 \uB370\uC774\uD130\uB97C \uC131\uACF5\uC801\uC73C\uB85C
@@ -2990,7 +3411,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: Wait
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
@@ -3069,8 +3502,20 @@ MonoBehaviour:
     battleUIShowGoldRoot: 0
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
-    waitDuration: 5
-  - stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC120\uD0DD"
+    waitDuration: 2
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_075898d1
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19177794991427584
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB300\uC0C1\uC758 \uB370\uC774\uD130\uB97C \uC131\uACF5\uC801\uC73C\uB85C
@@ -3150,7 +3595,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBCC0\uD615\uB41C \uD3F0 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB370\uBCF4\uB9AC\uC544\uB294 \uD761\uC218\uD55C \uC0DD\uBA85\uCCB4\uC758
@@ -3254,7 +3711,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: Wait
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
@@ -3334,7 +3803,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uB8E9 \uC120\uD0DD \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD558\uC138\uC694."
@@ -3446,7 +3927,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB8E9 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_56ac0d4d
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19177946070257664
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -3525,7 +4018,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_9ded500c
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19178712818388992
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -3604,7 +4109,20 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uD761\uC218 \uBC84\uD2BC\uC744 \uD65C\uC131\uD654\uD574
+      \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_6f63cace
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19178803310497792
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -3683,7 +4201,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -3762,7 +4292,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: Wait
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
@@ -3842,7 +4384,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 5
-  - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uB098\uC774\uD2B8\uB97C \uC120\uD0DD\uD558\uC138\uC694. "
@@ -3955,7 +4509,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_9b4e8523
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19178895409025024
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4034,7 +4600,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_4fa05839
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19178956352262144
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4113,7 +4691,20 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uD761\uC218\uD560 \uC0C1\uB300\uB97C \uC120\uD0DD\uD574
+      \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_e55e8466
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179029870022656
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD761\uC218 \uBC84\uD2BC \uC120\uD0DD"
     stepType: 4
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4192,7 +4783,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_e9b2812e
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179083938795520
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4271,7 +4874,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: Wait
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
@@ -4351,7 +4966,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 5
-  - stepName: "\uBE44\uC20D \uC120\uD0DD \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D \uC120\uD0DD \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uBE44\uC20D\uC744 \uC120\uD0DD\uD558\uC138\uC694. "
@@ -4452,7 +5079,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uBE44\uC20D \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_c1603300
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179143464357888
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4531,7 +5170,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_c2085bd2
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179206416666624
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4610,7 +5261,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC77C\uBC18 \uACF5\uACA9"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC77C\uBC18 \uACF5\uACA9"
     stepType: 1
     dialoguePages:
     - "\uC774\uBC88\uC5D4 \uD761\uC218 \uC5C6\uC774 \uC801\uC744 \uC120\uD0DD\uD574
@@ -4700,7 +5363,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: "\uC801 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_accecefb
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179270123950080
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB8E9\uC744 \uC120\uD0DD\uD574\uC11C \uD761\uC218\uD574 \uBCF4\uC138\uC694."
@@ -4779,7 +5454,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0
-  - stepName: Wait
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: Wait
     stepType: 7
     dialoguePages:
     - "\uD6CC\uB96D\uD569\uB2C8\uB2E4. \uC774\uC81C \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uB294
@@ -4859,7 +5546,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 2
-  - stepName: "\uC77C\uBC18 \uACF5\uACA9 \uC131\uACF5"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC77C\uBC18 \uACF5\uACA9 \uC131\uACF5"
     stepType: 1
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
@@ -4948,7 +5647,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
@@ -5027,7 +5738,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
@@ -5106,7 +5829,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
@@ -5185,7 +5920,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uAE30\uBB3C\uC0AD\uC81C"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE30\uBB3C\uC0AD\uC81C"
     stepType: 6
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
@@ -5264,7 +6011,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uD0B9 \uC0DD\uC131"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD0B9 \uC0DD\uC131"
     stepType: 5
     dialoguePages:
     - "\uD761\uC218 \uD558\uC9C0 \uC54A\uC73C\uBA74 \uBCC0\uD615\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
@@ -5343,7 +6102,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uC2B9\uB9AC\uC870\uAC74"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC2B9\uB9AC\uC870\uAC74"
     stepType: 1
     dialoguePages:
     - "\uB9C8\uC9C0\uB9C9 \uD14C\uC2A4\uD2B8\uB294 \uC2B9\uB9AC \uC870\uAC74 \uC785\uB2C8\uB2E4."
@@ -5445,7 +6216,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uD0B9 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_116f26a5
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179338574991360
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD0B9 \uC120\uD0DD"
     stepType: 2
     dialoguePages:
     - "\uB9C8\uC9C0\uB9C9 \uD14C\uC2A4\uD2B8\uB294 \uC2B9\uB9AC \uC870\uAC74 \uC785\uB2C8\uB2E4."
@@ -5527,7 +6310,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uD0B9 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB9C8\uC9C0\uB9C9 \uD14C\uC2A4\uD2B8\uB294 \uC2B9\uB9AC \uC870\uAC74 \uC785\uB2C8\uB2E4."
@@ -5609,7 +6404,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uD0B9 \uD761\uC218 \uC124\uBA85"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD0B9 \uD761\uC218 \uC124\uBA85"
     stepType: 1
     dialoguePages:
     - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
@@ -5710,7 +6517,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uD0B9\uD761\uC218"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD0B9\uD761\uC218"
     stepType: 4
     dialoguePages:
     - "\uC804\uD22C \uC911 \uD761\uC218\uD55C \uC0C1\uB300 \uC0DD\uBA85\uCCB4 \uC218\uC758
@@ -5793,7 +6612,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uC801 \uD0B9 \uC120\uD0DD"
+  - showTutorialInstruction: 1
+    tutorialInstructionText: "\uAE30\uBB3C\uC744 \uC120\uD0DD\uD574 \uC8FC\uC138\uC694."
+    tutorialInstructionLocalizationId: instruction_fce9163b
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: GUID:6ac2f911a5b58f6408736734707d5412
+      m_TableEntryReference:
+        m_KeyId: 19179405264424960
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC801 \uD0B9 \uC120\uD0DD"
     stepType: 3
     dialoguePages:
     - "\uB9C8\uC9C0\uB9C9 \uD14C\uC2A4\uD2B8\uB294 \uC2B9\uB9AC \uC870\uAC74 \uC785\uB2C8\uB2E4."
@@ -5875,7 +6706,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: 
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: 
     stepType: 7
     dialoguePages: []
     dialogueLocalizationId: 
@@ -5953,7 +6796,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 5
-  - stepName: "\uAE00\uB9AC\uCE58"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE00\uB9AC\uCE58"
     stepType: 16
     dialoguePages: []
     dialogueLocalizationId: 
@@ -6031,7 +6886,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uC624\uB958 \uBC1C\uC0DD"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC624\uB958 \uBC1C\uC0DD"
     stepType: 1
     dialoguePages:
     - "\uAE30\uBCF8 \uAE30\uB2A5 \uD14C\uC2A4\uD2B8\uAC00 \uC644...\u3139\uB418..\uC5C8\uC2B5\uB2C8\u3137."
@@ -6120,7 +6987,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uD654\uBA74 \uD754\uB4E4\uB9BC"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uD654\uBA74 \uD754\uB4E4\uB9BC"
     stepType: 18
     dialoguePages: []
     dialogueLocalizationId: 
@@ -6198,7 +7077,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uAE00\uB9AC\uCE58"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE00\uB9AC\uCE58"
     stepType: 16
     dialoguePages: []
     dialogueLocalizationId: dialogue_cae1ed44
@@ -6276,7 +7167,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uC624\uB958 \uBC1C\uC0DD"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC624\uB958 \uBC1C\uC0DD"
     stepType: 1
     dialoguePages:
     - "\uB2E4...\uC74C \uD14C\uC2A4\uD2B8\uB97C.... \uACC4\u3145...\uC18D.... \uC9C0
@@ -6366,7 +7269,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uAE00\uB9AC\uCE58"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE00\uB9AC\uCE58"
     stepType: 16
     dialoguePages: []
     dialogueLocalizationId: dialogue_01ccfd03
@@ -6444,7 +7359,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uC624\uB958 \uBC1C\uC0DD"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC624\uB958 \uBC1C\uC0DD"
     stepType: 1
     dialoguePages:
     - "\uAC15\uD55C \uCDA9\u3131...\uC774 \uAC10\u3148\u3163\uB418\uC5C8\uC2B5\uB2C8\uB2E4.
@@ -6535,7 +7462,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 1
-  - stepName: "\uAE00\uB9AC\uCE58"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uAE00\uB9AC\uCE58"
     stepType: 16
     dialoguePages: []
     dialogueLocalizationId: 
@@ -6613,7 +7552,19 @@ MonoBehaviour:
     battleUIFadeDuration: 0.3
     battleUIWaitForComplete: 1
     waitDuration: 0.5
-  - stepName: "\uC804\uD22C\uC2B9\uB9AC"
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uC804\uD22C\uC2B9\uB9AC"
     stepType: 8
     dialoguePages:
     - "\uD0B9\uC744 \uC9C1\uC811 \uACF5\uACA9\uD558\uC5EC \uD761\uC218\uD560 \uC218
@@ -6697,6 +7648,7 @@ MonoBehaviour:
   completionType: 2
   completionSceneName: TextCutsceneScene
   completionCutsceneData: {fileID: 11400000, guid: c42389642b1dd724f98315c23aa69760, type: 2}
+  completionEventSceneData: {fileID: 0}
   completionWorldMapEventData: {fileID: 0}
   references:
     version: 2

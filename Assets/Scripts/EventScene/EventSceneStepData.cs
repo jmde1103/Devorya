@@ -110,7 +110,18 @@ public enum EventSceneStepType
     // 화면 흔들림을 즉시 종료한다.
     //
     // 기존 Serialized enum 값 0~19는 유지한다.
-    StopScreenShake = 20
+    StopScreenShake = 20,
+
+    // <변경부분>
+    // 현재 RunState의 플레이어 기물을 불러와
+    // 5x2 전용 보드에서 상태 확인과 자리배치를 진행한다.
+    //
+    // 일반 전투 이동, 공격, 능력 사용은 허용하지 않는다.
+    // 편성 완료 후 배치를 저장하고 월드맵으로 복귀한다.
+    //
+    // 기존 Serialized enum 값 0~20은 유지한다.
+    [InspectorName("기물 편성 관리")]
+    ShowPlayerFormation = 21
 }
 
 

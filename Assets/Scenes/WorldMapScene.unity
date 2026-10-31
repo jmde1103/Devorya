@@ -1660,6 +1660,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7842123884100494405, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+      propertyPath: 'relicSlots.Array.data[0]'
+      value: 
+      objectReference: {fileID: 388019660}
+    - target: {fileID: 7842123884100494405, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+      propertyPath: 'relicSlots.Array.data[1]'
+      value: 
+      objectReference: {fileID: 388019659}
+    - target: {fileID: 7842123884100494405, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+      propertyPath: 'relicSlots.Array.data[2]'
+      value: 
+      objectReference: {fileID: 388019658}
+    - target: {fileID: 7842123884100494405, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+      propertyPath: 'relicSlots.Array.data[3]'
+      value: 
+      objectReference: {fileID: 388019657}
     - target: {fileID: 8265040137211664831, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
       propertyPath: m_Name
       value: RelicPanel
@@ -1700,6 +1716,50 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &388019657 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3321063029894451862, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+  m_PrefabInstance: {fileID: 388019653}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdfc0137d580da4488e0898c88df9ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
+--- !u!114 &388019658 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5200550590418838951, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+  m_PrefabInstance: {fileID: 388019653}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdfc0137d580da4488e0898c88df9ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
+--- !u!114 &388019659 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5208117194111506833, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+  m_PrefabInstance: {fileID: 388019653}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdfc0137d580da4488e0898c88df9ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
+--- !u!114 &388019660 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4234921307407826151, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
+  m_PrefabInstance: {fileID: 388019653}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdfc0137d580da4488e0898c88df9ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleRelicSlotUI
 --- !u!1 &395157153
 GameObject:
   m_ObjectHideFlags: 0
@@ -3040,6 +3100,10 @@ PrefabInstance:
     - target: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
       propertyPath: m_Name
       value: TitleButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 5167944335435993507, guid: 195393a0a0375004794110f8a5309f7e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4587,7 +4651,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7849194555859532463, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_SortingOrder
-      value: 150
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 7849194555859532463, guid: 205154980172abc489549154efc1adae, type: 3}
       propertyPath: m_SortingLayerID
@@ -5525,8 +5589,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 747264373}
-  - {fileID: 1464258448}
   - {fileID: 2124941753}
+  - {fileID: 1464258448}
   - {fileID: 79042719}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

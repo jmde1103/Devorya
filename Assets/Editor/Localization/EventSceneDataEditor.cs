@@ -2963,6 +2963,33 @@ public class EventSceneDataEditor : Editor
                 }
 
                 break;
+
+            // =====================================================
+            // Show Player Formation
+            // =====================================================
+
+            case EventSceneStepType.ShowPlayerFormation:
+
+                ProcessEventSceneSectionLabel(
+                    ref currentY,
+                    contentRect,
+                    "Player Formation",
+                    draw
+                );
+
+                ProcessEventSceneHelpBox(
+                    ref currentY,
+                    contentRect,
+                    "현재 보유 중인 플레이어 기물을 표시합니다.\n" +
+                    "5x2 전용 보드에서 기물 상태를 확인하고 " +
+                    "자리배치를 변경할 수 있습니다.\n\n" +
+                    "이동, 공격, 능력 및 아이템 사용은 불가능합니다.\n" +
+                    "나가기 버튼으로 배치를 저장하고 월드맵으로 복귀합니다.",
+                    MessageType.Info,
+                    draw
+                );
+
+                break;
         }
 
         // <변경부분>

@@ -45,6 +45,14 @@ public class EventSceneSequenceController : MonoBehaviour
     private EventSceneRewardPopupUI eventSceneRewardPopupUI;
 
     // <변경부분>
+    // ShowPlayerFormation Step에서 사용할
+    // 기물 편성 전용 5x2 보드 컨트롤러.
+    [Header("Player Formation")]
+    [SerializeField]
+    private EventSceneFormationBoardController
+        formationBoardController;
+
+    // <변경부분>
     // Event Scene에서 BackgroundTile 좌표를 조회한다.
     [SerializeField]
     private BackgroundManager backgroundManager;
@@ -715,6 +723,69 @@ public class EventSceneSequenceController : MonoBehaviour
                 ExecuteStartBattleStep(
                     step
                 );
+
+                yield break;
+
+
+            // <변경부분>
+            // Event Scene의 기물 편성 관리 화면.
+            //
+            // 현재 단계에서는 5x2 보드를 생성하고
+            // 기존 수동 카메라 이동/Zoom을 허용한다.
+            //
+            // 이후 기물 선택, 자리배치, 저장 및 종료를
+            // 이 모드에 연결한다.
+            case EventSceneStepType.ShowPlayerFormation:
+
+                if (formationBoardController == null)
+                {
+                    Debug.LogError(
+                        "ShowPlayerFormation 실행 실패: " +
+                        "FormationBoardController가 연결되지 않았습니다.",
+                        this
+                    );
+
+                    StopSequence();
+                    yield break;
+                }
+
+                if (!formationBoardController.OpenFormationBoard())
+                {
+                    StopSequence();
+                    yield break;
+                }
+
+                // 편성 화면 이전의 카메라 잠금 상태를 보관한다.
+                PixelCameraController formationCamera =
+                    GetEventPixelCameraController();
+
+                bool previousCameraLock =
+                    formationCamera != null &&
+                    formationCamera.IsManualCameraInputLocked;
+
+                // 현재 편성 화면에서는 수동 Camera 조작 허용.
+                // 일반 상점 오브젝트의 상호작용 Lock은 유지한다.
+                SetEventSceneManualCameraInputLocked(false);
+
+                // 편성 화면이 열려 있는 동안 다음 Step으로
+                // 진행하지 않는다.
+                yield return new WaitUntil(
+                    () => formationBoardController == null ||
+                          !formationBoardController.IsFormationOpen
+                );
+
+                if (!isSequenceActive)
+                {
+                    yield break;
+                }
+
+                // 편성 진입 전 카메라 입력 상태로 복구한다.
+                if (formationCamera != null)
+                {
+                    formationCamera.SetManualCameraInputLocked(
+                        previousCameraLock
+                    );
+                }
 
                 yield break;
 
@@ -3720,13 +3791,22 @@ attacker.PlayAttackRoutine(
     public void StopSequence()
     {
         RelicRewardPopupUI.CloseOwned(this);
+
+        // <변경부분>
+        // 기물 편성 도중 Event Sequence가 강제로 종료되면
+        // 생성된 편성 보드를 숨기고 대기를 해제한다.
+        if (formationBoardController != null)
+        {
+            formationBoardController.CloseFormationBoard();
+        }
+
         isSequenceActive =
             false;
 
         currentStepIndex =
      -1;
 
-   
+
         // <변경부분>
         pendingBranchStepIndex =
             -1;
@@ -3816,6 +3896,13 @@ attacker.PlayAttackRoutine(
     {
         RelicRewardPopupUI.CloseOwned(this);
         StopSequenceCoroutine();
+
+        // <변경부분>
+        // EventScene 종료 시 편성용 보드 상태를 정리한다.
+        if (formationBoardController != null)
+        {
+            formationBoardController.CloseFormationBoard();
+        }
 
         // <변경부분>
         // Scene 전환이나 Controller 비활성화 시

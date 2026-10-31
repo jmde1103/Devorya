@@ -63422,7 +63422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87dc8cfc1004eea4f8afb1e2799f49ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetupManager
-  directTestStageBattleData: {fileID: 11400000, guid: 0d313660a7b13aa4fa1a5b758425ae26, type: 2}
+  directTestStageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
   battleManager: {fileID: 52600099}
@@ -117342,6 +117342,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 930ab830b33bda5488e65a6792df54d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleUIController
+  tutorialInstructionMinAlpha: 0.5
+  tutorialInstructionMaxAlpha: 1
+  tutorialInstructionPulseDuration: 1.2
   battleManager: {fileID: 52600099}
   eventSequenceController: {fileID: 2133944367}
   absorbButton: {fileID: 670389590}
@@ -124547,7 +124550,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1101380429
 RectTransform:
   m_ObjectHideFlags: 0
