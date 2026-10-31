@@ -203,6 +203,32 @@ MonoBehaviour:
       Control system damaged.'
     m_Metadata:
       m_Items: []
+  - m_Id: 18113330871406592
+    m_Localized: 'No signs of nearby lifeforms detected.
+
+      No additional threats
+      are present.
+
+      Disengaging alert mode.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18113330942709760
+    m_Localized: 'Damaged function memory data has been detected during the assigned
+      mission.
+
+      Current Energy is sufficient to repair 1 data entry.
+
+      Displaying
+      the list of repairable data.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18113330942709761
+    m_Localized: 'Repair of the selected data entry is complete.
+
+      Proceeding
+      while scanning for lifeform signals for the next mission.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

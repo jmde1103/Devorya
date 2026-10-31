@@ -22,69 +22,69 @@ MonoBehaviour:
     y: 0
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: a450123fb22e0a742a57cb8300707e0c, type: 2}
     team: 0
     x: 1
     y: 0
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
     team: 0
     x: 2
     y: 0
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
     team: 0
     x: 3
     y: 0
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 6ff441806ed07dc4b8e4fed0add136e7, type: 2}
     team: 0
     x: 4
     y: 0
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 0
     x: 0
     y: 1
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 0
     x: 1
     y: 1
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 0
     x: 2
     y: 1
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 0
     x: 3
     y: 1
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   - pieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     team: 0
     x: 4
     y: 1
     overrideCanMove: 0
     canMove: 0
-    isAbsorbedPlayerVisual: 0
+    isAbsorbedPlayerVisual: 1
   randomPieceCount: 5
   randomPieceEntries: []

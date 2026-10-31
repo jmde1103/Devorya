@@ -167,6 +167,18 @@ MonoBehaviour:
     m_Key: event_scene.event_end_ruine_stage.speech.speech_02f2b3d1
     m_Metadata:
       m_Items: []
+  - m_Id: 18113330871406592
+    m_Key: event_scene.event_opening_relic_field_stage.dialogue_ed0b4be3.page_cc8b664d
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18113330942709760
+    m_Key: event_scene.event_opening_relic_field_stage.dialogue_ed0b4be3.page_a8b33fa7
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18113330942709761
+    m_Key: event_scene.event_opening_relic_field_stage.dialogue_5fb6d217.page_e359211f
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
