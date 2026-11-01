@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // <변경부분>
 // Event Scene의 기물 편성 관리 전용 보드 컨트롤러.
@@ -93,6 +94,33 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 현재 배치 대상으로 선택된 플레이어 기물.
     private Piece selectedFormationPiece;
 
+    // <변경부분>
+    // BattleScene의 TypeInfo 버튼과 동일한 3단계 표시 모드.
+    private enum TypeIconDisplayMode
+    {
+        All = 0,
+        EnemyOnly = 1,
+        SelectedOnly = 2
+    }
+
+    // 기존 BattleManager와 동일한 저장 키를 사용한다.
+    private const string TypeIconDisplayModePrefsKey =
+        "DEVORYA.Battle.TypeIconDisplayMode.v1";
+
+    [Header("Formation Type Icon")]
+
+    // 편성 화면에서 사용할 기물정보 보기 버튼.
+    [SerializeField]
+    private Button typeIconButton;
+
+    private TypeIconDisplayMode typeIconDisplayMode =
+        TypeIconDisplayMode.All;
+
+    // 편성 중 강조한 타일을 별도로 관리한다.
+    // BattleManager의 하이라이트 목록과는 공유하지 않는다.
+    private readonly List<Tile> formationHighlightedTiles =
+        new List<Tile>();
+
     // PC 클릭 상태.
     private bool pcClickCandidate;
     private bool pcWasDragged;
@@ -109,10 +137,38 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
     public BoardManager BoardManager => boardManager;
 
+    // <변경부분>
+    // 편성 입력의 임시 진단 로그.
+    // UNITY_EDITOR 환경에서만 출력한다.
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private void LogFormationDiagnostic(string message)
+    {
+        Debug.Log(
+            $"[FormationDiag] {message}",
+            this
+        );
+    }
+
     private void Awake()
     {
         // 이벤트 시작 전에는 편성 보드를 표시하지 않는다.
         CloseFormationBoard();
+    }
+
+    // <변경부분>
+    // 편성 컨트롤러가 활성화될 때 버튼 이벤트를 연결한다.
+    private void OnEnable()
+    {
+        if (typeIconButton != null)
+        {
+            typeIconButton.onClick.RemoveListener(
+                ToggleFormationTypeIcons
+            );
+
+            typeIconButton.onClick.AddListener(
+                ToggleFormationTypeIcons
+            );
+        }
     }
 
     // <변경부분>
@@ -357,6 +413,44 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         isFormationOpen = true;
 
+        isFormationOpen = true;
+
+        // <변경부분>
+        // 기존 배틀씬에서 저장한 기물정보 표시 모드를 복원한다.
+        int savedDisplayMode = PlayerPrefs.GetInt(
+            TypeIconDisplayModePrefsKey,
+            (int)TypeIconDisplayMode.All
+        );
+
+        if (savedDisplayMode < (int)TypeIconDisplayMode.All ||
+            savedDisplayMode > (int)TypeIconDisplayMode.SelectedOnly)
+        {
+            savedDisplayMode = (int)TypeIconDisplayMode.All;
+        }
+
+        typeIconDisplayMode =
+            (TypeIconDisplayMode)savedDisplayMode;
+
+        // 생성된 편성 기물 전체의 타입 아이콘을 갱신한다.
+        RefreshFormationTypeIconVisuals();
+
+        // 편성 중에는 기물정보 보기 버튼을 사용할 수 있다.
+        if (typeIconButton != null)
+        {
+            typeIconButton.gameObject.SetActive(true);
+            typeIconButton.interactable = true;
+        }
+
+        // <변경부분>
+        // 편성 보드가 실제로 입력 가능한 상태인지 진단한다.
+        LogFormationDiagnostic(
+            $"OPEN | " +
+            $"ControllerEnabled={isActiveAndEnabled} | " +
+            $"RootActive={formationBoardRoot.activeInHierarchy} | " +
+            $"Board={boardManager.name} | " +
+            $"PieceManager={pieceManager.name}"
+        );
+
         // <변경부분>
         // 편성 화면이 열릴 때 이전 스테이터스 표시를 정리한다.
         if (playerStatusUIController != null)
@@ -377,8 +471,95 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // =====================================================
 
     // <변경부분>
+    // 클릭을 차단하는 UI GraphicRaycaster 대상을 진단한다.
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    private void LogUIRaycastBlockers(Vector2 screenPosition)
+    {
+        var eventSystem =
+            UnityEngine.EventSystems.EventSystem.current;
+
+        if (eventSystem == null)
+        {
+            LogFormationDiagnostic(
+                "UI DEBUG | EventSystem 없음"
+            );
+            return;
+        }
+
+        var pointerData =
+            new UnityEngine.EventSystems.PointerEventData(
+                eventSystem
+            );
+
+        pointerData.position = screenPosition;
+
+        var results =
+            new List<UnityEngine.EventSystems.RaycastResult>();
+
+        eventSystem.RaycastAll(pointerData, results);
+
+        int graphicCount = 0;
+
+        foreach (var result in results)
+        {
+            if (!(result.module is
+                UnityEngine.UI.GraphicRaycaster))
+            {
+                continue;
+            }
+
+            GameObject target = result.gameObject;
+
+            if (target == null)
+            {
+                continue;
+            }
+
+            string hierarchyPath = target.name;
+
+            Transform parent = target.transform.parent;
+
+            while (parent != null)
+            {
+                hierarchyPath =
+                    parent.name + "/" + hierarchyPath;
+
+                parent = parent.parent;
+            }
+
+            var graphic =
+                target.GetComponent<UnityEngine.UI.Graphic>();
+
+            LogFormationDiagnostic(
+                $"UI BLOCKER #{graphicCount + 1} | " +
+                $"Object={hierarchyPath} | " +
+                $"Graphic={graphic?.GetType().Name} | " +
+                $"RaycastTarget={graphic?.raycastTarget}"
+            );
+
+            graphicCount++;
+
+            if (graphicCount >= 10)
+            {
+                break;
+            }
+        }
+
+        if (graphicCount == 0)
+        {
+            LogFormationDiagnostic(
+                "UI DEBUG | GraphicRaycaster 대상 없음"
+            );
+        }
+    }
+
+    // <변경부분>
     // 기존 카메라와 동일하게 클릭 시작/종료 타일이 같고
     // 드래그가 발생하지 않은 경우에만 선택한다.
+    //
+    // 임시 진단:
+    // MouseDown → UI 차단 → Tile 탐색 →
+    // MouseUp → 클릭 확정 여부를 출력한다.
     private void HandlePCFormationInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -387,9 +568,31 @@ public class EventSceneFormationBoardController : MonoBehaviour
             pcWasDragged = false;
             pcPressedTile = null;
 
+            // <변경부분>
+            // EventSystem의 이전 Pointer 상태를 사용하지 않고
+            // 현재 마우스 화면 좌표에서 UI를 직접 검사한다.
+            bool isOverUI =
+                Tile.IsScreenPositionOverUI(
+                    Input.mousePosition
+                );
+
+            LogFormationDiagnostic(
+                $"MOUSE DOWN | " +
+                $"Position={Input.mousePosition} | " +
+                $"UIBlocked={isOverUI}"
+            );
+
             // UI 버튼 위에서 시작한 클릭은 무시한다.
-            if (Tile.IsPointerOverUI())
+            if (isOverUI)
             {
+                LogFormationDiagnostic(
+                    "BLOCKED | UI Raycast가 클릭을 차단했습니다."
+                );
+
+                // <변경부분>
+                // 어떤 UI가 입력을 차단했는지 확인한다.
+                LogUIRaycastBlockers(Input.mousePosition);
+
                 return;
             }
 
@@ -402,6 +605,13 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 GetFormationTileAtScreenPosition(
                     pcPressScreenPosition
                 );
+
+            LogFormationDiagnostic(
+                "MOUSE DOWN TILE | " +
+                (pcPressedTile != null
+                    ? $"({pcPressedTile.X}, {pcPressedTile.Y})"
+                    : "NULL")
+            );
 
             return;
         }
@@ -429,14 +639,34 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         Tile pressedTile = pcPressedTile;
 
+        // <변경부분>
+        // 클릭 종료 시에도 현재 화면 좌표의 UI만 검사한다.
+        bool isOverUIOnRelease =
+            Tile.IsScreenPositionOverUI(
+                Input.mousePosition
+            );
+
+        float clickDistance =
+            Vector2.Distance(
+                pcPressScreenPosition,
+                Input.mousePosition
+            );
+
         bool isValidClick =
             !pcWasDragged &&
             pressedTile != null &&
-            !Tile.IsPointerOverUI() &&
-            Vector2.Distance(
-                pcPressScreenPosition,
-                Input.mousePosition) <
+            !isOverUIOnRelease &&
+            clickDistance <
             clickDragThresholdPixels;
+
+        LogFormationDiagnostic(
+            $"MOUSE UP | " +
+            $"Dragged={pcWasDragged} | " +
+            $"PressedTile={(pressedTile != null ? pressedTile.name : "NULL")} | " +
+            $"UIBlocked={isOverUIOnRelease} | " +
+            $"Distance={clickDistance:F1} | " +
+            $"Valid={isValidClick}"
+        );
 
         pcClickCandidate = false;
         pcWasDragged = false;
@@ -452,10 +682,27 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 Input.mousePosition
             );
 
+        LogFormationDiagnostic(
+            "MOUSE UP TILE | " +
+            (releasedTile != null
+                ? $"({releasedTile.X}, {releasedTile.Y})"
+                : "NULL")
+        );
+
         if (releasedTile == pressedTile)
         {
+            LogFormationDiagnostic(
+                "TILE CLICK CONFIRMED | 기물 조회로 전달합니다."
+            );
+
             HandleFormationTileClick(
                 releasedTile
+            );
+        }
+        else
+        {
+            LogFormationDiagnostic(
+                "BLOCKED | 클릭 시작 타일과 종료 타일이 다릅니다."
             );
         }
     }
@@ -584,6 +831,10 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // <변경부분>
     // 클릭한 화면 좌표에서 편성용 Tile만 조회한다.
     // 기존 Event BackgroundTile이나 다른 Collider는 무시한다.
+    //
+    // 임시 진단:
+    // Screen 좌표, World 좌표, Collider 검출 수,
+    // 편성 Tile 식별 결과를 확인한다.
     private Tile GetFormationTileAtScreenPosition(
         Vector2 screenPosition)
     {
@@ -601,6 +852,13 @@ public class EventSceneFormationBoardController : MonoBehaviour
             boardManager == null ||
             formationBoardRoot == null)
         {
+            LogFormationDiagnostic(
+                $"RAYCAST FAILED | " +
+                $"Camera={(selectionCamera != null)} | " +
+                $"BoardManager={(boardManager != null)} | " +
+                $"Root={(formationBoardRoot != null)}"
+            );
+
             return null;
         }
 
@@ -626,6 +884,9 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 )
             );
 
+        int tileColliderCount = 0;
+        int formationTileCount = 0;
+
         foreach (Collider2D collider in colliders)
         {
             if (collider == null)
@@ -641,19 +902,115 @@ public class EventSceneFormationBoardController : MonoBehaviour
                     collider.GetComponentInParent<Tile>();
             }
 
-            if (tile == null ||
-                !tile.transform.IsChildOf(
+            if (tile == null)
+            {
+                continue;
+            }
+
+            tileColliderCount++;
+
+            if (!tile.transform.IsChildOf(
                     formationBoardRoot.transform))
             {
                 continue;
             }
+
+            formationTileCount++;
 
             // 다른 BoardManager의 타일과 혼동하지 않는다.
             if (boardManager.GetTile(
                     tile.X,
                     tile.Y) == tile)
             {
+                LogFormationDiagnostic(
+                    $"RAYCAST SUCCESS | " +
+                    $"Camera={selectionCamera.name} | " +
+                    $"World=({worldPosition.x:F2}, {worldPosition.y:F2}) | " +
+                    $"Tile={tile.name} | " +
+                    $"ColliderCount={colliders.Length}"
+                );
+
                 return tile;
+            }
+        }
+
+        LogFormationDiagnostic(
+     $"RAYCAST NULL | " +
+     $"Camera={selectionCamera.name} | " +
+     $"World=({worldPosition.x:F2}, {worldPosition.y:F2}) | " +
+     $"ColliderCount={colliders.Length} | " +
+     $"TileColliders={tileColliderCount} | " +
+     $"FormationTiles={formationTileCount}"
+ );
+
+        // <변경부분>
+        // 화면상 마우스 위치와 가장 가까운 편성 타일을 찾는다.
+        // 클릭 처리에는 영향을 주지 않는 진단 코드.
+        Tile nearestTile = null;
+        float nearestDistance = float.MaxValue;
+
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Tile tile = boardManager.GetTile(x, y);
+
+                if (tile == null)
+                {
+                    continue;
+                }
+
+                Vector3 tileScreen =
+                    selectionCamera.WorldToScreenPoint(
+                        tile.transform.position
+                    );
+
+                float distance = Vector2.Distance(
+                    screenPosition,
+                    new Vector2(tileScreen.x, tileScreen.y)
+                );
+
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestTile = tile;
+                }
+            }
+        }
+
+        if (nearestTile != null)
+        {
+            Collider2D tileCollider =
+                nearestTile.GetComponentInChildren<Collider2D>(true);
+
+            if (tileCollider != null)
+            {
+                Vector3 center = tileCollider.bounds.center;
+
+                int centerHits = Physics2D.OverlapPointAll(
+                    new Vector2(center.x, center.y)
+                ).Length;
+
+                LogFormationDiagnostic(
+                    $"NEAREST TILE | " +
+                    $"Name={nearestTile.name} | " +
+                    $"ScreenDistance={nearestDistance:F1}px | " +
+                    $"TileWorld={nearestTile.transform.position} | " +
+                    $"ColliderCenter={center} | " +
+                    $"ColliderSize={tileCollider.bounds.size} | " +
+                    $"ColliderEnabled={tileCollider.enabled} | " +
+                    $"ColliderActive={tileCollider.gameObject.activeInHierarchy} | " +
+                    $"Layer={LayerMask.LayerToName(tileCollider.gameObject.layer)} | " +
+                    $"PointInside={tileCollider.OverlapPoint(worldPosition)} | " +
+                    $"CenterHits={centerHits}"
+                );
+            }
+            else
+            {
+                LogFormationDiagnostic(
+                    $"NEAREST TILE | {nearestTile.name} | " +
+                    "Collider2D를 찾을 수 없습니다."
+                );
             }
         }
 
@@ -663,6 +1020,26 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // =====================================================
     // Formation Piece Selection
     // =====================================================
+
+    // <변경부분>
+    // PixelCameraController가 전달한 타일이
+    // 실제 편성 보드의 타일인지 확인한다.
+    public void SelectFormationTile(Tile tile)
+    {
+        if (!isFormationOpen ||
+            tile == null ||
+            boardManager == null)
+        {
+            return;
+        }
+
+        if (boardManager.GetTile(tile.X, tile.Y) != tile)
+        {
+            return;
+        }
+
+        HandleFormationTileClick(tile);
+    }
 
     // <변경부분>
     // 기물 선택과 스테이터스 확인만 처리한다.
@@ -679,10 +1056,19 @@ public class EventSceneFormationBoardController : MonoBehaviour
         }
 
         Piece clickedPiece =
-            pieceManager.GetPieceAt(
-                tile.X,
-                tile.Y
-            );
+     pieceManager.GetPieceAt(
+         tile.X,
+         tile.Y
+     );
+
+        // <변경부분>
+        // 타일 좌표로 실제 기물을 찾았는지 확인한다.
+        LogFormationDiagnostic(
+            $"PIECE LOOKUP | " +
+            $"Tile=({tile.X}, {tile.Y}) | " +
+            $"Piece={(clickedPiece != null ? clickedPiece.name : "NULL")} | " +
+            $"Team={(clickedPiece != null ? clickedPiece.Team.ToString() : "NULL")}"
+        );
 
         // 빈칸은 다음 단계의 자리배치 대상으로 남겨둔다.
         if (clickedPiece == null ||
@@ -707,6 +1093,10 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
             selectedFormationPiece = null;
         }
+
+        // <변경부분>
+        // 이전 기물의 배치 가능 타일 강조를 모두 제거한다.
+        ClearFormationTileHighlights();
 
         // 기존 플레이어 스테이터스 UI 표시.
         // King 등 배치 이동 불가 기물도 정보 확인은 가능하다.
@@ -740,18 +1130,34 @@ public class EventSceneFormationBoardController : MonoBehaviour
             );
         }
 
-        // King, Queen, Special은 정보 확인만 허용한다.
-        if (!CanSelectFormationPiece(clickedPiece))
-        {
-            return;
-        }
-
+        // <변경부분>
+        // 보스(King)를 포함한 모든 Player 기물은
+        // 배치 이동 가능 여부와 관계없이 선택할 수 있다.
+        //
+        // 선택과 배치 이동 가능 여부를 분리한다.
         selectedFormationPiece = clickedPiece;
 
         // 기존 배틀 초기배치의 Select -> Select_Idle 사용.
+        // 보스도 동일한 선택 애니메이션을 실행한다.
         pieceManager.PlayPieceSelectAnimation(
             selectedFormationPiece
         );
+
+        // <변경부분>
+        // Pawn / Knight / Rook / Bishop만
+        // 배치 가능한 타일을 하이라이트한다.
+        //
+        // King / Queen / Special 등은
+        // 선택 연출과 정보 확인만 허용한다.
+        if (CanSelectFormationPiece(clickedPiece))
+        {
+            ShowFormationDeploymentTiles();
+        }
+
+        // <변경부분>
+        // 모든 Player 기물에 선택 타입 아이콘 연출 적용.
+        // 배치 이동 불가 기물도 선택 아이콘을 표시한다.
+        RefreshFormationTypeIconVisuals();
     }
 
     // <변경부분>
@@ -791,10 +1197,208 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         selectedFormationPiece = null;
 
+        // <변경부분>
+        // 편성 타일의 하이라이트를 모두 원상복구한다.
+        ClearFormationTileHighlights();
+
         if (playerStatusUIController != null)
         {
             playerStatusUIController.Clear();
         }
+
+        // 편성 화면이 열린 상태에서만 아이콘 표시를 복원한다.
+        if (isFormationOpen)
+        {
+            RefreshFormationTypeIconVisuals();
+        }
+    }
+
+    // =====================================================
+    // Formation Type Icons
+    // =====================================================
+
+    // <변경부분>
+    // 기존 배틀씬과 같은 3단계 타입 아이콘 표시 모드.
+    // All -> EnemyOnly -> SelectedOnly -> All
+    public void ToggleFormationTypeIcons()
+    {
+        if (!isFormationOpen)
+        {
+            return;
+        }
+
+        switch (typeIconDisplayMode)
+        {
+            case TypeIconDisplayMode.All:
+                typeIconDisplayMode =
+                    TypeIconDisplayMode.EnemyOnly;
+                break;
+
+            case TypeIconDisplayMode.EnemyOnly:
+                typeIconDisplayMode =
+                    TypeIconDisplayMode.SelectedOnly;
+                break;
+
+            default:
+                typeIconDisplayMode =
+                    TypeIconDisplayMode.All;
+                break;
+        }
+
+        // BattleManager와 동일한 설정을 저장한다.
+        PlayerPrefs.SetInt(
+            TypeIconDisplayModePrefsKey,
+            (int)typeIconDisplayMode
+        );
+
+        PlayerPrefs.Save();
+
+        RefreshFormationTypeIconVisuals();
+    }
+
+    // <변경부분>
+    // BattleManager의 RefreshTypeIconVisuals와 동일한
+    // Piece 타입 아이콘 API를 편성 보드에 적용한다.
+    //
+    // 편성 전용 PieceManager만 조회하므로
+    // 일반 전투의 기물 아이콘에는 영향을 주지 않는다.
+    private void RefreshFormationTypeIconVisuals()
+    {
+        if (boardManager == null ||
+            pieceManager == null ||
+            !isPlayerPiecesGenerated)
+        {
+            return;
+        }
+
+        bool hasFocusedTypeIcon =
+            selectedFormationPiece != null;
+
+        for (int x = 0; x < boardManager.Width; x++)
+        {
+            for (int y = 0; y < boardManager.Height; y++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(x, y);
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                bool isFocusedTypeIcon =
+                    piece == selectedFormationPiece;
+
+                bool shouldShowTypeIcon = false;
+
+                switch (typeIconDisplayMode)
+                {
+                    case TypeIconDisplayMode.All:
+                        shouldShowTypeIcon = true;
+                        break;
+
+                    case TypeIconDisplayMode.EnemyOnly:
+                        shouldShowTypeIcon =
+                            piece.Team == PieceTeam.Enemy;
+                        break;
+
+                    case TypeIconDisplayMode.SelectedOnly:
+                        shouldShowTypeIcon = false;
+                        break;
+                }
+
+                // 선택된 기물은 표시 모드와 무관하게 표시한다.
+                if (isFocusedTypeIcon)
+                {
+                    shouldShowTypeIcon = true;
+                }
+
+                piece.SetTypeIconVisible(
+                    shouldShowTypeIcon
+                );
+
+                piece.SetTypeIconSelected(
+                    isFocusedTypeIcon
+                );
+
+                piece.SetTypeIconSortingPriority(
+                    isFocusedTypeIcon ? 1 : 0
+                );
+
+                bool shouldDimTypeIcon =
+                    shouldShowTypeIcon &&
+                    hasFocusedTypeIcon &&
+                    !isFocusedTypeIcon;
+
+                piece.SetTypeIconDimmed(
+                    shouldDimTypeIcon
+                );
+            }
+        }
+    }
+
+    // =====================================================
+    // Formation Tile Highlight
+    // =====================================================
+
+    // <변경부분>
+    // 배틀씬 초기배치의 ShowPlayerDeploymentTiles와
+    // 동일한 규칙으로 편성 가능한 타일을 강조한다.
+    private void ShowFormationDeploymentTiles()
+    {
+        if (selectedFormationPiece == null ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return;
+        }
+
+        ClearFormationTileHighlights();
+
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece targetPiece =
+                    pieceManager.GetPieceAt(x, y);
+
+                // King, Queen, Special 및 다른 진영 기물이
+                // 있는 타일은 배치 대상에서 제외한다.
+                if (targetPiece != null &&
+                    !CanSelectFormationPiece(targetPiece))
+                {
+                    continue;
+                }
+
+                Tile tile = boardManager.GetTile(x, y);
+
+                if (tile == null)
+                {
+                    continue;
+                }
+
+                tile.ShowHighlight();
+
+                formationHighlightedTiles.Add(tile);
+            }
+        }
+    }
+
+    // <변경부분>
+    // 편성 시스템이 강조한 타일만 원래 색상으로 복원한다.
+    private void ClearFormationTileHighlights()
+    {
+        foreach (Tile tile in formationHighlightedTiles)
+        {
+            if (tile == null)
+            {
+                continue;
+            }
+
+            tile.HideHighlight();
+        }
+
+        formationHighlightedTiles.Clear();
     }
 
     // <변경부분>
@@ -841,6 +1445,13 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         isFormationOpen = false;
 
+        // <변경부분>
+        // 편성 종료 시 기물정보 보기 버튼을 숨긴다.
+        if (typeIconButton != null)
+        {
+            typeIconButton.gameObject.SetActive(false);
+        }
+
         // 진행 중이던 클릭/터치 입력을 폐기한다.
         pcClickCandidate = false;
         pcWasDragged = false;
@@ -870,6 +1481,15 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
     private void OnDisable()
     {
+        // <변경부분>
+        // 버튼 리스너가 중복 등록되거나 남지 않도록 해제한다.
+        if (typeIconButton != null)
+        {
+            typeIconButton.onClick.RemoveListener(
+                ToggleFormationTypeIcons
+            );
+        }
+
         CloseFormationBoard();
     }
 }

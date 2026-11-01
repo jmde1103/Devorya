@@ -19,14 +19,16 @@ MonoBehaviour:
   showRunHUDDuringPlayerInteraction: 0
   showShopExitButtonDuringPlayerInteraction: 0
   steps:
-  - stepName: "\uD3B8\uC131\uAD00\uB9AC"
-    stepType: 21
-    stepId: step_b8184e60
+  - stepName: 
+    stepType: 13
+    stepId: step_e7f0f40a
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -128,14 +130,16 @@ MonoBehaviour:
     startBattleStageData: {fileID: 0}
     worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
-  - stepName: 
-    stepType: 0
-    stepId: step_644e786c
+  - stepName: "\uD3B8\uC131\uAD00\uB9AC"
+    stepType: 21
+    stepId: step_b8184e60
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0

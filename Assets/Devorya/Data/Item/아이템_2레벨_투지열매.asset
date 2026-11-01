@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45208ce0afc6fac45a3f734ffce3a069, type: 3}
   m_Name: "\uC544\uC774\uD15C_2\uB808\uBCA8_\uD22C\uC9C0\uC5F4\uB9E4"
   m_EditorClassIdentifier: Assembly-CSharp::BattleItemData
+  sellPrice: 10
   itemType: 3
   itemName: "\uD22C\uC9C0\uC5F4\uB9E4"
   iconSprite: {fileID: 21300000, guid: 3a5f6efdf6525d34eb593c2b62f58aa0, type: 3}

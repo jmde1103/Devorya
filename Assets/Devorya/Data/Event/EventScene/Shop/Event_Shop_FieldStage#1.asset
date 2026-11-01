@@ -27,6 +27,8 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -100,11 +102,33 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC824\uB8E8\uC0C1\uC778\uC0DD\uC131"
     stepType: 3
@@ -114,8 +138,9 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E8\uC0C1\uC778"
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 3356446670136911829, guid: 11ebcf498119eef40bc28fdaa8b112cd, type: 3}
     spawnActorPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
-    spawnActorIsShopkeeper: 1
     spawnActorTeam: 1
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0.2}
@@ -188,11 +213,33 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uCE74\uBA54\uB77C \uBB34\uBE59 2"
     stepType: 10
@@ -202,6 +249,8 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -275,11 +324,33 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uB370\uBCF4\uB9AC\uC544\uC0DD\uC131"
     stepType: 3
@@ -289,6 +360,8 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uB370\uBCF4\uB9AC\uC544"
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnActorTeam: 0
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -362,11 +435,33 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uD310\uB9E4 \uBB38\uAD6C"
     stepType: 1
@@ -388,6 +483,8 @@ MonoBehaviour:
         m_LocalVariables: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -461,11 +558,33 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: "\uC0C1\uC778 \uB9D0\uD48D\uC120"
     stepType: 8
@@ -475,6 +594,8 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -548,11 +669,33 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   - stepName: 
     stepType: 13
@@ -562,6 +705,8 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -635,16 +780,40 @@ MonoBehaviour:
     cameraShotWaitForComplete: 1
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
     waitDuration: 0.5
     unlockPlayerInteractionLockManualCamera: 1
+    rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
   completionType: 0
   clearCurrentWorldMapNodeOnCompletion: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
+  completionEventSceneData: {fileID: 0}
+  completionWorldMapEventData: {fileID: 0}
   references:
     version: 2
     RefIds: []
