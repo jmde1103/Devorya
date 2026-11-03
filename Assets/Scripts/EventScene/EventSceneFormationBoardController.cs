@@ -303,9 +303,11 @@ public class EventSceneFormationBoardController : MonoBehaviour
         if (!isBoardGenerated)
         {
             // 기존 Battle Tile 생성 함수를 그대로 사용한다.
+            // <변경부분> 편성 보드는 부모 로컬 좌표 기준으로 생성한다.
             boardManager.RebuildBoardByTileType(
                 tileTypeA,
-                tileTypeB
+                tileTypeB,
+                true
             );
 
             // 실제 10칸이 모두 생성되었는지 확인한다.
@@ -1777,13 +1779,12 @@ public class EventSceneFormationBoardController : MonoBehaviour
             return;
         }
 
-        CloseFormationBoard();
-
         // <변경부분>
-        // EventSceneData의 Completion 설정을 그대로 사용한다.
-        // Completion Type = WorldMap일 때
-        // 기존 월드맵 노드 완료 및 Scene 복귀를 실행한다.
-        eventSceneSequenceController.CompleteSequence();
+        // 편성 Exit는 편성 화면만 닫는다.
+        // 이후 CameraShot 등의 Step이 남아 있다면 계속 실행하고,
+        // 모든 Step이 끝난 뒤 EventSceneSequenceController가
+        // EventSceneData의 Completion 설정에 따라 종료한다.
+        CloseFormationBoard();
     }
 
     // <변경부분>
@@ -1841,6 +1842,14 @@ public class EventSceneFormationBoardController : MonoBehaviour
         if (formationBoardRoot != null)
         {
             formationBoardRoot.SetActive(false);
+        }
+
+        // <변경부분>
+        // 편성 종료 시 수동 카메라 잠금을 원래 상태로 복구한다.
+        // 다음 Event Step 진행 여부는 SequenceController가 판단한다.
+        if (eventSceneSequenceController != null)
+        {
+            eventSceneSequenceController.OnFormationBoardClosed();
         }
     }
 

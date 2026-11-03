@@ -889,7 +889,18 @@ public class EventSceneStepData
     // CameraShot은 독립적으로 계속 진행하고
     // Sequence는 즉시 다음 Step으로 진행한다.
     public bool cameraShotWaitForComplete =
-        true;
+     true;
+
+
+    // =====================================================
+    // Player Formation
+    // =====================================================
+
+    // <변경부분>
+    // false: 기존처럼 편성 Exit를 누를 때까지 다음 Step을 기다린다.
+    // true: 편성 화면을 유지한 상태에서 다음 Step을 실행한다.
+    // 모든 Step이 끝나도 편성이 열린 동안 이벤트 완료는 대기한다.
+    public bool formationContinueStepsWhileOpen = false;
 
 
     // =====================================================

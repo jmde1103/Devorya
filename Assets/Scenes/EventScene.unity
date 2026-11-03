@@ -38947,7 +38947,7 @@ Transform:
   m_GameObject: {fileID: 386987852}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.51236, y: -0.90576, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -179281,8 +179281,8 @@ MonoBehaviour:
   height: 2
   tilePrefab: {fileID: 166692226950237219, guid: 394e5d438a1c197439b42f093b8bb889, type: 3}
   tileParent: {fileID: 979932782}
-  checkerTileTypeA: 4
-  checkerTileTypeB: 5
+  checkerTileTypeA: 0
+  checkerTileTypeB: 1
   tileDatabase: {fileID: 11400000, guid: c7c261a930bce37488cffc88335bd1f3, type: 2}
   tileWidthHalf: 0.48
   tileHeightHalf: 0.24
@@ -216338,7 +216338,7 @@ Transform:
   m_GameObject: {fileID: 2141595316}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.015, y: -0.169, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -218094,7 +218094,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8462373973833334618, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_Intensity
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8462373973833334618, guid: da12f9cd2f473c547a65390ba8c577d7, type: 3}
       propertyPath: m_PointLightOuterRadius

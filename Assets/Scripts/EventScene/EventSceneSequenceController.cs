@@ -197,7 +197,12 @@ public class EventSceneSequenceController : MonoBehaviour
         -1;
 
     private Coroutine sequenceCoroutine =
-        null;
+       null;
+
+    // <변경부분>
+    // 편성 화면 진입 전의 수동 카메라 잠금 상태.
+    private bool hasFormationCameraLockSnapshot = false;
+    private bool previousFormationCameraManualLock = false;
 
     // <변경부분>
     // 현재 Event Scene에서 일반 플레이어 조작이 잠겨 있는지 관리한다.
@@ -450,12 +455,53 @@ public class EventSceneSequenceController : MonoBehaviour
             }
         }
 
+        // <변경부분>
+        // 편성 화면을 유지한 채 후속 Step을 실행하는 경우에도
+        // Exit를 누르기 전에 전체 Event가 완료되지 않도록 대기한다.
+        if (formationBoardController != null &&
+            formationBoardController.IsFormationOpen)
+        {
+            yield return new WaitUntil(
+                () => !isSequenceActive ||
+                      formationBoardController == null ||
+                      !formationBoardController.IsFormationOpen
+            );
+        }
+
+        if (!isSequenceActive)
+        {
+            sequenceCoroutine = null;
+            yield break;
+        }
+
         // 모든 Step을 정상적으로 끝까지 실행한 경우에도
         // Sequence 완료 처리를 실행한다.
         CompleteSequence();
 
         sequenceCoroutine =
             null;
+    }
+
+    // <변경부분>
+    // 편성 화면을 닫았을 때 이전 수동 카메라 잠금 상태를 복구한다.
+    public void OnFormationBoardClosed()
+    {
+        if (!hasFormationCameraLockSnapshot)
+        {
+            return;
+        }
+
+        PixelCameraController formationCamera =
+            GetEventPixelCameraController();
+
+        if (formationCamera != null)
+        {
+            formationCamera.SetManualCameraInputLocked(
+                previousFormationCameraManualLock
+            );
+        }
+
+        hasFormationCameraLockSnapshot = false;
     }
 
 
@@ -491,7 +537,22 @@ public class EventSceneSequenceController : MonoBehaviour
                 yield break;
 
             case EventSceneStepType.CompleteSequence:
-                CompleteSequence();
+                // <변경부분>
+                // 편성 보드가 열려 있으면 Exit 후에 이벤트를 완료한다.
+                if (formationBoardController != null &&
+                    formationBoardController.IsFormationOpen)
+                {
+                    yield return new WaitUntil(
+                        () => !isSequenceActive ||
+                              formationBoardController == null ||
+                              !formationBoardController.IsFormationOpen
+                    );
+                }
+
+                if (isSequenceActive)
+                {
+                    CompleteSequence();
+                }
 
                 yield break;
 
@@ -720,9 +781,25 @@ public class EventSceneSequenceController : MonoBehaviour
             // 현재 Event Scene Sequence를 종료한다.
             case EventSceneStepType.StartBattle:
 
-                ExecuteStartBattleStep(
-                    step
-                );
+                // <변경부분>
+                // 편성 중 후속 Step 실행 옵션을 사용하더라도
+                // 편성 저장 및 Exit 전에는 Scene을 전환하지 않는다.
+                if (formationBoardController != null &&
+                    formationBoardController.IsFormationOpen)
+                {
+                    yield return new WaitUntil(
+                        () => !isSequenceActive ||
+                              formationBoardController == null ||
+                              !formationBoardController.IsFormationOpen
+                    );
+                }
+
+                if (isSequenceActive)
+                {
+                    ExecuteStartBattleStep(
+                        step
+                    );
+                }
 
                 yield break;
 
@@ -764,7 +841,10 @@ public class EventSceneSequenceController : MonoBehaviour
                 PixelCameraController formationCamera =
                     GetEventPixelCameraController();
 
-                bool previousCameraLock =
+                hasFormationCameraLockSnapshot =
+                    formationCamera != null;
+
+                previousFormationCameraManualLock =
                     formationCamera != null &&
                     formationCamera.IsManualCameraInputLocked;
 
@@ -779,10 +859,18 @@ public class EventSceneSequenceController : MonoBehaviour
                 // EventScene CameraShot 연출도 계속 사용할 수 있다.
                 SetEventSceneManualCameraInputLocked(true);
 
-                // 편성 화면이 열려 있는 동안 다음 Step으로
-                // 진행하지 않는다.
+                // <변경부분>
+                // ON: 편성 보드를 유지한 채 후속 CameraShot 등을 실행한다.
+                // Sequence 최종 완료는 편성 Exit 시점까지 기다린다.
+                if (step.formationContinueStepsWhileOpen)
+                {
+                    yield break;
+                }
+
+                // OFF: 기존처럼 편성 종료를 기다린 후 다음 Step으로 이동한다.
                 yield return new WaitUntil(
-                    () => formationBoardController == null ||
+                    () => !isSequenceActive ||
+                          formationBoardController == null ||
                           !formationBoardController.IsFormationOpen
                 );
 
@@ -792,13 +880,8 @@ public class EventSceneSequenceController : MonoBehaviour
                 }
 
                 // <변경부분>
-                // 편성 종료 후 기존 카메라 잠금 상태로 복구한다.
-                if (formationCamera != null)
-                {
-                    formationCamera.SetManualCameraInputLocked(
-                        previousCameraLock
-                    );
-                }
+                // 편성 보드 종료 알림이 누락돼도 이전 잠금 상태를 복구한다.
+                OnFormationBoardClosed();
 
                 yield break;
 

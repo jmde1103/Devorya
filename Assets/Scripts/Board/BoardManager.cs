@@ -31,7 +31,7 @@ public class BoardManager : MonoBehaviour
     private Tile[,] tiles; // 모든 타일을 좌표 기준으로 저장하는 2차원 배열
 
 
-    private void GenerateBoard() // 보드 생성기
+    private void GenerateBoard(bool useParentLocalGridCoordinates = false) // 보드 생성기
     {
         for (int y = 0; y < height; y++) // 타일 높이만큼 반복
         {
@@ -39,8 +39,21 @@ public class BoardManager : MonoBehaviour
             {
                 Vector3 position = GridToWorld(x, y); // 격자 좌표를 월드 좌표로 변환
 
-                // <변경부분> 단일 타일 프리팹을 복제하여 배치
-                GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity, tileParent);
+                // <변경부분> 일반 전투에서는 기존 월드 좌표 생성 규칙을 유지한다.
+                // 편성 보드에서는 부모가 이미 확대된 상태여도
+                // 타일 사이 간격과 타일 크기가 같은 배율로 확대되도록
+                // GridToWorld의 격자 값을 부모 로컬 위치로 사용한다.
+                GameObject tileObject;
+
+                if (useParentLocalGridCoordinates && tileParent != null)
+                {
+                    tileObject = Instantiate(tilePrefab, tileParent, false);
+                    tileObject.transform.localPosition = position;
+                }
+                else
+                {
+                    tileObject = Instantiate(tilePrefab, position, Quaternion.identity, tileParent);
+                }
 
                 tileObject.name = $"Tile_{x}_{y}"; // 자식 타일 이름 지정
 
@@ -141,6 +154,16 @@ public class BoardManager : MonoBehaviour
     // <변경부분> StageBattleData에서 받은 TileType A/B 기준으로 보드를 다시 생성하는 함수
     public void RebuildBoardByTileType(TileType tileTypeA, TileType tileTypeB)
     {
+        // 기존 BattleScene 호출은 좌표 생성 방식이 바뀌지 않는다.
+        RebuildBoardByTileType(tileTypeA, tileTypeB, false);
+    }
+
+    // <변경부분> 편성 보드에서만 부모 로컬 좌표 배치를 사용한다.
+    public void RebuildBoardByTileType(
+        TileType tileTypeA,
+        TileType tileTypeB,
+        bool useParentLocalGridCoordinates)
+    {
         checkerTileTypeA = tileTypeA;
         checkerTileTypeB = tileTypeB;
 
@@ -148,7 +171,7 @@ public class BoardManager : MonoBehaviour
 
         tiles = new Tile[width, height];
 
-        GenerateBoard();
+        GenerateBoard(useParentLocalGridCoordinates);
 
         Debug.Log($"보드 재생성 완료: {checkerTileTypeA} / {checkerTileTypeB}");
     }
