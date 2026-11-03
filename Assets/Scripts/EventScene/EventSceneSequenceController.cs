@@ -730,11 +730,14 @@ public class EventSceneSequenceController : MonoBehaviour
             // <변경부분>
             // Event Scene의 기물 편성 관리 화면.
             //
-            // 현재 단계에서는 5x2 보드를 생성하고
-            // 기존 수동 카메라 이동/Zoom을 허용한다.
+            // 5x2 편성 보드를 생성하고
+            // 플레이어의 수동 카메라 이동 및 Zoom을 잠근다.
             //
-            // 이후 기물 선택, 자리배치, 저장 및 종료를
-            // 이 모드에 연결한다.
+            // 기물 선택, 자리배치, RunState 자동 저장,
+            // Exit 버튼 등의 상호작용은 그대로 허용한다.
+            //
+            // 카메라 위치와 Zoom은 EventScene의
+            // CameraShot Step에서 설정한 상태를 유지한다.
             case EventSceneStepType.ShowPlayerFormation:
 
                 if (formationBoardController == null)
@@ -755,7 +758,9 @@ public class EventSceneSequenceController : MonoBehaviour
                     yield break;
                 }
 
-                // 편성 화면 이전의 카메라 잠금 상태를 보관한다.
+                // <변경부분>
+                // 편성 화면 진입 이전의 카메라 잠금 상태를 보관한다.
+                // 편성 종료 시 원래 상태로 복구하기 위해 사용한다.
                 PixelCameraController formationCamera =
                     GetEventPixelCameraController();
 
@@ -763,9 +768,16 @@ public class EventSceneSequenceController : MonoBehaviour
                     formationCamera != null &&
                     formationCamera.IsManualCameraInputLocked;
 
-                // 현재 편성 화면에서는 수동 Camera 조작 허용.
-                // 일반 상점 오브젝트의 상호작용 Lock은 유지한다.
-                SetEventSceneManualCameraInputLocked(false);
+                // <변경부분>
+                // 편성 화면이 열린 동안에는
+                // 플레이어의 수동 카메라 조작을 강제로 잠근다.
+                //
+                // PC: 마우스 Drag / Wheel Zoom 차단.
+                // Mobile: 한 손가락 Drag / Pinch Zoom 차단.
+                //
+                // 일반 기물 클릭 및 UI 입력은 차단하지 않는다.
+                // EventScene CameraShot 연출도 계속 사용할 수 있다.
+                SetEventSceneManualCameraInputLocked(true);
 
                 // 편성 화면이 열려 있는 동안 다음 Step으로
                 // 진행하지 않는다.
@@ -779,7 +791,8 @@ public class EventSceneSequenceController : MonoBehaviour
                     yield break;
                 }
 
-                // 편성 진입 전 카메라 입력 상태로 복구한다.
+                // <변경부분>
+                // 편성 종료 후 기존 카메라 잠금 상태로 복구한다.
                 if (formationCamera != null)
                 {
                     formationCamera.SetManualCameraInputLocked(

@@ -23,6 +23,14 @@ public partial class PieceManager : MonoBehaviour
     //보드 좌표별 기물 저장 배열
     private Piece[,] pieces;
 
+    // <변경부분>
+    // 런 데이터로 생성한 기물과 원본 저장 데이터를 연결한다.
+    // 편성 확정 시 기존 능력/특성을 덮어쓰지 않고
+    // 배치 좌표만 갱신하기 위해 사용한다.
+    private readonly Dictionary<Piece, PlayerPieceRuntimeData>
+        spawnedRuntimeSourceByPiece =
+            new Dictionary<Piece, PlayerPieceRuntimeData>();
+
     // 기물이 타일 위에 자연스럽게 올라오도록 Y 위치 보정
     [Header("Position Setting")]
     [SerializeField] private float pieceYOffset = 0.25f;
@@ -58,6 +66,10 @@ public partial class PieceManager : MonoBehaviour
 
         pieces = new Piece[boardManager.Width, boardManager.Height];
 
+        // <변경부분>
+        // 이전 보드의 기물-런데이터 연결을 정리한다.
+        spawnedRuntimeSourceByPiece.Clear();
+
         Debug.Log($"PieceManager 기물 배열 초기화: {boardManager.Width} x {boardManager.Height}");
     }
 
@@ -89,6 +101,34 @@ public partial class PieceManager : MonoBehaviour
     public List<PlayerPieceRuntimeData> CapturePlayerPieceRuntimeData()
     {
         return CaptureTeamPieceRuntimeData(PieceTeam.Player);
+    }
+
+    // <변경부분>
+    // 런 데이터로 생성된 기물의 원본 데이터 복사본을 반환한다.
+    //
+    // 편성 화면에서는 이 데이터를 사용해
+    // PieceData, Trait, Ability 등의 저장값을 보존하고
+    // formationX/Y만 변경한다.
+    public PlayerPieceRuntimeData GetSpawnedRuntimeSourceCopy(
+        Piece piece)
+    {
+        if (piece == null)
+        {
+            return null;
+        }
+
+        PlayerPieceRuntimeData sourceData;
+
+        if (!spawnedRuntimeSourceByPiece.TryGetValue(
+                piece,
+                out sourceData))
+        {
+            return null;
+        }
+
+        return sourceData != null
+            ? sourceData.Clone()
+            : null;
     }
 
     // <변경부분> 특정 진영의 현재 기물 상태를 런타임 데이터로 저장하는 함수
@@ -158,6 +198,10 @@ public partial class PieceManager : MonoBehaviour
                     continue;
                 }
 
+                // <변경부분>
+                // 제거하는 기물의 원본 런 데이터 연결도 정리한다.
+                spawnedRuntimeSourceByPiece.Remove(piece);
+
                 Destroy(piece.gameObject);
                 pieces[x, y] = null;
             }
@@ -183,13 +227,117 @@ public partial class PieceManager : MonoBehaviour
             ClearPiecesByTeam(PieceTeam.Player);
         }
 
+        // <변경부분>
+        // 확정된 시작 편성 좌표가 있으면 해당 위치에 먼저 배치한다.
+        //
+        // King은 기존 중앙 고정 규칙을 보호하기 위해
+        // 가장 먼저 배치하고 중앙 좌표만 허용한다.
+        //
+        // 일반 기물은 5x2 Player 편성 범위 안에서만
+        // 저장 좌표를 사용한다.
+        HashSet<int> restoredRuntimeIndices =
+            new HashSet<int>();
+
+        int savedSpawnedCount = 0;
+        int fixedKingX = boardManager.Width / 2;
+
+        bool hasKingToPlace = false;
+
+        for (int i = 0; i < runtimeDataList.Count; i++)
+        {
+            PlayerPieceRuntimeData data = runtimeDataList[i];
+
+            if (data != null &&
+                data.pieceType == PieceType.King)
+            {
+                hasKingToPlace = true;
+                break;
+            }
+        }
+
+        // 첫 번째 패스는 King, 두 번째는 나머지 기물.
+        for (int pass = 0; pass < 2; pass++)
+        {
+            for (int i = 0; i < runtimeDataList.Count; i++)
+            {
+                PlayerPieceRuntimeData data =
+                    runtimeDataList[i];
+
+                if (data == null)
+                {
+                    continue;
+                }
+
+                bool isKing =
+                    data.pieceType == PieceType.King;
+
+                if ((pass == 0) != isKing)
+                {
+                    continue;
+                }
+
+                int targetX = data.formationX;
+                int targetY = data.formationY;
+
+                if (targetX < 0 ||
+                    targetX >= boardManager.Width ||
+                    targetY < 0 ||
+                    targetY >= Mathf.Min(2, boardManager.Height))
+                {
+                    continue;
+                }
+
+                // King은 기존 뒷열 중앙 고정을 유지한다.
+                if (isKing &&
+                    (targetX != fixedKingX || targetY != 0))
+                {
+                    continue;
+                }
+
+                // King이 있으면 일반 기물은 중앙을 점유하지 않는다.
+                if (!isKing &&
+                    hasKingToPlace &&
+                    targetX == fixedKingX &&
+                    targetY == 0)
+                {
+                    continue;
+                }
+
+                if (!IsEmpty(targetX, targetY))
+                {
+                    continue;
+                }
+
+                Piece spawnedPiece =
+                    SpawnPlayerRuntimePieceAt(
+                        data,
+                        targetX,
+                        targetY
+                    );
+
+                if (spawnedPiece == null)
+                {
+                    continue;
+                }
+
+                restoredRuntimeIndices.Add(i);
+                savedSpawnedCount++;
+            }
+        }
+
         List<PlayerPieceRuntimeData> kingPieces = new List<PlayerPieceRuntimeData>();
         List<PlayerPieceRuntimeData> backRowPreferredPieces = new List<PlayerPieceRuntimeData>();
         List<PlayerPieceRuntimeData> frontRowPreferredPieces = new List<PlayerPieceRuntimeData>();
 
-        // <변경부분> 저장된 기물을 타입 기준으로 자동 배치 그룹에 분류
+        // <변경부분>
+        // 이미 저장 좌표에 복원된 기물은 자동 배치에서 제외한다.
         for (int i = 0; i < runtimeDataList.Count; i++)
         {
+            if (restoredRuntimeIndices.Contains(i))
+            {
+                continue;
+            }
+
             PlayerPieceRuntimeData runtimeData = runtimeDataList[i];
 
             if (runtimeData == null)
@@ -213,7 +361,9 @@ public partial class PieceManager : MonoBehaviour
             backRowPreferredPieces.Add(runtimeData);
         }
 
-        int spawnedCount = 0;
+        // <변경부분>
+        // 이미 저장 좌표에 복원한 기물 수부터 계산한다.
+        int spawnedCount = savedSpawnedCount;
 
         int backRowY = 0;
         int frontRowY = 1;
@@ -224,8 +374,11 @@ public partial class PieceManager : MonoBehaviour
         List<Vector2Int> backRowSlots = new List<Vector2Int>();
         List<Vector2Int> frontRowSlots = new List<Vector2Int>();
 
-        // <변경부분> 뒷열 슬롯 구성
-        // King 위치는 King이 있으면 비워두고, King이 없으면 일반 슬롯으로 사용한다.
+        // <변경부분>
+        // 저장 좌표에 이미 복원된 기물이 있는 칸을 제외한다.
+        //
+        // King이 아직 배치되지 않았다면
+        // 기존 King 중앙 슬롯을 계속 예약한다.
         for (int x = 0; x < boardManager.Width; x++)
         {
             if (kingPieces.Count > 0 && x == kingX)
@@ -233,12 +386,23 @@ public partial class PieceManager : MonoBehaviour
                 continue;
             }
 
+            if (!IsEmpty(x, backRowY))
+            {
+                continue;
+            }
+
             backRowSlots.Add(new Vector2Int(x, backRowY));
         }
 
-        // <변경부분> 앞열 슬롯 구성
+        // <변경부분>
+        // 앞열 역시 저장 좌표에 복원된 칸을 제외한다.
         for (int x = 0; x < boardManager.Width; x++)
         {
+            if (!IsEmpty(x, frontRowY))
+            {
+                continue;
+            }
+
             frontRowSlots.Add(new Vector2Int(x, frontRowY));
         }
 
@@ -340,11 +504,28 @@ public partial class PieceManager : MonoBehaviour
             return null;
         }
 
+        // <변경부분>
+        // 이번 전투가 시작된 실제 배치 좌표를
+        // 해당 기물의 시작 편성 위치로 기록한다.
+        //
+        // 저장 좌표가 유효했다면 동일한 위치이고,
+        // 신규 기물이거나 저장 좌표가 무효였다면
+        // 자동 배치된 위치가 새로운 기준이 된다.
+        //
+        // 전투 중 SetPosition()에서는 변경하지 않는다.
+        spawnedPiece.SetFormationPosition(x, y);
+
         // <변경부분> PieceData 기본 일반스킬이 아니라 전투 종료 시 저장된 일반스킬 상태로 복원
         spawnedPiece.ApplyGeneralSkillRuntimeData(runtimeData.generalSkills);
 
         // <변경부분> 일반스킬 복원 후 외형/정렬 상태 재갱신
         RefreshPieceVisual(spawnedPiece);
+
+        // <변경부분>
+        // 현재 생성한 기물과 원본 런 데이터를 연결한다.
+        // 이후 편성 화면에서 이동/교환해도 연결은 유지된다.
+        spawnedRuntimeSourceByPiece[spawnedPiece] =
+            runtimeData.Clone();
 
         return spawnedPiece;
     }

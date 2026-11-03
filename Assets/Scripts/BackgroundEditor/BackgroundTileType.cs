@@ -10,5 +10,6 @@ public enum BackgroundTileType
     Swamp,
     Snow,
     Lava,
-    Metal
+    Metal,
+    White
 }

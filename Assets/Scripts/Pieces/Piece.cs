@@ -217,6 +217,12 @@ public class Piece : MonoBehaviour
     public int Y { get; private set; } // 현재 보드 Y 좌표
     public Tile CurrentTile { get; private set; } // 현재 기물이 위치한 타일
 
+    // <변경부분>
+    // 런에서 확정한 전투 시작 편성 좌표.
+    // 이동, 공격, 스킬 등으로 실제 위치가 달라져도 유지한다.
+    public int FormationX { get; private set; } = -1;
+    public int FormationY { get; private set; } = -1;
+
     private SpriteRenderer spriteRenderer; // SpriteRenderer 캐싱
 
 
@@ -417,6 +423,15 @@ public class Piece : MonoBehaviour
 
     // 전투 중 실제 좌표가 바뀐 이력. 유물을 뒤늦게 얻어도 첫 이동을 재사용하지 않는다.
     public bool HasMovedThisBattle { get; private set; }
+
+    // <변경부분>
+    // 전투 시작 편성 좌표를 설정한다.
+    // 실제 기물 위치인 X, Y와는 독립적으로 관리한다.
+    public void SetFormationPosition(int x, int y)
+    {
+        FormationX = x;
+        FormationY = y;
+    }
 
     public void SetPosition(int x, int y, Tile newTile)  // 기물의 보드 좌표와 현재 타일 정보를 갱신하는 함수
     {

@@ -23,6 +23,16 @@ public class PlayerPieceRuntimeData
     // <변경부분> 플레이어가 젤루 계열을 흡수한 뒷면 외형 상태인지 여부
     public bool isAbsorbedPlayerVisual = false;
 
+    // <변경부분>
+    // 플레이어가 확정한 전투 시작 편성 좌표.
+    // 전투 중 현재 위치와는 별도로 저장한다.
+    //
+    // -1은 아직 지정된 편성이 없다는 의미다.
+    // 이 경우 기존 자동 배치 규칙을 사용한다.
+    [Header("Formation Start Position")]
+    public int formationX = -1;
+    public int formationY = -1;
+
     [Header("General Skills")]
     // <변경부분> 현재 보유 중인 일반스킬 목록
     public List<GeneralSkillRuntimeData> generalSkills = new List<GeneralSkillRuntimeData>();
@@ -42,6 +52,12 @@ public class PlayerPieceRuntimeData
         data.uniqueSkill = piece.UniqueSkill;
         data.canMove = piece.CanMove;
         data.isAbsorbedPlayerVisual = piece.IsAbsorbedJelluVisual;
+
+        // <변경부분>
+        // 현재 전투 위치가 아니라 별도로 보관 중인
+        // 전투 시작 편성 좌표를 저장한다.
+        data.formationX = piece.FormationX;
+        data.formationY = piece.FormationY;
 
         List<OwnedGeneralSkillData> ownedGeneralSkills = piece.GetGeneralSkills();
 
@@ -129,6 +145,11 @@ public class PlayerPieceRuntimeData
         copiedData.uniqueSkill = uniqueSkill;
         copiedData.canMove = canMove;
         copiedData.isAbsorbedPlayerVisual = isAbsorbedPlayerVisual;
+
+        // <변경부분>
+        // RunState 복사 과정에서도 확정 편성 좌표를 유지한다.
+        copiedData.formationX = formationX;
+        copiedData.formationY = formationY;
 
         if (generalSkills != null)
         {

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
+
+// <변경부분>
 
 // <변경부분>
 // Event Scene의 기물 편성 관리 전용 보드 컨트롤러.
@@ -82,7 +85,8 @@ public class EventSceneFormationBoardController : MonoBehaviour
     private PieceStatusUIController playerStatusUIController;
 
     // <변경부분>
-    // 기물 선택 시 기존 배틀의 Tile Focus 기능을 사용한다.
+    // 편성 타일 클릭 좌표를 계산할 때 사용할 카메라 참조.
+    // 기물 선택에 따른 카메라 자동 포커스는 실행하지 않는다.
     [SerializeField]
     private PixelCameraController pixelCameraController;
 
@@ -112,6 +116,28 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 편성 화면에서 사용할 기물정보 보기 버튼.
     [SerializeField]
     private Button typeIconButton;
+
+    [Header("Formation Exit")]
+
+    // <변경부분>
+    // 기존 상점 Exit 버튼을 편성 종료 버튼으로 재활용한다.
+    // 기존 Confirm Formation Button 연결값이 있으면 유지한다.
+    [FormerlySerializedAs("confirmFormationButton")]
+    [SerializeField]
+    private Button exitFormationButton;
+
+    // <변경부분>
+    // 기존 상점 Exit 클릭 처리를 편성 중에만 잠시 분리한다.
+    [SerializeField]
+    private ShopController sharedShopController;
+
+    // <변경부분>
+    // 편성 종료 후 EventScene의 기존 완료 흐름으로
+    // 월드맵에 복귀하기 위한 컨트롤러.
+    [SerializeField]
+    private EventSceneSequenceController eventSceneSequenceController;
+
+    private bool shopExitListenerDetached;
 
     private TypeIconDisplayMode typeIconDisplayMode =
         TypeIconDisplayMode.All;
@@ -156,7 +182,8 @@ public class EventSceneFormationBoardController : MonoBehaviour
     }
 
     // <변경부분>
-    // 편성 컨트롤러가 활성화될 때 버튼 이벤트를 연결한다.
+    // 타입 아이콘 버튼은 기존대로 연결한다.
+    // Exit 버튼은 편성 화면을 열 때 별도로 연결한다.
     private void OnEnable()
     {
         if (typeIconButton != null)
@@ -413,7 +440,53 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         isFormationOpen = true;
 
-        isFormationOpen = true;
+        // <변경부분>
+        // 편성에서는 상점의 기존 Exit 버튼을 사용한다.
+        if (exitFormationButton == null)
+        {
+            Debug.LogError(
+                "편성 시작 실패: Formation Exit Button이 연결되지 않았습니다.",
+                this
+            );
+
+            CloseFormationBoard();
+            return false;
+        }
+
+        // Inspector 연결이 없으면 비활성 오브젝트도 검색한다.
+        if (sharedShopController == null)
+        {
+            sharedShopController =
+                FindFirstObjectByType<ShopController>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        // <변경부분>
+        // ShopController의 기존 Exit 클릭 이벤트는
+        // 편성 중에만 제거한다.
+        // 상점 방문 완료 처리가 잘못 실행되지 않게 한다.
+        if (sharedShopController != null)
+        {
+            exitFormationButton.onClick.RemoveListener(
+                sharedShopController.OnExitShopButtonClicked
+            );
+
+            shopExitListenerDetached = true;
+        }
+
+        // <변경부분>
+        // 동일 버튼에 편성 전용 종료 동작을 연결한다.
+        exitFormationButton.onClick.RemoveListener(
+            ExitFormationToWorldMap
+        );
+
+        exitFormationButton.onClick.AddListener(
+            ExitFormationToWorldMap
+        );
+
+        exitFormationButton.gameObject.SetActive(true);
+        exitFormationButton.interactable = true;
 
         // <변경부분>
         // 기존 배틀씬에서 저장한 기물정보 표시 모드를 복원한다.
@@ -1070,17 +1143,99 @@ public class EventSceneFormationBoardController : MonoBehaviour
             $"Team={(clickedPiece != null ? clickedPiece.Team.ToString() : "NULL")}"
         );
 
-        // 빈칸은 다음 단계의 자리배치 대상으로 남겨둔다.
-        if (clickedPiece == null ||
-            clickedPiece.Team != PieceTeam.Player)
+        // <변경부분>
+        // 동일한 기물을 다시 클릭하면 선택을 해제한다.
+        if (selectedFormationPiece != null &&
+            clickedPiece == selectedFormationPiece)
         {
+            ClearFormationSelection();
             return;
         }
 
-        // 동일한 기물을 다시 클릭하면 선택을 취소한다.
-        if (clickedPiece == selectedFormationPiece)
+        // <변경부분>
+        // 배치 가능한 Player 기물을 선택한 상태에서
+        // 다른 타일을 클릭하면 이동 또는 자리 교환을 시도한다.
+        //
+        // 빈 타일:
+        // 선택한 기물을 해당 위치로 이동한다.
+        //
+        // 다른 일반 Player 기물:
+        // 두 기물의 위치를 서로 교환한다.
+        //
+        // King / Queen / Special:
+        // 배치 대상으로 사용하지 않는다.
+        if (selectedFormationPiece != null &&
+      CanSelectFormationPiece(selectedFormationPiece) &&
+      (clickedPiece == null ||
+       CanSelectFormationPiece(clickedPiece)))
         {
-            ClearFormationSelection();
+            // <변경부분>
+            // 저장 실패 시 원래 자리로 복구할 수 있도록
+            // 이동 전 좌표를 보관한다.
+            int previousX = selectedFormationPiece.X;
+            int previousY = selectedFormationPiece.Y;
+
+            bool moved =
+                pieceManager.TryMoveOrSwapPlayerDeploymentPiece(
+                    selectedFormationPiece,
+                    tile.X,
+                    tile.Y
+                );
+
+            if (moved)
+            {
+                // <변경부분>
+                // 실제 RunState가 존재하면 자리 이동 직후
+                // 변경된 편성 좌표를 자동 저장한다.
+                RunStateManager runState =
+                    RunStateManager.Instance;
+
+                if (runState != null &&
+                    runState.HasPlayerPieceRuntimeData)
+                {
+                    bool saved =
+                        TrySaveCurrentFormationToRunState(
+                            false
+                        );
+
+                    if (!saved)
+                    {
+                        // <변경부분>
+                        // 자동 저장에 실패하면 이동 또는 교환을
+                        // 이전 좌표로 되돌린다.
+                        bool restored =
+                            pieceManager.TryMoveOrSwapPlayerDeploymentPiece(
+                                selectedFormationPiece,
+                                previousX,
+                                previousY
+                            );
+
+                        Debug.LogError(
+                            "편성 자동 저장 실패. " +
+                            (restored
+                                ? "이전 배치로 복구했습니다."
+                                : "이전 배치 복구에도 실패했습니다."),
+                            this
+                        );
+                    }
+                }
+
+                // Editor Test Pieces만 있는 경우에는
+                // 기존대로 배치 테스트만 허용한다.
+                // 실제 RunState는 생성하거나 변경하지 않는다.
+
+                ClearFormationSelection();
+            }
+
+            return;
+        }
+
+        // <변경부분>
+        // 선택할 기물이 없는 빈 타일이나
+        // Player가 아닌 기물은 선택하지 않는다.
+        if (clickedPiece == null ||
+            clickedPiece.Team != PieceTeam.Player)
+        {
             return;
         }
 
@@ -1114,21 +1269,12 @@ public class EventSceneFormationBoardController : MonoBehaviour
             );
         }
 
-        // 기존 BattleScene의 기물 선택 카메라 포커스 재사용.
-        if (pixelCameraController == null &&
-            Camera.main != null)
-        {
-            pixelCameraController =
-                Camera.main.GetComponent<
-                    PixelCameraController>();
-        }
-
-        if (pixelCameraController != null)
-        {
-            pixelCameraController.FocusOnTile(
-                tile.transform
-            );
-        }
+        // <변경부분>
+        // EventScene에서는 기물을 선택해도 카메라를 이동시키지 않는다.
+        // 카메라 위치와 구도는 EventScene의 Camera Move/Shot Step이 담당한다.
+        //
+        // 기물 선택, 스테이터스 표시, 선택 애니메이션,
+        // 타입 아이콘 강조 및 타일 하이라이트는 그대로 유지한다.
 
         // <변경부분>
         // 보스(King)를 포함한 모든 Player 기물은
@@ -1431,11 +1577,218 @@ public class EventSceneFormationBoardController : MonoBehaviour
         formationBoardRoot.transform.position += offset;
     }
 
+    // =====================================================
+    // Formation Auto Save / Exit
+    // =====================================================
+
     // <변경부분>
-    // 실제 편성 종료 처리에서 호출할 공통 종료 함수.
+    // 현재 편성 보드의 기물 위치를 RunState에 저장한다.
     //
-    // 현재 단계에서는 배치 저장 기능이 없으므로
-    // 보드를 숨기고 대기 중인 Event Step을 해제하는 역할만 한다.
+    // 기존 PieceData, Trait, Ability, CanMove,
+    // Absorbed Visual 등의 런 데이터는 유지하고
+    // formationX/Y 좌표만 변경한다.
+    //
+    // 이 함수는 화면을 닫거나 Scene을 전환하지 않는다.
+    private bool TrySaveCurrentFormationToRunState(
+        bool logSuccess)
+    {
+        if (!isFormationOpen ||
+            !isPlayerPiecesGenerated ||
+            boardManager == null ||
+            pieceManager == null)
+        {
+            return false;
+        }
+
+        RunStateManager runState =
+            RunStateManager.Instance;
+
+        // 실제 런 데이터가 없으면 저장하지 않는다.
+        // Editor Test Pieces는 RunState를 덮어쓰지 않는다.
+        if (runState == null ||
+            !runState.HasPlayerPieceRuntimeData)
+        {
+            return false;
+        }
+
+        List<PlayerPieceRuntimeData> confirmedPieces =
+            new List<PlayerPieceRuntimeData>();
+
+        // <변경부분>
+        // 현재 5x2 편성 보드의 기물을 좌표 순서대로 읽는다.
+        for (int y = 0; y < boardManager.Height; y++)
+        {
+            for (int x = 0; x < boardManager.Width; x++)
+            {
+                Piece piece =
+                    pieceManager.GetPieceAt(x, y);
+
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Team != PieceTeam.Player)
+                {
+                    Debug.LogError(
+                        $"편성 자동 저장 실패: ({x}, {y})에 " +
+                        "Player가 아닌 기물이 있습니다.",
+                        this
+                    );
+
+                    return false;
+                }
+
+                // <변경부분>
+                // 기존 RunState에서 생성한 원본 데이터를 복사한다.
+                // 기물을 이동·교환해도 원본 정보가 유지된다.
+                PlayerPieceRuntimeData runtimeData =
+                    pieceManager.GetSpawnedRuntimeSourceCopy(
+                        piece
+                    );
+
+                if (runtimeData == null ||
+                    runtimeData.pieceData == null)
+                {
+                    Debug.LogError(
+                        $"편성 자동 저장 실패: ({x}, {y}) 기물의 " +
+                        "원본 RunState 데이터를 찾을 수 없습니다.",
+                        this
+                    );
+
+                    return false;
+                }
+
+                // <변경부분>
+                // 현재 타일 좌표만 변경한다.
+                runtimeData.formationX = x;
+                runtimeData.formationY = y;
+
+                confirmedPieces.Add(runtimeData);
+            }
+        }
+
+        int storedPieceCount =
+            runState.GetPlayerPieceCount();
+
+        // <변경부분>
+        // 기물 수가 다르면 기존 런 데이터를 유지한다.
+        if (confirmedPieces.Count == 0 ||
+            confirmedPieces.Count != storedPieceCount)
+        {
+            Debug.LogError(
+                "편성 자동 저장 실패: 기물 수가 일치하지 않습니다. " +
+                $"편성 보드 {confirmedPieces.Count}개 / " +
+                $"RunState {storedPieceCount}개",
+                this
+            );
+
+            return false;
+        }
+
+        // 모든 검증 완료 후 RunState를 갱신한다.
+        runState.SavePlayerPieces(
+            confirmedPieces
+        );
+
+        if (logSuccess)
+        {
+            Debug.Log(
+                $"편성 자동 저장 확인 완료: " +
+                $"{confirmedPieces.Count}개",
+                this
+            );
+        }
+
+        return true;
+    }
+
+    // <변경부분>
+    // 기존 상점 Exit 버튼을 눌렀을 때 실행한다.
+    //
+    // 실제 RunState가 있으면 마지막으로 저장 상태를 확인한다.
+    // 저장 성공 후 기존 EventScene 완료 흐름을 실행한다.
+    //
+    // 상점 방문 완료 로직은 호출하지 않는다.
+    public void ExitFormationToWorldMap()
+    {
+        if (!isFormationOpen)
+        {
+            return;
+        }
+
+        RunStateManager runState =
+            RunStateManager.Instance;
+
+        if (runState != null &&
+            runState.HasPlayerPieceRuntimeData)
+        {
+            // <변경부분>
+            // 마지막 변경 위치까지 저장되었는지 최종 확인한다.
+            // 저장 실패 시에는 편성 화면을 유지한다.
+            if (!TrySaveCurrentFormationToRunState(true))
+            {
+                return;
+            }
+        }
+        else
+        {
+#if UNITY_EDITOR
+            // <변경부분>
+            // Editor Test Pieces는 런 저장 없이
+            // UI 및 이벤트 종료 테스트만 허용한다.
+            Debug.LogWarning(
+                "Editor Test Pieces로 편성을 종료합니다. " +
+                "실제 RunState 저장은 진행하지 않았습니다.",
+                this
+            );
+#else
+            Debug.LogError(
+                "편성 종료 실패: 저장할 RunState 기물이 없습니다.",
+                this
+            );
+
+            return;
+#endif
+        }
+
+        // <변경부분>
+        // 기존 EventSceneSequenceController를 통해
+        // 정상적인 이벤트 완료 및 월드맵 복귀를 실행한다.
+        if (eventSceneSequenceController == null)
+        {
+            eventSceneSequenceController =
+                FindFirstObjectByType<
+                    EventSceneSequenceController
+                >();
+        }
+
+        if (eventSceneSequenceController == null ||
+            !eventSceneSequenceController.IsSequenceActive)
+        {
+            Debug.LogWarning(
+                "EventScene Sequence가 실행 중이지 않습니다. " +
+                "편성 보드만 종료합니다.",
+                this
+            );
+
+            // 단독 Editor 테스트에서도 Exit 동작은 확인할 수 있다.
+            CloseFormationBoard();
+            return;
+        }
+
+        CloseFormationBoard();
+
+        // <변경부분>
+        // EventSceneData의 Completion 설정을 그대로 사용한다.
+        // Completion Type = WorldMap일 때
+        // 기존 월드맵 노드 완료 및 Scene 복귀를 실행한다.
+        eventSceneSequenceController.CompleteSequence();
+    }
+
+    // <변경부분>
+    // 편성 보드의 공통 종료 처리.
+    // 단순 종료 시에는 RunState에 저장하지 않는다.
     public void CloseFormationBoard()
     {
         // <변경부분>
@@ -1451,6 +1804,33 @@ public class EventSceneFormationBoardController : MonoBehaviour
         {
             typeIconButton.gameObject.SetActive(false);
         }
+
+        // <변경부분>
+        // 편성 종료 시 공용 Exit 버튼의
+        // 편성 전용 이벤트를 제거한다.
+        if (exitFormationButton != null)
+        {
+            exitFormationButton.onClick.RemoveListener(
+                ExitFormationToWorldMap
+            );
+
+            // 편성 중 분리했던 상점 Exit 이벤트를 복원한다.
+            if (shopExitListenerDetached &&
+                sharedShopController != null)
+            {
+                exitFormationButton.onClick.RemoveListener(
+                    sharedShopController.OnExitShopButtonClicked
+                );
+
+                exitFormationButton.onClick.AddListener(
+                    sharedShopController.OnExitShopButtonClicked
+                );
+            }
+
+            exitFormationButton.gameObject.SetActive(false);
+        }
+
+        shopExitListenerDetached = false;
 
         // 진행 중이던 클릭/터치 입력을 폐기한다.
         pcClickCandidate = false;
@@ -1482,11 +1862,20 @@ public class EventSceneFormationBoardController : MonoBehaviour
     private void OnDisable()
     {
         // <변경부분>
-        // 버튼 리스너가 중복 등록되거나 남지 않도록 해제한다.
+        // 타입 아이콘 버튼 이벤트 정리.
         if (typeIconButton != null)
         {
             typeIconButton.onClick.RemoveListener(
                 ToggleFormationTypeIcons
+            );
+        }
+
+        // <변경부분>
+        // 편성 전용 Exit 이벤트 정리.
+        if (exitFormationButton != null)
+        {
+            exitFormationButton.onClick.RemoveListener(
+                ExitFormationToWorldMap
             );
         }
 
