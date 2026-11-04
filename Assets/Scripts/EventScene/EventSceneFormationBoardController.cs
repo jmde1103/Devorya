@@ -28,6 +28,16 @@ public class EventSceneFormationBoardController : MonoBehaviour
     [SerializeField]
     private PieceManager pieceManager;
 
+    // <변경부분>
+    // 편성 보드의 타일/기물 등장 연출 전용 컴포넌트.
+    [Header("Formation Intro")]
+    [SerializeField]
+    private EventSceneFormationIntroAnimator formationIntroAnimator;
+
+    // <변경부분>
+    // 연출이 끝났을 때 편성 UI 버튼을 다시 활성화할지 관리한다.
+    private bool unlockFormationButtonsAfterIntro;
+
     [Header("Tile Type")]
 
     [SerializeField]
@@ -161,6 +171,12 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
     public bool IsFormationOpen => isFormationOpen;
 
+    // <변경부분>
+    // 다음 Event Step이 등장 연출 완료를 기다릴 때 사용한다.
+    public bool IsFormationIntroPlaying =>
+        formationIntroAnimator != null &&
+        formationIntroAnimator.IsPlaying;
+
     public BoardManager BoardManager => boardManager;
 
     // <변경부분>
@@ -210,6 +226,30 @@ public class EventSceneFormationBoardController : MonoBehaviour
             !formationBoardRoot.activeInHierarchy)
         {
             return;
+        }
+
+        // <변경부분>
+        // 타일 및 기물 등장 연출 중에는 편성 클릭을 처리하지 않는다.
+        if (IsFormationIntroPlaying)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 등장 연출이 끝나면 편성 버튼을 다시 활성화한다.
+        if (unlockFormationButtonsAfterIntro)
+        {
+            unlockFormationButtonsAfterIntro = false;
+
+            if (exitFormationButton != null)
+            {
+                exitFormationButton.interactable = true;
+            }
+
+            if (typeIconButton != null)
+            {
+                typeIconButton.interactable = true;
+            }
         }
 
         if (Application.isMobilePlatform)
@@ -534,9 +574,78 @@ public class EventSceneFormationBoardController : MonoBehaviour
         }
 
         Debug.Log(
-            "기물 편성 보드 활성화 완료: 5x2 / 10 Tiles",
-            this
-        );
+      "기물 편성 보드 활성화 완료: 5x2 / 10 Tiles",
+      this
+  );
+
+        // <변경부분>
+        // 타일과 기물의 실제 생성은 기존 방식으로 완료하고,
+        // 화면에 표시되는 등장 순서만 연출한다.
+        //
+        // Animator가 Inspector에 연결되지 않았더라도
+        // 연출을 조용히 건너뛰지 않고 자동으로 생성한다.
+        if (formationIntroAnimator == null)
+        {
+            formationIntroAnimator =
+                GetComponent<EventSceneFormationIntroAnimator>();
+
+            if (formationIntroAnimator == null)
+            {
+                formationIntroAnimator =
+                    gameObject.AddComponent<EventSceneFormationIntroAnimator>();
+
+                Debug.Log(
+                    "[FormationIntro] 등장 애니메이터 컴포넌트를 자동 추가했습니다.",
+                    this
+                );
+            }
+        }
+
+        if (formationIntroAnimator == null ||
+            !formationIntroAnimator.isActiveAndEnabled)
+        {
+            Debug.LogError(
+                "[FormationIntro] 등장 연출을 시작할 수 없습니다. " +
+                "Animator 컴포넌트의 활성 상태를 확인하세요.",
+                this
+            );
+        }
+        else
+        {
+            formationIntroAnimator.Play(
+                boardManager,
+                isPlayerPiecesGenerated ? pieceManager : null
+            );
+
+            if (formationIntroAnimator.IsPlaying)
+            {
+                unlockFormationButtonsAfterIntro = true;
+
+                if (exitFormationButton != null)
+                {
+                    exitFormationButton.interactable = false;
+                }
+
+                if (typeIconButton != null)
+                {
+                    typeIconButton.interactable = false;
+                }
+
+                Debug.Log(
+                    "[FormationIntro] 편성 보드 등장 연출이 시작되었습니다.",
+                    this
+                );
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[FormationIntro] Animator.Play() 호출 후에도 " +
+                    "연출이 시작되지 않았습니다. " +
+                    "Play Intro 설정과 타일 참조를 확인하세요.",
+                    this
+                );
+            }
+        }
 
         return true;
     }
@@ -1792,6 +1901,16 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 단순 종료 시에는 RunState에 저장하지 않는다.
     public void CloseFormationBoard()
     {
+        // <변경부분>
+        // 연출 중 강제로 닫히더라도
+        // 모든 타일과 기물의 원래 투명도/위치를 복구한다.
+        if (formationIntroAnimator != null)
+        {
+            formationIntroAnimator.StopAndRestore();
+        }
+
+        unlockFormationButtonsAfterIntro = false;
+
         // <변경부분>
         // 편성 종료 시 선택된 기물의 애니메이션과
         // 스테이터스 UI를 원래 상태로 돌린다.

@@ -21,9 +21,9 @@ MonoBehaviour:
   steps:
   - stepName: 
     stepType: 10
-    stepId: step_9f524412
+    stepId: step_9dc4c7b7
     dialoguePages: []
-    dialogueLocalizationId: dialogue_a20cc3f7
+    dialogueLocalizationId: dialogue_d859d2d6
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
@@ -75,7 +75,7 @@ MonoBehaviour:
     playAnimationMixDuration: 0.12
     speechBubbleActorId: 
     speechBubbleText: 
-    speechBubbleLocalizationId: speech_702541a4
+    speechBubbleLocalizationId: speech_3237a19d
     speechBubbleLocalizedText:
       m_TableReference:
         m_TableCollectionName: 
@@ -98,7 +98,7 @@ MonoBehaviour:
     cameraShotTargetActorId: 
     cameraShotWorldOffset: {x: 0, y: 0}
     cameraShotWorldScale: 1.5
-    cameraShotDuration: 0.6
+    cameraShotDuration: 1
     cameraShotWaitForComplete: 1
     formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12

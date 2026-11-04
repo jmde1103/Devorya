@@ -32,6 +32,21 @@ public class BattleSetupManager : MonoBehaviour
     [SerializeField]
     private BackgroundManager backgroundManager;
 
+    // <변경부분>
+    // EventScene에서 검증한 타일/기물 등장 애니메이터를
+    // BattleScene에서도 그대로 재사용한다.
+    [Header("Battle Board Intro")]
+    [SerializeField] private bool playBattleBoardIntro = true;
+    [SerializeField]
+    private EventSceneFormationIntroAnimator battleBoardIntroAnimator;
+
+    // <변경부분>
+    // BattleScene 시작 카메라 확대가 완료된 뒤
+    // 타일과 기물 등장 애니메이션을 실행하기 위한 참조.
+    // Inspector 연결이 없으면 실행 시 자동으로 검색한다.
+    [SerializeField]
+    private PixelCameraController battleStartCameraController;
+
     // <변경부분> 현재 StageBattleData에 연결된
     // EventSequenceData를 실제 실행할 공용 이벤트 컨트롤러.
     //
@@ -379,15 +394,80 @@ battleEndFlowController == null)
         // <변경부분> 스테이지별 적 일반스킬 랜덤 부여 규칙 적용
         ApplyEnemyGeneralSkillGrantRules();
 
-        // <변경부분> 보드 / 기물 / 승패 조건 / 보상 / AI 세팅이
-        // 모두 완료된 뒤 현재 StageBattleData의 Event Sequence를 적용한다.
-        //
-        // EventSequenceData가 null인 일반 스테이지에서는
-        // EventSequenceController가 존재하더라도 아무 이벤트도 실행하지 않는다.
-        //
-        // 튜토리얼이나 이벤트 스테이지에서는
-        // 해당 StageBattleData에 연결된 Sequence만 실행한다.
+        // <변경부분>
+        // 타일 30칸과 양쪽 기물 생성, 전투 데이터 설정이 끝났다.
+        // 등장 연출이 완료되기 전에는 초기 배치와 입력을 시작하지 않는다.
+        battleManager.SetBattleIntroActive(true);
+
+        if (playBattleBoardIntro)
+        {
+            if (battleBoardIntroAnimator == null)
+            {
+                battleBoardIntroAnimator =
+                    GetComponent<EventSceneFormationIntroAnimator>();
+            }
+
+            // <변경부분>
+            // Inspector 연결 누락으로 연출이 조용히 생략되지 않도록 한다.
+            if (battleBoardIntroAnimator == null)
+            {
+                battleBoardIntroAnimator =
+                    gameObject.AddComponent<EventSceneFormationIntroAnimator>();
+
+                Debug.Log(
+                    "[BattleIntro] 등장 애니메이터 컴포넌트를 자동 추가했습니다.",
+                    this
+                );
+            }
+
+            if (battleBoardIntroAnimator != null &&
+                battleBoardIntroAnimator.isActiveAndEnabled)
+            {
+                // <변경부분>
+                // 실제 재생하지 않고, 모든 타일과 기물을 먼저 숨긴다.
+                // true: Player → Enemy 팀별 등장 모드.
+                bool prepared =
+                    battleBoardIntroAnimator.Prepare(
+                        boardManager,
+                        pieceManager,
+                        true
+                    );
+
+                Debug.Log(
+                    $"[BattleIntro] PREPARE RESULT | " +
+                    $"Tiles={boardManager.Width * boardManager.Height} | " +
+                    $"IsPrepared={prepared}",
+                    this
+                );
+
+                if (!prepared)
+                {
+                    Debug.LogWarning(
+                        "[BattleIntro] 등장 연출 준비에 실패했습니다. " +
+                        "기존 전투 시작 흐름은 계속 진행합니다.",
+                        this
+                    );
+                }
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[BattleIntro] 등장 애니메이터가 비활성화되어 있습니다.",
+                    this
+                );
+            }
+        }
+
+        // <변경부분>
+        // EventSequenceData 연결은 기존 시점에 유지한다.
+        // 실제 자동 실행은 등장 연출 완료 후에 시작한다.
         SetupEventSequence();
+
+        // <변경부분>
+        // 연출 종료 → 전투 입력 잠금 해제 → EventSequence 시작.
+        StartCoroutine(
+            CompleteBattleStartupAfterIntroRoutine()
+        );
 
         Debug.Log(
     $"전투 세팅 완료: " +
@@ -454,8 +534,129 @@ battleEndFlowController == null)
             return;
         }
 
-        // <변경부분> 모든 Battle Setup 완료 이후
-        // 현재 스테이지의 Event Sequence를 명시적으로 시작한다.
+        // <변경부분>
+        // EventSequenceData는 위에서 이미 연결했다.
+        // 실제 StartSequence() 호출은 등장 연출 완료 후 실행한다.
+    }
+
+    // <변경부분>
+    // 기존 전투 시작 순서를 보존하면서
+    // 카메라 확대 → 타일 등장 → Player 등장 → Enemy 등장
+    // 순서가 끝날 때까지 기다린다.
+    private System.Collections.IEnumerator CompleteBattleStartupAfterIntroRoutine()
+    {
+        // <변경부분>
+        // 실제 Prepare가 성공했을 때만 카메라 완료를 기다린다.
+        // Play Battle Board Intro가 OFF라면 기존 시작 흐름을 사용한다.
+        if (playBattleBoardIntro &&
+            battleBoardIntroAnimator != null &&
+            battleBoardIntroAnimator.IsPrepared)
+        {
+            // <변경부분>
+            // Inspector 연결이 없으면 현재 Scene의 카메라를 검색한다.
+            if (battleStartCameraController == null)
+            {
+                battleStartCameraController =
+                    FindObjectOfType<PixelCameraController>();
+            }
+
+            if (battleStartCameraController != null &&
+                battleStartCameraController.isActiveAndEnabled)
+            {
+                Debug.Log(
+                    "[BattleIntro] 카메라 시작 확대 완료 대기",
+                    this
+                );
+
+                // <변경부분>
+                // Camera의 Start()가 아직 실행되지 않은 경우에도
+                // 실제 확대 완료까지 기다리므로 초기화 순서에 안전하다.
+                while (battleStartCameraController != null &&
+                       battleStartCameraController.isActiveAndEnabled &&
+                       !battleStartCameraController.IsStartZoomComplete)
+                {
+                    yield return null;
+                }
+
+                Debug.Log(
+                    "[BattleIntro] 카메라 시작 확대 완료",
+                    this
+                );
+            }
+            else
+            {
+                // <변경부분>
+                // 카메라가 없거나 비활성화되더라도
+                // 전투 진행이 영구적으로 멈추지 않게 한다.
+                Debug.LogWarning(
+                    "[BattleIntro] 활성 카메라를 찾지 못했습니다. " +
+                    "카메라 대기를 생략합니다.",
+                    this
+                );
+
+                yield return null;
+            }
+
+            // <변경부분>
+            // 카메라 확대가 끝난 뒤 숨겨 둔 타일과 기물의
+            // 실제 등장 애니메이션을 실행한다.
+            if (battleBoardIntroAnimator != null &&
+                battleBoardIntroAnimator.isActiveAndEnabled &&
+                battleBoardIntroAnimator.IsPrepared)
+            {
+                battleBoardIntroAnimator.PlayPrepared();
+
+                Debug.Log(
+                    $"[BattleIntro] PLAY RESULT | " +
+                    $"Tiles={boardManager.Width * boardManager.Height} | " +
+                    $"IsPlaying={battleBoardIntroAnimator.IsPlaying}",
+                    this
+                );
+
+                // <변경부분>
+                // 타일 → Player → Enemy의 모든 연출이 끝날 때까지
+                // 기존 전투 입력과 자리배치 시작을 잠근다.
+                while (battleBoardIntroAnimator != null &&
+                       battleBoardIntroAnimator.IsPlaying)
+                {
+                    yield return null;
+                }
+            }
+            else if (battleBoardIntroAnimator != null &&
+                     battleBoardIntroAnimator.IsPrepared)
+            {
+                // <변경부분>
+                // 대기 중 Animator가 비활성화되었다면
+                // 숨겨진 타일과 기물을 원래대로 복원한다.
+                battleBoardIntroAnimator.StopAndRestore();
+            }
+        }
+
+        // <변경부분>
+        // EventSequence가 첫 프레임부터 기물/타일을 제어할 수 있도록
+        // Sequence 시작 직전에 전투 등장 잠금을 해제한다.
+        //
+        // BattleManager의 초기 배치 루틴은 이 코루틴이 끝난 뒤
+        // Sequence 활성 상태를 확인하도록 별도로 대기한다.
+        battleManager.SetBattleIntroActive(false);
+
+        Debug.Log(
+            "[BattleIntro] 타일 및 기물 등장 연출 완료",
+            this
+        );
+
+        // 일반 전투이거나 수동 실행 EventSequence라면
+        // 기존 규칙대로 별도 Sequence를 시작하지 않는다.
+        if (eventSequenceController == null ||
+            stageBattleData == null ||
+            stageBattleData.eventSequenceData == null ||
+            !stageBattleData.eventSequenceData.playAutomatically)
+        {
+            yield break;
+        }
+
+        // <변경부분>
+        // 자동 실행 EventSequence는 등장 연출이 끝난 뒤 시작한다.
         eventSequenceController.StartSequence();
 
         Debug.Log(

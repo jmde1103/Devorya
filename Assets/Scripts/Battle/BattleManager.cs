@@ -40,6 +40,16 @@ public partial class BattleManager : MonoBehaviour
     // 기물 매니저 참조
     [SerializeField] private PieceManager pieceManager;
 
+    // <변경부분>
+    // BattleScene의 초기 타일/기물 등장 연출 대기 상태.
+    // BattleSetupManager가 시작 및 종료 시점을 전달한다.
+    private bool isBattleIntroActive;
+
+    public void SetBattleIntroActive(bool isActive)
+    {
+        isBattleIntroActive = isActive;
+    }
+
     // <변경부분> 일반스킬과 스킬 발동 판정을 관리하는 매니저
     [SerializeField] private BattleSkillManager battleSkillManager;
 
@@ -340,11 +350,12 @@ public partial class BattleManager : MonoBehaviour
         get
         {
             // <변경부분> 전투 행동뿐 아니라
-            // Battle Announcement 연출 중에도
+            // Battle Announcement 및 전투 보드 등장 연출 중에도
             // PC / Mobile 수동 Camera Drag를 잠근다.
             if (isBattleEnded ||
                 isActionAnimating ||
-                isBattleAnnouncementPlaying)
+                isBattleAnnouncementPlaying ||
+                isBattleIntroActive)
             {
                 return false;
             }
@@ -544,6 +555,13 @@ public partial class BattleManager : MonoBehaviour
 
     private void Update()
     {
+        // <변경부분>
+        // 타일/기물 등장 연출 중에는 일반 전투 입력을 처리하지 않는다.
+        if (isBattleIntroActive)
+        {
+            return;
+        }
+
         UpdateItemTargeting();
         // Event Sequence 대사 또는 강제 입력 중에는
         // 일반 Battle 단축키를 받지 않는다.
@@ -599,6 +617,13 @@ public partial class BattleManager : MonoBehaviour
     // 기물을 선택하는 함수
     public void SelectPiece(Piece piece)
     {
+        // <변경부분>
+        // 초기 등장 연출 중에는 기물 클릭을 처리하지 않는다.
+        if (isBattleIntroActive)
+        {
+            return;
+        }
+
         if (IsItemTargeting) { HandleItemTargetClick(piece != null ? boardManager.GetTile(piece.X, piece.Y) : null); return; }
         // <변경부분> BATTLE START / WARNING 연출 중에는
         // 기물 선택, Status 갱신, Camera Focus를 실행하지 않는다.
@@ -1028,6 +1053,13 @@ public partial class BattleManager : MonoBehaviour
 
     public void SelectTile(Tile tile)
     {
+        // <변경부분>
+        // 타일 등장 애니메이션이 끝날 때까지 클릭을 처리하지 않는다.
+        if (isBattleIntroActive)
+        {
+            return;
+        }
+
         if (IsItemTargeting) { HandleItemTargetClick(tile); return; }
         // <변경부분> Announcement가 화면을 소유하는 동안
         // Tile 선택 / 이동 확인 / 공격 확인을 모두 차단한다.
@@ -1353,6 +1385,17 @@ public partial class BattleManager : MonoBehaviour
         // 기존 BattleSetupManager / EventSequenceController의
         // Start 초기화 순서를 보호하기 위한 한 프레임 대기는 유지한다.
         yield return null;
+
+        // <변경부분>
+        // 타일 30칸과 초기 기물들의 등장 애니메이션이
+        // 모두 끝날 때까지 초기 자리배치를 시작하지 않는다.
+        //
+        // BattleSetupManager가 자동 실행 EventSequence를
+        // 시작할 준비까지 끝낸 후 이 잠금을 해제한다.
+        while (isBattleIntroActive)
+        {
+            yield return null;
+        }
 
         // <변경부분>
         // BattleSetupManager가 기물을 생성한 이후

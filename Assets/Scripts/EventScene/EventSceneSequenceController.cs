@@ -861,9 +861,24 @@ public class EventSceneSequenceController : MonoBehaviour
 
                 // <변경부분>
                 // ON: 편성 보드를 유지한 채 후속 CameraShot 등을 실행한다.
+                // 단, 타일/기물 등장 연출은 끝까지 보여준 뒤 진행한다.
                 // Sequence 최종 완료는 편성 Exit 시점까지 기다린다.
                 if (step.formationContinueStepsWhileOpen)
                 {
+                    if (formationBoardController.IsFormationIntroPlaying)
+                    {
+                        yield return new WaitUntil(
+                            () => !isSequenceActive ||
+                                  formationBoardController == null ||
+                                  !formationBoardController.IsFormationIntroPlaying
+                        );
+                    }
+
+                    if (!isSequenceActive)
+                    {
+                        yield break;
+                    }
+
                     yield break;
                 }
 

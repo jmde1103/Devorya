@@ -69,6 +69,17 @@ public class PixelCameraController : MonoBehaviour
     // 연출 중에는 휠과 핀치 입력이 목표 배율을 바꾸지 않도록 사용한다.
     private bool isPlayingStartZoomAnimation = false;
 
+    // <변경부분>
+    // 시작 확대가 실제로 완료되었는지 기록한다.
+    // Camera의 Start()가 아직 실행되지 않았다면 false를 유지한다.
+    private bool hasCompletedStartZoomAnimation = false;
+
+    // <변경부분>
+    // BattleSetupManager가 카메라 시작 확대 완료를 기다릴 때 사용한다.
+    // 카메라 설정과 배율은 외부에서 변경하지 않는다.
+    public bool IsStartZoomComplete =>
+        hasCompletedStartZoomAnimation;
+
     // <변경부분> 현재 실행 중인 시작 확대 코루틴
     private Coroutine startZoomCoroutine;
 
@@ -497,6 +508,11 @@ public class PixelCameraController : MonoBehaviour
 
         // 시작 시 최소 줌 위치로 고정
         ClampCameraByZoom();
+
+        // <변경부분>
+        // 시작 확대 기능이 OFF여도 카메라 초기화가 완료된 뒤
+        // BattleScene 등장 연출이 시작되도록 한다.
+        hasCompletedStartZoomAnimation = true;
     }
 
     // <변경부분> 배틀 시작 시 WorldRoot를
@@ -557,6 +573,10 @@ public class PixelCameraController : MonoBehaviour
 
             isPlayingStartZoomAnimation =
                 false;
+
+            // <변경부분>
+            // 즉시 확대가 끝난 경우에도 완료 상태를 기록한다.
+            hasCompletedStartZoomAnimation = true;
 
             startZoomCoroutine =
                 null;
@@ -624,6 +644,11 @@ public class PixelCameraController : MonoBehaviour
 
         isPlayingStartZoomAnimation =
             false;
+
+        // <변경부분>
+        // 기존 카메라 확대가 최종 배율에 도달한 뒤
+        // BattleScene 보드 등장 연출이 시작될 수 있도록 알린다.
+        hasCompletedStartZoomAnimation = true;
 
         startZoomCoroutine =
             null;
