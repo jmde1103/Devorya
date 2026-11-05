@@ -39158,7 +39158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 377968117372118404, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -255
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 377968117372118404, guid: 7288926e4325afa40962cff8e5cc392d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -59505,6 +59505,7 @@ MonoBehaviour:
   backgroundManager: {fileID: 1113883777}
   playBattleBoardIntro: 1
   battleBoardIntroAnimator: {fileID: 0}
+  battleStartCameraController: {fileID: 0}
   eventSequenceController: {fileID: 2133944367}
   battleEndFlowController: {fileID: 1123980041}
   battleUICanvasGroup: {fileID: 0}
@@ -127352,7 +127353,7 @@ RectTransform:
   m_GameObject: {fileID: 1248682641}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1209219830}
@@ -127361,7 +127362,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -97, y: 67}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1248682643
@@ -157275,6 +157276,7 @@ MonoBehaviour:
   tileDropHeight: 0.18
   pieceStartDelay: 0.08
   pieceFadeDuration: 0.35
+  teamFadeInterval: 0.06
 --- !u!1 &1546785582
 GameObject:
   m_ObjectHideFlags: 0
@@ -158892,9 +158894,9 @@ MonoBehaviour:
     inset: {x: 34.46875, y: 45.46875}
     relativeTo: {fileID: 0}
     relativeOffset: {x: 0, y: 0}
-    authoredCenter: {x: 0.30986655, y: 0.8055556}
+    authoredCenter: {x: 0.27835903, y: 0.837037}
     contentBounds:
-      m_Center: {x: -365.0562, y: 330, z: 1728}
+      m_Center: {x: -365.05634, y: 330.00006, z: 1728}
       m_Extent: {x: 560.47504, y: 164.53125, z: 0}
     originalScale: {x: 1, y: 1, z: 1}
   - target: {fileID: 388019654}
@@ -158902,10 +158904,10 @@ MonoBehaviour:
     inset: {x: 32, y: 32}
     relativeTo: {fileID: 0}
     relativeOffset: {x: 0, y: 0}
-    authoredCenter: {x: 0.056692697, y: 0.37590277}
+    authoredCenter: {x: 0.050502587, y: 0.57951623}
     contentBounds:
-      m_Center: {x: -58.100018, y: 80.649994, z: 0}
-      m_Extent: {x: 51.20003, y: 87.850006, z: 0}
+      m_Center: {x: -58.100037, y: 80.65002, z: 0}
+      m_Extent: {x: 51.199974, y: 87.850006, z: 0}
     originalScale: {x: 1.5, y: 1.5, z: 1}
   followScenePlacement: 1
 --- !u!1 &1560905796

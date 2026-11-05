@@ -218,4 +218,12 @@ public class BoardManager : MonoBehaviour
     }
     public int Width => width; // 보드판 가로 크기 반환
     public int Height => height; // 보드판 가로 크기 반환
+
+    // <변경부분>
+    // BoardManager Inspector의 실제 아이소매트릭 격자 반폭/반높이를
+    // 타일 시각 연출에서 읽을 수 있도록 제공한다.
+    //
+    // 보드 좌표 및 타일 생성 규칙은 변경하지 않는다.
+    public float TileWidthHalf => tileWidthHalf;
+    public float TileHeightHalf => tileHeightHalf;
 }

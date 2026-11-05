@@ -22,6 +22,24 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
     [SerializeField, Min(0.01f)] private float pieceFadeDuration = 0.35f;
 
     // <변경부분>
+    // BattleScene에서만 타일 등장 순서와
+    // 한 번에 등장하는 타일 개수를 설정한다.
+    // EventScene 5x2 편성 보드는 기존 순서를 유지한다.
+    [Header("Battle Tile Intro")]
+    [SerializeField]
+    private bool randomizeBattleTileOrder = true;
+
+    [SerializeField, Min(1)]
+    private int battleTilesPerWave = 2;
+
+    // <변경부분>
+    // BattleScene에서 기물이 하나씩 등장하기 시작하는 간격.
+    // EventScene의 기물 동시 등장에는 영향을 주지 않는다.
+    [Header("Battle Piece Intro")]
+    [SerializeField, Min(0f)]
+    private float battlePieceInterval = 0.10f;
+
+    // <변경부분>
     // BattleScene에서 Player 등장 후 Enemy 등장까지의 대기 시간.
     // 기존 EventScene의 전체 기물 동시 등장에는 영향을 주지 않는다.
     [Header("Battle Team Intro")]
@@ -29,11 +47,18 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
     private float teamFadeInterval = 0.06f;
 
     private Coroutine introCoroutine;
+
+    // <변경부분>
+    // 여러 기물의 Born 애니메이션을 시간차로 재생하되,
+    // 전투 진입 연출이 중단되면 모두 정리할 수 있도록 추적한다.
+    private readonly List<Coroutine> activeBornCoroutines =
+        new List<Coroutine>();
+
     private readonly List<FadeVisual> tileVisuals = new List<FadeVisual>();
     private readonly List<FadeVisual> pieceVisuals = new List<FadeVisual>();
 
     // <변경부분>
-    // BattleScene에서 팀별 순차 페이드를 실행하기 위한 목록.
+    // BattleScene에서 Player / Enemy 기물 등장 순서를 구분한다.
     // Enemy 목록에는 Neutral 기물도 포함해 누락되지 않도록 한다.
     private readonly List<FadeVisual> playerPieceVisuals =
         new List<FadeVisual>();
@@ -161,12 +186,35 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
         }
 
         Debug.Log(
-            $"[FormationIntro] 연출 대상 확인 | " +
-            $"Tiles={tileVisuals.Count} | " +
-            $"Pieces={pieceVisuals.Count} | " +
-            $"SeparateTeams={separatePieceTeams}",
-            this
-        );
+     $"[FormationIntro] 연출 대상 확인 | " +
+     $"Tiles={tileVisuals.Count} | " +
+     $"Pieces={pieceVisuals.Count} | " +
+     $"SeparateTeams={separatePieceTeams}",
+     this
+ );
+
+        // <변경부분>
+        // BattleScene에서만 타일의 등장 순서를 무작위로 섞는다.
+        // 실제 BoardManager 타일 배열이나 배치 좌표는 변경하지 않는다.
+        //
+        // Fisher-Yates Shuffle을 사용해 중복이나 누락 없이
+        // 모든 타일이 정확히 한 번씩 등장하도록 한다.
+        //
+        // System.Random을 사용해 전투 로직의
+        // UnityEngine.Random 전역 상태에 영향을 주지 않는다.
+        if (separatePieceTeams && randomizeBattleTileOrder)
+        {
+            System.Random tileRandom = new System.Random();
+
+            for (int i = tileVisuals.Count - 1; i > 0; i--)
+            {
+                int randomIndex = tileRandom.Next(i + 1);
+
+                FadeVisual temp = tileVisuals[i];
+                tileVisuals[i] = tileVisuals[randomIndex];
+                tileVisuals[randomIndex] = temp;
+            }
+        }
 
         // <변경부분>
         // 카메라 확대가 시작되기 전 같은 프레임에서 즉시 숨긴다.
@@ -217,19 +265,40 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
         float tileDuration = Mathf.Max(0.01f, tileFadeDuration);
         float stagger = Mathf.Max(0f, tileInterval);
 
+        // <변경부분>
+        // BattleScene은 설정한 개수만큼 타일을 동시에 등장시킨다.
+        // EventScene은 기존처럼 한 번에 하나씩 등장한다.
+        int tilesPerWave = separatePieceTeams
+            ? Mathf.Max(1, battleTilesPerWave)
+            : 1;
+
+        int tileWaveCount = Mathf.CeilToInt(
+            tileVisuals.Count / (float)tilesPerWave
+        );
+
         float totalTileDuration =
-            (tileVisuals.Count - 1) * stagger + tileDuration;
+            (tileWaveCount - 1) * stagger + tileDuration;
 
         float elapsed = 0f;
 
         // <변경부분>
-        // 타일 5x2 또는 5x6을 기존 순서대로 등장시킨다.
+        // 무작위로 섞인 타일을 설정한 개수씩 묶어 등장시킨다.
+        //
+        // BattleScene: 기본 2개씩 15회
+        // EventScene: 기존 순서대로 1개씩 등장
         while (elapsed < totalTileDuration)
         {
             for (int i = 0; i < tileVisuals.Count; i++)
             {
+                // <변경부분>
+                // 같은 Wave에 속하는 타일은 등장 시작 시간이 같다.
+                // 예: 0,1번 동시 → 2,3번 동시 → 4,5번 동시
+                int waveIndex = i / tilesPerWave;
+
+                float startTime = waveIndex * stagger;
+
                 float t = Mathf.Clamp01(
-                    (elapsed - i * stagger) / tileDuration
+                    (elapsed - startTime) / tileDuration
                 );
 
                 float eased = t * t * (3f - 2f * t);
@@ -263,15 +332,19 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
         }
 
         // <변경부분>
-        // BattleScene은 Player → Enemy 순서로 등장한다.
-        // EventScene은 기존처럼 모든 기물이 동시에 등장한다.
+        // BattleScene은 Player 기물의 Born을 하나씩 시작한 뒤
+        // Enemy / Neutral 기물의 Born을 하나씩 시작한다.
+        //
+        // EventScene은 기존의 전체 기물 동시 페이드인을 유지한다.
         if (separatePieceTeams)
         {
-            yield return FadePieceGroupRoutine(
+            yield return PlayPieceBornGroupRoutine(
                 playerPieceVisuals
             );
 
-            // 플레이어와 상대 기물이 모두 있을 때만 간격을 준다.
+            // <변경부분>
+            // 플레이어 진영의 Born이 모두 끝난 후
+            // 상대 진영의 Born 시작 전 간격을 둔다.
             if (playerPieceVisuals.Count > 0 &&
                 opponentPieceVisuals.Count > 0 &&
                 teamFadeInterval > 0f)
@@ -281,7 +354,7 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
                 );
             }
 
-            yield return FadePieceGroupRoutine(
+            yield return PlayPieceBornGroupRoutine(
                 opponentPieceVisuals
             );
         }
@@ -353,6 +426,128 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
         }
     }
 
+    // <변경부분>
+    // BattleScene 전용 기물 Born 등장 연출.
+    //
+    // 기물마다 일정한 간격으로 Born을 시작한다.
+    // 각 기물의 Born은 기존 Spine Controller가 관리하며
+    // Born 완료 후 Idle로 복귀한다.
+    //
+    // 모든 기물의 Born이 끝나야 다음 전투 단계로 진행한다.
+    // EventScene에서는 이 함수를 사용하지 않는다.
+    private IEnumerator PlayPieceBornGroupRoutine(
+        List<FadeVisual> visuals)
+    {
+        if (visuals == null || visuals.Count == 0)
+        {
+            yield break;
+        }
+
+        float stagger = Mathf.Max(
+            0f,
+            battlePieceInterval
+        );
+
+        List<Coroutine> groupCoroutines =
+            new List<Coroutine>(visuals.Count);
+
+        for (int i = 0; i < visuals.Count; i++)
+        {
+            // <변경부분>
+            // 기물별 Born을 독립적으로 시작하여
+            // 앞 기물의 Born 도중 다음 기물도 등장할 수 있다.
+            Coroutine bornCoroutine = StartCoroutine(
+                PlaySinglePieceBornRoutine(visuals[i])
+            );
+
+            if (bornCoroutine != null)
+            {
+                groupCoroutines.Add(bornCoroutine);
+                activeBornCoroutines.Add(bornCoroutine);
+            }
+
+            // <변경부분>
+            // 마지막 기물 이후에는 불필요한 간격을 추가하지 않는다.
+            if (i < visuals.Count - 1 && stagger > 0f)
+            {
+                yield return new WaitForSecondsRealtime(stagger);
+            }
+        }
+
+        // <변경부분>
+        // Born 시작 시간은 서로 달라도,
+        // 실제 종료는 모든 Born이 완료된 뒤에 처리한다.
+        // BattleSetupManager의 전투 입력 잠금이 유지된다.
+        for (int i = 0; i < groupCoroutines.Count; i++)
+        {
+            yield return groupCoroutines[i];
+        }
+
+        activeBornCoroutines.Clear();
+    }
+
+    // <변경부분>
+    // 기물 1개의 기존 Born 애니메이션을 재생한다.
+    //
+    // PieceVisualController에 연결된 현재 Spine Controller를
+    // 우선 사용하므로 기물마다 다른 Spine 외형을 지원한다.
+    private IEnumerator PlaySinglePieceBornRoutine(
+        FadeVisual visual)
+    {
+        if (visual == null)
+        {
+            yield break;
+        }
+
+        Piece piece = visual.OwnerPiece;
+
+        PieceSpineAnimationController spineAnimator = null;
+
+        if (piece != null)
+        {
+            PieceVisualController visualController =
+                piece.GetComponent<PieceVisualController>();
+
+            if (visualController != null)
+            {
+                spineAnimator =
+                    visualController.CurrentSpineAnimationController;
+            }
+
+            if (spineAnimator == null)
+            {
+                spineAnimator =
+                    piece.GetComponentInChildren<
+                        PieceSpineAnimationController>(true);
+            }
+        }
+
+        // <변경부분>
+        // Spine Controller가 없는 기물은
+        // 기존 단일 페이드인으로 안전하게 표시한다.
+        if (spineAnimator == null ||
+            !spineAnimator.isActiveAndEnabled)
+        {
+            yield return FadePieceGroupRoutine(
+                new List<FadeVisual> { visual }
+            );
+
+            yield break;
+        }
+
+        // <변경부분>
+        // 카메라 확대 대기 동안 숨겨 둔 알파를 복원한다.
+        // 0 알파인 상태에서 Born을 재생하면 보이지 않으므로
+        // 기물이 등장할 차례에만 시각 상태를 복구한다.
+        visual.Restore();
+
+        // <변경부분>
+        // 기존 PieceSpineAnimationController의
+        // Born → Idle 재생 경로를 그대로 사용한다.
+        // 흡수/변형용 Color Adjustment는 새로 실행하지 않는다.
+        yield return spineAnimator.PlayBornRoutine();
+    }
+
     public void StopAndRestore()
     {
         if (introCoroutine != null)
@@ -360,6 +555,22 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
             StopCoroutine(introCoroutine);
             introCoroutine = null;
         }
+
+        // <변경부분>
+        // 중간에 종료된 Born 애니메이션이 남지 않도록
+        // 실행 중인 개별 기물 코루틴도 정지한다.
+        bool interruptedBorn =
+            activeBornCoroutines.Count > 0;
+
+        for (int i = 0; i < activeBornCoroutines.Count; i++)
+        {
+            if (activeBornCoroutines[i] != null)
+            {
+                StopCoroutine(activeBornCoroutines[i]);
+            }
+        }
+
+        activeBornCoroutines.Clear();
 
         // <변경부분>
         // 애니메이션 도중 Scene 전환이나 컴포넌트 비활성화가
@@ -372,6 +583,42 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
         for (int i = 0; i < pieceVisuals.Count; i++)
         {
             pieceVisuals[i].Restore();
+
+            // <변경부분>
+            // Born이 중단되었다면 Spine이 중간 프레임에
+            // 멈춰 있지 않도록 기존 Idle 상태로 되돌린다.
+            if (!interruptedBorn)
+            {
+                continue;
+            }
+
+            Piece piece = pieceVisuals[i].OwnerPiece;
+
+            if (piece == null)
+            {
+                continue;
+            }
+
+            PieceVisualController visualController =
+                piece.GetComponent<PieceVisualController>();
+
+            PieceSpineAnimationController spineAnimator =
+                visualController != null
+                    ? visualController.CurrentSpineAnimationController
+                    : null;
+
+            if (spineAnimator == null)
+            {
+                spineAnimator =
+                    piece.GetComponentInChildren<
+                        PieceSpineAnimationController>(true);
+            }
+
+            if (spineAnimator != null &&
+                spineAnimator.isActiveAndEnabled)
+            {
+                spineAnimator.PlayIdle();
+            }
         }
 
         tileVisuals.Clear();
@@ -400,6 +647,19 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
         private readonly Color[] originalSpriteColors;
         private readonly SkeletonRenderer[] spineRenderers;
         private readonly float[] originalSpineAlphas;
+
+        // <변경부분>
+        // 기존에 수집한 시각 연출 대상에서 Piece를 가져온다.
+        // 타일 대상에서는 null이 반환된다.
+        public Piece OwnerPiece
+        {
+            get
+            {
+                return root != null
+                    ? root.GetComponent<Piece>()
+                    : null;
+            }
+        }
 
         public FadeVisual(Transform target)
         {

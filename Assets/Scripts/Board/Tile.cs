@@ -120,6 +120,58 @@ public class Tile : MonoBehaviour
     // 누적 오차가 발생하므로 별도로 보관한다.
     private Color highlightOverlayBaseColor = Color.clear;
 
+    // <변경부분>
+    // 상대 기물의 이동/공격 가능 범위를 표시하는 전용 회색 Overlay.
+    // 기존 이동 하이라이트의 색상, Glow, Pulse와 독립적으로 관리한다.
+    [Header("Enemy Move Preview")]
+    [SerializeField]
+    private Color enemyMovePreviewColor =
+        new Color(0.38f, 0.38f, 0.38f, 1f);
+
+    [SerializeField, Range(0f, 1f)]
+    private float enemyMovePreviewOpacity = 0.65f;
+
+    // 필요할 때 한 번 생성하여 재사용한다.
+    private SpriteRenderer enemyMovePreviewRenderer;
+
+    // <변경부분>
+    // 아군과 적의 이동 가능 범위가 겹치는 타일에
+    // 아이소매트릭 회색 마름모 면만 표시한다.
+    //
+    // 기존 외곽선은 사용하지 않는다.
+    [Header("Enemy Move Preview Overlap")]
+    [SerializeField]
+    private Color enemyMoveOverlapFillColor =
+        new Color(0.20f, 0.20f, 0.20f, 1f);
+
+    // <변경부분>
+    // 마름모의 최종 불투명도.
+    // 기존 아군 하이라이트 위에 반투명하게 겹쳐 보인다.
+    [SerializeField, Range(0f, 1f)]
+    private float enemyMoveOverlapFillOpacity = 0.34f;
+
+    // <변경부분>
+    // 마름모가 인접 타일의 경계를 침범하지 않도록
+    // 실제 보드 격자보다 조금 안쪽으로 표시한다.
+    [SerializeField, Range(0f, 0.12f)]
+    private float enemyMoveOverlapInset = 0.04f;
+
+    // <변경부분>
+    // 타일 중심에 대한 미세 위치 보정값.
+    // 현재 결과 기준으로 Y를 조금 올려 쓰기 좋다.
+    [SerializeField]
+    private Vector2 enemyMoveOverlapOffset =
+        new Vector2(0f, 0.035f);
+
+    // <변경부분>
+    // 겹침 마름모 표시 Renderer.
+    // 변수명은 기존 흐름을 크게 바꾸지 않기 위해 유지한다.
+    private SpriteRenderer enemyMoveOverlapBorderRenderer;
+
+    // <변경부분>
+    // 채워진 마름모 Sprite는 모든 Tile이 공유한다.
+    private static Sprite sharedEnemyMoveOverlapDiamondSprite;
+
 
     // 모바일 / PC 입력 시 현재 포인터 위치의 UI Raycast 결과를 재사용한다.
     // Tile 클릭 때마다 List를 새로 생성하지 않아 불필요한 GC 할당을 방지한다.
@@ -323,6 +375,15 @@ public class Tile : MonoBehaviour
                 highlightOverlayRenderer.sprite =
                     spriteRenderer.sprite;
             }
+
+            // <변경부분>
+            // 적 이동 범위 Overlay도 TileData 변경 시
+            // 현재 타일의 Sprite를 그대로 따라가도록 한다.
+            if (enemyMovePreviewRenderer != null)
+            {
+                enemyMovePreviewRenderer.sprite =
+                    spriteRenderer.sprite;
+            }
         }
     }
 
@@ -379,6 +440,320 @@ public class Tile : MonoBehaviour
         // Unlit Overlay는 투명하게 만든다.
         // 타일 본체는 기존 조명과 기본 색상을 유지한다.
         ChangeTileColorSmooth(Color.clear, false);
+    }
+
+    // <변경부분>
+    // 상대 기물의 이동/공격 가능 범위를 회색으로 표시한다.
+    // 아군 이동 범위와 겹치지 않는 타일에 사용한다.
+    public void ShowEnemyMovePreview()
+    {
+        // 다른 표시 방식에서 재사용되었을 경우 테두리를 숨긴다.
+        if (enemyMoveOverlapBorderRenderer != null)
+        {
+            enemyMoveOverlapBorderRenderer.color = Color.clear;
+        }
+
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        if (enemyMovePreviewRenderer == null)
+        {
+            enemyMovePreviewRenderer =
+                CreateHighlightVisual(
+                    "__BattleTileEnemyMovePreview",
+                    1f
+                );
+        }
+
+        if (enemyMovePreviewRenderer == null)
+        {
+            return;
+        }
+
+        enemyMovePreviewRenderer.sprite =
+            spriteRenderer.sprite;
+
+        enemyMovePreviewRenderer.sharedMaterial =
+            highlightOverlayMaterial;
+
+        enemyMovePreviewRenderer.sortingLayerID =
+            spriteRenderer.sortingLayerID;
+
+        enemyMovePreviewRenderer.sortingOrder =
+            spriteRenderer.sortingOrder + 1;
+
+        Color previewColor =
+            enemyMovePreviewColor;
+
+        previewColor.a =
+            Mathf.Clamp01(
+                previewColor.a *
+                enemyMovePreviewOpacity
+            );
+
+        enemyMovePreviewRenderer.color =
+            previewColor;
+    }
+
+    // <변경부분>
+    // 아군과 적의 이동/공격 범위가 겹치는 타일에
+    // 아이소매트릭 마름모 테두리를 표시한다.
+    //
+    // 기존 회색 채우기는 숨기고 아군 하이라이트의
+    // 색상, Glow, Pulse는 그대로 유지한다.
+    //
+    // 마름모 크기는 BoardManager의 실제 격자 설정을 사용한다.
+    public void ShowEnemyMoveOverlapPreview(
+      float tileHalfWidth,
+      float tileHalfHeight)
+    {
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 겹치는 영역에서는 기존 적 이동용 회색 타일 Overlay를 사용하지 않는다.
+        // 회색 반투명 마름모만 표시한다.
+        if (enemyMovePreviewRenderer != null)
+        {
+            enemyMovePreviewRenderer.color =
+                Color.clear;
+        }
+
+        Sprite fillSprite =
+            GetOrCreateEnemyMoveOverlapDiamondSprite();
+
+        if (fillSprite == null)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // Renderer는 각 타일에서 최초 1회만 생성한다.
+        if (enemyMoveOverlapBorderRenderer == null)
+        {
+            GameObject diamondObject =
+                new GameObject(
+                    "__BattleTileEnemyMoveOverlapDiamond"
+                );
+
+            diamondObject.transform.SetParent(
+                transform,
+                false
+            );
+
+            diamondObject.layer =
+                spriteRenderer.gameObject.layer;
+
+            enemyMoveOverlapBorderRenderer =
+                diamondObject.AddComponent<SpriteRenderer>();
+        }
+
+        enemyMoveOverlapBorderRenderer.sprite =
+            fillSprite;
+
+        enemyMoveOverlapBorderRenderer.drawMode =
+            SpriteDrawMode.Simple;
+
+        float halfWidth =
+            Mathf.Max(
+                0.01f,
+                Mathf.Abs(tileHalfWidth) -
+                enemyMoveOverlapInset
+            );
+
+        float halfHeight =
+            Mathf.Max(
+                0.01f,
+                Mathf.Abs(tileHalfHeight) -
+                enemyMoveOverlapInset * 0.5f
+            );
+
+        Vector2 spriteSize =
+            fillSprite.bounds.size;
+
+        Transform diamondTransform =
+            enemyMoveOverlapBorderRenderer.transform;
+
+        diamondTransform.localRotation =
+            Quaternion.identity;
+
+        diamondTransform.localPosition =
+            new Vector3(
+                enemyMoveOverlapOffset.x,
+                enemyMoveOverlapOffset.y,
+                0f
+            );
+
+        diamondTransform.localScale =
+            new Vector3(
+                (halfWidth * 2f) /
+                    Mathf.Max(0.001f, spriteSize.x),
+                (halfHeight * 2f) /
+                    Mathf.Max(0.001f, spriteSize.y),
+                1f
+            );
+
+        enemyMoveOverlapBorderRenderer.sharedMaterial =
+            highlightOverlayMaterial != null
+                ? highlightOverlayMaterial
+                : spriteRenderer.sharedMaterial;
+
+        enemyMoveOverlapBorderRenderer.sortingLayerID =
+            spriteRenderer.sortingLayerID;
+
+        // <변경부분>
+        // 기존 아군 하이라이트보다 위에
+        // 회색 반투명 마름모 면만 표시한다.
+        enemyMoveOverlapBorderRenderer.sortingOrder =
+            spriteRenderer.sortingOrder + 3;
+
+        enemyMoveOverlapBorderRenderer.maskInteraction =
+            spriteRenderer.maskInteraction;
+
+        Color fillColor =
+            enemyMoveOverlapFillColor;
+
+        fillColor.a =
+            Mathf.Clamp01(
+                fillColor.a *
+                enemyMoveOverlapFillOpacity
+            );
+
+        enemyMoveOverlapBorderRenderer.color =
+            fillColor;
+    }
+
+    // <변경부분>
+    // 128x64 픽셀 투명 이미지에
+    // 외곽선 없는 채워진 2:1 아이소매트릭 마름모만 생성한다.
+    //
+    // 마름모 내부는 흰색 불투명 픽셀이며
+    // 최종 회색/투명도는 SpriteRenderer.color에서 결정한다.
+    private static Sprite
+        GetOrCreateEnemyMoveOverlapDiamondSprite()
+    {
+        if (sharedEnemyMoveOverlapDiamondSprite != null)
+        {
+            return sharedEnemyMoveOverlapDiamondSprite;
+        }
+
+        const int textureWidth = 128;
+        const int textureHeight = 64;
+
+        Texture2D diamondTexture =
+            new Texture2D(
+                textureWidth,
+                textureHeight,
+                TextureFormat.RGBA32,
+                false
+            );
+
+        diamondTexture.name =
+            "DEVORYA_EnemyMoveOverlapDiamond";
+
+        diamondTexture.filterMode =
+            FilterMode.Point;
+
+        diamondTexture.wrapMode =
+            TextureWrapMode.Clamp;
+
+        Color32[] pixels =
+            new Color32[
+                textureWidth * textureHeight
+            ];
+
+        Color32 fillPixel =
+            new Color32(
+                255,
+                255,
+                255,
+                255
+            );
+
+        float centerX =
+            (textureWidth - 1) * 0.5f;
+
+        float centerY =
+            (textureHeight - 1) * 0.5f;
+
+        float radiusX =
+            centerX;
+
+        float radiusY =
+            centerY;
+
+        // <변경부분>
+        // 마름모 공식:
+        // |x| / halfWidth + |y| / halfHeight <= 1
+        //
+        // 마름모 내부만 채운다.
+        for (int y = 0; y < textureHeight; y++)
+        {
+            for (int x = 0; x < textureWidth; x++)
+            {
+                float distanceX =
+                    Mathf.Abs(x - centerX);
+
+                float distanceY =
+                    Mathf.Abs(y - centerY);
+
+                float diamondDistance =
+                    distanceX / radiusX +
+                    distanceY / radiusY;
+
+                if (diamondDistance <= 1f)
+                {
+                    pixels[
+                        y * textureWidth + x
+                    ] = fillPixel;
+                }
+            }
+        }
+
+        diamondTexture.SetPixels32(pixels);
+        diamondTexture.Apply(false, false);
+
+        sharedEnemyMoveOverlapDiamondSprite =
+            Sprite.Create(
+                diamondTexture,
+                new Rect(
+                    0f,
+                    0f,
+                    textureWidth,
+                    textureHeight
+                ),
+                new Vector2(0.5f, 0.5f),
+                100f,
+                0,
+                SpriteMeshType.FullRect
+            );
+
+        sharedEnemyMoveOverlapDiamondSprite.name =
+            "DEVORYA_EnemyMoveOverlapDiamond";
+
+        return sharedEnemyMoveOverlapDiamondSprite;
+    }
+
+    // <변경부분>
+    // 회색 채우기와 겹침 테두리를 모두 제거한다.
+    // 기존 아군 하이라이트는 변경하지 않는다.
+    public void HideEnemyMovePreview()
+    {
+        if (enemyMovePreviewRenderer != null)
+        {
+            enemyMovePreviewRenderer.color =
+                Color.clear;
+        }
+
+        if (enemyMoveOverlapBorderRenderer != null)
+        {
+            enemyMoveOverlapBorderRenderer.color =
+                Color.clear;
+        }
     }
 
     // <변경부분>

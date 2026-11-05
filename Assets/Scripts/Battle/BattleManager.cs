@@ -261,6 +261,24 @@ public partial class BattleManager : MonoBehaviour
     // 현재 선택된 기물이 실제로 이동/공격할 수 있는 타일 목록
     private readonly List<Tile> selectableTiles = new List<Tile>();
 
+    // <변경부분>
+    // 상대 기물 클릭 시 이동/공격 가능 범위를
+    // 정보 표시용 회색 타일로 나타낼지 여부.
+    [Header("Enemy Move Preview")]
+    [SerializeField]
+    private bool enableEnemyMovePreview = true;
+
+    // <변경부분>
+    // 현재 회색으로 표시 중인 타일만 별도로 관리한다.
+    // 기존 highlightedTiles / selectableTiles에는 포함하지 않는다.
+    private readonly List<Tile> enemyMovePreviewTiles =
+        new List<Tile>();
+
+    // <변경부분>
+    // 기존 BattleMoveValidator의 좌표 계산 결과를 재사용한다.
+    private readonly List<Vector2Int> enemyMovePreviewPositions =
+        new List<Vector2Int>();
+
     // <변경부분> 찬스어택이 연속으로 발동된 횟수
     private int chanceAttackContinuousCount = 0;
 
@@ -723,8 +741,13 @@ public partial class BattleManager : MonoBehaviour
             return;
         }
 
-        // 이동할 수 없는 기물은 선택 불가
-        if (piece.CanMoveThisTurn == false)
+        // <변경부분>
+        // 실제 조작할 수 없는 기물은 기존처럼 선택 불가.
+        // 단, Player 턴의 상대 기물은 이동 불가 상태여도
+        // 스테이터스와 이동 범위 정보를 확인할 수 있게 한다.
+        if (piece.CanMoveThisTurn == false &&
+            !(currentTurn == BattleTurn.Player &&
+              piece.Team != PieceTeam.Player))
         {
             selectedPiece = null;
 
@@ -776,6 +799,11 @@ public partial class BattleManager : MonoBehaviour
 
             // 전체 타입 아이콘 표시 상태를 현재 대상 기준으로 갱신한다.
             RefreshTypeIconVisuals();
+
+            // <변경부분>
+            // 클릭한 상대 기물의 실제 이동/공격 가능 목적지를
+            // 회색 타일로 표시한다.
+            ShowEnemyMovePreview(piece);
 
             // <변경부분> ForcePieceSelect가 Enemy / Neutral 등
             // 현재 Player가 직접 조작하는 진영이 아닌 기물을
@@ -1115,6 +1143,12 @@ public partial class BattleManager : MonoBehaviour
             return;
         }
 
+        // <변경부분>
+        // 새로운 타일을 클릭하면 이전 상대 기물의
+        // 회색 이동 범위를 먼저 제거한다.
+        // 새 상대 기물 클릭이라면 아래 선택 처리에서 다시 표시한다.
+        ClearEnemyMovePreview();
+
         // 클릭한 타일 위에 있는 기물 확인
         Piece clickedPiece =
             pieceManager.GetPieceAt(
@@ -1192,6 +1226,12 @@ public partial class BattleManager : MonoBehaviour
             // 전체 타입 아이콘 토글 상태를 유지하면서
             // 현재 정보 확인 중인 상대 기물의 아이콘을 표시한다.
             RefreshTypeIconVisuals();
+
+            // <변경부분>
+            // 아군을 선택한 상태에서도 공격 범위 밖의
+            // 상대 기물을 클릭하면 회색 이동 범위를 표시한다.
+            // 기존 아군 선택 상태와 실제 행동 후보는 유지한다.
+            ShowEnemyMovePreview(clickedPiece);
 
             Debug.Log(
                 $"상대 기물 정보 확인: " +
@@ -4543,6 +4583,92 @@ public partial class BattleManager : MonoBehaviour
         // 테스트 유물 추가는 BattleRelicManager가 처리
         battleRelicManager.AddTestRelicForDebug();
     }
+    // <변경부분>
+    // 현재 표시 중인 상대 기물의 회색 이동 범위를 제거한다.
+    //
+    // 기존 아군 이동 하이라이트 및 공격 확인 상태에는
+    // 영향을 주지 않는다.
+    private void ClearEnemyMovePreview()
+    {
+        for (int i = 0; i < enemyMovePreviewTiles.Count; i++)
+        {
+            Tile tile = enemyMovePreviewTiles[i];
+
+            if (tile == null)
+            {
+                continue;
+            }
+
+            tile.HideEnemyMovePreview();
+        }
+
+        enemyMovePreviewTiles.Clear();
+        enemyMovePreviewPositions.Clear();
+    }
+
+    // <변경부분>
+    // 플레이어가 상대 기물을 클릭했을 때
+    // 해당 기물의 이동 및 공격 가능한 목적지를 회색으로 표시한다.
+    //
+    // 실제 행동을 실행하거나 선택 가능 타일을 변경하지 않는다.
+    private void ShowEnemyMovePreview(Piece piece)
+    {
+        // 다른 기물의 범위가 남지 않도록 먼저 정리한다.
+        ClearEnemyMovePreview();
+
+        if (!enableEnemyMovePreview ||
+            piece == null ||
+            piece.Team == PieceTeam.Player ||
+            currentTurn != BattleTurn.Player ||
+            isBattleIntroActive ||
+            isBattleAnnouncementPlaying ||
+            isPlayerDeploymentPhase ||
+            isBattleEnded ||
+            isActionAnimating ||
+            boardManager == null ||
+            battleMoveValidator == null)
+        {
+            return;
+        }
+
+        // <변경부분>
+        // 이동 규칙을 별도로 만들지 않고 기존 공용 판정기를 사용한다.
+        // 이동 불가 및 공격 불가 상태효과도 기존 규칙대로 반영한다.
+        battleMoveValidator.FillSelectablePositions(
+            piece,
+            enemyMovePreviewPositions
+        );
+
+        for (int i = 0; i < enemyMovePreviewPositions.Count; i++)
+        {
+            Vector2Int position =
+                enemyMovePreviewPositions[i];
+
+            Tile tile =
+                boardManager.GetTile(
+                    position.x,
+                    position.y
+                );
+
+            if (tile == null)
+            {
+                continue;
+            }
+
+            // <변경부분>
+            // 상대 기물의 모든 이동/공격 가능 목적지는
+            // 타일 전체 색상이 아닌 반투명 회색 마름모로 표시한다.
+            // 아군의 이동 가능 범위와 겹칠 때에도
+            // 기존 파란색 하이라이트와 공격 판정은 유지한다.
+            tile.ShowEnemyMoveOverlapPreview(
+                boardManager.TileWidthHalf,
+                boardManager.TileHeightHalf
+            );
+
+            // 다음 클릭 또는 턴 변경 시 정리할 수 있도록 저장한다.
+            enemyMovePreviewTiles.Add(tile);
+        }
+    }
 
     // <변경부분> 선택한 기물의 이동 및 공격 가능한 타일을 표시하는 함수
     // 실제 이동 규칙은 BattleMoveValidator 한곳에서만 계산한다.
@@ -5882,6 +6008,11 @@ public partial class BattleManager : MonoBehaviour
     // 현재 확인 중인 행동 타일을 초기화한다.
     private void ClearHighlights()
     {
+        // <변경부분>
+        // 기존 하이라이트 정리 시 상대 이동 범위도 제거한다.
+        // 회색 범위는 별도 Renderer이므로 중복 복원하지 않는다.
+        ClearEnemyMovePreview();
+
         // 하이라이트된 타일 전부 원래 색으로 복구
         foreach (Tile tile in highlightedTiles)
         {
