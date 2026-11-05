@@ -44,7 +44,21 @@ public static class Merge1101FormationChecks
         Check(pieces.GetPieceCount(PieceTeam.Player)>0,"Editor fallback creates player pieces");
         var king=pieces.GetPieceAt(2,0);Check(king!=null&&king.PieceType==PieceType.King,"King begins at 2,0");
         Check(run.GetPlayerPiecesCopy().Count==0,"Editor fallback never writes player RunState");
+        var roster=pieces.CapturePlayerPieceRuntimeData();
+        formation.CloseFormationBoard();run.SavePlayerPieces(roster);
+        Check(formation.OpenFormationBoard(),"Saved roster opens in formation");
+        float waited=0;while(formation.IsFormationIntroPlaying&&waited<20){yield return new WaitForSecondsRealtime(.1f);waited+=.1f;}
+        Check(!formation.IsFormationIntroPlaying,"Formation intro finishes before input");
+        Piece movable=null;Tile destination=null;
+        for(int y=0;y<2;y++)for(int x=0;x<5;x++){var p=pieces.GetPieceAt(x,y);if(p!=null&&p.PieceType==PieceType.Pawn)movable=p;if(p==null)destination=board.GetTile(x,y);}
+        Check(movable!=null&&destination!=null,"Formation has movable pawn and empty tile");
+        formation.SelectFormationTile(board.GetTile(movable.X,movable.Y));formation.SelectFormationTile(destination);
+        yield return new WaitForSecondsRealtime(.7f);
+        Check(movable.X==destination.X&&movable.Y==destination.Y,"Production formation selection moves pawn");
+        Check(run.GetPlayerPiecesCopy().Exists(p=>p.pieceType==PieceType.Pawn&&p.formationX==destination.X&&p.formationY==destination.Y),"Moved formation saved in RunState");
+        int dx=destination.X,dy=destination.Y;formation.CloseFormationBoard();formation.OpenFormationBoard();yield return new WaitForSecondsRealtime(3);
+        Check(pieces.GetPieceAt(dx,dy)!=null&&pieces.GetPieceAt(dx,dy).PieceType==PieceType.Pawn,"Formation position restored on reopen");
         formation.CloseFormationBoard();Check(!formation.IsFormationOpen&&!root.activeSelf,"Close cleans active formation");
-        Debug.Log("FORMATION_SELECTION_MANUAL_CHECK_PENDING: Mouse/touch input not simulated; existing unresolved issue remains open.");
+        Debug.Log("FORMATION_SELECTION_MANUAL_CHECK_PENDING: Physical mouse/touch not simulated; production SelectFormationTile path tested.");
     }
 }

@@ -1841,8 +1841,16 @@ backgroundManager
        
         if (step.spawnActorIsShopkeeper)
         {
-            var shop = FindFirstObjectByType<ShopController>();
-            if (shop != null) shop.RegisterMerchant(actor);
+            if (shopController == null)
+                shopController = FindFirstObjectByType<ShopController>(FindObjectsInactive.Include);
+            if (shopController == null)
+                Debug.LogError($"[ShopMerchant] 등록 실패: ShopController가 없습니다. Event={currentEventSceneData?.name}, Actor={step.spawnActorId}", this);
+            else
+            {
+                shopController.RegisterMerchant(actor);
+                actor.GetComponent<ShopMerchant>()?.Configure(step);
+                Debug.Log($"[ShopMerchant] 등록: Event={currentEventSceneData?.name}, Actor={step.spawnActorId}, ShopActive={shopController.isActiveAndEnabled}", actor);
+            }
         }
 
         activeActors.Add(

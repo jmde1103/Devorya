@@ -12,6 +12,12 @@ using UnityEngine;
 // BattleItemSlotUI의 아이콘 / Localization / Tooltip 기능만 재사용한다.
 public class RunItemBarUI : MonoBehaviour
 {
+    public void SetSaleSelection(int index)
+    {
+        if (itemSlotUIs == null) return;
+        for (int i = 0; i < itemSlotUIs.Length; i++)
+            if (itemSlotUIs[i] != null) itemSlotUIs[i].SetSaleSelected(i == index);
+    }
     public void SetShopContext(ShopController owner)
     {
         if (itemSlotUIs == null) return;

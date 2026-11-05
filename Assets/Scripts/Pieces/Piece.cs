@@ -12,6 +12,11 @@ public class Piece : MonoBehaviour
     // 외형, 상태 UI 이미지, 타입 아이콘 위치를 PieceData 기준으로 갱신할 때 사용
     public PieceData CurrentPieceData { get; private set; }
 
+    // Read-only prefab layout references for event actor UI; no battle icon state changes.
+    public Transform TypeIconLayoutRoot => typeIconRoot != null ? typeIconRoot.transform : null;
+    public SpriteRenderer TypeIconLayoutBackground => typeIconBoxRenderer;
+    public Sprite GetTypeIconLayoutSprite(PieceType type) => GetDefaultTypeIconSprite(type);
+
     // <변경부분> 이 기물이 보유한 일반스킬 목록
     [SerializeField] private List<OwnedGeneralSkillData> generalSkills = new List<OwnedGeneralSkillData>();
 

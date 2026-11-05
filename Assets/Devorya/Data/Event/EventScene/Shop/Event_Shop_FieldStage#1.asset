@@ -138,7 +138,7 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E8\uC0C1\uC778"
-    spawnActorIsShopkeeper: 0
+    spawnActorIsShopkeeper: 1
     spawnActorSpineOverride: {fileID: 3356446670136911829, guid: 11ebcf498119eef40bc28fdaa8b112cd, type: 3}
     spawnActorPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
     spawnActorTeam: 1

@@ -11,7 +11,7 @@ public partial class ShopController
     [SerializeField, InspectorName("기존 기물 판매 버튼 원본")] private FieldAbsorbButton merchantFieldButtonTemplate;
     [SerializeField, InspectorName("판매 시작 아이콘")] private Sprite sellIcon;
     [SerializeField, InspectorName("판매 취소 아이콘")] private Sprite sellCancelIcon;
-    [SerializeField, Min(0.05f), InspectorName("판매 아이콘 이동 시간")] private float saleIconTravelTime=0.35f;
+    [HideInInspector, SerializeField, Min(0.05f), InspectorName("판매 아이콘 이동 시간 (이전 데이터)")] private float saleIconTravelTime=0.35f;
     private SaleState saleState;
     private EventSceneSequenceController saleSequence;
     private ShopMerchant merchant;
@@ -24,13 +24,11 @@ public partial class ShopController
     private bool originalLabelLocalizationEnabled;
     private string originalPurchaseLabel;
     private RunGoldUI[] goldViews;
-    private Image saleVisual;
-    private RectTransform saleCanvas;
-    private Vector2 saleVisualStart;
-    private float saleVisualElapsed;
     public SaleState CurrentSaleState=>saleState;
     public bool IsSelling=>saleState!=SaleState.Normal;
-    public Sprite CurrentSaleIcon=>IsSelling?sellCancelIcon:sellIcon;
+    public bool HasSelectedSaleItem => IsSelling && saleItem != null;
+    public Sprite SaleCancelIcon => sellCancelIcon;
+    public Sprite CurrentSaleIcon=>IsSelling?(saleItem != null && saleItem.iconSprite != null ? saleItem.iconSprite : sellCancelIcon):sellIcon;
     public bool CanInteractWithSale
     {
         get
@@ -55,6 +53,11 @@ public partial class ShopController
     public void RegisterMerchant(EventSceneActor actor)
     {
         if(actor==null)return;
+        if (merchant != null && merchant.gameObject == actor.gameObject)
+        {
+            merchant.Initialize(this, merchantFieldButtonTemplate);
+            return;
+        }
         CancelSelling();InitializeSaleUI();
         merchant=actor.GetComponent<ShopMerchant>()??actor.gameObject.AddComponent<ShopMerchant>();
         merchant.Initialize(this,merchantFieldButtonTemplate);BindInventoryForShop(true);
@@ -80,7 +83,8 @@ public partial class ShopController
         if(items==null || index<0 || index>=items.Count || items[index]!=item || item==null || item.SellPrice<=0)
         { if(shopFailurePopupUI!=null)shopFailurePopupUI.Show(ShopSaleLocalization.Unavailable);return; }
         ClearSaleTarget(false);saleItem=item;saleSlot=index;saleInventorySnapshot=items;saleState=SaleState.SellReady;
-        CreateSaleVisual(from);
+        if(runItemBarUI!=null)runItemBarUI.SetSaleSelection(index);
+        if(merchant!=null)merchant.RefreshButton();
         if(goldViews!=null)foreach(var view in goldViews)if(view!=null)view.ShowSalePreview(this,item.SellPrice);
         RefreshSellButton();
     }
@@ -100,6 +104,7 @@ public partial class ShopController
         if(goldViews!=null)foreach(var view in goldViews)if(view!=null)view.RefreshImmediately();
         if(runItemBarUI!=null)runItemBarUI.RefreshFromRunState();
         RefreshSaleLanguage();
+        if(merchant!=null)merchant.RefreshButton();
         if(!sold && shopFailurePopupUI!=null)shopFailurePopupUI.Show(ShopSaleLocalization.Unavailable);
         return sold;
     }
@@ -115,8 +120,8 @@ public partial class ShopController
     }
     private void ClearSaleTarget(bool returnGold)
     {
+        if(runItemBarUI!=null)runItemBarUI.SetSaleSelection(-1);
         if(returnGold && goldViews!=null)foreach(var view in goldViews)if(view!=null)view.EndSalePreview(this);
-        if(saleVisual!=null)Destroy(saleVisual.gameObject);saleVisual=null;
         saleItem=null;saleSlot=-1;saleInventorySnapshot=null;
     }
     private void RefreshSaleLanguage()
@@ -131,31 +136,13 @@ public partial class ShopController
         purchaseButton.gameObject.SetActive(true);purchaseButton.interactable=saleState==SaleState.SellReady && CanInteractWithSale;
         if(purchaseLabel!=null)purchaseLabel.text=ShopSaleLocalization.Sell;
     }
-    private void CreateSaleVisual(RectTransform from)
-    {
-        if(from==null || merchant==null || saleItem==null)return;
-        var canvas=from.GetComponentInParent<Canvas>();if(canvas==null)return;
-        canvas=canvas.rootCanvas;saleCanvas=canvas.transform as RectTransform;
-        var go=new GameObject("SaleItemPreview",typeof(RectTransform));go.transform.SetParent(saleCanvas,false);
-        saleVisual=go.AddComponent<Image>();saleVisual.sprite=saleItem.iconSprite;saleVisual.preserveAspect=true;saleVisual.raycastTarget=false;
-        saleVisual.rectTransform.sizeDelta=new Vector2(48,48);
-        var camera=canvas.renderMode==RenderMode.ScreenSpaceOverlay?null:canvas.worldCamera;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(saleCanvas,RectTransformUtility.WorldToScreenPoint(camera,from.position),camera,out saleVisualStart);
-        saleVisual.rectTransform.anchoredPosition=saleVisualStart;saleVisualElapsed=0;
-    }
     private void Update()
     {
         bool context=isActiveAndEnabled && (merchant!=null || hasInitializedShopInventory);
         if(context!=boundShopContext)BindInventoryForShop(context);
+        if(runItemBarUI!=null)runItemBarUI.SetSaleSelection(IsSelling?saleSlot:-1);
         if(!IsSelling)return;
         if(merchant==null || !merchant.isActiveAndEnabled || (saleState==SaleState.SellReady && !SelectionStillValid())) { CancelSelling();return; }
         if(purchaseButton!=null)purchaseButton.interactable=saleState==SaleState.SellReady && CanInteractWithSale;
-        if(saleVisual==null || saleCanvas==null)return;
-        var canvas=saleCanvas.GetComponent<Canvas>();var camera=canvas.renderMode==RenderMode.ScreenSpaceOverlay?null:canvas.worldCamera;
-        var worldCamera=Camera.main;if(worldCamera==null)return;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(saleCanvas,worldCamera.WorldToScreenPoint(merchant.IconAnchor.position),camera,out var target);
-        saleVisualElapsed+=Time.unscaledDeltaTime;float t=Mathf.Clamp01(saleVisualElapsed/Mathf.Max(0.05f,saleIconTravelTime));
-        saleVisual.rectTransform.anchoredPosition=Vector2.Lerp(saleVisualStart,target,Mathf.SmoothStep(0,1,t))+Vector2.up*Mathf.Sin(t*Mathf.PI)*30;
-        saleVisual.color=new Color(1,1,1,t<1?1:InstructionPulse.Alpha(saleVisualElapsed-saleIconTravelTime));
     }
 }

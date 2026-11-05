@@ -81,18 +81,46 @@ public class RunGoldUI : MonoBehaviour
         // The following transaction event targets the same number already previewed.
         if (!committing) OnGoldChanged(source != null ? source.GetGoldAmount() : actualGold);
     }
+    private readonly Vector3[] deltaBounds = new Vector3[4];
     private void EnsureDeltaText()
     {
-        if (previewDeltaText != null || goldAmountText == null) return;
-        var go = new GameObject("SaleGoldDelta", typeof(RectTransform));
-        go.transform.SetParent(goldAmountText.transform.parent, false);
-        previewDeltaText = go.AddComponent<TextMeshProUGUI>();
-        previewDeltaText.font = goldAmountText.font; previewDeltaText.fontSharedMaterial = goldAmountText.fontSharedMaterial;
-        previewDeltaText.fontSize = goldAmountText.fontSize * 0.65f; previewDeltaText.color = Color.white;
-        previewDeltaText.alignment = TextAlignmentOptions.Center; previewDeltaText.raycastTarget = false;
-        var rect = previewDeltaText.rectTransform; var origin = goldAmountText.rectTransform;
-        rect.anchorMin = origin.anchorMin; rect.anchorMax = origin.anchorMax; rect.pivot = origin.pivot;
-        rect.sizeDelta = origin.sizeDelta; rect.anchoredPosition = origin.anchoredPosition + Vector2.up * (origin.rect.height * 0.75f);
+        if (goldAmountText == null) return;
+        if (previewDeltaText == null)
+        {
+            var go = new GameObject("SaleGoldDelta", typeof(RectTransform));
+            go.transform.SetParent(goldAmountText.transform.parent, false);
+            previewDeltaText = go.AddComponent<TextMeshProUGUI>();
+        }
+        previewDeltaText.font = goldAmountText.font;
+        previewDeltaText.fontSharedMaterial = goldAmountText.fontSharedMaterial;
+        previewDeltaText.fontSize = goldAmountText.fontSize;
+        previewDeltaText.enableAutoSizing = false;
+        previewDeltaText.alignment = TextAlignmentOptions.Center;
+        previewDeltaText.raycastTarget = false;
+        LayoutDeltaText();
+    }
+    private void LateUpdate()
+    {
+        if (previewDeltaText != null && previewDeltaText.gameObject.activeSelf) LayoutDeltaText();
+    }
+    private void LayoutDeltaText()
+    {
+        if (goldAmountText == null || previewDeltaText == null) return;
+        var rect = previewDeltaText.rectTransform;
+        var parent = goldAmountText.transform.parent as RectTransform;
+        if (parent == null) return;
+        if (rect.parent != parent) rect.SetParent(parent, false);
+        var background = goldAmountText.transform.parent.GetComponentInParent<UnityEngine.UI.Image>();
+        var boundsRect = background != null ? background.rectTransform : goldAmountText.rectTransform;
+        boundsRect.GetWorldCorners(deltaBounds);
+        float top = float.NegativeInfinity;
+        foreach(var point in deltaBounds) top = Mathf.Max(top, parent.InverseTransformPoint(point).y);
+        rect.anchorMin = rect.anchorMax = parent.pivot;
+        rect.pivot = new Vector2(.5f,.5f);
+        rect.sizeDelta = new Vector2(Mathf.Max(goldAmountText.rectTransform.rect.width, previewDeltaText.preferredWidth), goldAmountText.fontSize * 1.4f);
+        Vector3 center = parent.InverseTransformPoint(goldAmountText.rectTransform.TransformPoint(goldAmountText.rectTransform.rect.center));
+        float gap = goldAmountText.fontSize * .15f * Mathf.Abs(originalScale.y);
+        rect.anchoredPosition = new Vector2(center.x, top + gap + rect.rect.height * Mathf.Abs(originalScale.y) * .5f);
     }
     private void Update()
     {
@@ -115,7 +143,7 @@ public class RunGoldUI : MonoBehaviour
         {
             deltaElapsed += dt; float t = Mathf.Clamp01(deltaElapsed / 0.25f);
             float scale = deltaClosing ? Mathf.Lerp(1f, 0.9f, t) : Mathf.Lerp(0.9f, 1f, t) + 0.2f * Mathf.Sin(Mathf.PI*t);
-            previewDeltaText.transform.localScale = Vector3.one * scale;
+            previewDeltaText.transform.localScale = originalScale * scale;
             previewDeltaText.color = new Color(1,1,1,deltaClosing ? 1f-t : deltaAlpha);
             if (deltaClosing && t >= 1) previewDeltaText.gameObject.SetActive(false);
         }
