@@ -5589,6 +5589,7 @@ MonoBehaviour:
   turnCount: 0
   currentStageName: 
   baseMaxPlayerAbilityEnergy: 5
+  enableEnemyMovePreview: 1
   battleUIController: {fileID: 1031164066}
   surrenderButton: {fileID: 646759645}
   typeIconButton: {fileID: 1897976746}
@@ -157276,6 +157277,9 @@ MonoBehaviour:
   tileDropHeight: 0.18
   pieceStartDelay: 0.08
   pieceFadeDuration: 0.35
+  randomizeBattleTileOrder: 1
+  battleTilesPerWave: 2
+  battlePieceInterval: 0.1
   teamFadeInterval: 0.06
 --- !u!1 &1546785582
 GameObject:

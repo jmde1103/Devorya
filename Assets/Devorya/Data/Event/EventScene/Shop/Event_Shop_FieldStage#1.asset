@@ -100,6 +100,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -139,9 +140,9 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E8\uC0C1\uC778"
     spawnActorIsShopkeeper: 1
-    spawnActorSpineOverride: {fileID: 3356446670136911829, guid: 11ebcf498119eef40bc28fdaa8b112cd, type: 3}
+    spawnActorSpineOverride: {fileID: 4746673714160857919, guid: 6e543bc392942b14bb68d6de2f25a255, type: 3}
     spawnActorPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
-    spawnActorTeam: 1
+    spawnActorTeam: 0
     spawnActorUseAbsorbedPlayerVisual: 0
     spawnActorVisualOffset: {x: 0, y: 0.2}
     spawnActorFlipX: 0
@@ -211,6 +212,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -322,6 +324,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -433,6 +436,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -556,6 +560,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -667,6 +672,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -778,6 +784,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
