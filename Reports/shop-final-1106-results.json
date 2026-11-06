@@ -1,0 +1,57 @@
+{
+  "tutorial-fixed-1106": {
+    "passedAssertions": 53,
+    "passMarkers": [
+      "TUTORIAL_INSTRUCTION_PLAYMODE_PASS"
+    ],
+    "exceptions": [
+      "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection."
+    ]
+  },
+  "final-1106-ShopMerchantEntryChecks": {
+    "passedAssertions": 102,
+    "passMarkers": [
+      "MERCHANT_ENTRY_PASS"
+    ],
+    "exceptions": [
+      "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection."
+    ]
+  },
+  "final-1106-ShopSellingChecks": {
+    "passedAssertions": 75,
+    "passMarkers": [
+      "SHOP_SELLING_SETUP_PASS",
+      "SHOP_SELLING_PLAYMODE_PASS"
+    ],
+    "exceptions": [
+      "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection."
+    ]
+  },
+  "final-1106-BattleItemUXChecks": {
+    "passedAssertions": 123,
+    "passMarkers": [
+      "ITEM_UX_PLAYMODE_PASS"
+    ],
+    "exceptions": [
+      "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection."
+    ]
+  },
+  "final-1106-Merge1101FormationChecks": {
+    "passedAssertions": 25,
+    "passMarkers": [
+      "FORMATION_MERGE_PLAYMODE_PASS"
+    ],
+    "exceptions": [
+      "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection."
+    ]
+  },
+  "final-1106-ShopMergeLatestBattleChecks": {
+    "passedAssertions": 22,
+    "passMarkers": [
+      "SHOP_MERGE_BATTLE_PASS"
+    ],
+    "exceptions": [
+      "ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection."
+    ]
+  }
+}
