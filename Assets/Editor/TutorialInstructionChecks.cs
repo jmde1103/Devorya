@@ -107,17 +107,50 @@ public static class TutorialInstructionChecks
     {
         yield return LocalizationSettings.InitializationOperation;
         yield return new WaitForSecondsRealtime(5);
-        var bm=BattleManager.Instance;bm.StopAllCoroutines();Set(bm,"battleAIManager",null);
+        var bm=BattleManager.Instance;
+        float introWait=0;
+        while(Get<bool>(bm,"isBattleIntroActive")&&introWait<30){yield return new WaitForSecondsRealtime(.1f);introWait+=.1f;}
+        Check(!Get<bool>(bm,"isBattleIntroActive"),"Battle intro completes before isolated UI checks");
+        bm.StopAllCoroutines();Set(bm,"battleAIManager",null);
         var controller=UnityEngine.Object.FindFirstObjectByType<EventSequenceController>();controller.StopSequence();
         var ui=UnityEngine.Object.FindFirstObjectByType<BattleUIController>();
         var text=Get<TMP_Text>(ui,"uniqueSkillFailureText");
         var canvas=Get<CanvasGroup>(ui,"uniqueSkillFailureCanvasGroup");
         float failureWait=Get<float>(ui,"uniqueSkillFailureHoldDuration")+Get<float>(ui,"uniqueSkillFailureFadeDuration")+0.7f;
         Check(text!=null&&canvas!=null,"Uses existing BattleScene failure popup");
-        ui.BeginTutorialInstruction("First");yield return new WaitForSecondsRealtime(0.6f);
-        Time.timeScale=0f;float alpha=canvas.alpha;yield return new WaitForSecondsRealtime(0.65f);
-        Check(Mathf.Abs(alpha-canvas.alpha)>0.02f&&canvas.alpha>=0.49f&&canvas.alpha<=1f,"Slow pulse runs unscaled and stays readable");
-        Check(!canvas.blocksRaycasts&&!canvas.interactable,"Instruction does not block input");Time.timeScale=1f;
+        // The scene's deployment announcement owns this shared popup first.
+        // Wait for its normal lifecycle; do not stop the UI or suppress its priority.
+        float readyWait=0;
+        while(Get<Coroutine>(ui,"uniqueSkillFailureMessageCoroutine")!=null&&readyWait<15)
+        {yield return new WaitForSecondsRealtime(.1f);readyWait+=.1f;}
+        Check(Get<Coroutine>(ui,"uniqueSkillFailureMessageCoroutine")==null,"Scene announcement releases shared popup before tutorial test");
+        ui.BeginTutorialInstruction("First");
+        var animator=Get<PopupOpenAnimator>(ui,"uniqueSkillFailurePopupOpenAnimator");
+        float openWait=0;
+        while(animator!=null&&animator.IsPlaying&&openWait<5)
+        {yield return new WaitForSecondsRealtime(.05f);openWait+=.05f;}
+        Check(animator==null||!animator.IsPlaying,"Instruction opening animation completes");
+        yield return null;
+        Check(text.text=="First"&&Get<Coroutine>(ui,"uniqueSkillFailureMessageCoroutine")==null,"Instruction owns popup during nonblocking checks");
+        Time.timeScale=0f;float minimum=1f,maximum=0f,elapsed=0;
+        bool nonBlocking=true,inRange=true;
+        while(elapsed<1.5f)
+        {
+            yield return null;
+            elapsed+=Time.unscaledDeltaTime;
+            minimum=Mathf.Min(minimum,canvas.alpha);maximum=Mathf.Max(maximum,canvas.alpha);
+            inRange&=canvas.alpha>=.49f&&canvas.alpha<=1.01f;
+            nonBlocking&=!canvas.blocksRaycasts&&!canvas.interactable;
+        }
+        Check(inRange&&maximum-minimum>.1f,"Slow pulse runs unscaled and stays readable");
+        Check(nonBlocking,"Instruction does not block input");Time.timeScale=1f;
+        var eventSystem=UnityEngine.EventSystems.EventSystem.current;
+        Check(eventSystem!=null,"Scene EventSystem available for actual screen raycast");
+        var rootCanvas=text.GetComponentInParent<Canvas>().rootCanvas;
+        var camera=rootCanvas.renderMode==RenderMode.ScreenSpaceOverlay?null:rootCanvas.worldCamera;
+        var pointer=new UnityEngine.EventSystems.PointerEventData(eventSystem){position=RectTransformUtility.WorldToScreenPoint(camera,text.rectTransform.TransformPoint(text.rectTransform.rect.center))};
+        var hits=new List<UnityEngine.EventSystems.RaycastResult>();eventSystem.RaycastAll(pointer,hits);
+        Check(!hits.Any(h=>h.gameObject.transform.IsChildOf(canvas.transform)),"Instruction popup does not intercept screen raycast");
         ui.ShowUniqueSkillFailureMessage("Failure");yield return null;
         Check(text.text=="Failure","Failure takes priority");
         ui.UpdateTutorialInstruction("Updated");yield return new WaitForSecondsRealtime(failureWait);
@@ -136,6 +169,7 @@ public static class TutorialInstructionChecks
             data.steps=new List<EventSequenceStepData>{new EventSequenceStepData{stepType=EventSequenceStepType.ForceButton,targetButton=EventSequenceButtonType.UniqueSkill,showMarker=marker,showTutorialInstruction=instruction,tutorialInstructionText="Button"}};
             controller.StartSequence(data);yield return new WaitForSecondsRealtime(0.2f);
             Check(Get<bool>(ui,"tutorialInstructionActive")==instruction,"Marker/instruction independent: "+marker+"/"+instruction);
+            Check(controller.CanPressButton(EventSequenceButtonType.UniqueSkill)&&!controller.CanPressButton(EventSequenceButtonType.Absorb),"Force button permits target and rejects other button");
             controller.NotifyButtonPressed(EventSequenceButtonType.Absorb);
             Check(Get<bool>(ui,"tutorialInstructionActive")==instruction,"Wrong button does not complete instruction");
             controller.NotifyButtonPressed(EventSequenceButtonType.UniqueSkill);
@@ -145,11 +179,13 @@ public static class TutorialInstructionChecks
         var pieceData=ScriptableObject.CreateInstance<EventSequenceData>();
         pieceData.steps=new List<EventSequenceStepData>{new EventSequenceStepData{stepType=EventSequenceStepType.ForcePieceSelect,targetPieceTeam=piece.Team,targetPiecePosition=new Vector2Int(piece.X,piece.Y),showTutorialInstruction=true,tutorialInstructionText="Piece"}};
         controller.StartSequence(pieceData);yield return null;controller.NotifyPieceSelected(null);
+        Check(controller.CanSelectPiece(piece)&&!controller.CanSelectPiece(null),"Force piece input gate remains enforced");
         Check(Get<bool>(ui,"tutorialInstructionActive"),"Invalid piece keeps instruction");controller.NotifyPieceSelected(piece);
         Check(!Get<bool>(ui,"tutorialInstructionActive"),"Valid piece completes instruction");controller.StopSequence();
         var tile=UnityEngine.Object.FindObjectsByType<Tile>(FindObjectsSortMode.None).First();
         pieceData.steps[0]=new EventSequenceStepData{stepType=EventSequenceStepType.ForceTileSelect,targetTilePosition=new Vector2Int(tile.X,tile.Y),showTutorialInstruction=true,tutorialInstructionText="Tile"};
         controller.StartSequence(pieceData);yield return null;controller.NotifyTileSelected(null);
+        Check(controller.CanSelectTile(tile)&&!controller.CanSelectTile(null),"Force tile input gate remains enforced");
         Check(Get<bool>(ui,"tutorialInstructionActive"),"Invalid tile keeps instruction");controller.NotifyTileSelected(tile);
         Check(!Get<bool>(ui,"tutorialInstructionActive"),"Valid tile completes instruction");controller.StopSequence();
         // Use temporary in-memory entries: no shipped translation is rewritten.
