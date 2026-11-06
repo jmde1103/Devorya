@@ -392,6 +392,13 @@ public class EventSceneStepData
     // devorya_king
     public string spawnActorId;
     [InspectorName("상점주인으로 생성")] public bool spawnActorIsShopkeeper;
+    [InspectorName("클릭 대사 목록")] public List<MerchantClickDialogue> merchantClickDialogues = new List<MerchantClickDialogue>();
+    [InspectorName("클릭 대사 유지 시간"), Min(0)] public float merchantClickDuration = 1.5f;
+    [InspectorName("클릭 대사 타이핑 속도"), Min(0)] public float merchantClickTypingSpeed = 30f;
+    [InspectorName("클릭 대사 강조")] public bool merchantClickEmphasis;
+    [InspectorName("클릭 대사 강조 강도"), Min(0)] public float merchantClickEmphasisStrength = 1f;
+    [HideInInspector, InspectorName("선택 판매 아이콘 Y 오프셋 (이전 데이터)")] public float selectedSaleItemIconYOffset = 0.65f;
+    [HideInInspector, InspectorName("선택 판매 아이콘 배율 (이전 데이터)"), Min(0.01f)] public float selectedSaleItemIconScale = 1.15f;
     [InspectorName("Spine 프리팹 재정의 (선택)")] public GameObject spawnActorSpineOverride;
 
     public PieceData spawnActorPieceData;
@@ -1258,5 +1265,20 @@ public class EventSceneStepData
         }
 
         return resolvedPages;
+    }
+}
+
+
+[System.Serializable]
+public class MerchantClickDialogue
+{
+    [InspectorName("한국어 원문"), TextArea(2, 6)] public string koreanText = "";
+    [HideInInspector] public string localizationId;
+    [HideInInspector] public LocalizedString localizedText = new LocalizedString();
+    public string GetText()
+    {
+        if (localizedText == null || localizedText.IsEmpty) return koreanText ?? "";
+        string text = localizedText.GetLocalizedString();
+        return string.IsNullOrWhiteSpace(text) ? koreanText ?? "" : text;
     }
 }

@@ -78,7 +78,7 @@ public static class ShopSellingChecks
         yield return new WaitForSecondsRealtime(0.9f);
         Check(gold.DisplayedGold==119&&gold.IsPreviewing,"100 to 119 sale preview");
         Check(Get<TMP_Text>(gold,"previewDeltaText").text=="+19G","Sale delta displayed");
-        Check(Get<Image>(shop,"saleVisual")!=null,"Visual copy travels to merchant");
+        Check(shop.CurrentSaleIcon==item.iconSprite && GameObject.Find("SaleItemPreview")==null,"Selection uses merchant button without travelling copy");
         Check(Get<TMP_Text>(gold,"goldAmountText").color==Get<Color>(gold,"previewColor"),"Preview alone uses green");
         var tooltip=TooltipPopupUI.Instance;tooltip.Show(TooltipViewData.FromBattleItemData(item).WithShopPrice(19),Vector2.zero,Vector2.zero);
         Check(Get<TMP_Text>(tooltip,"shopPriceText").gameObject.activeSelf,"Shop tooltip displays sale price");

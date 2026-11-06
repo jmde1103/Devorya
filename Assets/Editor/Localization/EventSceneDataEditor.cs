@@ -649,6 +649,8 @@ public class EventSceneDataEditor : Editor
 
         EditorGUILayout.Space(10);
 
+        DrawMerchantClickTranslations(eventData);
+
         DrawTranslationStatus(
             eventData
         );
@@ -1227,6 +1229,16 @@ public class EventSceneDataEditor : Editor
                     "spawnActorSpineOverride", "Spine 프리팹 재정의 (선택)",
                     "spawnActorTeam", "Visual Team"
                 );
+
+                if (stepProperty.FindPropertyRelative("spawnActorIsShopkeeper").boolValue)
+                {
+                    ProcessEventSceneProperties(ref currentY, contentRect, stepProperty, draw,
+                        "merchantClickDialogues", "클릭 대사 목록 (한국어)",
+                        "merchantClickDuration", "클릭 대사 유지 시간",
+                        "merchantClickTypingSpeed", "클릭 대사 타이핑 속도",
+                        "merchantClickEmphasis", "클릭 대사 강조",
+                        "merchantClickEmphasisStrength", "클릭 대사 강조 강도");
+                }
 
                 SerializedProperty spawnTeamProperty =
                     stepProperty.FindPropertyRelative(
@@ -3110,7 +3122,7 @@ public class EventSceneDataEditor : Editor
             EditorGUI.GetPropertyHeight(
                 property,
                 label,
-                false
+                propertyName == "merchantClickDialogues"
             );
 
         if (draw)
@@ -3124,7 +3136,7 @@ public class EventSceneDataEditor : Editor
                 ),
                 property,
                 label,
-                false
+                propertyName == "merchantClickDialogues"
             );
         }
 
@@ -5181,6 +5193,10 @@ public class EventSceneDataEditor : Editor
 
         copy.speechBubbleLocalizationId =
             CreateStableId("speech");
+        if (copy.merchantClickDialogues != null)
+            foreach (var line in copy.merchantClickDialogues)
+                if (line != null) { line.localizationId = CreateStableId("merchant_click"); line.localizedText = new LocalizedString(); }
+
 
         // <변경부분>
         // Dialogue Page 개수와 Metadata 개수를 맞춘다.
@@ -5796,6 +5812,18 @@ public class EventSceneDataEditor : Editor
         EnsureAllLocalizationMetadata(
             eventData
         );
+        foreach (var step in eventData.steps)
+        {
+            if (step == null || step.stepType != EventSceneStepType.SpawnActor || !step.spawnActorIsShopkeeper || step.merchantClickDialogues == null) continue;
+            foreach (var line in step.merchantClickDialogues)
+            {
+                if (line == null) continue;
+                string key = MerchantClickKey(eventData, line);
+                DevoryaLocalizationEditorUtility.SetTableValue(koreanTable, key, line.koreanText ?? "");
+                line.localizedText = DevoryaLocalizationEditorUtility.CreateLocalizedStringReference(collection, key);
+            }
+        }
+
 
         if (eventData.steps != null)
         {
@@ -5993,6 +6021,8 @@ public class EventSceneDataEditor : Editor
 
         // Dialogue와 SpeechBubble은 서로 다른 Key Namespace를 사용하므로
         // 각 타입 내부에서 Stable ID 중복을 검사한다.
+        EnsureMerchantClickIds(eventData);
+
         HashSet<string> usedDialogueStepIds =
          new HashSet<string>();
 
@@ -8098,5 +8128,51 @@ public class EventSceneDataEditor : Editor
 
         return
             $"{prefix}_{guid}";
+    }
+    private static string MerchantClickKey(EventSceneData data, MerchantClickDialogue line)
+        => $"event_scene.{data.localizationId}.merchant_click.{line.localizationId}";
+
+    private void EnsureMerchantClickIds(EventSceneData data)
+    {
+        var used = new HashSet<string>();
+        foreach (var step in data.steps)
+        {
+            if (step?.merchantClickDialogues == null) continue;
+            foreach (var line in step.merchantClickDialogues)
+            {
+                if (line == null) continue;
+                if (string.IsNullOrWhiteSpace(line.localizationId) || !used.Add(line.localizationId))
+                {
+                    line.localizationId = CreateStableId("merchant_click");
+                    used.Add(line.localizationId);
+                    line.localizedText = new LocalizedString();
+                }
+            }
+        }
+    }
+
+    private void DrawMerchantClickTranslations(EventSceneData data)
+    {
+        var collection = DevoryaLocalizationEditorUtility.GetStringTableCollection(TableCollectionName);
+        if (data.steps == null) return;
+        foreach (var step in data.steps)
+        {
+            if (step == null || step.stepType != EventSceneStepType.SpawnActor || !step.spawnActorIsShopkeeper || step.merchantClickDialogues == null) continue;
+            EditorGUILayout.LabelField("상인 클릭 대사 번역: " + step.spawnActorId, EditorStyles.boldLabel);
+            foreach (var line in step.merchantClickDialogues)
+            {
+                if (line == null) continue;
+                EditorGUILayout.LabelField(line.koreanText ?? "", EditorStyles.wordWrappedLabel);
+                if (collection == null || string.IsNullOrWhiteSpace(line.localizationId))
+                {
+                    EditorGUILayout.HelpBox("한국어는 SpawnActor에서 작성하고, 기존 Localization 생성 / 한국어 동기화를 실행하세요.", MessageType.Info);
+                    continue;
+                }
+                string key = MerchantClickKey(data, line);
+                EditorGUILayout.LabelField("Key", key);
+                DrawLocaleTranslation(collection, "English", "en", key);
+                DrawLocaleTranslation(collection, "Japanese", "ja", key);
+            }
+        }
     }
 }
