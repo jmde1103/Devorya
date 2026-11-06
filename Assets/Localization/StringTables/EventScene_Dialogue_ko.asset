@@ -195,6 +195,18 @@ MonoBehaviour:
       \uC774\uB3D9\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 20300385747603456
+    m_Localized: '!@#!$!$@$!!~'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20300385881821184
+    m_Localized: '@$$@!!!$!$~'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20300385881821185
+    m_Localized: '!%!@%!#%!%!!!'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

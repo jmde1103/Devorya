@@ -229,6 +229,18 @@ MonoBehaviour:
       while scanning for lifeform signals for the next mission.'
     m_Metadata:
       m_Items: []
+  - m_Id: 20300385747603456
+    m_Localized: '!@#!$!$@$!!~'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20300385881821184
+    m_Localized: '@$$@!!!$!$~'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20300385881821185
+    m_Localized: '!%!@%!#%!%!!!'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

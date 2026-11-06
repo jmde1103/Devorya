@@ -11,8 +11,38 @@ public class ShopMerchant : MonoBehaviour, IPointerClickHandler
     private Transform iconAnchor;
     private EventSceneStepData settings;
     private int nextDialogue;
+
+    // <변경부분>
+    // 기물 프리팹의 아이콘 배치 규격으로 계산한 상인 버튼 기본 위치.
+    private Vector3 saleButtonBaseLocalPosition;
+
     public float SelectedIconScale => settings != null && settings.selectedSaleItemIconScale > 0 ? settings.selectedSaleItemIconScale : 1.15f;
-    public void Configure(EventSceneStepData step) { settings = step; nextDialogue = 0; }
+
+    public void Configure(EventSceneStepData step)
+    {
+        settings = step;
+        nextDialogue = 0;
+        ApplySaleButtonPosition();
+    }
+
+    // <변경부분>
+    // SpawnActor에 설정한 상점 전용 보정값만 기본 위치에 더한다.
+    // Configure와 Initialize의 호출 순서에 관계없이 반영한다.
+    private void ApplySaleButtonPosition()
+    {
+        if (fieldButton == null)
+        {
+            return;
+        }
+
+        Vector2 offset = settings != null
+            ? settings.merchantSaleButtonPositionOffset
+            : Vector2.zero;
+
+        fieldButton.transform.localPosition =
+            saleButtonBaseLocalPosition + new Vector3(offset.x, offset.y, 0f);
+    }
+
     private void LateUpdate()
     {
         if (iconAnchor != null) iconAnchor.localPosition = Vector3.up * (settings != null ? settings.selectedSaleItemIconYOffset : 0.65f);
@@ -60,7 +90,13 @@ public class ShopMerchant : MonoBehaviour, IPointerClickHandler
         canvas.sortingLayerID=referenceBox.sortingLayerID;canvas.sortingOrder=referenceBox.sortingOrder;
         if(fieldButton.GetComponent<GraphicRaycaster>()==null)fieldButton.gameObject.AddComponent<GraphicRaycaster>();
         fieldButton.transform.localPosition = actor.PieceData.GetTypeIconPosition(actor.VisualTeam, actor.UseAbsorbedPlayerVisual)
-            + referenceRoot.localRotation * Vector3.Scale(referenceRoot.localScale, referenceBox.transform.localPosition);
+      + referenceRoot.localRotation * Vector3.Scale(referenceRoot.localScale, referenceBox.transform.localPosition);
+
+        // <변경부분>
+        // 기존 계산값을 기본 위치로 저장하고 상점 전용 오프셋을 적용한다.
+        saleButtonBaseLocalPosition = fieldButton.transform.localPosition;
+        ApplySaleButtonPosition();
+
         fieldButton.transform.localRotation = referenceRoot.localRotation * referenceBox.transform.localRotation;
         fieldButton.transform.localScale = Vector3.Scale(referenceRoot.localScale, referenceBox.transform.localScale)
             / referenceBox.sprite.pixelsPerUnit;

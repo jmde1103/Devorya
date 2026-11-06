@@ -28,6 +28,14 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: 
     spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -140,6 +148,47 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E8\uC0C1\uC778"
     spawnActorIsShopkeeper: 1
+    merchantClickDialogues:
+    - koreanText: '!@#!$!$@$!!~'
+      localizationId: merchant_click_f8d52bcf
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
+        m_TableEntryReference:
+          m_KeyId: 20300385747603456
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - koreanText: '@$$@!!!$!$~'
+      localizationId: merchant_click_9a3ef7af
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
+        m_TableEntryReference:
+          m_KeyId: 20300385881821184
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    - koreanText: '!%!@%!#%!%!!!'
+      localizationId: merchant_click_4c30e31f
+      localizedText:
+        m_TableReference:
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
+        m_TableEntryReference:
+          m_KeyId: 20300385881821185
+          m_Key: 
+        m_FallbackState: 0
+        m_WaitForCompletion: 0
+        m_LocalVariables: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0.1, y: 0.2}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 4746673714160857919, guid: 6e543bc392942b14bb68d6de2f25a255, type: 3}
     spawnActorPieceData: {fileID: 11400000, guid: 2d862e1d7ad084b4bb2d5548de771993, type: 2}
     spawnActorTeam: 0
@@ -252,6 +301,14 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: 
     spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -364,6 +421,14 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: "\uB370\uBCF4\uB9AC\uC544"
     spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnActorTeam: 0
@@ -488,6 +553,14 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: 
     spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -600,6 +673,14 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: 
     spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
@@ -712,6 +793,14 @@ MonoBehaviour:
     dialogueChoices: []
     spawnActorId: 
     spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
     spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2

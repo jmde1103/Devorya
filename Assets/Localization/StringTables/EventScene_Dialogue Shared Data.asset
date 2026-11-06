@@ -179,6 +179,18 @@ MonoBehaviour:
     m_Key: event_scene.event_opening_relic_field_stage.dialogue_5fb6d217.page_e359211f
     m_Metadata:
       m_Items: []
+  - m_Id: 20300385747603456
+    m_Key: event_scene.event_shop_field_stage_1_night_time.merchant_click.merchant_click_f8d52bcf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20300385881821184
+    m_Key: event_scene.event_shop_field_stage_1_night_time.merchant_click.merchant_click_9a3ef7af
+    m_Metadata:
+      m_Items: []
+  - m_Id: 20300385881821185
+    m_Key: event_scene.event_shop_field_stage_1_night_time.merchant_click.merchant_click_4c30e31f
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

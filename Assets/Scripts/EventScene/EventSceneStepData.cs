@@ -397,10 +397,16 @@ public class EventSceneStepData
     [InspectorName("클릭 대사 타이핑 속도"), Min(0)] public float merchantClickTypingSpeed = 30f;
     [InspectorName("클릭 대사 강조")] public bool merchantClickEmphasis;
     [InspectorName("클릭 대사 강조 강도"), Min(0)] public float merchantClickEmphasisStrength = 1f;
+
+    // <변경부분>
+    // 상인 버튼의 기존 기물 아이콘 위치를 기준으로 X/Y를 개별 보정한다.
+    // 기본값 (0, 0)은 기존 상점 버튼 위치를 유지한다.
+    [InspectorName("판매 버튼 위치 보정 (X/Y)")]
+    public Vector2 merchantSaleButtonPositionOffset = Vector2.zero;
+
     [HideInInspector, InspectorName("선택 판매 아이콘 Y 오프셋 (이전 데이터)")] public float selectedSaleItemIconYOffset = 0.65f;
     [HideInInspector, InspectorName("선택 판매 아이콘 배율 (이전 데이터)"), Min(0.01f)] public float selectedSaleItemIconScale = 1.15f;
     [InspectorName("Spine 프리팹 재정의 (선택)")] public GameObject spawnActorSpineOverride;
-
     public PieceData spawnActorPieceData;
 
     // <변경부분>

@@ -1237,7 +1237,10 @@ public class EventSceneDataEditor : Editor
                         "merchantClickDuration", "클릭 대사 유지 시간",
                         "merchantClickTypingSpeed", "클릭 대사 타이핑 속도",
                         "merchantClickEmphasis", "클릭 대사 강조",
-                        "merchantClickEmphasisStrength", "클릭 대사 강조 강도");
+                        "merchantClickEmphasisStrength", "클릭 대사 강조 강도",
+                        // <변경부분>
+                        // 상점 전용 위치 보정. 기존 기물 프리팹 아이콘 좌표를 유지한다.
+                        "merchantSaleButtonPositionOffset", "판매 버튼 위치 보정 (X/Y)");
                 }
 
                 SerializedProperty spawnTeamProperty =
