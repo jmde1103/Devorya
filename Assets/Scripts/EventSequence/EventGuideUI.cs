@@ -13,7 +13,7 @@ using TMPro;
 //
 // InputBlocker Button은 뒤쪽 Battle UI 클릭 차단용으로만 사용하고,
 // 실제 페이지 진행 입력은 이 스크립트에서 직접 감지한다.
-public class EventGuideUI : MonoBehaviour
+public partial class EventGuideUI : MonoBehaviour
 {
     [Header("Root")]
     // Dialogue 전체 UI 루트
@@ -660,6 +660,7 @@ public class EventGuideUI : MonoBehaviour
         guideText.text =
             pageText;
 
+        RefreshDialogueHeight(true);
         guideText.ForceMeshUpdate();
 
         int totalCharacterCount =
