@@ -108,18 +108,25 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 현재 배치 대상으로 선택된 플레이어 기물.
     private Piece selectedFormationPiece;
 
+ 
     // <변경부분>
-    // BattleScene의 TypeInfo 버튼과 동일한 3단계 표시 모드.
+    // PieceSetting 전용 기물정보 아이콘 표시 모드.
+    // All: 플레이어 기물 전체 표시.
+    // Hidden: 플레이어 기물 전체 숨김.
+    //
+    // BattleScene의 3단계 표시 모드는 변경하지 않는다.
     private enum TypeIconDisplayMode
     {
         All = 0,
-        EnemyOnly = 1,
-        SelectedOnly = 2
+        Hidden = 1
     }
 
-    // 기존 BattleManager와 동일한 저장 키를 사용한다.
+    // <변경부분>
+    // PieceSetting 전용 표시 설정.
+    // BattleManager의 PlayerPrefs와 분리하여
+    // 배틀 기물정보 표시 설정에 영향을 주지 않는다.
     private const string TypeIconDisplayModePrefsKey =
-        "DEVORYA.Battle.TypeIconDisplayMode.v1";
+        "DEVORYA.Formation.TypeIconDisplayMode.v1";
 
     [Header("Formation Type Icon")]
 
@@ -531,14 +538,15 @@ public class EventSceneFormationBoardController : MonoBehaviour
         exitFormationButton.interactable = true;
 
         // <변경부분>
-        // 기존 배틀씬에서 저장한 기물정보 표시 모드를 복원한다.
+        // PieceSetting 전용 기물정보 아이콘 표시 상태를 복원한다.
+        // 처음 실행하는 경우에는 전체 표시를 기본값으로 사용한다.
         int savedDisplayMode = PlayerPrefs.GetInt(
             TypeIconDisplayModePrefsKey,
             (int)TypeIconDisplayMode.All
         );
 
         if (savedDisplayMode < (int)TypeIconDisplayMode.All ||
-            savedDisplayMode > (int)TypeIconDisplayMode.SelectedOnly)
+            savedDisplayMode > (int)TypeIconDisplayMode.Hidden)
         {
             savedDisplayMode = (int)TypeIconDisplayMode.All;
         }
@@ -546,7 +554,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
         typeIconDisplayMode =
             (TypeIconDisplayMode)savedDisplayMode;
 
-        // 생성된 편성 기물 전체의 타입 아이콘을 갱신한다.
+        // 현재 편성된 플레이어 기물 전체에 표시 상태를 적용한다.
         RefreshFormationTypeIconVisuals();
 
         // 편성 중에는 기물정보 보기 버튼을 사용할 수 있다.
@@ -1475,8 +1483,11 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // =====================================================
 
     // <변경부분>
-    // 기존 배틀씬과 같은 3단계 타입 아이콘 표시 모드.
-    // All -> EnemyOnly -> SelectedOnly -> All
+    // PieceSetting에서는 기물정보 아이콘을 2단계로 전환한다.
+    //
+    // All -> Hidden -> All
+    //
+    // 기존 BattleScene의 3단계 표시 모드와는 독립적이다.
     public void ToggleFormationTypeIcons()
     {
         if (!isFormationOpen)
@@ -1484,25 +1495,17 @@ public class EventSceneFormationBoardController : MonoBehaviour
             return;
         }
 
-        switch (typeIconDisplayMode)
-        {
-            case TypeIconDisplayMode.All:
-                typeIconDisplayMode =
-                    TypeIconDisplayMode.EnemyOnly;
-                break;
+        // <변경부분>
+        // 현재 전체 표시 상태라면 숨기고,
+        // 숨김 상태라면 전체 표시로 복귀한다.
+        typeIconDisplayMode =
+            typeIconDisplayMode == TypeIconDisplayMode.All
+                ? TypeIconDisplayMode.Hidden
+                : TypeIconDisplayMode.All;
 
-            case TypeIconDisplayMode.EnemyOnly:
-                typeIconDisplayMode =
-                    TypeIconDisplayMode.SelectedOnly;
-                break;
-
-            default:
-                typeIconDisplayMode =
-                    TypeIconDisplayMode.All;
-                break;
-        }
-
-        // BattleManager와 동일한 설정을 저장한다.
+        // <변경부분>
+        // 편성 전용 저장 키에만 표시 상태를 저장한다.
+        // 기존 배틀 설정은 변경하지 않는다.
         PlayerPrefs.SetInt(
             TypeIconDisplayModePrefsKey,
             (int)typeIconDisplayMode
@@ -1510,15 +1513,18 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
         PlayerPrefs.Save();
 
+        // 현재 편성 보드의 기물 전체에 즉시 반영한다.
         RefreshFormationTypeIconVisuals();
     }
 
     // <변경부분>
-    // BattleManager의 RefreshTypeIconVisuals와 동일한
-    // Piece 타입 아이콘 API를 편성 보드에 적용한다.
+    // PieceSetting의 플레이어 기물 전체를 대상으로
+    // 기물정보 아이콘 ON/OFF를 적용한다.
     //
-    // 편성 전용 PieceManager만 조회하므로
-    // 일반 전투의 기물 아이콘에는 영향을 주지 않는다.
+    // 기존 Piece의 타입 아이콘 표시/선택/정렬 API를 재사용한다.
+    //
+    // 아이콘을 숨겨도 실제 기물 선택, 이동, 자리 교환,
+    // RunState 저장 기능에는 영향을 주지 않는다.
     private void RefreshFormationTypeIconVisuals()
     {
         if (boardManager == null ||
@@ -1527,6 +1533,9 @@ public class EventSceneFormationBoardController : MonoBehaviour
         {
             return;
         }
+
+        bool showAllTypeIcons =
+            typeIconDisplayMode == TypeIconDisplayMode.All;
 
         bool hasFocusedTypeIcon =
             selectedFormationPiece != null;
@@ -1538,7 +1547,11 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 Piece piece =
                     pieceManager.GetPieceAt(x, y);
 
-                if (piece == null)
+                // <변경부분>
+                // PieceSetting에서는 플레이어 기물만 제어한다.
+                // 적/중립 기물에는 영향을 주지 않는다.
+                if (piece == null ||
+                    piece.Team != PieceTeam.Player)
                 {
                     continue;
                 }
@@ -1546,42 +1559,29 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 bool isFocusedTypeIcon =
                     piece == selectedFormationPiece;
 
-                bool shouldShowTypeIcon = false;
+                // <변경부분>
+                // 선택된 기물을 포함하여
+                // 모든 플레이어 기물에 동일한 표시 상태를 적용한다.
+                bool shouldShowTypeIcon =
+                    showAllTypeIcons;
 
-                switch (typeIconDisplayMode)
-                {
-                    case TypeIconDisplayMode.All:
-                        shouldShowTypeIcon = true;
-                        break;
-
-                    case TypeIconDisplayMode.EnemyOnly:
-                        shouldShowTypeIcon =
-                            piece.Team == PieceTeam.Enemy;
-                        break;
-
-                    case TypeIconDisplayMode.SelectedOnly:
-                        shouldShowTypeIcon = false;
-                        break;
-                }
-
-                // 선택된 기물은 표시 모드와 무관하게 표시한다.
-                if (isFocusedTypeIcon)
-                {
-                    shouldShowTypeIcon = true;
-                }
-
-                piece.SetTypeIconVisible(
-                    shouldShowTypeIcon
-                );
+                // <변경부분>
+                // 전체 숨김 상태에서는 선택된 기물도
+                // 타입 아이콘 선택 연출을 실행하지 않는다.
+                bool shouldSelectTypeIcon =
+                    shouldShowTypeIcon &&
+                    isFocusedTypeIcon;
 
                 piece.SetTypeIconSelected(
-                    isFocusedTypeIcon
+                    shouldSelectTypeIcon
                 );
 
                 piece.SetTypeIconSortingPriority(
-                    isFocusedTypeIcon ? 1 : 0
+                    shouldSelectTypeIcon ? 1 : 0
                 );
 
+                // 전체 표시 상태에서는 기존처럼
+                // 선택된 기물 이외의 아이콘을 흐리게 처리한다.
                 bool shouldDimTypeIcon =
                     shouldShowTypeIcon &&
                     hasFocusedTypeIcon &&
@@ -1589,6 +1589,13 @@ public class EventSceneFormationBoardController : MonoBehaviour
 
                 piece.SetTypeIconDimmed(
                     shouldDimTypeIcon
+                );
+
+                // <변경부분>
+                // 표시 여부를 마지막에 적용하여
+                // 선택 상태 갱신 후에도 숨김 설정을 보장한다.
+                piece.SetTypeIconVisible(
+                    shouldShowTypeIcon
                 );
             }
         }
