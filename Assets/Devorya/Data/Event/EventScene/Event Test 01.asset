@@ -16,7 +16,7 @@ MonoBehaviour:
   localizationId: event_test_01
   description: "\uD14C\uC2A4\uD2B8 \uC6A9\uB3C4\uC785\uB2C8\uB2E4. \uC9C0\uC6CC\uB3C4
     \uB428"
-  backgroundMapData: {fileID: 11400000, guid: 74b4542356006434dadb7f8b38eaadae, type: 2}
+  backgroundMapData: {fileID: 11400000, guid: 06fef50579e7c2f4ebf6da4138b291f5, type: 2}
   showRunHUDDuringPlayerInteraction: 0
   showShopExitButtonDuringPlayerInteraction: 0
   steps:
@@ -28,6 +28,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -93,14 +103,16 @@ MonoBehaviour:
     removeActorMode: 0
     removeActorFadeOutDuration: 0.35
     cameraShotTargetType: 0
-    cameraShotTargetPosition: {x: 26, y: 19}
+    cameraShotTargetPosition: {x: 21, y: 20}
     cameraShotTargetActorId: 
     cameraShotWorldOffset: {x: 0, y: 0}
     cameraShotWorldScale: 1.8
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -128,14 +140,144 @@ MonoBehaviour:
     startBattleStageData: {fileID: 0}
     worldMapEventData: {fileID: 0}
     clearCurrentWorldMapNodeOnVictory: 1
-  - stepName: 
-    stepType: 19
-    stepId: step_fb615118
+  - stepName: "\uB370\uBCF4\uB9AC\uC544"
+    stepType: 3
+    stepId: step_d282f0d0
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_1358c631
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: "\uB370\uBCF4\uB9AC\uC544"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
+    spawnActorPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
+    spawnActorTeam: 0
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0.2}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: New Layer 1
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 20, y: 19}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_0cdf92e3
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
+    rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
+    startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uCD95\uD558 \uB9D0\uD48D\uC131"
+    stepType: 8
+    stepId: step_0ab2ce02
     dialoguePages: []
     dialogueLocalizationId: 
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -145,6 +287,249 @@ MonoBehaviour:
     spawnActorSortingLayerName: 
     spawnActorFadeInDuration: 0.35
     spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: "\uB370\uBCF4\uB9AC\uC544"
+    speechBubbleText: 'DEVORYA reached 100 wishlists!
+
+      Thank you for all the
+      support!'
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 50
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
+    rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
+    startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uCE74\uBA54\uB77C \uD655\uB300"
+    stepType: 10
+    stepId: step_21f961b8
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_647636de
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
+    spawnActorPieceData: {fileID: 0}
+    spawnActorTeam: 2
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 0, y: 0}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_8d63b4c1
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 19, y: 20}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 0.25
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 0
+    formationContinueStepsWhileOpen: 0
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
+    rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
+    startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uB370\uBCF4\uB9AC\uC544 \uD3F0"
+    stepType: 3
+    stepId: step_05391ded
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: "\uD3F0"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
+    spawnActorPieceData: {fileID: 11400000, guid: 4822e2db4e8c8e94da1277d4862aa70c, type: 2}
+    spawnActorTeam: 0
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0.2}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 17, y: 21}
     moveActorId: 
     moveActorDestination: {x: 0, y: 0}
     moveActorDuration: 0.6
@@ -207,8 +592,10 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
+    screenShakeContinuous: 0
     screenShakeWaitForComplete: 1
     screenGlitchStrength: 0.55
     screenGlitchDuration: 0.4
@@ -230,7 +617,367 @@ MonoBehaviour:
     unlockPlayerInteractionLockManualCamera: 0
     rewardSelectionUseDropRewards: 1
     rewardSelectionData: {fileID: 0}
-    relicRewardList: {fileID: 11400000, guid: 1b42d721f4928584bbe934a870e263e0, type: 2}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
+    startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uB098\uC774\uD2B8"
+    stepType: 3
+    stepId: step_1723afd5
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_c2b4f22d
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: "\uB098\uC774\uD2B8"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
+    spawnActorPieceData: {fileID: 11400000, guid: 7402bfcf50eb2f042979f1373fcf7f07, type: 2}
+    spawnActorTeam: 0
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0.2}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 22, y: 17}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_31cdf312
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
+    rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
+    startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uB8E9"
+    stepType: 3
+    stepId: step_bab8dce8
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_f37fabe6
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: "\uB8E9"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
+    spawnActorPieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
+    spawnActorTeam: 0
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0.2}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 21, y: 23}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_e331c896
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
+    rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
+    rewardSelectionUseRestoration: 0
+    rewardSelectionRestorationAbsorbCount: 0
+    startBattleStageData: {fileID: 0}
+    worldMapEventData: {fileID: 0}
+    clearCurrentWorldMapNodeOnVictory: 1
+  - stepName: "\uBE44\uC20D"
+    stepType: 3
+    stepId: step_4f677039
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    dialogueChoices: []
+    spawnActorId: "\uBE44\uC20D"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
+    spawnActorPieceData: {fileID: 11400000, guid: 61c3ce4b2ec3253418f1fa0f8726e066, type: 2}
+    spawnActorTeam: 0
+    spawnActorUseAbsorbedPlayerVisual: 0
+    spawnActorVisualOffset: {x: 0, y: 0.2}
+    spawnActorFlipX: 0
+    spawnActorSortingMode: 0
+    spawnActorSortingLayerName: 
+    spawnActorFadeInDuration: 0.35
+    spawnActorPosition: {x: 16, y: 18}
+    moveActorId: 
+    moveActorDestination: {x: 0, y: 0}
+    moveActorDuration: 0.6
+    moveActorArcHeight: 0.5
+    moveActorChangeFlipX: 0
+    moveActorFlipX: 0
+    moveActorChangeSortingMode: 0
+    moveActorSortingMode: 0
+    moveActorChangeSortingLayer: 0
+    moveActorSortingLayerName: 
+    attackActorId: 
+    attackTargetActorId: 
+    attackResult: 0
+    attackApproachDuration: 0.22
+    attackReturnDuration: 0.22
+    attackApproachRatio: 0.78
+    attackArcHeight: 0.18
+    attackFailureMissOffset: 0.25
+    attackTargetShakeDuration: 0.12
+    attackTargetShakeIntensity: 0.08
+    attackFailureFallShortDistance: 0.25
+    attackFailureFallBackDuration: 0.12
+    attackFailureFirstBounceDuration: 0.13
+    attackFailureFirstBounceHeight: 0.22
+    attackFailureSecondBounceDuration: 0.11
+    attackFailureSecondBounceHeight: 0.11
+    attackFailureFinalReturnDuration: 0.08
+    attackChangeFlipX: 0
+    attackFlipX: 0
+    playAnimationActorId: 
+    playAnimationName: 
+    playAnimationLoop: 0
+    playAnimationWaitForComplete: 1
+    playAnimationReturnToIdle: 1
+    playAnimationMixDuration: 0.12
+    speechBubbleActorId: 
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    removeActorId: 
+    removeActorMode: 0
+    removeActorFadeOutDuration: 0.35
+    cameraShotTargetType: 0
+    cameraShotTargetPosition: {x: 0, y: 0}
+    cameraShotTargetActorId: 
+    cameraShotWorldOffset: {x: 0, y: 0}
+    cameraShotWorldScale: 1.2
+    cameraShotDuration: 0.6
+    cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    waitDuration: 0.5
+    unlockPlayerInteractionLockManualCamera: 0
+    rewardSelectionUseDropRewards: 1
+    rewardSelectionData: {fileID: 0}
+    relicRewardList: {fileID: 0}
     rewardSelectionUseRestoration: 0
     rewardSelectionRestorationAbsorbCount: 0
     startBattleStageData: {fileID: 0}
@@ -240,6 +987,7 @@ MonoBehaviour:
   clearCurrentWorldMapNodeOnCompletion: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
+  completionEventSceneData: {fileID: 0}
   completionWorldMapEventData: {fileID: 0}
   references:
     version: 2
