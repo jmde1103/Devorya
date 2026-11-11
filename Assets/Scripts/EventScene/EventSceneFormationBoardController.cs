@@ -1556,18 +1556,22 @@ public class EventSceneFormationBoardController : MonoBehaviour
                     continue;
                 }
 
+
                 bool isFocusedTypeIcon =
                     piece == selectedFormationPiece;
 
                 // <변경부분>
-                // 선택된 기물을 포함하여
-                // 모든 플레이어 기물에 동일한 표시 상태를 적용한다.
+                // ON 상태에서는 모든 플레이어 기물의 아이콘을 표시한다.
+                // OFF 상태에서는 선택된 기물의 아이콘만 표시한다.
+                //
+                // 선택 해제 시에는 OFF 상태의 모든 아이콘이 숨겨진다.
                 bool shouldShowTypeIcon =
-                    showAllTypeIcons;
+                    showAllTypeIcons ||
+                    isFocusedTypeIcon;
 
                 // <변경부분>
-                // 전체 숨김 상태에서는 선택된 기물도
-                // 타입 아이콘 선택 연출을 실행하지 않는다.
+                // ON/OFF 상태와 관계없이
+                // 선택된 기물의 아이콘에는 기존 강조 연출을 적용한다.
                 bool shouldSelectTypeIcon =
                     shouldShowTypeIcon &&
                     isFocusedTypeIcon;
@@ -1575,6 +1579,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 piece.SetTypeIconSelected(
                     shouldSelectTypeIcon
                 );
+
 
                 piece.SetTypeIconSortingPriority(
                     shouldSelectTypeIcon ? 1 : 0

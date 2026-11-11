@@ -5042,7 +5042,7 @@ MonoBehaviour:
   battleRelicDataList: []
   initialEndTimerCycles: 15
   remainingEndTimerCycles: 10
-  currentEndTimerTick: 0
+  currentEndTimerTick: 15
   endStageBattleData: {fileID: 11400000, guid: 0d313660a7b13aa4fa1a5b758425ae26, type: 2}
   endStageBattleSceneName: BattleScene
 --- !u!4 &47045692
@@ -42690,6 +42690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f275956e6605734aa5fde8f5420e3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventGuideUI
+  autoDialogueHeight: 1
   guideRoot: {fileID: 372108113}
   continueButton: {fileID: 1566874295}
   popupOpenAnimator: {fileID: 0}
@@ -62527,7 +62528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87dc8cfc1004eea4f8afb1e2799f49ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSetupManager
-  directTestStageBattleData: {fileID: 11400000, guid: 34fcb90469335bc43b35cf697cc362a8, type: 2}
+  directTestStageBattleData: {fileID: 11400000, guid: b74e204351ba90e47a54805ce7375b87, type: 2}
   boardManager: {fileID: 1009230094}
   pieceManager: {fileID: 1157817762}
   battleManager: {fileID: 52600099}
