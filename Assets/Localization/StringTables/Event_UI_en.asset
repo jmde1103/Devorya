@@ -54,6 +54,14 @@ MonoBehaviour:
     m_Localized: This item cannot be sold.
     m_Metadata:
       m_Items: []
+  - m_Id: 11549085438447616
+    m_Localized: Buy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11549085522333696
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
