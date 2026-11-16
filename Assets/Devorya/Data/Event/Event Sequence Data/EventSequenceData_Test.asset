@@ -21,46 +21,216 @@ MonoBehaviour:
   pauseEnemyAIWhileSequenceActive: 0
   skipNormalPlayerDeployment: 0
   steps:
-  - stepName: "01 \uB2E4\uC774\uC5B4\uB85C\uADF8"
-    stepType: 1
-    dialoguePages:
-    - "\uC774\uAC74 \uD14C\uC2A4\uD2B8 \uC785\uB2C8\uB2E4."
-    - "\uD398\uC774\uC9C0\uB97C \uCD94\uAC00\uD574 \uBCF8\uAC83\uC785\uB2C8\uB2E4."
-    dialogueLocalizationId: dialogue_3817eea7
-    dialogueLocalizationPages:
-    - localizationId: page_48ce3df2
-      localizedText:
-        m_TableReference:
-          m_TableCollectionName: 
-        m_TableEntryReference:
-          m_KeyId: 0
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
-    - localizationId: page_e658ca98
-      localizedText:
-        m_TableReference:
-          m_TableCollectionName: 
-        m_TableEntryReference:
-          m_KeyId: 0
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB354\uBBF8\uD0B9"
+    stepType: 5
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
     targetButton: 0
-    showMarker: 0
+    showMarker: 1
     markerDisplayType: 0
     markerPositionOffset: {x: 0, y: 0}
-    spawnPieceData: {fileID: 0}
-    spawnPieceTeam: 0
-    spawnPosition: {x: 0, y: 0}
+    spawnPieceData: {fileID: 11400000, guid: 63da720c935f9764d81d14ee40e55b5f, type: 2}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 2, y: 3}
     spawnOverride:
       overrideCanMove: 0
-      canMove: 0
+      canMove: 1
+      overrideUniqueSkill: 1
+      uniqueSkill: 10
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: instruction_13c09bc1
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB354\uBBF8"
+    stepType: 5
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_a21c8bdc
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 11400000, guid: e88a1fee1221e2f4ea0cf6c1c2784df0, type: 2}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 5}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 1
+      uniqueSkill: 10
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_d75a872b
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB8E9"
+    stepType: 5
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 11400000, guid: 3e60c852b80e17c4db326e5e97b85bdb, type: 2}
+    spawnPieceTeam: 0
+    spawnPosition: {x: 2, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
       overrideUniqueSkill: 0
       uniqueSkill: 0
       overrideGeneralSkills: 0
@@ -68,53 +238,89 @@ MonoBehaviour:
       useAbsorbedPlayerVisual: 0
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
-    removePieceTeam: 0
-    actionPieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
     actionPiecePosition: {x: 0, y: 0}
     actionTargetPosition: {x: 0, y: 0}
-    uniqueSkillPieceTeam: 0
+    uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
-    waitDuration: 0
-  - stepName: "02 \uB2E4\uC774\uC5B4\uB85C"
-    stepType: 1
-    dialoguePages:
-    - "\uB450\uBC88\uC9F8 \uB2E4\uC774\uC5B4\uB85C\uADF8 \uD14C\uC2A4\uD2B8"
-    - "\uBB38\uC81C\uC5C6\uC2B5\uB2C8\uB2E4."
-    dialogueLocalizationId: dialogue_3817eea7
-    dialogueLocalizationPages:
-    - localizationId: page_48ce3df2
-      localizedText:
-        m_TableReference:
-          m_TableCollectionName: 
-        m_TableEntryReference:
-          m_KeyId: 0
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
-    - localizationId: page_e658ca98
-      localizedText:
-        m_TableReference:
-          m_TableCollectionName: 
-        m_TableEntryReference:
-          m_KeyId: 0
-          m_Key: 
-        m_FallbackState: 0
-        m_WaitForCompletion: 0
-        m_LocalVariables: []
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: instruction_13512cde
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uBE44\uC20D"
+    stepType: 5
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_ec5dfd35
+    dialogueLocalizationPages: []
     targetPiecePosition: {x: 0, y: 0}
     targetPieceTeam: 0
     targetTilePosition: {x: 0, y: 0}
     targetButton: 0
-    showMarker: 0
+    showMarker: 1
     markerDisplayType: 0
     markerPositionOffset: {x: 0, y: 0}
-    spawnPieceData: {fileID: 0}
+    spawnPieceData: {fileID: 11400000, guid: a450123fb22e0a742a57cb8300707e0c, type: 2}
     spawnPieceTeam: 0
-    spawnPosition: {x: 0, y: 0}
+    spawnPosition: {x: 4, y: 1}
     spawnOverride:
       overrideCanMove: 0
-      canMove: 0
+      canMove: 1
       overrideUniqueSkill: 0
       uniqueSkill: 0
       overrideGeneralSkills: 0
@@ -122,16 +328,244 @@ MonoBehaviour:
       useAbsorbedPlayerVisual: 0
     removePiecePosition: {x: 0, y: 0}
     checkRemovePieceTeam: 0
-    removePieceTeam: 0
-    actionPieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
     actionPiecePosition: {x: 0, y: 0}
     actionTargetPosition: {x: 0, y: 0}
-    uniqueSkillPieceTeam: 0
+    uniqueSkillPieceTeam: 1
     uniqueSkillPiecePosition: {x: 0, y: 0}
-    waitDuration: 0
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_099d5eee
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: instruction_23438fc0
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: "\uB098\uC774\uD2B8"
+    stepType: 5
+    dialoguePages: []
+    dialogueLocalizationId: dialogue_08b617b4
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 11400000, guid: 125b7e4415b37e143acf22701d125d2f, type: 2}
+    spawnPieceTeam: 0
+    spawnPosition: {x: 1, y: 1}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: speech_27984050
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
+  - showTutorialInstruction: 0
+    tutorialInstructionText: 
+    tutorialInstructionLocalizationId: 
+    tutorialInstructionLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    stepName: 
+    stepType: 0
+    dialoguePages: []
+    dialogueLocalizationId: 
+    dialogueLocalizationPages: []
+    targetPiecePosition: {x: 0, y: 0}
+    targetPieceTeam: 0
+    targetTilePosition: {x: 0, y: 0}
+    targetButton: 0
+    showMarker: 1
+    markerDisplayType: 0
+    markerPositionOffset: {x: 0, y: 0}
+    spawnPieceData: {fileID: 0}
+    spawnPieceTeam: 1
+    spawnPosition: {x: 0, y: 0}
+    spawnOverride:
+      overrideCanMove: 0
+      canMove: 1
+      overrideUniqueSkill: 0
+      uniqueSkill: 0
+      overrideGeneralSkills: 0
+      generalSkills: 
+      useAbsorbedPlayerVisual: 0
+    removePiecePosition: {x: 0, y: 0}
+    checkRemovePieceTeam: 0
+    removePieceTeam: 1
+    actionPieceTeam: 1
+    actionPiecePosition: {x: 0, y: 0}
+    actionTargetPosition: {x: 0, y: 0}
+    uniqueSkillPieceTeam: 1
+    uniqueSkillPiecePosition: {x: 0, y: 0}
+    speechBubblePieceTeam: 0
+    speechBubblePiecePosition: {x: 0, y: 0}
+    speechBubbleText: 
+    speechBubbleLocalizationId: 
+    speechBubbleLocalizedText:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    speechBubbleDuration: 1.5
+    speechBubbleTypingSpeed: 30
+    speechBubbleUseEmphasisShake: 0
+    speechBubbleEmphasisStrength: 2
+    speechBubbleWaitForComplete: 1
+    screenShakeDuration: 0.12
+    screenShakeStrength: 0.08
+    screenShakeContinuous: 0
+    screenShakeWaitForComplete: 1
+    screenGlitchStrength: 0.55
+    screenGlitchDuration: 0.4
+    screenGlitchWaitForComplete: 1
+    globalLightingUseGlobalLight: 1
+    globalLightingTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingTargetIntensity: 1
+    globalLightingFadeDuration: 1
+    globalLightingWaitForComplete: 1
+    globalLightingUseScreenFlash: 0
+    globalLightingFlashColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingFlashStrength: 0.9
+    globalLightingFlashDuration: 0.3
+    globalLightingUseCharacterFill: 0
+    globalLightingCharacterFillTargetColor: {r: 1, g: 1, b: 1, a: 1}
+    globalLightingCharacterFillTargetIntensity: 1
+    globalLightingCharacterFillFadeDuration: 1
+    battleUIUseRegisteredTargets: 0
+    battleUIVisibilityTargets: []
+    battleUIChangeEndTimerRoot: 1
+    battleUIShowEndTimerRoot: 0
+    battleUIChangeGoldRoot: 1
+    battleUIShowGoldRoot: 0
+    battleUIFadeDuration: 0.3
+    battleUIWaitForComplete: 1
+    waitDuration: 0.5
   completionType: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
+  completionEventSceneData: {fileID: 0}
+  completionWorldMapEventData: {fileID: 0}
   references:
     version: 2
     RefIds: []

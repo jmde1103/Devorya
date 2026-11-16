@@ -47,8 +47,8 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   targetPixelBurstPrefab: {fileID: 0}
-  energyCost: 3
-  cooldownTurn: 5
+  energyCost: 0
+  cooldownTurn: 0
   requiredDeathStack: 0
   consumeDeathStackOnUse: 0
   oncePerTurn: 1
