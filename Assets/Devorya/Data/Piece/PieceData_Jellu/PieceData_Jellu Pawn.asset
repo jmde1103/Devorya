@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: PieceData_Jellu Pawn
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Jellu Pawn
-  displayName: 
+  displayName: "\uC824\uB8E8 [\uD3F0]"
   description: 
   pieceType: 0
   uniqueSkill: 4
   canMove: 1
   localizedDisplayName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 25259526169694208
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0

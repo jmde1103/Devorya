@@ -21,7 +21,7 @@ public class TooltipSectionItemUI : MonoBehaviour
     [SerializeField] private Image iconImage;
 
     // <변경부분> TooltipSectionData 내용을 UI에 반영
-    public void Refresh(TooltipSectionData sectionData)
+    public void Refresh(TooltipSectionData sectionData, bool recompositionTypography = false)
     {
         if (sectionData == null)
         {
@@ -29,7 +29,7 @@ public class TooltipSectionItemUI : MonoBehaviour
             return;
         }
 
-        TooltipTextStyle.Apply(titleText, TooltipTextStyle.StatusRole(sectionData.statusEffectData), true);
+        TooltipTextStyle.Apply(titleText, sectionData.sectionType == TooltipSectionType.Ability ? TooltipTextRole.Title : TooltipTextStyle.StatusRole(sectionData.statusEffectData), true);
         TooltipTextStyle.Apply(categoryText, TooltipTextRole.Secondary);
         TooltipTextStyle.Apply(mainDescriptionText, TooltipTextRole.Body);
         gameObject.SetActive(true);
@@ -55,6 +55,7 @@ public class TooltipSectionItemUI : MonoBehaviour
             mainDescriptionText.text = sectionData.sectionDescription;
         }
 
+        if (recompositionTypography) PrepareRecompositionHeader();
         ResizeToDescription();
 
         if (iconImage != null)
@@ -63,6 +64,37 @@ public class TooltipSectionItemUI : MonoBehaviour
             iconImage.enabled = sectionData.sectionIcon != null;
             iconImage.gameObject.SetActive(sectionData.sectionIcon != null);
         }
+    }
+    private bool recompositionHeaderPrepared;
+    // Only newly created recomposition sections use the spacious two-row header.
+    private void PrepareRecompositionHeader()
+    {
+        if (recompositionHeaderPrepared || titleText == null) return;
+        recompositionHeaderPrepared = true;
+        var root = transform as RectTransform;
+        var background = layoutBackgroundImage != null ? layoutBackgroundImage : transform.Find("Background")?.GetComponent<Image>();
+        const float extra = 50f;
+        root.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, root.rect.height + extra);
+        foreach (Transform child in transform)
+        {
+            var rect = child as RectTransform;
+            if (rect != null) rect.anchoredPosition += Vector2.up * extra * (1f - rect.anchorMax.y);
+        }
+        if (background != null)
+        {
+            var rect = background.rectTransform;
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.rect.height + extra);
+            rect.anchoredPosition -= Vector2.up * extra * (1f - rect.pivot.y);
+        }
+        if (categoryText != null) categoryText.rectTransform.anchoredPosition -= Vector2.up * extra;
+        if (mainDescriptionText != null) mainDescriptionText.rectTransform.anchoredPosition -= Vector2.up * extra;
+        var title = titleText.rectTransform;
+        // Keep the icon and left edge; use the space previously occupied by the category.
+        float width = mainDescriptionText != null ? mainDescriptionText.rectTransform.rect.xMax + mainDescriptionText.rectTransform.anchoredPosition.x - (title.anchoredPosition.x + title.rect.xMin) : title.rect.width;
+        float delta = Mathf.Max(0f, width - title.rect.width);
+        title.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, title.rect.width + delta);
+        title.anchoredPosition += Vector2.right * delta * title.pivot.x;
+        new RecompositionTextSizing(titleText).Apply();
     }
     private float authoredHeight, authoredTextHeight, authoredBackgroundHeight;
     private Vector2[] authoredChildPositions;

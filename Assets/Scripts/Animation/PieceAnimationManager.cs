@@ -4,7 +4,7 @@ using UnityEngine;
 
 // <변경부분> 기물의 시각적 이동/공격/스킬 생성/방어 연출만 담당하는 매니저
 // 좌표 변경, pieces 배열 변경, 기물 생성/삭제는 PieceManager가 계속 담당한다.
-public class PieceAnimationManager : MonoBehaviour
+public partial class PieceAnimationManager : MonoBehaviour
 {
     [Header("Piece Move Animation")]
     // <변경부분> 기물이 이동할 때 점프 이동하는 시간

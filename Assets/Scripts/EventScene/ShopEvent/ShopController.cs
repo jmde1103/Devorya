@@ -966,6 +966,12 @@ public partial class ShopController : MonoBehaviour
     // 상품 클릭은 이 함수를 직접 호출하지 않는다.
     public void OnPurchaseButtonClicked()
     {
+        if (recompositionButtonOwner != null)
+        {
+            if (purchaseButton != null && purchaseButton.isActiveAndEnabled && purchaseButton.interactable)
+                recompositionButtonOwner.TryConfirmSelection();
+            return;
+        }
         if (IsSelling) { ConfirmSale(); return; }
 
         // <변경부분>
@@ -1203,6 +1209,7 @@ public partial class ShopController : MonoBehaviour
     // 같은 상품 재클릭이나 다른 상품 선택 때도 글리치 연출을 재생한다.
     private void UpdatePurchaseButtonState()
     {
+        if (recompositionButtonOwner != null) return;
         if (IsSelling) { RefreshSellButton(); return; }
 
         if (purchaseButton == null)

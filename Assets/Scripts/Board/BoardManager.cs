@@ -216,6 +216,31 @@ public class BoardManager : MonoBehaviour
 
         return tiles[x, y];
     }
+    // 표시용 타일은 기존 배열에 등록하지 않는다. 실제 편성 타일과 같은 프리팹/월드 크기 사용.
+    public Tile CreateDetachedDisplayTile(Vector2Int grid, Vector3 worldPosition, Transform parent, TileType type)
+    {
+        Tile reference = GetTile(0, 0);
+        TileData data = GetTileData(type);
+        if (tilePrefab == null || reference == null || data == null) return null;
+        GameObject obj = Instantiate(tilePrefab);
+        obj.name = $"CandidateTile_{grid.x}_{grid.y}";
+        obj.transform.SetPositionAndRotation(worldPosition, reference.transform.rotation);
+        obj.transform.localScale = reference.transform.lossyScale;
+        obj.transform.SetParent(parent, true);
+        Tile tile = obj.GetComponent<Tile>();
+        if (tile == null) { Destroy(obj); return null; }
+        tile.Initialize(grid.x, grid.y, data);
+        var renderer = obj.GetComponent<SpriteRenderer>() ?? obj.GetComponentInChildren<SpriteRenderer>();
+        var original = reference.GetComponent<SpriteRenderer>() ?? reference.GetComponentInChildren<SpriteRenderer>();
+        if (renderer != null)
+        {
+            if (original != null) renderer.sortingLayerID = original.sortingLayerID;
+            renderer.sortingOrder = -(grid.x + grid.y);
+        }
+        foreach (var collider in obj.GetComponentsInChildren<Collider2D>(true)) collider.enabled = false;
+        return tile;
+    }
+
     public int Width => width; // 보드판 가로 크기 반환
     public int Height => height; // 보드판 가로 크기 반환
 

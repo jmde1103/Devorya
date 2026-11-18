@@ -78,6 +78,7 @@ public class PieceStatusUIController : MonoBehaviour
     // 이름 / 아이콘 / 설명 / Tooltip Section을 찾기 위한 데이터베이스.
     [SerializeField]
     private UniqueSkillDatabase uniqueSkillDatabase;
+    public UniqueSkillDatabase AbilityDatabase => uniqueSkillDatabase;
 
 
     [Header("Status Effect Slots")]

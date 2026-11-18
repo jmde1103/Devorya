@@ -59,6 +59,10 @@ MonoBehaviour:
     m_Key: event.ui.exit
     m_Metadata:
       m_Items: []
+  - m_Id: 11783000000000001
+    m_Key: event.ui.recomposition
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

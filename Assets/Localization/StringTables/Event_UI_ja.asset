@@ -62,6 +62,10 @@ MonoBehaviour:
     m_Localized: "\u9000\u51FA"
     m_Metadata:
       m_Items: []
+  - m_Id: 11783000000000001
+    m_Localized: 再構成
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

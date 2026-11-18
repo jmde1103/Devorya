@@ -17,6 +17,42 @@ public partial class RunStateManager : MonoBehaviour
 {
     public static RunStateManager Instance { get; private set; }
 
+    // 현재 런에서 실제 흡수한 원본 데이터. 편성 저장 및 씬 이동과 독립적으로 유지한다.
+    // 영구 저장이나 Inspector 편집 대상이 아니며, 새 런/런 종료 시에만 비운다.
+    private readonly List<PieceData> absorbedPieceDataList = new List<PieceData>();
+
+    public bool RegisterAbsorbedPiece(PieceData pieceData)
+    {
+        if (pieceData == null || absorbedPieceDataList.Contains(pieceData))
+            return false;
+
+        absorbedPieceDataList.Add(pieceData);
+        return true;
+    }
+
+    // 복사본의 읽기 전용 래퍼를 반환하므로 외부에서 내부 목록을 변경할 수 없다.
+    public IReadOnlyList<PieceData> GetAbsorbedPieces()
+    {
+        return new List<PieceData>(absorbedPieceDataList).AsReadOnly();
+    }
+
+    public IReadOnlyList<PieceData> GetAbsorbedPieces(PieceType pieceType)
+    {
+        var result = new List<PieceData>();
+        foreach (PieceData data in absorbedPieceDataList)
+        {
+            if (data != null && data.pieceType == pieceType)
+                result.Add(data);
+        }
+        return result.AsReadOnly();
+    }
+
+    public void ClearAbsorbedPieces()
+    {
+        absorbedPieceDataList.Clear();
+    }
+
+
 
     // <변경부분>
     // Run 전체에서 공통으로 사용하는
@@ -1016,6 +1052,7 @@ public partial class RunStateManager : MonoBehaviour
     // <변경부분> 새 런 시작 또는 디버그 초기화용
     public void ClearRunState()
     {
+        ClearAbsorbedPieces();
         ClearTransientRunState();
         ResetEndDestination();
         // <변경부분>

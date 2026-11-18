@@ -11,7 +11,8 @@ using UnityEngine.Localization;
 // 직접 문자열 입력 방식이므로 완전히 폐기한다.
 public enum TooltipSectionType
 {
-    StatusEffect = 1
+    StatusEffect = 1,
+    [InspectorName("능력")] Ability = 2
 }
 
 [System.Serializable]
@@ -109,6 +110,7 @@ public class TooltipSectionData
 // 기존 SkillData / ItemData / RelicData / StatusEffectData의 이름, 설명, 아이콘을 재사용하기 위해 만든 런타임 데이터
 public class TooltipViewData
 {
+    public bool useRecompositionTypography;
     public int? shopSellPrice;
     public TooltipViewData WithShopPrice(int price) { shopSellPrice = Mathf.Max(0, price); return this; }
 

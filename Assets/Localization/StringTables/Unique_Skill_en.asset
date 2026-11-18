@@ -77,9 +77,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 86056217743361
-    m_Localized: Fuses with 2 adjacent allied pieces of the same type and randomly
-      promotes into a [Knight], [Bishop], or [Rook] while retaining its race. Gains
-      [Attack Disabled] for 1 turn.
+    m_Localized: 'Fuses with 2 adjacent allied pieces of the same type and randomly
+      promotes.
+
+      Gains [Attack Disabled] for 1 turn.'
     m_Metadata:
       m_Items:
       - rid: 1511529955060351070

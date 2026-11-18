@@ -64,6 +64,26 @@ MonoBehaviour:
       \uB2A5\uB825\uC744 \uC790\uC2E0\uC758 \uAC83\uC73C\uB85C \uB9CC\uB4E0\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 25259526169694208
+    m_Localized: "\uC824\uB8E8 [\uD3F0]"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526274551808
+    m_Localized: "\uC824\uB8E8 [\uB098\uC774\uD2B8]"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526299717632
+    m_Localized: "\uC824\uB8E8 [\uBE44\uC20D]"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526316494848
+    m_Localized: "\uC824\uB8E8 [\uB8E9]"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526337466368
+    m_Localized: "\uC824\uB8E8 [\uD0B9]"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

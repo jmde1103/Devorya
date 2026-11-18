@@ -63,6 +63,10 @@ MonoBehaviour:
     m_Localized: "\uB098\uAC00\uAE30"
     m_Metadata:
       m_Items: []
+  - m_Id: 11783000000000001
+    m_Localized: 재구성
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

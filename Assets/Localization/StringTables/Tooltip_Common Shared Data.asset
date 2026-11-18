@@ -39,6 +39,38 @@ MonoBehaviour:
     m_Key: tooltip.status.remaining_turn
     m_Metadata:
       m_Items: []
+  - m_Id: 25764357003153408
+    m_Key: tooltip.value.none
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764357074456576
+    m_Key: tooltip.piece_type.pawn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764357074456577
+    m_Key: tooltip.piece_type.knight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764357074456578
+    m_Key: tooltip.piece_type.bishop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764357074456579
+    m_Key: tooltip.piece_type.rook
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764357074456580
+    m_Key: tooltip.piece_type.queen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764357074456581
+    m_Key: tooltip.piece_type.king
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25764993836912640
+    m_Key: tooltip.piece_type.special
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

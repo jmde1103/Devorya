@@ -61,6 +61,26 @@ MonoBehaviour:
       living beings, taking their forms and abilities as its own.'
     m_Metadata:
       m_Items: []
+  - m_Id: 25259526169694208
+    m_Localized: 'Jellu [Pawn]'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526274551808
+    m_Localized: 'Jellu [Knight]'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526299717632
+    m_Localized: 'Jellu [Bishop]'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526316494848
+    m_Localized: 'Jellu [Rook]'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526337466368
+    m_Localized: 'Jellu [King]'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
