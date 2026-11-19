@@ -16,13 +16,27 @@ public enum RunDayNightState
 public partial class RunStateManager : MonoBehaviour
 {
     public static RunStateManager Instance { get; private set; }
-
     // 현재 런에서 실제 흡수한 원본 데이터. 편성 저장 및 씬 이동과 독립적으로 유지한다.
     // 영구 저장이나 Inspector 편집 대상이 아니며, 새 런/런 종료 시에만 비운다.
     private readonly List<PieceData> absorbedPieceDataList = new List<PieceData>();
 
+    // <변경부분> 현재 전투 스테이지에서 신규 흡수 도감 기록을 허용할지 여부.
+    // 기존에 수집한 도감 목록은 지우지 않으며, 씬을 떠나면 true로 복구한다.
+    private bool isAbsorbedPieceCatalogRecordingEnabled = true;
+
+    // <변경부분> StageBattleData의 옵션을 런의 도감 등록 지점에 전달한다.
+    public void SetAbsorbedPieceCatalogRecordingEnabled(bool enabled)
+    {
+        isAbsorbedPieceCatalogRecordingEnabled = enabled;
+    }
+
     public bool RegisterAbsorbedPiece(PieceData pieceData)
     {
+        // <변경부분> 이 전투에서 도감 저장을 금지했다면 신규 기록만 생략한다.
+        // 실제 흡수·기물 변경·기존 도감 데이터에는 영향을 주지 않는다.
+        if (isAbsorbedPieceCatalogRecordingEnabled == false)
+            return false;
+
         if (pieceData == null || absorbedPieceDataList.Contains(pieceData))
             return false;
 
@@ -51,7 +65,6 @@ public partial class RunStateManager : MonoBehaviour
     {
         absorbedPieceDataList.Clear();
     }
-
 
 
     // <변경부분>
@@ -1053,6 +1066,10 @@ public partial class RunStateManager : MonoBehaviour
     public void ClearRunState()
     {
         ClearAbsorbedPieces();
+
+        // <변경부분> 새 런에서는 이전 스테이지의 도감 기록 제한을 해제한다.
+        isAbsorbedPieceCatalogRecordingEnabled = true;
+
         ClearTransientRunState();
         ResetEndDestination();
         // <변경부분>

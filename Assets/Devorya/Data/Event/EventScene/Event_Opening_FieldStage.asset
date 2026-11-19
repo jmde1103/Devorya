@@ -27,6 +27,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -98,6 +108,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 0.4
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -136,6 +147,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uD0C0\uC6CC"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: 6feadcfef701e23469c68a8a7c6686ed, type: 2}
     spawnActorTeam: 0
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -207,6 +228,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -245,6 +267,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -316,6 +348,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 5
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -354,6 +387,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -425,6 +468,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.5
     screenShakeStrength: 0.03
     screenShakeContinuous: 1
@@ -463,6 +507,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -534,6 +588,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -572,6 +627,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -643,6 +708,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0
     screenShakeStrength: 0
     screenShakeContinuous: 0
@@ -681,6 +747,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -752,6 +828,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -790,6 +867,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -861,6 +948,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -899,6 +987,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -970,6 +1068,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1008,6 +1107,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1079,6 +1188,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1117,6 +1227,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1188,6 +1308,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1226,6 +1347,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1297,6 +1428,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1335,6 +1467,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1406,6 +1548,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1444,6 +1587,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1515,6 +1668,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1553,6 +1707,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1624,6 +1788,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1662,6 +1827,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uB370\uBCF4\uB9AC\uC544"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: 2c62546a259632c41a68e786457131c4, type: 2}
     spawnActorTeam: 1
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1733,6 +1908,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1794,6 +1970,16 @@ MonoBehaviour:
         m_LocalVariables: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1865,6 +2051,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -1903,6 +2090,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -1974,6 +2171,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2012,6 +2210,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2083,6 +2291,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2121,6 +2330,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E81"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: 0220a97f1deaf484eacb643035eacde8, type: 2}
     spawnActorTeam: 1
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2192,6 +2411,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2230,6 +2450,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2301,6 +2531,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2339,6 +2570,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2410,6 +2651,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2448,6 +2690,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2519,6 +2771,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2557,6 +2810,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E82"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: 74106c07bbc440343a2dab513da44ddf, type: 2}
     spawnActorTeam: 0
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2628,6 +2891,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2666,6 +2930,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E82"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2737,6 +3011,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2775,6 +3050,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2846,6 +3131,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2884,6 +3170,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -2955,6 +3251,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -2993,6 +3290,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3064,6 +3371,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3102,6 +3410,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: "\uC824\uB8E83"
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 11400000, guid: a450123fb22e0a742a57cb8300707e0c, type: 2}
     spawnActorTeam: 0
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3173,6 +3491,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3211,6 +3530,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3282,6 +3611,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3320,6 +3650,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3391,6 +3731,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.6
     cameraShotDuration: 1
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3429,6 +3770,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3500,6 +3851,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3540,15 +3892,25 @@ MonoBehaviour:
     - localizationId: page_d4d32600
       localizedText:
         m_TableReference:
-          m_TableCollectionName: 
+          m_TableCollectionName: GUID:1d040faacacfa1248aff1aa7194ad8f0
         m_TableEntryReference:
-          m_KeyId: 0
+          m_KeyId: 15489509534339072
           m_Key: 
         m_FallbackState: 0
         m_WaitForCompletion: 0
         m_LocalVariables: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3620,6 +3982,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3658,6 +4021,16 @@ MonoBehaviour:
     dialogueLocalizationPages: []
     dialogueChoices: []
     spawnActorId: 
+    spawnActorIsShopkeeper: 0
+    merchantClickDialogues: []
+    merchantClickDuration: 1.5
+    merchantClickTypingSpeed: 30
+    merchantClickEmphasis: 0
+    merchantClickEmphasisStrength: 1
+    merchantSaleButtonPositionOffset: {x: 0, y: 0}
+    selectedSaleItemIconYOffset: 0.65
+    selectedSaleItemIconScale: 1.15
+    spawnActorSpineOverride: {fileID: 0}
     spawnActorPieceData: {fileID: 0}
     spawnActorTeam: 2
     spawnActorUseAbsorbedPlayerVisual: 0
@@ -3729,6 +4102,7 @@ MonoBehaviour:
     cameraShotWorldScale: 1.2
     cameraShotDuration: 0.6
     cameraShotWaitForComplete: 1
+    formationContinueStepsWhileOpen: 0
     screenShakeDuration: 0.12
     screenShakeStrength: 0.08
     screenShakeContinuous: 0
@@ -3763,6 +4137,7 @@ MonoBehaviour:
   clearCurrentWorldMapNodeOnCompletion: 0
   completionSceneName: 
   completionCutsceneData: {fileID: 0}
+  completionEventSceneData: {fileID: 0}
   completionWorldMapEventData: {fileID: 0}
   references:
     version: 2

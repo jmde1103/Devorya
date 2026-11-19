@@ -188,7 +188,19 @@ public class StageBattleData : ScriptableObject
     // false인 스테이지에서는 튜토리얼용 SpawnPiece,
     // 흡수, 사망, 스킬 변화 등이 기존 런의 기물 상태를 덮어쓰지 않는다.
     public bool savePlayerPiecesToRunState =
-        true;
+     true;
+
+    [Header("Absorption Catalog")]
+    // <변경부분> 이 스테이지에서 플레이어가 흡수한 적 기물의
+    // 원본 PieceData를 이번 런의 재구성 도감에 새로 등록할지 결정한다.
+    //
+    // ON: 흡수 성공 시 도감에 기록한다. (기존 일반 전투 동작)
+    // OFF: 이번 전투의 신규 도감 기록만 차단한다.
+    //      기존 도감 기록과 실제 기물 흡수 결과는 유지한다.
+    // 플레이어 기물 상태 저장 옵션과는 독립적으로 동작한다.
+    [InspectorName("이 전투의 흡수 데이터를 도감에 기록")]
+    [Tooltip("ON: 이 전투에서 흡수한 기물을 이번 런의 재구성 도감에 기록합니다.\nOFF: 이 전투에서는 새 도감 기록을 남기지 않습니다. 기존 도감과 실제 흡수 효과는 유지됩니다.")]
+    public bool saveAbsorbedPiecesToCatalog = true;
 
     [Header("Enemy Formation")]
     // <변경부분> 이 스테이지에서 사용할 적 기물 편성 데이터

@@ -66,6 +66,20 @@ MonoBehaviour:
     m_Localized: Recompose
     m_Metadata:
       m_Items: []
+  - m_Id: 14121341297496064
+    m_Localized: Work-in-Progress Evaluation Build
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14121341385576448
+    m_Localized: This is a work-in-progress evaluation build featuring DEVORYA's
+      core combat systems, playable encounters, and event nodes. The full roguelite
+      progression system, sound, and visual effects are still in development.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14121341385576449
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

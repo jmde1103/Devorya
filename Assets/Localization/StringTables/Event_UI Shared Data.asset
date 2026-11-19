@@ -63,6 +63,18 @@ MonoBehaviour:
     m_Key: event.ui.recomposition
     m_Metadata:
       m_Items: []
+  - m_Id: 14121341297496064
+    m_Key: title.evaluation.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14121341385576448
+    m_Key: title.evaluation.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14121341385576449
+    m_Key: title.evaluation.continue
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
