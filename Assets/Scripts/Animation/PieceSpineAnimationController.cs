@@ -40,6 +40,15 @@ public class PieceSpineAnimationController : MonoBehaviour
     // <변경부분> 이전 코루틴이 나중에 끝나면서 현재 애니메이션을 덮어쓰지 못하게 막는 버전값
     private int animationVersion;
 
+    public bool HasRecompositionAnimations(bool attack)
+    {
+        var skeleton = skeletonAnimation != null ? skeletonAnimation : GetComponentInChildren<SkeletonAnimation>(true);
+        var data = skeleton != null && skeleton.skeletonDataAsset != null ? skeleton.skeletonDataAsset.GetSkeletonData(true) : null;
+        return data != null && data.FindAnimation(idleAnimation) != null &&
+            (attack ? data.FindAnimation(absorbAnimation) != null && data.FindAnimation(downAbsorbAnimation) != null
+                    : data.FindAnimation(bornAnimation) != null);
+    }
+
     private void Awake()
     {
         // 인스펙터 연결이 비어 있으면 현재 오브젝트 또는 자식에서 자동 탐색

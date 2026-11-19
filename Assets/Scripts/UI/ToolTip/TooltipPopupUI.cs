@@ -7,6 +7,10 @@ using UnityEngine.UI;
 public partial class TooltipPopupUI : MonoBehaviour
 {
     public static TooltipPopupUI Instance { get; private set; }
+    private TooltipViewData currentView;
+    private RecompositionTextSizing titleSizing;
+    public bool IsShowing(TooltipViewData data) => data != null && currentView == data && popupRoot != null && popupRoot.gameObject.activeInHierarchy;
+    public void HideIfShowing(TooltipViewData data) { if (IsShowing(data)) Hide(); }
 
     [Header("Root")]
     [SerializeField] private Canvas rootCanvas;
@@ -206,6 +210,13 @@ public partial class TooltipPopupUI : MonoBehaviour
             return;
         }
 
+        currentView = tooltipViewData;
+        if (titleText != null)
+        {
+            if (titleSizing == null) titleSizing = new RecompositionTextSizing(titleText);
+            titleSizing.Restore();
+            if (tooltipViewData.useRecompositionTypography) titleSizing.Apply();
+        }
         TooltipTextStyle.Apply(titleText, TooltipTextRole.Title, true);
         TooltipTextStyle.Apply(categoryText, TooltipTextRole.Secondary);
         TooltipTextStyle.Apply(levelText, TooltipTextRole.Secondary);
@@ -307,6 +318,8 @@ public partial class TooltipPopupUI : MonoBehaviour
             popupOffsetYPerSection
         );
 
+        DisableTooltipRaycastTargets();
+
         // 위치 계산이 모두 끝난 뒤 오픈 애니메이션을 실행한다.
         if (popupOpenAnimator != null)
         {
@@ -317,6 +330,8 @@ public partial class TooltipPopupUI : MonoBehaviour
     // <변경부분> 팝업을 숨김
     public void Hide()
     {
+        currentView = null;
+        titleSizing?.Restore();
         // <변경부분> 다음 Tooltip에서 이전 Section 개수가
         // 위치 계산에 남지 않도록 초기화한다.
         currentSectionCount = 0;
@@ -406,7 +421,7 @@ public partial class TooltipPopupUI : MonoBehaviour
                 );
 
             itemUI.Refresh(
-                sectionData
+                sectionData, currentView != null && currentView.useRecompositionTypography
             );
         }
 
@@ -610,6 +625,8 @@ public partial class TooltipPopupUI : MonoBehaviour
     // <변경부분> SectionType에 맞는 Section 프리팹을 찾아 반환
     private TooltipSectionItemUI GetSectionPrefab(TooltipSectionType sectionType)
     {
+        // Ability information uses the existing icon/title/body section layout.
+        if (sectionType == TooltipSectionType.Ability) sectionType = TooltipSectionType.StatusEffect;
         if (sectionPrefabs != null)
         {
             for (int i = 0; i < sectionPrefabs.Length; i++)

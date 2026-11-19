@@ -55,6 +55,26 @@ MonoBehaviour:
     m_Key: piece.devorya king.description
     m_Metadata:
       m_Items: []
+  - m_Id: 25259526169694208
+    m_Key: piece.jellu pawn.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526274551808
+    m_Key: piece.jellu knight.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526299717632
+    m_Key: piece.jellu bishop.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526316494848
+    m_Key: piece.jellu rook.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25259526337466368
+    m_Key: piece.jellu king.name
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

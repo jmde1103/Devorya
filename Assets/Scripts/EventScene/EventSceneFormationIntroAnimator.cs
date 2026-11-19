@@ -639,7 +639,7 @@ public class EventSceneFormationIntroAnimator : MonoBehaviour
     // <변경부분>
     // 원래 Sprite / Spine 알파와 Transform 로컬 좌표를 기록하고,
     // 애니메이션 중에만 임시로 변경한다.
-    private sealed class FadeVisual
+    internal sealed class FadeVisual
     {
         private readonly Transform root;
         private readonly Vector3 originalLocalPosition;

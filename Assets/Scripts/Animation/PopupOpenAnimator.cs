@@ -8,6 +8,17 @@ public class PopupOpenAnimator : MonoBehaviour
     [Header("Data")]
     // <변경부분> 이 팝업에 적용할 오픈 애니메이션 데이터
     [SerializeField] private PopupOpenAnimationData animationData;
+    public PopupOpenAnimationData AnimationData => animationData;
+
+    // 기존 팝업과 월드 후보 표시가 동일한 알파 점멸 곡선을 사용한다.
+    public static float EvaluateFlickerAlpha(PopupOpenAnimationData data, float t)
+    {
+        float baseAlpha = Mathf.Lerp(data.startAlpha, data.endAlpha, t);
+        int flickerIndex = Mathf.FloorToInt(t * data.flickerCount);
+        bool low = data.useAlphaFlicker && flickerIndex % 2 == 0 && t < 0.9f;
+        return low ? Mathf.Min(baseAlpha, data.flickerMinAlpha) : baseAlpha;
+    }
+
 
     [Header("Target")]
     // <변경부분> 실제로 흔들고 스케일을 조정할 RectTransform
@@ -188,21 +199,7 @@ public class PopupOpenAnimator : MonoBehaviour
             );
 
             // 알파 깜빡임
-            if (animationData.useAlphaFlicker)
-            {
-                float baseAlpha = Mathf.Lerp(animationData.startAlpha, animationData.endAlpha, t);
-
-                int flickerIndex = Mathf.FloorToInt(t * animationData.flickerCount);
-                bool isFlickerLow = flickerIndex % 2 == 0 && t < 0.9f;
-
-                canvasGroup.alpha = isFlickerLow
-                    ? Mathf.Min(baseAlpha, animationData.flickerMinAlpha)
-                    : baseAlpha;
-            }
-            else
-            {
-                canvasGroup.alpha = Mathf.Lerp(animationData.startAlpha, animationData.endAlpha, t);
-            }
+            canvasGroup.alpha = EvaluateFlickerAlpha(animationData, t);
 
             // 위치 지지직 흔들림
             if (animationData.usePositionJitter)

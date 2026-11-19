@@ -916,6 +916,8 @@ public partial class PieceManager : MonoBehaviour
             return;
         }
 
+        PieceData absorbedData = targetPiece.CurrentPieceData;
+
         // 흡수자는 Jellu 뒷면 외형 상태로 변경
         absorber.SetAbsorbedJelluVisual(true);
 
@@ -945,6 +947,8 @@ public partial class PieceManager : MonoBehaviour
             visualController
                 .PreparePlayerColorAdjustmentTransition();
         }
+
+        RecordSuccessfulPlayerAbsorption(absorber, targetPiece, absorbedData);
     }
 
     // <변경부분> King 전용 흡수 처리 함수
@@ -964,13 +968,27 @@ public partial class PieceManager : MonoBehaviour
             return;
         }
 
+        PieceData absorbedData = targetPiece.CurrentPieceData;
+
         // <변경부분> King은 대상의 타입/고유스킬/외형을 복사하지 않고 일반스킬만 흡수
         absorber.AbsorbGeneralSkillsFrom(targetPiece);
 
         // <변경부분> King의 외형과 타입 아이콘은 그대로 유지하되, 혹시 모를 UI 갱신을 위해 현재 상태 재적용
         RefreshPieceVisual(absorber);
 
+        RecordSuccessfulPlayerAbsorption(absorber, targetPiece, absorbedData);
+
         Debug.Log($"King 일반스킬 흡수 완료: 대상 {targetPiece.PieceType}");
+    }
+
+    // 전투 판정이 끝난 두 흡수 성공 경로에서만 호출한다. 실패/방어/일반 공격은 기록하지 않는다.
+    private static void RecordSuccessfulPlayerAbsorption(Piece absorber, Piece targetPiece, PieceData data)
+    {
+        if (absorber.Team != PieceTeam.Player || absorber == targetPiece ||
+            targetPiece.Team == PieceTeam.Player || RunStateManager.Instance == null)
+            return;
+
+        RunStateManager.Instance.RegisterAbsorbedPiece(data);
     }
 
     // <변경부분> PieceData 기준으로 필드 스프라이트, 스테이터스 UI, 타입 아이콘 위치를 한 번에 적용하는 함수

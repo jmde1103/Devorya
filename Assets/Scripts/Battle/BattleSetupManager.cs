@@ -79,32 +79,40 @@ public class BattleSetupManager : MonoBehaviour
     // <변경부분> 이번 전투에서 시간 강제 변경을 적용했는지 기록한다.
     private bool hasAppliedStageEndTimerOverride = false;
 
+    // <변경부분> 현재 스테이지의 흡수 도감 저장 정책을 RunState에 적용했는지 기록한다.
+    private bool hasAppliedAbsorptionCatalogSetting = false;
+
     private void Start()
     {
         SetupBattle();
     }
 
-    // <변경부분> 실제로 전투 씬을 떠날 때 시간 설정을 종료한다.
+    // <변경부분> 전투 씬을 떠날 때 스테이지 전용 설정을 종료한다.
     //
     // 전투가 승리/패배로 끝났더라도
     // 보상 팝업이나 결과 연출 중에는 현재 시간대를 유지한다.
     //
-    // Scene 이동으로 BattleSetupManager가 제거되는 시점에
-    // StageBattleData에서 설정한 복구/유지 방식을 적용한다.
+    // Scene 이동 시 엔드타이머 설정은 기존 규칙에 따라 종료하고,
+    // 흡수 도감 기록 제한은 다음 전투에 남지 않도록 해제한다.
     private void OnDestroy()
     {
-        if (hasAppliedStageEndTimerOverride == false)
-        {
-            return;
-        }
-
         if (RunStateManager.Instance != null)
         {
-            RunStateManager.Instance
-                .EndStageEndTimerOverride();
+            if (hasAppliedStageEndTimerOverride)
+            {
+                RunStateManager.Instance
+                    .EndStageEndTimerOverride();
+            }
+
+            if (hasAppliedAbsorptionCatalogSetting)
+            {
+                RunStateManager.Instance
+                    .SetAbsorbedPieceCatalogRecordingEnabled(true);
+            }
         }
 
         hasAppliedStageEndTimerOverride = false;
+        hasAppliedAbsorptionCatalogSetting = false;
     }
 
     // <변경부분>
@@ -242,6 +250,27 @@ battleEndFlowController == null)
             );
 
             return;
+        }
+
+        // <변경부분> 이 스테이지에서 흡수한 원본 PieceData를
+        // 런의 재구성 도감에 기록할지 여부를 전투 시작 전에 적용한다.
+        // 이전 전투에서 기록한 도감 데이터는 변경하지 않는다.
+        if (RunStateManager.Instance != null)
+        {
+            RunStateManager.Instance
+                .SetAbsorbedPieceCatalogRecordingEnabled(
+                    stageBattleData.saveAbsorbedPiecesToCatalog
+                );
+
+            hasAppliedAbsorptionCatalogSetting = true;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "스테이지 흡수 도감 저장 설정 적용 실패: " +
+                "RunStateManager가 존재하지 않습니다.",
+                this
+            );
         }
 
         // <변경부분> 스테이지 데이터에서 시간 강제 변경을 요청했다면

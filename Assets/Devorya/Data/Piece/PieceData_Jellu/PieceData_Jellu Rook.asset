@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: PieceData_Jellu Rook
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Jellu Rook
-  displayName: 
+  displayName: "\uC824\uB8E8 [\uB8E9]"
   description: 
   pieceType: 1
   uniqueSkill: 9
   canMove: 1
   localizedDisplayName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 25259526316494848
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0

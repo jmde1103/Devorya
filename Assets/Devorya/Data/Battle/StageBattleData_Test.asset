@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7034c8236f08f1b4cb3ae612a1af3f9a, type: 3}
+  m_Name: StageBattleData_Test
+  m_EditorClassIdentifier: Assembly-CSharp::StageBattleData
+  stageName: "\uD14C\uC2A4\uD2B8"
+  description: 
+  eventSequenceData: {fileID: 11400000, guid: 8382ae96b94b3e346851a5dbd3ab5d2b, type: 2}
+  initialTypeIconDisplayMode: 0
+  hideBattleUIOnStart: 1
+  startAnnouncementType: 0
+  backgroundMapData: {fileID: 11400000, guid: 9d3487eb836a20b4db4dab527cb2b6be, type: 2}
+  forceEndTimerOnStart: 0
+  forcedEndTimerTick: 18
+  freezeEndTimerDuringBattle: 1
+  endTimerExitMode: 0
+  checkerTileTypeA: 4
+  checkerTileTypeB: 5
+  playerDefeatCondition: 0
+  enemyDefeatCondition: 0
+  playerFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
+  useRunStatePlayerPieces: 1
+  savePlayerPiecesToRunState: 1
+  enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
+  battleRewardData: {fileID: 0}
+  victorySceneName: WorldMapScene
+  victoryCutsceneData: {fileID: 0}
+  victoryWorldMapEventData: {fileID: 0}
+  enemyUniqueSkillUseChance: 100
+  enemyMaxUniqueSkillUsesPerTurn: 1
+  enemyGeneralSkillGrantRules: []

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnvironmentVisualProfile
   globalAmbient:
     enabled: 1
-    color: {r: 0.31806487, g: 0.38490954, b: 0.54088044, a: 1}
-    intensity: 0.3
+    color: {r: 1, g: 0.9882353, b: 0.83137256, a: 1}
+    intensity: 0.75
   characterFill:
     enabled: 1
-    color: {r: 1, g: 0.79607844, b: 0.8235294, a: 1}
-    intensity: 0.3
+    color: {r: 0.88993704, g: 0.95839995, b: 1, a: 1}
+    intensity: 0.58
     falloffIntensity: 0.5
     localPosition: {x: 0, y: 0, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
@@ -40,7 +40,7 @@ MonoBehaviour:
     outerAngle: 360
   skyFill:
     enabled: 1
-    color: {r: 0.7152625, g: 0.6139788, b: 0.9811321, a: 1}
+    color: {r: 0.9372549, g: 0.91764706, b: 0.9882353, a: 1}
     intensity: 1
     falloffIntensity: 0.53
     localPosition: {x: -8.01, y: -5.94, z: 0}

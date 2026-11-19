@@ -20,6 +20,10 @@ MonoBehaviour:
   hideBattleUIOnStart: 1
   startAnnouncementType: 2
   backgroundMapData: {fileID: 11400000, guid: 9d3487eb836a20b4db4dab527cb2b6be, type: 2}
+  forceEndTimerOnStart: 0
+  forcedEndTimerTick: 18
+  freezeEndTimerDuringBattle: 1
+  endTimerExitMode: 0
   checkerTileTypeA: 4
   checkerTileTypeB: 5
   playerDefeatCondition: 2
@@ -27,9 +31,12 @@ MonoBehaviour:
   playerFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   useRunStatePlayerPieces: 0
   savePlayerPiecesToRunState: 0
+  saveAbsorbedPiecesToCatalog: 0
   enemyFormationData: {fileID: 11400000, guid: 9e111b7b96c73834ea0cbd4f206095b3, type: 2}
   battleRewardData: {fileID: 11400000, guid: 14a8e5fabe1ccae43aef36c3ccc3dc4a, type: 2}
   victorySceneName: WorldMapScene
   victoryCutsceneData: {fileID: 0}
+  victoryWorldMapEventData: {fileID: 0}
   enemyUniqueSkillUseChance: 0
+  enemyMaxUniqueSkillUsesPerTurn: 1
   enemyGeneralSkillGrantRules: []

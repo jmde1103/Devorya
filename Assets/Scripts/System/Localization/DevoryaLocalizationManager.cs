@@ -27,6 +27,20 @@ public class DevoryaLocalizationManager : MonoBehaviour
     private const string LanguagePreferenceKey =
         "Devorya.Language";
 
+    // 평가판은 실행 후 최초 타이틀에서만 영어를 우선하며 저장된 선택은 덮어쓰지 않는다.
+    private static bool initialTitleLanguageApplied;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetTitleLanguageSession() { initialTitleLanguageApplied = false; }
+
+    public IEnumerator InitializeFirstTitleLanguage()
+    {
+        while (!isInitialized) yield return null;
+        if (initialTitleLanguageApplied) yield break;
+        ApplyLocaleByCode("en", false);
+        initialTitleLanguageApplied = true;
+    }
+
     private bool isInitialized = false;
 
     public bool IsInitialized =>

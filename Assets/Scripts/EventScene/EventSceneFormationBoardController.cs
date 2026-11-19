@@ -185,6 +185,48 @@ public class EventSceneFormationBoardController : MonoBehaviour
         formationIntroAnimator.IsPlaying;
 
     public BoardManager BoardManager => boardManager;
+    public Piece SelectedFormationPiece => selectedFormationPiece;
+    private bool recompositionLocked, savedExitInteractable, savedTypeInteractable;
+    public PieceManager RecompositionPieceManager => pieceManager;
+    public void SetRecompositionLock(bool value)
+    {
+        if (recompositionLocked == value) return;
+        recompositionLocked=value;
+        if(value)
+        {
+            savedExitInteractable=exitFormationButton!=null && exitFormationButton.interactable;
+            savedTypeInteractable=typeIconButton!=null && typeIconButton.interactable;
+            pcClickCandidate=false;ResetFormationTouchInput();
+        }
+        if(exitFormationButton!=null)exitFormationButton.interactable=value?false:savedExitInteractable;
+        if(typeIconButton!=null)typeIconButton.interactable=value?false:savedTypeInteractable;
+    }
+    public void RefreshAfterRecomposition()
+    {
+        if(!isFormationOpen || selectedFormationPiece==null)return;
+        if(playerStatusUIController!=null)playerStatusUIController.Refresh(selectedFormationPiece);
+        RefreshRecompositionCandidates();RefreshFormationTypeIconVisuals();
+    }
+
+
+    [Header("재구성 후보 표시")]
+    [SerializeField, InspectorName("후보 보드 컨트롤러 (비어 있으면 자동 연결)")]
+    private EventSceneRecompositionCandidateController recompositionCandidates;
+    [SerializeField, Min(0f), InspectorName("후보 선택 이동 시간")]
+    private float recompositionSelectionMoveDuration = .35f;
+
+    private void RefreshRecompositionCandidates()
+    {
+        if (recompositionCandidates == null)
+            recompositionCandidates = GetComponent<EventSceneRecompositionCandidateController>();
+        if (recompositionCandidates == null)
+            recompositionCandidates = gameObject.AddComponent<EventSceneRecompositionCandidateController>();
+        recompositionCandidates.Configure(this, sharedShopController);
+        recompositionCandidates.SetSelectionMoveDuration(recompositionSelectionMoveDuration);
+        recompositionCandidates.SetTypeIconsVisible(typeIconDisplayMode == TypeIconDisplayMode.All);
+        recompositionCandidates.Show(selectedFormationPiece, boardManager, pieceManager);
+    }
+
 
     // <변경부분>
     // 편성 입력의 임시 진단 로그.
@@ -228,6 +270,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 그대로 담당한다.
     private void Update()
     {
+        if (recompositionLocked) return;
         if (!isFormationOpen ||
             formationBoardRoot == null ||
             !formationBoardRoot.activeInHierarchy)
@@ -257,6 +300,13 @@ public class EventSceneFormationBoardController : MonoBehaviour
             {
                 typeIconButton.interactable = true;
             }
+        }
+
+        if (recompositionCandidates != null)
+        {
+            Camera inputCamera = pixelCameraController != null ? pixelCameraController.GetComponent<Camera>() : Camera.main;
+            if (inputCamera == null) inputCamera = Camera.main;
+            if (recompositionCandidates.HandleInput(inputCamera, clickDragThresholdPixels)) return;
         }
 
         if (Application.isMobilePlatform)
@@ -1218,6 +1268,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 실제 편성 보드의 타일인지 확인한다.
     public void SelectFormationTile(Tile tile)
     {
+        if (recompositionLocked) return;
         if (!isFormationOpen ||
             tile == null ||
             boardManager == null)
@@ -1422,6 +1473,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
         // <변경부분>
         // 모든 Player 기물에 선택 타입 아이콘 연출 적용.
         // 배치 이동 불가 기물도 선택 아이콘을 표시한다.
+        RefreshRecompositionCandidates();
         RefreshFormationTypeIconVisuals();
     }
 
@@ -1452,6 +1504,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 플레이어 스테이터스창을 닫는다.
     private void ClearFormationSelection()
     {
+        if (recompositionCandidates != null) recompositionCandidates.ClearCandidates();
         if (selectedFormationPiece != null &&
             pieceManager != null)
         {
@@ -1490,6 +1543,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 기존 BattleScene의 3단계 표시 모드와는 독립적이다.
     public void ToggleFormationTypeIcons()
     {
+        if (recompositionLocked) return;
         if (!isFormationOpen)
         {
             return;
@@ -1537,6 +1591,9 @@ public class EventSceneFormationBoardController : MonoBehaviour
         bool showAllTypeIcons =
             typeIconDisplayMode == TypeIconDisplayMode.All;
 
+        if (recompositionCandidates != null)
+            recompositionCandidates.SetTypeIconsVisible(showAllTypeIcons);
+
         bool hasFocusedTypeIcon =
             selectedFormationPiece != null;
 
@@ -1556,18 +1613,22 @@ public class EventSceneFormationBoardController : MonoBehaviour
                     continue;
                 }
 
+
                 bool isFocusedTypeIcon =
                     piece == selectedFormationPiece;
 
                 // <변경부분>
-                // 선택된 기물을 포함하여
-                // 모든 플레이어 기물에 동일한 표시 상태를 적용한다.
+                // ON 상태에서는 모든 플레이어 기물의 아이콘을 표시한다.
+                // OFF 상태에서는 선택된 기물의 아이콘만 표시한다.
+                //
+                // 선택 해제 시에는 OFF 상태의 모든 아이콘이 숨겨진다.
                 bool shouldShowTypeIcon =
-                    showAllTypeIcons;
+                    showAllTypeIcons ||
+                    isFocusedTypeIcon;
 
                 // <변경부분>
-                // 전체 숨김 상태에서는 선택된 기물도
-                // 타입 아이콘 선택 연출을 실행하지 않는다.
+                // ON/OFF 상태와 관계없이
+                // 선택된 기물의 아이콘에는 기존 강조 연출을 적용한다.
                 bool shouldSelectTypeIcon =
                     shouldShowTypeIcon &&
                     isFocusedTypeIcon;
@@ -1575,6 +1636,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
                 piece.SetTypeIconSelected(
                     shouldSelectTypeIcon
                 );
+
 
                 piece.SetTypeIconSortingPriority(
                     shouldSelectTypeIcon ? 1 : 0
@@ -1830,6 +1892,7 @@ public class EventSceneFormationBoardController : MonoBehaviour
     // 상점 방문 완료 로직은 호출하지 않는다.
     public void ExitFormationToWorldMap()
     {
+        if (recompositionLocked) return;
         if (!isFormationOpen)
         {
             return;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Piece : MonoBehaviour
+public partial class Piece : MonoBehaviour
 {
     public PieceType PieceType { get; private set; } // 현재 기물의 종류
     public PieceTeam Team { get; private set; } // 기물의 소속 진영
