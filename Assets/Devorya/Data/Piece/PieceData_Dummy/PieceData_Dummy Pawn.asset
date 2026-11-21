@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PieceData_Dummy Pawn
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Dummy Pawn
-  displayName: "\uB354\uBBF8 [\uD3F0]"
+  displayName: "\uB354\uBBF8 \uD0C0\uC785-1"
   description: "\uB370\uBCF4\uB9AC\uC544 \uD504\uB85C\uC81D\uD2B8\uC758 \uD504\uB85C\uD1A0\uD0C0\uC785
     \uB354\uBBF8\uB77C \uBD88\uB9AC\uACE0 \uC788\uB2E4.\n\uB354\uBBF8 \uD0C0\uC785
     : [\uD3F0]"
@@ -22,18 +22,18 @@ MonoBehaviour:
   canMove: 1
   localizedDisplayName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 27878809911562240
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   localizedDescription:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 27878809919950848
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -52,14 +52,8 @@ MonoBehaviour:
   enemyStatusSprite: {fileID: 0}
   neutralStatusSprite: {fileID: 0}
   absorbedPlayerStatusSprite: {fileID: 0}
-  playerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  enemyTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  neutralTypeIconPosition: {x: 0, y: 0, z: 0}
-  absorbedPlayerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  playerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
-  enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
-  neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
-  absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  typeIconPosition: {x: 0.23, y: 0.17, z: 0}
+  fieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   speechBubbleOffsetY: 0
   references:
     version: 2

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PieceData_Devorya Pawn
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya Pawn
-  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uD3F0]"
+  displayName: "\uB370\uBCF4\uB9AC\uC544 \uD0C0\uC785-1"
   description: "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4\uCCB4 \uD0C0\uC785 :
     [\uD3F0]"
   pieceType: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PieceData_Jellu Knight
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Jellu Knight
-  displayName: "\uC824\uB8E8 [\uB098\uC774\uD2B8]"
+  displayName: "\uB0A0\uB835\uD55C \uCD08\uB85D \uC824\uB8E8"
   description: 
   pieceType: 2
   uniqueSkill: 6
@@ -29,9 +29,9 @@ MonoBehaviour:
     m_LocalVariables: []
   localizedDescription:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:3da085b14ba58a842a7539fa9d240498
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 27881811208704000
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0

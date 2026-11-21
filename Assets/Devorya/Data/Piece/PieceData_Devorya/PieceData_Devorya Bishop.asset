@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PieceData_Devorya Bishop
   m_EditorClassIdentifier: Assembly-CSharp::PieceData
   pieceId: Devorya Bishop
-  displayName: "\uB370\uBCF4\uB9AC\uC544 [\uBE44\uC20D]"
+  displayName: "\uB370\uBCF4\uB9AC\uC544 \uD0C0\uC785-4"
   description: "\uB370\uBCF4\uB9AC\uC544\uC758 \uBD84\uC5F4\uCCB4 \uD0C0\uC785 :
     [\uBE44\uC20D]"
   pieceType: 3
@@ -51,14 +51,8 @@ MonoBehaviour:
   enemyStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
   neutralStatusSprite: {fileID: 0}
   absorbedPlayerStatusSprite: {fileID: 21300000, guid: 20ea07997887f99418a3db84ee4e9851, type: 3}
-  playerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  enemyTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  neutralTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  absorbedPlayerTypeIconPosition: {x: 0.23, y: 0.17, z: 0}
-  playerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
-  enemyFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
-  neutralFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
-  absorbedPlayerFieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
+  typeIconPosition: {x: 0.23, y: 0.17, z: 0}
+  fieldStatusEffectPosition: {x: -0.1, y: 0.1, z: 0}
   speechBubbleOffsetY: 0
   references:
     version: 2

@@ -75,6 +75,66 @@ MonoBehaviour:
     m_Key: piece.jellu king.name
     m_Metadata:
       m_Items: []
+  - m_Id: 27877197201674240
+    m_Key: piece.dummy bishop.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27877197327503360
+    m_Key: piece.dummy bishop.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27878419933564928
+    m_Key: piece.dummy king.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27878419933564929
+    m_Key: piece.dummy king.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27878622036103168
+    m_Key: piece.dummy knight.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27878622036103169
+    m_Key: piece.dummy knight.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27878809911562240
+    m_Key: piece.dummy pawn.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27878809919950848
+    m_Key: piece.dummy pawn.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27879172458811392
+    m_Key: piece.dummy rook.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27879172458811393
+    m_Key: piece.dummy rook.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27879995272204288
+    m_Key: piece.jellu king.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27880344317988864
+    m_Key: piece.jellu rook.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27880862008348672
+    m_Key: piece.jellu pawn.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27881811208704000
+    m_Key: piece.jellu knight.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27882439599329280
+    m_Key: piece.jellu bishop.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
